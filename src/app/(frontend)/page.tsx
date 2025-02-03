@@ -1,3 +1,9 @@
+'use client'
+
+import { Terminal } from '@xterm/xterm'
+import '@xterm/xterm/css/xterm.css'
+import { useEffect, useRef } from 'react'
+
 import { AppSidebar } from '@/components/app-sidebar'
 import {
   Breadcrumb,
@@ -14,7 +20,18 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 
-export default async function HomePage() {
+export default function HomePage() {
+  const terminal = new Terminal()
+  const terminalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const container = terminalRef.current
+    if (container) {
+      terminal.open(container)
+      terminal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    }
+  }, [])
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -38,13 +55,18 @@ export default async function HomePage() {
             </Breadcrumb>
           </div>
         </header>
+
         <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
           <div className='grid auto-rows-min gap-4 md:grid-cols-3'>
             <div className='aspect-video rounded-xl bg-muted/50' />
             <div className='aspect-video rounded-xl bg-muted/50' />
             <div className='aspect-video rounded-xl bg-muted/50' />
           </div>
-          <div className='min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min' />
+
+          <div
+            ref={terminalRef}
+            className='min-h-[100vh] flex-1 bg-muted/50 md:min-h-min'
+          />
         </div>
       </SidebarInset>
     </SidebarProvider>
