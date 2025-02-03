@@ -1,3 +1,14 @@
 {
-  "recommendations": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "aaron-bond.better-comments",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "dsznajder.es7-react-js-snippets",
+    "eamodio.gitlens",
+    "bradlc.vscode-tailwindcss",
+    "sibiraj-s.vscode-scss-formatter",
+    "streetsidesoftware.code-spell-checker"
+  ]
 }
