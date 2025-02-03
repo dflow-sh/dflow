@@ -1,41 +1,55 @@
 'use client'
 
-import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect, useRef } from 'react'
+import { useState } from 'react'
 
-import { exampleAction } from '@/actions/example'
+import { createDatabaseAction } from '@/actions/createDatabase'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
 
 export default function HomePage() {
-  const terminal = new Terminal()
-  const terminalRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<string[]>([])
+  const [dbName, setDbName] = useState<string>('')
 
-  useEffect(() => {
-    const container = terminalRef.current
-    if (container) {
-      terminal.open(container)
-      terminal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
-    }
-  }, [])
+  const { toast } = useToast()
 
-  const { execute } = useAction(exampleAction, {
+  const { execute: CreateDatabaseAction } = useAction(createDatabaseAction, {
     onSuccess: ({ data }) => {
       console.log({ data })
+      setDbName('')
+    },
+    onError: ({ error }) => {
+      toast({
+        title: 'Failed to create database',
+        description: error.serverError || 'An unknown error occurred',
+      })
     },
   })
 
   return (
     <section className='space-y-6'>
-      <Button
-        onClick={() => {
-          execute({ email: 'dflow@gmail.com', name: 'dflow' })
-        }}>
-        Trigger Example Action
+      <Input
+        value={dbName}
+        onChange={e => {
+          e.preventDefault()
+          setDbName(e.target.value.toLowerCase())
+        }}
+        placeholder='Enter database name'
+      />
+
+      <Button onClick={() => CreateDatabaseAction({ dbName })}>
+        Create DB
       </Button>
 
-      <div ref={terminalRef} className='overflow-y-scroll' />
+      <ul className='bg-gray-900'>
+        {messages.map((msg, i) => (
+          <li key={i} className='container text-gray-100'>
+            {msg}
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

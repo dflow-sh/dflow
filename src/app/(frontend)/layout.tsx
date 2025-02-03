@@ -15,6 +15,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toaster'
 
 import './globals.css'
 
@@ -55,6 +56,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             <main className='px-4'>{children}</main>
           </SidebarInset>
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   )
