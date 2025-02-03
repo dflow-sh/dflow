@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "version": "1.0.0",
+  "name": "dflow",
+  "version": "0.1",
   "description": "A blank template to get started with Payload 3.0",
   "license": "MIT",
   "type": "module",
