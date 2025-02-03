@@ -15,4 +15,6 @@ export const exampleAction = publicClient
     const { email, name } = clientInput
 
     console.log({ email, name })
+
+    return { email, name }
   })

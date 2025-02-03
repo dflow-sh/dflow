@@ -1,12 +1,8 @@
-import configPromise from '@payload-config'
+// import configPromise from '@payload-config';
 import { createSafeActionClient } from 'next-safe-action'
-import { headers } from 'next/headers'
-import { getPayload } from 'payload'
+// import { headers } from 'next/headers';
+// import { getPayload } from 'payload';
 import { z } from 'zod'
-
-const payload = await getPayload({
-  config: configPromise,
-})
 
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
@@ -23,18 +19,22 @@ export const publicClient = createSafeActionClient({
   },
 })
 
-export const protectedClient = publicClient.use(async ({ next, ctx }) => {
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
+// const payload = await getPayload({
+//   config: configPromise,
+// })
 
-  if (!user) {
-    throw new Error('User not authenticated')
-  }
+// export const protectedClient = publicClient.use(async ({ next, ctx }) => {
+//   const headersList = await headers()
+//   const { user } = await payload.auth({ headers: headersList })
 
-  return next({
-    ctx: {
-      ...ctx,
-      user,
-    },
-  })
-})
+//   if (!user) {
+//     throw new Error('User not authenticated')
+//   }
+
+//   return next({
+//     ctx: {
+//       ...ctx,
+//       user,
+//     },
+//   })
+// })
