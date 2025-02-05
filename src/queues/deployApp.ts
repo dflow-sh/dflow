@@ -59,11 +59,11 @@ const worker = new Worker(
       branchName,
       options: {
         onStdout: async chunk => {
-          // await pub.publish('my-channel', chunk.toString())
+          await pub.publish('my-channel', chunk.toString())
           console.log(chunk.toString())
         },
         onStderr: async chunk => {
-          // await pub.publish('my-channel', chunk.toString())
+          await pub.publish('my-channel', chunk.toString())
           console.log(chunk.toString())
         },
       },

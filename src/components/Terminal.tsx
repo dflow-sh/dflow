@@ -18,7 +18,7 @@ const Terminal = ({
         className,
       )}>
       {messages.length
-        ? messages?.map(message => <p key={message}>{message}</p>)
+        ? messages?.map((message, index) => <p key={index}>{message}</p>)
         : null}
     </div>
   )
