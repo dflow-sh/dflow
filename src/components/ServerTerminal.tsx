@@ -10,6 +10,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 
+import TerminalComponent from './Terminal'
+
 const Terminal = () => {
   return (
     <Sheet>
@@ -26,7 +28,7 @@ const Terminal = () => {
           <SheetDescription>All terminal logs appear here</SheetDescription>
         </SheetHeader>
 
-        <Terminal />
+        <TerminalComponent />
       </SheetContent>
     </Sheet>
   )

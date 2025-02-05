@@ -2,6 +2,7 @@
 
 import { dokku } from '../../lib/dokku'
 
+import { pub } from '@/lib/redis'
 import { publicClient } from '@/lib/safe-action'
 
 import { sshConnect } from './../../lib/ssh'
@@ -15,14 +16,53 @@ export const createAppGithubAction = publicClient
   .schema(createAppGithubSchema)
   .action(async ({ clientInput }) => {
     const { appName, repoName, userName, branch } = clientInput
-    const ssh = await sshConnect()
 
+    const ssh = await sshConnect()
     // check if the same app exist, if exist skip this step
-    const dokkuApp = await dokku.apps.create(ssh, appName)
+    const dokkuApp = await dokku.apps.create(ssh, appName, {
+      onStdout: async chunk => {
+        await pub.publish('my-channel', chunk.toString())
+        // console.info(chunk.toString());
+      },
+      onStderr: chunk => {
+        console.info({
+          createAppsLogs: {
+            message: chunk.toString(),
+            type: 'stdout',
+          },
+        })
+      },
+    })
+
+    console.log({ dokkuApp })
+
     // add to db, and get the appID
 
     // assign port (which can be from ui)
-    await dokku.ports.set(ssh, appName, 'http', '80', '3000')
+    const portsResponse = await dokku.ports.set(
+      ssh,
+      appName,
+      'http',
+      '80',
+      '3000',
+      {
+        onStdout: async chunk => {
+          await pub.publish('my-channel', chunk.toString())
+          // console.info(chunk.toString());
+        },
+        onStderr: chunk => {
+          console.info({
+            setPortLogs: {
+              message: chunk.toString(),
+              type: 'stdout',
+            },
+          })
+        },
+      },
+    )
+
+    console.log({ portsResponse })
+
     // assign ssl certificate
     // const sslJob = await enableLetsEncryptQueue.add('enable-letsencrypt', {
     //   appName: appName,

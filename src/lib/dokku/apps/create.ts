@@ -1,13 +1,18 @@
-import { NodeSSH } from 'node-ssh';
+import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-export const create = async (ssh: NodeSSH, appName: string) => {
+export const create = async (
+  ssh: NodeSSH,
+  appName: string,
+  options?: SSHExecOptions,
+) => {
   const resultAppsCreate = await ssh.execCommand(
     `dokku apps:create ${appName}`,
-  );
+    options,
+  )
   if (resultAppsCreate.code === 1) {
-    console.error(resultAppsCreate);
-    throw new Error(resultAppsCreate.stderr);
+    console.error(resultAppsCreate)
+    throw new Error(resultAppsCreate.stderr)
   }
 
-  return true;
-};
+  return true
+}

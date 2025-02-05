@@ -1,4 +1,4 @@
-import { NodeSSH } from 'node-ssh'
+import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
 export const portsSet = async (
   ssh: NodeSSH,
@@ -6,9 +6,11 @@ export const portsSet = async (
   scheme: string,
   host: string,
   container: string,
+  options?: SSHExecOptions,
 ) => {
   const resultPorts = await ssh.execCommand(
     `dokku ports:set ${appName} ${scheme}:${host}:${container}`,
+    options,
   )
 
   if (resultPorts.code === 1) {

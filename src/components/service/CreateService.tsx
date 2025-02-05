@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 
 import DatabaseForm from './DatabaseForm'
+import { GithubForm } from './GithubForm'
 
 const CreateService = () => {
   const tabs = [
@@ -31,7 +32,7 @@ const CreateService = () => {
           <Github size={20} /> Github
         </span>
       ),
-      content: () => <p>Github</p>,
+      content: () => <GithubForm />,
     },
     {
       label: (
@@ -60,7 +61,7 @@ const CreateService = () => {
           </Button>
         </DialogTrigger>
 
-        <DialogContent>
+        <DialogContent className='max-w-3xl'>
           <DialogHeader>
             <DialogTitle>Create new service</DialogTitle>
             <DialogDescription className='sr-only'>
@@ -68,7 +69,7 @@ const CreateService = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs tabs={tabs} />
+          <Tabs tabs={tabs} defaultActiveTab={1} />
         </DialogContent>
       </Dialog>
     </>

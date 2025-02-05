@@ -14,7 +14,13 @@ type TabType = {
   content: (props: TabContentProps) => JSX.Element
 }
 
-export default function Tabs({ tabs }: { tabs: TabType[] }) {
+export default function Tabs({
+  tabs,
+  defaultActiveTab = 0,
+}: {
+  tabs: TabType[]
+  defaultActiveTab?: number
+}) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoverStyle, setHoverStyle] = useState({})

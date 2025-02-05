@@ -2,7 +2,6 @@ import { Loader } from 'lucide-react'
 import { redirect } from 'next/navigation'
 
 export default function HomePage() {
-  // Add user logic
   redirect('/dashboard')
 
   return (

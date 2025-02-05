@@ -44,7 +44,7 @@ const worker = new Worker(
 
     await dokku.letsencrypt.enable(ssh, appName, {
       onStdout: async chunk => {
-        // await pub.publish('my-channel', chunk.toString())
+        await pub.publish('my-channel', chunk.toString())
         console.info(chunk.toString())
       },
       onStderr: chunk => {

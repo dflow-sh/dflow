@@ -33,6 +33,7 @@
     "bullmq": "^5.40.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cpu-features": "^0.0.10",
     "cross-env": "^7.0.3",
     "debug": "^4.4.0",
     "graphql": "^16.8.1",

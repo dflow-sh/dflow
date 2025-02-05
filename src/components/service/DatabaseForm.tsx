@@ -214,11 +214,8 @@ const DatabaseForm = ({ ...props }: TabContentProps) => {
           />
 
           <div>
-            <p className='text-sm font-semibold'>Terminal</p>
-            <Terminal
-              className='mt-1 h-60'
-              messages={['Started creating service', 'Deploying stuff']}
-            />
+            <p className='text-sm font-medium'>Terminal</p>
+            <Terminal className='mt-1.5 h-60' />
           </div>
 
           <DialogFooter>

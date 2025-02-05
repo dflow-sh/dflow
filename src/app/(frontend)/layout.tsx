@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import React from 'react'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
-import Terminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -48,7 +47,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             </header>
 
             <main className='px-4'>{children}</main>
-            <Terminal />
           </SidebarInset>
         </SidebarProvider>
         <Toaster />
