@@ -14,21 +14,27 @@ export const createAppGithubAction = publicClient
   })
   .schema(createAppGithubSchema)
   .action(async ({ clientInput }) => {
-    const { appName } = clientInput
+    const { appName, repoName, userName, branch } = clientInput
     const ssh = await sshConnect()
 
+    // check if the same app exist, if exist skip this step
     const dokkuApp = await dokku.apps.create(ssh, appName)
+    // add to db, and get the appID
 
-    if (dokkuApp) {
-      const job = await deployAppQueue.add('deploy-app', {
-        appId: '1',
-        userName: 'akhil-naidu',
-        repoName: 'waitlist-new',
-        branch: 'master',
-      })
+    // assign port (which can be from ui)
+    await dokku.ports.set(ssh, appName, 'http', '80', '3000')
+    // assign ssl certificate
+    // const sslJob = await enableLetsEncryptQueue.add('enable-letsencrypt', {
+    //   appName: appName,
+    // })
 
-      console.log(job.id)
-    }
+    const deployJob = await deployAppQueue.add('deploy-app', {
+      appId: '1',
+      appName: appName,
+      userName: userName,
+      repoName: repoName,
+      branch: branch,
+    })
 
     ssh.dispose()
 

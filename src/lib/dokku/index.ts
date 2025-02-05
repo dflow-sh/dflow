@@ -22,6 +22,7 @@ import { list as databaseList } from './plugin/database/list'
 import { logs as databaseLogs } from './plugin/database/logs'
 import { unlink } from './plugin/database/unlink'
 import { installed } from './plugin/installed'
+import { enable } from './plugin/letsEncrypt/enable'
 import { list } from './plugin/list'
 import { portsAdd } from './ports/add'
 import { portsList } from './ports/list'
@@ -58,6 +59,9 @@ export const dokku = {
     set: domainsSet,
     remove,
     add,
+  },
+  letsencrypt: {
+    enable,
   },
   git: {
     sync,

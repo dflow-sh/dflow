@@ -16,10 +16,10 @@ const redisClient = new Redis(process.env.REDIS_URL!, {
 
 interface QueueArgs {
   appId: string
+  appName: string
   userName: string
   repoName: string
   branch?: string
-  // token: string
 }
 
 export const deployAppQueue = new Queue<QueueArgs>(queueName, {
@@ -32,39 +32,47 @@ export const deployAppQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker(
   queueName,
   async job => {
-    const { appId, userName: repoOwner, repoName, branch } = job.data
+    const { appId, appName, userName: repoOwner, repoName, branch } = job.data
 
     console.log('from queue', job.id)
 
     debug(`starting deploy app queue for ${appId} app`)
 
-    const app = {
-      name: 'test',
-    }
-
     const branchName = branch ? branch : 'main'
 
     const ssh = await sshConnect()
 
+    await dokku.letsencrypt.enable(ssh, appName, {
+      onStdout: async chunk => {
+        // await pub.publish('my-channel', chunk.toString())
+        console.info(chunk.toString())
+      },
+      onStderr: chunk => {
+        console.info(chunk.toString())
+      },
+    })
+
     const res = await dokku.git.sync({
       ssh,
-      appName: app.name,
+      appName: appName,
       gitRepoUrl: `https://github.com/${repoOwner}/${repoName}.git`,
       branchName,
       options: {
         onStdout: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-          console.log('working')
+          // await pub.publish('my-channel', chunk.toString())
+          console.log(chunk.toString())
         },
         onStderr: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-          console.log('now working')
+          // await pub.publish('my-channel', chunk.toString())
+          console.log(chunk.toString())
         },
       },
     })
+
     debug(
-      `finishing create app ${app.name} from https://github.com/${repoOwner}/${repoName}.git`,
+      `finishing create app ${appName} from https://github.com/${repoOwner}/${repoName}.git`,
     )
+
     if (!res.stderr) {
       await pub.publish('my-channel', 'successfully created')
       console.log(' working')
