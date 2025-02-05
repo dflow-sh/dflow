@@ -1,6 +1,7 @@
 'use client'
 
 import { TabContentProps } from '../Tabs'
+import Terminal from '../Terminal'
 import { Button } from '../ui/button'
 import { DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
@@ -164,7 +165,7 @@ const DatabaseForm = ({ ...props }: TabContentProps) => {
   }
 
   return (
-    <div>
+    <>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -212,12 +213,20 @@ const DatabaseForm = ({ ...props }: TabContentProps) => {
             )}
           />
 
+          <div>
+            <p className='text-sm font-semibold'>Terminal</p>
+            <Terminal
+              className='mt-1 h-60'
+              messages={['Started creating service', 'Deploying stuff']}
+            />
+          </div>
+
           <DialogFooter>
             <Button type='submit'>Create database</Button>
           </DialogFooter>
         </form>
       </Form>
-    </div>
+    </>
   )
 }
 

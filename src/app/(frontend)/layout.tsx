@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import React from 'react'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
-import Terminal from '@/components/Terminal'
+import Terminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
