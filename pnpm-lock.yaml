@@ -89,6 +89,9 @@ importers:
       next-safe-action:
         specifier: ^7.10.3
         version: 7.10.3(next@15.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(zod@3.24.1)
+      next-themes:
+        specifier: ^0.4.4
+        version: 0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       node-ssh:
         specifier: ^13.2.0
         version: 13.2.0
@@ -107,6 +110,9 @@ importers:
       sharp:
         specifier: 0.32.6
         version: 0.32.6
+      sonner:
+        specifier: ^1.7.4
+        version: 1.7.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       tailwind-merge:
         specifier: ^3.0.1
         version: 3.0.1
@@ -3451,6 +3457,12 @@ packages:
         optional: true
       zod:
         optional: true
+
+  next-themes@0.4.4:
+    resolution: {integrity: sha512-LDQ2qIOJF0VnuVrrMSMLrWGjRMkq+0mpgl6e0juCLqdJ+oo8Q84JRWT6Wh11VDQKkMMe+dVzDKLWs5n87T+PkQ==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
 
   next@15.1.5:
     resolution: {integrity: sha512-Cf/TEegnt01hn3Hoywh6N8fvkhbOuChO4wFje24+a86wKOubgVaWkDqxGVgoWlz2Hp9luMJ9zw3epftujdnUOg==}
@@ -8795,6 +8807,11 @@ snapshots:
       react-dom: 19.0.0(react@19.0.0)
     optionalDependencies:
       zod: 3.24.1
+
+  next-themes@0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
 
   next@15.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4):
     dependencies:

@@ -1,13 +1,13 @@
 'use client'
 
-import Terminal from '../Terminal'
 import { Button } from '../ui/button'
-import { DialogFooter } from '../ui/dialog'
+import { DialogClose, DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { createAppGithubAction } from '@/actions/createAppGithub'
@@ -19,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useToast } from '@/hooks/use-toast'
+import { useTerminal } from '@/providers/ServerTerminalProvider'
 
 function slugify(str: string) {
   return str
@@ -40,8 +40,9 @@ const formSchema = z.object({
 })
 
 export const GithubForm = () => {
-  const [messages, setMessages] = useState<string[]>([])
-  const [eventSource, setEventSource] = useState<EventSource>()
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const { setOpen } = useTerminal()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,40 +52,37 @@ export const GithubForm = () => {
     },
   })
 
-  const { toast } = useToast()
-
   const { execute: CreateAppGithubAction, isPending } = useAction(
     createAppGithubAction,
     {
-      onExecute: () => {
-        const eventSourceInstance = new EventSource('/api/events')
-        setEventSource(eventSourceInstance)
-
-        eventSourceInstance.onmessage = event => {
-          setMessages(prev => [...prev, event.data])
-        }
-      },
       onSuccess: ({ data }) => {
         if (data) {
-          toast({
-            title: 'Successful',
-            description: 'Successfully created app',
+          toast.success('Successfully triggered Github deployment', {
+            duration: 2000,
+            closeButton: true,
           })
+          const closeButton = closeButtonRef.current
+
+          if (closeButton) {
+            closeButton.click()
+          }
+
+          setOpen(true)
         }
       },
       onError: ({ error }) => {
-        toast({
-          title: 'Failed to create database',
-          description: 'An unknown error occurred',
-        })
+        toast.error(
+          `Failed to trigger Github deployment ${error.serverError}`,
+          {
+            duration: 2000,
+            closeButton: true,
+          },
+        )
       },
     },
   )
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-
     const userName = `${values.repository.split('/').at(-2)}`
     const repoName = `${values.repository.split('/').at(-1)?.replace('.git', '')}`
 
@@ -149,14 +147,14 @@ export const GithubForm = () => {
           )}
         />
 
-        <div>
-          <p className='text-sm font-medium'>Terminal</p>
-          <Terminal className='mt-1.5 h-60' messages={messages} />
-        </div>
-
         <DialogFooter>
+          {/* Played a trick here instead of passing state from createService dialog, directly clicking on the DialogClose component */}
+          <DialogClose className='sr-only' ref={closeButtonRef}>
+            Close
+          </DialogClose>
+
           <Button type='submit' disabled={isPending}>
-            Create database
+            Deploy
           </Button>
         </DialogFooter>
       </form>

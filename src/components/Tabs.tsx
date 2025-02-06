@@ -25,7 +25,7 @@ export default function Tabs({
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoverStyle, setHoverStyle] = useState({})
   const [activeStyle, setActiveStyle] = useState({ left: '0px', width: '0px' })
-  const [disableTabs, setDisableTabs] = useState(false)
+  const [disableTabs, setDisableTabs] = useState(true)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => {
@@ -76,8 +76,7 @@ export default function Tabs({
   }, [activeIndex, tabs, disableTabs, setDisableTabs])
 
   return (
-    <Card
-      className={`relative flex w-full items-center border-none shadow-none`}>
+    <Card className='flex w-full items-center rounded-none border-none bg-background shadow-none'>
       <CardContent className='w-full p-0'>
         <div className='relative'>
           {/* Hover Highlight */}
@@ -103,7 +102,7 @@ export default function Tabs({
                 ref={el => {
                   tabRefs.current[index] = el
                 }}
-                className={`h-[30px] cursor-pointer px-3 py-2 transition-colors duration-300 ${
+                className={`h-[30px] ${disableTabs && activeIndex !== index ? 'cursor-not-allowed' : ''} px-3 py-2 transition-colors duration-300 ${
                   index === activeIndex
                     ? 'text-foreground'
                     : 'text-muted-foreground'

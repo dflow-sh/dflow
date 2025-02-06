@@ -1,7 +1,6 @@
 'use client'
 
 import { TabContentProps } from '../Tabs'
-import Terminal from '../Terminal'
 import { Button } from '../ui/button'
 import { DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
@@ -213,13 +212,8 @@ const DatabaseForm = ({ ...props }: TabContentProps) => {
             )}
           />
 
-          <div>
-            <p className='text-sm font-medium'>Terminal</p>
-            <Terminal className='mt-1.5 h-60' />
-          </div>
-
           <DialogFooter>
-            <Button type='submit'>Create database</Button>
+            <Button type='submit'>Deploy</Button>
           </DialogFooter>
         </form>
       </Form>
