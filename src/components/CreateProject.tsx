@@ -2,9 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { createProjectAction } from '@/actions/project'
+import { createProjectSchema } from '@/actions/project/validator'
 import {
   Dialog,
   DialogContent,
@@ -27,32 +32,32 @@ import { Input } from '@/components/ui/input'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: 'Name should be at-least than 1 character' })
-    .max(50, { message: 'Name should be less than 50 characters' }),
-  description: z.string().optional(),
-})
-
 const CreateProject = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [open, setOpen] = useState(false)
+  const form = useForm<z.infer<typeof createProjectSchema>>({
+    resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: '',
       description: '',
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  const { execute, isPending } = useAction(createProjectAction, {
+    onSuccess: ({ data }) => {
+      if (data) {
+        toast.success(`Successfully created project ${data.name}`)
+        setOpen(false)
+      }
+    },
+  })
+
+  function onSubmit(values: z.infer<typeof createProjectSchema>) {
+    execute(values)
   }
 
   return (
     <div className='grid place-items-end'>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button>
             <Plus size={16} />
@@ -99,7 +104,9 @@ const CreateProject = () => {
               />
 
               <DialogFooter>
-                <Button type='submit'>Create</Button>
+                <Button type='submit' disabled={isPending}>
+                  Create
+                </Button>
               </DialogFooter>
             </form>
           </Form>

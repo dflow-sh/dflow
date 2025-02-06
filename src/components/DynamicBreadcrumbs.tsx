@@ -26,7 +26,7 @@ export function DynamicBreadcrumbs() {
         {segments.map((segment, index) => {
           const href = `/${segments.slice(0, index + 1).join('/')}`
           const isLast = index === segments.length - 1
-          const label = segment.replace(/-/g, ' ') // Format label (replace hyphens with spaces)
+          const label = decodeURIComponent(segment.replace(/\+/g, ' '))
 
           return (
             <Fragment key={href}>

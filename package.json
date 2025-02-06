@@ -35,6 +35,7 @@
     "clsx": "^2.1.1",
     "cpu-features": "^0.0.10",
     "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "graphql": "^16.8.1",
     "ioredis": "^5.4.2",

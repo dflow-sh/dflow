@@ -32,7 +32,7 @@ const CreateService = () => {
           <Github size={20} /> Github
         </span>
       ),
-      content: () => <GithubForm />,
+      content: (props: TabContentProps) => <GithubForm {...props} />,
     },
     {
       label: (

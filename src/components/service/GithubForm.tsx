@@ -1,5 +1,6 @@
 'use client'
 
+import { TabContentProps } from '../Tabs'
 import { Button } from '../ui/button'
 import { DialogClose, DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
@@ -39,7 +40,7 @@ const formSchema = z.object({
   branch: z.string({ message: 'Branch is required' }),
 })
 
-export const GithubForm = () => {
+export const GithubForm = ({ setDisableTabs }: TabContentProps) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const { setOpen } = useTerminal()
 
@@ -55,6 +56,9 @@ export const GithubForm = () => {
   const { execute: CreateAppGithubAction, isPending } = useAction(
     createAppGithubAction,
     {
+      onExecute: () => {
+        setDisableTabs(true)
+      },
       onSuccess: ({ data }) => {
         if (data) {
           toast.success('Successfully triggered Github deployment', {

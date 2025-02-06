@@ -25,7 +25,7 @@ export default function Tabs({
   const [activeIndex, setActiveIndex] = useState(0)
   const [hoverStyle, setHoverStyle] = useState({})
   const [activeStyle, setActiveStyle] = useState({ left: '0px', width: '0px' })
-  const [disableTabs, setDisableTabs] = useState(true)
+  const [disableTabs, setDisableTabs] = useState(false)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => {
@@ -110,7 +110,13 @@ export default function Tabs({
                 onMouseEnter={() => setHoveredIndex(index)}
                 onFocus={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => setActiveIndex(index)}>
+                onClick={() => {
+                  if (disableTabs) {
+                    return
+                  }
+
+                  setActiveIndex(index)
+                }}>
                 <div className='flex h-full items-center justify-center whitespace-nowrap leading-5'>
                   {label}
                 </div>
