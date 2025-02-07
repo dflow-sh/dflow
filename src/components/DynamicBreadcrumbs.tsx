@@ -1,50 +1,44 @@
-'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Fragment } from 'react'
 
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-const disabledLinks = ['project']
+import { Separator } from './ui/separator'
+import { SidebarTrigger } from './ui/sidebar'
 
-export function DynamicBreadcrumbs() {
-  const pathname = usePathname()
+type BreadcrumbItemType = {
+  label: string
+  href?: string
+}
 
-  // Split the pathname into segments and filter out empty ones
-  const segments = pathname.split('/').filter(Boolean)
-
+export function DynamicBreadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
   return (
-    <Breadcrumb>
-      <BreadcrumbList className='capitalize'>
-        {segments.map((segment, index) => {
-          const href = `/${segments.slice(0, index + 1).join('/')}`
-          const isLast = index === segments.length - 1
-          const label = decodeURIComponent(segment.replace(/\+/g, ' '))
+    <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
+      <div className='flex items-center gap-2 px-4'>
+        <SidebarTrigger className='-ml-1' />
+        <Separator orientation='vertical' className='mr-2 h-4' />
 
-          return (
-            <Fragment key={href}>
-              <BreadcrumbItem>
-                {isLast || disabledLinks.includes(segment) ? (
-                  <BreadcrumbLink>{label}</BreadcrumbLink>
-                ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={href}>{label}</Link>
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
+        <Breadcrumb>
+          <BreadcrumbList>
+            {items.map(({ label, href }, index) => {
+              return (
+                <Fragment key={label}>
+                  <BreadcrumbItem>
+                    {href ? <Link href={href}>{label}</Link> : label}
+                  </BreadcrumbItem>
 
-              {!isLast && <BreadcrumbSeparator />}
-            </Fragment>
-          )
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
+                  {!(items.length === index + 1) && <BreadcrumbSeparator />}
+                </Fragment>
+              )
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+    </header>
   )
 }

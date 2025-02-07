@@ -42,7 +42,7 @@ export function ProjectCard({ project }: { project: Project }) {
   })
 
   return (
-    <Link href={`/dashboard/project/${project.name}`} className='h-full'>
+    <Link href={`/dashboard/project/${project.id}`} className='h-full'>
       <Card className='h-full min-h-36'>
         <CardHeader className='w-full flex-row items-start justify-between'>
           <div>

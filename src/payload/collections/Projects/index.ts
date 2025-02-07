@@ -11,7 +11,7 @@ export const Projects: CollectionConfig = {
   },
   access: {
     create: () => false,
-    read: () => false,
+    read: () => true,
     update: () => false,
     delete: () => false,
   },
@@ -34,6 +34,13 @@ export const Projects: CollectionConfig = {
         description: 'Provide a brief description of the project.',
         placeholder: 'e.g., ContentQL setup and configuration',
       },
+    },
+    {
+      name: 'services',
+      type: 'join',
+      label: 'Services',
+      collection: 'services',
+      on: 'project',
     },
   ],
 }
