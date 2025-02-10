@@ -6,6 +6,8 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Projects } from './payload/collections/Projects'
+import { SSHKeys } from './payload/collections/SSHkeys'
+import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Users } from './payload/collections/Users'
 
@@ -19,7 +21,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Projects, Services],
+  collections: [Users, Projects, Services, Servers, SSHKeys],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

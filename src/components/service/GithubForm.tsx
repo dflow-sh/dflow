@@ -2,7 +2,6 @@
 
 import { TabContentProps } from '../Tabs'
 import { Button } from '../ui/button'
-import { DialogClose, DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
@@ -151,16 +150,9 @@ export const GithubForm = ({ setDisableTabs }: TabContentProps) => {
           )}
         />
 
-        <DialogFooter>
-          {/* Played a trick here instead of passing state from createService dialog, directly clicking on the DialogClose component */}
-          <DialogClose className='sr-only' ref={closeButtonRef}>
-            Close
-          </DialogClose>
-
-          <Button type='submit' disabled={isPending}>
-            Deploy
-          </Button>
-        </DialogFooter>
+        <Button type='submit' disabled={isPending}>
+          Deploy
+        </Button>
       </form>
     </Form>
   )

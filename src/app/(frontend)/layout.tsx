@@ -42,7 +42,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <main className='px-4'>{children}</main>
+              <main className='mt-4 px-4'>{children}</main>
             </SidebarInset>
           </SidebarProvider>
           <Toaster richColors />

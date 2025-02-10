@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Settings,
 } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 
 import { NavUser } from '@/components/nav-user'
@@ -58,16 +59,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem className='mx-2'>
-            <SidebarMenuButton>
-              <LayoutDashboard />
-              <span>Dashboard</span>
+            <SidebarMenuButton asChild>
+              <Link href='/dashboard'>
+                <LayoutDashboard />
+                <span>Dashboard</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem className='mx-2'>
-            <SidebarMenuButton>
-              <Settings />
-              Settings
+            <SidebarMenuButton asChild>
+              <Link href='/settings'>
+                <Settings />
+                Settings
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

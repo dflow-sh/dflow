@@ -14,6 +14,8 @@ export interface Config {
     users: User;
     projects: Project;
     services: Service;
+    servers: Server;
+    sshKeys: SshKey;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -27,6 +29,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
+    servers: ServersSelect<false> | ServersSelect<true>;
+    sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -134,6 +138,56 @@ export interface Service {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "servers".
+ */
+export interface Server {
+  id: string;
+  /**
+   * Enter the name of the service.
+   */
+  name: string;
+  /**
+   * Provide a brief description of the service.
+   */
+  description?: string | null;
+  type: 'master' | 'slave';
+  sshKey: string | SshKey;
+  /**
+   * Enter the IP address of the server.
+   */
+  ip: string;
+  /**
+   * Enter the Port of the server.
+   */
+  port: number;
+  /**
+   * Enter the username of the server.
+   */
+  username: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sshKeys".
+ */
+export interface SshKey {
+  id: string;
+  /**
+   * Enter the name of the ssh key.
+   */
+  name: string;
+  /**
+   * Provide a brief description of the ssh key.
+   */
+  description?: string | null;
+  publicKey: string;
+  privateKey: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -150,6 +204,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'services';
         value: string | Service;
+      } | null)
+    | ({
+        relationTo: 'servers';
+        value: string | Server;
+      } | null)
+    | ({
+        relationTo: 'sshKeys';
+        value: string | SshKey;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -229,6 +291,33 @@ export interface ServicesSelect<T extends boolean = true> {
   description?: T;
   type?: T;
   environmentVariables?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "servers_select".
+ */
+export interface ServersSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  type?: T;
+  sshKey?: T;
+  ip?: T;
+  port?: T;
+  username?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sshKeys_select".
+ */
+export interface SshKeysSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  publicKey?: T;
+  privateKey?: T;
   updatedAt?: T;
   createdAt?: T;
 }

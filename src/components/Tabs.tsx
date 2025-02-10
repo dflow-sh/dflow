@@ -11,18 +11,20 @@ export type TabContentProps = {
 
 type TabType = {
   label: string | JSX.Element
-  content: (props: TabContentProps) => JSX.Element
+  content?: (props: TabContentProps) => JSX.Element
 }
 
 export default function Tabs({
   tabs,
   defaultActiveTab = 0,
+  onTabChange = () => {},
 }: {
   tabs: TabType[]
   defaultActiveTab?: number
+  onTabChange?: (index: number) => void
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(defaultActiveTab)
   const [hoverStyle, setHoverStyle] = useState({})
   const [activeStyle, setActiveStyle] = useState({ left: '0px', width: '0px' })
   const [disableTabs, setDisableTabs] = useState(false)
@@ -43,6 +45,7 @@ export default function Tabs({
 
   useEffect(() => {
     const activeElement = tabRefs.current[activeIndex]
+
     if (activeElement) {
       const { offsetLeft, offsetWidth } = activeElement
       setActiveStyle({
@@ -54,7 +57,8 @@ export default function Tabs({
 
   useEffect(() => {
     requestAnimationFrame(() => {
-      const overviewElement = tabRefs.current[0]
+      const overviewElement = tabRefs.current[defaultActiveTab]
+
       if (overviewElement) {
         const { offsetLeft, offsetWidth } = overviewElement
         setActiveStyle({
@@ -88,9 +92,11 @@ export default function Tabs({
             }}
           />
 
+          <div className='absolute bottom-[-5.5px] h-[1px] w-full bg-muted-foreground/20' />
+
           {/* Active Indicator */}
           <div
-            className='absolute bottom-[-6px] h-[2px] bg-foreground transition-all duration-300 ease-out'
+            className='absolute bottom-[-6px] h-[2px] rounded-full bg-foreground transition-all duration-300 ease-out'
             style={activeStyle}
           />
 
@@ -115,9 +121,10 @@ export default function Tabs({
                     return
                   }
 
+                  onTabChange(index)
                   setActiveIndex(index)
                 }}>
-                <div className='flex h-full items-center justify-center whitespace-nowrap leading-5'>
+                <div className='flex h-full items-center justify-center whitespace-nowrap text-sm leading-5'>
                   {label}
                 </div>
               </button>

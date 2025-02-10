@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
+import ConfigureApp from '@/components/service/ConfigureApp'
 
 interface PageProps {
   params: Promise<{
@@ -38,7 +39,10 @@ const ServiceIdPage = async ({ params }: PageProps) => {
           { label: serviceDetails.name },
         ]}
       />
-      <section></section>
+
+      <section>
+        <ConfigureApp service={{ ...serviceDetails, project }} />
+      </section>
     </>
   )
 }

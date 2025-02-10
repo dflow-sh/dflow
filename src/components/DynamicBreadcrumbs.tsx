@@ -18,10 +18,13 @@ type BreadcrumbItemType = {
 
 export function DynamicBreadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
   return (
-    <header className='flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12'>
-      <div className='flex items-center gap-2 px-4'>
+    <header className='mb-4 flex shrink-0 items-center gap-2 transition-[width,height] ease-linear'>
+      <div className='flex items-center gap-2'>
         <SidebarTrigger className='-ml-1' />
-        <Separator orientation='vertical' className='mr-2 h-4' />
+
+        {items.length ? (
+          <Separator orientation='vertical' className='mr-2 h-4' />
+        ) : null}
 
         <Breadcrumb>
           <BreadcrumbList>
@@ -29,7 +32,13 @@ export function DynamicBreadcrumbs({ items }: { items: BreadcrumbItemType[] }) {
               return (
                 <Fragment key={label}>
                   <BreadcrumbItem>
-                    {href ? <Link href={href}>{label}</Link> : label}
+                    {href ? (
+                      <Link className='hover:text-foreground' href={href}>
+                        {label}
+                      </Link>
+                    ) : (
+                      label
+                    )}
                   </BreadcrumbItem>
 
                   {!(items.length === index + 1) && <BreadcrumbSeparator />}
