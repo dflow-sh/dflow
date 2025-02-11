@@ -1,12 +1,6 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import React from 'react'
 
-import ServerTerminal from '@/components/ServerTerminal'
-import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { Toaster } from '@/components/ui/sonner'
-import { ServerTerminalProvider } from '@/providers/ServerTerminalProvider'
-
 import './globals.css'
 
 const geistSans = Geist({
@@ -38,17 +32,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         />
       </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
-        <ServerTerminalProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <main className='mt-4 px-4'>{children}</main>
-            </SidebarInset>
-          </SidebarProvider>
-          <Toaster richColors />
-
-          <ServerTerminal />
-        </ServerTerminalProvider>
+        {children}
       </body>
     </html>
   )

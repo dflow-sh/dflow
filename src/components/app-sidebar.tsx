@@ -22,6 +22,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { User } from '@/payload-types'
 
 // This is sample data.
 const data = {
@@ -49,7 +50,11 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface SidebarInterface extends React.ComponentProps<typeof Sidebar> {
+  user: User
+}
+
+export function AppSidebar({ user, ...props }: SidebarInterface) {
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
@@ -79,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
