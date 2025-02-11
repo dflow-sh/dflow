@@ -16,6 +16,7 @@ export interface Config {
     services: Service;
     servers: Server;
     sshKeys: SshKey;
+    gitProviders: GitProvider;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -31,6 +32,7 @@ export interface Config {
     services: ServicesSelect<false> | ServicesSelect<true>;
     servers: ServersSelect<false> | ServersSelect<true>;
     sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
+    gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -188,6 +190,30 @@ export interface SshKey {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gitProviders".
+ */
+export interface GitProvider {
+  id: string;
+  providers?:
+    | {
+        type: 'github' | 'gitlab' | 'bitbucket';
+        github?: {
+          appName: string;
+          appId: string;
+          clientId: string;
+          clientSecret: string;
+          installationId: string;
+          privateKey: string;
+          webhookSecret: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -212,6 +238,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'sshKeys';
         value: string | SshKey;
+      } | null)
+    | ({
+        relationTo: 'gitProviders';
+        value: string | GitProvider;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -318,6 +348,31 @@ export interface SshKeysSelect<T extends boolean = true> {
   description?: T;
   publicKey?: T;
   privateKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gitProviders_select".
+ */
+export interface GitProvidersSelect<T extends boolean = true> {
+  providers?:
+    | T
+    | {
+        type?: T;
+        github?:
+          | T
+          | {
+              appName?: T;
+              appId?: T;
+              clientId?: T;
+              clientSecret?: T;
+              installationId?: T;
+              privateKey?: T;
+              webhookSecret?: T;
+            };
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

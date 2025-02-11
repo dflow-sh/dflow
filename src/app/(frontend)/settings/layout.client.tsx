@@ -10,6 +10,7 @@ const tabsList = [
   { label: 'Appearance', slug: 'appearance' },
   { label: 'SSH Keys', slug: 'ssh-keys' },
   { label: 'Servers', slug: 'servers' },
+  { label: 'Git', slug: 'git' },
   { label: 'Team', slug: 'team' },
 ] as const
 
@@ -21,8 +22,6 @@ const LayoutClient = ({ children }: { children: React.ReactNode }) => {
   const activeTab = tabsList.findIndex(({ slug }) => {
     return slug === path
   })
-
-  console.log({ activeTab, path })
 
   return (
     <>
@@ -37,7 +36,8 @@ const LayoutClient = ({ children }: { children: React.ReactNode }) => {
         }}
         defaultActiveTab={activeTab >= 0 ? activeTab : 0}
       />
-      {children}
+
+      <div className='max-w-2xl'>{children}</div>
     </>
   )
 }

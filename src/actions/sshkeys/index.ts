@@ -11,10 +11,10 @@ import { createSSHKeySchema, deleteSSHKeySchema } from './validator'
 const payload = await getPayload({ config: configPromise })
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
-export const createServerAction = publicClient
+export const createSSHKeyAction = publicClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'createServerAction',
+    actionName: 'createSSHKeyAction',
   })
   .schema(createSSHKeySchema)
   .action(async ({ clientInput }) => {
@@ -31,16 +31,16 @@ export const createServerAction = publicClient
     })
 
     if (response) {
-      revalidatePath('/settings/servers')
+      revalidatePath('/settings/ssh-keys')
     }
 
     return response
   })
 
-export const deleteServerAction = publicClient
+export const deleteSSHKeyAction = publicClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'deleteServerAction',
+    actionName: 'deleteSSHKeyAction',
   })
   .schema(deleteSSHKeySchema)
   .action(async ({ clientInput }) => {
@@ -52,14 +52,7 @@ export const deleteServerAction = publicClient
     })
 
     if (response) {
-      //   const projectId =
-      //     typeof response. === 'object'
-      //       ? response.project.id
-      //       : response.project
-
-      //   // Revalidate the parent project page and the service page
-      //   revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-      //   revalidatePath(`/dashboard/project/${projectId}`)
+      revalidatePath('/settings/ssh-keys')
       return { deleted: true }
     }
   })

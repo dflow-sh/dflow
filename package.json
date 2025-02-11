@@ -19,6 +19,7 @@
     "@payloadcms/next": "latest",
     "@payloadcms/payload-cloud": "latest",
     "@payloadcms/richtext-lexical": "latest",
+    "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-collapsible": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.5",

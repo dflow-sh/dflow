@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { SshKey } from '@/payload-types'
 
 const options = [
   {
@@ -49,19 +50,8 @@ const options = [
   },
 ]
 
-const CreateServer = () => {
+const CreateServer = ({ sshKeys }: { sshKeys: SshKey[] }) => {
   const [open, setOpen] = useState(false)
-
-  const { execute, isPending } = useAction(createServerAction, {
-    onSuccess: ({ data, input }) => {
-      if (data) {
-        toast.success(`Successfully created ${input.name} service`)
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to create service: ${error.serverError}`)
-    },
-  })
 
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
@@ -70,10 +60,21 @@ const CreateServer = () => {
     },
   })
 
-  function onSubmit(values: z.infer<typeof createServerSchema>) {
-    console.log({ values })
+  const { execute, isPending } = useAction(createServerAction, {
+    onSuccess: ({ data, input }) => {
+      if (data) {
+        toast.success(`Successfully created ${input.name} service`)
+        setOpen(false)
+        form.reset()
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to create service: ${error.serverError}`)
+    },
+  })
 
-    // execute(values)
+  function onSubmit(values: z.infer<typeof createServerSchema>) {
+    execute(values)
   }
 
   return (
@@ -88,7 +89,7 @@ const CreateServer = () => {
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add new server</DialogTitle>
+            <DialogTitle>Add Server</DialogTitle>
             <DialogDescription className='sr-only'>
               This will add a new
             </DialogDescription>
@@ -145,6 +146,35 @@ const CreateServer = () => {
                         {options.map(({ label, value }) => (
                           <SelectItem key={value} value={value}>
                             {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='sshKey'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SSH key</FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select a SSH key' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {sshKeys.map(({ name, id }) => (
+                          <SelectItem key={id} value={id}>
+                            {name}
                           </SelectItem>
                         ))}
                       </SelectContent>

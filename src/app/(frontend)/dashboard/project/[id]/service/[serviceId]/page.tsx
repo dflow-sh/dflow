@@ -26,7 +26,6 @@ const ServiceIdPage = async ({ params }: PageProps) => {
       <DynamicBreadcrumbs
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Projects' },
           ...(typeof project === 'object'
             ? [
                 {
@@ -35,7 +34,6 @@ const ServiceIdPage = async ({ params }: PageProps) => {
                 },
               ]
             : []),
-          { label: 'Services' },
           { label: serviceDetails.name },
         ]}
       />

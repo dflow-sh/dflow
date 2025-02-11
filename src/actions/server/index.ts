@@ -55,14 +55,7 @@ export const deleteServerAction = publicClient
     })
 
     if (response) {
-      //   const projectId =
-      //     typeof response. === 'object'
-      //       ? response.project.id
-      //       : response.project
-
-      //   // Revalidate the parent project page and the service page
-      //   revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-      //   revalidatePath(`/dashboard/project/${projectId}`)
+      revalidatePath('/settings/servers')
       return { deleted: true }
     }
   })

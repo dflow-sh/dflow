@@ -30,7 +30,6 @@ const ProjectIdPage = async ({ params }: PageProps) => {
       <DynamicBreadcrumbs
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Projects' },
           { label: projectDetails.name },
         ]}
       />
