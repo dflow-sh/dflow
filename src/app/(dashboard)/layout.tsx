@@ -43,7 +43,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     // Added a suspense boundary to show loading response until user promise is resolved
     <Suspense fallback={<Loader />}>
-      <SuspenseLayout children={children} />
+      <SuspenseLayout>{children}</SuspenseLayout>
     </Suspense>
   )
 }

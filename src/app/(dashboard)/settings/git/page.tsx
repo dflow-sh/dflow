@@ -7,7 +7,7 @@ const GitPage = () => {
     <section>
       <h2 className='font-semibold'>Git Providers</h2>
       <p className='text-muted-foreground'>
-        Connect your git-provider for deploying App's.
+        Connect your git-provider for deploying App&apos;s.
       </p>
 
       <div className='mt-4'>

@@ -54,7 +54,7 @@ export const signUpAction = publicClient
   })
   .schema(signUpSchema)
   .action(async ({ clientInput }) => {
-    const { email, username, password } = clientInput
+    const { email, password } = clientInput
     const response = await payload.create({
       collection: 'users',
       data: {
@@ -129,4 +129,12 @@ export const resetPasswordAction = publicClient
     })
 
     return response?.user
+  })
+
+export const logoutAction = publicClient
+  .metadata({ actionName: 'logoutAction' })
+  .action(async () => {
+    const cookieStore = await cookies()
+    cookieStore.delete('payload-token')
+    redirect('/sign-in')
   })
