@@ -47,7 +47,7 @@ export const GithubForm = ({ setDisableTabs }: TabContentProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      repository: 'https://github.com/tonykhbo/hello-world-nextjs.git',
+      repository: 'https://github.com/tonykhbo/hello-world-nextjs',
       branch: 'main',
     },
   })
@@ -87,7 +87,7 @@ export const GithubForm = ({ setDisableTabs }: TabContentProps) => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const userName = `${values.repository.split('/').at(-2)}`
-    const repoName = `${values.repository.split('/').at(-1)?.replace('.git', '')}`
+    const repoName = `${values.repository.split('/').at(-1)}`
 
     CreateAppGithubAction({
       appName: values.name,
