@@ -6,6 +6,7 @@ export const createProjectSchema = z.object({
     .min(1, { message: 'Name should be at-least than 1 character' })
     .max(50, { message: 'Name should be less than 50 characters' }),
   description: z.string().optional(),
+  serverId: z.string({ message: 'Server is required' }),
 })
 
 export const deleteProjectSchema = z.object({

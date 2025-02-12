@@ -154,41 +154,14 @@ export interface Project {
    * Provide a brief description of the project.
    */
   description?: string | null;
+  /**
+   * Attach a server, all the servers in this project will be deployed in that server
+   */
+  server: string | Server;
   services?: {
     docs?: (string | Service)[] | null;
     hasNextPage?: boolean | null;
   } | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "services".
- */
-export interface Service {
-  id: string;
-  /**
-   * Select the project associated with this service.
-   */
-  project: string | Project;
-  /**
-   * Enter the name of the service.
-   */
-  name: string;
-  /**
-   * Provide a brief description of the service.
-   */
-  description?: string | null;
-  type: 'database' | 'app' | 'docker';
-  environmentVariables?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -239,6 +212,45 @@ export interface SshKey {
   description?: string | null;
   publicKey: string;
   privateKey: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
+  id: string;
+  /**
+   * Select the project associated with this service.
+   */
+  project: string | Project;
+  /**
+   * Enter the name of the service.
+   */
+  name: string;
+  /**
+   * Provide a brief description of the service.
+   */
+  description?: string | null;
+  type: 'database' | 'app' | 'docker';
+  environmentVariables?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  builder?: ('nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+  providerType: 'github' | 'gitlab' | 'bitbucket';
+  githubSettings?: {
+    repository: string;
+    owner: string;
+    branch: string;
+    buildPath: string;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -361,6 +373,7 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ProjectsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  server?: T;
   services?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -375,6 +388,16 @@ export interface ServicesSelect<T extends boolean = true> {
   description?: T;
   type?: T;
   environmentVariables?: T;
+  builder?: T;
+  providerType?: T;
+  githubSettings?:
+    | T
+    | {
+        repository?: T;
+        owner?: T;
+        branch?: T;
+        buildPath?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

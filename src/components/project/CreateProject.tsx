@@ -1,5 +1,7 @@
 'use client'
 
+import { Button } from '../ui/button'
+import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -28,11 +30,16 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Server } from '@/payload-types'
 
-import { Button } from './ui/button'
-import { Textarea } from './ui/textarea'
-
-const CreateProject = () => {
+const CreateProject = ({ servers }: { servers: Server[] }) => {
   const [open, setOpen] = useState(false)
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
@@ -98,6 +105,35 @@ const CreateProject = () => {
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='serverId'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Server</FormLabel>
+
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select a server' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {servers.map(({ name, id }) => (
+                          <SelectItem key={id} value={id}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
                     <FormMessage />
                   </FormItem>
                 )}

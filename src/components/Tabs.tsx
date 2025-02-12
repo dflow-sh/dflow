@@ -85,7 +85,7 @@ export default function Tabs({
         <div className='relative'>
           {/* Hover Highlight */}
           <div
-            className='absolute flex h-[30px] items-center rounded-[6px] bg-muted-foreground/10 transition-all duration-300 ease-out'
+            className='absolute flex h-[30px] items-center rounded bg-muted-foreground/10 transition-all duration-300 ease-out'
             style={{
               ...hoverStyle,
               opacity: hoveredIndex !== null ? 1 : 0,

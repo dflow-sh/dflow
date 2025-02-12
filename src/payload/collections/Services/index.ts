@@ -12,7 +12,7 @@ export const Services: CollectionConfig = {
   access: {
     create: () => false,
     read: () => true,
-    update: () => false,
+    update: () => true,
     delete: () => false,
   },
   defaultPopulate: {
@@ -70,6 +70,96 @@ export const Services: CollectionConfig = {
     {
       name: 'environmentVariables',
       type: 'json',
+    },
+    // Builder settings
+    {
+      name: 'builder',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Nixpacks', value: 'nixpacks' },
+        { label: 'Dockerfile', value: 'dockerfile' },
+        { label: 'Heroku build packs', value: 'herokuBuildPacks' },
+        { label: 'Build packs', value: 'buildPacks' },
+      ],
+      admin: {
+        condition: data => {
+          if (data.type === 'app' || data.type === 'docker') {
+            return true
+          }
+          return false
+        },
+      },
+    },
+    {
+      label: 'App Settings',
+      type: 'collapsible',
+      admin: {
+        // App settings field will be considered if service-type is app
+        condition: data => {
+          if (data.type === 'app') {
+            return true
+          }
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'providerType',
+          type: 'select',
+          required: true,
+          options: [
+            {
+              label: 'Github',
+              value: 'github',
+            },
+            {
+              label: 'Gitlab',
+              value: 'gitlab',
+            },
+            {
+              label: 'Bitbucket',
+              value: 'bitbucket',
+            },
+          ],
+        },
+        {
+          name: 'githubSettings',
+          type: 'group',
+          admin: {
+            // App settings field will be considered if service-type is app
+            condition: data => {
+              if (data.providerType === 'github') {
+                return true
+              }
+              return false
+            },
+          },
+          fields: [
+            {
+              name: 'repository',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'owner',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'branch',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'buildPath',
+              type: 'text',
+              required: true,
+              defaultValue: '/',
+            },
+          ],
+        },
+      ],
     },
   ],
 }

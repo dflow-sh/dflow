@@ -14,17 +14,18 @@ const payload = await getPayload({ config: configPromise })
 export const createProjectAction = publicClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'exampleAction',
+    actionName: 'createProjectAction',
   })
   .schema(createProjectSchema)
   .action(async ({ clientInput }) => {
-    const { name, description } = clientInput
+    const { name, description, serverId } = clientInput
 
     const response = await payload.create({
       collection: 'projects',
       data: {
         name,
         description,
+        server: serverId,
       },
     })
 
@@ -38,7 +39,7 @@ export const createProjectAction = publicClient
 export const deleteProjectAction = publicClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'exampleAction',
+    actionName: 'deleteProjectAction',
   })
   .schema(deleteProjectSchema)
   .action(async ({ clientInput }) => {

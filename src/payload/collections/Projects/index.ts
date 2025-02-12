@@ -12,7 +12,7 @@ export const Projects: CollectionConfig = {
   access: {
     create: () => false,
     read: () => true,
-    update: () => false,
+    update: () => true,
     delete: () => false,
   },
   fields: [
@@ -33,6 +33,17 @@ export const Projects: CollectionConfig = {
       admin: {
         description: 'Provide a brief description of the project.',
         placeholder: 'e.g., ContentQL setup and configuration',
+      },
+    },
+    {
+      name: 'server',
+      type: 'relationship',
+      relationTo: 'servers',
+      hasMany: false,
+      required: true,
+      admin: {
+        description:
+          'Attach a server, all the servers in this project will be deployed in that server',
       },
     },
     {
