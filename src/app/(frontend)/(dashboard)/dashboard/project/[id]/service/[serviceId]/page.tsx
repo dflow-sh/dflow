@@ -21,6 +21,11 @@ const ServiceIdPage = async ({ params }: PageProps) => {
     id: serviceId,
   })
 
+  const { docs: gitProviders } = await payload.find({
+    collection: 'gitProviders',
+    limit: 1000,
+  })
+
   return (
     <>
       <DynamicBreadcrumbs
@@ -39,7 +44,10 @@ const ServiceIdPage = async ({ params }: PageProps) => {
       />
 
       <section>
-        <ConfigureApp service={{ ...serviceDetails, project }} />
+        <ConfigureApp
+          service={{ ...serviceDetails, project }}
+          gitProviders={gitProviders}
+        />
       </section>
     </>
   )

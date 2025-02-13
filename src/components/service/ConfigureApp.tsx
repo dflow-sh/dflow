@@ -2,11 +2,18 @@
 
 import Tabs, { TabContentProps } from '../Tabs'
 import Terminal from '../Terminal'
-import GeneralTab from '../servers/GeneralTab'
 
-import { Service } from '@/payload-types'
+import { GitProvider, Service } from '@/payload-types'
 
-const ConfigureApp = ({ service }: { service: Service }) => {
+import GeneralTab from './GeneralTab'
+
+const ConfigureApp = ({
+  service,
+  gitProviders,
+}: {
+  service: Service
+  gitProviders: GitProvider[]
+}) => {
   return (
     <div>
       <div className='mb-8'>
@@ -20,7 +27,7 @@ const ConfigureApp = ({ service }: { service: Service }) => {
             label: 'General',
             content: (props: TabContentProps) => (
               <div className='max-w-2xl'>
-                <GeneralTab />
+                <GeneralTab gitProviders={gitProviders} service={service} />
               </div>
             ),
           },

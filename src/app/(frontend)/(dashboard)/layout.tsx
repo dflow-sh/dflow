@@ -8,7 +8,6 @@ import Loader from '@/components/Loader'
 import ServerTerminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { Toaster } from '@/components/ui/sonner'
 import { ServerTerminalProvider } from '@/providers/ServerTerminalProvider'
 
 const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -30,7 +29,6 @@ const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
           <main className='mt-4 px-4'>{children}</main>
         </SidebarInset>
       </SidebarProvider>
-      <Toaster richColors />
 
       <ServerTerminal />
     </ServerTerminalProvider>

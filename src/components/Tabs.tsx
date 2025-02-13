@@ -12,6 +12,7 @@ export type TabContentProps = {
 type TabType = {
   label: string | JSX.Element
   content?: (props: TabContentProps) => JSX.Element
+  disabled?: boolean
 }
 
 export default function Tabs({
@@ -102,13 +103,13 @@ export default function Tabs({
 
           {/* Tabs */}
           <div className='relative flex items-center space-x-[6px]'>
-            {tabs.map(({ label }, index) => (
+            {tabs.map(({ label, disabled = false }, index) => (
               <button
                 key={index}
                 ref={el => {
                   tabRefs.current[index] = el
                 }}
-                className={`h-[30px] ${disableTabs && activeIndex !== index ? 'cursor-not-allowed' : ''} px-3 py-2 transition-colors duration-300 ${
+                className={`h-[30px] ${(disableTabs && activeIndex !== index) || disabled ? 'cursor-not-allowed' : ''} px-3 py-2 transition-colors duration-300 ${
                   index === activeIndex
                     ? 'text-foreground'
                     : 'text-muted-foreground'
@@ -117,7 +118,7 @@ export default function Tabs({
                 onFocus={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => {
-                  if (disableTabs) {
+                  if (disableTabs || disabled) {
                     return
                   }
 

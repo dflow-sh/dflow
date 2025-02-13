@@ -5,6 +5,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Deployments } from './payload/collections/Deployments'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
@@ -22,7 +23,15 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Projects, Services, Servers, SSHKeys, GitProviders],
+  collections: [
+    Users,
+    Projects,
+    Services,
+    Servers,
+    SSHKeys,
+    GitProviders,
+    Deployments,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

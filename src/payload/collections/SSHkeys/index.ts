@@ -15,13 +15,6 @@ export const SSHKeys: CollectionConfig = {
     update: () => false,
     delete: () => false,
   },
-  defaultPopulate: {
-    name: true,
-    description: true,
-    updatedAt: true,
-    createdAt: true,
-    type: true,
-  },
   fields: [
     {
       name: 'name',

@@ -71,6 +71,7 @@ export interface Config {
     servers: Server;
     sshKeys: SshKey;
     gitProviders: GitProvider;
+    deployments: Deployment;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -87,6 +88,7 @@ export interface Config {
     servers: ServersSelect<false> | ServersSelect<true>;
     sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
+    deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -244,7 +246,8 @@ export interface Service {
     | boolean
     | null;
   builder?: ('nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
-  providerType: 'github' | 'gitlab' | 'bitbucket';
+  provider?: (string | null) | GitProvider;
+  providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
   githubSettings?: {
     repository: string;
     owner: string;
@@ -260,21 +263,30 @@ export interface Service {
  */
 export interface GitProvider {
   id: string;
-  providers?:
-    | {
-        type: 'github' | 'gitlab' | 'bitbucket';
-        github?: {
-          appName: string;
-          appId: string;
-          clientId: string;
-          clientSecret: string;
-          installationId: string;
-          privateKey: string;
-          webhookSecret: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
+  type: 'github' | 'gitlab' | 'bitbucket';
+  github?: {
+    appName: string;
+    appId: string;
+    clientId: string;
+    clientSecret: string;
+    installationId: string;
+    privateKey: string;
+    webhookSecret: string;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deployments".
+ */
+export interface Deployment {
+  id: string;
+  /**
+   * Adding the service for which deployment is related to
+   */
+  service: string | Service;
+  status: 'queued' | 'building' | 'failed' | 'success';
   updatedAt: string;
   createdAt: string;
 }
@@ -308,6 +320,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'gitProviders';
         value: string | GitProvider;
+      } | null)
+    | ({
+        relationTo: 'deployments';
+        value: string | Deployment;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -389,6 +405,7 @@ export interface ServicesSelect<T extends boolean = true> {
   type?: T;
   environmentVariables?: T;
   builder?: T;
+  provider?: T;
   providerType?: T;
   githubSettings?:
     | T
@@ -433,23 +450,28 @@ export interface SshKeysSelect<T extends boolean = true> {
  * via the `definition` "gitProviders_select".
  */
 export interface GitProvidersSelect<T extends boolean = true> {
-  providers?:
+  type?: T;
+  github?:
     | T
     | {
-        type?: T;
-        github?:
-          | T
-          | {
-              appName?: T;
-              appId?: T;
-              clientId?: T;
-              clientSecret?: T;
-              installationId?: T;
-              privateKey?: T;
-              webhookSecret?: T;
-            };
-        id?: T;
+        appName?: T;
+        appId?: T;
+        clientId?: T;
+        clientSecret?: T;
+        installationId?: T;
+        privateKey?: T;
+        webhookSecret?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deployments_select".
+ */
+export interface DeploymentsSelect<T extends boolean = true> {
+  service?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

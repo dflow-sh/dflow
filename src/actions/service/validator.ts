@@ -13,3 +13,21 @@ export const createServiceSchema = z.object({
 export const deleteServiceSchema = z.object({
   id: z.string(),
 })
+
+export const updateServiceSchema = z.object({
+  builder: z
+    .enum(['nixpacks', 'dockerfile', 'herokuBuildPacks', 'buildPacks'])
+    .optional(),
+  provider: z.string().optional(),
+  providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
+  githubSettings: z
+    .object({
+      repository: z.string(),
+      owner: z.string(),
+      branch: z.string(),
+      buildPath: z.string(),
+    })
+    .optional(),
+  environmentVariables: z.record(z.string()).optional(),
+  id: z.string(),
+})

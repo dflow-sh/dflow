@@ -1,7 +1,7 @@
-// import configPromise from '@payload-config';
+import configPromise from '@payload-config'
 import { createSafeActionClient } from 'next-safe-action'
-// import { headers } from 'next/headers';
-// import { getPayload } from 'payload';
+import { headers } from 'next/headers'
+import { getPayload } from 'payload'
 import { z } from 'zod'
 
 export const publicClient = createSafeActionClient({
@@ -19,22 +19,22 @@ export const publicClient = createSafeActionClient({
   },
 })
 
-// const payload = await getPayload({
-//   config: configPromise,
-// })
+const payload = await getPayload({
+  config: configPromise,
+})
 
-// export const protectedClient = publicClient.use(async ({ next, ctx }) => {
-//   const headersList = await headers()
-//   const { user } = await payload.auth({ headers: headersList })
+export const protectedClient = publicClient.use(async ({ next, ctx }) => {
+  const headersList = await headers()
+  const { user } = await payload.auth({ headers: headersList })
 
-//   if (!user) {
-//     throw new Error('User not authenticated')
-//   }
+  if (!user) {
+    throw new Error('User not authenticated')
+  }
 
-//   return next({
-//     ctx: {
-//       ...ctx,
-//       user,
-//     },
-//   })
-// })
+  return next({
+    ctx: {
+      ...ctx,
+      user,
+    },
+  })
+})

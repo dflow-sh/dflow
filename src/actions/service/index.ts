@@ -4,9 +4,13 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { protectedClient, publicClient } from '@/lib/safe-action'
 
-import { createServiceSchema, deleteServiceSchema } from './validator'
+import {
+  createServiceSchema,
+  deleteServiceSchema,
+  updateServiceSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -62,4 +66,32 @@ export const deleteServiceAction = publicClient
       revalidatePath(`/dashboard/project/${projectId}`)
       return { deleted: true }
     }
+  })
+
+export const updateServiceAction = protectedClient
+  .metadata({
+    actionName: 'updateServerAction',
+  })
+  .schema(updateServiceSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, ...data } = clientInput
+
+    const filteredObject = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== undefined),
+    )
+
+    const response = await payload.update({
+      collection: 'services',
+      data: filteredObject,
+      id,
+    })
+
+    const projectId =
+      typeof response?.project === 'object' ? response.project.id : ''
+
+    if (projectId) {
+      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
+    }
+
+    return response
   })

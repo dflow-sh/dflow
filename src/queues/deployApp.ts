@@ -1,5 +1,5 @@
 import { dokku } from '../lib/dokku'
-import { sshConnect } from '../lib/ssh'
+import { dynamicSSH, sshConnect } from '../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 import createDebug from 'debug'
 import Redis from 'ioredis'
@@ -20,6 +20,12 @@ interface QueueArgs {
   userName: string
   repoName: string
   branch?: string
+  sshDetails?: {
+    host: string
+    port: number
+    username: string
+    privateKey: string
+  }
 }
 
 export const deployAppQueue = new Queue<QueueArgs>(queueName, {
@@ -32,7 +38,14 @@ export const deployAppQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker(
   queueName,
   async job => {
-    const { appId, appName, userName: repoOwner, repoName, branch } = job.data
+    const {
+      appId,
+      appName,
+      userName: repoOwner,
+      repoName,
+      branch,
+      sshDetails,
+    } = job.data
 
     console.log('from queue', job.id)
 
@@ -40,7 +53,7 @@ const worker = new Worker(
 
     const branchName = branch ? branch : 'main'
 
-    const ssh = await sshConnect()
+    const ssh = sshDetails ? await dynamicSSH(sshDetails) : await sshConnect()
 
     await dokku.git.sync({
       ssh,

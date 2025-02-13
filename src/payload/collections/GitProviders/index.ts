@@ -6,88 +6,81 @@ export const GitProviders: CollectionConfig = {
     singular: 'Git Provider',
     plural: 'Git Providers',
   },
-
   access: {
-    create: () => false,
+    create: () => true,
     read: () => true,
     update: () => false,
     delete: () => false,
   },
   fields: [
     {
-      name: 'providers',
-      type: 'array',
-      fields: [
+      name: 'type',
+      type: 'select',
+      label: 'Name',
+      required: true,
+      options: [
         {
-          name: 'type',
-          type: 'select',
-          label: 'Name',
-          required: true,
-          options: [
-            {
-              label: 'Github',
-              value: 'github',
-            },
-            {
-              label: 'Gitlab',
-              value: 'gitlab',
-            },
-            {
-              label: 'Bitbucket',
-              value: 'bitbucket',
-            },
-          ],
+          label: 'Github',
+          value: 'github',
         },
         {
-          name: 'github',
-          type: 'group',
-          label: 'Github',
-          admin: {
-            condition: data => {
-              if (data.type === 'github') {
-                return true
-              }
+          label: 'Gitlab',
+          value: 'gitlab',
+        },
+        {
+          label: 'Bitbucket',
+          value: 'bitbucket',
+        },
+      ],
+    },
+    {
+      name: 'github',
+      type: 'group',
+      label: 'Github',
+      admin: {
+        condition: data => {
+          if (data.type === 'github') {
+            return true
+          }
 
-              return false
-            },
-          },
-          fields: [
-            {
-              name: 'appName',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'appId',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'clientId',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'clientSecret',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'installationId',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'privateKey',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'webhookSecret',
-              type: 'text',
-              required: true,
-            },
-          ],
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'appName',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'appId',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'clientId',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'clientSecret',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'installationId',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'privateKey',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'webhookSecret',
+          type: 'text',
+          required: true,
         },
       ],
     },

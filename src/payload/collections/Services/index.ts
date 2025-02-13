@@ -75,13 +75,13 @@ export const Services: CollectionConfig = {
     {
       name: 'builder',
       type: 'select',
-      required: true,
       options: [
         { label: 'Nixpacks', value: 'nixpacks' },
         { label: 'Dockerfile', value: 'dockerfile' },
         { label: 'Heroku build packs', value: 'herokuBuildPacks' },
         { label: 'Build packs', value: 'buildPacks' },
       ],
+      defaultValue: 'nixpacks',
       admin: {
         condition: data => {
           if (data.type === 'app' || data.type === 'docker') {
@@ -105,9 +105,14 @@ export const Services: CollectionConfig = {
       },
       fields: [
         {
+          name: 'provider',
+          type: 'relationship',
+          relationTo: 'gitProviders',
+          hasMany: false,
+        },
+        {
           name: 'providerType',
           type: 'select',
-          required: true,
           options: [
             {
               label: 'Github',
