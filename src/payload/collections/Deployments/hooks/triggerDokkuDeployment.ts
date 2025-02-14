@@ -56,8 +56,6 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           )
 
-          console.log({ appResponse })
-
           //  Setting dokku port
           const portResponse = await dokku.ports.set(
             ssh,
@@ -81,8 +79,6 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           )
 
-          console.log({ portResponse })
-
           //  Adding to queue
           const queueResponse = await deployAppQueue.add('deploy-app', {
             appId: '1',
@@ -91,9 +87,12 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             repoName: githubSettings.repository,
             branch: githubSettings.branch,
             sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: doc.id,
+              serviceId: serviceDetails.id,
+              projectId: project.id,
+            },
           })
-
-          console.log({ queueResponse })
 
           //  Updating deployment status to building
           await payload.update({
@@ -107,6 +106,4 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
       }
     }
   }
-
-  console.dir({ serviceDetails }, { depth: Infinity })
 }

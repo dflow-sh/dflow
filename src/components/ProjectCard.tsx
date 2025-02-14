@@ -1,6 +1,6 @@
 'use client'
 
-import { formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import { Ellipsis, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
@@ -20,6 +20,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Project } from '@/payload-types'
 
 import { Button } from './ui/button'
@@ -79,11 +85,23 @@ export function ProjectCard({ project }: { project: Project }) {
         </CardHeader>
 
         <CardContent>
-          <time className='text-sm text-muted-foreground'>
-            {`Created ${formatDistanceToNow(new Date(project.createdAt), {
-              addSuffix: true,
-            })}`}
-          </time>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <time className='text-sm text-muted-foreground'>
+                  {`Created ${formatDistanceToNow(new Date(project.createdAt), {
+                    addSuffix: true,
+                  })}`}
+                </time>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>
+                  {format(new Date(project.createdAt), 'LLL d, yyyy h:mm a')}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
     </Link>

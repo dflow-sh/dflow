@@ -1,3 +1,5 @@
+'use client'
+
 import Tabs from '../Tabs'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'

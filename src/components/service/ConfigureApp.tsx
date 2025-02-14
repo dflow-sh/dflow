@@ -5,6 +5,7 @@ import Terminal from '../Terminal'
 
 import { GitProvider, Service } from '@/payload-types'
 
+import DeploymentList from './DeploymentList'
 import GeneralTab from './GeneralTab'
 
 const ConfigureApp = ({
@@ -34,7 +35,7 @@ const ConfigureApp = ({
           { label: 'Environment', content: () => <></> },
           { label: 'Monitoring', content: () => <></> },
           { label: 'Logs', content: () => <Terminal /> },
-          { label: 'Deployments', content: () => <></> },
+          { label: 'Deployments', content: () => <DeploymentList /> },
           { label: 'Domains', content: () => <></> },
         ]}
       />

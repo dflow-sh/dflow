@@ -6,14 +6,6 @@ import Redis from 'ioredis'
 
 import { pub } from '@/lib/redis'
 
-const queueName = 'deploy-app'
-const debug = createDebug(`queue:${queueName}`)
-
-const redisClient = new Redis(process.env.REDIS_URL!, {
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-})
-
 interface QueueArgs {
   appId: string
   appName: string
@@ -26,7 +18,20 @@ interface QueueArgs {
     username: string
     privateKey: string
   }
+  serviceDetails: {
+    deploymentId: string
+    serviceId: string
+    projectId: string
+  }
 }
+
+const queueName = 'deploy-app'
+const debug = createDebug(`queue:${queueName}`)
+
+const redisClient = new Redis(process.env.REDIS_URL!, {
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+})
 
 export const deployAppQueue = new Queue<QueueArgs>(queueName, {
   connection: redisClient,
@@ -35,7 +40,7 @@ export const deployAppQueue = new Queue<QueueArgs>(queueName, {
 /**
  * - Create app
  */
-const worker = new Worker(
+const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
     const {
@@ -45,17 +50,35 @@ const worker = new Worker(
       repoName,
       branch,
       sshDetails,
+      serviceDetails,
     } = job.data
 
+    // const payload = await getPayload({ config: configPromise })
+
     console.log('from queue', job.id)
+    console.dir(
+      {
+        data: {
+          appId,
+          appName,
+          userName: repoOwner,
+          repoName,
+          branch,
+          sshDetails,
+          serviceDetails,
+        },
+      },
+      { depth: Infinity },
+    )
 
     debug(`starting deploy app queue for ${appId} app`)
 
-    const branchName = branch ? branch : 'main'
-
+    const branchName = branch ?? 'main'
     const ssh = sshDetails ? await dynamicSSH(sshDetails) : await sshConnect()
 
-    await dokku.git.sync({
+    console.log({ ssh })
+
+    const cloningResponse = await dokku.git.sync({
       ssh,
       appName: appName,
       gitRepoUrl: `https://github.com/${repoOwner}/${repoName}.git`,
@@ -72,7 +95,9 @@ const worker = new Worker(
       },
     })
 
-    await dokku.letsencrypt.enable(ssh, appName, {
+    console.log({ cloningResponse })
+
+    const sshResponse = await dokku.letsencrypt.enable(ssh, appName, {
       onStdout: async chunk => {
         await pub.publish('my-channel', chunk.toString())
         console.info(chunk.toString())
@@ -81,6 +106,8 @@ const worker = new Worker(
         console.info(chunk.toString())
       },
     })
+
+    console.log({ sshResponse })
 
     debug(
       `finishing create app ${appName} from https://github.com/${repoOwner}/${repoName}.git`,
@@ -93,15 +120,46 @@ const worker = new Worker(
     //   await pub.publish('my-channel', 'failed to create app')
     //   console.log('now working')
     // }
-
     ssh.dispose()
+
+    // Updating status to success at ending
+    // const deploymentResponse = await payload.update({
+    //   collection: 'deployments',
+    //   id: serviceDetails.deploymentId,
+    //   data: {
+    //     status: 'success',
+    //   },
+    // })
+
+    // console.log({ deploymentResponse })
+
+    // revalidatePath(
+    //   `/dashboard/project/${serviceDetails.projectId}/service/${serviceDetails.serviceId}/deployments`,
+    // )
   },
   { connection: redisClient },
 )
 
-worker.on('failed', async (job: Job | undefined, err) => {
-  const { appId } = job?.data
-  await pub.publish('my-channel', 'failed to create app')
-  console.log('now working')
-  debug(`${job?.id} has failed for for ${appId}   : ${err.message}`)
+worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
+  // const payload = await getPayload({ config: configPromise })
+  await pub.publish('my-channel', '❌ failed to create app')
+
+  if (job?.data) {
+    console.log('now working')
+    const { appId, serviceDetails } = job.data
+    debug(`${job?.id} has failed for for ${appId}   : ${err.message}`)
+
+    // Updating deployment-status to failed & revalidating deployment path
+    // await payload.update({
+    //   collection: 'deployments',
+    //   id: serviceDetails.deploymentId,
+    //   data: {
+    //     status: 'failed',
+    //   },
+    // })
+
+    // revalidatePath(
+    //   `/dashboard/project/${serviceDetails.projectId}/service/${serviceDetails.serviceId}/deployments`,
+    // )
+  }
 })
