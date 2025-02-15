@@ -54,7 +54,7 @@ export const GitProviders: CollectionConfig = {
         },
         {
           name: 'appId',
-          type: 'text',
+          type: 'number',
           required: true,
         },
         {
@@ -70,7 +70,6 @@ export const GitProviders: CollectionConfig = {
         {
           name: 'installationId',
           type: 'text',
-          required: true,
         },
         {
           name: 'privateKey',

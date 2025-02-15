@@ -46,6 +46,7 @@
     "next-safe-action": "^7.10.3",
     "next-themes": "^0.4.4",
     "node-ssh": "^13.2.0",
+    "octokit": "^4.1.2",
     "payload": "latest",
     "react": "19.0.0",
     "react-dom": "19.0.0",

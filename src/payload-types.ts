@@ -266,10 +266,10 @@ export interface GitProvider {
   type: 'github' | 'gitlab' | 'bitbucket';
   github?: {
     appName: string;
-    appId: string;
+    appId: number;
     clientId: string;
     clientSecret: string;
-    installationId: string;
+    installationId?: string | null;
     privateKey: string;
     webhookSecret: string;
   };

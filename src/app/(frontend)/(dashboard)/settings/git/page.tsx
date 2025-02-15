@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button'
 const GitPage = () => {
   const value = JSON.stringify({
     redirect_url:
-      'https://5a92-103-217-239-66.ngrok-free.app/api/providers/github/setup?authId=12345',
+      'https://6376-2406-b400-b4-eb36-c7a-30ab-f12-92a7.ngrok-free.app/api/webhook/providers/github',
     name: 'Dflow-2025-02-14',
-    url: 'https://5a92-103-217-239-66.ngrok-free.app',
+    url: 'https://6376-2406-b400-b4-eb36-c7a-30ab-f12-92a7.ngrok-free.app',
     hook_attributes: {
-      url: 'https://5a92-103-217-239-66.ngrok-free.app/api/deploy/github',
+      url: 'https://6376-2406-b400-b4-eb36-c7a-30ab-f12-92a7.ngrok-free.app/api/deploy/github',
     },
     callback_urls: [
-      'https://5a92-103-217-239-66.ngrok-free.app/api/providers/github/setup',
+      'https://6376-2406-b400-b4-eb36-c7a-30ab-f12-92a7.ngrok-free.app/api/webhook/providers/github',
     ],
     public: false,
     request_oauth_on_install: true,
@@ -34,7 +34,7 @@ const GitPage = () => {
 
       <form
         method='post'
-        action='https://github.com/settings/apps/new?state=gh_init:12345'
+        action='https://github.com/settings/apps/new?state=gh_init'
         className='mt-4'>
         <input
           type='text'
