@@ -12,6 +12,7 @@ interface QueueArgs {
   userName: string
   repoName: string
   branch?: string
+  token: string
   sshDetails?: {
     host: string
     port: number
@@ -51,6 +52,7 @@ const worker = new Worker<QueueArgs>(
       branch,
       sshDetails,
       serviceDetails,
+      token,
     } = job.data
 
     // const payload = await getPayload({ config: configPromise })
@@ -66,6 +68,7 @@ const worker = new Worker<QueueArgs>(
           branch,
           sshDetails,
           serviceDetails,
+          token,
         },
       },
       { depth: Infinity },
@@ -76,12 +79,11 @@ const worker = new Worker<QueueArgs>(
     const branchName = branch ?? 'main'
     const ssh = sshDetails ? await dynamicSSH(sshDetails) : await sshConnect()
 
-    console.log({ ssh })
-
     const cloningResponse = await dokku.git.sync({
       ssh,
       appName: appName,
-      gitRepoUrl: `https://github.com/${repoOwner}/${repoName}.git`,
+      // gitRepoUrl: `https://github.com/${repoOwner}/${repoName}.git`,
+      gitRepoUrl: `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`,
       branchName,
       options: {
         onStdout: async chunk => {

@@ -5,15 +5,14 @@ const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
 const value = JSON.stringify({
-  redirect_url:
-    'https://5bd9-2406-b400-b4-eb36-7dda-b3dd-7316-624.ngrok-free.app/api/webhook/providers/github',
+  redirect_url: `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/webhook/providers/github`,
   name: `Dflow-${formattedDate}`,
-  url: 'https://5bd9-2406-b400-b4-eb36-7dda-b3dd-7316-624.ngrok-free.app',
+  url: 'https://${',
   hook_attributes: {
-    url: 'https://5bd9-2406-b400-b4-eb36-7dda-b3dd-7316-624.ngrok-free.app/api/deploy/github',
+    url: 'https://${/api/deploy/github',
   },
   callback_urls: [
-    'https://5bd9-2406-b400-b4-eb36-7dda-b3dd-7316-624.ngrok-free.app/api/webhook/providers/github',
+    `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/webhook/providers/github`,
   ],
   public: false,
   request_oauth_on_install: true,

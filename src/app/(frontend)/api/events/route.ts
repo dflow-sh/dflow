@@ -1,5 +1,9 @@
 import { NextRequest } from 'next/server'
 
+export const config = {
+  runtime: 'nodejs', // Ensures it runs in a proper Node environment
+}
+
 export async function GET(req: NextRequest) {
   const { sub } = await import('@/lib/redis')
   const encoder = new TextEncoder()

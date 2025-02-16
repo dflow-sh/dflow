@@ -8,7 +8,11 @@ import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 
-import { deleteGitProviderSchema, getRepositorySchema } from './validator'
+import {
+  deleteGitProviderSchema,
+  getBranchesSchema,
+  getRepositorySchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -62,5 +66,42 @@ export const getRepositoriesAction = protectedClient
     return {
       repositories: data.repositories,
       hasMore: data.total_count > page * limit,
+    }
+  })
+
+export const getBranchesAction = protectedClient
+  .metadata({
+    actionName: 'getBranchesAction',
+  })
+  .schema(getBranchesSchema)
+  .action(async ({ clientInput }) => {
+    const {
+      page = 1,
+      appId,
+      installationId,
+      privateKey,
+      limit = 100,
+      owner,
+      repository,
+    } = clientInput
+
+    const octokit = new Octokit({
+      authStrategy: createAppAuth,
+      auth: {
+        appId,
+        privateKey,
+        installationId,
+      },
+    })
+
+    const { data: branches } = await octokit.rest.repos.listBranches({
+      owner,
+      repo: repository,
+      page,
+      per_page: limit,
+    })
+
+    return {
+      branches,
     }
   })

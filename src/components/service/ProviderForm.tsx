@@ -11,7 +11,10 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getRepositoriesAction } from '@/actions/gitProviders'
+import {
+  getBranchesAction,
+  getRepositoriesAction,
+} from '@/actions/gitProviders'
 import { updateServiceAction } from '@/actions/service'
 import { updateServiceSchema } from '@/actions/service/validator'
 import {
@@ -58,6 +61,10 @@ const ProviderForm = ({
   })
 
   const activeProvider = useWatch({ name: 'provider', control: form.control })
+  const activeRepository = useWatch({
+    name: 'githubSettings.repository',
+    control: form.control,
+  })
 
   const { execute, isPending } = useAction(updateServiceAction, {
     onSuccess: ({ data }) => {
@@ -73,7 +80,11 @@ const ProviderForm = ({
     isPending: repositoriesLoading,
   } = useAction(getRepositoriesAction)
 
-  console.log({ repositoriesList })
+  const {
+    execute: getBranches,
+    result: { data: branchesList },
+    isPending: branchesLoading,
+  } = useAction(getBranchesAction)
 
   // Fetching the repositories whenever provider get's changed
   useEffect(() => {
@@ -91,6 +102,25 @@ const ProviderForm = ({
       }
     }
   }, [activeProvider])
+
+  useEffect(() => {
+    if (activeRepository && activeProvider) {
+      const provider = gitProviders.find(({ id }) => id === activeProvider)
+      const owner = form.getValues('githubSettings.owner')
+
+      if (provider && provider.github) {
+        getBranches({
+          page: 1,
+          limit: 100,
+          appId: `${provider.github.appId}`,
+          installationId: `${provider.github.installationId}`,
+          privateKey: provider.github.privateKey,
+          owner,
+          repository: activeRepository,
+        })
+      }
+    }
+  }, [activeRepository])
 
   function onSubmit(values: z.infer<typeof updateServiceSchema>) {
     execute(values)
@@ -112,6 +142,7 @@ const ProviderForm = ({
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
                   className='w-full space-y-8'>
+                  {/* Account field */}
                   <FormField
                     control={form.control}
                     name='provider'
@@ -122,7 +153,9 @@ const ProviderForm = ({
                         <Select
                           onValueChange={value => {
                             field.onChange(value)
+                            // Resetting the repository, branch value whenever account is changed
                             form.setValue('githubSettings.repository', '')
+                            form.setValue('githubSettings.branch', '')
                           }}
                           defaultValue={field.value}>
                           <FormControl>
@@ -148,6 +181,7 @@ const ProviderForm = ({
                     )}
                   />
 
+                  {/* Repository field */}
                   <FormField
                     control={form.control}
                     name='githubSettings.repository'
@@ -160,10 +194,14 @@ const ProviderForm = ({
                             field.onChange(value)
                             if (repositoriesList) {
                               const { repositories } = repositoriesList
+
                               const owner = repositories.find(
                                 repo => repo.name === value,
                               )?.owner?.login
+
                               form.setValue('githubSettings.owner', owner ?? '')
+                              // resetting branch name whenever repository is changed
+                              form.setValue('githubSettings.branch', '')
                             }
                           }}
                           disabled={repositoriesLoading}
@@ -178,7 +216,9 @@ const ProviderForm = ({
                               ? repositoriesList?.repositories?.map(
                                   repository => {
                                     return (
-                                      <SelectItem value={repository.name}>
+                                      <SelectItem
+                                        value={repository.name}
+                                        key={repository.name}>
                                         {repository.name}
                                       </SelectItem>
                                     )
@@ -193,6 +233,7 @@ const ProviderForm = ({
                     )}
                   />
 
+                  {/* Branch field */}
                   <div className='grid grid-cols-2 gap-4'>
                     <FormField
                       control={form.control}
@@ -202,6 +243,7 @@ const ProviderForm = ({
                           <FormLabel>Branch</FormLabel>
 
                           <Select
+                            disabled={branchesLoading}
                             onValueChange={field.onChange}
                             defaultValue={field.value}>
                             <FormControl>
@@ -210,7 +252,15 @@ const ProviderForm = ({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value={'main'}>main</SelectItem>
+                              {branchesList?.branches?.length
+                                ? branchesList?.branches?.map(branch => (
+                                    <SelectItem
+                                      value={branch.name}
+                                      key={branch.name}>
+                                      {branch.name}
+                                    </SelectItem>
+                                  ))
+                                : null}
                             </SelectContent>
                           </Select>
 

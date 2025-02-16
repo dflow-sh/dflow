@@ -1,3 +1,5 @@
+import { createAppAuth } from '@octokit/auth-app'
+import { Octokit } from 'octokit'
 import { CollectionAfterChangeHook } from 'payload'
 
 import { dokku } from '@/lib/dokku'
@@ -9,12 +11,18 @@ import { deployAppQueue } from '@/queues/deployApp'
 export const triggerDokkuDeployment: CollectionAfterChangeHook<
   Deployment
 > = async ({ doc, req: { payload }, operation }) => {
-  const { project, type, providerType, githubSettings, ...serviceDetails } =
-    await payload.findByID({
-      collection: 'services',
-      depth: 10,
-      id: typeof doc.service === 'object' ? doc.service.id : doc.service,
-    })
+  const {
+    project,
+    type,
+    providerType,
+    githubSettings,
+    provider,
+    ...serviceDetails
+  } = await payload.findByID({
+    collection: 'services',
+    depth: 10,
+    id: typeof doc.service === 'object' ? doc.service.id : doc.service,
+  })
 
   // A if check for getting all ssh keys & server details
   if (
@@ -79,6 +87,33 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           )
 
+          let token = ''
+
+          console.dir({ provider }, { depth: Infinity })
+
+          if (typeof provider === 'object' && provider?.github) {
+            const { appId, privateKey, installationId } = provider.github
+
+            const octokit = new Octokit({
+              authStrategy: createAppAuth,
+              auth: {
+                appId,
+                privateKey,
+                installationId,
+              },
+            })
+
+            const response = (await octokit.auth({
+              type: 'installation',
+            })) as {
+              token: string
+            }
+
+            token = response.token
+          }
+
+          console.log({ token })
+
           //  Adding to queue
           const queueResponse = await deployAppQueue.add('deploy-app', {
             appId: '1',
@@ -87,6 +122,7 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             repoName: githubSettings.repository,
             branch: githubSettings.branch,
             sshDetails: sshDetails,
+            token,
             serviceDetails: {
               deploymentId: doc.id,
               serviceId: serviceDetails.id,
