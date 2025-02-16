@@ -6,10 +6,12 @@ import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useEffect } from 'react'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { getRepositoriesAction } from '@/actions/gitProviders'
 import { updateServiceAction } from '@/actions/service'
 import { updateServiceSchema } from '@/actions/service/validator'
 import {
@@ -47,13 +49,15 @@ const ProviderForm = ({
       id: params.serviceId,
       providerType: 'github',
       githubSettings: {
-        owner: 'tonykhbo',
+        owner: '',
         branch: service?.githubSettings?.branch,
         buildPath: service?.githubSettings?.buildPath,
         repository: service?.githubSettings?.repository,
       },
     },
   })
+
+  const activeProvider = useWatch({ name: 'provider', control: form.control })
 
   const { execute, isPending } = useAction(updateServiceAction, {
     onSuccess: ({ data }) => {
@@ -62,6 +66,31 @@ const ProviderForm = ({
       }
     },
   })
+
+  const {
+    execute: getRepositories,
+    result: { data: repositoriesList, serverError },
+    isPending: repositoriesLoading,
+  } = useAction(getRepositoriesAction)
+
+  console.log({ repositoriesList })
+
+  // Fetching the repositories whenever provider get's changed
+  useEffect(() => {
+    if (activeProvider) {
+      const provider = gitProviders.find(({ id }) => id === activeProvider)
+
+      if (provider && provider.github) {
+        getRepositories({
+          page: 1,
+          limit: 100,
+          appId: `${provider.github.appId}`,
+          installationId: `${provider.github.installationId}`,
+          privateKey: provider.github.privateKey,
+        })
+      }
+    }
+  }, [activeProvider])
 
   function onSubmit(values: z.infer<typeof updateServiceSchema>) {
     execute(values)
@@ -91,7 +120,10 @@ const ProviderForm = ({
                         <FormLabel>Account</FormLabel>
 
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={value => {
+                            field.onChange(value)
+                            form.setValue('githubSettings.repository', '')
+                          }}
                           defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -124,7 +156,17 @@ const ProviderForm = ({
                         <FormLabel>Repository</FormLabel>
 
                         <Select
-                          onValueChange={field.onChange}
+                          onValueChange={value => {
+                            field.onChange(value)
+                            if (repositoriesList) {
+                              const { repositories } = repositoriesList
+                              const owner = repositories.find(
+                                repo => repo.name === value,
+                              )?.owner?.login
+                              form.setValue('githubSettings.owner', owner ?? '')
+                            }
+                          }}
+                          disabled={repositoriesLoading}
                           defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -132,13 +174,17 @@ const ProviderForm = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value={'hello-world-nextjs'}>
-                              hello-world-nextjs
-                            </SelectItem>
-
-                            <SelectItem value={'hello-world'}>
-                              hello-world (fake repo)
-                            </SelectItem>
+                            {repositoriesList?.repositories?.length
+                              ? repositoriesList?.repositories?.map(
+                                  repository => {
+                                    return (
+                                      <SelectItem value={repository.name}>
+                                        {repository.name}
+                                      </SelectItem>
+                                    )
+                                  },
+                                )
+                              : null}
                           </SelectContent>
                         </Select>
 

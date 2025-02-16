@@ -266,12 +266,15 @@ export interface GitProvider {
   type: 'github' | 'gitlab' | 'bitbucket';
   github?: {
     appName: string;
+    appUrl: string;
     appId: number;
     clientId: string;
     clientSecret: string;
     installationId?: string | null;
     privateKey: string;
     webhookSecret: string;
+    installationToken?: string | null;
+    tokenExpiration?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -455,12 +458,15 @@ export interface GitProvidersSelect<T extends boolean = true> {
     | T
     | {
         appName?: T;
+        appUrl?: T;
         appId?: T;
         clientId?: T;
         clientSecret?: T;
         installationId?: T;
         privateKey?: T;
         webhookSecret?: T;
+        installationToken?: T;
+        tokenExpiration?: T;
       };
   updatedAt?: T;
   createdAt?: T;

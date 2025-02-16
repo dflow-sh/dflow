@@ -1,33 +1,66 @@
 'use server'
 
-import { publicClient } from '@/lib/safe-action'
+import { createAppAuth } from '@octokit/auth-app'
+import configPromise from '@payload-config'
+import { revalidatePath } from 'next/cache'
+import { Octokit } from 'octokit'
+import { getPayload } from 'payload'
 
-export const githubAppInstallationAction = publicClient
+import { protectedClient } from '@/lib/safe-action'
+
+import { deleteGitProviderSchema, getRepositorySchema } from './validator'
+
+const payload = await getPayload({ config: configPromise })
+
+export const deleteGitProviderAction = protectedClient
   .metadata({
-    // This action name can be used for sentry tracking
-    actionName: 'githubAppInstallationAction',
+    actionName: 'deleteGitProviderAction',
   })
-  .action(async () => {
-    await fetch('https://github.com/settings/apps/new?state=gh_init:12345', {
-      method: 'POST',
-      body: JSON.stringify({
-        redirect_url:
-          'https://app.dokploy.com/api/providers/github/setup?authId=wppRvML32U96yxQTL8Rcd',
-        name: 'Dflow-2025-02-14',
-        url: 'https://app.dokploy.com',
-        hook_attributes: {
-          url: 'https://app.dokploy.com/api/deploy/github',
-        },
-        callback_urls: ['https://app.dokploy.com/api/providers/github/setup'],
-        public: false,
-        request_oauth_on_install: true,
-        default_permissions: {
-          contents: 'read',
-          metadata: 'read',
-          emails: 'read',
-          pull_requests: 'write',
-        },
-        default_events: ['pull_request', 'push'],
-      }),
+  .schema(deleteGitProviderSchema)
+  .action(async ({ clientInput }) => {
+    const { id } = clientInput
+
+    const response = await payload.delete({
+      collection: 'gitProviders',
+      id,
     })
+
+    if (response) {
+      revalidatePath('/settings/git')
+      return { success: true }
+    }
+  })
+
+export const getRepositoriesAction = protectedClient
+  .metadata({
+    actionName: 'getRepositoriesAction',
+  })
+  .schema(getRepositorySchema)
+  .action(async ({ clientInput }) => {
+    const {
+      page = 1,
+      appId,
+      installationId,
+      privateKey,
+      limit = 100,
+    } = clientInput
+
+    const octokit = new Octokit({
+      authStrategy: createAppAuth,
+      auth: {
+        appId,
+        privateKey,
+        installationId,
+      },
+    })
+
+    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
+      per_page: limit,
+      page,
+    })
+
+    return {
+      repositories: data.repositories,
+      hasMore: data.total_count > page * limit,
+    }
   })

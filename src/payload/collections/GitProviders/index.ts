@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { populateInstallationToken } from './hooks/populateInstallationToken'
+
 export const GitProviders: CollectionConfig = {
   slug: 'gitProviders',
   labels: {
@@ -10,7 +12,10 @@ export const GitProviders: CollectionConfig = {
     create: () => true,
     read: () => true,
     update: () => false,
-    delete: () => false,
+    delete: () => true,
+  },
+  hooks: {
+    afterChange: [populateInstallationToken],
   },
   fields: [
     {
@@ -53,6 +58,11 @@ export const GitProviders: CollectionConfig = {
           required: true,
         },
         {
+          name: 'appUrl',
+          type: 'text',
+          required: true,
+        },
+        {
           name: 'appId',
           type: 'number',
           required: true,
@@ -81,20 +91,15 @@ export const GitProviders: CollectionConfig = {
           type: 'text',
           required: true,
         },
+        {
+          name: 'installationToken',
+          type: 'text',
+        },
+        {
+          name: 'tokenExpiration',
+          type: 'text',
+        },
       ],
     },
   ],
 }
-
-// gitlabUrl: text("gitlabUrl").default("https://gitlab.com").notNull(),
-// 	applicationId: text("application_id"),
-// 	redirectUri: text("redirect_uri"),
-// 	secret: text("secret"),
-// 	accessToken: text("access_token"),
-// 	refreshToken: text("refresh_token"),
-// 	groupName: text("group_name"),
-// 	expiresAt: integer("expires_at"),
-
-// bitbucketUsername: text("bitbucketUsername"),
-// 	appPassword: text("appPassword"),
-// 	bitbucketWorkspaceName: text("bitbucketWorkspaceName"),

@@ -48,7 +48,8 @@ export async function GET(request: NextRequest) {
         type: 'github',
         github: {
           appId: data.id,
-          appName: data.html_url,
+          appName: data.name,
+          appUrl: data.html_url,
           clientId: data.client_id,
           clientSecret: data.client_secret,
           webhookSecret: data.webhook_secret ?? '',
