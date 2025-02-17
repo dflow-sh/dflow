@@ -72,6 +72,7 @@ export interface Config {
     sshKeys: SshKey;
     gitProviders: GitProvider;
     deployments: Deployment;
+    domains: Domain;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -89,6 +90,7 @@ export interface Config {
     sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
+    domains: DomainsSelect<false> | DomainsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -295,6 +297,18 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "domains".
+ */
+export interface Domain {
+  id: string;
+  hostName: string;
+  certificateType: 'letsencrypt' | 'none';
+  autoRegenerateSSL: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -327,6 +341,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'deployments';
         value: string | Deployment;
+      } | null)
+    | ({
+        relationTo: 'domains';
+        value: string | Domain;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -478,6 +496,17 @@ export interface GitProvidersSelect<T extends boolean = true> {
 export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "domains_select".
+ */
+export interface DomainsSelect<T extends boolean = true> {
+  hostName?: T;
+  certificateType?: T;
+  autoRegenerateSSL?: T;
   updatedAt?: T;
   createdAt?: T;
 }

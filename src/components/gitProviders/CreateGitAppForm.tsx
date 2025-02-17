@@ -4,16 +4,19 @@ import { Github } from 'lucide-react'
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
+const githubCallbackURL =
+  process.env.NODE_ENV === 'development'
+    ? process.env.WEBHOOK_URL
+    : `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+
 const value = JSON.stringify({
-  redirect_url: `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/webhook/providers/github`,
+  redirect_url: `${githubCallbackURL}/api/webhook/providers/github`,
   name: `Dflow-${formattedDate}`,
-  url: 'https://${',
+  url: githubCallbackURL,
   hook_attributes: {
-    url: 'https://${/api/deploy/github',
+    url: `https://${githubCallbackURL}/api/deploy/github`,
   },
-  callback_urls: [
-    `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/webhook/providers/github`,
-  ],
+  callback_urls: [`${githubCallbackURL}/api/webhook/providers/github`],
   public: false,
   request_oauth_on_install: true,
   default_permissions: {

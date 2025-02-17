@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -60,19 +60,16 @@ const ProviderForm = ({
     },
   })
 
-  const activeProvider = useWatch({ name: 'provider', control: form.control })
-  const activeRepository = useWatch({
-    name: 'githubSettings.repository',
-    control: form.control,
-  })
-
-  const { execute, isPending } = useAction(updateServiceAction, {
-    onSuccess: ({ data }) => {
-      if (data) {
-        toast.success('Successfully updated Git-provider details')
-      }
+  const { execute: saveGitProviderDetails, isPending } = useAction(
+    updateServiceAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.success('Successfully updated Git-provider details')
+        }
+      },
     },
-  })
+  )
 
   const {
     execute: getRepositories,
@@ -86,44 +83,42 @@ const ProviderForm = ({
     isPending: branchesLoading,
   } = useAction(getBranchesAction)
 
-  // Fetching the repositories whenever provider get's changed
+  // On component-mount getting repositories & branches based on git-provider
   useEffect(() => {
-    if (activeProvider) {
-      const provider = gitProviders.find(({ id }) => id === activeProvider)
+    const defaultProvider =
+      typeof service.provider === 'object'
+        ? service.provider?.id
+        : service.provider
+    const provider = gitProviders.find(({ id }) => id === defaultProvider)
 
-      if (provider && provider.github) {
-        getRepositories({
-          page: 1,
-          limit: 100,
-          appId: `${provider.github.appId}`,
-          installationId: `${provider.github.installationId}`,
-          privateKey: provider.github.privateKey,
-        })
-      }
-    }
-  }, [activeProvider])
+    if (provider && provider.github) {
+      getRepositories({
+        page: 1,
+        limit: 100,
+        appId: `${provider.github.appId}`,
+        installationId: `${provider.github.installationId}`,
+        privateKey: provider.github.privateKey,
+      })
 
-  useEffect(() => {
-    if (activeRepository && activeProvider) {
-      const provider = gitProviders.find(({ id }) => id === activeProvider)
-      const owner = form.getValues('githubSettings.owner')
-
-      if (provider && provider.github) {
+      if (
+        service?.githubSettings?.owner &&
+        service?.githubSettings.repository
+      ) {
         getBranches({
           page: 1,
           limit: 100,
           appId: `${provider.github.appId}`,
           installationId: `${provider.github.installationId}`,
           privateKey: provider.github.privateKey,
-          owner,
-          repository: activeRepository,
+          owner: service?.githubSettings?.owner,
+          repository: service?.githubSettings.repository,
         })
       }
     }
-  }, [activeRepository])
+  }, [])
 
   function onSubmit(values: z.infer<typeof updateServiceSchema>) {
-    execute(values)
+    saveGitProviderDetails(values)
   }
 
   return (

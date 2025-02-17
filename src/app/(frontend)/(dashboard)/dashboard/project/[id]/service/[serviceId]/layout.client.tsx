@@ -5,13 +5,13 @@ import { useParams, usePathname, useRouter } from 'next/navigation'
 import Tabs from '@/components/Tabs'
 
 const tabsList = [
-  { label: 'General', slug: 'general' },
-  { label: 'Environment', slug: 'environment' },
-  { label: 'Monitoring', slug: 'monitoring' },
-  { label: 'Servers', slug: 'servers' },
-  { label: 'Logs', slug: 'logs' },
-  { label: 'Deployments', slug: 'deployments' },
-  { label: 'Domains', slug: 'domains' },
+  { label: 'General', slug: 'general', disabled: false },
+  { label: 'Environment', slug: 'environment', disabled: false },
+  { label: 'Monitoring', slug: 'monitoring', disabled: true },
+  { label: 'Servers', slug: 'servers', disabled: true },
+  { label: 'Logs', slug: 'logs', disabled: false },
+  { label: 'Deployments', slug: 'deployments', disabled: false },
+  { label: 'Domains', slug: 'domains', disabled: false },
 ] as const
 
 const LayoutClient = ({ children }: { children: React.ReactNode }) => {
@@ -28,7 +28,7 @@ const LayoutClient = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Tabs
-        tabs={tabsList.map(({ label }) => ({ label }))}
+        tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
         onTabChange={index => {
           const tab = tabsList[index]
           router.push(

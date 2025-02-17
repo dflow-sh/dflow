@@ -74,7 +74,7 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
 
           <SidebarMenuItem className='mx-2'>
             <SidebarMenuButton asChild>
-              <Link href='/settings'>
+              <Link href='/settings/profile'>
                 <Settings />
                 Settings
               </Link>

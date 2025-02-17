@@ -91,6 +91,7 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
 
           console.dir({ provider }, { depth: Infinity })
 
+          // todo: change logic to bullmq payload generate:types is failing
           if (typeof provider === 'object' && provider?.github) {
             const { appId, privateKey, installationId } = provider.github
 
