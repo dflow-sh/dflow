@@ -1,5 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
+import { attachDokkuDomain } from './hooks/attachDokkuDomain'
+import { deleteDokkuDomain } from './hooks/deleteDokkuDomain'
+
 export const Domains: CollectionConfig = {
   slug: 'domains',
   labels: {
@@ -13,9 +16,16 @@ export const Domains: CollectionConfig = {
     delete: () => false,
   },
   hooks: {
-    // afterChange: [triggerDokkuDeployment],
+    afterChange: [attachDokkuDomain],
+    afterDelete: [deleteDokkuDomain],
   },
   fields: [
+    {
+      name: 'service',
+      type: 'relationship',
+      relationTo: 'services',
+      required: true,
+    },
     {
       name: 'hostName',
       type: 'text',

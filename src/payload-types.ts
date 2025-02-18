@@ -301,6 +301,7 @@ export interface Deployment {
  */
 export interface Domain {
   id: string;
+  service: string | Service;
   hostName: string;
   certificateType: 'letsencrypt' | 'none';
   autoRegenerateSSL: boolean;
@@ -504,6 +505,7 @@ export interface DeploymentsSelect<T extends boolean = true> {
  * via the `definition` "domains_select".
  */
 export interface DomainsSelect<T extends boolean = true> {
+  service?: T;
   hostName?: T;
   certificateType?: T;
   autoRegenerateSSL?: T;

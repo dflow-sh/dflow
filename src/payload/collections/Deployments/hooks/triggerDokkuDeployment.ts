@@ -1,5 +1,3 @@
-import { createAppAuth } from '@octokit/auth-app'
-import { Octokit } from 'octokit'
 import { CollectionAfterChangeHook } from 'payload'
 
 import { dokku } from '@/lib/dokku'
@@ -87,34 +85,6 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           )
 
-          let token = ''
-
-          console.dir({ provider }, { depth: Infinity })
-
-          // todo: change logic to bullmq payload generate:types is failing
-          if (typeof provider === 'object' && provider?.github) {
-            const { appId, privateKey, installationId } = provider.github
-
-            const octokit = new Octokit({
-              authStrategy: createAppAuth,
-              auth: {
-                appId,
-                privateKey,
-                installationId,
-              },
-            })
-
-            const response = (await octokit.auth({
-              type: 'installation',
-            })) as {
-              token: string
-            }
-
-            token = response.token
-          }
-
-          console.log({ token })
-
           //  Adding to queue
           const queueResponse = await deployAppQueue.add('deploy-app', {
             appId: '1',
@@ -123,11 +93,11 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             repoName: githubSettings.repository,
             branch: githubSettings.branch,
             sshDetails: sshDetails,
-            token,
             serviceDetails: {
               deploymentId: doc.id,
               serviceId: serviceDetails.id,
               projectId: project.id,
+              provider,
             },
           })
 

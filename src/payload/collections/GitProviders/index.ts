@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { populateInstallationToken } from './hooks/populateInstallationToken'
+// import { populateInstallationToken } from './hooks/populateInstallationToken'
 
 export const GitProviders: CollectionConfig = {
   slug: 'gitProviders',
@@ -15,7 +15,7 @@ export const GitProviders: CollectionConfig = {
     delete: () => true,
   },
   hooks: {
-    afterChange: [populateInstallationToken],
+    // afterChange: [populateInstallationToken],
   },
   fields: [
     {

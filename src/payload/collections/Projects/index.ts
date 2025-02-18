@@ -15,6 +15,7 @@ export const Projects: CollectionConfig = {
     update: () => true,
     delete: () => false,
   },
+
   fields: [
     {
       name: 'name',

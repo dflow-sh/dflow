@@ -23,7 +23,7 @@ const DeploymentList = ({ deployments }: { deployments: Deployment[] }) => {
   const { setOpen } = useTerminal()
 
   return (
-    <div className='space-y-4'>
+    <section className='space-y-4'>
       {deployments.length ? (
         deployments?.map(({ id, createdAt, status }) => (
           <Card key={id} className='text-sm'>
@@ -73,7 +73,7 @@ const DeploymentList = ({ deployments }: { deployments: Deployment[] }) => {
       ) : (
         <p>No deployments Found!</p>
       )}
-    </div>
+    </section>
   )
 }
 

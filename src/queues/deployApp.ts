@@ -1,10 +1,13 @@
 import { dokku } from '../lib/dokku'
 import { dynamicSSH, sshConnect } from '../lib/ssh'
+import { createAppAuth } from '@octokit/auth-app'
 import { Job, Queue, Worker } from 'bullmq'
 import createDebug from 'debug'
 import Redis from 'ioredis'
+import { Octokit } from 'octokit'
 
 import { pub } from '@/lib/redis'
+import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
   appId: string
@@ -12,7 +15,6 @@ interface QueueArgs {
   userName: string
   repoName: string
   branch?: string
-  token: string
   sshDetails?: {
     host: string
     port: number
@@ -23,6 +25,7 @@ interface QueueArgs {
     deploymentId: string
     serviceId: string
     projectId: string
+    provider: string | GitProvider | null | undefined
   }
 }
 
@@ -52,31 +55,45 @@ const worker = new Worker<QueueArgs>(
       branch,
       sshDetails,
       serviceDetails,
-      token,
     } = job.data
 
-    // const payload = await getPayload({ config: configPromise })
-
     console.log('from queue', job.id)
-    console.dir(
-      {
-        data: {
-          appId,
-          appName,
-          userName: repoOwner,
-          repoName,
-          branch,
-          sshDetails,
-          serviceDetails,
-          token,
-        },
-      },
-      { depth: Infinity },
-    )
-
     debug(`starting deploy app queue for ${appId} app`)
 
+    // Generating github-app details for deployment
+    // todo: currently logic is purely related to github-app deployment need to make generic for bitbucket & gitlab
+    let token = ''
     const branchName = branch ?? 'main'
+
+    console.dir({ provider: serviceDetails.provider }, { depth: Infinity })
+
+    if (
+      typeof serviceDetails.provider === 'object' &&
+      serviceDetails.provider?.github
+    ) {
+      const { appId, privateKey, installationId } =
+        serviceDetails.provider.github
+
+      const octokit = new Octokit({
+        authStrategy: createAppAuth,
+        auth: {
+          appId,
+          privateKey,
+          installationId,
+        },
+      })
+
+      const response = (await octokit.auth({
+        type: 'installation',
+      })) as {
+        token: string
+      }
+
+      token = response.token
+    }
+
+    console.log({ token })
+
     const ssh = sshDetails ? await dynamicSSH(sshDetails) : await sshConnect()
 
     const cloningResponse = await dokku.git.sync({
