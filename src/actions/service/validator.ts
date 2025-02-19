@@ -30,4 +30,5 @@ export const updateServiceSchema = z.object({
     .optional(),
   environmentVariables: z.record(z.string()).optional(),
   id: z.string(),
+  port: z.number().default(3000),
 })

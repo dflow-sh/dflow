@@ -29,6 +29,8 @@ import { portsList } from './ports/list'
 import { portsRemove } from './ports/remove'
 import { portsSet } from './ports/set'
 import { restart } from './process/restart'
+import { info as dokkuVersionInfo } from './version/info'
+import { install as dokkuInstall } from './version/install'
 
 export const dokku = {
   apps: { create, logs, destroy, list: appList },
@@ -67,5 +69,9 @@ export const dokku = {
     sync,
     unlock,
     auth,
+  },
+  version: {
+    info: dokkuVersionInfo,
+    install: dokkuInstall,
   },
 }

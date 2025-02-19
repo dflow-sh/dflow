@@ -68,7 +68,7 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             serviceDetails.name,
             'http',
             '80',
-            '3000',
+            serviceDetails.port ? `${serviceDetails.port}` : '3000',
             {
               onStdout: async chunk => {
                 await pub.publish('my-channel', chunk.toString())
@@ -113,4 +113,6 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
       }
     }
   }
+
+  return doc
 }

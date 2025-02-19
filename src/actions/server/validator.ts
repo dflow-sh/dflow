@@ -18,3 +18,10 @@ export const createServerSchema = z.object({
 export const deleteServiceSchema = z.object({
   id: z.string(),
 })
+
+export const installDokkuSchema = z.object({
+  host: z.string(),
+  port: z.number(),
+  username: z.string(),
+  privateKey: z.string(),
+})

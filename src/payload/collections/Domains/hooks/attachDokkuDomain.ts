@@ -76,4 +76,6 @@ export const attachDokkuDomain: CollectionAfterChangeHook<Domain> = async ({
       }
     }
   }
+
+  return doc
 }

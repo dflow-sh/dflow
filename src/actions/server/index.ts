@@ -4,14 +4,20 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { dokku } from '@/lib/dokku'
+import { protectedClient } from '@/lib/safe-action'
+import { dynamicSSH } from '@/lib/ssh'
 
-import { createServerSchema, deleteServiceSchema } from './validator'
+import {
+  createServerSchema,
+  deleteServiceSchema,
+  installDokkuSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
-export const createServerAction = publicClient
+export const createServerAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'createServerAction',
@@ -40,7 +46,7 @@ export const createServerAction = publicClient
     return response
   })
 
-export const deleteServerAction = publicClient
+export const deleteServerAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'deleteServerAction',
@@ -57,5 +63,27 @@ export const deleteServerAction = publicClient
     if (response) {
       revalidatePath('/settings/servers')
       return { deleted: true }
+    }
+  })
+
+export const installDokkuAction = protectedClient
+  .metadata({
+    actionName: 'installDokkuAction',
+  })
+  .schema(installDokkuSchema)
+  .action(async ({ clientInput }) => {
+    const { host, port, privateKey, username } = clientInput
+
+    const ssh = await dynamicSSH({
+      host,
+      port,
+      privateKey,
+      username,
+    })
+
+    const installationResponse = await dokku.version.install(ssh)
+
+    if (installationResponse.success) {
+      revalidatePath('/settings/servers')
     }
   })

@@ -60,4 +60,6 @@ export const deleteDokkuDomain: CollectionAfterDeleteHook<Domain> = async ({
       }
     }
   }
+
+  return doc
 }

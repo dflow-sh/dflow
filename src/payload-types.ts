@@ -248,6 +248,7 @@ export interface Service {
     | boolean
     | null;
   builder?: ('nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+  port?: number | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
   githubSettings?: {
@@ -427,6 +428,7 @@ export interface ServicesSelect<T extends boolean = true> {
   type?: T;
   environmentVariables?: T;
   builder?: T;
+  port?: T;
   provider?: T;
   providerType?: T;
   githubSettings?:

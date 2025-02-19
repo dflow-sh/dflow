@@ -92,6 +92,11 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      name: 'port',
+      type: 'number',
+      defaultValue: 3000,
+    },
+    {
       label: 'App Settings',
       type: 'collapsible',
       admin: {

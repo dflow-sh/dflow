@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { populateDokkuVersion } from './hooks/populateDokkuVersion'
+
 export const Servers: CollectionConfig = {
   slug: 'servers',
   labels: {
@@ -10,10 +12,13 @@ export const Servers: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    create: () => false,
+    create: () => true,
     read: () => true,
-    update: () => false,
+    update: () => true,
     delete: () => false,
+  },
+  hooks: {
+    afterRead: [populateDokkuVersion],
   },
   fields: [
     {
@@ -51,6 +56,7 @@ export const Servers: CollectionConfig = {
       relationTo: 'sshKeys',
       hasMany: false,
       required: true,
+      maxDepth: 10,
     },
     {
       name: 'ip',

@@ -90,7 +90,7 @@ export const updateServiceAction = protectedClient
       typeof response?.project === 'object' ? response.project.id : ''
 
     if (projectId) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
+      revalidatePath(`/dashboard/project/${projectId}/service/${id}/general`)
     }
 
     return response
