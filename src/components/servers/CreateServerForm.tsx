@@ -71,7 +71,14 @@ const CreateServer = ({
               : server.sshKey,
           username: server.username,
         }
-      : {},
+      : {
+          name: '',
+          description: '',
+          ip: '',
+          port: 22,
+          sshKey: '',
+          username: '',
+        },
   })
 
   const { execute: createService, isPending: isCreatingService } = useAction(

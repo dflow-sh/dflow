@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/accordion'
 import { SshKey } from '@/payload-types'
 
+// import UpdateSSHKeyForm from './CreateSSHKeyForm'
+
 const SSHKeysList = ({ keys }: { keys: SshKey[] }) => {
   const { execute, isPending } = useAction(deleteSSHKeyAction, {
     onSuccess: ({ data }) => {
@@ -37,12 +39,27 @@ const SSHKeysList = ({ keys }: { keys: SshKey[] }) => {
               <KeyRound
                 size={16}
                 strokeWidth={2}
-                className='mt-1 shrink-0 text-muted-foreground'
+                className='mt-3 shrink-0 text-muted-foreground'
                 aria-hidden='true'
               />
 
               <div>
-                <span>{item.name}</span>
+                <div className='space-x-2'>
+                  <span>{item.name}</span>
+                  {/* <UpdateSSHKeyForm
+                    sshKey={item}
+                    title='Update SSH Key'
+                    description='This form updates SSH key'>
+                    <Button
+                      size='icon'
+                      variant='ghost'
+                      onClick={e => {
+                        e.stopPropagation()
+                      }}>
+                      <Pencil />
+                    </Button>
+                  </UpdateSSHKeyForm> */}
+                </div>
                 <p className='text-sm font-normal text-muted-foreground'>
                   {item.description}
                 </p>

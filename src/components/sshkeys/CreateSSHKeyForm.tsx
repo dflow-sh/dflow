@@ -4,9 +4,8 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -15,6 +14,7 @@ import { createSSHKeyAction } from '@/actions/sshkeys'
 import { createSSHKeySchema } from '@/actions/sshkeys/validator'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -30,19 +30,51 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { SshKey } from '@/payload-types'
 
-const CreateSSHKeyForm = () => {
-  const [open, setOpen] = useState(false)
+const CreateSSHKeyForm = ({
+  children,
+  type = 'create',
+  description = 'This will add a new SSH key',
+  sshKey,
+  title = 'Add SSH key',
+}: {
+  children: React.ReactNode
+  type?: 'create' | 'update'
+  title?: string
+  description?: string
+  sshKey?: SshKey
+}) => {
+  const dialogRef = useRef<HTMLButtonElement>(null)
 
   const form = useForm<z.infer<typeof createSSHKeySchema>>({
     resolver: zodResolver(createSSHKeySchema),
+    defaultValues: sshKey
+      ? {
+          name: sshKey.name,
+          description: sshKey.description ?? '',
+          privateKey: sshKey.privateKey,
+          publicKey: sshKey.publicKey,
+        }
+      : {
+          name: '',
+          description: '',
+          privateKey: '',
+          publicKey: '',
+        },
   })
 
   const { execute, isPending } = useAction(createSSHKeyAction, {
     onSuccess: ({ data, input }) => {
       if (data) {
         toast.success(`Successfully created ${input.name} SSH key`)
-        setOpen(false)
+
+        const dialogClose = dialogRef.current
+
+        if (dialogClose) {
+          dialogClose.click()
+        }
+
         form.reset()
       }
     },
@@ -57,19 +89,14 @@ const CreateSSHKeyForm = () => {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus />
-            Add SSH key
-          </Button>
-        </DialogTrigger>
+      <Dialog>
+        <DialogTrigger asChild>{children}</DialogTrigger>
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add SSH key</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogDescription className='sr-only'>
-              This will add a new SSH key
+              {description}
             </DialogDescription>
           </DialogHeader>
 
@@ -134,8 +161,10 @@ const CreateSSHKeyForm = () => {
               />
 
               <DialogFooter>
+                <DialogClose ref={dialogRef} className='sr-only' />
+
                 <Button type='submit' disabled={isPending}>
-                  Add SSH key
+                  {type === 'create' ? 'Add SSH key' : 'Update SSH key'}
                 </Button>
               </DialogFooter>
             </form>
