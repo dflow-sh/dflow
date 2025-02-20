@@ -6,13 +6,16 @@ export const createServerSchema = z.object({
     .min(1, { message: 'Name should be at-least than 1 character' })
     .max(50, { message: 'Name should be less than 50 characters' }),
   description: z.string().optional(),
-  type: z.enum(['master', 'slave'], { message: 'Type is required' }),
   ip: z
     .string({ message: 'IP is required' })
     .ip({ message: 'Invalid IP address' }),
   port: z.number({ message: 'Port is required' }),
   username: z.string({ message: 'Username is required' }),
   sshKey: z.string({ message: 'SSH key is required' }),
+})
+
+export const updateServiceSchema = createServerSchema.extend({
+  id: z.string(),
 })
 
 export const deleteServiceSchema = z.object({

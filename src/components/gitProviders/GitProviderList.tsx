@@ -20,8 +20,8 @@ const GithubCard = ({ provider }: { provider: GitProvider }) => {
           <Github size={20} />
 
           <div>
-            <p>{provider?.github?.appName}</p>
-            <time>
+            <p className='font-semibold'>{provider?.github?.appName}</p>
+            <time className='text-sm text-muted-foreground'>
               {format(new Date(provider.createdAt), 'LLL d, yyyy h:mm a')}
             </time>
           </div>

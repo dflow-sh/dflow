@@ -4,17 +4,17 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createServerAction } from '@/actions/server'
+import { createServerAction, updateServerAction } from '@/actions/server'
 import { createServerSchema } from '@/actions/server/validator'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -38,60 +38,103 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { SshKey } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
-const options = [
-  {
-    label: 'Master',
-    value: 'master',
-  },
-  {
-    label: 'Slave',
-    value: 'slave',
-  },
-]
-
-const CreateServer = ({ sshKeys }: { sshKeys: SshKey[] }) => {
-  const [open, setOpen] = useState(false)
-
+// Using same form for create & update operations
+const CreateServer = ({
+  sshKeys,
+  children,
+  title = 'Add Server',
+  description = 'This will add a new server',
+  type = 'create',
+  server,
+}: {
+  sshKeys: SshKey[]
+  children: React.ReactNode
+  type?: 'create' | 'update'
+  title?: string
+  description?: string
+  server?: ServerType
+}) => {
+  const dialogRef = useRef<HTMLButtonElement>(null)
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
-    defaultValues: {
-      name: '',
-    },
+    defaultValues: server
+      ? {
+          name: server.name,
+          description: server.description ?? '',
+          ip: server.ip,
+          port: server.port,
+          sshKey:
+            typeof server.sshKey === 'object'
+              ? server.sshKey.id
+              : server.sshKey,
+          username: server.username,
+        }
+      : {},
   })
 
-  const { execute, isPending } = useAction(createServerAction, {
-    onSuccess: ({ data, input }) => {
-      if (data) {
-        toast.success(`Successfully created ${input.name} service`)
-        setOpen(false)
-        form.reset()
-      }
+  const { execute: createService, isPending: isCreatingService } = useAction(
+    createServerAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data) {
+          toast.success(`Successfully created ${input.name} service`)
+
+          const dialogClose = dialogRef.current
+          if (dialogClose) {
+            dialogClose.click()
+          }
+
+          form.reset()
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to create service: ${error.serverError}`)
+      },
     },
-    onError: ({ error }) => {
-      toast.error(`Failed to create service: ${error.serverError}`)
+  )
+
+  const { execute: updateService, isPending: isUpdatingService } = useAction(
+    updateServerAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data) {
+          toast.success(`Successfully updated ${input.name} service`)
+
+          const dialogClose = dialogRef.current
+          if (dialogClose) {
+            dialogClose.click()
+          }
+
+          form.reset()
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to update service: ${error.serverError}`)
+      },
     },
-  })
+  )
 
   function onSubmit(values: z.infer<typeof createServerSchema>) {
-    execute(values)
+    if (type === 'create') {
+      createService(values)
+    } else if (type === 'update' && server) {
+      // passing extra id-field during update operation
+      updateService({ ...values, id: server.id })
+    }
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus />
-            Add Server
-          </Button>
-        </DialogTrigger>
+      <Dialog>
+        <DialogTrigger asChild>{children}</DialogTrigger>
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Server</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogDescription className='sr-only'>
-              This will add a new
+              {description}
             </DialogDescription>
           </DialogHeader>
 
@@ -122,35 +165,6 @@ const CreateServer = ({ sshKeys }: { sshKeys: SshKey[] }) => {
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='type'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Select a type' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {options.map(({ label, value }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -238,8 +252,12 @@ const CreateServer = ({ sshKeys }: { sshKeys: SshKey[] }) => {
               </div>
 
               <DialogFooter>
-                <Button type='submit' disabled={isPending}>
-                  Add Server
+                <DialogClose ref={dialogRef} className='sr-only' />
+
+                <Button
+                  type='submit'
+                  disabled={isCreatingService || isUpdatingService}>
+                  {type === 'create' ? 'Add Server' : 'Update Server'}
                 </Button>
               </DialogFooter>
             </form>

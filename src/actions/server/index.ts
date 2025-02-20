@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
+import { pub } from '@/lib/redis'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
 
@@ -12,6 +13,7 @@ import {
   createServerSchema,
   deleteServiceSchema,
   installDokkuSchema,
+  updateServiceSchema,
 } from './validator'
 
 const payload = await getPayload({ config: configPromise })
@@ -24,19 +26,39 @@ export const createServerAction = protectedClient
   })
   .schema(createServerSchema)
   .action(async ({ clientInput }) => {
-    const { name, description, type, ip, port, username, sshKey } = clientInput
+    const { name, description, ip, port, username, sshKey } = clientInput
 
     const response = await payload.create({
       collection: 'servers',
       data: {
         name,
         description,
-        type,
         ip,
         port,
         username,
         sshKey,
       },
+    })
+
+    if (response) {
+      revalidatePath('/settings/servers')
+    }
+
+    return response
+  })
+
+export const updateServerAction = protectedClient
+  .metadata({
+    actionName: 'updateServerAction',
+  })
+  .schema(updateServiceSchema)
+  .action(async ({ clientInput }) => {
+    const { id, ...data } = clientInput
+
+    const response = await payload.update({
+      id,
+      data,
+      collection: 'servers',
     })
 
     if (response) {
@@ -81,7 +103,21 @@ export const installDokkuAction = protectedClient
       username,
     })
 
-    const installationResponse = await dokku.version.install(ssh)
+    const installationResponse = await dokku.version.install(ssh, {
+      onStdout: async chunk => {
+        await pub.publish('my-channel', chunk.toString())
+        console.info(chunk.toString())
+      },
+      onStderr: async chunk => {
+        await pub.publish('my-channel', chunk.toString())
+        console.info({
+          installDokkuLogs: {
+            message: chunk.toString(),
+            type: 'stdout',
+          },
+        })
+      },
+    })
 
     if (installationResponse.success) {
       revalidatePath('/settings/servers')

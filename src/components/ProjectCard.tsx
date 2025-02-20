@@ -1,7 +1,7 @@
 'use client'
 
 import { format, formatDistanceToNow } from 'date-fns'
-import { Ellipsis, Trash2 } from 'lucide-react'
+import { Ellipsis, Pencil, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -27,10 +27,18 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Project } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
+import UpdateProject from './project/CreateProject'
 import { Button } from './ui/button'
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({
+  project,
+  servers,
+}: {
+  project: Project
+  servers: ServerType[]
+}) {
   const { execute } = useAction(deleteProjectAction, {
     onExecute: () => {
       toast.loading('Deleting project...', { id: project.id })
@@ -69,7 +77,28 @@ export function ProjectCard({ project }: { project: Project }) {
                 <Ellipsis />
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align='end'>
+              <UpdateProject
+                servers={servers}
+                project={project}
+                title='Update Project'
+                description='This form will update project'
+                type='update'>
+                <DropdownMenuItem
+                  className='w-full cursor-pointer'
+                  onSelect={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  onClick={e => {
+                    e.stopPropagation()
+                  }}>
+                  <Pencil />
+                  Edit
+                </DropdownMenuItem>
+              </UpdateProject>
+
               <DropdownMenuItem
                 className='cursor-pointer'
                 onClick={e => {

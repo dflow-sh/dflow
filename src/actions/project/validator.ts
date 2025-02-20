@@ -9,6 +9,10 @@ export const createProjectSchema = z.object({
   serverId: z.string({ message: 'Server is required' }),
 })
 
+export const updateProjectSchema = createProjectSchema.extend({
+  id: z.string(),
+})
+
 export const deleteProjectSchema = z.object({
   id: z.string(),
 })

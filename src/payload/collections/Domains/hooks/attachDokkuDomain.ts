@@ -54,7 +54,7 @@ export const attachDokkuDomain: CollectionAfterChangeHook<Domain> = async ({
               },
               onStderr: chunk => {
                 console.info({
-                  createAppsLogs: {
+                  createDomainsLogs: {
                     message: chunk.toString(),
                     type: 'stdout',
                   },

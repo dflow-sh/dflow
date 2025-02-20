@@ -50,7 +50,7 @@ export const deleteDokkuDomain: CollectionAfterDeleteHook<Domain> = async ({
           },
           onStderr: chunk => {
             console.info({
-              createAppsLogs: {
+              createDeleteLogs: {
                 message: chunk.toString(),
                 type: 'stdout',
               },

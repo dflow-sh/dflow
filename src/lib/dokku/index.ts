@@ -5,6 +5,7 @@ import { logs } from './apps/logs'
 import { listVars } from './config/listVars'
 import { set } from './config/set'
 import { unset } from './config/unset'
+import { info as distroInfo } from './distro/info'
 import { add } from './domains/add'
 import { remove } from './domains/remove'
 import { report } from './domains/report'
@@ -73,5 +74,8 @@ export const dokku = {
   version: {
     info: dokkuVersionInfo,
     install: dokkuInstall,
+  },
+  distro: {
+    info: distroInfo,
   },
 }

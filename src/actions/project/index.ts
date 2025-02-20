@@ -6,7 +6,11 @@ import { getPayload } from 'payload'
 
 import { publicClient } from '@/lib/safe-action'
 
-import { createProjectSchema, deleteProjectSchema } from './validator'
+import {
+  createProjectSchema,
+  deleteProjectSchema,
+  updateProjectSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -27,6 +31,28 @@ export const createProjectAction = publicClient
         description,
         server: serverId,
       },
+    })
+
+    if (response) {
+      revalidatePath('/dashboard')
+    }
+
+    return response
+  })
+
+export const updateProjectAction = publicClient
+  .metadata({
+    // This action name can be used for sentry tracking
+    actionName: 'updateProjectAction',
+  })
+  .schema(updateProjectSchema)
+  .action(async ({ clientInput }) => {
+    const { id, ...data } = clientInput
+
+    const response = await payload.update({
+      collection: 'projects',
+      data,
+      id,
     })
 
     if (response) {

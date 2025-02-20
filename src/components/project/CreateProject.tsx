@@ -3,17 +3,17 @@
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createProjectAction } from '@/actions/project'
+import { createProjectAction, updateProjectAction } from '@/actions/project'
 import { createProjectSchema } from '@/actions/project/validator'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,46 +37,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Server } from '@/payload-types'
+import { supportedLinuxVersions } from '@/lib/constants'
+import { Project } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
-const CreateProject = ({ servers }: { servers: Server[] }) => {
-  const [open, setOpen] = useState(false)
+const CreateProject = ({
+  servers,
+  children,
+  title = 'Create new project',
+  description = 'This will create a new project',
+  type = 'create',
+  project,
+}: {
+  servers: ServerType[]
+  children: React.ReactNode
+  type?: 'create' | 'update'
+  title?: string
+  description?: string
+  project?: Project
+}) => {
+  // Instead of using state passing ref to dialog-close & creating a click event on server-action success
+  const dialogRef = useRef<HTMLButtonElement>(null)
+
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-    },
+    defaultValues: project
+      ? {
+          name: project.name,
+          description: project.description ?? '',
+          serverId:
+            typeof project.server === 'object'
+              ? project.server.id
+              : project.server,
+        }
+      : {},
   })
 
-  const { execute, isPending } = useAction(createProjectAction, {
-    onSuccess: ({ data }) => {
-      if (data) {
-        toast.success(`Successfully created project ${data.name}`)
-        setOpen(false)
-      }
+  const { execute: createProject, isPending: isCreatingProject } = useAction(
+    createProjectAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.success(`Successfully created project ${data.name}`)
+          const dialogClose = dialogRef.current
+          if (dialogClose) {
+            dialogClose.click()
+          }
+
+          form.reset()
+        }
+      },
     },
-  })
+  )
+
+  const { execute: updateProject, isPending: isUpdatingProject } = useAction(
+    updateProjectAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data) {
+          toast.success(`Successfully updated ${input.name} project`)
+
+          const dialogClose = dialogRef.current
+          if (dialogClose) {
+            dialogClose.click()
+          }
+
+          form.reset()
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to update project: ${error.serverError}`)
+      },
+    },
+  )
 
   function onSubmit(values: z.infer<typeof createProjectSchema>) {
-    execute(values)
+    if (type === 'create') {
+      createProject(values)
+    } else if (type === 'update' && project) {
+      // passing extra id-field during update operation
+      updateProject({ ...values, id: project.id })
+    }
   }
 
   return (
     <div className='grid place-items-end'>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus size={16} />
-            Create Project
-          </Button>
-        </DialogTrigger>
+      <Dialog>
+        <DialogTrigger asChild>{children}</DialogTrigger>
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create new project</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogDescription className='sr-only'>
-              This will create a new project
+              {description}
             </DialogDescription>
           </DialogHeader>
 
@@ -89,7 +142,15 @@ const CreateProject = ({ servers }: { servers: Server[] }) => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input
+                        {...field}
+                        onChange={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+
+                          field.onChange(e)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,7 +164,15 @@ const CreateProject = ({ servers }: { servers: Server[] }) => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea
+                        {...field}
+                        onChange={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+
+                          field.onChange(e)
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -125,12 +194,36 @@ const CreateProject = ({ servers }: { servers: Server[] }) => {
                           <SelectValue placeholder='Select a server' />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {servers.map(({ name, id }) => (
-                          <SelectItem key={id} value={id}>
-                            {name}
-                          </SelectItem>
-                        ))}
+                      <SelectContent
+                        onSelect={e => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}>
+                        {servers.map(({ name, id, os, sshConnected }) => {
+                          const disabled = !supportedLinuxVersions.includes(
+                            os.version ?? '',
+                          )
+
+                          const disabledMessage = () => {
+                            if (!sshConnected) {
+                              return 'Failed to connect to server, please check your server-details'
+                            }
+
+                            if (disabled) {
+                              return `Dokku doesn't support ${os.type} ${os.version}, please check dokku documentation`
+                            }
+                          }
+
+                          return (
+                            <SelectItem disabled={disabled} key={id} value={id}>
+                              <span className='flex items-center gap-1'>
+                                {name}
+                              </span>
+
+                              <p>{disabledMessage()}</p>
+                            </SelectItem>
+                          )
+                        })}
                       </SelectContent>
                     </Select>
 
@@ -140,8 +233,12 @@ const CreateProject = ({ servers }: { servers: Server[] }) => {
               />
 
               <DialogFooter>
-                <Button type='submit' disabled={isPending}>
-                  Create
+                <DialogClose ref={dialogRef} className='sr-only' />
+
+                <Button
+                  type='submit'
+                  disabled={isCreatingProject || isUpdatingProject}>
+                  {type === 'create' ? 'Create Project' : 'Update Project'}
                 </Button>
               </DialogFooter>
             </form>

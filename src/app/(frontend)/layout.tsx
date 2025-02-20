@@ -24,16 +24,16 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <head>
         {/* Added react-scan for fixing performance pit-holes */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* {process.env.NODE_ENV === 'development' && (
           <script
             crossOrigin='anonymous'
             async
             src='//unpkg.com/react-scan/dist/auto.global.js'
           />
-        )}
+        )} */}
       </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
         {children}

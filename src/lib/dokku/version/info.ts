@@ -9,6 +9,12 @@ export const info = async (ssh: NodeSSH) => {
     return 'not-installed'
   }
 
+  if (resultVersion.code === 127) {
+    console.error(resultVersion)
+    // throw new Error(resultVersion.stderr)
+    return 'not-installed'
+  }
+
   const version = resultVersion.stdout.split(' ').at(-1)
   return version
 }

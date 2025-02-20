@@ -41,16 +41,6 @@ export const Servers: CollectionConfig = {
       },
     },
     {
-      name: 'type',
-      type: 'select',
-      label: 'Type',
-      required: true,
-      options: [
-        { label: 'Master', value: 'master' },
-        { label: 'Slave', value: 'slave' },
-      ],
-    },
-    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',
