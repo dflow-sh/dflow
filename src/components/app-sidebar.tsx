@@ -1,64 +1,81 @@
 'use client'
 
 import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
+  GitBranch,
+  HardDrive,
+  KeyRound,
   LayoutDashboard,
-  Settings,
+  Palette,
+  UserRound,
+  UsersRound,
+  Workflow,
 } from 'lucide-react'
 import Link from 'next/link'
 import * as React from 'react'
 
 import { NavUser } from '@/components/nav-user'
-import { TeamSwitcher } from '@/components/team-switcher'
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { User } from '@/payload-types'
-
-// This is sample data.
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  teams: [
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Evil Corp.',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
-}
 
 interface SidebarInterface extends React.ComponentProps<typeof Sidebar> {
   user: User
 }
 
+const settings = [
+  {
+    name: 'Profile',
+    href: '/settings/profile',
+    icon: UserRound,
+  },
+  {
+    name: 'Appearance',
+    href: '/settings/appearance',
+    icon: Palette,
+  },
+  {
+    name: 'SSH Keys',
+    href: '/settings/ssh-keys',
+    icon: KeyRound,
+  },
+  {
+    name: 'Servers',
+    href: '/settings/servers',
+    icon: HardDrive,
+  },
+  {
+    name: 'Git',
+    href: '/settings/git',
+    icon: GitBranch,
+  },
+  {
+    name: 'Team',
+    href: '/settings/team',
+    icon: UsersRound,
+  },
+]
+
 export function AppSidebar({ user, ...props }: SidebarInterface) {
+  const { state } = useSidebar()
+
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className='mt-2 flex items-center gap-2 text-2xl font-semibold'>
+          <Workflow className='text-primary' />
+          {state === 'expanded' && <p>Dflow</p>}
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -72,14 +89,21 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <SidebarMenuItem className='mx-2'>
-            <SidebarMenuButton asChild>
-              <Link href='/settings/profile'>
-                <Settings />
-                Settings
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
+            <SidebarGroupLabel>Settings</SidebarGroupLabel>
+            <SidebarMenu>
+              {settings.map(item => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
         </SidebarMenu>
       </SidebarContent>
 

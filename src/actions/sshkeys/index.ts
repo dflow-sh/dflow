@@ -4,14 +4,18 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { protectedClient } from '@/lib/safe-action'
 
-import { createSSHKeySchema, deleteSSHKeySchema } from './validator'
+import {
+  createSSHKeySchema,
+  deleteSSHKeySchema,
+  updateSSHKeySchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
-export const createSSHKeyAction = publicClient
+export const createSSHKeyAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'createSSHKeyAction',
@@ -37,7 +41,26 @@ export const createSSHKeyAction = publicClient
     return response
   })
 
-export const deleteSSHKeyAction = publicClient
+export const updateSSHKeyAction = protectedClient
+  .metadata({ actionName: 'updateSSHKeyAction' })
+  .schema(updateSSHKeySchema)
+  .action(async ({ clientInput }) => {
+    const { id, ...data } = clientInput
+
+    const response = await payload.update({
+      id,
+      data,
+      collection: 'sshKeys',
+    })
+
+    if (response) {
+      revalidatePath('/settings/ssh-keys')
+    }
+
+    return response
+  })
+
+export const deleteSSHKeyAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'deleteSSHKeyAction',

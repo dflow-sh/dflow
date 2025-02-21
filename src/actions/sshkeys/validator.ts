@@ -10,6 +10,10 @@ export const createSSHKeySchema = z.object({
   privateKey: z.string({ message: 'Private Key is required' }),
 })
 
+export const updateSSHKeySchema = createSSHKeySchema.extend({
+  id: z.string(),
+})
+
 export const deleteSSHKeySchema = z.object({
   id: z.string(),
 })

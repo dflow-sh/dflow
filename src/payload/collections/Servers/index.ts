@@ -1,6 +1,34 @@
-import { CollectionConfig } from 'payload'
+import { CollectionConfig, Field } from 'payload'
 
 import { populateDokkuVersion } from './hooks/populateDokkuVersion'
+
+const pluginFields: Field[] = [
+  {
+    name: 'name',
+    type: 'text',
+    required: true,
+  },
+  {
+    name: 'version',
+    type: 'text',
+    required: true,
+  },
+  {
+    name: 'status',
+    type: 'select',
+    options: [
+      {
+        label: 'Enabled',
+        value: 'enabled',
+      },
+      {
+        label: 'Disabled',
+        value: 'disabled',
+      },
+    ],
+    required: true,
+  },
+]
 
 export const Servers: CollectionConfig = {
   slug: 'servers',
@@ -77,6 +105,11 @@ export const Servers: CollectionConfig = {
         description: 'Enter the username of the server.',
         placeholder: 'e.g: root',
       },
+    },
+    {
+      name: 'plugins',
+      type: 'array',
+      fields: pluginFields,
     },
   ],
 }

@@ -13,7 +13,13 @@ const extractValue = ({ key, data }: { key: string; data: string }) => {
 
 export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   doc,
+  context,
 }) => {
+  // Sending a variable for populating server details
+  if (!context.populateServerDetails) {
+    return doc
+  }
+
   const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
   const portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
 

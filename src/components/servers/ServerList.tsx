@@ -4,7 +4,7 @@ import { Dokku, Linux, Ubuntu } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { Download, Pencil, Server, Trash2, TriangleAlert } from 'lucide-react'
+import { Download, Server, Trash2, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
@@ -34,7 +34,7 @@ import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { useTerminal } from '@/providers/ServerTerminalProvider'
 
-import CreateServer from './CreateServerForm'
+import UpdateServer from './CreateServerForm'
 
 const serverType: {
   [key: string]: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -167,31 +167,13 @@ const ServerList = ({
                 <Server
                   size={16}
                   strokeWidth={2}
-                  className='mt-3 shrink-0 text-muted-foreground'
+                  className='mt-1 shrink-0 text-muted-foreground'
                   aria-hidden='true'
                 />
 
                 <div>
                   <div className='space-x-2'>
                     <span>{item.name}</span>
-                    <CreateServer
-                      sshKeys={sshKeys}
-                      type='update'
-                      title='Update Server'
-                      server={item}
-                      description='Update the server-details'>
-                      <Button
-                        variant='ghost'
-                        asChild
-                        onClick={e => {
-                          e.stopPropagation()
-                        }}
-                        size='icon'>
-                        <div>
-                          <Pencil />
-                        </div>
-                      </Button>
-                    </CreateServer>
                   </div>
 
                   <p className='text-sm font-normal text-muted-foreground'>
@@ -242,7 +224,15 @@ const ServerList = ({
               </div>
             )}
 
-            <div className='flex w-full justify-end'>
+            <div className='flex w-full justify-end gap-3'>
+              <UpdateServer
+                sshKeys={sshKeys}
+                type='update'
+                title='Update Server'
+                server={item}
+                description='Update the server-details'
+              />
+
               <Button
                 variant='destructive'
                 disabled={isPending}

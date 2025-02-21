@@ -1,12 +1,10 @@
 import configPromise from '@payload-config'
-import { Plus } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerList from '@/components/servers/ServerList'
-import { Button } from '@/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
 const SuspendedPage = async () => {
@@ -20,16 +18,14 @@ const SuspendedPage = async () => {
     collection: 'servers',
     limit: 1000,
     depth: 5,
+    context: {
+      populateServerDetails: true, // This boolean is used to populate server details
+    },
   })
 
   return (
     <section className='space-y-8'>
-      <CreateServer sshKeys={keys}>
-        <Button>
-          <Plus />
-          Add Server
-        </Button>
-      </CreateServer>
+      <CreateServer sshKeys={keys} />
       <ServerList servers={servers as ServerType[]} sshKeys={keys} />
     </section>
   )

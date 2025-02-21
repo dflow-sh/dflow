@@ -5,10 +5,9 @@ import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import ServerTerminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { ServerTerminalProvider } from '@/providers/ServerTerminalProvider'
+import { SidebarInset } from '@/components/ui/sidebar'
+import Provider from '@/providers/Provider'
 
 const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
   const headersList = await headers()
@@ -22,16 +21,12 @@ const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <ServerTerminalProvider>
-      <SidebarProvider>
-        <AppSidebar user={user} />
-        <SidebarInset>
-          <main className='mt-4 px-4'>{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
-
-      <ServerTerminal />
-    </ServerTerminalProvider>
+    <Provider>
+      <AppSidebar user={user} />
+      <SidebarInset>
+        <main className='mt-4 px-4'>{children}</main>
+      </SidebarInset>
+    </Provider>
   )
 }
 

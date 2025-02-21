@@ -196,6 +196,14 @@ export interface Server {
    * Enter the username of the server.
    */
   username: string;
+  plugins?:
+    | {
+        name: string;
+        version: string;
+        status: 'enabled' | 'disabled';
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -452,6 +460,14 @@ export interface ServersSelect<T extends boolean = true> {
   ip?: T;
   port?: T;
   username?: T;
+  plugins?:
+    | T
+    | {
+        name?: T;
+        version?: T;
+        status?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

@@ -4,17 +4,17 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRef } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createSSHKeyAction } from '@/actions/sshkeys'
+import { createSSHKeyAction, updateSSHKeyAction } from '@/actions/sshkeys'
 import { createSSHKeySchema } from '@/actions/sshkeys/validator'
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -33,19 +33,19 @@ import {
 import { SshKey } from '@/payload-types'
 
 const CreateSSHKeyForm = ({
-  children,
   type = 'create',
   description = 'This will add a new SSH key',
   sshKey,
   title = 'Add SSH key',
 }: {
-  children: React.ReactNode
   type?: 'create' | 'update'
   title?: string
   description?: string
   sshKey?: SshKey
+  open?: boolean
+  setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
-  const dialogRef = useRef<HTMLButtonElement>(null)
+  const [open, setOpen] = useState(false)
 
   const form = useForm<z.infer<typeof createSSHKeySchema>>({
     resolver: zodResolver(createSSHKeySchema),
@@ -64,33 +64,66 @@ const CreateSSHKeyForm = ({
         },
   })
 
-  const { execute, isPending } = useAction(createSSHKeyAction, {
-    onSuccess: ({ data, input }) => {
-      if (data) {
-        toast.success(`Successfully created ${input.name} SSH key`)
-
-        const dialogClose = dialogRef.current
-
-        if (dialogClose) {
-          dialogClose.click()
+  const { execute: createSSHKey, isPending: isCreatingSSHKey } = useAction(
+    createSSHKeyAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data) {
+          toast.success(`Successfully created ${input.name} SSH key`)
+          setOpen(false)
+          form.reset()
         }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to create SSH key: ${error.serverError}`)
+      },
+    },
+  )
 
-        form.reset()
-      }
+  const { execute: updateSSHKey, isPending: isUpdatingSSHKey } = useAction(
+    updateSSHKeyAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data) {
+          toast.success(`Successfully updated ${input.name} SSH key`)
+          setOpen(false)
+          form.reset()
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to update SSH key: ${error.serverError}`)
+      },
     },
-    onError: ({ error }) => {
-      toast.error(`Failed to create SSH key: ${error.serverError}`)
-    },
-  })
+  )
 
   function onSubmit(values: z.infer<typeof createSSHKeySchema>) {
-    execute(values)
+    if (type === 'update' && sshKey) {
+      updateSSHKey({ id: sshKey.id, ...values })
+    } else {
+      createSSHKey(values)
+    }
   }
 
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>{children}</DialogTrigger>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            onClick={e => e.stopPropagation()}
+            variant={type === 'update' ? 'outline' : 'default'}>
+            {type === 'update' ? (
+              <>
+                <Pencil />
+                Edit SSH Key
+              </>
+            ) : (
+              <>
+                <Plus />
+                Add SSH key
+              </>
+            )}
+          </Button>
+        </DialogTrigger>
 
         <DialogContent>
           <DialogHeader>
@@ -161,9 +194,9 @@ const CreateSSHKeyForm = ({
               />
 
               <DialogFooter>
-                <DialogClose ref={dialogRef} className='sr-only' />
-
-                <Button type='submit' disabled={isPending}>
+                <Button
+                  type='submit'
+                  disabled={isCreatingSSHKey || isUpdatingSSHKey}>
                   {type === 'create' ? 'Add SSH key' : 'Update SSH key'}
                 </Button>
               </DialogFooter>
