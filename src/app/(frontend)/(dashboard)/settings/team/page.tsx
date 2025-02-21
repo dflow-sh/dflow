@@ -1,5 +1,11 @@
+import PageHeader from '@/components/PageHeader'
+
 const TeamPage = () => {
-  return <div>TeamPage</div>
+  return (
+    <section>
+      <PageHeader title='Team' />
+    </section>
+  )
 }
 
 export default TeamPage

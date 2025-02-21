@@ -4,42 +4,42 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    --background: 240 42.86% 8.24%;
+    --foreground: 240 66.67% 94.12%;
 
-    --card: 0 0% 17%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 41.18% 13.33%;
+    --card-foreground: 240 100% 97.06%;
 
-    --popover: 0 0% 17%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 35.71% 10.98%;
+    --popover-foreground: 240 100% 90.78%;
 
-    --primary: 241 100% 72%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 262 46.72% 55.1%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 17%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 235 31.49% 35.49%;
+    --secondary-foreground: 240 34.78% 90.98%;
 
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --muted: 240 27.59% 22.75%;
+    --muted-foreground: 240 16.84% 62.75%;
 
-    --accent: 0 0% 33%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 0 0% 80%;
+    --accent-foreground: 240 42.86% 8.24%;
 
-    --destructive: 345 87% 53%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 73.46% 41.37%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 240 29.09% 21.57%;
+    --input: 240 27.59% 22.75%;
+    --ring: 291 63.72% 42.16%;
 
-    --sidebar-background: 240 10% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 240 4.9% 83.9%;
+    --sidebar-background: 240 44.44% 7.06%;
+    --sidebar-foreground: 240 100% 90.78%;
+    --sidebar-primary: 262 51.87% 47.25%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 24.49% 38.43%;
+    --sidebar-accent-foreground: 0 0% 87.84%;
+    --sidebar-border: 240 24.49% 38.43%;
+    --sidebar-ring: 291 63.72% 42.16%;
 
     --radius: 0.75rem;
   }

@@ -25,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar'
 import { User } from '@/payload-types'
@@ -79,6 +80,8 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
       </SidebarHeader>
 
       <SidebarContent>
+        <SidebarSeparator />
+
         <SidebarMenu>
           <SidebarMenuItem className='mx-2'>
             <SidebarMenuButton asChild>
@@ -89,8 +92,9 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
             </SidebarMenuButton>
           </SidebarMenuItem>
 
-          <SidebarGroup className='group-data-[collapsible=icon]:hidden'>
+          <SidebarGroup>
             <SidebarGroupLabel>Settings</SidebarGroupLabel>
+
             <SidebarMenu>
               {settings.map(item => (
                 <SidebarMenuItem key={item.name}>

@@ -1,5 +1,11 @@
+import PageHeader from '@/components/PageHeader'
+
 const AppearancePage = () => {
-  return <div>AppearancePage</div>
+  return (
+    <div>
+      <PageHeader title='Appearance' />
+    </div>
+  )
 }
 
 export default AppearancePage

@@ -1,21 +1,35 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { Suspense } from 'react'
 
+import Loader from '@/components/Loader'
+import PageHeader from '@/components/PageHeader'
 import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
 import GitProviderList from '@/components/gitProviders/GitProviderList'
 
-const GitPage = async () => {
+const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
   const { docs: gitProvidersList } = await payload.find({
     collection: 'gitProviders',
-    limit: 1000,
+    pagination: false,
   })
 
+  return <GitProviderList gitProviders={gitProvidersList} />
+}
+
+const GitPage = () => {
   return (
-    <section>
+    <div>
+      <PageHeader
+        title='Git Providers'
+        description="Connect your git-provider for deploying App's."
+      />
       <CreateGitAppForm />
-      <GitProviderList gitProviders={gitProvidersList} />
-    </section>
+
+      <Suspense fallback={<Loader className='h-96 w-full' />}>
+        <SuspendedPage />
+      </Suspense>
+    </div>
   )
 }
 

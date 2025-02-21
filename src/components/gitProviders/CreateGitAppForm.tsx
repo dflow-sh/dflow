@@ -30,31 +30,24 @@ const value = JSON.stringify({
 
 const CreateGitAppForm = () => {
   return (
-    <div>
-      <h2 className='font-semibold'>Git Providers</h2>
-      <p className='text-muted-foreground'>
-        Connect your git-provider for deploying App&apos;s.
-      </p>
+    <form
+      method='post'
+      action='https://github.com/settings/apps/new?state=gh_init'
+      className='mt-4'>
+      <input
+        type='text'
+        name='manifest'
+        id='manifest'
+        className='sr-only'
+        defaultValue={value}
+      />
 
-      <form
-        method='post'
-        action='https://github.com/settings/apps/new?state=gh_init'
-        className='mt-4'>
-        <input
-          type='text'
-          name='manifest'
-          id='manifest'
-          className='sr-only'
-          defaultValue={value}
-        />
-
-        {/* Added github option in GitProviders collection */}
-        <Button type='submit'>
-          <Github />
-          Github
-        </Button>
-      </form>
-    </div>
+      {/* Added github option in GitProviders collection */}
+      <Button type='submit'>
+        <Github />
+        Github
+      </Button>
+    </form>
   )
 }
 
