@@ -84,6 +84,7 @@ const ServerStatus = ({ server }: { server: ServerType }) => {
               port: server.port,
               privateKey: sshKey,
               username: server.username,
+              serverId: server.id,
             })
             setOpen(true)
           }

@@ -75,6 +75,18 @@ const config: Config = {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        info: {
+          DEFAULT: '#47a8ff',
+          foreground: '#022248',
+        },
+        warning: {
+          DEFAULT: '#ff9300',
+          foreground: '#361900',
+        },
+        success: {
+          DEFAULT: '#00ca50',
+          foreground: '#00320b',
+        },
       },
       fontFamily: {
         mono: ['var(--font-geist-mono)'],

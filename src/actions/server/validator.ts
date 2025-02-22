@@ -27,4 +27,5 @@ export const installDokkuSchema = z.object({
   port: z.number(),
   username: z.string(),
   privateKey: z.string(),
+  serverId: z.string(),
 })

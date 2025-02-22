@@ -47,7 +47,7 @@ const Terminal = ({
     <pre
       ref={terminalRef}
       className={cn(
-        'flex h-96 w-full flex-col gap-1 overflow-y-scroll text-wrap rounded bg-foreground p-4 font-mono text-sm text-background',
+        'flex h-96 w-full flex-col gap-1 overflow-y-scroll text-wrap rounded bg-border p-4 font-mono text-sm text-foreground',
         className,
       )}>
       {isLoading && (

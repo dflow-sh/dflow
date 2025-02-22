@@ -5,6 +5,9 @@ import { logs } from './apps/logs'
 import { listVars } from './config/listVars'
 import { set } from './config/set'
 import { unset } from './config/unset'
+import { install as mongoInstall } from './database/mongo/install'
+import { install as installMySQL } from './database/mysql/install'
+import { install as installPostgres } from './database/postgres/install'
 import { info as distroInfo } from './distro/info'
 import { add } from './domains/add'
 import { remove } from './domains/remove'
@@ -25,6 +28,7 @@ import { unlink } from './plugin/database/unlink'
 import { installed } from './plugin/installed'
 import { enable } from './plugin/letsEncrypt/enable'
 import { list } from './plugin/list'
+import { toggle } from './plugin/toggle'
 import { portsAdd } from './ports/add'
 import { portsList } from './ports/list'
 import { portsRemove } from './ports/remove'
@@ -35,7 +39,7 @@ import { install as dokkuInstall } from './version/install'
 
 export const dokku = {
   apps: { create, logs, destroy, list: appList },
-  plugin: { installed, list },
+  plugin: { installed, list, toggle },
   config: { listVars, set, unset },
   database: {
     destroy: destroyDb,
@@ -47,6 +51,15 @@ export const dokku = {
     create: createDatabase,
     link,
     unlink,
+    postgres: {
+      install: installPostgres,
+    },
+    mongo: {
+      install: mongoInstall,
+    },
+    mysql: {
+      install: installMySQL,
+    },
   },
   ports: {
     list: portsList,

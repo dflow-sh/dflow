@@ -94,7 +94,7 @@ export const installDokkuAction = protectedClient
   })
   .schema(installDokkuSchema)
   .action(async ({ clientInput }) => {
-    const { host, port, privateKey, username } = clientInput
+    const { host, port, privateKey, username, serverId } = clientInput
 
     const ssh = await dynamicSSH({
       host,
@@ -120,6 +120,6 @@ export const installDokkuAction = protectedClient
     })
 
     if (installationResponse.success) {
-      revalidatePath('/settings/servers')
+      revalidatePath(`/settings/servers/${serverId}/general`)
     }
   })
