@@ -14,11 +14,11 @@ export const createServerSchema = z.object({
   sshKey: z.string({ message: 'SSH key is required' }),
 })
 
-export const updateServiceSchema = createServerSchema.extend({
+export const updateServerSchema = createServerSchema.extend({
   id: z.string(),
 })
 
-export const deleteServiceSchema = z.object({
+export const deleteServerSchema = z.object({
   id: z.string(),
 })
 

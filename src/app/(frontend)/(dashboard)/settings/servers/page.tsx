@@ -12,8 +12,6 @@ const SuspendedPage = async () => {
     pagination: false,
   })
 
-  console.log({ servers })
-
   return servers.length ? (
     <div className='grid gap-4 md:grid-cols-3'>
       {servers.map(server => (

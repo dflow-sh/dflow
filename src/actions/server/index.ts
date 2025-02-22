@@ -11,9 +11,9 @@ import { dynamicSSH } from '@/lib/ssh'
 
 import {
   createServerSchema,
-  deleteServiceSchema,
+  deleteServerSchema,
   installDokkuSchema,
-  updateServiceSchema,
+  updateServerSchema,
 } from './validator'
 
 const payload = await getPayload({ config: configPromise })
@@ -51,7 +51,7 @@ export const updateServerAction = protectedClient
   .metadata({
     actionName: 'updateServerAction',
   })
-  .schema(updateServiceSchema)
+  .schema(updateServerSchema)
   .action(async ({ clientInput }) => {
     const { id, ...data } = clientInput
 
@@ -73,7 +73,7 @@ export const deleteServerAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteServerAction',
   })
-  .schema(deleteServiceSchema)
+  .schema(deleteServerSchema)
   .action(async ({ clientInput }) => {
     const { id } = clientInput
 
@@ -83,7 +83,7 @@ export const deleteServerAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/servers')
+      revalidatePath(`/settings/servers/${id}/general`)
       return { deleted: true }
     }
   })
