@@ -25,6 +25,7 @@ import { links as databaseLinks } from './plugin/database/links'
 import { list as databaseList } from './plugin/database/list'
 import { logs as databaseLogs } from './plugin/database/logs'
 import { unlink } from './plugin/database/unlink'
+import { install as dokkuPluginInstall } from './plugin/install'
 import { installed } from './plugin/installed'
 import { enable } from './plugin/letsEncrypt/enable'
 import { list } from './plugin/list'
@@ -39,7 +40,7 @@ import { install as dokkuInstall } from './version/install'
 
 export const dokku = {
   apps: { create, logs, destroy, list: appList },
-  plugin: { installed, list, toggle },
+  plugin: { installed, list, toggle, install: dokkuPluginInstall },
   config: { listVars, set, unset },
   database: {
     destroy: destroyDb,

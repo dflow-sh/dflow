@@ -7,12 +7,13 @@ export const supportedPluginsSchema = z.enum([
   'mariadb',
   'redis',
   'letsencrypt',
-  'rabbitMQ',
+  'rabbitmq',
 ])
 
 export const installPluginSchema = z.object({
   serverId: z.string(),
-  plugin: supportedPluginsSchema,
+  pluginName: supportedPluginsSchema,
+  pluginURL: z.string(),
 })
 
 export const syncPluginSchema = z.object({

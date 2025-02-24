@@ -1,69 +1,42 @@
-import { LucideIcon } from 'lucide-react'
-import { JSX, SVGProps } from 'react'
 import { z } from 'zod'
 
 import { supportedPluginsSchema } from '@/actions/plugin/validator'
 
-import {
-  Letsencrypt,
-  MariaDB,
-  MongoDB,
-  MySQL,
-  PostgreSQL,
-  RabbitMQ,
-  Redis,
-} from './icons'
-
-export type PluginType = {
-  label: string
+export type PluginListType = {
   value: z.infer<typeof supportedPluginsSchema>
-  icon: LucideIcon | ((props: SVGProps<SVGSVGElement>) => JSX.Element)
+  githubURL: string
+  category: 'database' | 'domain' | 'messageQueue'
 }
 
-export const plugins: {
-  [key in 'database' | 'domain' | 'messageQueue']: PluginType[]
-} = {
-  database: [
-    {
-      label: 'Postgres',
-      value: 'postgres',
-      icon: PostgreSQL,
-    },
-    {
-      label: 'MySQL',
-      value: 'mysql',
-      icon: MySQL,
-    },
-    {
-      label: 'MongoDB',
-      value: 'mongo',
-      icon: MongoDB,
-    },
-    {
-      label: 'MariaDB',
-
-      value: 'mariadb',
-      icon: MariaDB,
-    },
-    {
-      label: 'Redis',
-
-      value: 'redis',
-      icon: Redis,
-    },
-  ],
-  domain: [
-    {
-      label: 'Letsencrypt',
-      value: 'letsencrypt',
-      icon: Letsencrypt,
-    },
-  ],
-  messageQueue: [
-    {
-      label: 'RabbitMQ',
-      value: 'rabbitMQ',
-      icon: RabbitMQ,
-    },
-  ],
-} as const
+export const pluginList: PluginListType[] = [
+  {
+    category: 'database',
+    value: 'mongo',
+    githubURL: 'https://github.com/dokku/dokku-mongo.git',
+  },
+  {
+    category: 'database',
+    value: 'postgres',
+    githubURL: 'https://github.com/dokku/dokku-postgres.git',
+  },
+  {
+    category: 'database',
+    value: 'mariadb',
+    githubURL: 'https://github.com/dokku/dokku-mariadb.git',
+  },
+  {
+    category: 'database',
+    value: 'redis',
+    githubURL: 'https://github.com/dokku/dokku-redis.git',
+  },
+  {
+    category: 'domain',
+    value: 'letsencrypt',
+    githubURL: 'https://github.com/dokku/dokku-letsencrypt.git',
+  },
+  {
+    category: 'messageQueue',
+    value: 'rabbitmq',
+    githubURL: 'https://github.com/dokku/dokku-rabbitmq.git',
+  },
+]

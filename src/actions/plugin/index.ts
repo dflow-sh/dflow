@@ -5,9 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
-import { pub } from '@/lib/redis'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
+import { createPluginQueue } from '@/queues/createPlugin'
 
 import {
   installPluginSchema,
@@ -23,7 +23,7 @@ export const installPluginAction = protectedClient
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput }) => {
-    const { plugin, serverId } = clientInput
+    const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -47,70 +47,20 @@ export const installPluginAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const ssh = await dynamicSSH(sshDetails)
-
-    if (plugin === 'mongo') {
-      const mongoInstallationResponse = await dokku.database.mongo.install({
-        ssh,
-        options: {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
-          onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info({
-              installMongoLogs: {
-                message: chunk.toString(),
-                type: 'stdout',
-              },
-            })
-          },
-        },
-      })
-
-      console.log({ mongoInstallationResponse })
-    } else if (plugin === 'mysql') {
-      const mySQLInstallationResponse = await dokku.database.mysql.install({
-        ssh,
-        options: {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
-          onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info({
-              installMySQLLogs: {
-                message: chunk.toString(),
-                type: 'stdout',
-              },
-            })
-          },
-        },
-      })
-
-      console.log({ mySQLInstallationResponse })
-    }
-
-    // Updating the plugin list of the server
-    const pluginsResponse = await dokku.plugin.list(ssh)
-
-    await payload.update({
-      collection: 'servers',
-      id: serverId,
-      data: {
-        plugins: pluginsResponse.plugins.map(plugin => ({
-          name: plugin.name,
-          status: plugin.status ? 'enabled' : 'disabled',
-          version: plugin.version,
-        })),
+    const queueResponse = await createPluginQueue.add('create-plugin', {
+      // payload,
+      pluginDetails: {
+        name: pluginName,
+        url: pluginURL,
       },
+      serverDetails: {
+        id: serverId,
+      },
+      sshDetails,
     })
 
-    ssh.dispose()
+    console.log({ queueResponse })
 
-    revalidatePath(`/settings/servers/${serverId}/general`)
     return { success: true }
   })
 
@@ -174,7 +124,7 @@ export const togglePluginStatusAction = protectedClient
   })
   .schema(togglePluginStatusSchema)
   .action(async ({ clientInput }) => {
-    const { plugin, serverId, enabled } = clientInput
+    const { pluginName, serverId, enabled } = clientInput
 
     // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -202,7 +152,7 @@ export const togglePluginStatusAction = protectedClient
 
     const pluginStatusResponse = await dokku.plugin.toggle({
       enabled,
-      pluginName: plugin,
+      pluginName,
       ssh,
     })
 

@@ -1,27 +1,68 @@
 'use client'
 
-import { PluginType, plugins } from '../plugins'
+import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Switch } from '../ui/switch'
-import { Download, RefreshCcw, Trash2 } from 'lucide-react'
+import { Download, LucideIcon, Plug2, RefreshCcw, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
+import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import {
   installPluginAction,
   syncPluginAction,
   togglePluginStatusAction,
 } from '@/actions/plugin'
+import { supportedPluginsSchema } from '@/actions/plugin/validator'
+import {
+  Letsencrypt,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  RabbitMQ,
+  Redis,
+} from '@/components/icons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
+
+const groupBy = ({
+  items,
+  key,
+}: {
+  items: PluginListType[]
+  key: keyof PluginListType
+}) =>
+  items.reduce(
+    (result, item) => ({
+      ...result,
+      [item[key] as string]: [...(result[item[key] as string] || []), item],
+    }),
+    {} as Record<string, PluginListType[]>,
+  )
+
+const iconMapping: {
+  [key in z.infer<typeof supportedPluginsSchema>]:
+    | LucideIcon
+    | ((props: SVGProps<SVGSVGElement>) => JSX.Element)
+} = {
+  postgres: PostgreSQL,
+  rabbitmq: RabbitMQ,
+  letsencrypt: Letsencrypt,
+  mariadb: MariaDB,
+  mongo: MongoDB,
+  redis: Redis,
+  mysql: MySQL,
+}
 
 const PluginCard = ({
   plugin,
   server,
 }: {
-  plugin: PluginType
+  plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   server: ServerType
 }) => {
   const { execute: installPlugin, isPending: isInstallingPlugin } = useAction(
@@ -29,7 +70,7 @@ const PluginCard = ({
     {
       onSuccess: ({ data, input }) => {
         if (data?.success) {
-          toast.success(`Successfully installed ${input.plugin} plugin`)
+          toast.success(`Added ${input.pluginName} plugin to deployment-queue`)
         }
       },
     },
@@ -40,7 +81,7 @@ const PluginCard = ({
       onSuccess: ({ data, input }) => {
         if (data?.success) {
           toast.success(
-            `Successfully ${input.enabled ? 'enabled' : 'disabled'} ${input.plugin} plugin`,
+            `Successfully ${input.enabled ? 'enabled' : 'disabled'} ${input.pluginName} plugin`,
           )
         }
       },
@@ -48,18 +89,22 @@ const PluginCard = ({
 
   const params = useParams<{ id: string }>()
   const defaultPlugins = server.plugins ?? []
+  const notCustomPlugin = 'value' in plugin
+  const pluginName = notCustomPlugin ? plugin.value : plugin.name
 
-  const installedPlugin = defaultPlugins.find(
-    defaultPlugin => defaultPlugin.name === plugin.value,
-  )
+  const installedPlugin = notCustomPlugin
+    ? defaultPlugins.find(defaultPlugin => defaultPlugin.name === plugin.value)
+    : plugin
+
+  const Icon = 'value' in plugin ? iconMapping[plugin.value] : Plug2
 
   return (
-    <Card className='h-full' key={plugin.value}>
+    <Card className='h-full' key={pluginName}>
       <CardHeader className='w-full flex-row items-start justify-between'>
         <div>
           <CardTitle className='flex items-center gap-2'>
-            <plugin.icon className='size-5' />
-            {plugin.label}
+            <Icon className='size-5' />
+            {pluginName}
 
             {installedPlugin && (
               <code className='font-normal text-muted-foreground'>
@@ -77,11 +122,14 @@ const PluginCard = ({
             disabled={isUpdatingPluginStatus}
             defaultChecked={installedPlugin.status === 'enabled'}
             onCheckedChange={enabled => {
-              togglePluginStatus({
-                plugin: plugin.value,
-                enabled,
-                serverId: server.id,
-              })
+              if (notCustomPlugin) {
+                togglePluginStatus({
+                  pluginName: plugin.value,
+                  pluginURL: plugin.githubURL,
+                  enabled,
+                  serverId: server.id,
+                })
+              }
             }}
           />
         )}
@@ -96,7 +144,13 @@ const PluginCard = ({
             variant='outline'
             disabled={isInstallingPlugin}
             onClick={() => {
-              installPlugin({ plugin: plugin.value, serverId: params.id })
+              if (notCustomPlugin) {
+                installPlugin({
+                  pluginName: plugin.value,
+                  pluginURL: plugin.githubURL,
+                  serverId: params.id,
+                })
+              }
             }}>
             <Download />
             Install
@@ -113,17 +167,15 @@ const PluginSection = ({
   server,
 }: {
   title: string
-  plugins: PluginType[]
+  plugins: PluginListType[] | NonNullable<ServerType['plugins']>
   server: ServerType
 }) => {
   return (
     <div className='space-y-2 pt-2'>
-      <h5 className='font-semibold'>{title}</h5>
-      <div className='grid gap-4 md:grid-cols-3'>
-        {plugins.map(plugin => {
-          return (
-            <PluginCard plugin={plugin} key={plugin.value} server={server} />
-          )
+      <h5 className='font-semibold capitalize'>{title}</h5>
+      <div className='grid gap-x-4 gap-y-8 md:grid-cols-3'>
+        {plugins.map((plugin, index) => {
+          return <PluginCard plugin={plugin} key={index} server={server} />
         })}
       </div>
     </div>
@@ -138,6 +190,19 @@ const PluginsList = ({ server }: { server: ServerType }) => {
       }
     },
   })
+
+  const customPlugins = server.plugins
+    ? server?.plugins.filter(({ name }) => {
+        const pluginExists = pluginList.find(plugin => plugin.value === name)
+
+        return !pluginExists
+      })
+    : []
+
+  const FormattedPlugins = Object.entries(
+    groupBy({ items: pluginList, key: 'category' }),
+  )
+
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
       <h4 className='text-lg font-semibold'>Plugins</h4>
@@ -156,17 +221,22 @@ const PluginsList = ({ server }: { server: ServerType }) => {
         </AlertDescription>
       </Alert>
 
-      <PluginSection
-        title='Databases'
-        server={server}
-        plugins={plugins.database}
-      />
-      <PluginSection title='Domain' server={server} plugins={plugins.domain} />
-      <PluginSection
-        title='Message Queue'
-        server={server}
-        plugins={plugins.messageQueue}
-      />
+      {FormattedPlugins.map(([category, list]) => (
+        <PluginSection
+          title={category}
+          server={server}
+          plugins={list}
+          key={category}
+        />
+      ))}
+
+      {customPlugins.length ? (
+        <PluginSection
+          title='Custom Plugins'
+          server={server}
+          plugins={customPlugins}
+        />
+      ) : null}
     </div>
   )
 }
