@@ -7,7 +7,8 @@ import { getPayload } from 'payload'
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
-import { createPluginQueue } from '@/queues/createPlugin'
+import { createPluginQueue } from '@/queues/plugin/create'
+import { deletePluginQueue } from '@/queues/plugin/delete'
 
 import {
   installPluginSchema,
@@ -176,5 +177,50 @@ export const togglePluginStatusAction = protectedClient
 
     ssh.dispose()
     revalidatePath(`/settings/servers/${serverId}/general`)
+    return { success: true }
+  })
+
+export const deletePluginAction = protectedClient
+  .metadata({
+    actionName: 'uninstallPluginAction',
+  })
+  .schema(installPluginSchema)
+  .action(async ({ clientInput }) => {
+    const { serverId, pluginName } = clientInput
+
+    // Fetching server details instead of passing from client
+    const { id, ip, username, port, sshKey } = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 5,
+    })
+
+    if (!id) {
+      throw new Error('Server not found')
+    }
+
+    if (typeof sshKey !== 'object') {
+      throw new Error('SSH key not found')
+    }
+
+    const sshDetails = {
+      host: ip,
+      port,
+      username,
+      privateKey: sshKey.privateKey,
+    }
+
+    const queueResponse = await deletePluginQueue.add('delete-plugin', {
+      pluginDetails: {
+        name: pluginName,
+      },
+      serverDetails: {
+        id: serverId,
+      },
+      sshDetails,
+    })
+
+    console.log({ queueResponse })
+
     return { success: true }
   })

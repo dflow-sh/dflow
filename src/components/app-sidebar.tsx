@@ -5,9 +5,6 @@ import {
   HardDrive,
   KeyRound,
   LayoutDashboard,
-  Palette,
-  UserRound,
-  UsersRound,
   Workflow,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -35,15 +32,21 @@ interface SidebarInterface extends React.ComponentProps<typeof Sidebar> {
 }
 
 const settings = [
+  // {
+  //   name: 'Profile',
+  //   href: '/settings/profile',
+  //   icon: UserRound,
+  // },
+  // {
+  //   name: 'Appearance',
+  //   href: '/settings/appearance',
+  //   icon: Palette,
+  // },
+
   {
-    name: 'Profile',
-    href: '/settings/profile',
-    icon: UserRound,
-  },
-  {
-    name: 'Appearance',
-    href: '/settings/appearance',
-    icon: Palette,
+    name: 'Servers',
+    href: '/settings/servers',
+    icon: HardDrive,
   },
   {
     name: 'SSH Keys',
@@ -51,20 +54,15 @@ const settings = [
     icon: KeyRound,
   },
   {
-    name: 'Servers',
-    href: '/settings/servers',
-    icon: HardDrive,
-  },
-  {
     name: 'Git',
     href: '/settings/git',
     icon: GitBranch,
   },
-  {
-    name: 'Team',
-    href: '/settings/team',
-    icon: UsersRound,
-  },
+  // {
+  //   name: 'Team',
+  //   href: '/settings/team',
+  //   icon: UsersRound,
+  // },
 ]
 
 export function AppSidebar({ user, ...props }: SidebarInterface) {

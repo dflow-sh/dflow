@@ -11,7 +11,7 @@ const SuspendedAddServer = async () => {
   const payload = await getPayload({ config: configPromise })
   const { docs: keys } = await payload.find({
     collection: 'sshKeys',
-    limit: 1000,
+    pagination: false,
   })
 
   return <CreateServer sshKeys={keys} />

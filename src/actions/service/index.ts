@@ -22,7 +22,7 @@ export const createServiceAction = publicClient
   })
   .schema(createServiceSchema)
   .action(async ({ clientInput }) => {
-    const { name, description, projectId, type } = clientInput
+    const { name, description, projectId, type, databaseType } = clientInput
 
     const response = await payload.create({
       collection: 'services',
@@ -31,6 +31,9 @@ export const createServiceAction = publicClient
         name,
         description,
         type,
+        databaseDetails: {
+          type: databaseType,
+        },
       },
     })
 

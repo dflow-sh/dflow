@@ -68,7 +68,7 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             serviceDetails.name,
             'http',
             '80',
-            serviceDetails.port ? `${serviceDetails.port}` : '3000',
+            githubSettings.port ? `${githubSettings.port}` : '3000',
             {
               onStdout: async chunk => {
                 await pub.publish('my-channel', chunk.toString())

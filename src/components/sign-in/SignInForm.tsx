@@ -91,15 +91,6 @@ const SignInForm: React.FC = () => {
                     </FormItem>
                   )}
                 />
-
-                <p className='text-sm text-muted-foreground'>
-                  Forgot your password?{' '}
-                  <Link
-                    className='text-primary underline'
-                    href='/forgot-password'>
-                    Reset it.
-                  </Link>
-                </p>
               </div>
 
               <Button

@@ -1,5 +1,6 @@
 'use client'
 
+import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -8,7 +9,7 @@ import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -55,6 +56,34 @@ const options = [
   },
 ]
 
+const databaseOptions = [
+  {
+    label: 'Postgres',
+    value: 'postgres',
+    icon: PostgreSQL,
+  },
+  {
+    label: 'MongoDB',
+    value: 'mongo',
+    icon: MongoDB,
+  },
+  {
+    label: 'MySQL',
+    value: 'mysql',
+    icon: MySQL,
+  },
+  {
+    label: 'MariaDB',
+    value: 'mariadb',
+    icon: MariaDB,
+  },
+  {
+    label: 'Redis',
+    value: 'redis',
+    icon: Redis,
+  },
+]
+
 const CreateService = () => {
   const [open, setOpen] = useState(false)
   const params = useParams<{ id: string }>()
@@ -78,6 +107,8 @@ const CreateService = () => {
       projectId: params.id,
     },
   })
+
+  const { type } = useWatch({ control: form.control })
 
   function onSubmit(values: z.infer<typeof createServiceSchema>) {
     execute(values)
@@ -154,6 +185,42 @@ const CreateService = () => {
                   </FormItem>
                 )}
               />
+
+              {type === 'database' && (
+                <FormField
+                  control={form.control}
+                  name='databaseType'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Database</FormLabel>
+
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Select a type' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {databaseOptions.map(
+                            ({ label, value, icon: Icon }) => (
+                              <SelectItem key={value} value={value}>
+                                <span className='flex gap-2'>
+                                  <Icon className='size-5' />
+                                  {label}
+                                </span>
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

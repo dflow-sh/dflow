@@ -1,11 +1,10 @@
 import configPromise from '@payload-config'
+import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import BuildTypeForm from '@/components/service/BuildTypeForm'
-import DeploymentForm from '@/components/service/DeploymentForm'
-import ProviderForm from '@/components/service/ProviderForm'
+import GeneralTab from '@/components/service/GeneralTab'
 
 interface PageProps {
   params: Promise<{
@@ -15,7 +14,7 @@ interface PageProps {
 }
 
 const SuspendedPage = async ({ params }: PageProps) => {
-  const { id, serviceId } = await params
+  const { serviceId } = await params
   const payload = await getPayload({ config: configPromise })
 
   const service = await payload.findByID({
@@ -23,18 +22,11 @@ const SuspendedPage = async ({ params }: PageProps) => {
     id: serviceId,
   })
 
-  const { docs: gitProviders } = await payload.find({
-    collection: 'gitProviders',
-    limit: 1000,
-  })
+  if (!service?.id) {
+    return notFound()
+  }
 
-  return (
-    <div className='space-y-4'>
-      <DeploymentForm />
-      <ProviderForm service={service} gitProviders={gitProviders} />
-      <BuildTypeForm service={service} />
-    </div>
-  )
+  return <GeneralTab service={service} />
 }
 
 const GeneralTabPage = ({ params }: PageProps) => {

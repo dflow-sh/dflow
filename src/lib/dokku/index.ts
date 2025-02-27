@@ -30,6 +30,7 @@ import { installed } from './plugin/installed'
 import { enable } from './plugin/letsEncrypt/enable'
 import { list } from './plugin/list'
 import { toggle } from './plugin/toggle'
+import { uninstall as PluginUninstall } from './plugin/uninstall'
 import { portsAdd } from './ports/add'
 import { portsList } from './ports/list'
 import { portsRemove } from './ports/remove'
@@ -40,7 +41,13 @@ import { install as dokkuInstall } from './version/install'
 
 export const dokku = {
   apps: { create, logs, destroy, list: appList },
-  plugin: { installed, list, toggle, install: dokkuPluginInstall },
+  plugin: {
+    installed,
+    list,
+    toggle,
+    install: dokkuPluginInstall,
+    uninstall: PluginUninstall,
+  },
   config: { listVars, set, unset },
   database: {
     destroy: destroyDb,

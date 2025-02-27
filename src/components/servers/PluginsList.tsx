@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
+  deletePluginAction,
   installPluginAction,
   syncPluginAction,
   togglePluginStatusAction,
@@ -28,6 +29,9 @@ import {
 } from '@/components/icons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
+
+// Job Queued
+// Queued job to install plugin
 
 const groupBy = ({
   items,
@@ -70,7 +74,24 @@ const PluginCard = ({
     {
       onSuccess: ({ data, input }) => {
         if (data?.success) {
-          toast.success(`Added ${input.pluginName} plugin to deployment-queue`)
+          toast.info('Job queued', {
+            description: `Queued job to install ${input.pluginName} plugin`,
+            duration: 3000,
+          })
+        }
+      },
+    },
+  )
+
+  const { execute: deletePlugin, isPending: isDeletingPlugin } = useAction(
+    deletePluginAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data?.success) {
+          toast.info('Job queued', {
+            description: `Queued job to uninstall ${input.pluginName} plugin`,
+            duration: 3000,
+          })
         }
       },
     },
@@ -135,7 +156,18 @@ const PluginCard = ({
         )}
 
         {installedPlugin ? (
-          <Button variant='outline'>
+          <Button
+            variant='outline'
+            disabled={!notCustomPlugin || isDeletingPlugin}
+            onClick={() => {
+              if (notCustomPlugin) {
+                deletePlugin({
+                  pluginName: plugin.value,
+                  pluginURL: plugin.githubURL,
+                  serverId: params.id,
+                })
+              }
+            }}>
             <Trash2 />
             Uninstall
           </Button>

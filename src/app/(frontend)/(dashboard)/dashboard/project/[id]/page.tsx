@@ -1,8 +1,10 @@
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
+import { Suspense } from 'react'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
+import Loader from '@/components/Loader'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
 
@@ -12,7 +14,7 @@ interface PageProps {
   }>
 }
 
-const ProjectIdPage = async ({ params }: PageProps) => {
+const SuspendedPage = async ({ params }: PageProps) => {
   const { id } = await params
   const payload = await getPayload({ config: configPromise })
 
@@ -67,6 +69,14 @@ const ProjectIdPage = async ({ params }: PageProps) => {
         )}
       </section>
     </>
+  )
+}
+
+const ProjectIdPage = async ({ params }: PageProps) => {
+  return (
+    <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <SuspendedPage params={params} />
+    </Suspense>
   )
 }
 

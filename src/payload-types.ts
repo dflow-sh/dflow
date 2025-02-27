@@ -255,7 +255,6 @@ export interface Service {
     | boolean
     | null;
   builder?: ('nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
-  port?: number | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
   githubSettings?: {
@@ -263,6 +262,18 @@ export interface Service {
     owner: string;
     branch: string;
     buildPath: string;
+    port?: number | null;
+  };
+  databaseDetails?: {
+    type?: ('postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb') | null;
+    username?: string | null;
+    password?: string | null;
+    host?: string | null;
+    port?: string | null;
+    connectionUrl?: string | null;
+    version?: string | null;
+    status?: ('running' | 'missing') | null;
+    ports?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -435,7 +446,6 @@ export interface ServicesSelect<T extends boolean = true> {
   type?: T;
   environmentVariables?: T;
   builder?: T;
-  port?: T;
   provider?: T;
   providerType?: T;
   githubSettings?:
@@ -445,6 +455,20 @@ export interface ServicesSelect<T extends boolean = true> {
         owner?: T;
         branch?: T;
         buildPath?: T;
+        port?: T;
+      };
+  databaseDetails?:
+    | T
+    | {
+        type?: T;
+        username?: T;
+        password?: T;
+        host?: T;
+        port?: T;
+        connectionUrl?: T;
+        version?: T;
+        status?: T;
+        ports?: T;
       };
   updatedAt?: T;
   createdAt?: T;

@@ -7,6 +7,9 @@ export const createServiceSchema = z.object({
     .max(50, { message: 'Name should be less than 50 characters' }),
   description: z.string().optional(),
   type: z.enum(['database', 'app', 'docker']),
+  databaseType: z
+    .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
+    .optional(),
   projectId: z.string(),
 })
 

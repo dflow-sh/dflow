@@ -37,7 +37,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
         {children}
-        <Toaster richColors theme='dark' />
+        <Toaster richColors theme='dark' duration={2000} />
       </body>
     </html>
   )

@@ -7,7 +7,7 @@ export const install = async (
 ) => {
   // TODO validate plugin url to allow only url finishing with .git
   const resultPluginInstall = await ssh.execCommand(
-    `dokku plugin:install ${pluginUrl}`,
+    `sudo dokku plugin:install ${pluginUrl}`,
     options,
   )
 
