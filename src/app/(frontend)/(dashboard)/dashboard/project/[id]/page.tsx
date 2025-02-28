@@ -45,7 +45,9 @@ const SuspendedPage = async ({ params }: PageProps) => {
             </p>
           </div>
 
-          <CreateService />
+          {typeof projectDetails.server === 'object' && (
+            <CreateService server={projectDetails.server} />
+          )}
         </div>
 
         {services?.docs && services.docs.length ? (

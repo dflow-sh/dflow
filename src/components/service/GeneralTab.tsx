@@ -30,7 +30,7 @@ const DatabaseComponent = ({ service }: { service: Service }) => {
   return (
     <div className='space-y-4'>
       <DeploymentForm service={service} />
-      <DatabaseForm />
+      <DatabaseForm service={service} />
     </div>
   )
 }

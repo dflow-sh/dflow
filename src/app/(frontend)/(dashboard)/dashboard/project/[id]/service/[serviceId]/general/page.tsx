@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
@@ -15,6 +16,10 @@ interface PageProps {
 
 const SuspendedPage = async ({ params }: PageProps) => {
   const { serviceId } = await params
+  const headersList = await headers()
+
+  console.log(headersList.get('Authorization'))
+
   const payload = await getPayload({ config: configPromise })
 
   const service = await payload.findByID({

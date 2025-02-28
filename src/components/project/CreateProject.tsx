@@ -77,7 +77,11 @@ const CreateProject = ({
               ? project.server.id
               : project.server,
         }
-      : {},
+      : {
+          name: '',
+          description: '',
+          serverId: '',
+        },
   })
 
   const { execute: createProject, isPending: isCreatingProject } = useAction(

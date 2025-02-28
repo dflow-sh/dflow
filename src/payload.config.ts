@@ -13,6 +13,7 @@ import { SSHKeys } from './payload/collections/SSHkeys'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Users } from './payload/collections/Users'
+import { databaseUpdate } from './payload/endpoints/databaseUpdate'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -44,4 +45,11 @@ export default buildConfig({
   }),
   sharp,
   plugins: [],
+  endpoints: [
+    {
+      method: 'post',
+      path: '/databaseUpdate',
+      handler: databaseUpdate,
+    },
+  ],
 })

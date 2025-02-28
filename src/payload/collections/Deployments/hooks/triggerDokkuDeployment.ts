@@ -1,14 +1,21 @@
+import { cookies } from 'next/headers'
 import { CollectionAfterChangeHook } from 'payload'
 
 import { dokku } from '@/lib/dokku'
 import { pub } from '@/lib/redis'
 import { dynamicSSH } from '@/lib/ssh'
 import { Deployment } from '@/payload-types'
+import { createDatabaseQueue } from '@/queues/createDatabase'
 import { deployAppQueue } from '@/queues/deployApp'
 
 export const triggerDokkuDeployment: CollectionAfterChangeHook<
   Deployment
-> = async ({ doc, req: { payload }, operation }) => {
+> = async ({ doc, req: { payload, headers }, operation }) => {
+  const cookieStore = await cookies()
+  const payloadToken = cookieStore.get('payload-token')
+
+  console.dir(payloadToken?.value, { depth: Infinity })
+
   const {
     project,
     type,
@@ -110,6 +117,24 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           })
         }
+      }
+
+      // Handling databases deployments
+      if (type === 'database' && serviceDetails.databaseDetails?.type) {
+        const databaseQueueResponse = await createDatabaseQueue.add(
+          'create-database',
+          {
+            databaseName: serviceDetails.name,
+            databaseType: serviceDetails.databaseDetails?.type,
+            sshDetails,
+            payloadToken: payloadToken?.value,
+            serviceDetails: {
+              id: serviceDetails.id,
+            },
+          },
+        )
+
+        console.log({ databaseQueueResponse })
       }
     }
   }

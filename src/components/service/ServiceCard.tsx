@@ -79,7 +79,7 @@ export function ServiceCard({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant='outline'
+                variant='ghost'
                 size='icon'
                 className='!mt-0'
                 onClick={e => {

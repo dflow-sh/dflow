@@ -8,7 +8,6 @@ const tabsList = [
   { label: 'General', slug: 'general', disabled: false },
   { label: 'Environment', slug: 'environment', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: true },
-  { label: 'Servers', slug: 'servers', disabled: true },
   { label: 'Logs', slug: 'logs', disabled: false },
   { label: 'Deployments', slug: 'deployments', disabled: false },
   { label: 'Domains', slug: 'domains', disabled: false },

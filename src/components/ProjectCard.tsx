@@ -69,7 +69,7 @@ export function ProjectCard({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant='outline'
+                  variant='ghost'
                   size='icon'
                   className='!mt-0'
                   onClick={e => {
@@ -93,7 +93,7 @@ export function ProjectCard({
 
                 <DropdownMenuItem
                   className='cursor-pointer'
-                  onSelect={e => {
+                  onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
                     execute({ id: project.id })

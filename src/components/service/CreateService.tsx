@@ -7,8 +7,9 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -40,6 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { slugify } from '@/lib/slugify'
+import { Server } from '@/payload-types'
 
 const options = [
   {
@@ -84,9 +86,10 @@ const databaseOptions = [
   },
 ]
 
-const CreateService = () => {
+const CreateService = ({ server }: { server: Server }) => {
   const [open, setOpen] = useState(false)
   const params = useParams<{ id: string }>()
+  const { plugins = [] } = server
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
@@ -204,14 +207,39 @@ const CreateService = () => {
                         </FormControl>
                         <SelectContent>
                           {databaseOptions.map(
-                            ({ label, value, icon: Icon }) => (
-                              <SelectItem key={value} value={value}>
-                                <span className='flex gap-2'>
-                                  <Icon className='size-5' />
-                                  {label}
-                                </span>
-                              </SelectItem>
-                            ),
+                            ({ label, value, icon: Icon }) => {
+                              const optionDisabled =
+                                !plugins ||
+                                !plugins.find(
+                                  plugin => plugin.name === value,
+                                ) ||
+                                plugins.find(plugin => plugin.name === value)
+                                  ?.status === 'disabled'
+
+                              return (
+                                <Fragment key={value}>
+                                  <SelectItem
+                                    value={value}
+                                    disabled={optionDisabled}>
+                                    <span className='flex gap-2'>
+                                      <Icon className='size-5' />
+                                      {label}
+                                    </span>
+                                  </SelectItem>
+
+                                  {optionDisabled && (
+                                    <p className='px-2 text-sm'>
+                                      {`To use ${label} install/enable ${value}-plugin at `}
+                                      <Link
+                                        className='text-primary underline'
+                                        href={`/settings/servers/${server.id}/general`}>
+                                        server-page
+                                      </Link>
+                                    </p>
+                                  )}
+                                </Fragment>
+                              )
+                            },
                           )}
                         </SelectContent>
                       </Select>

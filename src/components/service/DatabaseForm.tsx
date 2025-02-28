@@ -15,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Service } from '@/payload-types'
 
 const formSchema = z.object({
   port: z.string({ message: 'Port is required' }),
@@ -60,7 +61,9 @@ const PortForm = () => {
   )
 }
 
-const DatabaseForm = ({ ...props }) => {
+const DatabaseForm = ({ service }: { service: Service }) => {
+  const { databaseDetails } = service
+
   return (
     <>
       <div className='space-y-4 rounded border p-4'>
@@ -70,35 +73,37 @@ const DatabaseForm = ({ ...props }) => {
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Label>Username</Label>
-              <Input disabled />
+              <Input disabled value={databaseDetails?.username ?? '-'} />
             </div>
 
             <div className='space-y-2'>
               <Label>Password</Label>
-              <Input disabled />
+              <Input disabled value={databaseDetails?.password ?? '-'} />
             </div>
           </div>
 
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Label>Port</Label>
-              <Input disabled />
+              <Input disabled value={databaseDetails?.port ?? '-'} />
             </div>
 
             <div className='space-y-2'>
               <Label>Host</Label>
-              <Input disabled />
+              <Input disabled value={databaseDetails?.host ?? '-'} />
             </div>
           </div>
 
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Label>Internal connection url</Label>
-              <Input disabled />
+              <Input disabled value={databaseDetails?.connectionUrl ?? '-'} />
             </div>
 
             <div>
               <Label>Status</Label>
+
+              <p>{databaseDetails?.status ?? '-'}</p>
             </div>
           </div>
         </form>
