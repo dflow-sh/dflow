@@ -80,6 +80,10 @@ const databaseField: Field = {
               label: 'Missing',
               value: 'missing',
             },
+            {
+              label: 'Exited',
+              value: 'exited',
+            },
           ],
         },
         {
@@ -193,6 +197,7 @@ export const Services: CollectionConfig = {
     updatedAt: true,
     createdAt: true,
     type: true,
+    databaseDetails: true,
   },
   fields: [
     {

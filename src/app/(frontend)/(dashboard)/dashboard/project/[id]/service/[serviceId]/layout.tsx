@@ -1,10 +1,25 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import React from 'react'
+import React, { JSX, SVGProps } from 'react'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
+import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+import { Badge } from '@/components/ui/badge'
+import { Service } from '@/payload-types'
 
 import LayoutClient from './layout.client'
+
+type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
+
+const iconMapping: {
+  [key in StatusType]: (props: SVGProps<SVGSVGElement>) => JSX.Element
+} = {
+  postgres: PostgreSQL,
+  mariadb: MariaDB,
+  mongo: MongoDB,
+  mysql: MySQL,
+  redis: Redis,
+}
 
 const ServiceIdLayout = async ({
   children,
@@ -23,6 +38,10 @@ const ServiceIdLayout = async ({
     collection: 'services',
     id: serviceId,
   })
+
+  const Icon = serviceDetails.databaseDetails?.type
+    ? iconMapping[serviceDetails.databaseDetails.type]
+    : null
 
   return (
     <>
@@ -43,7 +62,16 @@ const ServiceIdLayout = async ({
 
       <section>
         <div className='mb-8'>
-          <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+          <div className='flex items-center gap-2'>
+            {Icon && <Icon className='size-6' />}
+
+            <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+            {Icon && (
+              <Badge className='h-max w-max gap-1'>
+                {serviceDetails?.databaseDetails?.status}
+              </Badge>
+            )}
+          </div>
           <p className='text-muted-foreground'>{serviceDetails.description}</p>
         </div>
 

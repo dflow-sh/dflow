@@ -49,7 +49,7 @@ function parseDatabaseInfo({
     password?: string
     host?: string
     port?: string
-    status?: 'running' | 'missing'
+    status?: 'running' | 'missing' | 'exited'
     version?: string
   } = { type: dbType }
 
@@ -113,7 +113,7 @@ function parseDatabaseInfo({
       }
     } else if (line.startsWith('Status:')) {
       const status = line.split('Status:')[1].trim()
-      if (status === 'running' || status === 'missing') {
+      if (status === 'running' || status === 'missing' || status === 'exited') {
         data.status = status
       }
     } else if (line.startsWith('Version:')) {

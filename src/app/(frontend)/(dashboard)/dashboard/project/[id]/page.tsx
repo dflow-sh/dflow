@@ -26,7 +26,6 @@ const SuspendedPage = async ({ params }: PageProps) => {
   if (!projectDetails) {
     notFound()
   }
-
   return (
     <>
       <DynamicBreadcrumbs

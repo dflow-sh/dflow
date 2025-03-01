@@ -94,17 +94,9 @@ const DatabaseForm = ({ service }: { service: Service }) => {
             </div>
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-2'>
-              <Label>Internal connection url</Label>
-              <Input disabled value={databaseDetails?.connectionUrl ?? '-'} />
-            </div>
-
-            <div>
-              <Label>Status</Label>
-
-              <p>{databaseDetails?.status ?? '-'}</p>
-            </div>
+          <div className='space-y-2'>
+            <Label>Internal connection url</Label>
+            <Input disabled value={databaseDetails?.connectionUrl ?? '-'} />
           </div>
         </form>
       </div>

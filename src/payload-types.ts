@@ -272,7 +272,7 @@ export interface Service {
     port?: string | null;
     connectionUrl?: string | null;
     version?: string | null;
-    status?: ('running' | 'missing') | null;
+    status?: ('running' | 'missing' | 'exited') | null;
     ports?: string | null;
   };
   updatedAt: string;

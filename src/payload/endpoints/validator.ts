@@ -18,7 +18,7 @@ export const databaseUpdateSchema = z.union([
       password: z.string().optional(),
       host: z.string().optional(),
       port: z.string().optional(),
-      status: z.enum(['running', 'missing']).optional(),
+      status: z.enum(['running', 'missing', 'exited']).optional(),
       version: z.string().optional(),
     }),
   }),
