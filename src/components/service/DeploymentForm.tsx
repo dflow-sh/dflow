@@ -14,7 +14,9 @@ const DeploymentForm = ({ service }: { service: Service }) => {
   const { execute, isPending } = useAction(createDeploymentAction, {
     onSuccess: ({ data }) => {
       if (data) {
-        toast.success('Successfully triggered deployment')
+        toast.info('Deployment Queued', {
+          description: 'Added service to deployment queue',
+        })
       }
     },
   })

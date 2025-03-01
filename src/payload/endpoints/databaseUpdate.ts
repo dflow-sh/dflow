@@ -33,7 +33,9 @@ export const databaseUpdate: PayloadHandler = async ({
           },
         })
 
-        break
+        return Response.json({
+          data: updateResponse,
+        })
 
       default:
         break

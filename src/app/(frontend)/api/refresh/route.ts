@@ -14,19 +14,40 @@ export async function GET(req: NextRequest) {
   const stream = new ReadableStream({
     start(controller) {
       const sendEvent = (channel: string, message: string) => {
+        console.log(`Got message ${channel}-channel ${message}`)
+
         controller.enqueue(encoder.encode(`data: ${message}\n\n`))
       }
 
       // Subscribe to a Redis channel
-      duplicateSubscriber.subscribe('my-channel', err => {
+      duplicateSubscriber.subscribe('refresh-channel', err => {
         if (err) console.error('Redis Subscribe Error:', err)
       })
 
       duplicateSubscriber.on('message', sendEvent)
 
+      duplicateSubscriber.on('error', err => {
+        console.log('error', err.message)
+      })
+
+      duplicateSubscriber.on('connect', () => {
+        console.log('Connected to refresh-channel')
+      })
+
+      // Use a separate client for the keepalive ping
+      const keepAlive = setInterval(() => {
+        // Don't use the subscription client for anything other than subscription
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ keepalive: true })}\n\n`),
+        )
+      }, 30000)
+
       req.signal.addEventListener('abort', () => {
-        duplicateSubscriber.unsubscribe('my-channel')
+        duplicateSubscriber.unsubscribe('refresh-channel')
         duplicateSubscriber.off('message', sendEvent)
+        clearInterval(keepAlive)
+        // Close the connection when done
+        duplicateSubscriber.quit().catch(() => {})
         controller.close()
       })
     },

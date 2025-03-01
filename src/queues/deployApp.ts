@@ -3,10 +3,9 @@ import { dynamicSSH, sshConnect } from '../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
 import { Job, Queue, Worker } from 'bullmq'
 import createDebug from 'debug'
-import Redis from 'ioredis'
 import { Octokit } from 'octokit'
 
-import { pub } from '@/lib/redis'
+import { pub, queueConnection } from '@/lib/redis'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
@@ -32,13 +31,8 @@ interface QueueArgs {
 const queueName = 'deploy-app'
 const debug = createDebug(`queue:${queueName}`)
 
-const redisClient = new Redis(process.env.REDIS_URL!, {
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-})
-
 export const deployAppQueue = new Queue<QueueArgs>(queueName, {
-  connection: redisClient,
+  connection: queueConnection,
 })
 
 /**
@@ -156,7 +150,7 @@ const worker = new Worker<QueueArgs>(
     //   `/dashboard/project/${serviceDetails.projectId}/service/${serviceDetails.serviceId}/deployments`,
     // )
   },
-  { connection: redisClient },
+  { connection: queueConnection },
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {

@@ -4,7 +4,7 @@ import { Job, Queue, Worker } from 'bullmq'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { redis } from '@/lib/redis'
+import { pub, queueConnection } from '@/lib/redis'
 import { DatabaseUpdateSchemaType } from '@/payload/endpoints/validator'
 
 const queueName = 'create-database'
@@ -33,29 +33,6 @@ interface QueueArgs {
   }
   payloadToken: string | undefined
 }
-
-// res: {
-//   code: 0,
-//   signal: null,
-//   stdout: 'Waiting for container to be ready\n' +
-//     '=====> MongoDB container created: create-new-mongo-database\n' +
-//     '=====> create-new-mongo-database mongo service information\n' +
-//     '       Config dir:          /var/lib/dokku/services/mongo/create-new-mongo-database/config\n' +
-//     '       Config options:       --storageEngine wiredTiger --auth \n' +
-//     '       Data dir:            /var/lib/dokku/services/mongo/create-new-mongo-database/data\n' +
-//     '       Dsn:                 mongodb://create-new-mongo-database:5bc069f19fb08186d13c77518acbdc58@dokku-mongo-create-new-mongo-database:27017/create_new_mongo_database\n' +
-//     '       Exposed ports:       -                        \n' +
-//     '       Id:                  62f93e879a9868323a50d44284ece170bda93cf939b0552bacd5c845f0a95403\n' +
-//     '       Internal ip:         172.17.0.17              \n' +
-//     '       Initial network:                              \n' +
-//     '       Links:               -                        \n' +
-//     '       Post create network:                          \n' +
-//     '       Post start network:                           \n' +
-//     '       Service root:        /var/lib/dokku/services/mongo/create-new-mongo-database\n' +
-//     '       Status:              running                  \n' +
-//     '       Version:             mongo:8.0.4',
-//   stderr: ''
-// }
 
 function parseDatabaseInfo({
   stdout,
@@ -148,7 +125,7 @@ function parseDatabaseInfo({
 }
 
 export const createDatabaseQueue = new Queue<QueueArgs>(queueName, {
-  connection: redis,
+  connection: queueConnection,
 })
 
 const worker = new Worker<QueueArgs>(
@@ -169,11 +146,11 @@ const worker = new Worker<QueueArgs>(
     const ssh = await dynamicSSH(sshDetails)
     const res = await dokku.database.create(ssh, databaseName, databaseType, {
       onStdout: async chunk => {
-        await redis.publish('my-channel', chunk.toString())
+        await pub.publish('my-channel', chunk.toString())
         // console.info(chunk.toString());
       },
       onStderr: async chunk => {
-        await redis.publish('my-channel', chunk.toString())
+        await pub.publish('my-channel', chunk.toString())
 
         console.info({
           createDatabaseLogs: {
@@ -183,6 +160,11 @@ const worker = new Worker<QueueArgs>(
         })
       },
     })
+
+    await pub.publish(
+      'my-channel',
+      `✅ Successfully created ${databaseName}-database, updated details...`,
+    )
 
     const formattedData = parseDatabaseInfo({
       stdout: res.stdout,
@@ -197,40 +179,34 @@ const worker = new Worker<QueueArgs>(
       },
     }
 
-    await fetch(
-      `http://${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${payloadToken}`,
-          'Content-Type': 'application/json',
+    try {
+      const webhookResponse = await fetch(
+        `http://${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${payloadToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
         },
-        body: JSON.stringify(data),
-      },
+      )
+
+      console.log({ webhookResponse })
+    } catch (error) {
+      console.log('Webhook Error: ', error)
+    }
+
+    const publishedResponse = await pub.publish(
+      'refresh-channel',
+      JSON.stringify({ refresh: true }),
     )
 
-    console.dir({ res }, { depth: Infinity })
-
-    if (!res.stderr) {
-      // sendLog(job.id, {
-      //   createDatabaseLogs: {
-      //     // message: createdDb.id,
-      //     message: '12345',
-      //     type: 'end:success',
-      //   },
-      // });
-    } else if (res.stderr) {
-      // sendLog('DATABASE_CREATED', {
-      //   createDatabaseLogs: {
-      //     message: 'Failed to create db',
-      //     type: 'end:failure',
-      //   },
-      // });
-    }
+    console.dir({ res, publishedResponse }, { depth: Infinity })
 
     ssh.dispose()
   },
-  { connection: redis },
+  { connection: queueConnection },
 )
 
 worker.on('failed', async (job: Job | undefined, err) => {

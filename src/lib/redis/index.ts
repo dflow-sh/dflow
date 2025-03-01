@@ -1,16 +1,19 @@
 import Redis from 'ioredis'
 
-export const pub = new Redis(process.env.REDIS_URL!, {
+// Connection for BullMQ queue operations
+export const queueConnection = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 })
 
+// Dedicated connection for subscriptions
 export const sub = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 })
 
-export const redis = new Redis(process.env.REDIS_URL!, {
+// Dedicated connection for publishing
+export const pub = new Redis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false,
 })

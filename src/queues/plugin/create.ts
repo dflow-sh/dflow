@@ -3,7 +3,7 @@ import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 import createDebug from 'debug'
 
-import { redis } from '@/lib/redis'
+import { pub, queueConnection } from '@/lib/redis'
 
 interface QueueArgs {
   sshDetails: {
@@ -29,7 +29,7 @@ const debug = createDebug(`queue:${queueName}`)
 debug.enabled = true
 
 export const createPluginQueue = new Queue<QueueArgs>(queueName, {
-  connection: redis,
+  connection: queueConnection,
 })
 
 console.log('Worker is running...')
@@ -52,11 +52,11 @@ const worker = new Worker<QueueArgs>(
         {
           onStdout: async chunk => {
             debug('stdout:', chunk.toString())
-            await redis.publish('my-channel', chunk.toString())
+            await pub.publish('my-channel', chunk.toString())
           },
           onStderr: async chunk => {
             debug('stderr:', chunk.toString())
-            await redis.publish('my-channel', chunk.toString())
+            await pub.publish('my-channel', chunk.toString())
           },
         },
       )
@@ -64,7 +64,7 @@ const worker = new Worker<QueueArgs>(
       debug('Plugin installation response:', pluginInstallationResponse)
 
       if (pluginInstallationResponse.code === 0) {
-        await redis.publish(
+        await pub.publish(
           'my-channel',
           `✅ Successfully installed ${pluginDetails.name} plugin`,
         )
@@ -77,7 +77,7 @@ const worker = new Worker<QueueArgs>(
     }
   },
   {
-    connection: redis,
+    connection: queueConnection,
     // Add concurrency limit
     concurrency: 1,
   },
@@ -89,7 +89,7 @@ worker.on('completed', job => {
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   debug(`Job ${job?.id} failed:`, err)
-  await redis.publish('my-channel', '❌ failed to install plugin')
+  await pub.publish('my-channel', '❌ failed to install plugin')
 
   if (job?.data) {
     const { pluginDetails } = job.data

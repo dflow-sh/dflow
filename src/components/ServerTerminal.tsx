@@ -35,6 +35,7 @@ const ServerTerminal = () => {
     // On component unmount close the event source
     return () => {
       if (eventSource) {
+        setMessages([])
         eventSource.close()
       }
     }
