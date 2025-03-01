@@ -66,7 +66,7 @@ const ServiceIdLayout = async ({
             {Icon && <Icon className='size-6' />}
 
             <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
-            {Icon && (
+            {serviceDetails?.databaseDetails?.status && (
               <Badge className='h-max w-max gap-1'>
                 {serviceDetails?.databaseDetails?.status}
               </Badge>

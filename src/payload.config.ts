@@ -1,5 +1,6 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { env } from 'env'
 import path from 'path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
@@ -41,7 +42,7 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || '',
+    url: env.DATABASE_URI,
   }),
   sharp,
   plugins: [],

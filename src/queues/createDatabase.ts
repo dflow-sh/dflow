@@ -1,6 +1,7 @@
 import { dokku } from '../lib/dokku'
 import { dynamicSSH } from '../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { env } from 'env'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
@@ -181,7 +182,7 @@ const worker = new Worker<QueueArgs>(
 
     try {
       const webhookResponse = await fetch(
-        `http://${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`,
+        `${env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`,
         {
           method: 'POST',
           headers: {
