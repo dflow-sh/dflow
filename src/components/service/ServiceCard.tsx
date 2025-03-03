@@ -51,18 +51,15 @@ export function ServiceCard({
   projectId: string
 }) {
   const { execute } = useAction(deleteServiceAction, {
-    onExecute: () => {
-      toast.loading('Deleting service...', { id: service.id })
-    },
     onSuccess: ({ data }) => {
       if (data?.deleted) {
-        toast.success('Successfully deleted service', { id: service.id })
+        toast.info('Added to queue', {
+          description: 'Added deleting service to queue',
+        })
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to delete service ${error.serverError}`, {
-        id: service.id,
-      })
+      toast.error(`Failed to delete service ${error.serverError}`)
     },
   })
 

@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
+import { restartDatabaseAction, stopDatabaseAction } from '@/actions/service'
 import { Service } from '@/payload-types'
 
 const DeploymentForm = ({ service }: { service: Service }) => {
@@ -21,8 +22,32 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   })
 
+  const { execute: restartDatabase, isPending: isRestartingDatabase } =
+    useAction(restartDatabaseAction, {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.info('Added to queue', {
+            description: 'Added restarting database to queue',
+          })
+        }
+      },
+    })
+
+  const { execute: stopDatabase, isPending: isStoppingDatabase } = useAction(
+    stopDatabaseAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.info('Added to queue', {
+            description: 'Added stopping database to queue',
+          })
+        }
+      },
+    },
+  )
+
   return (
-    <div className='space-y-4 rounded border p-4'>
+    <div className='space-y-4 rounded bg-muted/30 p-4'>
       <h3 className='text-lg font-semibold'>Deploy Settings</h3>
 
       <div className='flex w-full gap-2'>
@@ -34,15 +59,29 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           Deploy
         </Button>
 
-        <Button disabled={isPending} variant='secondary'>
-          <RefreshCcw />
-          Restart
-        </Button>
+        {service.type === 'database' ? (
+          <>
+            <Button
+              disabled={isRestartingDatabase}
+              variant='secondary'
+              onClick={() => {
+                restartDatabase({ id: service.id })
+              }}>
+              <RefreshCcw />
+              Restart
+            </Button>
 
-        <Button disabled={isPending} variant='destructive'>
-          <Ban />
-          Stop
-        </Button>
+            <Button
+              disabled={isStoppingDatabase}
+              onClick={() => {
+                stopDatabase({ id: service.id })
+              }}
+              variant='destructive'>
+              <Ban />
+              Stop
+            </Button>
+          </>
+        ) : null}
       </div>
     </div>
   )

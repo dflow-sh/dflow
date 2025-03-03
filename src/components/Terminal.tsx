@@ -50,14 +50,13 @@ const Terminal = ({
         'flex h-96 w-full flex-col gap-1 overflow-y-scroll text-wrap rounded bg-border p-4 font-mono text-sm text-foreground',
         className,
       )}>
-      {isLoading && (
-        <span className='flex items-center gap-0.5'>
-          <Loader className='animate-spin' /> Fetching logs...
-        </span>
-      )}
       {messages.length
         ? messages.map((message, index) => <p key={index}>{message}</p>)
         : null}
+
+      <span className='flex items-center gap-0.5'>
+        <Loader className='animate-spin' />
+      </span>
     </pre>
   )
 }

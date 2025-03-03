@@ -35,3 +35,7 @@ export const updateServiceSchema = z.object({
   id: z.string(),
   port: z.number().default(3000),
 })
+
+export const restartDatabaseSchema = z.object({
+  id: z.string(),
+})

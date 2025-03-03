@@ -2,13 +2,17 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { protectedClient, publicClient } from '@/lib/safe-action'
+import { addRestartDatabaseQueue } from '@/queues/database/restart'
+import { addStopDatabaseQueue } from '@/queues/database/stop'
 
 import {
   createServiceSchema,
   deleteServiceSchema,
+  restartDatabaseSchema,
   updateServiceSchema,
 } from './validator'
 
@@ -97,4 +101,112 @@ export const updateServiceAction = protectedClient
     }
 
     return response
+  })
+
+export const restartDatabaseAction = protectedClient
+  .metadata({
+    actionName: 'restartDatabaseAction',
+  })
+  .schema(restartDatabaseSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
+
+    const { id } = clientInput
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      ...serviceDetails
+    } = await payload.findByID({
+      collection: 'services',
+      depth: 10,
+      id,
+    })
+
+    // A if check for getting all ssh keys & server details
+    if (
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
+
+      if (type === 'database' && serviceDetails.databaseDetails?.type) {
+        const queueResponse = await addRestartDatabaseQueue({
+          databaseName: serviceDetails.name,
+          databaseType: serviceDetails.databaseDetails?.type,
+          sshDetails,
+          payloadToken: payloadToken?.value,
+          serviceDetails: {
+            id: serviceDetails.id,
+          },
+        })
+
+        if (queueResponse.id) {
+          return { success: true }
+        }
+      }
+    }
+  })
+
+export const stopDatabaseAction = protectedClient
+  .metadata({
+    actionName: 'stopDatabaseAction',
+  })
+  .schema(restartDatabaseSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
+
+    const { id } = clientInput
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      ...serviceDetails
+    } = await payload.findByID({
+      collection: 'services',
+      depth: 10,
+      id,
+    })
+
+    // A if check for getting all ssh keys & server details
+    if (
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
+
+      if (type === 'database' && serviceDetails.databaseDetails?.type) {
+        const queueResponse = await addStopDatabaseQueue({
+          databaseName: serviceDetails.name,
+          databaseType: serviceDetails.databaseDetails?.type,
+          sshDetails,
+          payloadToken: payloadToken?.value,
+          serviceDetails: {
+            id: serviceDetails.id,
+          },
+        })
+
+        if (queueResponse.id) {
+          return { success: true }
+        }
+      }
+    }
   })

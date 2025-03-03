@@ -1,5 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { deleteDokkuService } from './hooks/deleteDokkuService'
+
 const databaseField: Field = {
   label: 'Database Details',
   type: 'collapsible',
@@ -184,6 +186,9 @@ export const Services: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+  },
+  hooks: {
+    afterDelete: [deleteDokkuService],
   },
   access: {
     create: () => false,

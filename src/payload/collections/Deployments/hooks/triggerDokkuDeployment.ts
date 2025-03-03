@@ -5,7 +5,7 @@ import { dokku } from '@/lib/dokku'
 import { pub } from '@/lib/redis'
 import { dynamicSSH } from '@/lib/ssh'
 import { Deployment } from '@/payload-types'
-import { createDatabaseQueue } from '@/queues/createDatabase'
+import { createDatabaseQueue } from '@/queues/database/create'
 import { deployAppQueue } from '@/queues/deployApp'
 
 export const triggerDokkuDeployment: CollectionAfterChangeHook<

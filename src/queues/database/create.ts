@@ -1,5 +1,5 @@
-import { dokku } from '../lib/dokku'
-import { dynamicSSH } from '../lib/ssh'
+import { dokku } from '../../lib/dokku'
+import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 import { z } from 'zod'
 
@@ -160,6 +160,8 @@ const worker = new Worker<QueueArgs>(
       'my-channel',
       `✅ Successfully created ${databaseName}-database, updated details...`,
     )
+
+    await pub.publish('my-channel', `Syncing details...`)
 
     const formattedData = parseDatabaseInfo({
       stdout: res.stdout,

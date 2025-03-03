@@ -27,7 +27,7 @@ const PortForm = () => {
   })
 
   return (
-    <div className='rounded border p-4'>
+    <div className='rounded bg-muted/30 p-4'>
       <h3 className='text-lg font-semibold'>External Credentials</h3>
       <p className='text-pretty text-muted-foreground'>
         In order to make your database reachable over internet setting a port is
@@ -66,7 +66,7 @@ const DatabaseForm = ({ service }: { service: Service }) => {
 
   return (
     <>
-      <div className='space-y-4 rounded border p-4'>
+      <div className='space-y-4 rounded bg-muted/30 p-4'>
         <h3 className='text-lg font-semibold'>Internal Credentials</h3>
 
         <form className='w-full space-y-8'>
