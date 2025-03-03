@@ -76,7 +76,6 @@ const PluginCard = ({
         if (data?.success) {
           toast.info('Job queued', {
             description: `Queued job to install ${input.pluginName} plugin`,
-            duration: 3000,
           })
         }
       },
@@ -90,7 +89,6 @@ const PluginCard = ({
         if (data?.success) {
           toast.info('Job queued', {
             description: `Queued job to uninstall ${input.pluginName} plugin`,
-            duration: 3000,
           })
         }
       },
@@ -101,9 +99,9 @@ const PluginCard = ({
     useAction(togglePluginStatusAction, {
       onSuccess: ({ data, input }) => {
         if (data?.success) {
-          toast.success(
-            `Successfully ${input.enabled ? 'enabled' : 'disabled'} ${input.pluginName} plugin`,
-          )
+          toast.info('Added to queue', {
+            description: `Added ${input.pluginName} update to queue`,
+          })
         }
       },
     })

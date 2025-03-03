@@ -25,7 +25,7 @@ export const databaseUpdate: PayloadHandler = async ({
       case 'database.update':
         const { serviceId, ...databaseDetails } = validatedData.data
 
-        const updateResponse = await payload.update({
+        const databaseUpdateResponse = await payload.update({
           collection: 'services',
           id: serviceId,
           data: {
@@ -34,7 +34,23 @@ export const databaseUpdate: PayloadHandler = async ({
         })
 
         return Response.json({
-          data: updateResponse,
+          data: databaseUpdateResponse,
+        })
+
+      // Updating the plugins details of a server
+      case 'plugin.update':
+        const { serverId, plugins } = validatedData.data
+
+        const pluginUpdateResponse = await payload.update({
+          collection: 'servers',
+          id: serverId,
+          data: {
+            plugins,
+          },
+        })
+
+        return Response.json({
+          data: pluginUpdateResponse,
         })
 
       default:

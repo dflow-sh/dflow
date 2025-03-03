@@ -12,33 +12,40 @@ interface QueueArgs {
     username: string
     privateKey: string
   }
+  //   payload: BasePayload
   pluginDetails: {
+    enabled: boolean
     name: string
   }
-  serverDetails: {
+  serviceDetails: {
     id: string
   }
   payloadToken: string | undefined
 }
 
-const queueName = 'delete-plugin'
+const queueName = 'toggle-plugin'
 
-export const deletePluginQueue = new Queue<QueueArgs>(queueName, {
+export const togglePluginQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
+    const { sshDetails, pluginDetails, payloadToken, serviceDetails } = job.data
+
+    if (!payloadToken) {
+      console.warn('Payload token is missing!', payloadToken)
+    }
 
     try {
       const ssh = await dynamicSSH(sshDetails)
 
-      const pluginUninstallationResponse = await dokku.plugin.uninstall(
+      const pluginStatusResponse = await dokku.plugin.toggle({
+        enabled: pluginDetails.enabled,
+        pluginName: pluginDetails.name,
         ssh,
-        pluginDetails.name,
-        {
+        options: {
           onStdout: async chunk => {
             await pub.publish('my-channel', chunk.toString())
           },
@@ -46,12 +53,12 @@ const worker = new Worker<QueueArgs>(
             await pub.publish('my-channel', chunk.toString())
           },
         },
-      )
+      })
 
-      if (pluginUninstallationResponse.code === 0) {
+      if (pluginStatusResponse.code === 0) {
         await pub.publish(
           'my-channel',
-          `✅ Successfully uninstalled ${pluginDetails.name} plugin`,
+          `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
         )
 
         await pub.publish('my-channel', `Syncing changes...`)
@@ -63,7 +70,7 @@ const worker = new Worker<QueueArgs>(
           data: {
             type: 'plugin.update',
             data: {
-              serverId: serverDetails.id,
+              serverId: serviceDetails.id,
               plugins: pluginsResponse.plugins.map(plugin => ({
                 name: plugin.name,
                 status: plugin.status ? 'enabled' : 'disabled',
@@ -91,13 +98,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('completed', job => {})
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to uninstall plugin', err)
+  const pluginDetails = job?.data?.pluginDetails
+  console.log('Failed to toggle plugin', err)
 
-  await pub.publish('my-channel', '❌ failed to uninstall plugin')
-
-  if (job?.data) {
-    const { pluginDetails } = job.data
-  }
+  await pub.publish(
+    'my-channel',
+    `❌ failed to ${pluginDetails?.enabled ? 'enable' : 'disable'} ${pluginDetails?.name} plugin`,
+  )
 })
 
 // Add more event handlers for better debugging

@@ -1,23 +1,17 @@
 import { dokku } from '../lib/dokku'
 import { dynamicSSH } from '../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
-import { env } from 'env'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
+import { payloadWebhook } from '@/lib/payloadWebhook'
 import { pub, queueConnection } from '@/lib/redis'
-import { DatabaseUpdateSchemaType } from '@/payload/endpoints/validator'
 
 const queueName = 'create-database'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
   undefined
->
-
-export type PayloadType = Extract<
-  DatabaseUpdateSchemaType,
-  { type: 'database.update' }
 >
 
 interface QueueArgs {
@@ -172,26 +166,17 @@ const worker = new Worker<QueueArgs>(
       dbType: databaseType,
     })
 
-    const data: PayloadType = {
-      type: 'database.update',
-      data: {
-        serviceId: serviceDetails.id,
-        ...formattedData,
-      },
-    }
-
     try {
-      const webhookResponse = await fetch(
-        `${env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${payloadToken}`,
-            'Content-Type': 'application/json',
+      const webhookResponse = await payloadWebhook({
+        payloadToken: `${payloadToken}`,
+        data: {
+          type: 'database.update',
+          data: {
+            serviceId: serviceDetails.id,
+            ...formattedData,
           },
-          body: JSON.stringify(data),
         },
-      )
+      })
 
       console.log({ webhookResponse })
     } catch (error) {
@@ -210,8 +195,14 @@ const worker = new Worker<QueueArgs>(
   { connection: queueConnection },
 )
 
-worker.on('failed', async (job: Job | undefined, err) => {
-  const { databaseType, databaseName } = job?.data
+worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
+  const databaseDetails = job?.data
+
+  await pub.publish(
+    'my-channel',
+    `❌ Failed creating ${databaseDetails?.databaseName}-database`,
+  )
+
   // sendLog('DATABASE_CREATED', {
   //   createDatabaseLogs: {
   //     message: 'Failed to create DB',

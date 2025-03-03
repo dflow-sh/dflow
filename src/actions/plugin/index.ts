@@ -2,6 +2,7 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
@@ -9,6 +10,7 @@ import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
 import { createPluginQueue } from '@/queues/plugin/create'
 import { deletePluginQueue } from '@/queues/plugin/delete'
+import { togglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
   installPluginSchema,
@@ -24,6 +26,8 @@ export const installPluginAction = protectedClient
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput }) => {
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
@@ -58,11 +62,12 @@ export const installPluginAction = protectedClient
         id: serverId,
       },
       sshDetails,
+      payloadToken: payloadToken?.value,
     })
 
-    console.log({ queueResponse })
-
-    return { success: true }
+    if (queueResponse.id) {
+      return { success: true }
+    }
   })
 
 export const syncPluginAction = protectedClient
@@ -126,6 +131,8 @@ export const togglePluginStatusAction = protectedClient
   .schema(togglePluginStatusSchema)
   .action(async ({ clientInput }) => {
     const { pluginName, serverId, enabled } = clientInput
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -149,35 +156,21 @@ export const togglePluginStatusAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const ssh = await dynamicSSH(sshDetails)
-
-    const pluginStatusResponse = await dokku.plugin.toggle({
-      enabled,
-      pluginName,
-      ssh,
+    const queueResponse = await togglePluginQueue.add('toggle-plugin', {
+      sshDetails,
+      payloadToken: payloadToken?.value,
+      pluginDetails: {
+        enabled,
+        name: pluginName,
+      },
+      serviceDetails: {
+        id: serverId,
+      },
     })
 
-    if (pluginStatusResponse.code === 0) {
-      // getting the plugin list of the server
-      const pluginsResponse = await dokku.plugin.list(ssh)
-
-      // Updating plugin list in database
-      await payload.update({
-        collection: 'servers',
-        id: serverId,
-        data: {
-          plugins: pluginsResponse.plugins.map(plugin => ({
-            name: plugin.name,
-            status: plugin.status ? 'enabled' : 'disabled',
-            version: plugin.version,
-          })),
-        },
-      })
+    if (queueResponse.id) {
+      return { success: true }
     }
-
-    ssh.dispose()
-    revalidatePath(`/settings/servers/${serverId}/general`)
-    return { success: true }
   })
 
 export const deletePluginAction = protectedClient
@@ -187,6 +180,8 @@ export const deletePluginAction = protectedClient
   .schema(installPluginSchema)
   .action(async ({ clientInput }) => {
     const { serverId, pluginName } = clientInput
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -218,6 +213,7 @@ export const deletePluginAction = protectedClient
         id: serverId,
       },
       sshDetails,
+      payloadToken: payloadToken?.value,
     })
 
     console.log({ queueResponse })

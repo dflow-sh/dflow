@@ -1,8 +1,8 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
-import createDebug from 'debug'
 
+import { payloadWebhook } from '@/lib/payloadWebhook'
 import { pub, queueConnection } from '@/lib/redis'
 
 interface QueueArgs {
@@ -20,13 +20,10 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
+  payloadToken: string | undefined
 }
 
 const queueName = 'create-plugin'
-const debug = createDebug(`queue:${queueName}`)
-
-// Enable debug logging
-debug.enabled = true
 
 export const createPluginQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
@@ -35,42 +32,54 @@ export const createPluginQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    debug(`Processing job: ${job.id}`)
-
-    const { sshDetails, pluginDetails, serverDetails } = job.data
-    debug(`Job data: ${JSON.stringify(job.data)}`)
+    const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
 
     try {
       const ssh = await dynamicSSH(sshDetails)
-      debug('SSH connection established')
 
       const pluginInstallationResponse = await dokku.plugin.install(
         ssh,
         `${pluginDetails.url} ${pluginDetails.name}`,
         {
           onStdout: async chunk => {
-            debug('stdout:', chunk.toString())
             await pub.publish('my-channel', chunk.toString())
           },
           onStderr: async chunk => {
-            debug('stderr:', chunk.toString())
             await pub.publish('my-channel', chunk.toString())
           },
         },
       )
-
-      debug('Plugin installation response:', pluginInstallationResponse)
 
       if (pluginInstallationResponse.code === 0) {
         await pub.publish(
           'my-channel',
           `✅ Successfully installed ${pluginDetails.name} plugin`,
         )
+
+        await pub.publish('my-channel', `Syncing changes...`)
+
+        const pluginsResponse = await dokku.plugin.list(ssh)
+
+        const updatePluginResponse = await payloadWebhook({
+          payloadToken: `${payloadToken}`,
+          data: {
+            type: 'plugin.update',
+            data: {
+              serverId: serverDetails.id,
+              plugins: pluginsResponse.plugins.map(plugin => ({
+                name: plugin.name,
+                status: plugin.status ? 'enabled' : 'disabled',
+                version: plugin.version,
+              })),
+            },
+          },
+        })
+
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
 
       ssh.dispose()
     } catch (error) {
-      debug('Error processing job:', error)
       throw error // Re-throw to trigger the failed event
     }
   },
@@ -81,25 +90,15 @@ const worker = new Worker<QueueArgs>(
   },
 )
 
-worker.on('completed', job => {
-  debug(`Job ${job.id} completed successfully`)
-})
+worker.on('completed', job => {})
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  debug(`Job ${job?.id} failed:`, err)
-  await pub.publish('my-channel', '❌ failed to install plugin')
+  console.log('Failed to install plugin', err)
 
-  if (job?.data) {
-    const { pluginDetails } = job.data
-    debug(`${job?.id} has failed installing ${pluginDetails.url}`)
-  }
+  await pub.publish('my-channel', '❌ failed to install plugin')
 })
 
 // Add more event handlers for better debugging
-worker.on('error', err => {
-  debug('Worker error:', err)
-})
+worker.on('error', err => {})
 
-worker.on('active', job => {
-  debug(`Job ${job.id} has started`)
-})
+worker.on('active', job => {})
