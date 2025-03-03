@@ -32,8 +32,6 @@ export const createPluginQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
-console.log('Worker is running...')
-
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
