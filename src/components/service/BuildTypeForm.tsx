@@ -63,7 +63,7 @@ const BuildTypeForm = ({ service }: { service: Service }) => {
   }
 
   return (
-    <div className='space-y-4 rounded border p-4'>
+    <div className='space-y-4 rounded bg-muted/30 p-4'>
       <div>
         <h3 className='text-lg font-semibold'>Built Type</h3>
         <p className='text-muted-foreground'>

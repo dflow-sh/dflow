@@ -3,28 +3,44 @@
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { Tag, TagInput } from 'emblor'
+import { useAction } from 'next-safe-action/hooks'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { exposeDatabasePortAction } from '@/actions/service'
 import { Service } from '@/payload-types'
 
-const formSchema = z.object({
-  port: z.string({ message: 'Port is required' }),
-})
+const numberRegex = /^\d+$/
 
-const PortForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  })
+const PortForm = ({ service }: { service: Service }) => {
+  const [tags, setTags] = useState<Tag[]>(
+    service.databaseDetails?.exposedPorts
+      ? service.databaseDetails?.exposedPorts.map(port => ({
+          id: port,
+          text: port,
+        }))
+      : [],
+  )
+  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
+
+  const { execute: exposePort, isPending: isExposingPort } = useAction(
+    exposeDatabasePortAction,
+    {
+      onSuccess: ({ data, input }) => {
+        if (data?.success) {
+          toast.info('Added to queue', {
+            description: `Added exposing of ${input.ports.join(', ')} ports to queue`,
+          })
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to expose port: ${error.serverError}`, {
+          duration: 5000,
+        })
+      },
+    },
+  )
 
   return (
     <div className='rounded bg-muted/30 p-4'>
@@ -34,29 +50,50 @@ const PortForm = () => {
         required. make sure port is not used by other database or application
       </p>
 
-      <Form {...form}>
-        <form className='mt-4 space-y-8'>
-          <FormField
-            control={form.control}
-            name='port'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Port</FormLabel>
-                <FormControl>
-                  <Input type='number' {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <div className='mt-4 space-y-8'>
+        <TagInput
+          placeholder='Enter ports'
+          type='number'
+          placeholderWhenFull='Max ports reached'
+          tags={tags}
+          setTags={newTags => {
+            if (Array.isArray(newTags)) {
+              setTags(newTags.filter(tag => numberRegex.test(tag.text)))
+            }
+          }}
+          maxTags={service.databaseDetails?.type === 'mongo' ? 4 : 1}
+          activeTagIndex={activeTagIndex}
+          setActiveTagIndex={setActiveTagIndex}
+        />
 
-          <div className='flex w-full justify-end'>
-            <Button type='submit' variant='outline'>
-              Save
-            </Button>
-          </div>
-        </form>
-      </Form>
+        <div className='flex w-full justify-end'>
+          <Button
+            type='submit'
+            variant='outline'
+            disabled={!tags.length || isExposingPort}
+            onClick={() => {
+              if (
+                service.databaseDetails?.type === 'mongo' &&
+                tags.length < 4
+              ) {
+                return toast.error('Mongo database requires 4 ports', {
+                  description: 'example ports: 27017, 27018, 27019, 27020',
+                })
+              }
+
+              if (!tags.length) {
+                return toast.error('Ports are required')
+              }
+
+              exposePort({
+                id: service.id,
+                ports: tags.map(({ text }) => text),
+              })
+            }}>
+            Save
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -101,7 +138,7 @@ const DatabaseForm = ({ service }: { service: Service }) => {
         </form>
       </div>
 
-      <PortForm />
+      <PortForm service={service} />
     </>
   )
 }

@@ -364,7 +364,7 @@ const ProviderForm = ({
   service: Service
 }) => {
   return (
-    <div className='space-y-4 rounded border p-4'>
+    <div className='space-y-4 rounded bg-muted/30 p-4'>
       <div>
         <h3 className='text-lg font-semibold'>Provider</h3>
         <p className='text-muted-foreground'>Select the source of your code</p>

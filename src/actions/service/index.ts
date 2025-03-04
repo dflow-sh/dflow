@@ -6,13 +6,16 @@ import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { protectedClient, publicClient } from '@/lib/safe-action'
+import { server } from '@/lib/server'
+import { dynamicSSH } from '@/lib/ssh'
+import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
 
 import {
   createServiceSchema,
   deleteServiceSchema,
-  restartDatabaseSchema,
+  exposeDatabasePortSchema,
   updateServiceSchema,
 } from './validator'
 
@@ -107,7 +110,7 @@ export const restartDatabaseAction = protectedClient
   .metadata({
     actionName: 'restartDatabaseAction',
   })
-  .schema(restartDatabaseSchema)
+  .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const cookieStore = await cookies()
     const payloadToken = cookieStore.get('payload-token')
@@ -161,7 +164,7 @@ export const stopDatabaseAction = protectedClient
   .metadata({
     actionName: 'stopDatabaseAction',
   })
-  .schema(restartDatabaseSchema)
+  .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const cookieStore = await cookies()
     const payloadToken = cookieStore.get('payload-token')
@@ -203,6 +206,98 @@ export const stopDatabaseAction = protectedClient
             id: serviceDetails.id,
           },
         })
+
+        if (queueResponse.id) {
+          return { success: true }
+        }
+      }
+    }
+  })
+
+export const exposeDatabasePortAction = protectedClient
+  .metadata({
+    actionName: 'exposeDatabasePortAction',
+  })
+  .schema(exposeDatabasePortSchema)
+  .action(async ({ clientInput }) => {
+    const { id, ports } = clientInput
+
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      ...serviceDetails
+    } = await payload.findByID({
+      collection: 'services',
+      depth: 10,
+      id,
+    })
+
+    // A if check for getting all ssh keys & server details
+    if (
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
+
+      if (type === 'database' && serviceDetails.databaseDetails?.type) {
+        const ssh = await dynamicSSH(sshDetails)
+
+        console.log("I'm inside", { ssh })
+
+        const portsResponse = await server.ports.available({
+          ssh,
+          ports,
+        })
+
+        // If port response failed throw exception
+        if (!portsResponse) {
+          throw new Error('port-status unavailable, please try again!')
+        }
+
+        const unavailablePorts = portsResponse.filter(
+          ({ available }) => !available,
+        )
+
+        // If any port is in use throwing an error
+        if (unavailablePorts.length) {
+          throw new Error(
+            `${unavailablePorts.map(({ port }) => port).join(', ')} are already in use!`,
+          )
+        }
+
+        // Updating the exposed ports in payload
+        await payload.update({
+          collection: 'services',
+          data: {
+            databaseDetails: {
+              exposedPorts: ports,
+            },
+          },
+          id,
+        })
+
+        const queueResponse = await addExposeDatabasePortQueue({
+          databaseName: serviceDetails.name,
+          databaseType: serviceDetails.databaseDetails?.type,
+          sshDetails,
+
+          serviceDetails: {
+            id,
+            ports,
+            previousPorts: serviceDetails.databaseDetails?.exposedPorts ?? [],
+          },
+        })
+
+        ssh.dispose()
 
         if (queueResponse.id) {
           return { success: true }

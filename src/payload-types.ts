@@ -273,7 +273,7 @@ export interface Service {
     connectionUrl?: string | null;
     version?: string | null;
     status?: ('running' | 'missing' | 'exited') | null;
-    ports?: string | null;
+    exposedPorts?: string[] | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -468,7 +468,7 @@ export interface ServicesSelect<T extends boolean = true> {
         connectionUrl?: T;
         version?: T;
         status?: T;
-        ports?: T;
+        exposedPorts?: T;
       };
   updatedAt?: T;
   createdAt?: T;

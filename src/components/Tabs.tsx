@@ -81,7 +81,7 @@ export default function Tabs({
   }, [activeIndex, tabs, disableTabs, setDisableTabs])
 
   return (
-    <Card className='flex w-full items-center rounded-none border-none shadow-none'>
+    <Card className='flex w-full items-center rounded-none border-none bg-transparent shadow-none'>
       <CardContent className='w-full p-0'>
         <div className='relative'>
           {/* Hover Highlight */}

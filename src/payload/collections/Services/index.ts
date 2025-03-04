@@ -89,8 +89,9 @@ const databaseField: Field = {
           ],
         },
         {
-          name: 'ports',
+          name: 'exposedPorts',
           type: 'text',
+          hasMany: true,
         },
       ],
     },

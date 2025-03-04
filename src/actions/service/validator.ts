@@ -36,6 +36,6 @@ export const updateServiceSchema = z.object({
   port: z.number().default(3000),
 })
 
-export const restartDatabaseSchema = z.object({
-  id: z.string(),
+export const exposeDatabasePortSchema = deleteServiceSchema.extend({
+  ports: z.array(z.string()),
 })

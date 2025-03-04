@@ -15,6 +15,7 @@ import { sync } from './git/sync'
 import { unlock } from './git/unlock'
 import { create as createDatabase } from './plugin/database/create'
 import { destroy as destroyDb } from './plugin/database/destroy'
+import { expose as exposeDatabasePort } from './plugin/database/expose'
 import { info } from './plugin/database/info'
 import { infoVersion } from './plugin/database/infoVersion'
 import { link } from './plugin/database/link'
@@ -23,6 +24,7 @@ import { list as databaseList } from './plugin/database/list'
 import { logs as databaseLogs } from './plugin/database/logs'
 import { restart as databaseRestart } from './plugin/database/restart'
 import { stop as stopDatabase } from './plugin/database/stop'
+import { unexpose as unexposeDatabasePort } from './plugin/database/unexpose'
 import { unlink } from './plugin/database/unlink'
 import { install as dokkuPluginInstall } from './plugin/install'
 import { installed } from './plugin/installed'
@@ -60,6 +62,8 @@ export const dokku = {
     unlink,
     restart: databaseRestart,
     stop: stopDatabase,
+    expose: exposeDatabasePort,
+    unexpose: unexposeDatabasePort,
   },
   ports: {
     list: portsList,
