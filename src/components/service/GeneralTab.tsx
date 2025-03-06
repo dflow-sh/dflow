@@ -35,8 +35,20 @@ const DatabaseComponent = ({ service }: { service: Service }) => {
   )
 }
 
-const DockerComponent = ({ service }: { service: Service }) => {
-  return <p>Docker Form</p>
+const DockerComponent = async ({ service }: { service: Service }) => {
+  const payload = await getPayload({ config: configPromise })
+
+  const { docs: gitProviders } = await payload.find({
+    collection: 'gitProviders',
+    pagination: false,
+  })
+
+  return (
+    <div className='space-y-4'>
+      <DeploymentForm service={service} />
+      <ProviderForm service={service} gitProviders={gitProviders} />
+    </div>
+  )
 }
 
 const GeneralTab = ({ service }: { service: Service }) => {

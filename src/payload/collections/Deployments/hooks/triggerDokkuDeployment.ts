@@ -1,12 +1,9 @@
 import { cookies } from 'next/headers'
 import { CollectionAfterChangeHook } from 'payload'
 
-import { dokku } from '@/lib/dokku'
-import { pub } from '@/lib/redis'
-import { dynamicSSH } from '@/lib/ssh'
 import { Deployment } from '@/payload-types'
 import { createDatabaseQueue } from '@/queues/database/create'
-import { deployAppQueue } from '@/queues/deployApp'
+import { addDeploymentQueue } from '@/queues/deployApp'
 
 export const triggerDokkuDeployment: CollectionAfterChangeHook<
   Deployment
@@ -22,6 +19,7 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
     providerType,
     githubSettings,
     provider,
+    environmentVariables,
     ...serviceDetails
   } = await payload.findByID({
     collection: 'services',
@@ -44,57 +42,10 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
 
     // For create operation trigging dokku deployment
     if (operation === 'create') {
-      if (type === 'app') {
+      if (type === 'app' || type === 'docker') {
         if (providerType === 'github' && githubSettings) {
-          // Connecting to ssh
-          const ssh = await dynamicSSH(sshDetails)
-
-          // Creating a app
-          const appResponse = await dokku.apps.create(
-            ssh,
-            serviceDetails.name,
-            {
-              onStdout: async chunk => {
-                await pub.publish('my-channel', chunk.toString())
-                // console.info(chunk.toString());
-              },
-              onStderr: chunk => {
-                console.info({
-                  createAppsLogs: {
-                    message: chunk.toString(),
-                    type: 'stdout',
-                  },
-                })
-              },
-            },
-          )
-
-          //  Setting dokku port
-          const portResponse = await dokku.ports.set(
-            ssh,
-            serviceDetails.name,
-            'http',
-            '80',
-            githubSettings.port ? `${githubSettings.port}` : '3000',
-            {
-              onStdout: async chunk => {
-                await pub.publish('my-channel', chunk.toString())
-                // console.info(chunk.toString());
-              },
-              onStderr: chunk => {
-                console.info({
-                  setPortLogs: {
-                    message: chunk.toString(),
-                    type: 'stdout',
-                  },
-                })
-              },
-            },
-          )
-
           //  Adding to queue
-          const queueResponse = await deployAppQueue.add('deploy-app', {
-            appId: '1',
+          const queueResponse = await addDeploymentQueue({
             appName: serviceDetails.name,
             userName: githubSettings.owner,
             repoName: githubSettings.repository,
@@ -105,17 +56,17 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
               serviceId: serviceDetails.id,
               projectId: project.id,
               provider,
+              name: serviceDetails.name,
+              environmentVariables:
+                typeof environmentVariables === 'object' &&
+                environmentVariables &&
+                !Array.isArray(environmentVariables)
+                  ? environmentVariables
+                  : undefined,
             },
           })
 
-          //  Updating deployment status to building
-          await payload.update({
-            collection: 'deployments',
-            id: doc.id,
-            data: {
-              status: 'building',
-            },
-          })
+          console.log({ queueResponse })
         }
       }
 
@@ -136,6 +87,15 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
 
         console.log({ databaseQueueResponse })
       }
+
+      //  Updating deployment status to building
+      await payload.update({
+        collection: 'deployments',
+        id: doc.id,
+        data: {
+          status: 'building',
+        },
+      })
     }
   }
 

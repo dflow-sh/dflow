@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@monaco-editor/react": "4.7.0-rc.0",
     "@octokit/auth-app": "^7.1.5",
     "@payloadcms/db-mongodb": "latest",
     "@payloadcms/email-resend": "latest",

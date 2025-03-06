@@ -16,6 +16,7 @@ import {
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
+  updateServiceEnvironmentsSchema,
   updateServiceSchema,
 } from './validator'
 
@@ -303,5 +304,29 @@ export const exposeDatabasePortAction = protectedClient
           return { success: true }
         }
       }
+    }
+  })
+
+export const updateServiceEnvironmentVariablesAction = protectedClient
+  .metadata({
+    actionName: 'updateServiceEnvironmentVariablesAction',
+  })
+  .schema(updateServiceEnvironmentsSchema)
+  .action(async ({ clientInput }) => {
+    const { id, environmentVariables, projectId } = clientInput
+
+    const updatedService = await payload.update({
+      collection: 'services',
+      id,
+      data: {
+        environmentVariables,
+      },
+    })
+
+    if (updatedService.id) {
+      revalidatePath(
+        `/dashboard/project/${projectId}/service/${id}/environment`,
+      )
+      return { success: true }
     }
   })

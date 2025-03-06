@@ -9,8 +9,10 @@ export const create = async (
     `dokku apps:create ${appName}`,
     options,
   )
+
+  console.log({ resultAppsCreate })
+
   if (resultAppsCreate.code === 1) {
-    console.error(resultAppsCreate)
     throw new Error(resultAppsCreate.stderr)
   }
 

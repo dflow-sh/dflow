@@ -1,23 +1,34 @@
-import { NodeSSH } from 'node-ssh';
+import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-export const set = async (
-  ssh: NodeSSH,
-  name: string,
-  values: { key: string; value: string } | { key: string; value: string }[],
-  { noRestart }: { noRestart: boolean } = { noRestart: false },
-  encoded?: boolean,
-) => {
+export const set = async ({
+  ssh,
+  name,
+  values,
+  noRestart = false,
+  encoded = false,
+}: {
+  ssh: NodeSSH
+  name: string
+  values: { key: string; value: string } | { key: string; value: string }[]
+  noRestart?: boolean
+  encoded?: boolean
+  options?: SSHExecCommandOptions
+}) => {
   if (!Array.isArray(values)) {
-    values = [values];
+    values = [values]
   }
 
   const resultSetEnv = await ssh.execCommand(
     `dokku config:set ${noRestart ? '--no-restart' : ''} ${
       encoded ? '--encoded' : ''
-    } ${name} ${values.map((data) => ` ${data.key}=${data.value}`)}`,
-  );
+    } ${name} ${values.map(data => ` ${data.key}="${data.value}"`)}`,
+  )
+
+  console.log({ resultSetEnv })
 
   if (resultSetEnv.code === 1) {
-    throw new Error(resultSetEnv.stderr);
+    throw new Error(resultSetEnv.stderr)
   }
-};
+
+  return true
+}

@@ -13,7 +13,11 @@ export const portsSet = async (
     options,
   )
 
+  console.log({ resultPorts })
+
   if (resultPorts.code === 1) {
     throw new Error(resultPorts.stderr)
   }
+
+  return true
 }

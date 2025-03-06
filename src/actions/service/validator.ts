@@ -39,3 +39,8 @@ export const updateServiceSchema = z.object({
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({
   ports: z.array(z.string()),
 })
+
+export const updateServiceEnvironmentsSchema = deleteServiceSchema.extend({
+  projectId: z.string(),
+  environmentVariables: z.record(z.string(), z.string()),
+})
