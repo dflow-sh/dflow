@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
@@ -23,16 +24,18 @@ const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <Provider>
-      <AppSidebar user={user} />
-      <SidebarInset>
-        <main className='mt-4 px-4'>
-          <RefreshProvider>{children}</RefreshProvider>
+    <NuqsAdapter>
+      <Provider>
+        <AppSidebar user={user} />
+        <SidebarInset>
+          <main className='mt-4 px-4'>
+            <RefreshProvider>{children}</RefreshProvider>
 
-          <ServerTerminal />
-        </main>
-      </SidebarInset>
-    </Provider>
+            <ServerTerminal />
+          </main>
+        </SidebarInset>
+      </Provider>
+    </NuqsAdapter>
   )
 }
 

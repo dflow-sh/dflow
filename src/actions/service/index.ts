@@ -101,7 +101,7 @@ export const updateServiceAction = protectedClient
       typeof response?.project === 'object' ? response.project.id : ''
 
     if (projectId) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}/general`)
+      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
     }
 
     return response
@@ -324,9 +324,7 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     })
 
     if (updatedService.id) {
-      revalidatePath(
-        `/dashboard/project/${projectId}/service/${id}/environment`,
-      )
+      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
       return { success: true }
     }
   })
