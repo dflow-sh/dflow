@@ -1,23 +1,25 @@
 'use client'
 
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { parseAsStringEnum, useQueryState } from 'nuqs'
 
 import Tabs from '@/components/Tabs'
 
 const tabsList = [
   { label: 'General', slug: 'general', disabled: false },
+  { label: 'Plugins', slug: 'plugins', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: true },
 ] as const
 
 const LayoutClient = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const params = useParams<{ id: string }>()
-
-  const path = pathname.split('/')?.at(-1) ?? ''
+  const [tab, setTab] = useQueryState(
+    'tab',
+    parseAsStringEnum(['general', 'monitoring', 'plugins']).withDefault(
+      'general',
+    ),
+  )
 
   const activeTab = tabsList.findIndex(({ slug }) => {
-    return slug === path
+    return slug === tab
   })
 
   return (
@@ -26,7 +28,9 @@ const LayoutClient = ({ children }: { children: React.ReactNode }) => {
         tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
         onTabChange={index => {
           const tab = tabsList[index]
-          router.push(`/settings/servers/${params.id}/${tab.slug}`)
+          setTab(tab.slug, {
+            shallow: false,
+          })
         }}
         defaultActiveTab={activeTab >= 0 ? activeTab : 0}
       />

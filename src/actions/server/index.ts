@@ -63,6 +63,7 @@ export const updateServerAction = protectedClient
 
     if (response) {
       revalidatePath('/settings/servers')
+      revalidatePath(`/settings/servers/${id}`)
     }
 
     return response
@@ -83,7 +84,7 @@ export const deleteServerAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(`/settings/servers/${id}/general`)
+      revalidatePath(`/settings/servers/${id}`)
       return { deleted: true }
     }
   })
@@ -120,6 +121,6 @@ export const installDokkuAction = protectedClient
     })
 
     if (installationResponse.success) {
-      revalidatePath(`/settings/servers/${serverId}/general`)
+      revalidatePath(`/settings/servers/${serverId}`)
     }
   })

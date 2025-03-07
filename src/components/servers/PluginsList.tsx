@@ -138,7 +138,7 @@ const PluginCard = ({
         className={`flex w-full items-center pt-4 ${installedPlugin ? 'justify-between' : 'justify-end'} `}>
         {installedPlugin && (
           <Switch
-            disabled={isUpdatingPluginStatus}
+            disabled={!notCustomPlugin || isUpdatingPluginStatus}
             defaultChecked={installedPlugin.status === 'enabled'}
             onCheckedChange={enabled => {
               if (notCustomPlugin) {
