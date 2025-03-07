@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { updateServiceEnvironmentVariablesAction } from '@/actions/service'
+import { updateServiceAction } from '@/actions/service'
 import Loader from '@/components/Loader'
 import { Button } from '@/components/ui/button'
 import { Service } from '@/payload-types'
@@ -17,42 +17,40 @@ const Editor = dynamic(() => import('@monaco-editor/react'), {
 
 const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
   const [mounted, setMounted] = useState(false)
+
   const [environmentVariables, setEnvironmentVariables] = useState(
     typeof service?.environmentVariables === 'object'
       ? JSON.stringify(service.environmentVariables, null, 2)
       : JSON.stringify({}, null, 2),
   )
-  const { id: projectId, serviceId } = useParams<{
+  const { serviceId } = useParams<{
     id: string
     serviceId: string
   }>()
 
-  const { execute, isPending } = useAction(
-    updateServiceEnvironmentVariablesAction,
-    {
-      onSuccess: ({ data }) => {
-        if (data?.success) {
-          toast.success('Successfully updated environment-variables', {
-            description: 'Deploy or restart the service to reflect changes',
-            duration: 5000,
-          })
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(
-          `Failed to update environment variables: ${error?.serverError}`,
-        )
-      },
+  const { execute, isPending } = useAction(updateServiceAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.info('Added updating environment-variables to queue', {
+          description: 'Restart service to apply changes',
+          duration: 5000,
+        })
+      }
     },
-  )
+    onError: ({ error }) => {
+      toast.error(
+        `Failed to update environment variables: ${error?.serverError}`,
+      )
+    },
+  })
 
   const handleSubmit = () => {
     try {
-      const formattedVariables = JSON.parse(environmentVariables)
+      const env = JSON.parse(environmentVariables)
       execute({
+        environmentVariables: env,
         id: serviceId,
-        projectId,
-        environmentVariables: formattedVariables,
+        noRestart: true,
       })
     } catch (error) {
       console.log('Error parsing environment variables', error)
@@ -63,44 +61,46 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
   }
 
   return (
-    <div className='h-96 space-y-4'>
-      <Editor
-        height='100%'
-        defaultLanguage='json'
-        defaultValue={environmentVariables}
-        theme='vs-dark'
-        options={{
-          minimap: { enabled: false },
-          automaticLayout: true,
-          wordWrap: 'on',
-          wrappingIndent: 'same',
-          wrappingStrategy: 'advanced',
-          wordWrapColumn: 80,
-          wordWrapBreakBeforeCharacters: '{([+',
-          wordWrapBreakAfterCharacters: '})]+&|',
-        }}
-        onChange={value => {
-          setEnvironmentVariables(value ?? '')
-        }}
-        loading={<Loader className='h-96 w-full' />}
-        onMount={() => {
-          setMounted(true)
-        }}
-      />
+    <>
+      <div className='h-96 space-y-4'>
+        <Editor
+          height='100%'
+          defaultLanguage='json'
+          defaultValue={environmentVariables}
+          theme='vs-dark'
+          options={{
+            minimap: { enabled: false },
+            automaticLayout: true,
+            wordWrap: 'on',
+            wrappingIndent: 'same',
+            wrappingStrategy: 'advanced',
+            wordWrapColumn: 80,
+            wordWrapBreakBeforeCharacters: '{([+',
+            wordWrapBreakAfterCharacters: '})]+&|',
+          }}
+          onChange={value => {
+            setEnvironmentVariables(value ?? '')
+          }}
+          loading={<Loader className='h-96 w-full' />}
+          onMount={() => {
+            setMounted(true)
+          }}
+        />
 
-      {mounted && (
-        <div className='flex w-full justify-end'>
-          <Button
-            disabled={isPending}
-            variant='outline'
-            onClick={() => {
-              handleSubmit()
-            }}>
-            Save
-          </Button>
-        </div>
-      )}
-    </div>
+        {mounted && (
+          <div className='flex w-full justify-end'>
+            <Button
+              disabled={isPending}
+              variant='outline'
+              onClick={() => {
+                handleSubmit()
+              }}>
+              Save
+            </Button>
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 

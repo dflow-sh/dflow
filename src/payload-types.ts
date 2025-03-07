@@ -81,6 +81,10 @@ export interface Config {
     projects: {
       services: 'services';
     };
+    services: {
+      domains: 'domains';
+      deployments: 'deployments';
+    };
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
@@ -275,6 +279,14 @@ export interface Service {
     status?: ('running' | 'missing' | 'exited') | null;
     exposedPorts?: string[] | null;
   };
+  domains?: {
+    docs?: (string | Domain)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
+  deployments?: {
+    docs?: (string | Deployment)[] | null;
+    hasNextPage?: boolean | null;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -302,6 +314,19 @@ export interface GitProvider {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "domains".
+ */
+export interface Domain {
+  id: string;
+  service: string | Service;
+  hostName: string;
+  certificateType: 'letsencrypt' | 'none';
+  autoRegenerateSSL: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "deployments".
  */
 export interface Deployment {
@@ -311,19 +336,6 @@ export interface Deployment {
    */
   service: string | Service;
   status: 'queued' | 'building' | 'failed' | 'success';
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "domains".
- */
-export interface Domain {
-  id: string;
-  service: string | Service;
-  hostName: string;
-  certificateType: 'letsencrypt' | 'none';
-  autoRegenerateSSL: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -470,6 +482,8 @@ export interface ServicesSelect<T extends boolean = true> {
         status?: T;
         exposedPorts?: T;
       };
+  domains?: T;
+  deployments?: T;
   updatedAt?: T;
   createdAt?: T;
 }

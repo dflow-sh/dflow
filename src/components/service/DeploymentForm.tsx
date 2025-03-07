@@ -1,13 +1,13 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Ban, RefreshCcw } from 'lucide-react'
+import { Ban, Hammer, RefreshCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
-import { restartDatabaseAction, stopDatabaseAction } from '@/actions/service'
+import { restartServiceAction, stopServerAction } from '@/actions/service'
 import { Service } from '@/payload-types'
 
 const DeploymentForm = ({ service }: { service: Service }) => {
@@ -22,24 +22,26 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   })
 
-  const { execute: restartDatabase, isPending: isRestartingDatabase } =
-    useAction(restartDatabaseAction, {
-      onSuccess: ({ data }) => {
-        if (data) {
-          toast.info('Added to queue', {
-            description: 'Added restarting database to queue',
-          })
-        }
-      },
-    })
-
-  const { execute: stopDatabase, isPending: isStoppingDatabase } = useAction(
-    stopDatabaseAction,
+  const { execute: restartService, isPending: isRestartingService } = useAction(
+    restartServiceAction,
     {
       onSuccess: ({ data }) => {
         if (data) {
           toast.info('Added to queue', {
-            description: 'Added stopping database to queue',
+            description: `Added restarting ${service.type === 'database' ? 'database' : 'app'} to queue`,
+          })
+        }
+      },
+    },
+  )
+
+  const { execute: stopServer, isPending: isStoppingServer } = useAction(
+    stopServerAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.info('Added to queue', {
+            description: `Added stopping ${service.type === 'database' ? 'database' : 'app'} to queue`,
           })
         }
       },
@@ -59,29 +61,39 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           Deploy
         </Button>
 
-        {service.type === 'database' ? (
-          <>
-            <Button
-              disabled={isRestartingDatabase}
-              variant='secondary'
-              onClick={() => {
-                restartDatabase({ id: service.id })
-              }}>
-              <RefreshCcw />
-              Restart
-            </Button>
+        <Button
+          disabled={isRestartingService}
+          variant='outline'
+          onClick={() => {
+            restartService({ id: service.id })
+          }}>
+          <Hammer />
+          Rebuild
+        </Button>
 
-            <Button
-              disabled={isStoppingDatabase}
-              onClick={() => {
-                stopDatabase({ id: service.id })
-              }}
-              variant='destructive'>
-              <Ban />
-              Stop
-            </Button>
-          </>
-        ) : null}
+        <Button
+          disabled={isRestartingService}
+          variant='secondary'
+          onClick={() => {
+            if (service.type === 'database') {
+              restartService({ id: service.id })
+            }
+          }}>
+          <RefreshCcw />
+          Restart
+        </Button>
+
+        <Button
+          disabled={isStoppingServer}
+          onClick={() => {
+            if (service.type === 'database') {
+              stopServer({ id: service.id })
+            }
+          }}
+          variant='destructive'>
+          <Ban />
+          Stop
+        </Button>
       </div>
     </div>
   )

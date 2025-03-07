@@ -276,5 +276,21 @@ export const Services: CollectionConfig = {
     },
     applicationField,
     databaseField,
+    // domains join field
+    {
+      name: 'domains',
+      type: 'join',
+      label: 'Domains',
+      collection: 'domains',
+      on: 'service',
+    },
+    // deployments join field
+    {
+      name: 'deployments',
+      type: 'join',
+      label: 'Deployments',
+      collection: 'deployments',
+      on: 'service',
+    },
   ],
 }

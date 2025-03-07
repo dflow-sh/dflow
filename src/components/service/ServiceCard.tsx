@@ -65,7 +65,7 @@ export function ServiceCard({
 
   return (
     <Link
-      href={`/dashboard/project/${projectId}/service/${service.id}/general`}
+      href={`/dashboard/project/${projectId}/service/${service.id}`}
       className='h-full'>
       <Card className='h-full min-h-36'>
         <CardHeader className='w-full flex-row items-start justify-between'>

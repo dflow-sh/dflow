@@ -32,9 +32,7 @@ export const createDomainAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(
-        `/dashboard/project/${projectId}/service/${serviceId}/domains`,
-      )
+      revalidatePath(`/dashboard/project/${projectId}/service/${serviceId}`)
     }
 
     return response
@@ -55,9 +53,7 @@ export const deleteDomainAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(
-        `/dashboard/project/${projectId}/service/${serviceId}/domains`,
-      )
+      revalidatePath(`/dashboard/project/${projectId}/service/${serviceId}`)
     }
 
     return response
