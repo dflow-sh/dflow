@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Ban, Hammer, RefreshCcw } from 'lucide-react'
+import { Ban, RefreshCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
@@ -61,7 +61,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           Deploy
         </Button>
 
-        <Button
+        {/* <Button
           disabled={isRestartingService}
           variant='outline'
           onClick={() => {
@@ -69,15 +69,13 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           }}>
           <Hammer />
           Rebuild
-        </Button>
+        </Button> */}
 
         <Button
           disabled={isRestartingService}
           variant='secondary'
           onClick={() => {
-            if (service.type === 'database') {
-              restartService({ id: service.id })
-            }
+            restartService({ id: service.id })
           }}>
           <RefreshCcw />
           Restart
@@ -86,9 +84,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
         <Button
           disabled={isStoppingServer}
           onClick={() => {
-            if (service.type === 'database') {
-              stopServer({ id: service.id })
-            }
+            stopServer({ id: service.id })
           }}
           variant='destructive'>
           <Ban />
