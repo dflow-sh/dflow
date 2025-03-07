@@ -6,6 +6,7 @@ export const set = async ({
   values,
   noRestart = false,
   encoded = false,
+  options,
 }: {
   ssh: NodeSSH
   name: string
@@ -22,9 +23,8 @@ export const set = async ({
     `dokku config:set ${noRestart ? '--no-restart' : ''} ${
       encoded ? '--encoded' : ''
     } ${name} ${values.map(data => ` ${data.key}="${data.value}"`)}`,
+    options,
   )
-
-  console.log({ resultSetEnv })
 
   if (resultSetEnv.code === 1) {
     throw new Error(resultSetEnv.stderr)

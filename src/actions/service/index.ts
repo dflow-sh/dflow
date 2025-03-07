@@ -8,9 +8,12 @@ import { getPayload } from 'payload'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
+import { addRestartAppQueue } from '@/queues/app/restart'
+import { addStopAppQueue } from '@/queues/app/stop'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
+import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 
 import {
   createServiceSchema,
@@ -95,6 +98,7 @@ export const updateServiceAction = protectedClient
       collection: 'services',
       data: filteredObject,
       id,
+      depth: 10,
     })
 
     const projectId =
@@ -104,12 +108,36 @@ export const updateServiceAction = protectedClient
       revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
     }
 
-    return response
+    // If env variables are added then adding it to queue to update env
+    if (
+      data?.environmentVariables &&
+      typeof response?.project === 'object' &&
+      typeof response?.project?.server === 'object' &&
+      typeof response?.project?.server?.sshKey === 'object'
+    ) {
+      await addUpdateEnvironmentVariablesQueue({
+        serviceDetails: {
+          environmentVariables: data?.environmentVariables,
+          name: response?.name,
+          noRestart: data?.noRestart ?? true,
+        },
+        sshDetails: {
+          host: response?.project?.server?.ip,
+          port: response?.project?.server?.port,
+          username: response?.project?.server?.username,
+          privateKey: response?.project?.server?.sshKey?.privateKey,
+        },
+      })
+    }
+
+    if (response?.id) {
+      return { success: true }
+    }
   })
 
-export const restartDatabaseAction = protectedClient
+export const restartServiceAction = protectedClient
   .metadata({
-    actionName: 'restartDatabaseAction',
+    actionName: 'restartServiceAction',
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -142,6 +170,8 @@ export const restartDatabaseAction = protectedClient
         username: project?.server?.username,
         port: project?.server?.port,
       }
+
+      let queueId: string | undefined
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
         const queueResponse = await addRestartDatabaseQueue({
@@ -154,16 +184,30 @@ export const restartDatabaseAction = protectedClient
           },
         })
 
-        if (queueResponse.id) {
-          return { success: true }
-        }
+        queueId = queueResponse.id
+      }
+
+      if (type === 'docker' || type === 'app') {
+        const queueResponse = await addRestartAppQueue({
+          sshDetails,
+          serviceDetails: {
+            id: serviceDetails.id,
+            name: serviceDetails.name,
+          },
+        })
+
+        queueId = queueResponse.id
+      }
+
+      if (queueId) {
+        return { success: true }
       }
     }
   })
 
-export const stopDatabaseAction = protectedClient
+export const stopServerAction = protectedClient
   .metadata({
-    actionName: 'stopDatabaseAction',
+    actionName: 'stopServerAction',
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -197,6 +241,8 @@ export const stopDatabaseAction = protectedClient
         port: project?.server?.port,
       }
 
+      let queueId: string | undefined
+
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
         const queueResponse = await addStopDatabaseQueue({
           databaseName: serviceDetails.name,
@@ -208,9 +254,23 @@ export const stopDatabaseAction = protectedClient
           },
         })
 
-        if (queueResponse.id) {
-          return { success: true }
-        }
+        queueId = queueResponse.id
+      }
+
+      if (type === 'docker') {
+        const queueResponse = await addStopAppQueue({
+          sshDetails,
+          serviceDetails: {
+            id: serviceDetails.id,
+            name: serviceDetails.name,
+          },
+        })
+
+        queueId = queueResponse.id
+      }
+
+      if (queueId) {
+        return { success: true }
       }
     }
   })
