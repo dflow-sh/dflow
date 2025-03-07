@@ -65,7 +65,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
           <AlertTitle>Dokku not found!</AlertTitle>
           <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
             <p>
-              Either dokku not installed on your server, or your os doesn't
+              Either dokku not installed on your server, or your os doesn&apos;t
               support dokku, refer{' '}
               <a
                 className='underline'
