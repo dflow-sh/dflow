@@ -208,6 +208,7 @@ export interface Server {
         id?: string | null;
       }[]
     | null;
+  domains?: string[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -506,6 +507,7 @@ export interface ServersSelect<T extends boolean = true> {
         status?: T;
         id?: T;
       };
+  domains?: T;
   updatedAt?: T;
   createdAt?: T;
 }

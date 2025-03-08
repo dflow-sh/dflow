@@ -7,15 +7,19 @@ import Tabs from '@/components/Tabs'
 const tabsList = [
   { label: 'General', slug: 'general', disabled: false },
   { label: 'Plugins', slug: 'plugins', disabled: false },
+  { label: 'Domains', slug: 'domains', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: true },
 ] as const
 
 const LayoutClient = ({ children }: { children: React.ReactNode }) => {
   const [tab, setTab] = useQueryState(
     'tab',
-    parseAsStringEnum(['general', 'monitoring', 'plugins']).withDefault(
+    parseAsStringEnum([
       'general',
-    ),
+      'monitoring',
+      'plugins',
+      'domains',
+    ]).withDefault('general'),
   )
 
   const activeTab = tabsList.findIndex(({ slug }) => {

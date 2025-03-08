@@ -111,5 +111,10 @@ export const Servers: CollectionConfig = {
       type: 'array',
       fields: pluginFields,
     },
+    {
+      name: 'domains',
+      type: 'text',
+      hasMany: true,
+    },
   ],
 }

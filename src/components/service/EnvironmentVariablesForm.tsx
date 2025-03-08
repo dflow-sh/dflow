@@ -44,13 +44,13 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
     },
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = (noRestart?: boolean) => {
     try {
       const env = JSON.parse(environmentVariables)
       execute({
         environmentVariables: env,
         id: serviceId,
-        noRestart: true,
+        noRestart,
       })
     } catch (error) {
       console.log('Error parsing environment variables', error)
@@ -88,7 +88,7 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
         />
 
         {mounted && (
-          <div className='flex w-full justify-end'>
+          <div className='flex w-full justify-end gap-4'>
             <Button
               disabled={isPending}
               variant='outline'
@@ -96,6 +96,15 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
                 handleSubmit()
               }}>
               Save
+            </Button>
+
+            <Button
+              disabled={isPending}
+              variant='secondary'
+              onClick={() => {
+                handleSubmit(false)
+              }}>
+              Save & Restart
             </Button>
           </div>
         )}

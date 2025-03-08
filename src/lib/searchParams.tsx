@@ -12,9 +12,12 @@ export const servicePageTabs = {
 }
 
 export const serverPageTabs = {
-  tab: parseAsStringEnum(['general', 'monitoring', 'plugins']).withDefault(
+  tab: parseAsStringEnum([
     'general',
-  ),
+    'monitoring',
+    'plugins',
+    'domains',
+  ]).withDefault('general'),
 }
 
 export const loadServicePageTabs = createLoader(servicePageTabs)
