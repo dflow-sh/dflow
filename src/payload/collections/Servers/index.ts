@@ -113,8 +113,19 @@ export const Servers: CollectionConfig = {
     },
     {
       name: 'domains',
-      type: 'text',
-      hasMany: true,
+      type: 'array',
+      fields: [
+        {
+          name: 'domain',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'default',
+          type: 'checkbox',
+          required: true,
+        },
+      ],
     },
   ],
 }

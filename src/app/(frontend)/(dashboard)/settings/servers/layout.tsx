@@ -7,6 +7,10 @@ import PageHeader from '@/components/PageHeader'
 import CreateServer from '@/components/servers/CreateServerForm'
 import { Button } from '@/components/ui/button'
 
+interface PageProps {
+  children: React.ReactNode
+}
+
 const SuspendedAddServer = async () => {
   const payload = await getPayload({ config: configPromise })
   const { docs: keys } = await payload.find({
@@ -17,7 +21,7 @@ const SuspendedAddServer = async () => {
   return <CreateServer sshKeys={keys} />
 }
 
-const ServerLayout = ({ children }: { children: React.ReactNode }) => {
+const ServerLayout = ({ children }: PageProps) => {
   return (
     <div>
       <PageHeader

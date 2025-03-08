@@ -7,9 +7,12 @@ import { set } from './config/set'
 import { unset } from './config/unset'
 import { info as distroInfo } from './distro/info'
 import { add } from './domains/add'
+import { addGlobal } from './domains/addGlobal'
 import { remove } from './domains/remove'
+import { removeGlobal } from './domains/removeGlobal'
 import { report } from './domains/report'
 import { set as domainsSet } from './domains/set'
+import { setGlobal } from './domains/setGlobal'
 import { auth } from './git/auth'
 import { sync } from './git/sync'
 import { unlock } from './git/unlock'
@@ -81,6 +84,9 @@ export const dokku = {
     set: domainsSet,
     remove,
     add,
+    addGlobal,
+    removeGlobal,
+    setGlobal,
   },
   letsencrypt: {
     enable,

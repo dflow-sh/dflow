@@ -8,11 +8,13 @@ import { dokku } from '@/lib/dokku'
 import { pub } from '@/lib/redis'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
+import { addManageServerDomainQueue } from '@/queues/domain/manage'
 
 import {
   createServerSchema,
   deleteServerSchema,
   installDokkuSchema,
+  updateServerDomainSchema,
   updateServerSchema,
 } from './validator'
 
@@ -62,7 +64,6 @@ export const updateServerAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/servers')
       revalidatePath(`/settings/servers/${id}`)
     }
 
@@ -122,5 +123,51 @@ export const installDokkuAction = protectedClient
 
     if (installationResponse.success) {
       revalidatePath(`/settings/servers/${serverId}`)
+    }
+  })
+
+export const updateServerDomainAction = protectedClient
+  .metadata({
+    actionName: 'updateServerDomainAction',
+  })
+  .schema(updateServerDomainSchema)
+  .action(async ({ clientInput }) => {
+    const { id, domain, previousDomains = [], operation } = clientInput
+
+    const domains =
+      operation !== 'remove'
+        ? [...previousDomains, { domain, default: operation === 'set' }]
+        : previousDomains.filter(prevDomain => prevDomain.domain !== domain)
+
+    const response = await payload.update({
+      id,
+      data: {
+        domains,
+      },
+      collection: 'servers',
+      depth: 10,
+    })
+
+    const privateKey =
+      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
+
+    const queueResponse = await addManageServerDomainQueue({
+      serverDetails: {
+        global: {
+          domain,
+          action: operation,
+        },
+      },
+      sshDetails: {
+        host: response.ip,
+        port: response.port,
+        username: response.username,
+        privateKey,
+      },
+    })
+
+    if (queueResponse.id) {
+      revalidatePath(`/settings/servers/${id}`)
+      return { success: true }
     }
   })

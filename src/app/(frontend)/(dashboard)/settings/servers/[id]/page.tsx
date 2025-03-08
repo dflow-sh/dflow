@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
-import DomainForm from '@/components/servers/DomainForm'
+import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -79,7 +79,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       )
 
     case 'domains':
-      return <DomainForm />
+      return <DomainList server={server} />
 
     case 'monitoring':
       return <p>Monitoring</p>

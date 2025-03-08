@@ -12,12 +12,7 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const eventSource = new EventSource('/api/refresh')
     eventSource.onmessage = event => {
-      console.log(event.data)
-
       const data = JSON.parse(event.data) ?? {}
-
-      console.log({ data })
-
       if (data?.refresh) {
         // Starting react transition hook
         startTransition(() => {
