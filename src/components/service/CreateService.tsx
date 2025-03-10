@@ -49,13 +49,13 @@ const options = [
     value: 'database',
   },
   {
-    label: 'App',
+    label: 'App (Git based application)',
     value: 'app',
   },
-  {
-    label: 'Docker',
-    value: 'docker',
-  },
+  // {
+  //   label: 'Docker',
+  //   value: 'docker',
+  // },
 ]
 
 const databaseOptions = [

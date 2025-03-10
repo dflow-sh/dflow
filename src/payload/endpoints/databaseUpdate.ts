@@ -23,11 +23,12 @@ export const databaseUpdate: PayloadHandler = async ({
     switch (validatedData.type) {
       // Updating the database details after database creation
       case 'database.update':
-        const { serviceId, ...databaseDetails } = validatedData.data
+        const { serviceId: dbServiceId, ...databaseDetails } =
+          validatedData.data
 
         const databaseUpdateResponse = await payload.update({
           collection: 'services',
-          id: serviceId,
+          id: dbServiceId,
           data: {
             databaseDetails,
           },
@@ -53,12 +54,61 @@ export const databaseUpdate: PayloadHandler = async ({
           data: pluginUpdateResponse,
         })
 
-      default:
-        break
+      case 'domain.update':
+        const { serviceId: domainServiceId, domain } = validatedData.data
+        const { operation } = domain
+
+        // Fetching all domains of particular domain
+        const { domains: servicePreviousDomains } = await payload.findByID({
+          id: domainServiceId,
+          collection: 'services',
+        })
+
+        let updatedDomains = servicePreviousDomains ?? []
+
+        if (operation === 'remove') {
+          // In remove case removing that particular domain
+          updatedDomains = updatedDomains.filter(
+            domainDetails => domainDetails.domain !== domain.domain,
+          )
+        } else if (operation === 'set') {
+          updatedDomains = [
+            {
+              domain: domain.domain,
+              default: true,
+              autoRegenerateSSL: domain.autoRegenerateSSL,
+              certificateType: domain.certificateType,
+            },
+          ]
+        } else {
+          // in add case directly adding domain
+          updatedDomains = [
+            ...updatedDomains,
+            {
+              domain: domain.domain,
+              default: false,
+              autoRegenerateSSL: domain.autoRegenerateSSL,
+              certificateType: domain.certificateType,
+            },
+          ]
+        }
+
+        const updatedServiceDomainResponse = await payload.update({
+          id: domainServiceId,
+          data: {
+            domains: updatedDomains,
+          },
+          collection: 'services',
+          depth: 10,
+        })
+
+        return Response.json({
+          data: updatedServiceDomainResponse,
+        })
     }
   }
 
   return Response.json({
-    message: 'Hello world!',
+    message: 'event not found!',
   })
 }

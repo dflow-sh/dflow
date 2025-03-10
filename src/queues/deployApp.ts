@@ -4,6 +4,7 @@ import { createAppAuth } from '@octokit/auth-app'
 import { Job, Queue, Worker } from 'bullmq'
 import { Octokit } from 'octokit'
 
+import { payloadWebhook } from '@/lib/payloadWebhook'
 import { pub, queueConnection } from '@/lib/redis'
 import { GitProvider } from '@/payload-types'
 
@@ -26,6 +27,7 @@ interface QueueArgs {
     name: string
     port?: string
     environmentVariables: Record<string, unknown> | undefined
+    payloadToken: string
   }
 }
 
@@ -47,6 +49,7 @@ const worker = new Worker<QueueArgs>(
       serviceDetails,
     } = job.data
 
+    console.log('inside queue: ' + queueName)
     console.log('from queue', job.id)
     const ssh = await dynamicSSH(sshDetails)
 
@@ -213,10 +216,12 @@ const worker = new Worker<QueueArgs>(
       return
     }
 
+    console.log('generated SSL')
+
     // Step 5: SSL certificate generation
     await pub.publish('my-channel', `Started generating SSL`)
 
-    const sshResponse = await dokku.letsencrypt.enable(ssh, appName, {
+    const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
       onStdout: async chunk => {
         await pub.publish('my-channel', chunk.toString())
         console.info(chunk.toString())
@@ -226,11 +231,40 @@ const worker = new Worker<QueueArgs>(
       },
     })
 
-    if (sshResponse.code === 0) {
+    console.dir({ letsencryptResponse, serviceDetails }, { depth: Infinity })
+
+    if (letsencryptResponse.code === 0) {
       await pub.publish(
         'my-channel',
         `✅ Successfully generated SSL certificates`,
       )
+
+      await pub.publish('my-channel', `Updating domain details...`)
+      // todo: for now taking to first domain name
+      const domainsResponse = await dokku.domains.report(ssh, appName)
+      const defaultDomain = domainsResponse?.[0]
+
+      if (defaultDomain) {
+        const domainUpdateResponse = await payloadWebhook({
+          payloadToken: serviceDetails.payloadToken,
+          data: {
+            type: 'domain.update',
+            data: {
+              serviceId: serviceDetails.serviceId,
+              domain: {
+                domain: defaultDomain,
+                operation: 'add',
+                autoRegenerateSSL: false,
+                certificateType: 'letsencrypt',
+              },
+            },
+          },
+        })
+
+        console.log('domainUpdateResponse', await domainUpdateResponse.json())
+
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+      }
     } else {
       await pub.publish('my-channel', `❌ Failed to generated SSL certificates`)
     }

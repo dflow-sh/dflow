@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 
 import { Service } from '@/payload-types'
 
-import BuildTypeForm from './BuildTypeForm'
+// import BuildTypeForm from './BuildTypeForm'
 import DatabaseForm from './DatabaseForm'
 import DeploymentForm from './DeploymentForm'
 import ProviderForm from './ProviderForm'
@@ -21,7 +21,7 @@ const AppComponent = async ({ service }: { service: Service }) => {
     <div className='space-y-4'>
       <DeploymentForm service={service} />
       <ProviderForm service={service} gitProviders={gitProviders} />
-      <BuildTypeForm service={service} />
+      {/* <BuildTypeForm service={service} /> */}
     </div>
   )
 }

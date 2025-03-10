@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-// connectionUrl?: string
-// username?: string
-// password?: string
-// host?: string
-// port?: string
-// status?: string
-// version?: string
-
 export const databaseUpdateSchema = z.union([
   z.object({
     type: z.literal('database.update'),
@@ -39,11 +31,18 @@ export const databaseUpdateSchema = z.union([
       ),
     }),
   }),
+  z.object({
+    type: z.literal('domain.update'),
+    data: z.object({
+      serviceId: z.string(),
+      domain: z.object({
+        domain: z.string(),
+        operation: z.enum(['add', 'remove', 'set']),
+        autoRegenerateSSL: z.boolean(),
+        certificateType: z.enum(['letsencrypt', 'none']),
+      }),
+    }),
+  }),
 ])
 
 export type DatabaseUpdateSchemaType = z.infer<typeof databaseUpdateSchema>
-
-// export type DatabaseUpdateType = Extract<
-//   DatabaseEvent,
-//   { type: 'database.update' }
-// >

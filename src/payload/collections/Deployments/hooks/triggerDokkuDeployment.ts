@@ -45,6 +45,8 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
       if (type === 'app' || type === 'docker') {
         if (providerType === 'github' && githubSettings) {
           //  Adding to queue
+          console.log('outside deployment queue', payloadToken?.value)
+
           const queueResponse = await addDeploymentQueue({
             appName: serviceDetails.name,
             userName: githubSettings.owner,
@@ -63,10 +65,9 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
                 !Array.isArray(environmentVariables)
                   ? environmentVariables
                   : undefined,
+              payloadToken: `${payloadToken?.value}`,
             },
           })
-
-          console.log({ queueResponse })
         }
       }
 
@@ -84,8 +85,6 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
             },
           },
         )
-
-        console.log({ databaseQueueResponse })
       }
 
       //  Updating deployment status to building
