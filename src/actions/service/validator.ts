@@ -45,3 +45,13 @@ export const updateServiceEnvironmentsSchema = deleteServiceSchema.extend({
   projectId: z.string(),
   environmentVariables: z.record(z.string(), z.string()),
 })
+
+export const updateServiceDomainSchema = z.object({
+  domain: z.object({
+    hostname: z.string(),
+    autoRegenerateSSL: z.boolean(),
+    certificateType: z.enum(['letsencrypt', 'none']),
+  }),
+  operation: z.enum(['add', 'remove', 'set']),
+  id: z.string(),
+})

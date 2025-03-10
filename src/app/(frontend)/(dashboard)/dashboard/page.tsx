@@ -21,7 +21,9 @@ const SuspendedPage = async () => {
 
   return (
     <section className='space-y-6'>
-      <CreateProject servers={servers} />
+      <div className='flex justify-end'>
+        <CreateProject servers={servers} />
+      </div>
 
       {projects.length ? (
         <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>

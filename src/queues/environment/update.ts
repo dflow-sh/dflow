@@ -72,6 +72,9 @@ const worker = new Worker<QueueArgs>(
           'my-channel',
           `✅ Successfully updated environment variables for ${serviceDetails.name}`,
         )
+
+        await pub.publish('my-channel', `Syncing details...`)
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       } else {
         await pub.publish(
           'my-channel',
@@ -84,10 +87,6 @@ const worker = new Worker<QueueArgs>(
         `❌ Failed to update environment variables for ${serviceDetails.name}. App not found`,
       )
     }
-
-    await pub.publish('my-channel', `Syncing details...`)
-
-    await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
     ssh.dispose()
   },

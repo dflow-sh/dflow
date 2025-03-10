@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
 import {
   Dialog,
   DialogContent,
@@ -21,11 +20,12 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createDomainAction } from '@/actions/domain'
-import { createDomainSchema } from '@/actions/domain/validator'
+import { updateServiceDomainAction } from '@/actions/service'
+import { updateServiceDomainSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -43,38 +43,51 @@ const DomainForm = () => {
   const [open, setOpen] = useState(false)
   const params = useParams<{ id: string; serviceId: string }>()
 
-  const form = useForm<z.infer<typeof createDomainSchema>>({
-    resolver: zodResolver(createDomainSchema),
+  const form = useForm<z.infer<typeof updateServiceDomainSchema>>({
+    resolver: zodResolver(updateServiceDomainSchema),
     defaultValues: {
-      serviceId: params.serviceId,
-      projectId: params.id,
-      certificateType: 'none',
+      id: params.serviceId,
+      domain: {
+        certificateType: 'none',
+        autoRegenerateSSL: false,
+        hostname: '',
+      },
+      operation: 'add',
     },
   })
 
-  const { certificateType } = useWatch({ control: form.control })
+  const { domain } = useWatch({ control: form.control })
 
-  const { execute, isPending } = useAction(createDomainAction, {
+  const { execute, isPending } = useAction(updateServiceDomainAction, {
     onSuccess: ({ data }) => {
-      if (data) {
-        toast.success("Successfully created domain, It'll be accessible soon!")
+      if (data?.success) {
+        toast.info('Added to queue', {
+          description: 'Added domain attachment to queue',
+        })
         setOpen(false)
         form.reset()
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to create domain: ${error.serverError}`)
+      toast.error(`Failed to attach domain: ${error.serverError}`)
     },
   })
 
-  function onSubmit(values: z.infer<typeof createDomainSchema>) {
+  function onSubmit(values: z.infer<typeof updateServiceDomainSchema>) {
     console.log(values)
     execute(values)
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={state => {
+          setOpen(state)
+          if (!state) {
+            form.reset()
+          }
+        }}>
         <DialogTrigger asChild>
           <Button>Add Domain</Button>
         </DialogTrigger>
@@ -93,7 +106,7 @@ const DomainForm = () => {
               className='w-full space-y-8'>
               <FormField
                 control={form.control}
-                name='host'
+                name='domain.hostname'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Host</FormLabel>
@@ -107,7 +120,7 @@ const DomainForm = () => {
 
               <FormField
                 control={form.control}
-                name='certificateType'
+                name='domain.certificateType'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Certificate</FormLabel>
@@ -134,32 +147,55 @@ const DomainForm = () => {
                 )}
               />
 
-              <Card>
-                <CardContent className='pt-4'>
-                  <h3 className='text-sm font-semibold'>HTTPS</h3>
-                  <div className='flex w-full items-center justify-between'>
-                    <p className='text-balance text-muted-foreground'>
-                      Enable automatic regeneration of SSL certificate
-                    </p>
+              <FormField
+                control={form.control}
+                name='operation'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>
+                        Default domain
+                      </FormLabel>
+                      <FormDescription>
+                        This domain will be set as default domain, previously
+                        added domains will be removed!
+                      </FormDescription>
+                    </div>
 
-                    <FormField
-                      control={form.control}
-                      name='autoRegenerateSSL'
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Switch
-                              disabled={certificateType !== 'letsencrypt'}
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                    <FormControl>
+                      <Switch
+                        checked={field.value === 'set'}
+                        onCheckedChange={checked => {
+                          form.setValue('operation', checked ? 'set' : 'add')
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {/* <FormField
+                control={form.control}
+                name='domain.autoRegenerateSSL'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>HTTPS</FormLabel>
+                      <FormDescription>
+                        Enable automatic regeneration of SSL certificate
+                      </FormDescription>
+                    </div>
+
+                    <FormControl>
+                      <Switch
+                        disabled={domain?.certificateType !== 'letsencrypt'}
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              /> */}
 
               <DialogFooter>
                 <Button disabled={isPending} type='submit'>

@@ -32,9 +32,6 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       deployments: {
         limit: 1000,
       },
-      domains: {
-        limit: 1000,
-      },
     },
   })
 
@@ -43,7 +40,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   }
 
   const deployments = service.deployments?.docs ?? []
-  const domains = service.domains?.docs ?? []
+  const domains = service.domains ?? []
 
   switch (tab) {
     case 'general':

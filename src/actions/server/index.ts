@@ -8,7 +8,7 @@ import { dokku } from '@/lib/dokku'
 import { pub } from '@/lib/redis'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
-import { addManageServerDomainQueue } from '@/queues/domain/manage'
+import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
   createServerSchema,
@@ -132,7 +132,15 @@ export const updateServerDomainAction = protectedClient
   })
   .schema(updateServerDomainSchema)
   .action(async ({ clientInput }) => {
-    const { id, domain, previousDomains = [], operation } = clientInput
+    const { id, domain, operation } = clientInput
+
+    // Fetching server-details for showing previous details
+    const { domains: serverPreviousDomains } = await payload.findByID({
+      id,
+      collection: 'servers',
+    })
+
+    const previousDomains = serverPreviousDomains ?? []
 
     const domains =
       operation !== 'remove'

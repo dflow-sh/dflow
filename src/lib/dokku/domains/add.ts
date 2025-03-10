@@ -14,4 +14,6 @@ export const add = async (
   if (resultAddDomain.code === 1) {
     throw new Error(resultAddDomain.stderr)
   }
+
+  return resultAddDomain
 }

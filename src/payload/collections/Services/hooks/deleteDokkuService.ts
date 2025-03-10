@@ -1,6 +1,7 @@
 import { CollectionAfterDeleteHook } from 'payload'
 
 import { Service } from '@/payload-types'
+import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 
 export const deleteDokkuService: CollectionAfterDeleteHook<Service> = async ({
@@ -37,6 +38,7 @@ export const deleteDokkuService: CollectionAfterDeleteHook<Service> = async ({
         port: serverDetails?.port,
       }
 
+      // handling database delete
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
         const databaseQueueResponse = await addDestroyDatabaseQueue({
           databaseName: serviceDetails.name,
@@ -45,6 +47,18 @@ export const deleteDokkuService: CollectionAfterDeleteHook<Service> = async ({
         })
 
         console.log({ databaseQueueResponse })
+      }
+
+      // handling service delete
+      if (type === 'app' || type === 'docker') {
+        const appQueueResponse = await addDestroyApplicationQueue({
+          sshDetails,
+          serviceDetails: {
+            name: serviceDetails.name,
+          },
+        })
+
+        console.log({ appQueueResponse })
       }
     } else {
       console.log('Server details not found!', serverId)

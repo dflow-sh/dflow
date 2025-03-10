@@ -72,7 +72,6 @@ export interface Config {
     sshKeys: SshKey;
     gitProviders: GitProvider;
     deployments: Deployment;
-    domains: Domain;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -82,7 +81,6 @@ export interface Config {
       services: 'services';
     };
     services: {
-      domains: 'domains';
       deployments: 'deployments';
     };
   };
@@ -94,7 +92,6 @@ export interface Config {
     sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
-    domains: DomainsSelect<false> | DomainsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -286,10 +283,15 @@ export interface Service {
     status?: ('running' | 'missing' | 'exited') | null;
     exposedPorts?: string[] | null;
   };
-  domains?: {
-    docs?: (string | Domain)[] | null;
-    hasNextPage?: boolean | null;
-  } | null;
+  domains?:
+    | {
+        domain: string;
+        default: boolean;
+        autoRegenerateSSL?: boolean | null;
+        certificateType?: ('letsencrypt' | 'none') | null;
+        id?: string | null;
+      }[]
+    | null;
   deployments?: {
     docs?: (string | Deployment)[] | null;
     hasNextPage?: boolean | null;
@@ -316,19 +318,6 @@ export interface GitProvider {
     installationToken?: string | null;
     tokenExpiration?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "domains".
- */
-export interface Domain {
-  id: string;
-  service: string | Service;
-  hostName: string;
-  certificateType: 'letsencrypt' | 'none';
-  autoRegenerateSSL: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -380,10 +369,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'deployments';
         value: string | Deployment;
-      } | null)
-    | ({
-        relationTo: 'domains';
-        value: string | Domain;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -489,7 +474,15 @@ export interface ServicesSelect<T extends boolean = true> {
         status?: T;
         exposedPorts?: T;
       };
-  domains?: T;
+  domains?:
+    | T
+    | {
+        domain?: T;
+        default?: T;
+        autoRegenerateSSL?: T;
+        certificateType?: T;
+        id?: T;
+      };
   deployments?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -565,18 +558,6 @@ export interface GitProvidersSelect<T extends boolean = true> {
 export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "domains_select".
- */
-export interface DomainsSelect<T extends boolean = true> {
-  service?: T;
-  hostName?: T;
-  certificateType?: T;
-  autoRegenerateSSL?: T;
   updatedAt?: T;
   createdAt?: T;
 }

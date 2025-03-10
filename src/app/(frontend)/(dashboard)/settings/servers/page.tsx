@@ -1,9 +1,23 @@
 import configPromise from '@payload-config'
+import { Plus } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
+import PageHeader from '@/components/PageHeader'
+import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
+import { Button } from '@/components/ui/button'
+
+const SuspendedAddServer = async () => {
+  const payload = await getPayload({ config: configPromise })
+  const { docs: keys } = await payload.find({
+    collection: 'sshKeys',
+    pagination: false,
+  })
+
+  return <CreateServer sshKeys={keys} />
+}
 
 const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -25,9 +39,26 @@ const SuspendedPage = async () => {
 
 const ServersPage = async () => {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
-      <SuspendedPage />
-    </Suspense>
+    <>
+      <PageHeader
+        title='Servers'
+        action={
+          <Suspense
+            fallback={
+              <Button disabled>
+                <Plus />
+                Add Server
+              </Button>
+            }>
+            <SuspendedAddServer />
+          </Suspense>
+        }
+      />
+
+      <Suspense fallback={<Loader className='h-96 w-full' />}>
+        <SuspendedPage />
+      </Suspense>
+    </>
   )
 }
 

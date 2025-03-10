@@ -7,7 +7,6 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { Deployments } from './payload/collections/Deployments'
-import { Domains } from './payload/collections/Domains'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
@@ -34,7 +33,6 @@ export default buildConfig({
     SSHKeys,
     GitProviders,
     Deployments,
-    Domains,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

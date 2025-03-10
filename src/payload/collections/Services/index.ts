@@ -276,13 +276,40 @@ export const Services: CollectionConfig = {
     },
     applicationField,
     databaseField,
-    // domains join field
     {
       name: 'domains',
-      type: 'join',
-      label: 'Domains',
-      collection: 'domains',
-      on: 'service',
+      type: 'array',
+      fields: [
+        {
+          name: 'domain',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'default',
+          type: 'checkbox',
+          required: true,
+        },
+        {
+          name: 'autoRegenerateSSL',
+          type: 'checkbox',
+          defaultValue: false,
+        },
+        {
+          name: 'certificateType',
+          type: 'select',
+          options: [
+            {
+              label: 'Letsencrypt',
+              value: 'letsencrypt',
+            },
+            {
+              label: 'None',
+              value: 'none',
+            },
+          ],
+        },
+      ],
     },
     // deployments join field
     {

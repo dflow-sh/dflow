@@ -13,12 +13,14 @@ import { addStopAppQueue } from '@/queues/app/stop'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
+import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 
 import {
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
+  updateServiceDomainSchema,
   updateServiceEnvironmentsSchema,
   updateServiceSchema,
 } from './validator'
@@ -386,5 +388,91 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     if (updatedService.id) {
       revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
       return { success: true }
+    }
+  })
+
+export const updateServiceDomainAction = protectedClient
+  .metadata({
+    actionName: 'updateServiceDomainAction',
+  })
+  .schema(updateServiceDomainSchema)
+  .action(async ({ clientInput }) => {
+    const { id, domain, operation } = clientInput
+
+    // Fetching service-details for showing previous details
+    const { domains: servicePreviousDomains } = await payload.findByID({
+      id,
+      collection: 'services',
+    })
+
+    let updatedDomains = servicePreviousDomains ?? []
+
+    if (operation === 'remove') {
+      // In remove case removing that particular domain
+      updatedDomains = updatedDomains.filter(
+        domainDetails => domainDetails.domain !== domain.hostname,
+      )
+    } else if (operation === 'set') {
+      updatedDomains = [
+        {
+          domain: domain.hostname,
+          default: true,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+          certificateType: domain.certificateType,
+        },
+      ]
+    } else {
+      // in add case directly adding domain
+      updatedDomains = [
+        ...updatedDomains,
+        {
+          domain: domain.hostname,
+          default: false,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+          certificateType: domain.certificateType,
+        },
+      ]
+    }
+
+    const updatedServiceDomainResponse = await payload.update({
+      id,
+      data: {
+        domains: updatedDomains,
+      },
+      collection: 'services',
+      depth: 10,
+    })
+
+    if (
+      typeof updatedServiceDomainResponse.project === 'object' &&
+      typeof updatedServiceDomainResponse.project.server === 'object' &&
+      typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
+    ) {
+      const { ip, port, username } = updatedServiceDomainResponse.project.server
+      const privateKey =
+        updatedServiceDomainResponse.project.server.sshKey.privateKey
+
+      const queueResponse = await addManageServiceDomainQueue({
+        serviceDetails: {
+          action: operation,
+          domain: domain.hostname,
+          name: updatedServiceDomainResponse.name,
+          certificateType: domain.certificateType,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+        },
+        sshDetails: {
+          privateKey,
+          host: ip,
+          port,
+          username,
+        },
+      })
+
+      if (queueResponse.id) {
+        revalidatePath(
+          `/dashboard/project/${updatedServiceDomainResponse.project.id}/service/${id}`,
+        )
+        return { success: true }
+      }
     }
   })
