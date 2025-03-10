@@ -27,8 +27,8 @@ interface QueueArgs {
     name: string
     port?: string
     environmentVariables: Record<string, unknown> | undefined
-    payloadToken: string
   }
+  payloadToken: string
 }
 
 const queueName = 'deploy-app'
@@ -47,6 +47,7 @@ const worker = new Worker<QueueArgs>(
       branch,
       sshDetails,
       serviceDetails,
+      payloadToken,
     } = job.data
 
     console.log('inside queue: ' + queueName)
@@ -61,12 +62,10 @@ const worker = new Worker<QueueArgs>(
 
     const appResponse = await dokku.apps.create(ssh, serviceDetails.name, {
       onStdout: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
+        pub.publish('my-channel', chunk.toString())
       },
       onStderr: async chunk => {
         await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
       },
     })
 
@@ -98,11 +97,9 @@ const worker = new Worker<QueueArgs>(
       {
         onStdout: async chunk => {
           await pub.publish('my-channel', chunk.toString())
-          console.info(chunk.toString())
         },
         onStderr: async chunk => {
           await pub.publish('my-channel', chunk.toString())
-          console.info(chunk.toString())
         },
       },
     )
@@ -130,11 +127,9 @@ const worker = new Worker<QueueArgs>(
         options: {
           onStdout: async chunk => {
             await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
           },
           onStderr: async chunk => {
             await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
           },
         },
       })
@@ -195,11 +190,9 @@ const worker = new Worker<QueueArgs>(
       options: {
         onStdout: async chunk => {
           await pub.publish('my-channel', chunk.toString())
-          console.log(chunk.toString())
         },
         onStderr: async chunk => {
           await pub.publish('my-channel', chunk.toString())
-          console.log(chunk.toString())
         },
       },
     })
@@ -224,11 +217,8 @@ const worker = new Worker<QueueArgs>(
     const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
       onStdout: async chunk => {
         await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
       },
-      onStderr: chunk => {
-        console.info(chunk.toString())
-      },
+      onStderr: chunk => {},
     })
 
     console.dir({ letsencryptResponse, serviceDetails }, { depth: Infinity })
@@ -240,13 +230,16 @@ const worker = new Worker<QueueArgs>(
       )
 
       await pub.publish('my-channel', `Updating domain details...`)
+
       // todo: for now taking to first domain name
       const domainsResponse = await dokku.domains.report(ssh, appName)
       const defaultDomain = domainsResponse?.[0]
 
+      console.log({ domainsResponse })
+
       if (defaultDomain) {
         const domainUpdateResponse = await payloadWebhook({
-          payloadToken: serviceDetails.payloadToken,
+          payloadToken,
           data: {
             type: 'domain.update',
             data: {
@@ -260,6 +253,8 @@ const worker = new Worker<QueueArgs>(
             },
           },
         })
+
+        await pub.publish('my-channel', `✅ Updated domain details`)
 
         console.log('domainUpdateResponse', await domainUpdateResponse.json())
 

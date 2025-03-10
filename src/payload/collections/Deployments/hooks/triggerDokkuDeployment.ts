@@ -65,9 +65,11 @@ export const triggerDokkuDeployment: CollectionAfterChangeHook<
                 !Array.isArray(environmentVariables)
                   ? environmentVariables
                   : undefined,
-              payloadToken: `${payloadToken?.value}`,
             },
+            payloadToken: `${payloadToken?.value}`,
           })
+
+          console.dir({ queueResponse })
         }
       }
 
