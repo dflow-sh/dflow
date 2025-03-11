@@ -6,5 +6,12 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
   },
   auth: true,
-  fields: [],
+  fields: [
+    {
+      name: 'onboarded',
+      type: 'checkbox',
+      label: 'Onboarded',
+      required: true,
+    },
+  ],
 }
