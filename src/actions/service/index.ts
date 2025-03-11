@@ -3,13 +3,16 @@
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
+import { dokku } from '@/lib/dokku'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
+import { addCreateDatabaseQueue } from '@/queues/database/create'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
@@ -37,24 +40,124 @@ export const createServiceAction = publicClient
   .action(async ({ clientInput }) => {
     const { name, description, projectId, type, databaseType } = clientInput
 
-    const response = await payload.create({
-      collection: 'services',
-      data: {
-        project: projectId,
-        name,
-        description,
-        type,
-        databaseDetails: {
-          type: databaseType,
-        },
-      },
+    const { server } = await payload.findByID({
+      collection: 'projects',
+      id: projectId,
+      depth: 10,
     })
 
-    if (response) {
-      revalidatePath(`/dashboard/project/${projectId}`)
-    }
+    if (typeof server === 'object' && typeof server.sshKey === 'object') {
+      let ssh: NodeSSH | null = null
+      const sshOptions = {
+        host: server.ip,
+        username: server.username,
+        port: server.port,
+        privateKey: server.sshKey.privateKey,
+      }
 
-    return response
+      try {
+        ssh = await dynamicSSH(sshOptions)
+
+        switch (type) {
+          case 'app':
+          case 'docker':
+            // Creating app in dokku
+            const appsCreationResponse = await dokku.apps.create(ssh, name)
+
+            // If app created adding db entry
+            if (appsCreationResponse) {
+              const response = await payload.create({
+                collection: 'services',
+                data: {
+                  project: projectId,
+                  name,
+                  description,
+                  type,
+                  databaseDetails: {
+                    type: databaseType,
+                  },
+                },
+              })
+
+              if (response?.id) {
+                revalidatePath(`/dashboard/project/${projectId}`)
+                return { success: true }
+              }
+            }
+
+            break
+          case 'database':
+            if (!databaseType) {
+              throw new Error('Database type is undefined')
+            }
+
+            const res = await dokku.database.list(ssh, databaseType)
+            const cookieStore = await cookies()
+            const payloadToken = cookieStore.get('payload-token')
+
+            if (!res.includes(name)) {
+              const databaseResponse = await payload.create({
+                collection: 'services',
+                data: {
+                  project: projectId,
+                  name,
+                  description,
+                  type,
+                  databaseDetails: {
+                    type: databaseType,
+                  },
+                },
+              })
+
+              const deploymentResponse = await payload.create({
+                collection: 'deployments',
+                data: {
+                  service: databaseResponse.id,
+                  status: 'building',
+                },
+              })
+
+              const queueResponse = await addCreateDatabaseQueue({
+                databaseName: name,
+                databaseType: databaseType,
+                sshDetails: sshOptions,
+                payloadToken: payloadToken?.value,
+                serviceDetails: {
+                  id: databaseResponse.id,
+                  deploymentId: deploymentResponse.id,
+                },
+              })
+
+              console.log({ queueResponse })
+
+              if (queueResponse.id) {
+                return {
+                  success: true,
+                  redirectTo: `/dashboard/project/${projectId}/service/${databaseResponse.id}?tab=deployments`,
+                }
+              }
+            } else {
+              throw new Error('Name is already taken!')
+            }
+            break
+          default:
+            break
+        }
+      } catch (error) {
+        let message = ''
+
+        if (error instanceof Error) {
+          message = error.message
+        }
+
+        throw new Error(message)
+      } finally {
+        // disposing ssh even on error cases
+        if (ssh) {
+          ssh.dispose()
+        }
+      }
+    }
   })
 
 export const deleteServiceAction = publicClient
@@ -259,7 +362,7 @@ export const stopServerAction = protectedClient
         queueId = queueResponse.id
       }
 
-      if (type === 'docker') {
+      if (type === 'docker' || type === 'app') {
         const queueResponse = await addStopAppQueue({
           sshDetails,
           serviceDetails: {

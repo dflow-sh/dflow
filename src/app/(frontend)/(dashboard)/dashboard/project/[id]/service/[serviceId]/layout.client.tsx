@@ -4,15 +4,28 @@ import { parseAsStringEnum, useQueryState } from 'nuqs'
 
 import Tabs from '@/components/Tabs'
 
-const tabsList = [
-  { label: 'General', slug: 'general', disabled: false },
-  { label: 'Environment', slug: 'environment', disabled: false },
-  { label: 'Logs', slug: 'logs', disabled: false },
-  { label: 'Deployments', slug: 'deployments', disabled: false },
-  { label: 'Domains', slug: 'domains', disabled: false },
-] as const
+const LayoutClient = ({
+  children,
+  type,
+}: {
+  children: React.ReactNode
+  type: 'database' | 'app' | 'docker'
+}) => {
+  const tabsList =
+    type === 'database'
+      ? ([
+          { label: 'General', slug: 'general', disabled: false },
+          { label: 'Logs', slug: 'logs', disabled: false },
+          { label: 'Deployments', slug: 'deployments', disabled: false },
+        ] as const)
+      : ([
+          { label: 'General', slug: 'general', disabled: false },
+          { label: 'Environment', slug: 'environment', disabled: false },
+          { label: 'Logs', slug: 'logs', disabled: false },
+          { label: 'Deployments', slug: 'deployments', disabled: false },
+          { label: 'Domains', slug: 'domains', disabled: false },
+        ] as const)
 
-const LayoutClient = ({ children }: { children: React.ReactNode }) => {
   const [tab, setTab] = useQueryState(
     'tab',
     parseAsStringEnum([

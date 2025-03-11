@@ -43,6 +43,15 @@ export const databaseUpdateSchema = z.union([
       }),
     }),
   }),
+  z.object({
+    type: z.literal('deployment.update'),
+    data: z.object({
+      deployment: z.object({
+        id: z.string(),
+        status: z.enum(['queued', 'building', 'failed', 'success']),
+      }),
+    }),
+  }),
 ])
 
 export type DatabaseUpdateSchemaType = z.infer<typeof databaseUpdateSchema>

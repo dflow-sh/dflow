@@ -2,7 +2,7 @@ import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'restart-app'
 
@@ -63,5 +63,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-export const addRestartAppQueue = async (data: QueueArgs) =>
-  await restartAppQueue.add(queueName, data)
+export const addRestartAppQueue = async (data: QueueArgs) => {
+  const id = `restart-${data.serviceDetails.name}:${new Date().getTime()}`
+  return await restartAppQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

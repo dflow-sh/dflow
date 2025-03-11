@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { payloadWebhook } from '@/lib/payloadWebhook'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'create-database'
 
@@ -25,6 +25,7 @@ interface QueueArgs {
   }
   serviceDetails: {
     id: string
+    deploymentId: string
   }
   payloadToken: string | undefined
 }
@@ -134,6 +135,17 @@ const worker = new Worker<QueueArgs>(
       serviceDetails,
     } = job.data
 
+    console.dir(
+      {
+        databaseName,
+        databaseType,
+        sshDetails,
+        payloadToken,
+        serviceDetails,
+      },
+      { depth: Infinity },
+    )
+
     console.log(
       `starting createDatabase queue for ${databaseType} database called ${databaseName}`,
     )
@@ -180,7 +192,20 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      console.log({ webhookResponse })
+      const deploymentResponse = await payloadWebhook({
+        payloadToken: `${payloadToken}`,
+        data: {
+          type: 'deployment.update',
+          data: {
+            deployment: {
+              id: serviceDetails.deploymentId,
+              status: 'success',
+            },
+          },
+        },
+      })
+
+      console.log({ webhookResponse, deploymentResponse })
     } catch (error) {
       console.log('Webhook Error: ', error)
     }
@@ -212,3 +237,8 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   //   },
   // });
 })
+
+export const addCreateDatabaseQueue = async (data: QueueArgs) => {
+  const id = `create-database-${data.databaseName}-${data.databaseType}:${new Date().getTime()}`
+  return await createDatabaseQueue.add(id, data, { ...jobOptions, jobId: id })
+}

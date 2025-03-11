@@ -105,6 +105,21 @@ export const databaseUpdate: PayloadHandler = async ({
         return Response.json({
           data: updatedServiceDomainResponse,
         })
+
+      case 'deployment.update':
+        const { deployment } = validatedData.data
+
+        const deploymentResponse = await payload.update({
+          collection: 'deployments',
+          data: {
+            status: deployment.status,
+          },
+          id: deployment.id,
+        })
+
+        return Response.json({
+          data: deploymentResponse,
+        })
     }
   }
 

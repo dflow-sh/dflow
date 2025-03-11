@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Fragment, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -87,14 +87,26 @@ const databaseOptions = [
 ]
 
 const CreateService = ({ server }: { server: Server }) => {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const params = useParams<{ id: string }>()
   const { plugins = [] } = server
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
-      if (data) {
-        toast.success(`Successfully created ${input.name} service`)
+      if (data?.success) {
+        if (input.type === 'database') {
+          toast.info(`Added database creation to queue`, {
+            description: 'Redirecting to database details page...',
+          })
+
+          if (data?.redirectTo) {
+            router.push(data?.redirectTo)
+          }
+        } else {
+          toast.success(`Successfully created ${input.name} service`)
+        }
+
         setOpen(false)
       }
     },
@@ -119,7 +131,14 @@ const CreateService = ({ server }: { server: Server }) => {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={state => {
+          setOpen(state)
+          if (!state) {
+            form.reset()
+          }
+        }}>
         <DialogTrigger asChild>
           <Button>
             <Plus />

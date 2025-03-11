@@ -17,12 +17,21 @@ type DomainUpdateType = Extract<
   { type: 'domain.update' }
 >
 
+type DeploymentUpdateType = Extract<
+  DatabaseUpdateSchemaType,
+  { type: 'deployment.update' }
+>
+
 export const payloadWebhook = ({
   payloadToken,
   data,
 }: {
   payloadToken: string
-  data: DatabaseUpdateType | PluginUpdateType | DomainUpdateType
+  data:
+    | DatabaseUpdateType
+    | PluginUpdateType
+    | DomainUpdateType
+    | DeploymentUpdateType
 }) =>
   fetch(`${env.NEXT_PUBLIC_WEBSITE_URL}/api/databaseUpdate`, {
     method: 'POST',
