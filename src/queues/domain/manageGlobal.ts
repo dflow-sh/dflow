@@ -5,7 +5,7 @@ import { SSHExecCommandResponse } from 'node-ssh'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'manage-server-domain'
 
@@ -22,7 +22,7 @@ interface QueueArgs {
     port: number
   }
   serverDetails: {
-    global?: {
+    global: {
       domain: string
       action: 'add' | 'remove' | 'set'
     }
@@ -141,5 +141,11 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-export const addManageServerDomainQueue = async (data: QueueArgs) =>
-  await manageServerDomainQueue.add(queueName, data)
+export const addManageServerDomainQueue = async (data: QueueArgs) => {
+  const id = `manage-global-domain-${data.serverDetails.global?.domain}-:${new Date().getTime()}`
+
+  return await manageServerDomainQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

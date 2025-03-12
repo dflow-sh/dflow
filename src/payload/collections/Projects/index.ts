@@ -53,6 +53,7 @@ export const Projects: CollectionConfig = {
       label: 'Services',
       collection: 'services',
       on: 'project',
+      maxDepth: 10,
     },
   ],
 }

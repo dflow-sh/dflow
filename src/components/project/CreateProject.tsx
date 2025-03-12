@@ -93,6 +93,11 @@ const CreateProject = ({
           form.reset()
         }
       },
+      onError: ({ error }) => {
+        form.setError('serverId', {
+          message: 'Dokku not installed on the server!',
+        })
+      },
     },
   )
 

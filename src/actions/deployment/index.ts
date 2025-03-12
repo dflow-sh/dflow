@@ -6,6 +6,7 @@ import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
+import { addCreateDatabaseQueue } from '@/queues/database/create'
 import { addDeploymentQueue } from '@/queues/deployApp'
 
 import { createDeploymentSchema } from './validator'
@@ -24,17 +25,21 @@ export const createDeploymentAction = protectedClient
     const cookieStore = await cookies()
     const payloadToken = cookieStore.get('payload-token')
 
-    const serviceDetails = await payload.findByID({
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      environmentVariables,
+      ...serviceDetails
+    } = await payload.findByID({
       collection: 'services',
-      id: serviceId,
       depth: 10,
+      id: serviceId,
     })
 
     console.dir({ serviceDetails }, { depth: Infinity })
-
-    if (serviceDetails.type === 'database') {
-      throw new Error('Database already deployed!')
-    }
 
     const deploymentResponse = await payload.create({
       collection: 'deployments',
@@ -44,49 +49,57 @@ export const createDeploymentAction = protectedClient
       },
     })
 
-    // Checking for app-type
     if (
-      serviceDetails.id &&
-      (serviceDetails.type === 'app' || serviceDetails.type === 'docker') &&
-      serviceDetails.providerType === 'github' &&
-      serviceDetails.githubSettings
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
     ) {
-      if (
-        typeof serviceDetails?.project === 'object' &&
-        typeof serviceDetails?.project?.server === 'object' &&
-        typeof serviceDetails.project.server.sshKey === 'object'
-      ) {
-        const { githubSettings, provider, environmentVariables } =
-          serviceDetails
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
 
-        const sshDetails = {
-          privateKey: serviceDetails?.project?.server?.sshKey?.privateKey,
-          host: serviceDetails?.project?.server?.ip,
-          username: serviceDetails?.project?.server?.username,
-          port: serviceDetails?.project?.server?.port,
+      if (type === 'app' || type === 'docker') {
+        if (providerType === 'github' && githubSettings) {
+          const queueResponse = await addDeploymentQueue({
+            appName: serviceDetails.name,
+            userName: githubSettings.owner,
+            repoName: githubSettings.repository,
+            branch: githubSettings.branch,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              environmentVariables:
+                typeof environmentVariables === 'object' &&
+                environmentVariables &&
+                !Array.isArray(environmentVariables)
+                  ? environmentVariables
+                  : undefined,
+            },
+            payloadToken: `${payloadToken?.value}`,
+          })
+
+          console.dir({ queueResponse })
         }
+      }
 
-        const queueResponse = await addDeploymentQueue({
-          appName: serviceDetails.name,
-          branch: githubSettings.branch,
-          repoName: githubSettings.repository,
-          userName: githubSettings.owner,
-          serviceDetails: {
-            deploymentId: deploymentResponse.id,
-            environmentVariables:
-              typeof environmentVariables === 'object' &&
-              environmentVariables &&
-              !Array.isArray(environmentVariables)
-                ? environmentVariables
-                : undefined,
-            provider,
-            serviceId: serviceDetails.id,
-          },
-          payloadToken: `${payloadToken?.value}`,
+      if (type === 'database' && serviceDetails.databaseDetails?.type) {
+        const databaseQueueResponse = await addCreateDatabaseQueue({
+          databaseName: serviceDetails.name,
+          databaseType: serviceDetails.databaseDetails?.type,
           sshDetails,
+          serviceDetails: {
+            id: serviceDetails.id,
+            deploymentId: deploymentResponse.id,
+          },
+          payloadToken: payloadToken?.value,
         })
 
-        console.log({ queueResponse })
+        console.dir({ databaseQueueResponse })
       }
     }
 

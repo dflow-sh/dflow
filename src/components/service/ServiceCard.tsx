@@ -2,7 +2,7 @@
 
 import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
-import { formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import { Database, Ellipsis, Globe, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
@@ -23,6 +23,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Service } from '@/payload-types'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
@@ -109,11 +115,23 @@ export function ServiceCard({
         </CardHeader>
 
         <CardContent>
-          <time className='text-sm text-muted-foreground'>
-            {`Created ${formatDistanceToNow(new Date(service.createdAt), {
-              addSuffix: true,
-            })}`}
-          </time>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <time className='text-sm text-muted-foreground'>
+                  {`Created ${formatDistanceToNow(new Date(service.createdAt), {
+                    addSuffix: true,
+                  })}`}
+                </time>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>
+                  {format(new Date(service.createdAt), 'LLL d, yyyy h:mm a')}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
     </Link>

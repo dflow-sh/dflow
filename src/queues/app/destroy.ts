@@ -2,7 +2,7 @@ import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'destroy-application'
 
@@ -68,5 +68,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   await pub.publish('my-channel', `❌ Failed deleting ${serviceDetails?.name}`)
 })
 
-export const addDestroyApplicationQueue = async (data: QueueArgs) =>
-  await destroyApplicationQueue.add(queueName, data)
+export const addDestroyApplicationQueue = async (data: QueueArgs) => {
+  const id = `destroy-app-${data.serviceDetails.name}:${new Date().getTime()}`
+  return await destroyApplicationQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

@@ -3,7 +3,7 @@ import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 import { SSHExecCommandResponse } from 'node-ssh'
 
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'manage-service-domain'
 
@@ -157,5 +157,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-export const addManageServiceDomainQueue = async (data: QueueArgs) =>
-  await manageServiceDomainQueue.add(queueName, data)
+export const addManageServiceDomainQueue = async (data: QueueArgs) => {
+  const id = `manage-domain-${data.serviceDetails.domain}:${new Date().getTime()}`
+  return await manageServiceDomainQueue.add(id, data, {
+    ...jobOptions,
+    jobId: id,
+  })
+}
