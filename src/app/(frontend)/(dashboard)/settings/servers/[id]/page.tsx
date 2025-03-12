@@ -5,6 +5,7 @@ import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 
 import DomainList from '@/components/servers/DomainList'
+import Monitoring from '@/components/servers/Monitoring'
 import PluginsList from '@/components/servers/PluginsList'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -82,7 +83,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return <DomainList server={server} />
 
     case 'monitoring':
-      return <p>Monitoring</p>
+      return <Monitoring />
 
     default:
       return <GeneralTab server={server} />

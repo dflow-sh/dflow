@@ -9,7 +9,7 @@ const tabsList = [
   { label: 'General', slug: 'general', disabled: false },
   { label: 'Plugins', slug: 'plugins', disabled: false },
   { label: 'Domains', slug: 'domains', disabled: false },
-  { label: 'Monitoring', slug: 'monitoring', disabled: true },
+  { label: 'Monitoring', slug: 'monitoring', disabled: false },
 ] as const
 
 const LayoutClient = ({ children }: { children: React.ReactNode }) => {
