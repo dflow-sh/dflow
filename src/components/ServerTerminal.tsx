@@ -18,7 +18,7 @@ import { Button } from './ui/button'
 
 const ServerTerminal = () => {
   const [messages, setMessages] = useState<string[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+
   const { open, setOpen } = useTerminal()
 
   useEffect(() => {
@@ -28,7 +28,6 @@ const ServerTerminal = () => {
 
     const eventSource = new EventSource('/api/events')
     eventSource.onmessage = event => {
-      setIsLoading(false)
       setMessages(prev => [...prev, event.data])
     }
 
@@ -58,11 +57,7 @@ const ServerTerminal = () => {
           <SheetDescription>All terminal logs appear here</SheetDescription>
         </SheetHeader>
 
-        <TerminalComponent
-          className='mt-8'
-          messages={messages}
-          isLoading={isLoading}
-        />
+        <TerminalComponent className='mt-8' messages={messages} />
       </SheetContent>
     </Sheet>
   )

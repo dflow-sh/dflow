@@ -8,11 +8,13 @@ import { getPayload } from 'payload'
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
-import { createPluginQueue } from '@/queues/plugin/create'
-import { deletePluginQueue } from '@/queues/plugin/delete'
+import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
+import { addCreatePluginQueue } from '@/queues/plugin/create'
+import { addDeletePluginQueue } from '@/queues/plugin/delete'
 import { togglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
+  configureLetsencryptPluginSchema,
   installPluginSchema,
   syncPluginSchema,
   togglePluginStatusSchema,
@@ -31,7 +33,14 @@ export const installPluginAction = protectedClient
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const {
+      id,
+      ip,
+      username,
+      port,
+      sshKey,
+      plugins: previousPlugins,
+    } = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
@@ -52,14 +61,14 @@ export const installPluginAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const queueResponse = await createPluginQueue.add('create-plugin', {
-      // payload,
+    const queueResponse = await addCreatePluginQueue({
       pluginDetails: {
         name: pluginName,
         url: pluginURL,
       },
       serverDetails: {
         id: serverId,
+        previousPlugins,
       },
       sshDetails,
       payloadToken: payloadToken?.value,
@@ -184,6 +193,62 @@ export const deletePluginAction = protectedClient
     const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
+    const {
+      id,
+      ip,
+      username,
+      port,
+      sshKey,
+      plugins: previousPlugins,
+    } = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 5,
+    })
+
+    if (!id) {
+      throw new Error('Server not found')
+    }
+
+    if (typeof sshKey !== 'object') {
+      throw new Error('SSH key not found')
+    }
+
+    const sshDetails = {
+      host: ip,
+      port,
+      username,
+      privateKey: sshKey.privateKey,
+    }
+
+    const queueResponse = await addDeletePluginQueue({
+      pluginDetails: {
+        name: pluginName,
+      },
+      serverDetails: {
+        id: serverId,
+        previousPlugins,
+      },
+      sshDetails,
+      payloadToken: payloadToken?.value,
+    })
+
+    console.log({ queueResponse })
+
+    return { success: true }
+  })
+
+export const configureLetsencryptPluginAction = protectedClient
+  .metadata({
+    actionName: 'configureLetsencryptPluginAction',
+  })
+  .schema(configureLetsencryptPluginSchema)
+  .action(async ({ clientInput }) => {
+    const { email, autoGenerateSSL = false, serverId } = clientInput
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
+
+    // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -205,18 +270,19 @@ export const deletePluginAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const queueResponse = await deletePluginQueue.add('delete-plugin', {
-      pluginDetails: {
-        name: pluginName,
-      },
+    const queueResponse = await addLetsencryptPluginConfigureQueue({
+      payloadToken: payloadToken?.value,
       serverDetails: {
         id: serverId,
       },
+      pluginDetails: {
+        autoGenerateSSL,
+        email,
+      },
       sshDetails,
-      payloadToken: payloadToken?.value,
     })
 
-    console.log({ queueResponse })
-
-    return { success: true }
+    if (queueResponse.id) {
+      return { success: true }
+    }
   })

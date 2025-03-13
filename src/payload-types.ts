@@ -202,6 +202,15 @@ export interface Server {
         name: string;
         version: string;
         status: 'enabled' | 'disabled';
+        configuration?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -504,6 +513,7 @@ export interface ServersSelect<T extends boolean = true> {
         name?: T;
         version?: T;
         status?: T;
+        configuration?: T;
         id?: T;
       };
   domains?:

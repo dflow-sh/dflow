@@ -4,7 +4,14 @@ import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Switch } from '../ui/switch'
-import { Download, LucideIcon, Plug2, RefreshCcw, Trash2 } from 'lucide-react'
+import {
+  Download,
+  LucideIcon,
+  Plug2,
+  RefreshCcw,
+  Settings,
+  Trash2,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { JSX, SVGProps } from 'react'
@@ -29,6 +36,8 @@ import {
 } from '@/components/icons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
+
+import PluginConfigurationForm from './PluginConfigurationForm'
 
 // Job Queued
 // Queued job to install plugin
@@ -117,6 +126,8 @@ const PluginCard = ({
 
   const Icon = 'value' in plugin ? iconMapping[plugin.value] : Plug2
 
+  console.log({ plugin })
+
   return (
     <Card className='h-full' key={pluginName}>
       <CardHeader className='w-full flex-row items-start justify-between'>
@@ -134,41 +145,33 @@ const PluginCard = ({
         </div>
       </CardHeader>
 
-      <CardContent
-        className={`flex w-full items-center pt-4 ${installedPlugin ? 'justify-between' : 'justify-end'} `}>
-        {installedPlugin && (
-          <Switch
-            disabled={!notCustomPlugin || isUpdatingPluginStatus}
-            defaultChecked={installedPlugin.status === 'enabled'}
-            onCheckedChange={enabled => {
-              if (notCustomPlugin) {
-                togglePluginStatus({
-                  pluginName: plugin.value,
-                  pluginURL: plugin.githubURL,
-                  enabled,
-                  serverId: server.id,
-                })
-              }
-            }}
-          />
-        )}
-
+      <CardContent className={`flex w-full items-center justify-between pt-4`}>
         {installedPlugin ? (
-          <Button
-            variant='outline'
-            disabled={!notCustomPlugin || isDeletingPlugin}
-            onClick={() => {
-              if (notCustomPlugin) {
-                deletePlugin({
-                  pluginName: plugin.value,
-                  pluginURL: plugin.githubURL,
-                  serverId: params.id,
-                })
-              }
-            }}>
-            <Trash2 />
-            Uninstall
-          </Button>
+          <div className='space-x-2'>
+            <Button
+              variant='outline'
+              disabled={!notCustomPlugin || isDeletingPlugin}
+              onClick={() => {
+                if (notCustomPlugin) {
+                  deletePlugin({
+                    pluginName: plugin.value,
+                    pluginURL: plugin.githubURL,
+                    serverId: params.id,
+                  })
+                }
+              }}>
+              <Trash2 />
+              Uninstall
+            </Button>
+
+            {'hasConfig' in plugin && plugin.hasConfig && (
+              <PluginConfigurationForm plugin={installedPlugin}>
+                <Button variant='outline' size='icon'>
+                  <Settings />
+                </Button>
+              </PluginConfigurationForm>
+            )}
+          </div>
         ) : (
           <Button
             variant='outline'
@@ -185,6 +188,23 @@ const PluginCard = ({
             <Download />
             Install
           </Button>
+        )}
+
+        {installedPlugin && (
+          <Switch
+            disabled={!notCustomPlugin || isUpdatingPluginStatus}
+            defaultChecked={installedPlugin.status === 'enabled'}
+            onCheckedChange={enabled => {
+              if (notCustomPlugin) {
+                togglePluginStatus({
+                  pluginName: plugin.value,
+                  pluginURL: plugin.githubURL,
+                  enabled,
+                  serverId: server.id,
+                })
+              }
+            }}
+          />
         )}
       </CardContent>
     </Card>

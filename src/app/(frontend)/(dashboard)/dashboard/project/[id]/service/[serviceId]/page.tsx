@@ -9,6 +9,7 @@ import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import EnvironmentVariablesForm from '@/components/service/EnvironmentVariablesForm'
 import GeneralTab from '@/components/service/GeneralTab'
+import LogsTab from '@/components/service/LogsTab'
 import { loadServicePageTabs } from '@/lib/searchParams'
 
 interface PageProps {
@@ -35,6 +36,9 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     },
   })
 
+  const serverId =
+    typeof service.project === 'object' ? service.project.server : ''
+
   if (!service?.id) {
     return notFound()
   }
@@ -56,7 +60,12 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return <DomainList domains={domains} />
 
     case 'logs':
-      return <p>Logs Tab</p>
+      return (
+        <LogsTab
+          serviceId={service.id}
+          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+        />
+      )
     // In default case also returning general tab
     default:
       return <GeneralTab service={service} />

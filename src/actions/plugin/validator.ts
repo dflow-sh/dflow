@@ -23,3 +23,11 @@ export const syncPluginSchema = z.object({
 export const togglePluginStatusSchema = installPluginSchema.extend({
   enabled: z.boolean(),
 })
+
+export const configureLetsencryptPluginSchema = z.object({
+  email: z.string().email({
+    message: 'Email is invalid',
+  }),
+  autoGenerateSSL: z.boolean().default(false),
+  serverId: z.string(),
+})

@@ -27,6 +27,7 @@ export const databaseUpdateSchema = z.union([
           name: z.string(),
           status: z.enum(['enabled', 'disabled']),
           version: z.string(),
+          configuration: z.record(z.unknown()).optional(),
         }),
       ),
     }),

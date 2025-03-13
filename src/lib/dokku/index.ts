@@ -31,7 +31,8 @@ import { unexpose as unexposeDatabasePort } from './plugin/database/unexpose'
 import { unlink } from './plugin/database/unlink'
 import { install as dokkuPluginInstall } from './plugin/install'
 import { installed } from './plugin/installed'
-import { enable } from './plugin/letsEncrypt/enable'
+import { addCron } from './plugin/letsEncrypt/cron'
+import { letsencryptEmail } from './plugin/letsEncrypt/email'
 import { list } from './plugin/list'
 import { toggle } from './plugin/toggle'
 import { uninstall as PluginUninstall } from './plugin/uninstall'
@@ -89,7 +90,8 @@ export const dokku = {
     setGlobal,
   },
   letsencrypt: {
-    enable,
+    email: letsencryptEmail,
+    cron: addCron,
   },
   git: {
     sync,

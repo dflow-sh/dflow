@@ -13,7 +13,8 @@ import { SSHKeys } from './payload/collections/SSHkeys'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Users } from './payload/collections/Users'
-import { databaseUpdate } from './payload/endpoints/databaseUpdate'
+import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
+import { logs } from './payload/endpoints/logs'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -49,6 +50,11 @@ export default buildConfig({
       method: 'post',
       path: '/databaseUpdate',
       handler: databaseUpdate,
+    },
+    {
+      method: 'get',
+      path: '/logs',
+      handler: logs,
     },
   ],
 })
