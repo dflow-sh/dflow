@@ -7,6 +7,7 @@ import { Octokit } from 'octokit'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
@@ -26,6 +27,7 @@ interface QueueArgs {
     provider: string | GitProvider | null | undefined
     port?: string
     environmentVariables: Record<string, unknown> | undefined
+    serverId: string
   }
   payloadToken: string
 }
@@ -57,6 +59,7 @@ const worker = new Worker<QueueArgs>(
         serviceDetails,
         payloadToken,
       } = job.data
+      const { serverId, serviceId } = serviceDetails
 
       console.log('inside queue: ' + QUEUE_NAME)
       console.log('from queue', job.id)
@@ -74,23 +77,48 @@ const worker = new Worker<QueueArgs>(
         port,
         {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+            })
           },
         },
       )
 
       if (portResponse) {
-        await pub.publish('my-channel', `✅ Successfully exposed port ${port}`)
+        await sendEvent({
+          message: `✅ Successfully exposed port ${port}`,
+          pub,
+          serverId,
+          serviceId,
+        })
       } else {
-        await pub.publish('my-channel', `❌ Failed to exposed port ${port}`)
+        await sendEvent({
+          message: `❌ Failed to exposed port ${port}`,
+          pub,
+          serverId,
+          serviceId,
+        })
       }
 
       // Step 3: Setting environment variables
       if (serviceDetails.environmentVariables) {
-        await pub.publish('my-channel', `Stated setting environment variables`)
+        await sendEvent({
+          message: `Stated setting environment variables`,
+          pub,
+          serverId,
+          serviceId,
+        })
 
         const envResponse = await dokku.config.set({
           ssh,
@@ -104,30 +132,49 @@ const worker = new Worker<QueueArgs>(
           noRestart: false,
           options: {
             onStdout: async chunk => {
-              await pub.publish('my-channel', chunk.toString())
+              await sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+              })
             },
             onStderr: async chunk => {
-              await pub.publish('my-channel', chunk.toString())
+              await sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+              })
             },
           },
         })
 
         if (envResponse) {
-          await pub.publish(
-            'my-channel',
-            `✅ Successfully set environment variables`,
-          )
+          await sendEvent({
+            message: `✅ Successfully set environment variables`,
+            pub,
+            serverId,
+            serviceId,
+          })
         } else {
-          await pub.publish(
-            'my-channel',
-            `❌ Failed to set environment variables`,
-          )
+          await sendEvent({
+            message: `❌ Failed to set environment variables`,
+            pub,
+            serverId,
+            serviceId,
+          })
         }
       }
 
       // Step 4: Cloning the repo
       // Generating github-app details for deployment
-      await pub.publish('my-channel', `Stated cloning repository`)
+      await sendEvent({
+        message: `Stated cloning repository`,
+        pub,
+        serverId,
+        serviceId,
+      })
 
       let token = ''
 
@@ -167,34 +214,59 @@ const worker = new Worker<QueueArgs>(
         branchName,
         options: {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+            })
           },
         },
       })
 
       if (cloningResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully cloned & build repository`,
-        )
+        await sendEvent({
+          message: `✅ Successfully cloned & build repository`,
+          pub,
+          serverId,
+          serviceId,
+        })
       } else {
-        await pub.publish('my-channel', `❌ Failed to clone & build repository`)
+        await sendEvent({
+          message: `❌ Failed to clone & build repository`,
+          pub,
+          serverId,
+          serviceId,
+        })
 
         // exiting from the flow
         return
       }
 
-      console.log('generated SSL')
-
       // Step 5: SSL certificate generation
-      await pub.publish('my-channel', `Started generating SSL`)
+      await sendEvent({
+        message: `Started generating SSL`,
+        pub,
+        serverId,
+        serviceId,
+      })
 
       const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
         onStdout: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
+          await sendEvent({
+            message: chunk.toString(),
+            pub,
+            serverId,
+            serviceId,
+          })
         },
         onStderr: chunk => {},
       })
@@ -202,18 +274,23 @@ const worker = new Worker<QueueArgs>(
       console.dir({ letsencryptResponse, serviceDetails }, { depth: Infinity })
 
       if (letsencryptResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully generated SSL certificates`,
-        )
+        await sendEvent({
+          message: `✅ Successfully generated SSL certificates`,
+          pub,
+          serverId,
+          serviceId,
+        })
 
-        await pub.publish('my-channel', `Updating domain details...`)
+        await sendEvent({
+          message: `Updating domain details...`,
+          pub,
+          serverId,
+          serviceId,
+        })
 
         // todo: for now taking to first domain name
         const domainsResponse = await dokku.domains.report(ssh, appName)
         const defaultDomain = domainsResponse?.[0]
-
-        console.log({ domainsResponse })
 
         if (defaultDomain) {
           const domainUpdateResponse = await payloadWebhook({
@@ -247,7 +324,12 @@ const worker = new Worker<QueueArgs>(
 
           console.log('deploymentResponse', await deploymentResponse.json())
 
-          await pub.publish('my-channel', `✅ Updated domain details`)
+          await sendEvent({
+            message: `✅ Updated domain details`,
+            pub,
+            serverId,
+            serviceId,
+          })
 
           await pub.publish(
             'refresh-channel',
@@ -255,19 +337,23 @@ const worker = new Worker<QueueArgs>(
           )
         }
       } else {
-        await pub.publish(
-          'my-channel',
-          `❌ Failed to generated SSL certificates`,
-        )
+        await sendEvent({
+          message: `❌ Failed to generated SSL certificates`,
+          pub,
+          serverId,
+          serviceId,
+        })
       }
 
       // todo: add webhook to update deployment status
     } catch (error) {
+      let message = ''
+
       if (error instanceof Error) {
-        throw new Error(error.message)
+        message = error.message
       }
 
-      throw new Error('Failed to deploy app')
+      throw new Error(`❌ Failed to deploy app: ${message}`)
     } finally {
       if (ssh) {
         ssh.dispose()
@@ -278,12 +364,20 @@ const worker = new Worker<QueueArgs>(
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  // const payload = await getPayload({ config: configPromise })
-  await pub.publish('my-channel', '❌ failed to create app')
+  console.log('Failed to deploy app', err)
 
-  if (job?.data) {
-    console.log('now working')
-    const { serviceDetails } = job.data
+  const queueData = job?.data
+
+  if (queueData) {
+    const { serviceDetails } = queueData
+    const { serverId, serviceId } = serviceDetails
+
+    await sendEvent({
+      message: err.message,
+      pub,
+      serverId,
+      serviceId,
+    })
   }
 })
 

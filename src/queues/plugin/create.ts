@@ -1,9 +1,11 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
@@ -36,32 +38,46 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
     const { previousPlugins = [] } = serverDetails
+    let ssh: NodeSSH | null = null
 
     console.log('inside install plugin queue')
 
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      ssh = await dynamicSSH(sshDetails)
 
       const pluginInstallationResponse = await dokku.plugin.install(
         ssh,
         `${pluginDetails.url} ${pluginDetails.name}`,
         {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         },
       )
 
       if (pluginInstallationResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully installed ${pluginDetails.name} plugin`,
-        )
+        await sendEvent({
+          pub,
+          message: `✅ Successfully installed ${pluginDetails.name} plugin`,
+          serverId: serverDetails.id,
+        })
 
-        await pub.publish('my-channel', `Syncing changes...`)
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
 
         const pluginsResponse = await dokku.plugin.list(ssh)
 
@@ -104,10 +120,13 @@ const worker = new Worker<QueueArgs>(
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
-
-      ssh.dispose()
     } catch (error) {
-      throw error // Re-throw to trigger the failed event
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ failed to install plugin: ${message}`)
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
     }
   },
   {
@@ -122,13 +141,14 @@ worker.on('completed', job => {})
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to install plugin', err)
 
-  await pub.publish('my-channel', '❌ failed to install plugin')
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
-
-// Add more event handlers for better debugging
-worker.on('error', err => {})
-
-worker.on('active', job => {})
 
 export const addCreatePluginQueue = async (data: QueueArgs) => {
   const id = `create-plugin-${data.pluginDetails.name}:${new Date().getTime()}`

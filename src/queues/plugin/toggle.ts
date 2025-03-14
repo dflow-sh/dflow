@@ -1,9 +1,11 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
@@ -18,7 +20,7 @@ interface QueueArgs {
     enabled: boolean
     name: string
   }
-  serviceDetails: {
+  serverDetails: {
     id: string
     previousPlugins: Server['plugins']
   }
@@ -34,15 +36,16 @@ export const togglePluginQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, pluginDetails, payloadToken, serviceDetails } = job.data
-    const { previousPlugins = [] } = serviceDetails
+    const { sshDetails, pluginDetails, payloadToken, serverDetails } = job.data
+    const { previousPlugins = [] } = serverDetails
+    let ssh: NodeSSH | null = null
 
     if (!payloadToken) {
       console.warn('Payload token is missing!', payloadToken)
     }
 
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      ssh = await dynamicSSH(sshDetails)
 
       const pluginStatusResponse = await dokku.plugin.toggle({
         enabled: pluginDetails.enabled,
@@ -50,21 +53,34 @@ const worker = new Worker<QueueArgs>(
         ssh,
         options: {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         },
       })
 
       if (pluginStatusResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
-        )
+        await sendEvent({
+          pub,
+          message: `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
+          serverId: serverDetails.id,
+        })
 
-        await pub.publish('my-channel', `Syncing changes...`)
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
 
         const pluginsResponse = await dokku.plugin.list(ssh)
 
@@ -93,7 +109,7 @@ const worker = new Worker<QueueArgs>(
           data: {
             type: 'plugin.update',
             data: {
-              serverId: serviceDetails.id,
+              serverId: serverDetails.id,
               plugins: filteredPlugins,
             },
           },
@@ -101,10 +117,15 @@ const worker = new Worker<QueueArgs>(
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
-
-      ssh.dispose()
     } catch (error) {
-      throw error // Re-throw to trigger the failed event
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ failed to ${pluginDetails?.enabled ? 'enable' : 'disable'} ${pluginDetails?.name} plugin: ${message}`,
+      )
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
     }
   },
   {
@@ -115,13 +136,15 @@ const worker = new Worker<QueueArgs>(
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  const pluginDetails = job?.data?.pluginDetails
   console.log('Failed to toggle plugin', err)
 
-  await pub.publish(
-    'my-channel',
-    `❌ failed to ${pluginDetails?.enabled ? 'enable' : 'disable'} ${pluginDetails?.name} plugin`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addTogglePluginQueue = async (data: QueueArgs) => {

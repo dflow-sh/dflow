@@ -165,6 +165,7 @@ export const updateServerDomainAction = protectedClient
           domain,
           action: operation,
         },
+        id,
       },
       sshDetails: {
         host: response.ip,

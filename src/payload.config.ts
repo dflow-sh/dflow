@@ -15,6 +15,7 @@ import { Services } from './payload/collections/Services'
 import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
+import { serverEvents } from './payload/endpoints/server-events'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -55,6 +56,11 @@ export default buildConfig({
       method: 'get',
       path: '/logs',
       handler: logs,
+    },
+    {
+      method: 'get',
+      path: '/server-events',
+      handler: serverEvents,
     },
   ],
 })

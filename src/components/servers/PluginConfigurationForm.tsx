@@ -48,8 +48,6 @@ const LetsencryptForm = ({
 }) => {
   const params = useParams<{ id: string }>()
 
-  console.log({ plugin })
-
   const defaultValues =
     'name' in plugin &&
     plugin.configuration &&
