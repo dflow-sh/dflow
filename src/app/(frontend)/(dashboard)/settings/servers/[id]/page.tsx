@@ -3,7 +3,9 @@ import { TriangleAlert } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
+import { Suspense } from 'react'
 
+import Loader from '@/components/Loader'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
@@ -89,8 +91,12 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   }
 }
 
-const ServerIdPage = async ({ params, searchParams }: PageProps) => {
-  return <SuspendedPage params={params} searchParams={searchParams} />
+const ServerIdPage = ({ params, searchParams }: PageProps) => {
+  return (
+    <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <SuspendedPage params={params} searchParams={searchParams} />
+    </Suspense>
+  )
 }
 
 export default ServerIdPage

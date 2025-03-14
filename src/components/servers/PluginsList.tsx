@@ -126,8 +126,6 @@ const PluginCard = ({
 
   const Icon = 'value' in plugin ? iconMapping[plugin.value] : Plug2
 
-  console.log({ plugin })
-
   return (
     <Card className='h-full' key={pluginName}>
       <CardHeader className='w-full flex-row items-start justify-between'>

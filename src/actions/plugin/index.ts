@@ -3,6 +3,7 @@
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
@@ -11,7 +12,7 @@ import { dynamicSSH } from '@/lib/ssh'
 import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
 import { addCreatePluginQueue } from '@/queues/plugin/create'
 import { addDeletePluginQueue } from '@/queues/plugin/delete'
-import { togglePluginQueue } from '@/queues/plugin/toggle'
+import { addTogglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
   configureLetsencryptPluginSchema,
@@ -88,7 +89,14 @@ export const syncPluginAction = protectedClient
     const { serverId } = clientInput
 
     // Fetching server details instead of passing from client
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const {
+      id,
+      ip,
+      username,
+      port,
+      sshKey,
+      plugins: previousPlugins,
+    } = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
@@ -109,25 +117,51 @@ export const syncPluginAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const ssh = await dynamicSSH(sshDetails)
+    let ssh: NodeSSH | null = null
 
-    // getting the plugin list of the server
-    const pluginsResponse = await dokku.plugin.list(ssh)
+    try {
+      ssh = await dynamicSSH(sshDetails)
 
-    // Updating plugin list in database
-    await payload.update({
-      collection: 'servers',
-      id: serverId,
-      data: {
-        plugins: pluginsResponse.plugins.map(plugin => ({
+      const pluginsResponse = await dokku.plugin.list(ssh)
+
+      const filteredPlugins = pluginsResponse.plugins.map(plugin => {
+        const previousPluginDetails = (previousPlugins ?? []).find(
+          previousPlugin => previousPlugin?.name === plugin?.name,
+        )
+
+        return {
           name: plugin.name,
-          status: plugin.status ? 'enabled' : 'disabled',
+          status: plugin.status ? ('enabled' as const) : ('disabled' as const),
           version: plugin.version,
-        })),
-      },
-    })
+          configuration:
+            previousPluginDetails?.configuration &&
+            typeof previousPluginDetails?.configuration === 'object' &&
+            !Array.isArray(previousPluginDetails?.configuration)
+              ? previousPluginDetails.configuration
+              : {},
+        }
+      })
 
-    ssh.dispose()
+      // Updating plugin list in database
+      await payload.update({
+        collection: 'servers',
+        id: serverId,
+        data: {
+          plugins: filteredPlugins,
+        },
+      })
+    } catch (error) {
+      let message = ''
+      if (error instanceof Error) {
+        message = error.message
+      }
+
+      throw new Error(`Failed to sync plugins: ${message}`)
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
+    }
 
     revalidatePath(`/settings/servers/${serverId}/general`)
     return { success: true }
@@ -144,7 +178,14 @@ export const togglePluginStatusAction = protectedClient
     const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const {
+      id,
+      ip,
+      username,
+      port,
+      sshKey,
+      plugins: previousPlugins,
+    } = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
@@ -165,7 +206,7 @@ export const togglePluginStatusAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const queueResponse = await togglePluginQueue.add('toggle-plugin', {
+    const queueResponse = await addTogglePluginQueue({
       sshDetails,
       payloadToken: payloadToken?.value,
       pluginDetails: {
@@ -174,6 +215,7 @@ export const togglePluginStatusAction = protectedClient
       },
       serviceDetails: {
         id: serverId,
+        previousPlugins,
       },
     })
 
