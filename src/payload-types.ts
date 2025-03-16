@@ -137,7 +137,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
-  onboarded: boolean;
+  onboarded?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;

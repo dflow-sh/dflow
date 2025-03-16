@@ -13,7 +13,7 @@ export const SSHKeys: CollectionConfig = {
     create: () => false,
     read: () => true,
     update: () => false,
-    delete: () => false,
+    delete: () => true,
   },
   fields: [
     {

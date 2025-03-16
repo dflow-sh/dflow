@@ -11,7 +11,7 @@ export const Users: CollectionConfig = {
       name: 'onboarded',
       type: 'checkbox',
       label: 'Onboarded',
-      required: true,
+      defaultValue: false,
     },
   ],
 }

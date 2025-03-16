@@ -6,7 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -50,6 +50,8 @@ export const CreateServerForm = ({
   type?: 'create' | 'update'
   server?: ServerType
 }) => {
+  const pathName = usePathname()
+
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
     defaultValues: server
@@ -81,12 +83,12 @@ export const CreateServerForm = ({
     {
       onSuccess: ({ data, input }) => {
         if (data) {
-          console.log('before')
           toast.success(`Successfully created ${input.name} service`)
           // setOpen(false)
-          // form.reset()
-          console.log('after')
-          router.push('/onboarding/configure-domain')
+          form.reset()
+          if (pathName.includes('onboarding')) {
+            router.push('/onboarding/configure-domain')
+          }
         }
       },
       onError: ({ error }) => {
@@ -122,7 +124,7 @@ export const CreateServerForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-8'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-2'>
         <FormField
           control={form.control}
           name='name'
@@ -130,7 +132,7 @@ export const CreateServerForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className='rounded-sm' />
               </FormControl>
               <FormMessage />
             </FormItem>
