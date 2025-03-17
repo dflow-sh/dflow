@@ -6,11 +6,15 @@ import { getPayload } from 'payload'
 
 import DomainList from '@/components/servers/DomainList'
 import Monitoring from '@/components/servers/Monitoring'
+import NetdataInstallPrompt from '@/components/servers/NetdataInstallPrompt'
 import PluginsList from '@/components/servers/PluginsList'
+import RetryPrompt from '@/components/servers/RetryPrompt'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
+import { netdata } from '@/lib/netdata'
 import { loadServerPageTabs } from '@/lib/searchParams'
+import { dynamicSSH } from '@/lib/ssh'
 import { ServerType } from '@/payload-types-overrides'
 
 interface PageProps {
@@ -28,6 +32,32 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
   })
 
   return <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+}
+
+const MonitoringTab = async ({ server }: { server: ServerType }) => {
+  if (typeof server === 'object' && typeof server.sshKey === 'object') {
+    try {
+      const ssh = await dynamicSSH({
+        host: server.ip,
+        username: server.username,
+        port: server.port,
+        privateKey: server.sshKey.privateKey,
+      })
+
+      const isNetdataInstalled = await netdata.core.checkInstalled({ ssh })
+
+      console.log({ isNetdataInstalled })
+
+      return isNetdataInstalled ? (
+        <Monitoring server={server} />
+      ) : (
+        <NetdataInstallPrompt />
+      )
+    } catch (error) {
+      console.error('SSH Connection Error:', error)
+      return <RetryPrompt />
+    }
+  }
 }
 
 const SuspendedPage = async ({ params, searchParams }: PageProps) => {
@@ -83,7 +113,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return <DomainList server={server} />
 
     case 'monitoring':
-      return <Monitoring />
+      return <MonitoringTab server={server} />
 
     default:
       return <GeneralTab server={server} />

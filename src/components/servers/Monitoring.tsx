@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '../ui/button'
 import {
   AlertCircle,
   CheckCircle,
@@ -9,6 +10,8 @@ import {
   Server,
   Wifi,
 } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import {
   Area,
@@ -24,7 +27,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { toast } from 'sonner'
 
+import { uninstallNetdataAction } from '@/actions/netdata'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -43,9 +48,11 @@ import {
 } from '@/components/ui/chart'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ServerType } from '@/payload-types-overrides'
 
-const Monitoring = () => {
+const Monitoring = ({ server }: { server: ServerType }) => {
   const [activeTab, setActiveTab] = useState('overview')
+  const router = useRouter()
 
   // Sample data - in a real app this would come from your API
   const serverStatus = {
@@ -229,6 +236,18 @@ const Monitoring = () => {
     'hsl(var(--chart-4))',
   ]
 
+  const { execute: uninstallNetdata, isPending: isUninstallingNetdata } =
+    useAction(uninstallNetdataAction, {
+      onSuccess: () => {
+        toast.success('Successfully uninstalled netdata')
+        router.refresh()
+      },
+    })
+
+  const handleUninstall = () => {
+    uninstallNetdata({ serverId: server.id })
+  }
+
   // Status indicators
   const StatusIndicator = ({ status }: { status: string }) => {
     const getColor = () => {
@@ -254,11 +273,18 @@ const Monitoring = () => {
 
   return (
     <div className='container mx-auto p-4'>
-      <div className='mb-6'>
-        <h1 className='mb-2 text-3xl font-bold'>Server Monitoring Dashboard</h1>
-        <p className='text-muted-foreground'>
-          Real-time performance metrics and server status
-        </p>
+      <div className='mb-6 flex items-center justify-between'>
+        <div>
+          <h1 className='mb-2 text-3xl font-bold'>
+            Server Monitoring Dashboard
+          </h1>
+          <p className='text-muted-foreground'>
+            Real-time performance metrics and server status
+          </p>
+        </div>
+        <Button variant='destructive' onClick={handleUninstall}>
+          Uninstall
+        </Button>
       </div>
 
       {/* Status Overview */}
