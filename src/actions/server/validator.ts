@@ -23,10 +23,6 @@ export const deleteServerSchema = z.object({
 })
 
 export const installDokkuSchema = z.object({
-  host: z.string(),
-  port: z.number(),
-  username: z.string(),
-  privateKey: z.string(),
   serverId: z.string(),
 })
 

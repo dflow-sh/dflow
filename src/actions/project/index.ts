@@ -130,6 +130,9 @@ export const deleteProjectAction = publicClient
             serviceDetails: {
               name: service.name,
             },
+            serverDetails: {
+              id: server.id,
+            },
           })
 
           queueId = appQueueResponse.id
@@ -141,6 +144,9 @@ export const deleteProjectAction = publicClient
             databaseName: service.name,
             databaseType: service.databaseDetails?.type,
             sshDetails,
+            serverDetails: {
+              id: server.id,
+            },
           })
 
           queueId = databaseQueueResponse.id

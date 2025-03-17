@@ -67,7 +67,12 @@ const worker = new Worker<QueueArgs>(
 
       // Step 2: Setting dokku port
       const port = serviceDetails.port ?? '3000'
-      await pub.publish('my-channel', `Stated exposing port ${port}`)
+      await sendEvent({
+        message: `Stated exposing port ${port}`,
+        pub,
+        serverId,
+        serviceId,
+      })
 
       const portResponse = await dokku.ports.set(
         ssh,

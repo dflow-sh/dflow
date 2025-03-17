@@ -140,8 +140,18 @@ const UpdateServerForm = ({
     },
   )
 
-  const { execute: installDokku, isPending: isInstallingDokku } =
-    useAction(installDokkuAction)
+  const { execute: installDokku, isPending: isInstallingDokku } = useAction(
+    installDokkuAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.info('Added to queue', {
+            description: 'Added dokku installation to queue',
+          })
+        }
+      },
+    },
+  )
 
   function onSubmit(values: z.infer<typeof updateServerSchema>) {
     updateService(values)
@@ -279,10 +289,6 @@ const UpdateServerForm = ({
                 onClick={() => {
                   if (typeof server.sshKey === 'object') {
                     installDokku({
-                      host: server.ip,
-                      port: server.port,
-                      privateKey: server.sshKey.privateKey,
-                      username: server.username,
                       serverId: server.id,
                     })
                   }

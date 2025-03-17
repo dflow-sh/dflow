@@ -19,7 +19,5 @@ export const install = async (ssh: NodeSSH, options?: SSHExecOptions) => {
     throw new Error(dokkuInstallationResult.stderr)
   }
 
-  ssh.dispose()
-
-  return { success: true }
+  return dokkuInstallationResult
 }
