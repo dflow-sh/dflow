@@ -264,6 +264,9 @@ export const updateServiceAction = protectedClient
           username: response?.project?.server?.username,
           privateKey: response?.project?.server?.sshKey?.privateKey,
         },
+        serverDetails: {
+          id: response.project.server.id,
+        },
       })
     }
 
