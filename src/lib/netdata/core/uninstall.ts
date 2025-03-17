@@ -3,7 +3,7 @@ import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 import { checkInstalled } from './checkInstalled'
 
 /**
- * Uninstalls Netdata from the remote system
+ * Uninstalls Netdata completely from the remote system
  * @param ssh SSH connection to the remote system
  * @param options SSH execution options
  * @returns Object with success status and output/error messages
@@ -27,54 +27,46 @@ export const uninstall = async ({
     }
   }
 
-  // Use the official uninstaller script
-  const uninstallCommand = 'sudo netdata-uninstaller.sh --yes --force'
+  // Stop and disable Netdata service
+  const stopServiceCommands = [
+    'sudo systemctl stop netdata || true',
+    'sudo systemctl disable netdata || true',
+    'sudo systemctl reset-failed || true',
+    'sudo systemctl daemon-reexec || true',
+    'sudo systemctl daemon-reload || true',
+    'sudo systemctl unmask netdata || true',
+    'sudo pkill -9 netdata || true',
+  ].join(' && ')
+
+  await ssh.execCommand(stopServiceCommands, options)
+
+  // Use the official uninstall script
+  const uninstallCommand =
+    'wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh --uninstall --non-interactive'
 
   const uninstallResult = await ssh.execCommand(uninstallCommand, options)
+
+  // Force remove any remaining files and services
+  const cleanupCommand = [
+    'sudo rm -rf /etc/netdata /var/lib/netdata /var/log/netdata /usr/sbin/netdata /opt/netdata',
+    'sudo rm -f /etc/systemd/system/netdata.service',
+    'sudo rm -f /lib/systemd/system/netdata.service',
+    'sudo rm -f /etc/init.d/netdata',
+    'sudo systemctl daemon-reload',
+    'sudo systemctl reset-failed',
+  ].join(' && ')
+
+  await ssh.execCommand(cleanupCommand, options)
 
   // Verify uninstallation was successful
   const postCheck = await checkInstalled({ ssh, options })
 
-  if (!postCheck.isInstalled) {
-    return {
-      success: true,
-      message: 'Netdata uninstalled successfully.',
-      output: uninstallResult.stdout,
-      error: uninstallResult.stderr,
-    }
-  } else {
-    // If regular uninstall failed, try the more aggressive approach
-    console.log('Standard uninstall failed, trying alternate method...')
-
-    // Find and run the uninstaller directly from the install directory
-    const findUninstallerCommand =
-      'find /opt/netdata -name netdata-uninstaller.sh 2>/dev/null || find /usr/libexec/netdata -name netdata-uninstaller.sh 2>/dev/null'
-    const findResult = await ssh.execCommand(findUninstallerCommand, options)
-
-    if (findResult.stdout.trim()) {
-      const forcefulUninstall = await ssh.execCommand(
-        `sudo ${findResult.stdout.trim()} --yes --force`,
-        options,
-      )
-
-      // Check again
-      const finalCheck = await checkInstalled({ ssh, options })
-
-      return {
-        success: !finalCheck.isInstalled,
-        message: !finalCheck.isInstalled
-          ? 'Netdata uninstalled successfully with alternate method.'
-          : 'Failed to uninstall Netdata completely.',
-        output: forcefulUninstall.stdout,
-        error: forcefulUninstall.stderr,
-      }
-    }
-
-    return {
-      success: false,
-      message: 'Failed to uninstall Netdata',
-      output: uninstallResult.stdout,
-      error: uninstallResult.stderr,
-    }
+  return {
+    success: !postCheck.isInstalled,
+    message: !postCheck.isInstalled
+      ? 'Netdata fully uninstalled.'
+      : 'Failed to remove Netdata completely.',
+    output: uninstallResult.stdout,
+    error: uninstallResult.stderr,
   }
 }

@@ -29,7 +29,7 @@ export const install = async ({
 
   // Use the official one-line installer with minimal installation
   const installCommand =
-    'bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive'
+    'wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh --non-interactive'
 
   const installResult = await ssh.execCommand(installCommand, options)
 

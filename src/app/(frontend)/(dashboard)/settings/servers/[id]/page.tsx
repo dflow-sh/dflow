@@ -35,28 +35,33 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
 }
 
 const MonitoringTab = async ({ server }: { server: ServerType }) => {
-  if (typeof server === 'object' && typeof server.sshKey === 'object') {
-    try {
-      const ssh = await dynamicSSH({
-        host: server.ip,
-        username: server.username,
-        port: server.port,
-        privateKey: server.sshKey.privateKey,
-      })
+  if (
+    !server ||
+    typeof server !== 'object' ||
+    typeof server.sshKey !== 'object'
+  ) {
+    return <RetryPrompt />
+  }
 
-      const isNetdataInstalled = await netdata.core.checkInstalled({ ssh })
+  try {
+    const ssh = await dynamicSSH({
+      host: server.ip,
+      username: server.username,
+      port: server.port,
+      privateKey: server.sshKey.privateKey,
+    })
 
-      console.log({ isNetdataInstalled })
+    const netdataStatus = await netdata.core.checkInstalled({ ssh })
 
-      return isNetdataInstalled ? (
-        <Monitoring server={server} />
-      ) : (
-        <NetdataInstallPrompt />
-      )
-    } catch (error) {
-      console.error('SSH Connection Error:', error)
-      return <RetryPrompt />
+    if (!netdataStatus.isInstalled) {
+      console.warn('Netdata is not installed on the server.')
+      return <NetdataInstallPrompt server={server} />
     }
+
+    return <Monitoring server={server} />
+  } catch (error) {
+    console.error('SSH Connection Error:', error)
+    return <RetryPrompt />
   }
 }
 
