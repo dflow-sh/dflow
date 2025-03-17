@@ -46,6 +46,7 @@
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "emblor": "^1.4.7",
+    "framer-motion": "^12.4.11",
     "graphql": "^16.8.1",
     "ioredis": "^5.4.2",
     "is-port-reachable": "^4.0.0",

@@ -47,7 +47,7 @@ export const Servers: CollectionConfig = {
     create: () => true,
     read: () => true,
     update: () => true,
-    delete: () => false,
+    delete: () => true,
   },
   hooks: {
     afterRead: [populateDokkuVersion],

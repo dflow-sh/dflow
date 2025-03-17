@@ -8,5 +8,12 @@ export const Users: CollectionConfig = {
   auth: {
     tokenExpiration: 60 * 60 * 24 * 7,
   },
-  fields: [],
+  fields: [
+    {
+      name: 'onboarded',
+      type: 'checkbox',
+      label: 'Onboarded',
+      defaultValue: false,
+    },
+  ],
 }
