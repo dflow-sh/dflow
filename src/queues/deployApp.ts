@@ -65,7 +65,7 @@ const worker = new Worker<QueueArgs>(
       console.log('from queue', job.id)
       ssh = await dynamicSSH(sshDetails)
 
-      // Step 2: Setting dokku port
+      // Step 1: Setting dokku port
       const port = serviceDetails.port ?? '3000'
       await sendEvent({
         message: `Stated exposing port ${port}`,
@@ -116,7 +116,7 @@ const worker = new Worker<QueueArgs>(
         })
       }
 
-      // Step 3: Setting environment variables
+      // Step 2: Setting environment variables & add build-args
       if (serviceDetails.environmentVariables) {
         await sendEvent({
           message: `Stated setting environment variables`,
@@ -165,6 +165,61 @@ const worker = new Worker<QueueArgs>(
         } else {
           await sendEvent({
             message: `❌ Failed to set environment variables`,
+            pub,
+            serverId,
+            serviceId,
+          })
+        }
+
+        const option = Object.entries(serviceDetails.environmentVariables)
+          .map(([key, value]) => `--build-arg ${key}=${value}`)
+          .join(' ')
+
+        await sendEvent({
+          message: `Stated adding environment variables as build arguments`,
+          pub,
+          serverId,
+          serviceId,
+        })
+
+        const buildArgsResponse = await dokku.docker.options({
+          action: 'add',
+          appName,
+          option,
+          phase: 'build',
+          ssh,
+          options: {
+            onStdout: async chunk => {
+              await sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+              })
+            },
+            onStderr: async chunk => {
+              await sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+              })
+            },
+          },
+        })
+
+        console.log({ buildArgsResponse })
+
+        if (buildArgsResponse.code === 0) {
+          await sendEvent({
+            message: `✅ Successfully added environment variables as build arguments`,
+            pub,
+            serverId,
+            serviceId,
+          })
+        } else {
+          await sendEvent({
+            message: `❌ Failed to add environment variables as build arguments`,
             pub,
             serverId,
             serviceId,

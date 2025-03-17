@@ -6,6 +6,7 @@ import { listVars } from './config/listVars'
 import { set } from './config/set'
 import { unset } from './config/unset'
 import { info as distroInfo } from './distro/info'
+import { options } from './docker/options'
 import { add } from './domains/add'
 import { addGlobal } from './domains/addGlobal'
 import { remove } from './domains/remove'
@@ -56,6 +57,9 @@ export const dokku = {
     uninstall: PluginUninstall,
   },
   config: { listVars, set, unset },
+  docker: {
+    options,
+  },
   database: {
     destroy: destroyDb,
     info,
