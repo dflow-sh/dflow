@@ -3,22 +3,28 @@
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
+import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
+import { dokku } from '@/lib/dokku'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
+import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
+import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
+import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 
 import {
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
+  updateServiceDomainSchema,
   updateServiceEnvironmentsSchema,
   updateServiceSchema,
 } from './validator'
@@ -35,24 +41,91 @@ export const createServiceAction = publicClient
   .action(async ({ clientInput }) => {
     const { name, description, projectId, type, databaseType } = clientInput
 
-    const response = await payload.create({
-      collection: 'services',
-      data: {
-        project: projectId,
-        name,
-        description,
-        type,
-        databaseDetails: {
-          type: databaseType,
-        },
-      },
+    const { server } = await payload.findByID({
+      collection: 'projects',
+      id: projectId,
+      depth: 10,
     })
 
-    if (response) {
-      revalidatePath(`/dashboard/project/${projectId}`)
-    }
+    if (typeof server === 'object' && typeof server.sshKey === 'object') {
+      let ssh: NodeSSH | null = null
+      const sshOptions = {
+        host: server.ip,
+        username: server.username,
+        port: server.port,
+        privateKey: server.sshKey.privateKey,
+      }
 
-    return response
+      try {
+        ssh = await dynamicSSH(sshOptions)
+
+        if (type === 'app' || type === 'docker') {
+          // Creating app in dokku
+          const appsCreationResponse = await dokku.apps.create(ssh, name)
+
+          // If app created adding db entry
+          if (appsCreationResponse) {
+            const response = await payload.create({
+              collection: 'services',
+              data: {
+                project: projectId,
+                name,
+                description,
+                type,
+                databaseDetails: {
+                  type: databaseType,
+                },
+              },
+            })
+
+            if (response?.id) {
+              revalidatePath(`/dashboard/project/${projectId}`)
+              return { success: true }
+            }
+          }
+        } else if (databaseType) {
+          const databaseList = await dokku.database.list(ssh, databaseType)
+
+          // Throwing a error if database is already created
+          if (databaseList.includes(name)) {
+            throw new Error('Name is already taken!')
+          }
+
+          const databaseResponse = await payload.create({
+            collection: 'services',
+            data: {
+              project: projectId,
+              name,
+              description,
+              type,
+              databaseDetails: {
+                type: databaseType,
+              },
+            },
+          })
+
+          if (databaseResponse.id) {
+            revalidatePath(`/dashboard/project/${projectId}`)
+            return {
+              success: true,
+            }
+          }
+        }
+      } catch (error) {
+        let message = ''
+
+        if (error instanceof Error) {
+          message = error.message
+        }
+
+        throw new Error(message)
+      } finally {
+        // disposing ssh even on error cases
+        if (ssh) {
+          ssh.dispose()
+        }
+      }
+    }
   })
 
 export const deleteServiceAction = publicClient
@@ -64,21 +137,79 @@ export const deleteServiceAction = publicClient
   .action(async ({ clientInput }) => {
     const { id } = clientInput
 
-    const response = await payload.delete({
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      ...serviceDetails
+    } = await payload.findByID({
       collection: 'services',
       id,
+      depth: 10,
     })
 
-    if (response) {
-      const projectId =
-        typeof response.project === 'object'
-          ? response.project.id
-          : response.project
+    if (typeof project === 'object') {
+      const serverId =
+        typeof project.server === 'object' ? project.server.id : project.server
 
-      // Revalidate the parent project page and the service page
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-      revalidatePath(`/dashboard/project/${projectId}`)
-      return { deleted: true }
+      // Again fetching the server details because, it's coming as objectID
+      const serverDetails = await payload.findByID({
+        collection: 'servers',
+        id: serverId,
+      })
+
+      if (serverDetails.id && typeof serverDetails.sshKey === 'object') {
+        const sshDetails = {
+          privateKey: serverDetails.sshKey?.privateKey,
+          host: serverDetails?.ip,
+          username: serverDetails?.username,
+          port: serverDetails?.port,
+        }
+
+        // handling database delete
+        if (type === 'database' && serviceDetails.databaseDetails?.type) {
+          const databaseDeletionQueueResponse = await addDestroyDatabaseQueue({
+            databaseName: serviceDetails.name,
+            databaseType: serviceDetails.databaseDetails?.type,
+            sshDetails,
+          })
+
+          console.log({ databaseDeletionQueueResponse })
+        }
+
+        // handling service delete
+        if (type === 'app' || type === 'docker') {
+          const appDeletionQueueResponse = await addDestroyApplicationQueue({
+            sshDetails,
+            serviceDetails: {
+              name: serviceDetails.name,
+            },
+          })
+
+          console.log({ appDeletionQueueResponse })
+        }
+
+        const response = await payload.delete({
+          collection: 'services',
+          id,
+        })
+
+        if (response) {
+          const projectId =
+            typeof response.project === 'object'
+              ? response.project.id
+              : response.project
+
+          // Revalidate the parent project page and the service page
+          revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
+          revalidatePath(`/dashboard/project/${projectId}`)
+          return { deleted: true }
+        }
+      } else {
+        console.log('Server details not found!', serverId)
+      }
     }
   })
 
@@ -257,7 +388,7 @@ export const stopServerAction = protectedClient
         queueId = queueResponse.id
       }
 
-      if (type === 'docker') {
+      if (type === 'docker' || type === 'app') {
         const queueResponse = await addStopAppQueue({
           sshDetails,
           serviceDetails: {
@@ -386,5 +517,91 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     if (updatedService.id) {
       revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
       return { success: true }
+    }
+  })
+
+export const updateServiceDomainAction = protectedClient
+  .metadata({
+    actionName: 'updateServiceDomainAction',
+  })
+  .schema(updateServiceDomainSchema)
+  .action(async ({ clientInput }) => {
+    const { id, domain, operation } = clientInput
+
+    // Fetching service-details for showing previous details
+    const { domains: servicePreviousDomains } = await payload.findByID({
+      id,
+      collection: 'services',
+    })
+
+    let updatedDomains = servicePreviousDomains ?? []
+
+    if (operation === 'remove') {
+      // In remove case removing that particular domain
+      updatedDomains = updatedDomains.filter(
+        domainDetails => domainDetails.domain !== domain.hostname,
+      )
+    } else if (operation === 'set') {
+      updatedDomains = [
+        {
+          domain: domain.hostname,
+          default: true,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+          certificateType: domain.certificateType,
+        },
+      ]
+    } else {
+      // in add case directly adding domain
+      updatedDomains = [
+        ...updatedDomains,
+        {
+          domain: domain.hostname,
+          default: false,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+          certificateType: domain.certificateType,
+        },
+      ]
+    }
+
+    const updatedServiceDomainResponse = await payload.update({
+      id,
+      data: {
+        domains: updatedDomains,
+      },
+      collection: 'services',
+      depth: 10,
+    })
+
+    if (
+      typeof updatedServiceDomainResponse.project === 'object' &&
+      typeof updatedServiceDomainResponse.project.server === 'object' &&
+      typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
+    ) {
+      const { ip, port, username } = updatedServiceDomainResponse.project.server
+      const privateKey =
+        updatedServiceDomainResponse.project.server.sshKey.privateKey
+
+      const queueResponse = await addManageServiceDomainQueue({
+        serviceDetails: {
+          action: operation,
+          domain: domain.hostname,
+          name: updatedServiceDomainResponse.name,
+          certificateType: domain.certificateType,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+        },
+        sshDetails: {
+          privateKey,
+          host: ip,
+          port,
+          username,
+        },
+      })
+
+      if (queueResponse.id) {
+        revalidatePath(
+          `/dashboard/project/${updatedServiceDomainResponse.project.id}/service/${id}`,
+        )
+        return { success: true }
+      }
     }
   })

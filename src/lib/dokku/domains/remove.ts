@@ -14,4 +14,6 @@ export const remove = async (
   if (resultRemoveDomain.code === 1) {
     throw new Error(resultRemoveDomain.stderr)
   }
+
+  return resultRemoveDomain
 }

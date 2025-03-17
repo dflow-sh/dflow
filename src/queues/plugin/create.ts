@@ -3,7 +3,8 @@ import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { Server } from '@/payload-types'
 
 interface QueueArgs {
   sshDetails: {
@@ -19,6 +20,7 @@ interface QueueArgs {
   }
   serverDetails: {
     id: string
+    previousPlugins: Server['plugins']
   }
   payloadToken: string | undefined
 }
@@ -33,6 +35,9 @@ const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
     const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
+    const { previousPlugins = [] } = serverDetails
+
+    console.log('inside install plugin queue')
 
     try {
       const ssh = await dynamicSSH(sshDetails)
@@ -60,17 +65,39 @@ const worker = new Worker<QueueArgs>(
 
         const pluginsResponse = await dokku.plugin.list(ssh)
 
+        // if previous-plugins are there then removing from previous else updating with server-response
+        const filteredPlugins = pluginsResponse.plugins.map(plugin => {
+          const previousPluginDetails = (previousPlugins ?? []).find(
+            previousPlugin => previousPlugin?.name === plugin?.name,
+          )
+
+          return {
+            name: plugin.name,
+            status: plugin.status
+              ? ('enabled' as const)
+              : ('disabled' as const),
+            version: plugin.version,
+            configuration:
+              previousPluginDetails?.configuration &&
+              typeof previousPluginDetails?.configuration === 'object' &&
+              !Array.isArray(previousPluginDetails?.configuration)
+                ? previousPluginDetails.configuration
+                : {},
+          }
+        })
+
+        console.dir(
+          { filteredPlugins, previousPlugins, pluginsResponse },
+          { depth: Infinity },
+        )
+
         const updatePluginResponse = await payloadWebhook({
           payloadToken: `${payloadToken}`,
           data: {
             type: 'plugin.update',
             data: {
               serverId: serverDetails.id,
-              plugins: pluginsResponse.plugins.map(plugin => ({
-                name: plugin.name,
-                status: plugin.status ? 'enabled' : 'disabled',
-                version: plugin.version,
-              })),
+              plugins: filteredPlugins,
             },
           },
         })
@@ -102,3 +129,11 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
 worker.on('error', err => {})
 
 worker.on('active', job => {})
+
+export const addCreatePluginQueue = async (data: QueueArgs) => {
+  const id = `create-plugin-${data.pluginDetails.name}:${new Date().getTime()}`
+  return await createPluginQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { payloadWebhook } from '@/lib/payloadWebhook'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { parseDatabaseInfo } from '@/lib/utils'
 
 const queueName = 'stop-database'
@@ -125,5 +125,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-export const addStopDatabaseQueue = async (data: QueueArgs) =>
-  await stopDatabaseQueue.add(queueName, data)
+export const addStopDatabaseQueue = async (data: QueueArgs) => {
+  const id = `stop-${data.databaseName}:${new Date().getTime()}`
+  return await stopDatabaseQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

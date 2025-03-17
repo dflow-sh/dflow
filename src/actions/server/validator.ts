@@ -31,14 +31,6 @@ export const installDokkuSchema = z.object({
 })
 
 export const updateServerDomainSchema = z.object({
-  previousDomains: z
-    .array(
-      z.object({
-        domain: z.string(),
-        defaultDomain: z.boolean(),
-      }),
-    )
-    .optional(),
   domain: z.string(),
   operation: z.enum(['add', 'remove', 'set']),
   id: z.string(),

@@ -7,15 +7,10 @@ import { cn } from '@/lib/utils'
 
 type TerminalType = {
   messages?: string[]
-  isLoading?: boolean
   className?: string
 }
 
-const Terminal = ({
-  isLoading = false,
-  messages = [],
-  className = '',
-}: TerminalType) => {
+const Terminal = ({ messages = [], className = '' }: TerminalType) => {
   const terminalRef = useRef<HTMLPreElement>(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
 

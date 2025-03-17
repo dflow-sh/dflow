@@ -28,6 +28,10 @@ const pluginFields: Field[] = [
     ],
     required: true,
   },
+  {
+    name: 'configuration',
+    type: 'json',
+  },
 ]
 
 export const Servers: CollectionConfig = {

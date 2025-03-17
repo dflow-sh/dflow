@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-// connectionUrl?: string
-// username?: string
-// password?: string
-// host?: string
-// port?: string
-// status?: string
-// version?: string
-
 export const databaseUpdateSchema = z.union([
   z.object({
     type: z.literal('database.update'),
@@ -35,15 +27,32 @@ export const databaseUpdateSchema = z.union([
           name: z.string(),
           status: z.enum(['enabled', 'disabled']),
           version: z.string(),
+          configuration: z.record(z.unknown()).optional(),
         }),
       ),
+    }),
+  }),
+  z.object({
+    type: z.literal('domain.update'),
+    data: z.object({
+      serviceId: z.string(),
+      domain: z.object({
+        domain: z.string(),
+        operation: z.enum(['add', 'remove', 'set']),
+        autoRegenerateSSL: z.boolean(),
+        certificateType: z.enum(['letsencrypt', 'none']),
+      }),
+    }),
+  }),
+  z.object({
+    type: z.literal('deployment.update'),
+    data: z.object({
+      deployment: z.object({
+        id: z.string(),
+        status: z.enum(['queued', 'building', 'failed', 'success']),
+      }),
     }),
   }),
 ])
 
 export type DatabaseUpdateSchemaType = z.infer<typeof databaseUpdateSchema>
-
-// export type DatabaseUpdateType = Extract<
-//   DatabaseEvent,
-//   { type: 'database.update' }
-// >

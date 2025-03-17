@@ -1,7 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-import { triggerDokkuDeployment } from './hooks/triggerDokkuDeployment'
-
 export const Deployments: CollectionConfig = {
   slug: 'deployments',
   labels: {
@@ -15,7 +13,7 @@ export const Deployments: CollectionConfig = {
     delete: () => false,
   },
   hooks: {
-    afterChange: [triggerDokkuDeployment],
+    // afterChange: [triggerDokkuDeployment],
   },
   fields: [
     {

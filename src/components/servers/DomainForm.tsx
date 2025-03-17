@@ -139,9 +139,7 @@ const DomainForm = ({ server }: { server: ServerType }) => {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button onClick={e => e.stopPropagation()} variant='outline'>
-          Add Domain
-        </Button>
+        <Button onClick={e => e.stopPropagation()}>Add Domain</Button>
       </DialogTrigger>
 
       <DialogContent>

@@ -75,7 +75,7 @@ const ServiceIdLayout = async ({
           <p className='text-muted-foreground'>{serviceDetails.description}</p>
         </div>
 
-        <LayoutClient>{children}</LayoutClient>
+        <LayoutClient type={serviceDetails.type}>{children}</LayoutClient>
       </section>
     </>
   )

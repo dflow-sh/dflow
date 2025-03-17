@@ -3,7 +3,8 @@ import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { Server } from '@/payload-types'
 
 interface QueueArgs {
   sshDetails: {
@@ -19,6 +20,7 @@ interface QueueArgs {
   }
   serviceDetails: {
     id: string
+    previousPlugins: Server['plugins']
   }
   payloadToken: string | undefined
 }
@@ -33,6 +35,7 @@ const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
     const { sshDetails, pluginDetails, payloadToken, serviceDetails } = job.data
+    const { previousPlugins = [] } = serviceDetails
 
     if (!payloadToken) {
       console.warn('Payload token is missing!', payloadToken)
@@ -65,17 +68,33 @@ const worker = new Worker<QueueArgs>(
 
         const pluginsResponse = await dokku.plugin.list(ssh)
 
+        const filteredPlugins = pluginsResponse.plugins.map(plugin => {
+          const previousPluginDetails = (previousPlugins ?? []).find(
+            previousPlugin => previousPlugin?.name === plugin?.name,
+          )
+
+          return {
+            name: plugin.name,
+            status: plugin.status
+              ? ('enabled' as const)
+              : ('disabled' as const),
+            version: plugin.version,
+            configuration:
+              previousPluginDetails?.configuration &&
+              typeof previousPluginDetails?.configuration === 'object' &&
+              !Array.isArray(previousPluginDetails?.configuration)
+                ? previousPluginDetails.configuration
+                : {},
+          }
+        })
+
         const updatePluginResponse = await payloadWebhook({
           payloadToken: `${payloadToken}`,
           data: {
             type: 'plugin.update',
             data: {
               serverId: serviceDetails.id,
-              plugins: pluginsResponse.plugins.map(plugin => ({
-                name: plugin.name,
-                status: plugin.status ? 'enabled' : 'disabled',
-                version: plugin.version,
-              })),
+              plugins: filteredPlugins,
             },
           },
         })
@@ -95,8 +114,6 @@ const worker = new Worker<QueueArgs>(
   },
 )
 
-worker.on('completed', job => {})
-
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   const pluginDetails = job?.data?.pluginDetails
   console.log('Failed to toggle plugin', err)
@@ -107,7 +124,11 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-// Add more event handlers for better debugging
-worker.on('error', err => {})
+export const addTogglePluginQueue = async (data: QueueArgs) => {
+  const id = `toggle-${data.pluginDetails.name}-${data.pluginDetails.enabled}:${new Date().getTime()}`
 
-worker.on('active', job => {})
+  return await togglePluginQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

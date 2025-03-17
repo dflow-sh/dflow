@@ -2,6 +2,7 @@
 
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 
+import PageHeader from '@/components/PageHeader'
 import Tabs from '@/components/Tabs'
 
 const tabsList = [
@@ -28,6 +29,8 @@ const LayoutClient = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
+      <PageHeader title='Servers' />
+
       <Tabs
         tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
         onTabChange={index => {

@@ -7,7 +7,7 @@ const formattedDate = date.toISOString().split('T')[0]
 const githubCallbackURL =
   process.env.NODE_ENV === 'development'
     ? process.env.WEBHOOK_URL
-    : `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : `https://${process.env.NEXT_PUBLIC_WEBSITE_URL}`
 
 const value = JSON.stringify({
   redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=true`,

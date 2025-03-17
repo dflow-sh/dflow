@@ -4,7 +4,7 @@ import { Job, Queue, Worker } from 'bullmq'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
 const queueName = 'destroy-database'
 
@@ -83,5 +83,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   )
 })
 
-export const addDestroyDatabaseQueue = async (data: QueueArgs) =>
-  await destroyDatabaseQueue.add(queueName, data)
+export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
+  const id = `destroy-app-${data.databaseName}:${new Date().getTime()}`
+  return await destroyDatabaseQueue.add(id, data, {
+    ...jobOptions,
+    jobId: id,
+  })
+}

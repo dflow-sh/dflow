@@ -4,7 +4,7 @@ import { Job, Queue, Worker } from 'bullmq'
 
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 
-const queueName = 'restart-app'
+const queueName = 'destroy-application'
 
 interface QueueArgs {
   sshDetails: {
@@ -14,12 +14,11 @@ interface QueueArgs {
     port: number
   }
   serviceDetails: {
-    id: string
     name: string
   }
 }
 
-const restartAppQueue = new Queue<QueueArgs>(queueName, {
+const destroyApplicationQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
@@ -28,24 +27,33 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const { sshDetails, serviceDetails } = job.data
 
-    console.log(`starting restartApp queue for ${serviceDetails.name}`)
+    console.log(`starting deletingApplication queue for ${serviceDetails.name}`)
 
     const ssh = await dynamicSSH(sshDetails)
-    const res = await dokku.process.restart(ssh, serviceDetails.name, {
+
+    const deletedResponse = await dokku.apps.destroy(ssh, serviceDetails.name, {
       onStdout: async chunk => {
         await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
+        // console.info(chunk.toString());
       },
       onStderr: async chunk => {
         await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
+
+        console.info({
+          deleteApplicationLogs: {
+            message: chunk.toString(),
+            type: 'stdout',
+          },
+        })
       },
     })
 
-    await pub.publish(
-      'my-channel',
-      `✅ Successfully restarted ${serviceDetails.name}`,
-    )
+    if (deletedResponse) {
+      await pub.publish(
+        'my-channel',
+        `✅ Successfully deleted ${serviceDetails.name}`,
+      )
+    }
 
     ssh.dispose()
   },
@@ -53,19 +61,16 @@ const worker = new Worker<QueueArgs>(
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to restart app', err)
+  console.log('Failed to delete app', err)
 
   const serviceDetails = job?.data?.serviceDetails
 
-  await pub.publish(
-    'my-channel',
-    `❌ Failed restarting ${serviceDetails?.name}`,
-  )
+  await pub.publish('my-channel', `❌ Failed deleting ${serviceDetails?.name}`)
 })
 
-export const addRestartAppQueue = async (data: QueueArgs) => {
-  const id = `restart-${data.serviceDetails.name}:${new Date().getTime()}`
-  return await restartAppQueue.add(id, data, {
+export const addDestroyApplicationQueue = async (data: QueueArgs) => {
+  const id = `destroy-app-${data.serviceDetails.name}:${new Date().getTime()}`
+  return await destroyApplicationQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })

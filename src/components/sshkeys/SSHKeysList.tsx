@@ -31,7 +31,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
   })
 
   return (
-    <AccordionItem value={sshKey.id} className='py-2'>
+    <AccordionItem value={sshKey.id} className='max-w-5xl py-2'>
       <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
         <span className='flex gap-3'>
           <KeyRound

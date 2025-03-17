@@ -4,10 +4,20 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { Ellipsis, Pencil, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteProjectAction } from '@/actions/project'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import {
   Card,
   CardContent,
@@ -32,6 +42,62 @@ import { Project, Server } from '@/payload-types'
 import UpdateProject from './project/CreateProject'
 import { Button } from './ui/button'
 
+export function DeleteProjectAlert({
+  project,
+  open,
+  setOpen,
+}: {
+  project: Project
+  open: boolean
+  setOpen: Dispatch<SetStateAction<boolean>>
+}) {
+  const { id, name } = project
+  const { execute } = useAction(deleteProjectAction, {
+    onExecute: () => {
+      setOpen(false)
+      toast.loading('Please wait deleting project...', { id })
+    },
+    onSuccess: ({ data }) => {
+      if (data?.deleted) {
+        toast.success('Successfully deleted project', { id })
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to delete project: ${error.serverError}`, {
+        id,
+      })
+    },
+  })
+
+  return (
+    <AlertDialog open={open}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Project</AlertDialogTitle>
+          <AlertDialogDescription>
+            {`Are you sure you want to delete the ${name}? This action is permanent and will delete all services of this project`}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setOpen(false)}>
+            Cancel
+          </AlertDialogCancel>
+
+          <AlertDialogAction
+            variant='destructive'
+            onClick={() => {
+              execute({
+                id: project.id,
+              })
+            }}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
 export function ProjectCard({
   project,
   servers,
@@ -40,21 +106,7 @@ export function ProjectCard({
   servers: Server[]
 }) {
   const [manualOpen, setManualOpen] = useState(false)
-  const { execute } = useAction(deleteProjectAction, {
-    onExecute: () => {
-      toast.loading('Deleting project...', { id: project.id })
-    },
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        toast.success('Successfully deleted project', { id: project.id })
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete project ${error.serverError}`, {
-        id: project.id,
-      })
-    },
-  })
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
 
   return (
     <>
@@ -96,7 +148,7 @@ export function ProjectCard({
                   onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
-                    execute({ id: project.id })
+                    setDeleteAlertOpen(true)
                   }}>
                   <Trash2 />
                   Delete
@@ -138,6 +190,12 @@ export function ProjectCard({
         type='update'
         manualOpen={manualOpen}
         setManualOpen={setManualOpen}
+      />
+
+      <DeleteProjectAlert
+        project={project}
+        open={deleteAlertOpen}
+        setOpen={setDeleteAlertOpen}
       />
     </>
   )

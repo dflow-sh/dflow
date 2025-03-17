@@ -49,13 +49,13 @@ const options = [
     value: 'database',
   },
   {
-    label: 'App',
+    label: 'App (Git based application)',
     value: 'app',
   },
-  {
-    label: 'Docker',
-    value: 'docker',
-  },
+  // {
+  //   label: 'Docker',
+  //   value: 'docker',
+  // },
 ]
 
 const databaseOptions = [
@@ -93,7 +93,7 @@ const CreateService = ({ server }: { server: Server }) => {
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
-      if (data) {
+      if (data?.success) {
         toast.success(`Successfully created ${input.name} service`)
         setOpen(false)
       }
@@ -119,7 +119,14 @@ const CreateService = ({ server }: { server: Server }) => {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={state => {
+          setOpen(state)
+          if (!state) {
+            form.reset()
+          }
+        }}>
         <DialogTrigger asChild>
           <Button>
             <Plus />

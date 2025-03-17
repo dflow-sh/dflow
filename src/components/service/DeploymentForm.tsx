@@ -20,6 +20,10 @@ const DeploymentForm = ({ service }: { service: Service }) => {
         })
       }
     },
+    onError: ({ error }) => {
+      console.log({ error })
+      toast.error(`Failed to trigger deployment: ${error.serverError}`)
+    },
   })
 
   const { execute: restartService, isPending: isRestartingService } = useAction(

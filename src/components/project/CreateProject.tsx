@@ -45,7 +45,6 @@ const CreateProject = ({
   description = 'This will create a new project',
   type = 'create',
   project,
-  children,
   manualOpen = false,
   setManualOpen = () => {},
 }: {
@@ -54,7 +53,6 @@ const CreateProject = ({
   title?: string
   description?: string
   project?: Project
-  children?: React.ReactNode
   manualOpen?: boolean
   setManualOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
@@ -94,6 +92,11 @@ const CreateProject = ({
           setManualOpen(false)
           form.reset()
         }
+      },
+      onError: ({ error }) => {
+        form.setError('serverId', {
+          message: 'Dokku not installed on the server!',
+        })
       },
     },
   )
@@ -203,6 +206,7 @@ const CreateProject = ({
 
                   <Select
                     onValueChange={field.onChange}
+                    disabled={type === 'update'}
                     defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
