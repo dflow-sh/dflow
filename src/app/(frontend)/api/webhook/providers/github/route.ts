@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })
   const code = searchParams.get('code') ?? ''
   const installation_id = searchParams.get('installation_id') ?? ''
+  const onboarding = searchParams.get('onboarding') ?? ''
   const state = searchParams.get('state') ?? ''
 
   if (!state) {
@@ -71,6 +72,10 @@ export async function GET(request: NextRequest) {
     })
 
     console.log({ installationResponse })
+  }
+
+  if (onboarding === 'true') {
+    redirect('/onboarding/install-github')
   }
 
   return redirect('/settings/git')

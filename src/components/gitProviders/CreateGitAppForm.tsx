@@ -10,7 +10,7 @@ const githubCallbackURL =
     : `https://${process.env.NEXT_PUBLIC_WEBSITE_URL}`
 
 const value = JSON.stringify({
-  redirect_url: `${githubCallbackURL}/api/webhook/providers/github`,
+  redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=true`,
   name: `Dflow-${formattedDate}`,
   url: githubCallbackURL,
   hook_attributes: {

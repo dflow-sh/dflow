@@ -25,7 +25,7 @@ const SuspendedTerminal = async () => {
   return <ServerTerminal servers={servers} />
 }
 
-const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const headersList = await headers()
   const payload = await getPayload({ config: configPromise })
 
@@ -33,7 +33,11 @@ const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
 
   // Redirecting user to sign-in if user is not signed in
   if (!user) {
-    return redirect('/sign-in')
+    redirect('/sign-in')
+  }
+
+  if (!user.onboarded) {
+    redirect('/onboarding')
   }
 
   return (
@@ -53,7 +57,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
     // Added a suspense boundary to show loading response until user promise is resolved
     <Provider>
       <Suspense fallback={<Loader />}>
-        <SuspenseLayout>{children}</SuspenseLayout>
+        <DashboardLayout>{children}</DashboardLayout>
       </Suspense>
 
       <Suspense
