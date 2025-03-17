@@ -16,13 +16,7 @@ export default async function Page() {
     },
   })
 
-  const domains = await payload.find({
-    collection: 'domains',
-    pagination: false,
-  })
-
   const { docs: serverDocs } = allServers
-  const { docs: domainDocs } = domains
 
   console.log('domains are ', !serverDocs[0]?.domains?.length)
 
