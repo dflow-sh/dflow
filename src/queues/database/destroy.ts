@@ -1,10 +1,12 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 const queueName = 'destroy-database'
 
@@ -22,6 +24,9 @@ interface QueueArgs {
     username: string
     port: number
   }
+  serverDetails: {
+    id: string
+  }
 }
 
 const destroyDatabaseQueue = new Queue<QueueArgs>(queueName, {
@@ -31,43 +36,59 @@ const destroyDatabaseQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { databaseName, databaseType, sshDetails } = job.data
+    const { databaseName, databaseType, sshDetails, serverDetails } = job.data
+    let ssh: NodeSSH | null = null
 
     console.log(
       `starting deletingDatabase queue for ${databaseType} database called ${databaseName}`,
     )
 
-    const ssh = await dynamicSSH(sshDetails)
-    const deletedResponse = await dokku.database.destroy(
-      ssh,
-      databaseName,
-      databaseType,
-      {
-        onStdout: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-          // console.info(chunk.toString());
-        },
-        onStderr: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-
-          console.info({
-            createDatabaseLogs: {
+    try {
+      ssh = await dynamicSSH(sshDetails)
+      const deletedResponse = await dokku.database.destroy(
+        ssh,
+        databaseName,
+        databaseType,
+        {
+          onStdout: async chunk => {
+            await sendEvent({
+              pub,
               message: chunk.toString(),
-              type: 'stdout',
-            },
-          })
+              serverId: serverDetails.id,
+            })
+          },
+          onStderr: async chunk => {
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
+
+            console.info({
+              createDatabaseLogs: {
+                message: chunk.toString(),
+                type: 'stdout',
+              },
+            })
+          },
         },
-      },
-    )
-
-    if (deletedResponse) {
-      await pub.publish(
-        'my-channel',
-        `✅ Successfully deleted ${databaseName}-database`,
       )
-    }
 
-    ssh.dispose()
+      if (deletedResponse) {
+        await sendEvent({
+          pub,
+          message: `✅ Successfully deleted ${databaseName}-database`,
+          serverId: serverDetails.id,
+        })
+      }
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ Failed deleting ${databaseName}-database: ${message}`)
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
+    }
   },
   { connection: queueConnection },
 )
@@ -75,12 +96,15 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to delete database', err)
 
-  const databaseDetails = job?.data
+  const serverDetails = job?.data?.serverDetails
 
-  await pub.publish(
-    'my-channel',
-    `❌ Failed deleting ${databaseDetails?.databaseName}-database`,
-  )
+  if (serverDetails) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: serverDetails.id,
+    })
+  }
 })
 
 export const addDestroyDatabaseQueue = async (data: QueueArgs) => {

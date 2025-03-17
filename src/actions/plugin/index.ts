@@ -213,7 +213,7 @@ export const togglePluginStatusAction = protectedClient
         enabled,
         name: pluginName,
       },
-      serviceDetails: {
+      serverDetails: {
         id: serverId,
         previousPlugins,
       },

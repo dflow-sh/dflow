@@ -79,6 +79,7 @@ export const createDeploymentAction = protectedClient
                 !Array.isArray(environmentVariables)
                   ? environmentVariables
                   : undefined,
+              serverId: project.server.id,
             },
             payloadToken: `${payloadToken?.value}`,
           })
@@ -95,6 +96,7 @@ export const createDeploymentAction = protectedClient
           serviceDetails: {
             id: serviceDetails.id,
             deploymentId: deploymentResponse.id,
+            serverId: project.server.id,
           },
           payloadToken: payloadToken?.value,
         })

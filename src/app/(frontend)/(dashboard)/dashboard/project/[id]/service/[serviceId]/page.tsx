@@ -54,7 +54,13 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return <EnvironmentVariablesForm service={service} />
 
     case 'deployments':
-      return <DeploymentList deployments={deployments} />
+      return (
+        <DeploymentList
+          deployments={deployments}
+          serviceId={service.id}
+          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+        />
+      )
 
     case 'domains':
       return <DomainList domains={domains} />

@@ -1,9 +1,11 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
@@ -34,34 +36,46 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
     const { previousPlugins = [] } = serverDetails
+    let ssh: NodeSSH | null = null
 
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      ssh = await dynamicSSH(sshDetails)
 
       const pluginUninstallationResponse = await dokku.plugin.uninstall(
         ssh,
         pluginDetails.name,
         {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         },
       )
 
       if (pluginUninstallationResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully uninstalled ${pluginDetails.name} plugin`,
-        )
+        await sendEvent({
+          pub,
+          message: `✅ Successfully uninstalled ${pluginDetails.name} plugin`,
+          serverId: serverDetails.id,
+        })
 
-        await pub.publish('my-channel', `Syncing changes...`)
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
 
         const pluginsResponse = await dokku.plugin.list(ssh)
-
-        console.dir({ pluginsResponse }, { depth: Infinity })
 
         // if previous-plugins are there then removing from previous else updating with server-response
         const filteredPlugins = previousPlugins
@@ -87,10 +101,13 @@ const worker = new Worker<QueueArgs>(
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
-
-      ssh.dispose()
     } catch (error) {
-      throw error // Re-throw to trigger the failed event
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ failed to uninstall ${pluginDetails?.name} plugin: ${message}`,
+      )
+    } finally {
+      ssh?.dispose()
     }
   },
   {
@@ -103,7 +120,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to uninstall plugin', err)
 
-  await pub.publish('my-channel', '❌ failed to uninstall plugin')
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addDeletePluginQueue = async (data: QueueArgs) => {

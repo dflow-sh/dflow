@@ -174,6 +174,9 @@ export const deleteServiceAction = publicClient
             databaseName: serviceDetails.name,
             databaseType: serviceDetails.databaseDetails?.type,
             sshDetails,
+            serverDetails: {
+              id: serverDetails.id,
+            },
           })
 
           console.log({ databaseDeletionQueueResponse })
@@ -185,6 +188,9 @@ export const deleteServiceAction = publicClient
             sshDetails,
             serviceDetails: {
               name: serviceDetails.name,
+            },
+            serverDetails: {
+              id: serverDetails.id,
             },
           })
 
@@ -313,6 +319,9 @@ export const restartServiceAction = protectedClient
           serviceDetails: {
             id: serviceDetails.id,
           },
+          serverDetails: {
+            id: serviceDetails.id,
+          },
         })
 
         queueId = queueResponse.id
@@ -324,6 +333,9 @@ export const restartServiceAction = protectedClient
           serviceDetails: {
             id: serviceDetails.id,
             name: serviceDetails.name,
+          },
+          serverDetails: {
+            id: serviceDetails.id,
           },
         })
 
@@ -383,6 +395,9 @@ export const stopServerAction = protectedClient
           serviceDetails: {
             id: serviceDetails.id,
           },
+          serverDetails: {
+            id: project.server.id,
+          },
         })
 
         queueId = queueResponse.id
@@ -394,6 +409,9 @@ export const stopServerAction = protectedClient
           serviceDetails: {
             id: serviceDetails.id,
             name: serviceDetails.name,
+          },
+          serverDetails: {
+            id: project.server.id,
           },
         })
 
@@ -441,58 +459,67 @@ export const exposeDatabasePortAction = protectedClient
       }
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
-        const ssh = await dynamicSSH(sshDetails)
+        let ssh: NodeSSH | null = null
 
-        console.log("I'm inside", { ssh })
+        try {
+          ssh = await dynamicSSH(sshDetails)
 
-        const portsResponse = await server.ports.available({
-          ssh,
-          ports,
-        })
-
-        // If port response failed throw exception
-        if (!portsResponse) {
-          throw new Error('port-status unavailable, please try again!')
-        }
-
-        const unavailablePorts = portsResponse.filter(
-          ({ available }) => !available,
-        )
-
-        // If any port is in use throwing an error
-        if (unavailablePorts.length) {
-          throw new Error(
-            `${unavailablePorts.map(({ port }) => port).join(', ')} are already in use!`,
-          )
-        }
-
-        // Updating the exposed ports in payload
-        await payload.update({
-          collection: 'services',
-          data: {
-            databaseDetails: {
-              exposedPorts: ports,
-            },
-          },
-          id,
-        })
-
-        const queueResponse = await addExposeDatabasePortQueue({
-          databaseName: serviceDetails.name,
-          databaseType: serviceDetails.databaseDetails?.type,
-          sshDetails,
-
-          serviceDetails: {
-            id,
+          const portsResponse = await server.ports.available({
+            ssh,
             ports,
-            previousPorts: serviceDetails.databaseDetails?.exposedPorts ?? [],
-          },
-        })
+          })
 
-        ssh.dispose()
+          // If port response failed throw exception
+          if (!portsResponse) {
+            throw new Error('port-status unavailable, please try again!')
+          }
 
-        if (queueResponse.id) {
-          return { success: true }
+          const unavailablePorts = portsResponse.filter(
+            ({ available }) => !available,
+          )
+
+          // If any port is in use throwing an error
+          if (unavailablePorts.length) {
+            throw new Error(
+              `${unavailablePorts.map(({ port }) => port).join(', ')} are already in use!`,
+            )
+          }
+
+          // Updating the exposed ports in payload
+          await payload.update({
+            collection: 'services',
+            data: {
+              databaseDetails: {
+                exposedPorts: ports,
+              },
+            },
+            id,
+          })
+
+          const queueResponse = await addExposeDatabasePortQueue({
+            databaseName: serviceDetails.name,
+            databaseType: serviceDetails.databaseDetails?.type,
+            sshDetails,
+
+            serviceDetails: {
+              id,
+              ports,
+              previousPorts: serviceDetails.databaseDetails?.exposedPorts ?? [],
+            },
+
+            serverDetails: {
+              id: project.server.id,
+            },
+          })
+
+          if (queueResponse.id) {
+            return { success: true }
+          }
+        } catch (error) {
+          let message = error instanceof Error ? error.message : ''
+          throw new Error(message)
+        } finally {
+          ssh?.dispose()
         }
       }
     }
@@ -577,7 +604,8 @@ export const updateServiceDomainAction = protectedClient
       typeof updatedServiceDomainResponse.project.server === 'object' &&
       typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
     ) {
-      const { ip, port, username } = updatedServiceDomainResponse.project.server
+      const { ip, port, username, id } =
+        updatedServiceDomainResponse.project.server
       const privateKey =
         updatedServiceDomainResponse.project.server.sshKey.privateKey
 
@@ -594,6 +622,9 @@ export const updateServiceDomainAction = protectedClient
           host: ip,
           port,
           username,
+        },
+        serverDetails: {
+          id,
         },
       })
 

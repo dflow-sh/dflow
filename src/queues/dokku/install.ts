@@ -6,39 +6,36 @@ import { NodeSSH } from 'node-ssh'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 
-const queueName = 'restart-app'
-
 interface QueueArgs {
   sshDetails: {
-    privateKey: string
     host: string
-    username: string
     port: number
-  }
-  serviceDetails: {
-    id: string
-    name: string
+    username: string
+    privateKey: string
   }
   serverDetails: {
     id: string
   }
 }
 
-const restartAppQueue = new Queue<QueueArgs>(queueName, {
+const queueName = 'install-dokku'
+
+export const installDokkuQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, serviceDetails, serverDetails } = job.data
+    const { sshDetails, serverDetails } = job.data
     let ssh: NodeSSH | null = null
 
-    console.log(`starting restartApp queue for ${serviceDetails.name}`)
+    console.log('inside install plugin queue')
 
     try {
       ssh = await dynamicSSH(sshDetails)
-      const res = await dokku.process.restart(ssh, serviceDetails.name, {
+
+      const installationResponse = await dokku.version.install(ssh, {
         onStdout: async chunk => {
           await sendEvent({
             pub,
@@ -55,25 +52,39 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      await sendEvent({
-        pub,
-        message: `✅ Successfully restarted ${serviceDetails.name}`,
-        serverId: serverDetails.id,
-      })
+      if (installationResponse.code === 0) {
+        await sendEvent({
+          pub,
+          message: `✅ Successfully installed dokku`,
+          serverId: serverDetails.id,
+        })
+
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
+
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+      }
     } catch (error) {
-      let message = error instanceof Error ? error.message : ''
-      throw new Error(
-        `❌ Failed restarting ${serviceDetails?.name} : ${message}`,
-      )
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ failed to install plugin: ${message}`)
     } finally {
-      ssh?.dispose()
+      if (ssh) {
+        ssh.dispose()
+      }
     }
   },
-  { connection: queueConnection },
+  {
+    connection: queueConnection,
+    // Add concurrency limit
+    concurrency: 1,
+  },
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to restart app', err)
+  console.log('Failed to install plugin', err)
 
   if (job?.data) {
     await sendEvent({
@@ -84,9 +95,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   }
 })
 
-export const addRestartAppQueue = async (data: QueueArgs) => {
-  const id = `restart-${data.serviceDetails.name}:${new Date().getTime()}`
-  return await restartAppQueue.add(id, data, {
+export const AddInstallDokkuQueue = async (data: QueueArgs) => {
+  const id = `install-dokku:${new Date().getTime()}`
+
+  return await installDokkuQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })

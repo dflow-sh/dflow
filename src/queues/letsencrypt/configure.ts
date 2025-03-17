@@ -1,10 +1,11 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
-import { SSHExecCommandResponse } from 'node-ssh'
+import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 interface QueueArgs {
   sshDetails: {
@@ -34,55 +35,79 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
     const { email, autoGenerateSSL } = pluginDetails
+    let ssh: NodeSSH | null = null
 
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      ssh = await dynamicSSH(sshDetails)
 
       const letsencryptEmailResponse = await dokku.letsencrypt.email(
         ssh,
         email,
         {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         },
       )
 
       if (letsencryptEmailResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully configured letsencrypt email: ${email}`,
-        )
+        await sendEvent({
+          pub,
+          message: `✅ Successfully configured letsencrypt email: ${email}`,
+          serverId: serverDetails.id,
+        })
 
         let autoGenerateSSLResponse: SSHExecCommandResponse | null = null
 
         if (autoGenerateSSL) {
           autoGenerateSSLResponse = await dokku.letsencrypt.cron(ssh, {
             onStdout: async chunk => {
-              await pub.publish('my-channel', chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
             },
             onStderr: async chunk => {
-              await pub.publish('my-channel', chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
             },
           })
 
           if (autoGenerateSSLResponse.code === 0) {
-            await pub.publish(
-              'my-channel',
-              `✅ Successfully added cron for  SSL certificate auto-generation`,
-            )
+            await sendEvent({
+              pub,
+              message: `✅ Successfully added cron for  SSL certificate auto-generation`,
+              serverId: serverDetails.id,
+            })
           }
         } else {
-          await pub.publish(
-            'my-channel',
-            `⏭️ Skipping automatic SSL certificate generation!`,
-          )
+          await sendEvent({
+            pub,
+            message: `⏭️ Skipping automatic SSL certificate generation!`,
+            serverId: serverDetails.id,
+          })
         }
 
-        await pub.publish('my-channel', `Syncing changes...`)
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
 
         const pluginsResponse = (await dokku.plugin.list(ssh)) ?? []
 
@@ -110,9 +135,7 @@ const worker = new Worker<QueueArgs>(
           }
         })
 
-        console.dir({ pluginsWithConfig }, { depth: Infinity })
-
-        const updatePluginResponse = await payloadWebhook({
+        await payloadWebhook({
           payloadToken: `${payloadToken}`,
           data: {
             type: 'plugin.update',
@@ -125,10 +148,11 @@ const worker = new Worker<QueueArgs>(
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
-
-      ssh.dispose()
     } catch (error) {
-      throw error // Re-throw to trigger the failed event
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ failed to configure letsencrypt plugin: ${message}`)
+    } finally {
+      ssh?.dispose()
     }
   },
   {
@@ -141,7 +165,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to configure letsencrypt plugin', err)
 
-  await pub.publish('my-channel', '❌ failed to configure letsencrypt plugin')
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addLetsencryptPluginConfigureQueue = async (data: QueueArgs) => {

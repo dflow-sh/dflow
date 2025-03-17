@@ -1,8 +1,10 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 const queueName = 'destroy-application'
 
@@ -16,6 +18,9 @@ interface QueueArgs {
   serviceDetails: {
     name: string
   }
+  serverDetails: {
+    id: string
+  }
 }
 
 const destroyApplicationQueue = new Queue<QueueArgs>(queueName, {
@@ -25,37 +30,57 @@ const destroyApplicationQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, serviceDetails } = job.data
+    const { sshDetails, serviceDetails, serverDetails } = job.data
+    let ssh: NodeSSH | null = null
 
     console.log(`starting deletingApplication queue for ${serviceDetails.name}`)
 
-    const ssh = await dynamicSSH(sshDetails)
+    try {
+      ssh = await dynamicSSH(sshDetails)
 
-    const deletedResponse = await dokku.apps.destroy(ssh, serviceDetails.name, {
-      onStdout: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        // console.info(chunk.toString());
-      },
-      onStderr: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-
-        console.info({
-          deleteApplicationLogs: {
-            message: chunk.toString(),
-            type: 'stdout',
+      const deletedResponse = await dokku.apps.destroy(
+        ssh,
+        serviceDetails.name,
+        {
+          onStdout: async chunk => {
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
-        })
-      },
-    })
+          onStderr: async chunk => {
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
 
-    if (deletedResponse) {
-      await pub.publish(
-        'my-channel',
-        `✅ Successfully deleted ${serviceDetails.name}`,
+            console.info({
+              deleteApplicationLogs: {
+                message: chunk.toString(),
+                type: 'stdout',
+              },
+            })
+          },
+        },
       )
-    }
 
-    ssh.dispose()
+      if (deletedResponse) {
+        await sendEvent({
+          pub,
+          message: `✅ Successfully deleted ${serviceDetails.name}`,
+          serverId: serverDetails.id,
+        })
+      }
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ Failed deleting ${serviceDetails?.name}: ${message}`)
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
+    }
   },
   { connection: queueConnection },
 )
@@ -63,9 +88,15 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to delete app', err)
 
-  const serviceDetails = job?.data?.serviceDetails
+  const serverDetails = job?.data?.serverDetails
 
-  await pub.publish('my-channel', `❌ Failed deleting ${serviceDetails?.name}`)
+  if (serverDetails) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: serverDetails.id,
+    })
+  }
 })
 
 export const addDestroyApplicationQueue = async (data: QueueArgs) => {

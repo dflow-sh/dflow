@@ -5,6 +5,10 @@ import React, { createContext, use, useState } from 'react'
 type ServerTerminalContextType = {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  serverId: string
+  setServerId: React.Dispatch<React.SetStateAction<string>>
+  serviceId: string
+  setServiceId: React.Dispatch<React.SetStateAction<string>>
 }
 
 const ServerTerminalContext = createContext<
@@ -15,9 +19,12 @@ export const ServerTerminalProvider: React.FC<{
   children: React.ReactNode
 }> = ({ children }) => {
   const [open, setOpen] = useState<boolean>(false)
+  const [serverId, setServerId] = useState('')
+  const [serviceId, setServiceId] = useState('')
 
   return (
-    <ServerTerminalContext.Provider value={{ open, setOpen }}>
+    <ServerTerminalContext.Provider
+      value={{ open, setOpen, serverId, setServerId, serviceId, setServiceId }}>
       {children}
     </ServerTerminalContext.Provider>
   )
