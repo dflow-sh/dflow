@@ -58,7 +58,7 @@ const worker = new Worker<QueueArgs>(
           values: Object.entries(serviceDetails.environmentVariables).map(
             ([key, value]) => ({
               key,
-              value: value as string,
+              value: `${value}`,
             }),
           ),
           noRestart: serviceDetails.noRestart,

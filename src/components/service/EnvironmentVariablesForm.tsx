@@ -47,6 +47,7 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
   const handleSubmit = (noRestart?: boolean) => {
     try {
       const env = JSON.parse(environmentVariables)
+
       execute({
         environmentVariables: env,
         id: serviceId,
