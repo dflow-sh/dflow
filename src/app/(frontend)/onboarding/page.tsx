@@ -23,10 +23,6 @@ export default async function OnboardingPage() {
     collection: 'servers',
   })
 
-  const domains = await payload.count({
-    collection: 'domains',
-  })
-
   const gitProviders = await payload.count({
     collection: 'gitProviders',
   })
@@ -35,8 +31,6 @@ export default async function OnboardingPage() {
     redirect('/onboarding/sshKeyGen')
   } else if (servers.totalDocs === 0) {
     redirect('/onboarding/add-server')
-  } else if (domains.totalDocs === 0) {
-    redirect('/onboarding/configure-domain')
   } else if (gitProviders.totalDocs === 0) {
     redirect('/onboarding/install-github')
   } else {
