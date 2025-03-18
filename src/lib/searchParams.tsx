@@ -1,6 +1,10 @@
 import { createLoader, parseAsString, parseAsStringEnum } from 'nuqs/server'
 
 // Describe your search params, and reuse this in useQueryStates / createSerializer:
+export const onboardingDokkuInstall = {
+  server: parseAsString.withDefault(''),
+}
+
 export const servicePageTabs = {
   tab: parseAsStringEnum([
     'general',
@@ -25,6 +29,7 @@ export const serviceLogs = {
   serverId: parseAsString.withDefault(''),
 }
 
+export const loadOnboardingDokkuInstall = createLoader(onboardingDokkuInstall)
 export const loadServicePageTabs = createLoader(servicePageTabs)
 export const loadServerPageTabs = createLoader(serverPageTabs)
 export const loadServiceLogs = createLoader(serviceLogs)

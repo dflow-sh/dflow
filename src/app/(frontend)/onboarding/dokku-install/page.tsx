@@ -1,5 +1,6 @@
 import configPromise from '@payload-config'
 import { ArrowLeft } from 'lucide-react'
+import { SearchParams } from 'nuqs'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
@@ -7,12 +8,13 @@ import Loader from '@/components/Loader'
 import SelectSearchComponent from '@/components/SelectSearchComponent'
 import PluginsList from '@/components/servers/PluginsList'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { loadOnboardingDokkuInstall } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { server?: string }
+  searchParams: Promise<SearchParams>
 }) {
   const payload = await getPayload({ config: configPromise })
 
@@ -24,7 +26,9 @@ export default async function Page({
     },
   })
 
-  const selectedServerId = searchParams.server
+  // const selectedServerId = searchParams.server
+  const { server: selectedServerId } =
+    await loadOnboardingDokkuInstall(searchParams)
   const selectedServer = servers.docs.find(s => s.id === selectedServerId) as
     | ServerType
     | undefined
