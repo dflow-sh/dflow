@@ -59,7 +59,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
 
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
-      <h3 className='text-lg font-semibold'>Deploy Settings</h3>
+      <h3 className='text-lg font-semibold'>Deploy Actions</h3>
 
       <div className='flex w-full gap-2'>
         <Button
