@@ -1,6 +1,7 @@
 'use client'
 
 import { HardDrive, Lock, Plug2 } from 'lucide-react'
+import { parseAsString, useQueryState } from 'nuqs'
 import { useMemo } from 'react'
 
 import TimeLineComponent, {
@@ -16,6 +17,10 @@ import { ServerType } from '@/payload-types-overrides'
 
 export const ClientPage = ({ servers }: { servers: ServerType[] }) => {
   const { step, setStep } = useInstallationStep()
+  const [selectedServer] = useQueryState(
+    'server',
+    parseAsString.withDefault(''),
+  )
 
   const list = useMemo<TimeLineComponentType[]>(() => {
     return [
@@ -29,7 +34,11 @@ export const ClientPage = ({ servers }: { servers: ServerType[] }) => {
       {
         title: 'Dokku Installation',
         description: 'Installing dokku for deployment management',
-        content: <Step2 />,
+        content: (
+          <Step2
+            server={servers.filter(server => server.id === selectedServer)[0]}
+          />
+        ),
         icon: <Dokku fontSize={16} />,
         disabled: step < 2,
         highlighted: step > 2,
