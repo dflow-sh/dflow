@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
@@ -8,13 +7,6 @@ const payload = await getPayload({
 })
 
 export default async function OnboardingPage() {
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user) {
-    redirect('/sign-in')
-  }
-
   const sshKeys = await payload.count({
     collection: 'sshKeys',
   })

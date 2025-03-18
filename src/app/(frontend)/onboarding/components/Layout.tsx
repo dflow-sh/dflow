@@ -22,8 +22,8 @@ export default async function Layout({
   console.log('disabled : ', disableNextStep)
 
   return (
-    <div className='mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-5'>
-      <Card className='w-full max-w-[750px]'>
+    <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center px-5'>
+      <Card className='my-20 w-full max-w-4xl'>
         <CardHeader>
           <div className='flex items-center gap-2 text-sm font-extralight tracking-wide text-foreground'>
             <div>

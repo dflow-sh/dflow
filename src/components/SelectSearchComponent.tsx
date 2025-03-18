@@ -6,7 +6,6 @@ import {
   HardDrive,
   TriangleAlert,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { JSX, SVGProps, useState } from 'react'
 
@@ -29,6 +28,7 @@ import { supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import { Dokku, Linux, Ubuntu } from './icons'
+import { useInstallationStep } from './onboarding/dokkuInstallation/InstallationStepContext'
 import { Separator } from './ui/separator'
 
 const serverType: {
@@ -51,13 +51,11 @@ export default function SelectSearchComponent({
   commandEmpty: string
 }) {
   const [open, setOpen] = useState<boolean>(false)
-  const router = useRouter()
   const [server, setServer] = useQueryState('server')
+  const { setStep } = useInstallationStep()
 
   const handleSelect = (serverId: string) => {
-    const newUrl = new URL(window.location.href)
-    newUrl.searchParams.set('server', serverId)
-    router.replace(newUrl.toString(), { scroll: false }) // Updates the URL without page refresh
+    setServer(serverId)
     setOpen(false)
   }
 
@@ -109,11 +107,6 @@ export default function SelectSearchComponent({
                     supportedLinuxVersions.includes(os.version ?? '') &&
                     os.version
 
-                  // console.log(
-                  //   `${framework.name} dokku not installed: `,
-                  //   dokkuInstalled,
-                  // )
-
                   return (
                     <CommandItem
                       key={id}
@@ -161,7 +154,16 @@ export default function SelectSearchComponent({
         </PopoverContent>
       </Popover>
 
-      <Button className='mt-2'>Select Server</Button>
+      <Button
+        className='mt-2'
+        disabled={!server}
+        onClick={() => {
+          if (server) {
+            setStep(2)
+          }
+        }}>
+        Select Server
+      </Button>
     </div>
   )
 }

@@ -8,9 +8,14 @@ import { cn } from '@/lib/utils'
 type TerminalType = {
   messages?: string[]
   className?: string
+  isLoading?: boolean
 }
 
-const Terminal = ({ messages = [], className = '' }: TerminalType) => {
+const Terminal = ({
+  messages = [],
+  className = '',
+  isLoading = true,
+}: TerminalType) => {
   const terminalRef = useRef<HTMLPreElement>(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
 
@@ -50,7 +55,7 @@ const Terminal = ({ messages = [], className = '' }: TerminalType) => {
         : null}
 
       <span className='flex items-center gap-0.5'>
-        <Loader className='animate-spin' />
+        {isLoading && <Loader className='animate-spin' />}
       </span>
     </pre>
   )

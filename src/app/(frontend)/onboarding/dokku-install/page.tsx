@@ -50,7 +50,7 @@ const SuspendedPage = async ({
       prevStepUrl='/onboarding/add-server'
       cardTitle={'Dokku Install'}
       nextStepUrl={'/onboarding/configure-domain'}
-      disableNextStep={false}>
+      disableNextStep={true}>
       <ClientPage servers={servers as ServerType[]} />
     </Layout>
   )
