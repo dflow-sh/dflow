@@ -27,7 +27,7 @@ const AppComponent = async ({ service }: { service: Service }) => {
         <AlertTitle>We currently support Dockerfile deployments</AlertTitle>
         <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
           <p>
-            We're actively working on adding support for buildpack-based
+            We&apos;re actively working on adding support for buildpack-based
             deployments—stay tuned!
           </p>
         </AlertDescription>
