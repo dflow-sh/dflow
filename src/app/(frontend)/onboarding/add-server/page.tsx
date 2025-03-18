@@ -25,7 +25,9 @@ const SuspendedPage = async () => {
     <Layout
       currentStep={2}
       cardTitle={'Add Server'}
-      prevStepUrl={'/onboarding/sshKeyGen'}>
+      prevStepUrl={'/onboarding/ssh-keys'}
+      nextStepUrl={'/onboarding/dokku-install'}
+      disableNextStep={servers.length !== 0}>
       <CreateServerForm sshKeys={sshKeys.docs} />
     </Layout>
   )
@@ -33,7 +35,7 @@ const SuspendedPage = async () => {
 
 export default async function Page() {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<Loader className='min-h-screen w-full' />}>
       <SuspendedPage />
     </Suspense>
   )

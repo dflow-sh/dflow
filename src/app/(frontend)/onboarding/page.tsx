@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
   })
 
   if (sshKeys.totalDocs === 0) {
-    redirect('/onboarding/sshKeyGen')
+    redirect('/onboarding/ssh-keys')
   } else if (servers.totalDocs === 0) {
     redirect('/onboarding/add-server')
   } else if (gitProviders.totalDocs === 0) {

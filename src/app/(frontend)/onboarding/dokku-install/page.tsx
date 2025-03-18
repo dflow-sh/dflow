@@ -48,7 +48,9 @@ const SuspendedPage = async ({
     <Layout
       currentStep={3}
       prevStepUrl='/onboarding/add-server'
-      cardTitle={'Dokku Install'}>
+      cardTitle={'Dokku Install'}
+      nextStepUrl={'/onboarding/configure-domain'}
+      disableNextStep={false}>
       <SelectSearchComponent
         label={'Select a Server'}
         buttonLabel={'Select Server'}
@@ -67,7 +69,7 @@ export default async function Page({
   searchParams: Promise<SearchParams>
 }) {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<Loader className='min-h-screen w-full' />}>
       <SuspendedPage searchParams={searchParams} />
     </Suspense>
   )

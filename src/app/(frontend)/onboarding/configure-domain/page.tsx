@@ -35,7 +35,9 @@ const SuspendedPage = async () => {
     <Layout
       currentStep={4}
       cardTitle={'Configure Domain'}
-      prevStepUrl={'/onboarding/dokku-install'}>
+      prevStepUrl={'/onboarding/dokku-install'}
+      nextStepUrl={'/onboarding/install-github'}
+      disableNextStep={false}>
       <DomainFormWithoutDialog server={serverDocs[0] as ServerType} />
     </Layout>
   )
@@ -43,7 +45,7 @@ const SuspendedPage = async () => {
 
 export default async function Page() {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<Loader className='min-h-screen w-full' />}>
       <SuspendedPage />
     </Suspense>
   )

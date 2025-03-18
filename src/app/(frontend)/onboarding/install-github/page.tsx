@@ -39,7 +39,9 @@ const SuspendedPage = async () => {
     <Layout
       currentStep={5}
       cardTitle={'Add Git Source'}
-      prevStepUrl={'/onboarding/configure-domain'}>
+      prevStepUrl={'/onboarding/configure-domain'}
+      nextStepUrl={''}
+      disableNextStep={gitProvidersDocs.length !== 0}>
       <CreateGitAppForm />
       <GitProviderList gitProviders={gitProvidersDocs} />
     </Layout>
@@ -48,7 +50,7 @@ const SuspendedPage = async () => {
 
 export default async function Page() {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<Loader className='min-h-screen w-full' />}>
       <SuspendedPage />
     </Suspense>
   )
