@@ -67,7 +67,6 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           <UpdateSSHKeyForm
             sshKey={sshKey}
             type='update'
-            title='Update SSH Key'
             description='This form updates SSH key'
           />
 

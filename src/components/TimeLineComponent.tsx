@@ -1,71 +1,41 @@
-import { GitCompare, GitFork, GitMerge, GitPullRequest } from 'lucide-react'
+import { JSX } from 'react'
 
-import {
-  Timeline,
-  TimelineContent,
-  TimelineDate,
-  TimelineHeader,
-  TimelineIndicator,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineTitle,
-} from '@/components/ui/timeline'
+type TimeLineComponentType = {
+  icon: JSX.Element
+  title: string
+  description?: string
+  content: JSX.Element
+  disabled?: boolean
+}
 
-const items = [
-  {
-    id: 1,
-    date: '15 minutes ago',
-    title: 'Forked Repository',
-    description:
-      'Forked the repository to create a new branch for development.',
-    icon: GitFork,
-  },
-  {
-    id: 2,
-    date: '10 minutes ago',
-    title: 'Pull Request Submitted',
-    description:
-      'Submitted PR #342 with new feature implementation. Waiting for code review from team leads.',
-    icon: GitPullRequest,
-  },
-  {
-    id: 3,
-    date: '5 minutes ago',
-    title: 'Comparing Branches',
-    description:
-      'Received comments on PR. Minor adjustments needed in error handling and documentation.',
-    icon: GitCompare,
-  },
-  {
-    id: 4,
-    title: 'Merged Branch',
-    description:
-      'Merged the feature branch into the main branch. Ready for deployment.',
-    icon: GitMerge,
-  },
-]
-
-export default function TimeLineComponent() {
+export default function TimeLineComponent({
+  list,
+}: {
+  list: TimeLineComponentType[]
+}) {
   return (
-    <Timeline defaultValue={3}>
-      {items.map(item => (
-        <TimelineItem
-          key={item.id}
-          step={item.id}
-          className='group-data-[orientation=vertical]/timeline:ms-10'>
-          <TimelineHeader>
-            <TimelineSeparator className='group-data-[orientation=vertical]/timeline:translate-y-6.5 group-data-[orientation=vertical]/timeline:-left-7 group-data-[orientation=vertical]/timeline:h-[calc(100%-1.5rem-0.25rem)]' />
-            <TimelineTitle className='mt-0.5'>{item.title}</TimelineTitle>
-            <TimelineIndicator className='group-data-completed/timeline-item:bg-primary group-data-completed/timeline-item:text-primary-foreground flex size-6 items-center justify-center border-none bg-primary/10 group-data-[orientation=vertical]/timeline:-left-7'>
-              <item.icon size={14} />
-            </TimelineIndicator>
-          </TimelineHeader>
-          <TimelineContent>
-            {item.description}
-            <TimelineDate className='mb-0 mt-2'>{item.date}</TimelineDate>
-          </TimelineContent>
-        </TimelineItem>
-      ))}
-    </Timeline>
+    <ol className='relative ml-4 text-base'>
+      {list.map(({ icon, title, content, description, disabled = false }) => {
+        return (
+          <li
+            key={title}
+            className='border-s-2 pb-10 ps-6 last:border-s-0 data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50'
+            data-disabled={disabled}>
+            <span className='absolute -start-[0.95rem] flex h-8 w-8 items-center justify-center rounded-full bg-border ring-2 ring-border'>
+              {icon}
+            </span>
+
+            <div className='ml-2'>
+              <h3 className='font-semibold'>{title}</h3>
+              <p className='mb-4 text-sm text-muted-foreground'>
+                {description}
+              </p>
+
+              {content}
+            </div>
+          </li>
+        )
+      })}
+    </ol>
   )
 }

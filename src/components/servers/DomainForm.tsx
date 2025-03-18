@@ -45,9 +45,11 @@ const subdomainSchema = z.object({
 export const DomainFormWithoutDialog = ({
   server,
   setOpen,
+  direction = 'right',
 }: {
   server: ServerType
   setOpen?: Dispatch<SetStateAction<boolean>>
+  direction?: 'right' | 'left'
 }) => {
   const pathName = usePathname()
   const router = useRouter()
@@ -85,7 +87,7 @@ export const DomainFormWithoutDialog = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-8'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
         <FormField
           control={form.control}
           name='domain'

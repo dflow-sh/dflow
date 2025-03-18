@@ -28,7 +28,7 @@ const steps = [
 
 export default function StepperComponent() {
   return (
-    <div className='mb-5 space-y-8 text-center'>
+    <div className='mb-5 space-y-6 text-center'>
       <p
         className='text-xs text-muted-foreground'
         role='region'

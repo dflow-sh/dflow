@@ -32,19 +32,12 @@ import {
 } from '@/components/ui/form'
 import { ServerType } from '@/payload-types-overrides'
 
-const letsencryptFormSchema = z.object({
-  email: z.string().email({
-    message: 'Email is invalid',
-  }),
-  autoGenerateSSL: z.boolean().default(false),
-})
-
-const LetsencryptForm = ({
+export const LetsencryptForm = ({
   plugin,
-  setOpen,
+  setOpen = () => {},
 }: {
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
-  setOpen: Dispatch<SetStateAction<boolean>>
+  setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const params = useParams<{ id: string }>()
 
@@ -76,6 +69,7 @@ const LetsencryptForm = ({
           description:
             'Added to updating letsencrypt plugin configuration to queue',
         })
+
         setOpen(false)
         form.reset()
       }
@@ -91,65 +85,54 @@ const LetsencryptForm = ({
   }
 
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>Letsencrypt configuration</DialogTitle>
-        <DialogDescription>
-          Add a email for SSL certificate issuance
-        </DialogDescription>
-      </DialogHeader>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+        <FormField
+          control={form.control}
+          name='email'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='w-full space-y-8'>
-          <FormField
-            control={form.control}
-            name='email'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name='autoGenerateSSL'
+          render={({ field }) => (
+            <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
+              <div className='space-y-0.5'>
+                <FormLabel className='text-base'>
+                  Auto Generate SSL Certificates
+                </FormLabel>
+                <FormDescription>
+                  A cron-job will be added to automatically generate SSL
+                  certificates
+                </FormDescription>
+              </div>
 
-          <FormField
-            control={form.control}
-            name='autoGenerateSSL'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
-                <div className='space-y-0.5'>
-                  <FormLabel className='text-base'>
-                    Auto Generate SSL Certificates
-                  </FormLabel>
-                  <FormDescription>
-                    A cron-job will be added to automatically generate SSL
-                    certificates
-                  </FormDescription>
-                </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
 
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <DialogFooter>
-            <Button disabled={isPending} type='submit'>
-              Save changes
-            </Button>
-          </DialogFooter>
-        </form>
-      </Form>
-    </DialogContent>
+        <DialogFooter>
+          <Button disabled={isPending} type='submit'>
+            Save changes
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   )
 }
 
@@ -168,7 +151,15 @@ const PluginConfigurationForm = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       {pluginName === 'letsencrypt' && (
-        <LetsencryptForm plugin={plugin} setOpen={setOpen} />
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Letsencrypt configuration</DialogTitle>
+            <DialogDescription>
+              Add a email for SSL certificate issuance
+            </DialogDescription>
+          </DialogHeader>
+          <LetsencryptForm plugin={plugin} setOpen={setOpen} />
+        </DialogContent>
       )}
     </Dialog>
   )

@@ -171,7 +171,7 @@ const UpdateServerForm = ({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='w-full space-y-8'>
+          className='w-full space-y-6'>
           <FormField
             control={form.control}
             name='name'

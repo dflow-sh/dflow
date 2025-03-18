@@ -5,10 +5,10 @@ import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import SelectSearchComponent from '@/components/SelectSearchComponent'
-import PluginsList from '@/components/servers/PluginsList'
 import { loadOnboardingDokkuInstall } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
+
+import { ClientPage } from './page.client'
 
 const SuspendedPage = async ({
   searchParams,
@@ -17,7 +17,7 @@ const SuspendedPage = async ({
 }) => {
   const payload = await getPayload({ config: configPromise })
 
-  const servers = await payload.find({
+  const { docs: servers } = await payload.find({
     collection: 'servers',
     pagination: false,
     context: {
@@ -27,9 +27,9 @@ const SuspendedPage = async ({
 
   const { server: selectedServerId } =
     await loadOnboardingDokkuInstall(searchParams)
-  const selectedServer = servers.docs.find(s => s.id === selectedServerId) as
-    | ServerType
-    | undefined
+  // const selectedServer = servers.docs.find(s => s.id === selectedServerId) as
+  //   | ServerType
+  //   | undefined
 
   //   console.log(
   //     'servers in dokku install step ',
@@ -51,14 +51,7 @@ const SuspendedPage = async ({
       cardTitle={'Dokku Install'}
       nextStepUrl={'/onboarding/configure-domain'}
       disableNextStep={false}>
-      <SelectSearchComponent
-        label={'Select a Server'}
-        buttonLabel={'Select Server'}
-        commandInputLabel={'Search Server...'}
-        servers={servers.docs as ServerType[]}
-        commandEmpty={'No such server.'}
-      />
-      {selectedServer && <PluginsList server={selectedServer} />}
+      <ClientPage servers={servers as ServerType[]} />
     </Layout>
   )
 }

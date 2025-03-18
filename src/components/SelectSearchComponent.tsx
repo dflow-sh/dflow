@@ -6,8 +6,9 @@ import {
   HardDrive,
   TriangleAlert,
 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { JSX, SVGProps, useId, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQueryState } from 'nuqs'
+import { JSX, SVGProps, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +26,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { supportedLinuxVersions } from '@/lib/constants'
-import { cn } from '@/lib/utils'
 import { ServerType } from '@/payload-types-overrides'
 
 import { Dokku, Linux, Ubuntu } from './icons'
@@ -50,12 +50,9 @@ export default function SelectSearchComponent({
   servers: ServerType[]
   commandEmpty: string
 }) {
-  const id = useId()
   const [open, setOpen] = useState<boolean>(false)
-  const [value, setValue] = useState<string>('')
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const selectedServerId = searchParams.get('server') || ''
+  const [server, setServer] = useQueryState('server')
 
   const handleSelect = (serverId: string) => {
     const newUrl = new URL(window.location.href)
@@ -66,20 +63,21 @@ export default function SelectSearchComponent({
 
   return (
     <div className='*:not-first:mt-2'>
-      <Label htmlFor={id} className='mb-2 ml-1.5 block'>
+      <Label htmlFor={'server-select'} className='mb-2 ml-1.5 block'>
         {label}
       </Label>
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
-            id={id}
+            id={'server-select'}
             variant='outline'
             role='combobox'
             aria-expanded={open}
             className='w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background hover:text-white focus-visible:outline-[3px]'>
-            <span className={cn('truncate', !value && 'text-muted-foreground')}>
-              {selectedServerId
-                ? servers.find(s => s.id === selectedServerId)?.name
+            <span>
+              {server
+                ? servers.find(s => s.id === server)?.name
                 : `${buttonLabel}`}
             </span>
             <ChevronDownIcon
@@ -89,6 +87,7 @@ export default function SelectSearchComponent({
             />
           </Button>
         </PopoverTrigger>
+
         <PopoverContent
           className='w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0'
           align='start'>
@@ -97,20 +96,18 @@ export default function SelectSearchComponent({
             <CommandList>
               <CommandEmpty>{commandEmpty}</CommandEmpty>
               <CommandGroup>
-                {servers.map(framework => {
-                  const isSSHConnected = framework.sshConnected
+                {servers.map(serverDetails => {
+                  const { sshConnected, os, id, name } = serverDetails
+                  const isSSHConnected = sshConnected
                   const supportedOS = supportedLinuxVersions.includes(
-                    framework.os.version ?? '',
+                    os.version ?? '',
                   )
-                  const ServerTypeIcon =
-                    serverType[framework.os.type ?? ''] ?? Linux
+                  const ServerTypeIcon = serverType[os.type ?? ''] ?? Linux
 
                   const dokkuInstalled =
-                    framework.sshConnected &&
-                    supportedLinuxVersions.includes(
-                      framework.os.version ?? '',
-                    ) &&
-                    framework.version
+                    sshConnected &&
+                    supportedLinuxVersions.includes(os.version ?? '') &&
+                    os.version
 
                   // console.log(
                   //   `${framework.name} dokku not installed: `,
@@ -119,20 +116,18 @@ export default function SelectSearchComponent({
 
                   return (
                     <CommandItem
-                      key={framework.id}
-                      value={framework.name}
-                      onSelect={() => handleSelect(framework.id)}
+                      key={id}
+                      value={name}
+                      onSelect={() => handleSelect(id)}
                       disabled={!isSSHConnected || !supportedOS}
                       className='cursor-pointer'>
                       <HardDrive size={16} />
-                      {framework.name}
+                      {name}
                       <div className='ml-auto flex items-center gap-3'>
-                        {framework.os.version ? (
+                        {os.version ? (
                           <>
                             <ServerTypeIcon fontSize={16} />
-                            <span className='text-xs'>
-                              {framework.os.version}
-                            </span>
+                            <span className='text-xs'>{os.version}</span>
                           </>
                         ) : (
                           <div className='text-xs'>
@@ -143,21 +138,19 @@ export default function SelectSearchComponent({
                             <span>Not supported</span>
                           </div>
                         )}
-                        {framework.os.version && dokkuInstalled && (
-                          <Separator
-                            orientation='vertical'
-                            className='h-4 bg-gray-500'
-                          />
-                        )}
-                        {dokkuInstalled ? (
+                        {os.version && dokkuInstalled && (
                           <>
+                            <Separator
+                              orientation='vertical'
+                              className='h-4 bg-gray-500'
+                            />
+
                             <Dokku height={20} width={20} />
-                            <span className='text-xs'>{framework.version}</span>
+                            <span className='text-xs'>{os.version}</span>
                           </>
-                        ) : (
-                          <span></span>
                         )}
-                        {value === framework.name && <CheckIcon size={16} />}
+
+                        {server === name && <CheckIcon size={16} />}
                       </div>
                     </CommandItem>
                   )
@@ -167,6 +160,8 @@ export default function SelectSearchComponent({
           </Command>
         </PopoverContent>
       </Popover>
+
+      <Button className='mt-2'>Select Server</Button>
     </div>
   )
 }

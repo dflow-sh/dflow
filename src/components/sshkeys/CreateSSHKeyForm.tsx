@@ -35,14 +35,10 @@ import { SshKey } from '@/payload-types'
 
 export const CreateSSHKeyForm = ({
   type = 'create',
-  description = 'This will add a new SSH key',
   sshKey,
-  title = 'Add SSH key',
   setOpen,
 }: {
   type?: 'create' | 'update'
-  title?: string
-  description?: string
   sshKey?: SshKey
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -111,7 +107,7 @@ export const CreateSSHKeyForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-2'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
         <FormField
           control={form.control}
           name='name'
@@ -183,12 +179,10 @@ export const CreateSSHKeyForm = ({
 
 const CreateSSHKey = ({
   type,
-  description,
+  description = 'This form adds SSH key',
   sshKey,
-  title,
 }: {
   type?: 'create' | 'update'
-  title?: string
   description?: string
   sshKey?: SshKey
   open?: boolean
@@ -219,19 +213,15 @@ const CreateSSHKey = ({
 
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
+            <DialogTitle>
+              {type === 'update' ? 'Add SSH key' : 'Edit SSH Key'}
+            </DialogTitle>
             <DialogDescription className='sr-only'>
               {description}
             </DialogDescription>
           </DialogHeader>
 
-          <CreateSSHKeyForm
-            type={type}
-            description={description}
-            sshKey={sshKey}
-            title={title}
-            setOpen={setOpen}
-          />
+          <CreateSSHKeyForm type={type} sshKey={sshKey} setOpen={setOpen} />
         </DialogContent>
       </Dialog>
     </>

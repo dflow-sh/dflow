@@ -50,7 +50,7 @@ const PortForm = ({ service }: { service: Service }) => {
         required. make sure port is not used by other database or application
       </p>
 
-      <div className='mt-4 space-y-8'>
+      <div className='mt-4 space-y-6'>
         <TagInput
           placeholder='Enter ports'
           type='number'
@@ -106,7 +106,7 @@ const DatabaseForm = ({ service }: { service: Service }) => {
       <div className='space-y-4 rounded bg-muted/30 p-4'>
         <h3 className='text-lg font-semibold'>Internal Credentials</h3>
 
-        <form className='w-full space-y-8'>
+        <form className='w-full space-y-6'>
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
               <Label>Username</Label>
