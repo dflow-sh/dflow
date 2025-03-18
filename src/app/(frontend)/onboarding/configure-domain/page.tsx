@@ -1,15 +1,14 @@
+import Layout from '../components/Layout'
 import configPromise from '@payload-config'
-import { ArrowLeft } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
 import { DomainFormWithoutDialog } from '@/components/servers/DomainForm'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { ServerType } from '@/payload-types-overrides'
 
-export default async function Page() {
+const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
 
   const allServers = await payload.find({
@@ -33,29 +32,19 @@ export default async function Page() {
   }
 
   return (
-    <Suspense fallback={<Loader />}>
-      <div className='mx-auto flex h-screen max-w-2xl flex-col items-center justify-center px-5'>
-        <Card className='w-[750px]'>
-          <CardHeader>
-            <div className='flex items-center text-sm font-extralight tracking-wide text-foreground'>
-              <ArrowLeft className='mr-2 inline-block' size={16} />
-              <div>
-                STEP <span className='font-medium'>3</span> OF{' '}
-                <span className='font-medium'>5</span>
-              </div>
-            </div>
-            <div className='mb-4 mt-1.5 text-3xl font-semibold tracking-wide'>
-              Configure Domain
-            </div>
-          </CardHeader>
+    <Layout
+      currentStep={4}
+      cardTitle={'Configure Domain'}
+      prevStepUrl={'/onboarding/dokku-install'}>
+      <DomainFormWithoutDialog server={serverDocs[0] as ServerType} />
+    </Layout>
+  )
+}
 
-          {/* <StepperComponent /> */}
-
-          <CardContent>
-            <DomainFormWithoutDialog server={serverDocs[0] as ServerType} />
-          </CardContent>
-        </Card>
-      </div>
+export default async function Page() {
+  return (
+    <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <SuspendedPage />
     </Suspense>
   )
 }
