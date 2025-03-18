@@ -1,7 +1,6 @@
 'use server'
 
 import configPromise from '@payload-config'
-import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
@@ -103,11 +102,10 @@ export const createDeploymentAction = protectedClient
 
         console.dir({ databaseQueueResponse })
       }
-    }
 
-    if (deploymentResponse) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${serviceId}`)
+      return {
+        success: true,
+        redirectURL: `/dashboard/project/${project.id}/service/${serviceDetails.id}?tab=deployments`,
+      }
     }
-
-    return deploymentResponse
   })

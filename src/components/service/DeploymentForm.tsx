@@ -3,7 +3,7 @@
 import { Button } from '../ui/button'
 import { Ban, RefreshCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
@@ -12,12 +12,17 @@ import { Service } from '@/payload-types'
 
 const DeploymentForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
+  const router = useRouter()
   const { execute, isPending } = useAction(createDeploymentAction, {
     onSuccess: ({ data }) => {
       if (data) {
         toast.info('Deployment Queued', {
           description: 'Added service to deployment queue',
         })
+
+        if (data?.redirectURL) {
+          router.push(data?.redirectURL)
+        }
       }
     },
     onError: ({ error }) => {
@@ -30,7 +35,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     restartServiceAction,
     {
       onSuccess: ({ data }) => {
-        if (data) {
+        if (data?.success) {
           toast.info('Added to queue', {
             description: `Added restarting ${service.type === 'database' ? 'database' : 'app'} to queue`,
           })

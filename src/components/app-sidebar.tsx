@@ -73,7 +73,7 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
       <SidebarHeader>
         <div className='mt-2 flex items-center gap-2 text-2xl font-semibold'>
           <Workflow className='text-primary' />
-          {state === 'expanded' && <p>Dflow</p>}
+          {state === 'expanded' && <p>Dokflow</p>}
         </div>
       </SidebarHeader>
 

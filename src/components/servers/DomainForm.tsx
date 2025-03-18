@@ -150,9 +150,8 @@ const DomainForm = ({ server }: { server: ServerType }) => {
             <strong className='text-foreground'>app.mydomain.com</strong>
           </DialogDescription>
         </DialogHeader>
+        <DomainFormWithoutDialog server={server} setOpen={setOpen} />
       </DialogContent>
-
-      <DomainFormWithoutDialog server={server} setOpen={setOpen} />
     </Dialog>
   )
 }

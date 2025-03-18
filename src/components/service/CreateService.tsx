@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Fragment, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -88,12 +88,16 @@ const databaseOptions = [
 
 const CreateService = ({ server }: { server: Server }) => {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
   const params = useParams<{ id: string }>()
   const { plugins = [] } = server
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
       if (data?.success) {
+        if (data.redirectUrl) {
+          router.push(data?.redirectUrl)
+        }
         toast.success(`Successfully created ${input.name} service`)
         setOpen(false)
       }

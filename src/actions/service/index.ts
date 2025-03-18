@@ -80,7 +80,10 @@ export const createServiceAction = publicClient
 
             if (response?.id) {
               revalidatePath(`/dashboard/project/${projectId}`)
-              return { success: true }
+              return {
+                success: true,
+                redirectUrl: `/dashboard/project/${projectId}/service/${response.id}`,
+              }
             }
           }
         } else if (databaseType) {
@@ -106,8 +109,10 @@ export const createServiceAction = publicClient
 
           if (databaseResponse.id) {
             revalidatePath(`/dashboard/project/${projectId}`)
+
             return {
               success: true,
+              redirectUrl: `/dashboard/project/${projectId}/service/${databaseResponse.id}`,
             }
           }
         }
