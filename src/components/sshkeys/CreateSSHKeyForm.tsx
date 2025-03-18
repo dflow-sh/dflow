@@ -169,7 +169,10 @@ export const CreateSSHKeyForm = ({
         />
 
         <DialogFooter>
-          <Button type='submit' disabled={isCreatingSSHKey || isUpdatingSSHKey}>
+          <Button
+            type='submit'
+            disabled={isCreatingSSHKey || isUpdatingSSHKey}
+            className='mt-6'>
             {type === 'create' ? 'Add SSH key' : 'Update SSH key'}
           </Button>
         </DialogFooter>

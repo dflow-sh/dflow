@@ -87,7 +87,7 @@ export const CreateServerForm = ({
           // setOpen(false)
           form.reset()
           if (pathName.includes('onboarding')) {
-            router.push('/onboarding/configure-domain')
+            router.push('/onboarding/dokku-install')
           }
         }
       },
@@ -235,7 +235,8 @@ export const CreateServerForm = ({
         <DialogFooter>
           <Button
             type='submit'
-            disabled={isCreatingService || isUpdatingService}>
+            disabled={isCreatingService || isUpdatingService}
+            className='mt-6'>
             {type === 'create' ? 'Add Server' : 'Update Server'}
           </Button>
         </DialogFooter>
