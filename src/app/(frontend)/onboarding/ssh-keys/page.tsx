@@ -1,6 +1,5 @@
-import Layout from '../components/Layout'
+import Layout from '../../../../components/onboarding/OnboardingLayout'
 import configPromise from '@payload-config'
-import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
@@ -14,18 +13,6 @@ const SuspendedPage = async () => {
     collection: 'sshKeys',
     pagination: false,
   })
-
-  const user = await payload.find({
-    collection: 'users',
-  })
-
-  if (user.docs[0].onboarded) {
-    redirect('/dashboard')
-  }
-
-  if (sshKeys.length > 0) {
-    redirect('/onboarding/add-server')
-  }
 
   return (
     <Layout

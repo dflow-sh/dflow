@@ -1,4 +1,4 @@
-import Layout from '../components/Layout'
+import Layout from '../../../../components/onboarding/OnboardingLayout'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'

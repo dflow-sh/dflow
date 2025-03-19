@@ -1,4 +1,4 @@
-import Layout from '../components/Layout'
+import Layout from '../../../../components/onboarding/OnboardingLayout'
 import configPromise from '@payload-config'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -32,6 +32,7 @@ const SuspendedPage = async () => {
         onboarded: true,
       },
     })
+
     redirect('/dashboard')
   }
 
