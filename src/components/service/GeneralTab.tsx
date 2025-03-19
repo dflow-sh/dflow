@@ -8,7 +8,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Service } from '@/payload-types'
 
 import DatabaseForm from './DatabaseForm'
-import DeploymentForm from './DeploymentForm'
 import ProviderForm from './ProviderForm'
 
 const AppComponent = async ({ service }: { service: Service }) => {
@@ -33,7 +32,6 @@ const AppComponent = async ({ service }: { service: Service }) => {
         </AlertDescription>
       </Alert>
 
-      <DeploymentForm service={service} />
       <ProviderForm service={service} gitProviders={gitProviders} />
       {/* <BuildTypeForm service={service} /> */}
     </div>
@@ -43,7 +41,6 @@ const AppComponent = async ({ service }: { service: Service }) => {
 const DatabaseComponent = ({ service }: { service: Service }) => {
   return (
     <div className='space-y-4'>
-      <DeploymentForm service={service} />
       <DatabaseForm service={service} />
     </div>
   )
@@ -59,7 +56,6 @@ const DockerComponent = async ({ service }: { service: Service }) => {
 
   return (
     <div className='space-y-4'>
-      <DeploymentForm service={service} />
       <ProviderForm service={service} gitProviders={gitProviders} />
     </div>
   )
