@@ -1,19 +1,17 @@
-import { SquareTerminal } from 'lucide-react'
+import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useQueryState } from 'nuqs'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { installDokkuAction } from '@/actions/server'
-import Terminal from '@/components/Terminal'
+import Loader from '@/components/Loader'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useInstallationStep } from './InstallationStepContext'
 
-const Step2 = ({ server }: { server: ServerType }) => {
-  const [messages, setMessages] = useState<string[]>([])
-  const eventSourcesRef = useRef<EventSource>(null)
+const Step2 = ({ server }: { server: ServerType | undefined }) => {
   const [selectedServer] = useQueryState('server')
   const { setStep, step } = useInstallationStep()
 
@@ -33,38 +31,17 @@ const Step2 = ({ server }: { server: ServerType }) => {
           description: 'Added dokku installation to queue',
           id: input.serverId,
         })
-
-        const eventSource = new EventSource(
-          `/api/server-events?serverId=${input.serverId}`,
-        )
-
-        eventSource.onmessage = event => {
-          const data = JSON.parse(event.data) ?? {}
-
-          if (data?.message) {
-            setMessages(prev => [...prev, data.message])
-          }
-        }
-
-        // Store the event source in our ref
-        eventSourcesRef.current = eventSource
       }
     },
   })
 
   useEffect(() => {
-    if (selectedServer && step === 2) {
+    if (selectedServer && step === 2 && server) {
       if (server.version && server.version !== 'not-installed') {
-        if (!hasSucceeded) {
-          setMessages([
-            `Skipping dokku installation: found dokku ${server.version}`,
-          ])
-        }
-
-        setStep(3)
+        return setStep(3)
       }
-      // Need to call queue
-      else if (
+
+      if (
         server.portIsOpen &&
         server.sshConnected &&
         supportedLinuxVersions.includes(server.os.version ?? '')
@@ -72,27 +49,26 @@ const Step2 = ({ server }: { server: ServerType }) => {
         installDokku({ serverId: selectedServer })
       }
     }
-
-    // Closing when step is 3
-    if (step > 2) {
-      eventSourcesRef.current?.close()
-    }
   }, [selectedServer, server, step])
 
-  // Closing event source on component unmount
-  useEffect(() => {
-    return () => {
-      eventSourcesRef.current?.close()
-    }
-  }, [])
-
   return (
-    <div>
-      <p className='inline-flex items-center gap-1'>
-        <SquareTerminal size={16} />
-        Terminal
-      </p>
-      <Terminal isLoading={isInstallingDokku} messages={messages} />
+    <div className='space-y-2'>
+      {hasSucceeded &&
+        (server?.version === 'not-installed' || !server?.version) && (
+          <div className='flex items-center gap-2'>
+            <Loader className='h-max w-max' /> Installing dokku, open terminal
+            to check logs
+          </div>
+        )}
+
+      {server?.version && server?.version !== 'not-installed' && (
+        <div className='flex items-center gap-2'>
+          <CircleCheck size={24} className='text-primary' />
+          {hasSucceeded
+            ? `Installed dokku: v${server?.version}`
+            : `Skipping dokku installation: found dokku v${server?.version}`}
+        </div>
+      )}
     </div>
   )
 }

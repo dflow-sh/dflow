@@ -2,13 +2,14 @@
 
 import { HardDrive, Lock, Plug2 } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import TimeLineComponent, {
   TimeLineComponentType,
 } from '@/components/TimeLineComponent'
 import { Dokku } from '@/components/icons'
 import { useInstallationStep } from '@/components/onboarding/dokkuInstallation/InstallationStepContext'
+import InstallationTerminal from '@/components/onboarding/dokkuInstallation/InstallationTerminal'
 import Step1 from '@/components/onboarding/dokkuInstallation/Step1'
 import Step2 from '@/components/onboarding/dokkuInstallation/Step2'
 import Step3 from '@/components/onboarding/dokkuInstallation/Step3'
@@ -21,6 +22,13 @@ export const ClientPage = ({ servers }: { servers: ServerType[] }) => {
     'server',
     parseAsString.withDefault(''),
   )
+
+  // component unmount resetting the form state
+  useEffect(() => {
+    return () => {
+      setStep(1)
+    }
+  }, [])
 
   const list = useMemo<TimeLineComponentType[]>(() => {
     return [
@@ -62,5 +70,10 @@ export const ClientPage = ({ servers }: { servers: ServerType[] }) => {
     ]
   }, [servers, step, setStep])
 
-  return <TimeLineComponent list={list} />
+  return (
+    <>
+      <TimeLineComponent list={list} />
+      <InstallationTerminal />
+    </>
+  )
 }

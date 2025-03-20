@@ -2,22 +2,44 @@
 
 import { Button } from '../ui/button'
 import { Switch } from '../ui/switch'
-import { Globe, Trash2 } from 'lucide-react'
+import { Globe, Info, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
 import { updateServerDomainAction } from '@/actions/server'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import DomainForm from './DomainForm'
+
+const extractWildcard = (domain: string) => {
+  const match = domain.match(/^([\d\.]+|[^.]+)\./)
+  return match ? match[1] : null
+}
 
 const DomainItem = ({
   domain,
   server,
 }: {
   domain: NonNullable<ServerType['domains']>[number]
-  server: ServerType
+  server: ServerType | Server
 }) => {
   const { execute, isPending } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
@@ -30,53 +52,98 @@ const DomainItem = ({
   })
 
   return (
-    <Card className='max-w-5xl text-sm'>
-      <CardContent className='flex w-full items-center justify-between pt-4'>
-        <div className='flex items-center gap-3'>
-          <Globe size={20} className='text-green-600' />
-          <p className='font-semibold'>{domain.domain}</p>
-        </div>
+    <>
+      <Card className='max-w-5xl text-sm'>
+        <CardContent className='flex w-full items-center justify-between pt-4'>
+          <div className='flex items-center gap-3'>
+            <Globe size={20} className='text-green-600' />
+            <p className='font-semibold'>{domain.domain}</p>
 
-        <div className='space-x-4'>
-          <Switch
-            defaultChecked={domain.default}
-            disabled={domain.default}
-            onCheckedChange={checked => {
-              if (checked) {
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size='icon' variant='ghost'>
+                  <Info />
+                </Button>
+              </DialogTrigger>
+
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Domain Configuration</DialogTitle>
+                  <DialogDescription>
+                    Add the records in your domain provider, This step can be
+                    skipped for wildcard domains ex: nip.io, sslip.io
+                  </DialogDescription>
+                </DialogHeader>
+
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className='w-[100px]'>Type</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Content</TableHead>
+                      <TableHead className='text-right'>TTL</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className='font-medium'>A</TableCell>
+                      <TableCell>{`*.${extractWildcard(domain.domain)}`}</TableCell>
+                      <TableCell>{server.ip}</TableCell>
+                      <TableCell className='text-right'>auto</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className='space-x-4'>
+            <Switch
+              defaultChecked={domain.default}
+              disabled={domain.default}
+              onCheckedChange={checked => {
+                if (checked) {
+                  execute({
+                    operation: 'set',
+                    domain: domain.domain,
+                    id: server.id,
+                  })
+                }
+              }}
+            />
+
+            <Button
+              size='icon'
+              onClick={() => {
                 execute({
-                  operation: 'set',
+                  operation: 'remove',
                   domain: domain.domain,
                   id: server.id,
                 })
-              }
-            }}
-          />
-
-          <Button
-            size='icon'
-            onClick={() => {
-              execute({
-                operation: 'remove',
-                domain: domain.domain,
-                id: server.id,
-              })
-            }}
-            disabled={isPending}
-            variant='outline'>
-            <Trash2 />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+              }}
+              disabled={isPending}
+              variant='outline'>
+              <Trash2 />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 
-const DomainList = ({ server }: { server: ServerType }) => {
+const DomainList = ({
+  server,
+  showForm = true,
+}: {
+  server: ServerType | Server
+  showForm?: boolean
+}) => {
   const addedDomains = server.domains ?? []
 
   return (
     <div className='space-y-4'>
-      <DomainForm server={server} />
+      {showForm && <DomainForm server={server} />}
 
       {addedDomains.length ? (
         <div className='space-y-4'>

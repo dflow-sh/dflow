@@ -30,6 +30,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 const subdomainSchema = z.object({
@@ -45,14 +54,14 @@ const subdomainSchema = z.object({
 export const DomainFormWithoutDialog = ({
   server,
   setOpen,
-  direction = 'right',
 }: {
-  server: ServerType
+  server: ServerType | Server
   setOpen?: Dispatch<SetStateAction<boolean>>
-  direction?: 'right' | 'left'
 }) => {
   const pathName = usePathname()
   const router = useRouter()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [confirm, setConfirm] = useState(false)
 
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
@@ -62,7 +71,7 @@ export const DomainFormWithoutDialog = ({
     },
   })
 
-  const { execute, isPending } = useAction(updateServerDomainAction, {
+  const { execute, isPending, input } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
       if (data?.success) {
         setOpen?.(false)
@@ -70,8 +79,9 @@ export const DomainFormWithoutDialog = ({
         toast.info('Added to queue', {
           description: `Added domain ${input.domain} to server ${server.name}`,
         })
+
         if (pathName.includes('onboarding')) {
-          router.push('/onboarding/install-github')
+          setDialogOpen(true)
         }
       }
     },
@@ -86,56 +96,101 @@ export const DomainFormWithoutDialog = ({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
-        <FormField
-          control={form.control}
-          name='domain'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Domain</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='w-full space-y-6'>
+          <FormField
+            control={form.control}
+            name='domain'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Domain</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name='defaultDomain'
-          render={({ field }) => (
-            <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
-              <div className='space-y-0.5'>
-                <FormLabel className='text-base'>Default domain</FormLabel>
-                <FormDescription>
-                  App&apos;s created from now on this server will be assigned
-                  this domain
-                </FormDescription>
-              </div>
+          <FormField
+            control={form.control}
+            name='defaultDomain'
+            render={({ field }) => (
+              <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
+                <div className='space-y-0.5'>
+                  <FormLabel className='text-base'>Default domain</FormLabel>
+                  <FormDescription>
+                    App&apos;s created from now on this server will be assigned
+                    this domain
+                  </FormDescription>
+                </div>
 
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        <DialogFooter>
-          <Button type='submit' disabled={isPending}>
-            Add
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+          <DialogFooter>
+            <Button type='submit' disabled={isPending}>
+              Add
+            </Button>
+          </DialogFooter>
+        </form>
+      </Form>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Domain Configuration</DialogTitle>
+            <DialogDescription>
+              Add the records in your domain provider, This step can be skipped
+              for wildcard domains ex: nip.io, sslip.io
+            </DialogDescription>
+          </DialogHeader>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className='w-[100px]'>Type</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Content</TableHead>
+                <TableHead className='text-right'>TTL</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell className='font-medium'>A</TableCell>
+                <TableCell>{`*.${input?.domain?.split('.')?.at(-2)}`}</TableCell>
+                <TableCell>{server.ip}</TableCell>
+                <TableCell className='text-right'>auto</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setConfirm(true)
+                router.push('/onboarding/install-github')
+              }}>
+              I've added records
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
-const DomainForm = ({ server }: { server: ServerType }) => {
+const DomainForm = ({ server }: { server: ServerType | Server }) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -152,6 +207,7 @@ const DomainForm = ({ server }: { server: ServerType }) => {
             <strong className='text-foreground'>app.mydomain.com</strong>
           </DialogDescription>
         </DialogHeader>
+
         <DomainFormWithoutDialog server={server} setOpen={setOpen} />
       </DialogContent>
     </Dialog>

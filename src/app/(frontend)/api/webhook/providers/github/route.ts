@@ -6,7 +6,10 @@ import { getPayload } from 'payload'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
+  const headers = request.headers
+
   const payload = await getPayload({ config: configPromise })
+
   const code = searchParams.get('code') ?? ''
   const installation_id = searchParams.get('installation_id') ?? ''
   const onboarding = searchParams.get('onboarding') ?? ''
@@ -71,7 +74,22 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log({ installationResponse })
+    const { user } = await payload.auth({ headers })
+
+    // After successful of github-app making user as onboarded
+    if (user?.id) {
+      await payload.update({
+        collection: 'users',
+        id: user.id,
+        data: {
+          onboarded: true,
+        },
+      })
+
+      if (onboarding === 'true') {
+        redirect('/dashboard')
+      }
+    }
   }
 
   if (onboarding === 'true') {

@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 export default async function Layout({
   currentStep,
   cardTitle,
+  cardDescription = '',
   prevStepUrl,
   nextStepUrl,
   disableNextStep,
@@ -14,13 +15,12 @@ export default async function Layout({
 }: {
   currentStep: number
   cardTitle: string
+  cardDescription?: string
   prevStepUrl: string
   nextStepUrl: string
   disableNextStep: boolean
   children?: React.ReactNode
 }) {
-  console.log('disabled : ', disableNextStep)
-
   return (
     <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center px-5'>
       <Card className='my-20 w-full max-w-4xl'>
@@ -31,9 +31,10 @@ export default async function Layout({
               <span className='font-medium'>5</span>
             </div>
           </div>
-          <div className='mb-4 mt-1.5 text-3xl font-semibold tracking-wide'>
+          <div className='mt-1.5 text-3xl font-semibold tracking-wide'>
             {cardTitle}
           </div>
+          <div className='text-sm text-muted-foreground'>{cardDescription}</div>
         </CardHeader>
 
         <CardContent>{children}</CardContent>
@@ -41,7 +42,7 @@ export default async function Layout({
         <CardFooter className='mt-4 flex justify-between border-t pt-4'>
           {prevStepUrl && (
             <Button variant={'outline'} size={'icon'} asChild>
-              <Link href={prevStepUrl}>
+              <Link href={prevStepUrl} id='previous-step'>
                 <ChevronLeft size={24} />
               </Link>
             </Button>
@@ -51,7 +52,7 @@ export default async function Layout({
 
           {nextStepUrl && disableNextStep ? (
             <Button variant={'outline'} size={'icon'} asChild>
-              <Link href={nextStepUrl}>
+              <Link href={nextStepUrl} id='next-step'>
                 <ChevronRight size={24} />
               </Link>
             </Button>

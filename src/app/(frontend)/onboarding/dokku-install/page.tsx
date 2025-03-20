@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import { loadOnboardingDokkuInstall } from '@/lib/searchParams'
+import { loadOnboardingSelectedServer } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
 
 import { ClientPage } from './page.client'
@@ -16,6 +16,8 @@ const SuspendedPage = async ({
   searchParams: Promise<SearchParams>
 }) => {
   const payload = await getPayload({ config: configPromise })
+  const params = await searchParams
+  const { server } = loadOnboardingSelectedServer(params)
 
   const { docs: servers } = await payload.find({
     collection: 'servers',
@@ -25,32 +27,35 @@ const SuspendedPage = async ({
     },
   })
 
-  const { server: selectedServerId } =
-    await loadOnboardingDokkuInstall(searchParams)
-  // const selectedServer = servers.docs.find(s => s.id === selectedServerId) as
-  //   | ServerType
-  //   | undefined
+  const selectedServer = servers.find(
+    serverDetails => serverDetails.id === server,
+  ) as ServerType | undefined
 
-  //   console.log(
-  //     'servers in dokku install step ',
-  //     (servers.docs[0] as ServerType).os,
-  //   )
+  const installationDone =
+    !!selectedServer &&
+    !!selectedServer.version &&
+    selectedServer.version !== 'not-installed'
 
-  //   const { execute, isPending } = useAction(syncPluginAction, {
-  //     onSuccess: ({ data }) => {
-  //       if (data?.success) {
-  //         toast.success('Successfully synced plugins')
-  //       }
-  //     },
-  //   })
+  const pluginsInstalled = (selectedServer?.plugins ?? []).find(
+    plugin => plugin.name === 'letsencrypt',
+  )
+
+  const emailConfirmationDone =
+    pluginsInstalled &&
+    pluginsInstalled.configuration &&
+    typeof pluginsInstalled.configuration === 'object' &&
+    !Array.isArray(pluginsInstalled.configuration) &&
+    pluginsInstalled.configuration.email
 
   return (
     <Layout
       currentStep={3}
       prevStepUrl='/onboarding/add-server'
       cardTitle={'Dokku Install'}
-      nextStepUrl={'/onboarding/configure-domain'}
-      disableNextStep={true}>
+      nextStepUrl={`/onboarding/configure-domain${server ? `?server=${server}` : ''}`}
+      disableNextStep={
+        installationDone && !!pluginsInstalled && Boolean(emailConfirmationDone)
+      }>
       <ClientPage servers={servers as ServerType[]} />
     </Layout>
   )

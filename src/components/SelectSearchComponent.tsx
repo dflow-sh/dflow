@@ -6,8 +6,9 @@ import {
   HardDrive,
   TriangleAlert,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
-import { JSX, SVGProps, useState } from 'react'
+import { JSX, SVGProps, useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -53,6 +54,28 @@ export default function SelectSearchComponent({
   const [open, setOpen] = useState<boolean>(false)
   const [server, setServer] = useQueryState('server')
   const { setStep } = useInstallationStep()
+  const router = useRouter()
+
+  // Initially if server id is present select the server
+  useEffect(() => {
+    if (server) {
+      const selectedServer = servers.find(
+        serverDetails => serverDetails.id === server,
+      )
+
+      if (
+        selectedServer &&
+        selectedServer.portIsOpen &&
+        selectedServer.sshConnected &&
+        supportedLinuxVersions.includes(selectedServer.os.version ?? '')
+      ) {
+        setServer(server, {
+          shallow: false,
+        })
+        setStep(2)
+      }
+    }
+  }, [])
 
   const handleSelect = (serverId: string) => {
     setServer(serverId)
@@ -139,7 +162,9 @@ export default function SelectSearchComponent({
                             />
 
                             <Dokku height={20} width={20} />
-                            <span className='text-xs'>{os.version}</span>
+                            <span className='text-xs'>
+                              {serverDetails.version}
+                            </span>
                           </>
                         )}
 

@@ -143,13 +143,17 @@ export const syncPluginAction = protectedClient
       })
 
       // Updating plugin list in database
-      await payload.update({
+      const updatedServerResponse = await payload.update({
         collection: 'servers',
         id: serverId,
         data: {
           plugins: filteredPlugins,
         },
       })
+
+      revalidatePath(`/settings/servers/${serverId}/general`)
+      revalidatePath(`/onboarding/dokku-install`)
+      return { success: true, plugins: updatedServerResponse.plugins ?? [] }
     } catch (error) {
       let message = ''
       if (error instanceof Error) {
@@ -162,9 +166,6 @@ export const syncPluginAction = protectedClient
         ssh.dispose()
       }
     }
-
-    revalidatePath(`/settings/servers/${serverId}/general`)
-    return { success: true }
   })
 
 export const togglePluginStatusAction = protectedClient

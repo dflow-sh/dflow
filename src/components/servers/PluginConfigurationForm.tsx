@@ -35,12 +35,12 @@ import { ServerType } from '@/payload-types-overrides'
 export const LetsencryptForm = ({
   plugin,
   setOpen = () => {},
+  serverId,
 }: {
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   setOpen?: Dispatch<SetStateAction<boolean>>
+  serverId: string
 }) => {
-  const params = useParams<{ id: string }>()
-
   const defaultValues =
     'name' in plugin &&
     plugin.configuration &&
@@ -50,7 +50,10 @@ export const LetsencryptForm = ({
           email: plugin.configuration.email,
           autoGenerateSSL: plugin.configuration.autoGenerateSSL,
         }
-      : undefined
+      : {
+          email: '',
+          autoGenerateSSL: true,
+        }
 
   const form = useForm<z.infer<typeof configureLetsencryptPluginSchema>>({
     resolver: zodResolver(configureLetsencryptPluginSchema),
@@ -58,7 +61,7 @@ export const LetsencryptForm = ({
       email:
         typeof defaultValues?.email === 'string' ? defaultValues.email : '',
       autoGenerateSSL: !!defaultValues?.autoGenerateSSL,
-      serverId: params.id,
+      serverId,
     },
   })
 
@@ -80,7 +83,6 @@ export const LetsencryptForm = ({
   })
 
   function onSubmit(values: z.infer<typeof configureLetsencryptPluginSchema>) {
-    console.log({ values })
     execute(values)
   }
 
@@ -144,6 +146,7 @@ const PluginConfigurationForm = ({
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
 }) => {
   const pluginName = 'name' in plugin ? plugin.name : plugin.value
+  const params = useParams<{ id: string }>()
   const [open, setOpen] = useState(false)
 
   return (
@@ -158,7 +161,11 @@ const PluginConfigurationForm = ({
               Add a email for SSL certificate issuance
             </DialogDescription>
           </DialogHeader>
-          <LetsencryptForm plugin={plugin} setOpen={setOpen} />
+          <LetsencryptForm
+            plugin={plugin}
+            setOpen={setOpen}
+            serverId={params.id}
+          />
         </DialogContent>
       )}
     </Dialog>
