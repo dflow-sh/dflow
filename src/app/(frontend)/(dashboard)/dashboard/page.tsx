@@ -5,8 +5,22 @@ import { Suspense } from 'react'
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
 import Loader from '@/components/Loader'
 import { ProjectCard } from '@/components/ProjectCard'
+import ServerTerminal from '@/components/ServerTerminal'
 import CreateProject from '@/components/project/CreateProject'
 import { Service } from '@/payload-types'
+
+const SuspendedTerminal = async () => {
+  const payload = await getPayload({ config: configPromise })
+  const { docs: servers } = await payload.find({
+    collection: 'servers',
+    pagination: false,
+    select: {
+      name: true,
+    },
+  })
+
+  return <ServerTerminal servers={servers} />
+}
 
 const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -64,6 +78,10 @@ const DashboardPage = () => {
 
       <Suspense fallback={<Loader className='h-96 w-full' />}>
         <SuspendedPage />
+      </Suspense>
+
+      <Suspense>
+        <SuspendedTerminal />
       </Suspense>
     </>
   )

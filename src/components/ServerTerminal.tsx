@@ -1,6 +1,6 @@
 'use client'
 
-import { HardDrive, SquareTerminal } from 'lucide-react'
+import { ChevronsUp, HardDrive, SquareTerminal } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
@@ -9,12 +9,12 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 
 import Tabs from './Tabs'
 import TerminalComponent from './Terminal'
-import { Button } from './ui/button'
+import { useSidebar } from './ui/sidebar'
 
 const ServerTerminal = ({
   servers = [],
@@ -30,6 +30,7 @@ const ServerTerminal = ({
   >({})
   const [open, setOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
+  const { state } = useSidebar()
 
   // Use a ref to store event sources so they persist between renders
   const eventSourcesRef = useRef<Record<string, EventSource>>({})
@@ -121,32 +122,42 @@ const ServerTerminal = ({
   }
 
   return (
-    <Sheet
-      open={open}
-      onOpenChange={state => {
-        setOpen(state)
-        if (!state) {
-          cleanupConnections()
-        }
-      }}>
-      <SheetTrigger asChild>
-        <Button
-          size='icon'
-          variant='secondary'
-          className='fixed bottom-4 right-4 z-40 size-16 [&_svg]:size-8'>
-          <SquareTerminal />
-        </Button>
-      </SheetTrigger>
+    <>
+      <div
+        tabIndex={0}
+        role='button'
+        onClick={() => setOpen(true)}
+        className={cn(
+          'fixed bottom-0 right-0 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 transition-[width] duration-200 ease-linear hover:bg-secondary/70',
+          state === 'expanded'
+            ? 'md:w-[calc(100%-var(--sidebar-width))]'
+            : 'md:w-[calc(100%-var(--sidebar-width-icon))]',
+        )}>
+        <div className='flex items-center gap-2 text-sm'>
+          <SquareTerminal size={16} /> Console
+        </div>
 
-      <SheetContent side='bottom'>
-        <SheetHeader className='sr-only'>
-          <SheetTitle>Console</SheetTitle>
-          <SheetDescription>All console logs appear here</SheetDescription>
-        </SheetHeader>
+        <ChevronsUp size={20} />
+      </div>
 
-        <Tabs tabs={tabs} onTabChange={handleTabChange} />
-      </SheetContent>
-    </Sheet>
+      <Sheet
+        open={open}
+        onOpenChange={state => {
+          setOpen(state)
+          if (!state) {
+            cleanupConnections()
+          }
+        }}>
+        <SheetContent side='bottom'>
+          <SheetHeader className='sr-only'>
+            <SheetTitle>Console</SheetTitle>
+            <SheetDescription>All console logs appear here</SheetDescription>
+          </SheetHeader>
+
+          <Tabs tabs={tabs} onTabChange={handleTabChange} />
+        </SheetContent>
+      </Sheet>
+    </>
   )
 }
 
