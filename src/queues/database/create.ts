@@ -235,7 +235,12 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   const databaseDetails = job?.data
 
   if (databaseDetails) {
-    const { id: serviceId, serverId } = databaseDetails.serviceDetails
+    const { payloadToken } = databaseDetails
+    const {
+      id: serviceId,
+      serverId,
+      deploymentId,
+    } = databaseDetails.serviceDetails
 
     await sendEvent({
       message: err.message,
@@ -243,6 +248,21 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
       serverId,
       serviceId,
     })
+
+    await payloadWebhook({
+      payloadToken: `${payloadToken}`,
+      data: {
+        type: 'deployment.update',
+        data: {
+          deployment: {
+            id: deploymentId,
+            status: 'failed',
+          },
+        },
+      },
+    })
+
+    await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
   }
 })
 

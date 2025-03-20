@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Deployment } from '@/payload-types'
 
-import ServiceTerminal from './ServiceTerminal'
+import DeploymentTerminal from './DeploymentTerminal'
 
 const DeploymentList = ({
   deployments,
@@ -73,12 +73,12 @@ const DeploymentList = ({
                   </div>
                 </div>
 
-                <ServiceTerminal
+                <DeploymentTerminal
                   deployment={deploymentDetails}
                   serverId={serverId}
                   serviceId={serviceId}>
                   <Button variant='outline'>View Logs</Button>
-                </ServiceTerminal>
+                </DeploymentTerminal>
               </CardContent>
             </Card>
           )

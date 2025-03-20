@@ -18,10 +18,12 @@ type TabType = {
 export default function Tabs({
   tabs,
   defaultActiveTab = 0,
+  activeTab,
   onTabChange = () => {},
 }: {
   tabs: TabType[]
   defaultActiveTab?: number
+  activeTab?: number
   onTabChange?: (index: number) => void
 }) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
@@ -34,6 +36,7 @@ export default function Tabs({
   useEffect(() => {
     if (hoveredIndex !== null) {
       const hoveredElement = tabRefs.current[hoveredIndex]
+
       if (hoveredElement) {
         const { offsetLeft, offsetWidth } = hoveredElement
         setHoverStyle({
@@ -57,6 +60,12 @@ export default function Tabs({
   }, [activeIndex])
 
   useEffect(() => {
+    if (activeTab) {
+      setActiveIndex(activeTab)
+    }
+  }, [activeTab])
+
+  useEffect(() => {
     requestAnimationFrame(() => {
       const overviewElement = tabRefs.current[defaultActiveTab]
 
@@ -78,7 +87,7 @@ export default function Tabs({
         setDisableTabs={setDisableTabs}
       />
     ) : null
-  }, [activeIndex, tabs, disableTabs, setDisableTabs])
+  }, [activeIndex, tabs, disableTabs, setDisableTabs, activeTab])
 
   return (
     <Card className='flex w-full items-center rounded-none border-none bg-transparent shadow-none'>

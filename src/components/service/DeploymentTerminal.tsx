@@ -2,7 +2,7 @@
 
 import Terminal from '../Terminal'
 import { SquareTerminal } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Deployment } from '@/payload-types'
 
-const ServiceTerminal = ({
+const DeploymentTerminal = ({
   children,
   deployment,
   serviceId,
@@ -27,9 +27,10 @@ const ServiceTerminal = ({
 }) => {
   const [messages, setMessages] = useState<string[]>([])
   const [open, setOpen] = useState<boolean>(false)
+  const eventSourceRef = useRef<EventSource>(null)
 
   useEffect(() => {
-    if (!open) {
+    if (!open || eventSourceRef.current) {
       return
     }
 
@@ -45,14 +46,18 @@ const ServiceTerminal = ({
       }
     }
 
+    eventSourceRef.current = eventSource
+  }, [open])
+
+  useEffect(() => {
     // On component unmount close the event source
     return () => {
-      if (eventSource) {
+      if (eventSourceRef.current) {
         setMessages([])
-        eventSource.close()
+        eventSourceRef.current.close()
       }
     }
-  }, [open])
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -68,12 +73,12 @@ const ServiceTerminal = ({
           <DialogDescription className='sr-only'>
             These are deployment logs of {deployment.id}
           </DialogDescription>
-
-          <Terminal messages={messages} className='min-h-[70vh] w-full' />
         </DialogHeader>
+
+        <Terminal messages={messages} className='min-h-[70vh] w-full' />
       </DialogContent>
     </Dialog>
   )
 }
 
-export default ServiceTerminal
+export default DeploymentTerminal

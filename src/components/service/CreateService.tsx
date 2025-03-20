@@ -36,7 +36,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -216,7 +218,20 @@ const CreateService = ({ server }: { server: Server }) => {
                             <SelectValue placeholder='Select a type' />
                           </SelectTrigger>
                         </FormControl>
+
                         <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel className='mb-2 inline-block w-[calc(var(--radix-select-trigger-width)-16px)] text-wrap font-normal'>
+                              To deploy database which are disabled, please
+                              enable appropriate plugin on{' '}
+                              <Link
+                                className='text-primary underline'
+                                href={`/settings/servers/${server.id}/general`}>
+                                server
+                              </Link>
+                            </SelectLabel>
+                          </SelectGroup>
+
                           {databaseOptions.map(
                             ({ label, value, icon: Icon }) => {
                               const optionDisabled =
@@ -237,17 +252,6 @@ const CreateService = ({ server }: { server: Server }) => {
                                       {label}
                                     </span>
                                   </SelectItem>
-
-                                  {optionDisabled && (
-                                    <p className='px-2 text-sm'>
-                                      {`To use ${label} install/enable ${value}-plugin at `}
-                                      <Link
-                                        className='text-primary underline'
-                                        href={`/settings/servers/${server.id}/general`}>
-                                        server-page
-                                      </Link>
-                                    </p>
-                                  )}
                                 </Fragment>
                               )
                             },

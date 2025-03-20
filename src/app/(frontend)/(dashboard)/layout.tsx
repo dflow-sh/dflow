@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { SquareTerminal } from 'lucide-react'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -8,7 +7,6 @@ import React, { Suspense } from 'react'
 import Loader from '@/components/Loader'
 import ServerTerminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
-import { Button } from '@/components/ui/button'
 import { SidebarInset } from '@/components/ui/sidebar'
 import Provider from '@/providers/Provider'
 
@@ -60,7 +58,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <DashboardLayout>{children}</DashboardLayout>
       </Suspense>
 
-      <Suspense
+      {/* <Suspense
         fallback={
           <Button
             size='icon'
@@ -71,7 +69,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
           </Button>
         }>
         <SuspendedTerminal />
-      </Suspense>
+      </Suspense> */}
     </Provider>
   )
 }

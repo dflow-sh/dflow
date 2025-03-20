@@ -140,8 +140,8 @@ const ServerTerminal = ({
 
       <SheetContent side='bottom'>
         <SheetHeader className='sr-only'>
-          <SheetTitle>Terminal Dialog</SheetTitle>
-          <SheetDescription>All terminal logs appear here</SheetDescription>
+          <SheetTitle>Console</SheetTitle>
+          <SheetDescription>All console logs appear here</SheetDescription>
         </SheetHeader>
 
         <Tabs tabs={tabs} onTabChange={handleTabChange} />

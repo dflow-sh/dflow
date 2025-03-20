@@ -51,6 +51,7 @@ const LayoutClient = ({
             shallow: false,
           })
         }}
+        activeTab={activeTab >= 0 ? activeTab : 0}
         defaultActiveTab={activeTab >= 0 ? activeTab : 0}
       />
 
