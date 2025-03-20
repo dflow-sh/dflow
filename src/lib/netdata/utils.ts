@@ -70,7 +70,8 @@ export const netdataAPI = async (
     // Use axios to make the request directly
     const apiUrl = `http://${host}:${port}${fullEndpoint}`
 
-    const response = await axios.get(apiUrl, { timeout: 5000 })
+    const response = await axios.get(apiUrl)
+
     return response.data
   } catch (error) {
     console.error('Netdata API call failed:', error)

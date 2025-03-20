@@ -45,7 +45,7 @@ const getTimeSeriesData = async <T>(
 
   // Build query with 'after' parameter to get data from the last X minutes
   // Adding 'options=seconds' will include timestamps in seconds since epoch
-  const query = `data?chart=${chart}&after=-${secondsAgo}&format=json&options=seconds`
+  const query = `data?chart=${chart}&after=-${secondsAgo}&before=0&format=json&options=seconds`
 
   // Fetch data
   const data = await netdataAPI(params, query)
@@ -71,13 +71,17 @@ const getTimeSeriesData = async <T>(
   // Transform the data
   let transformedData = transformData(labels, points) as T[]
 
-  // Sort data by timestamp in ascending order
-  // This assumes transformedData has a timestamp property
-  // Adjust the sorting key based on your actual data structure
+  const convertTimeToTimestamp = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number)
+    const now = new Date()
+    now.setHours(hours, minutes, 0, 0)
+    return now.getTime() // Returns timestamp in milliseconds
+  }
+
+  // Sort data by time
   transformedData = transformedData.sort((a: any, b: any) => {
-    // Assuming each item has a 'timestamp' or 'time' property
-    const timeA = a.timestamp || a.time || 0
-    const timeB = b.timestamp || b.time || 0
+    const timeA = convertTimeToTimestamp(a.time || a.timestamp || '00:00')
+    const timeB = convertTimeToTimestamp(b.time || b.timestamp || '00:00')
     return timeA - timeB
   })
 
