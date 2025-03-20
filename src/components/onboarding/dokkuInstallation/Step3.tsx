@@ -14,18 +14,19 @@ import { useInstallationStep } from './InstallationStepContext'
 const Step3 = ({ server }: { server: ServerType }) => {
   const [skipPluginsSync, setSkipPluginsSync] = useState(false)
   const { step, setStep } = useInstallationStep()
-  const {
-    execute: installPlugin,
-    isPending: isInstallingPlugin,
-    hasSucceeded: installedPlugin,
-  } = useAction(installPluginAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        setStep(4)
-      }
-    },
-  })
+  const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
+    useAction(installPluginAction, {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          setStep(4)
+        }
+      },
+    })
 
+  const plugins = server.plugins ?? []
+  const letsEncryptPluginInstalled = plugins.find(
+    plugin => plugin.name === 'letsencrypt',
+  )
   const {
     execute: syncPlugins,
     isPending: isSyncingPlugins,
@@ -56,15 +57,10 @@ const Step3 = ({ server }: { server: ServerType }) => {
   })
 
   useEffect(() => {
-    const plugins = server.plugins ?? []
-    const letsEncryptPluginInstalled = plugins.find(
-      plugin => plugin.name === 'letsencrypt',
-    )
-
     if (step === 3) {
-      if (!plugins.length) {
-        syncPlugins({ serverId: server.id })
-      } else if (letsEncryptPluginInstalled && plugins.length) {
+      syncPlugins({ serverId: server.id })
+
+      if (letsEncryptPluginInstalled) {
         setSkipPluginsSync(true)
         setStep(4)
       }
@@ -83,23 +79,26 @@ const Step3 = ({ server }: { server: ServerType }) => {
         </div>
       )}
 
-      {(syncedPlugins || skipPluginsSync) && (
+      {(syncedPlugins || skipPluginsSync) && (server.plugins ?? []).length && (
         <div className='flex items-center gap-2'>
           <CircleCheck size={24} className='text-primary' />
           {`${(server.plugins ?? []).length} Synced plugins!`}
         </div>
       )}
 
-      {isInstallingPlugin && (
+      {triggedInstallingPlugin && (
         <div className='flex items-center gap-2'>
-          <Loader className='h-max w-max' /> Installing letsencrypt plugin...
-        </div>
-      )}
-
-      {installedPlugin && (
-        <div className='flex items-center gap-2'>
-          <CircleCheck size={24} className='text-primary' />
-          Installed letsencrypt plugin
+          {letsEncryptPluginInstalled ? (
+            <>
+              <CircleCheck size={24} className='text-primary' />
+              Installed letsencrypt plugin
+            </>
+          ) : (
+            <>
+              <Loader className='h-max w-max' />
+              Installing letsencrypt plugin...
+            </>
+          )}
         </div>
       )}
     </div>

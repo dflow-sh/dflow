@@ -181,7 +181,7 @@ export const DomainFormWithoutDialog = ({
                 setConfirm(true)
                 router.push('/onboarding/install-github')
               }}>
-              I've added records
+              I&apos;ve added records
             </Button>
           </DialogFooter>
         </DialogContent>
