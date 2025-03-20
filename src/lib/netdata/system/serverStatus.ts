@@ -1,7 +1,7 @@
 'use server'
 
 import { NetdataApiParams } from '../types'
-import { isApiAccessible, netdataAPI } from '../utils'
+import { netdataAPI } from '../utils'
 
 /**
  * Common response type for all metric functions
@@ -67,15 +67,6 @@ export interface NetdataAlarmsResponse {
 export const getServerStatus = async (
   params: NetdataApiParams,
 ): Promise<MetricsResponse<ServerStatus>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   try {
     // Get uptime information
     const uptimeData = await netdataAPI(params, 'data?chart=system.uptime')
@@ -172,15 +163,6 @@ export const getServerStatus = async (
 export const getServicesHealth = async (
   params: NetdataApiParams,
 ): Promise<MetricsResponse<ServiceHealth[]>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   try {
     // Get all charts info to identify monitored services
     const chartsData = await netdataAPI(params, 'charts')
@@ -272,15 +254,6 @@ export const getRecentAlerts = async (
   params: NetdataApiParams,
   limit: number = 5,
 ): Promise<MetricsResponse<any[]>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   try {
     // Get all alarms including recent transitions
     const alertsData = (await netdataAPI(
@@ -342,15 +315,6 @@ export const getRecentAlerts = async (
 export const getSystemResources = async (
   params: NetdataApiParams,
 ): Promise<MetricsResponse<any>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   try {
     // Get key system metrics
     const [cpuData, memData, diskData] = await Promise.all([

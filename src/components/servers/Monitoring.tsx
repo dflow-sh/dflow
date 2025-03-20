@@ -159,8 +159,6 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
   }, [fetchServerStatus, fetchDashboardMetrics])
 
-  console.log({ serverStatus, dashboardMetrics })
-
   const { execute: uninstallNetdata, isPending: isUninstallingNetdata } =
     useAction(uninstallNetdataAction, {
       onSuccess: () => {
