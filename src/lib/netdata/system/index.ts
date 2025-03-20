@@ -1,7 +1,8 @@
 export {
   getCpuTimeSeriesData,
   getDashboardMetrics,
-  getDiskUsageChartData,
+  getDiskIOChartData,
+  getDiskSpaceChartData,
   getMemoryTimeSeriesData,
   getNetworkTimeSeriesData,
   getRequestTimeSeriesData,
