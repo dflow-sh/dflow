@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Workflow } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -22,8 +22,13 @@ export default async function Layout({
   children?: React.ReactNode
 }) {
   return (
-    <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center px-5'>
-      <Card className='my-20 w-full max-w-4xl'>
+    <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-4 px-5'>
+      <div className='mt-20 flex items-center gap-2 text-2xl font-semibold'>
+        <Workflow className='text-primary' />
+        <p>Dokflow Onboarding</p>
+      </div>
+
+      <Card className='mb-20 w-full max-w-4xl'>
         <CardHeader>
           <div className='flex items-center gap-2 text-sm font-extralight tracking-wide text-foreground'>
             <div>

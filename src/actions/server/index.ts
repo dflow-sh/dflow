@@ -63,6 +63,7 @@ export const updateServerAction = protectedClient
 
     if (response) {
       revalidatePath(`/settings/servers/${id}`)
+      revalidatePath(`/onboarding/add-server`)
     }
 
     return response

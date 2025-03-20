@@ -51,6 +51,7 @@ export const CreateServerForm = ({
   server?: ServerType
 }) => {
   const pathName = usePathname()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
@@ -75,8 +76,6 @@ export const CreateServerForm = ({
           username: '',
         },
   })
-
-  const router = useRouter()
 
   const { execute: createService, isPending: isCreatingService } = useAction(
     createServerAction,
@@ -287,7 +286,7 @@ const CreateServer = ({
           </DialogDescription>
         </DialogHeader>
 
-        <CreateServerForm sshKeys={sshKeys} server={server} />
+        <CreateServerForm sshKeys={sshKeys} server={server} type={type} />
       </DialogContent>
     </Dialog>
   )

@@ -6,7 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { redirect, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -44,6 +44,7 @@ export const CreateSSHKeyForm = ({
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const pathName = usePathname()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof createSSHKeySchema>>({
     resolver: zodResolver(createSSHKeySchema),
@@ -69,9 +70,11 @@ export const CreateSSHKeyForm = ({
         if (data) {
           toast.success(`Successfully created ${input.name} SSH key`)
           form.reset()
+
           if (pathName.includes('onboarding')) {
-            redirect('/onboarding/add-server')
+            router.push('/onboarding/add-server')
           }
+
           setOpen?.(false)
         }
       },

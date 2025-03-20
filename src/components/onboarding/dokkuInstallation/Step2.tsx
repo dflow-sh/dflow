@@ -53,7 +53,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
 
   return (
     <div className='space-y-2'>
-      {hasSucceeded &&
+      {(isInstallingDokku || hasSucceeded) &&
         (server?.version === 'not-installed' || !server?.version) && (
           <div className='flex items-center gap-2'>
             <Loader className='h-max w-max' /> Installing dokku, open terminal

@@ -26,13 +26,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  console.log({
-    code,
-    installation_id,
-    state,
-  })
-
-  const [action, id] = state.split(':')
+  const [action, id, installationOnboarding] = state.split(':')
 
   if (action === 'gh_init') {
     const octokit = new Octokit({})
@@ -64,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     console.log({ setupResponse })
   } else if (action === 'gh_install') {
-    const installationResponse = await payload.update({
+    await payload.update({
       collection: 'gitProviders',
       id,
       data: {
@@ -86,7 +80,7 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      if (onboarding === 'true') {
+      if (installationOnboarding) {
         redirect('/dashboard')
       }
     }

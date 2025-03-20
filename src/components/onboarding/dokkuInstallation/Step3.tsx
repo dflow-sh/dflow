@@ -58,11 +58,11 @@ const Step3 = ({ server }: { server: ServerType }) => {
 
   useEffect(() => {
     if (step === 3) {
-      syncPlugins({ serverId: server.id })
-
       if (letsEncryptPluginInstalled) {
         setSkipPluginsSync(true)
         setStep(4)
+      } else {
+        syncPlugins({ serverId: server.id })
       }
     }
   }, [step, server])
@@ -79,7 +79,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
         </div>
       )}
 
-      {(syncedPlugins || skipPluginsSync) && (server.plugins ?? []).length && (
+      {(syncedPlugins || skipPluginsSync) && !!plugins.length && (
         <div className='flex items-center gap-2'>
           <CircleCheck size={24} className='text-primary' />
           {`${(server.plugins ?? []).length} Synced plugins!`}
