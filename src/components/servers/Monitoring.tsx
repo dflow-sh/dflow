@@ -103,7 +103,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         })
       }
     } catch (error) {
-      console.error('Error fetching server status:', error)
+      console.log('Error fetching server status:', error)
       setServerStatus(prev => ({
         ...prev,
         status: 'error',
@@ -138,7 +138,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         })
       }
     } catch (error) {
-      console.error('Error fetching dashboard metrics:', error)
+      console.log('Error fetching dashboard metrics:', error)
     }
   }, [server.ip])
 

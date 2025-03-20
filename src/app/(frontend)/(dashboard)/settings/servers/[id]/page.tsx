@@ -73,7 +73,7 @@ const MonitoringTab = async ({ server }: { server: ServerType }) => {
 
     return <Monitoring server={server} />
   } catch (error) {
-    console.error('SSH Connection Error:', error)
+    console.log('SSH Connection Error:', error)
     return <RetryPrompt />
   }
 }
