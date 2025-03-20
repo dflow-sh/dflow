@@ -1,3 +1,5 @@
+'use server'
+
 import { NetdataApiParams } from '../types'
 import { isApiAccessible, netdataAPI } from '../utils'
 
