@@ -3,7 +3,7 @@
 import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Database, Ellipsis, Globe, Trash2 } from 'lucide-react'
+import { Clock, Database, Ellipsis, Globe, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { JSX } from 'react'
@@ -12,8 +12,8 @@ import { toast } from 'sonner'
 import { deleteServiceAction } from '@/actions/service'
 import {
   Card,
-  CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -74,20 +74,22 @@ export function ServiceCard({
       href={`/dashboard/project/${projectId}/service/${service.id}`}
       className='h-full'>
       <Card className='h-full min-h-36'>
-        <CardHeader className='w-full flex-row items-start justify-between'>
-          <div className='flex gap-3'>
+        <CardHeader className='w-full flex-row justify-between'>
+          <div className='flex items-center gap-x-3'>
             {service.type === 'database' && service.databaseDetails?.type
               ? databaseIcons[service.databaseDetails?.type]
               : icon[service.type]}
 
-            <div>
+            <div className='flex-1 items-start'>
               <CardTitle>{service.name}</CardTitle>
-              <CardDescription>{service.description}</CardDescription>
+              <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
+                {service.description}
+              </CardDescription>
             </div>
           </div>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild className='flex-shrink-0'>
               <Button
                 variant='ghost'
                 size='icon'
@@ -114,25 +116,26 @@ export function ServiceCard({
           </DropdownMenu>
         </CardHeader>
 
-        <CardContent>
+        <CardFooter>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <time className='text-sm text-muted-foreground'>
+                <time className='flex items-center gap-x-2 text-sm text-muted-foreground'>
+                  <Clock size={14} />
                   {`Created ${formatDistanceToNow(new Date(service.createdAt), {
                     addSuffix: true,
                   })}`}
                 </time>
               </TooltipTrigger>
 
-              <TooltipContent>
+              <TooltipContent side='bottom'>
                 <p>
                   {format(new Date(service.createdAt), 'LLL d, yyyy h:mm a')}
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </CardContent>
+        </CardFooter>
       </Card>
     </Link>
   )

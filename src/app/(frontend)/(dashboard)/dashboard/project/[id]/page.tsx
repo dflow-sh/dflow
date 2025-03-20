@@ -36,10 +36,10 @@ const SuspendedPage = async ({ params }: PageProps) => {
       />
 
       <section>
-        <div className='flex w-full justify-between'>
+        <div className='flex w-full justify-between px-4'>
           <div>
-            <h2 className='text-xl font-semibold'>{projectDetails.name}</h2>
-            <p className='text-muted-foreground'>
+            <h2 className='text-2xl font-semibold'>{projectDetails.name}</h2>
+            <p className='text-sm text-muted-foreground'>
               {projectDetails.description}
             </p>
           </div>
