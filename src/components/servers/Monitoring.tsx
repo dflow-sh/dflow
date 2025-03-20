@@ -465,7 +465,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
       {/* Tabs for detailed charts */}
       <Tabs
         defaultValue='overview'
-        className='space-y-4'
+        className='mt-12 space-y-4'
         onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value='overview'>Overview</TabsTrigger>
@@ -488,7 +488,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     : 'No data available'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={cpuChartConfig}
                   className='aspect-auto h-[250px] w-full'>
@@ -547,7 +547,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     : 'No data available'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={memoryChartConfig}
                   className='aspect-auto h-[250px] w-full'>
@@ -610,7 +610,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     : 'No data available'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={networkChartConfig}
                   className='aspect-auto h-[250px] w-full'>
@@ -695,7 +695,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     : 'No data available'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={{
                     reads: {
@@ -788,7 +788,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     : 'No data available'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={cpuChartConfig}
                   className='aspect-auto h-[300px] w-full'>
@@ -853,7 +853,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                       : 'No data available'}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+                <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                   <ChartContainer
                     config={loadChartConfig}
                     className='aspect-auto h-[250px] w-full'>
@@ -910,7 +910,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     Coming Soon
                   </Badge>
                 </CardHeader>
-                <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                   <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                     <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                       <div className='text-xl font-semibold'>Coming Soon</div>
@@ -996,7 +996,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   : 'No data available'}
               </CardDescription>
             </CardHeader>
-            <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
               <ChartContainer
                 config={memoryChartConfig}
                 className='aspect-auto h-[300px] w-full'>
@@ -1062,7 +1062,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 </Badge>
               </CardHeader>
 
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1136,7 +1136,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   Coming Soon
                 </Badge>
               </CardHeader>
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1219,6 +1219,90 @@ const Monitoring = ({ server }: { server: ServerType }) => {
 
         {/* Disk Tab */}
         <TabsContent value='disk' className='space-y-4'>
+          <Card className='overflow-hidden'>
+            <CardHeader>
+              <CardTitle>Disk I/O</CardTitle>
+              <CardDescription>
+                Read/Write operations -{' '}
+                {diskIOData.length > 1
+                  ? `${getTimeRange(diskIOData)} (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
+                  : 'No data available'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+              <ChartContainer
+                config={{
+                  reads: {
+                    label: 'Reads',
+                    color: 'hsl(var(--chart-1))',
+                  },
+                  writes: {
+                    label: 'Writes',
+                    color: 'hsl(var(--chart-2))',
+                  },
+                }}
+                className='aspect-auto h-[250px] w-full'>
+                <LineChart data={diskIOData} accessibilityLayer>
+                  <defs>
+                    <linearGradient id='fillRead' x1='0' y1='0' x2='0' y2='1'>
+                      <stop
+                        offset='5%'
+                        stopColor='var(--color-reads)'
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset='95%'
+                        stopColor='var(--color-reads)'
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                    <linearGradient id='fillWrite' x1='0' y1='0' x2='0' y2='1'>
+                      <stop
+                        offset='5%'
+                        stopColor='var(--color-writes)'
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset='95%'
+                        stopColor='var(--color-writes)'
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey='time'
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                  <Line
+                    type='monotone'
+                    dataKey='reads'
+                    stroke='var(--color-reads)'
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                  <Line
+                    type='monotone'
+                    dataKey='writes'
+                    stroke='var(--color-writes)'
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator='dot' />}
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <Card className='overflow-hidden'>
               <CardHeader className='relative'>
@@ -1231,7 +1315,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 </Badge>
               </CardHeader>
 
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1274,95 +1358,6 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             </Card>
 
             <Card className='overflow-hidden'>
-              <CardHeader>
-                <CardTitle>Disk I/O</CardTitle>
-                <CardDescription>
-                  Read/Write operations -{' '}
-                  {diskIOData.length > 1
-                    ? `${getTimeRange(diskIOData)} (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
-                    : 'No data available'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
-                <ChartContainer
-                  config={{
-                    reads: {
-                      label: 'Reads',
-                      color: 'hsl(var(--chart-1))',
-                    },
-                    writes: {
-                      label: 'Writes',
-                      color: 'hsl(var(--chart-2))',
-                    },
-                  }}
-                  className='aspect-auto h-[250px] w-full'>
-                  <LineChart data={diskIOData} accessibilityLayer>
-                    <defs>
-                      <linearGradient id='fillRead' x1='0' y1='0' x2='0' y2='1'>
-                        <stop
-                          offset='5%'
-                          stopColor='var(--color-reads)'
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset='95%'
-                          stopColor='var(--color-reads)'
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id='fillWrite'
-                        x1='0'
-                        y1='0'
-                        x2='0'
-                        y2='1'>
-                        <stop
-                          offset='5%'
-                          stopColor='var(--color-writes)'
-                          stopOpacity={0.8}
-                        />
-                        <stop
-                          offset='95%'
-                          stopColor='var(--color-writes)'
-                          stopOpacity={0.1}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey='time'
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                    <Line
-                      type='monotone'
-                      dataKey='reads'
-                      stroke='var(--color-reads)'
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 6, strokeWidth: 0 }}
-                    />
-                    <Line
-                      type='monotone'
-                      dataKey='writes'
-                      stroke='var(--color-writes)'
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 6, strokeWidth: 0 }}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent indicator='dot' />}
-                    />
-                    <ChartLegend content={<ChartLegendContent />} />
-                  </LineChart>
-                </ChartContainer>
-              </CardContent>
-            </Card>
-
-            <Card className='overflow-hidden'>
               <CardHeader className='relative'>
                 <CardTitle>Disk Volumes</CardTitle>
                 <CardDescription>Space usage by volume</CardDescription>
@@ -1372,7 +1367,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   Coming Soon
                 </Badge>
               </CardHeader>
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1464,12 +1459,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </CardContent>
             </Card>
 
-            <Card className='overflow-hidden'>
+            {/* <Card className='overflow-hidden'>
               <CardHeader>
                 <CardTitle>Inode Usage</CardTitle>
                 <CardDescription>File system metadata usage</CardDescription>
               </CardHeader>
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1532,7 +1527,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   </BarChart>
                 </ChartContainer>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </TabsContent>
 
@@ -1543,7 +1538,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               <CardTitle>Network Traffic</CardTitle>
               <CardDescription>Bandwidth utilization over time</CardDescription>
             </CardHeader>
-            <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
               <ChartContainer
                 config={networkChartConfig}
                 className='aspect-auto h-[300px] w-full'>
@@ -1629,7 +1624,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   Coming Soon
                 </Badge>
               </CardHeader>
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1730,7 +1725,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   Coming Soon
                 </Badge>
               </CardHeader>
-              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
                   <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
                     <div className='text-xl font-semibold'>Coming Soon</div>
@@ -1856,7 +1851,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 <CardTitle>Request Volume</CardTitle>
                 <CardDescription>Successful vs Error requests</CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={requestChartConfig}
                   className='aspect-auto h-[250px] w-full'>
@@ -1932,7 +1927,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 <CardTitle>Response Time</CardTitle>
                 <CardDescription>Average response time (ms)</CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={responseTimeChartConfig}
                   className='aspect-auto h-[250px] w-full'>
@@ -1988,7 +1983,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 <CardDescription>Distribution by HTTP status</CardDescription>
               </CardHeader>
 
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={{
                     ok: {
@@ -2051,7 +2046,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   Request processing time distribution
                 </CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
                 <ChartContainer
                   config={{
                     count: {

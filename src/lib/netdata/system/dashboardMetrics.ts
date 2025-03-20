@@ -20,16 +20,16 @@ function formatTimestamp(timestamp: number): string {
 }
 
 /**
- * Fetches and transforms time-series data from Netdata
+ * Fetches and transforms time-series data from Netdata for the last 20 minutes
  * @param params API connection parameters
  * @param chart Chart name to query
- * @param dataPoints Number of data points to retrieve
- * @returns Processed time-series data
+ * @param minutes Number of minutes of data to retrieve (defaults to 20)
+ * @returns Processed time-series data sorted in ascending order by time
  */
 const getTimeSeriesData = async <T>(
   params: NetdataApiParams,
   chart: string,
-  dataPoints: number = 100, // Default to 100 data points
+  minutes: number = 30, // Default to 30 minutes
 ): Promise<MetricsResponse<T[]>> => {
   // Check API accessibility first
   const apiAvailable = await isApiAccessible(params)
@@ -40,15 +40,15 @@ const getTimeSeriesData = async <T>(
     }
   }
 
-  // Build query with points parameter to limit data points
-  const query = `data?chart=${chart}&points=${dataPoints}&format=json`
+  // Calculate seconds for the 'after' parameter
+  const secondsAgo = minutes * 60
+
+  // Build query with 'after' parameter to get data from the last X minutes
+  // Adding 'options=seconds' will include timestamps in seconds since epoch
+  const query = `data?chart=${chart}&after=-${secondsAgo}&format=json&options=seconds`
 
   // Fetch data
   const data = await netdataAPI(params, query)
-
-  // if (chart === 'system.ram') {
-  //   console.dir({ resultMemory: data }, { depth: null })
-  // }
 
   // Check if we have data and labels
   if (
@@ -68,11 +68,23 @@ const getTimeSeriesData = async <T>(
   const labels = data.labels
   const points = data.data
 
-  // Transform the data to the required format based on labels
+  // Transform the data
+  let transformedData = transformData(labels, points) as T[]
+
+  // Sort data by timestamp in ascending order
+  // This assumes transformedData has a timestamp property
+  // Adjust the sorting key based on your actual data structure
+  transformedData = transformedData.sort((a: any, b: any) => {
+    // Assuming each item has a 'timestamp' or 'time' property
+    const timeA = a.timestamp || a.time || 0
+    const timeB = b.timestamp || b.time || 0
+    return timeA - timeB
+  })
+
   return {
     success: true,
     message: `${chart} time series data retrieved successfully`,
-    data: transformData(labels, points) as T[],
+    data: transformedData,
   }
 }
 
