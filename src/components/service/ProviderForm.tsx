@@ -128,7 +128,7 @@ const GithubForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-8'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
         {/* Account field */}
         <FormField
           control={form.control}

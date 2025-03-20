@@ -1,6 +1,6 @@
 import { env } from 'env'
 
-import { DatabaseUpdateSchemaType } from '@/payload/endpoints/validator'
+import { DatabaseUpdateSchemaType } from '@/payload/endpoints/databaseUpdate/validator'
 
 type DatabaseUpdateType = Extract<
   DatabaseUpdateSchemaType,

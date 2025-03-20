@@ -1,8 +1,10 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 const queueName = 'restart-app'
 
@@ -17,6 +19,9 @@ interface QueueArgs {
     id: string
     name: string
   }
+  serverDetails: {
+    id: string
+  }
 }
 
 const restartAppQueue = new Queue<QueueArgs>(queueName, {
@@ -26,28 +31,43 @@ const restartAppQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, serviceDetails } = job.data
+    const { sshDetails, serviceDetails, serverDetails } = job.data
+    let ssh: NodeSSH | null = null
 
     console.log(`starting restartApp queue for ${serviceDetails.name}`)
 
-    const ssh = await dynamicSSH(sshDetails)
-    const res = await dokku.process.restart(ssh, serviceDetails.name, {
-      onStdout: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
-      },
-      onStderr: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
-      },
-    })
+    try {
+      ssh = await dynamicSSH(sshDetails)
+      const res = await dokku.process.restart(ssh, serviceDetails.name, {
+        onStdout: async chunk => {
+          await sendEvent({
+            pub,
+            message: chunk.toString(),
+            serverId: serverDetails.id,
+          })
+        },
+        onStderr: async chunk => {
+          await sendEvent({
+            pub,
+            message: chunk.toString(),
+            serverId: serverDetails.id,
+          })
+        },
+      })
 
-    await pub.publish(
-      'my-channel',
-      `✅ Successfully restarted ${serviceDetails.name}`,
-    )
-
-    ssh.dispose()
+      await sendEvent({
+        pub,
+        message: `✅ Successfully restarted ${serviceDetails.name}`,
+        serverId: serverDetails.id,
+      })
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ Failed restarting ${serviceDetails?.name} : ${message}`,
+      )
+    } finally {
+      ssh?.dispose()
+    }
   },
   { connection: queueConnection },
 )
@@ -55,12 +75,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to restart app', err)
 
-  const serviceDetails = job?.data?.serviceDetails
-
-  await pub.publish(
-    'my-channel',
-    `❌ Failed restarting ${serviceDetails?.name}`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addRestartAppQueue = async (data: QueueArgs) => {

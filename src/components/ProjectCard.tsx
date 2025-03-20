@@ -1,17 +1,35 @@
 'use client'
 
 import { format, formatDistanceToNow } from 'date-fns'
-import { Ellipsis, Pencil, Trash2 } from 'lucide-react'
+import {
+  Clock,
+  Ellipsis,
+  FolderClosed,
+  HardDrive,
+  Pencil,
+  Trash2,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteProjectAction } from '@/actions/project'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -27,43 +45,101 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Project, Server } from '@/payload-types'
+import { Project, Server, Service } from '@/payload-types'
 
 import UpdateProject from './project/CreateProject'
+import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+
+export function DeleteProjectAlert({
+  project,
+  open,
+  setOpen,
+}: {
+  project: Project
+  open: boolean
+  setOpen: Dispatch<SetStateAction<boolean>>
+}) {
+  const { id, name } = project
+  const { execute } = useAction(deleteProjectAction, {
+    onExecute: () => {
+      setOpen(false)
+      toast.loading('Please wait deleting project...', { id })
+    },
+    onSuccess: ({ data }) => {
+      if (data?.deleted) {
+        toast.success('Successfully deleted project', { id })
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to delete project: ${error.serverError}`, {
+        id,
+      })
+    },
+  })
+
+  return (
+    <AlertDialog open={open}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Project</AlertDialogTitle>
+          <AlertDialogDescription>
+            {`Are you sure you want to delete the ${name}? This action is permanent and will delete all services of this project`}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => setOpen(false)}>
+            Cancel
+          </AlertDialogCancel>
+
+          <AlertDialogAction
+            variant='destructive'
+            onClick={() => {
+              execute({
+                id: project.id,
+              })
+            }}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
 
 export function ProjectCard({
   project,
   servers,
+  services,
 }: {
   project: Project
   servers: Server[]
+  services: Service[]
 }) {
   const [manualOpen, setManualOpen] = useState(false)
-  const { execute } = useAction(deleteProjectAction, {
-    onExecute: () => {
-      toast.loading('Deleting project...', { id: project.id })
-    },
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        toast.success('Successfully deleted project', { id: project.id })
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete project ${error.serverError}`, {
-        id: project.id,
-      })
-    },
-  })
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+
+  const serverName = (project.server as Server).name
+
+  // const appServices = services?.filter(service => service.type === 'app')
+  // const databaseServices = services?.filter(
+  //   service => service.type === 'database',
+  // )
+  // const dockerServices = services?.filter(service => service.type === 'docker')
 
   return (
     <>
       <Link href={`/dashboard/project/${project.id}`} className='h-full'>
         <Card className='h-full min-h-36'>
           <CardHeader className='w-full flex-row items-start justify-between'>
-            <div>
-              <CardTitle>{project.name}</CardTitle>
-              <CardDescription>{project.description}</CardDescription>
+            <div className='flex items-start gap-x-2'>
+              <FolderClosed size={18} className='stroke-foreground' />
+              <div>
+                <CardTitle>{project.name}</CardTitle>
+                <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
+                  {project.description}
+                </CardDescription>
+              </div>
             </div>
 
             <DropdownMenu>
@@ -96,7 +172,7 @@ export function ProjectCard({
                   onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()
-                    execute({ id: project.id })
+                    setDeleteAlertOpen(true)
                   }}>
                   <Trash2 />
                   Delete
@@ -106,27 +182,88 @@ export function ProjectCard({
           </CardHeader>
 
           <CardContent>
+            <Badge variant={'secondary'}>
+              <div className='flex items-center gap-x-2'>
+                <HardDrive size={16} />
+                <span className='text-sm font-medium'>{serverName}</span>
+              </div>
+            </Badge>
+          </CardContent>
+
+          <CardFooter className='justify-between'>
+            {/* <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild> */}
+            <div>{services.length} services</div>
+            {/* </TooltipTrigger>
+
+                <TooltipContent side='bottom'>
+                  <div className='space-y-1'>
+                    {appServices.length > 0 && (
+                      <div>
+                        <span className='flex items-center gap-x-2 text-sm font-medium'>
+                          <Github size={16} />
+                          <div className='mt-1 flex flex-wrap gap-2'>
+                            {appServices.map(service => (
+                              <Badge variant={'secondary'}>
+                                {service.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </span>
+                      </div>
+                    )}
+
+                    {databaseServices.length > 0 && (
+                      <div>
+                        <span className='flex items-center gap-x-2 text-sm font-medium'>
+                          <Database size={16} />
+                          <div className='mt-1 flex flex-wrap gap-2'>
+                            {databaseServices.map(service => (
+                              <Badge variant={'secondary'}>
+                                {service.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </span>
+                      </div>
+                    )}
+
+                    {dockerServices.length > 0 && (
+                      <div>
+                        <span className='flex items-center gap-x-2 text-sm font-medium'>
+                          <Docker className='h-5 w-5' />
+                          <div className='mt-1 flex flex-wrap gap-2'>
+                            {dockerServices.map(service => (
+                              <Badge variant={'secondary'}>
+                                {service.name}
+                              </Badge>
+                            ))}
+                          </div>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider> */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <time className='text-sm text-muted-foreground'>
-                    {`Created ${formatDistanceToNow(
-                      new Date(project.createdAt),
-                      {
-                        addSuffix: true,
-                      },
-                    )}`}
+                  <time className='flex items-center gap-x-2 text-sm text-muted-foreground'>
+                    <Clock size={14} />
+                    {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
                   </time>
                 </TooltipTrigger>
 
-                <TooltipContent>
+                <TooltipContent side='bottom'>
                   <p>
                     {format(new Date(project.createdAt), 'LLL d, yyyy h:mm a')}
                   </p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </CardContent>
+          </CardFooter>
         </Card>
       </Link>
 
@@ -138,6 +275,12 @@ export function ProjectCard({
         type='update'
         manualOpen={manualOpen}
         setManualOpen={setManualOpen}
+      />
+
+      <DeleteProjectAlert
+        project={project}
+        open={deleteAlertOpen}
+        setOpen={setDeleteAlertOpen}
       />
     </>
   )

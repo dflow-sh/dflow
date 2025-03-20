@@ -1,4 +1,4 @@
-import { NodeSSH } from 'node-ssh'
+import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
 const parseDatabaseLogsCommand = (commandResult: string) => {
   const databaseLogs = commandResult.split('\n')
@@ -20,10 +20,13 @@ export const logs = async (
   ssh: NodeSSH,
   databaseName: string,
   databaseType: string,
+  options?: SSHExecCommandOptions,
 ) => {
   const resultDatabaseInfo = await ssh.execCommand(
-    `dokku ${databaseType}:logs ${databaseName}`,
+    `dokku ${databaseType}:logs ${databaseName} --tail`,
+    options,
   )
+
   if (resultDatabaseInfo.code === 1) {
     console.error(resultDatabaseInfo)
     throw new Error(resultDatabaseInfo.stderr)

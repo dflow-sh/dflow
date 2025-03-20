@@ -93,6 +93,11 @@ const CreateProject = ({
           form.reset()
         }
       },
+      onError: ({ error }) => {
+        form.setError('serverId', {
+          message: 'Dokku not installed on the server!',
+        })
+      },
     },
   )
 
@@ -147,7 +152,7 @@ const CreateProject = ({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
             <FormField
               control={form.control}
               name='name'

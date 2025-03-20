@@ -31,7 +31,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
   })
 
   return (
-    <AccordionItem value={sshKey.id} className='max-w-5xl py-2'>
+    <AccordionItem value={sshKey.id} className='max-w-5xl border-b-0 py-2'>
       <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
         <span className='flex gap-3'>
           <KeyRound
@@ -67,7 +67,6 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           <UpdateSSHKeyForm
             sshKey={sshKey}
             type='update'
-            title='Update SSH Key'
             description='This form updates SSH key'
           />
 
@@ -88,7 +87,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
 
 const SSHKeysList = ({ keys }: { keys: SshKey[] }) => {
   return (
-    <Accordion type='single' collapsible className='w-full'>
+    <Accordion type='single' collapsible className='w-full divide-y-[1px]'>
       {keys.map(key => (
         <SSHKeyItem sshKey={key} key={key.id} />
       ))}

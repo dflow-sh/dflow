@@ -22,7 +22,7 @@ export const set = async ({
   const resultSetEnv = await ssh.execCommand(
     `dokku config:set ${noRestart ? '--no-restart' : ''} ${
       encoded ? '--encoded' : ''
-    } ${name} ${values.map(data => ` ${data.key}="${data.value}"`)}`,
+    } ${name} ${values.map(data => ` ${data.key}="${data.value}"`).join('')}`,
     options,
   )
 

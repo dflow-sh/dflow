@@ -6,9 +6,13 @@ import { getPayload } from 'payload'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
+  const headers = request.headers
+
   const payload = await getPayload({ config: configPromise })
+
   const code = searchParams.get('code') ?? ''
   const installation_id = searchParams.get('installation_id') ?? ''
+  const onboarding = searchParams.get('onboarding') ?? ''
   const state = searchParams.get('state') ?? ''
 
   if (!state) {
@@ -22,13 +26,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  console.log({
-    code,
-    installation_id,
-    state,
-  })
-
-  const [action, id] = state.split(':')
+  const [action, id, installationOnboarding] = state.split(':')
 
   if (action === 'gh_init') {
     const octokit = new Octokit({})
@@ -60,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     console.log({ setupResponse })
   } else if (action === 'gh_install') {
-    const installationResponse = await payload.update({
+    await payload.update({
       collection: 'gitProviders',
       id,
       data: {
@@ -70,7 +68,26 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    console.log({ installationResponse })
+    const { user } = await payload.auth({ headers })
+
+    // After successful of github-app making user as onboarded
+    if (user?.id) {
+      await payload.update({
+        collection: 'users',
+        id: user.id,
+        data: {
+          onboarded: true,
+        },
+      })
+
+      if (installationOnboarding) {
+        redirect('/dashboard')
+      }
+    }
+  }
+
+  if (onboarding === 'true') {
+    redirect('/onboarding/install-github')
   }
 
   return redirect('/settings/git')

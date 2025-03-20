@@ -134,6 +134,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  onboarded?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -202,6 +203,15 @@ export interface Server {
         name: string;
         version: string;
         status: 'enabled' | 'disabled';
+        configuration?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -417,6 +427,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  onboarded?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -504,6 +515,7 @@ export interface ServersSelect<T extends boolean = true> {
         name?: T;
         version?: T;
         status?: T;
+        configuration?: T;
         id?: T;
       };
   domains?:

@@ -36,7 +36,9 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -87,26 +89,18 @@ const databaseOptions = [
 ]
 
 const CreateService = ({ server }: { server: Server }) => {
-  const router = useRouter()
   const [open, setOpen] = useState(false)
+  const router = useRouter()
   const params = useParams<{ id: string }>()
   const { plugins = [] } = server
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
       if (data?.success) {
-        if (input.type === 'database') {
-          toast.info(`Added database creation to queue`, {
-            description: 'Redirecting to database details page...',
-          })
-
-          if (data?.redirectTo) {
-            router.push(data?.redirectTo)
-          }
-        } else {
-          toast.success(`Successfully created ${input.name} service`)
+        if (data.redirectUrl) {
+          router.push(data?.redirectUrl)
         }
-
+        toast.success(`Successfully created ${input.name} service`)
         setOpen(false)
       }
     },
@@ -157,7 +151,7 @@ const CreateService = ({ server }: { server: Server }) => {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className='w-full space-y-8'>
+              className='w-full space-y-6'>
               <FormField
                 control={form.control}
                 name='name'
@@ -224,7 +218,20 @@ const CreateService = ({ server }: { server: Server }) => {
                             <SelectValue placeholder='Select a type' />
                           </SelectTrigger>
                         </FormControl>
+
                         <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel className='mb-2 inline-block w-[calc(var(--radix-select-trigger-width)-16px)] text-wrap font-normal'>
+                              To deploy database which are disabled, please
+                              enable appropriate plugin on{' '}
+                              <Link
+                                className='text-primary underline'
+                                href={`/settings/servers/${server.id}/general`}>
+                                server
+                              </Link>
+                            </SelectLabel>
+                          </SelectGroup>
+
                           {databaseOptions.map(
                             ({ label, value, icon: Icon }) => {
                               const optionDisabled =
@@ -245,17 +252,6 @@ const CreateService = ({ server }: { server: Server }) => {
                                       {label}
                                     </span>
                                   </SelectItem>
-
-                                  {optionDisabled && (
-                                    <p className='px-2 text-sm'>
-                                      {`To use ${label} install/enable ${value}-plugin at `}
-                                      <Link
-                                        className='text-primary underline'
-                                        href={`/settings/servers/${server.id}/general`}>
-                                        server-page
-                                      </Link>
-                                    </p>
-                                  )}
                                 </Fragment>
                               )
                             },

@@ -6,6 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -40,21 +41,18 @@ import {
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-// Using same form for create & update operations
-const CreateServer = ({
+export const CreateServerForm = ({
   sshKeys,
-  title = 'Add Server',
-  description = 'This will add a new server',
   type = 'create',
   server,
 }: {
   sshKeys: SshKey[]
   type?: 'create' | 'update'
-  title?: string
-  description?: string
   server?: ServerType
 }) => {
-  const [open, setOpen] = useState(false)
+  const pathName = usePathname()
+  const router = useRouter()
+
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
     defaultValues: server
@@ -85,8 +83,11 @@ const CreateServer = ({
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Successfully created ${input.name} service`)
-          setOpen(false)
+          // setOpen(false)
           form.reset()
+          if (pathName.includes('onboarding')) {
+            router.push('/onboarding/dokku-install')
+          }
         }
       },
       onError: ({ error }) => {
@@ -101,7 +102,7 @@ const CreateServer = ({
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Successfully updated ${input.name} service`)
-          setOpen(false)
+          // setOpen(false)
           form.reset()
         }
       },
@@ -119,6 +120,145 @@ const CreateServer = ({
       updateService({ ...values, id: server.id })
     }
   }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+        <FormField
+          control={form.control}
+          name='name'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input {...field} className='rounded-sm' />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='description'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='sshKey'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>SSH key</FormLabel>
+
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select a SSH key' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {sshKeys.map(({ name, id }) => (
+                    <SelectItem key={id} value={id}>
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='ip'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>IP Address</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className='grid grid-cols-2 gap-4'>
+          <FormField
+            control={form.control}
+            name='port'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Port</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    {...field}
+                    onChange={e => {
+                      form.setValue('port', +e.target.value, {
+                        shouldValidate: true,
+                      })
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='username'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <DialogFooter>
+          <Button
+            type='submit'
+            disabled={isCreatingService || isUpdatingService}
+            className='mt-6'>
+            {type === 'create' ? 'Add Server' : 'Update Server'}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  )
+}
+
+// Using same form for create & update operations
+const CreateServer = ({
+  sshKeys,
+  title = 'Add Server',
+  description = 'This will add a new server',
+  type = 'create',
+  server,
+}: {
+  sshKeys: SshKey[]
+  type?: 'create' | 'update'
+  title?: string
+  description?: string
+  server?: ServerType
+}) => {
+  const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -146,128 +286,7 @@ const CreateServer = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className='w-full space-y-8'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='description'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='sshKey'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>SSH key</FormLabel>
-
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select a SSH key' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {sshKeys.map(({ name, id }) => (
-                        <SelectItem key={id} value={id}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='ip'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>IP Address</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className='grid grid-cols-2 gap-4'>
-              <FormField
-                control={form.control}
-                name='port'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Port</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        {...field}
-                        onChange={e => {
-                          form.setValue('port', +e.target.value, {
-                            shouldValidate: true,
-                          })
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='username'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <DialogFooter>
-              <Button
-                type='submit'
-                disabled={isCreatingService || isUpdatingService}>
-                {type === 'create' ? 'Add Server' : 'Update Server'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+        <CreateServerForm sshKeys={sshKeys} server={server} type={type} />
       </DialogContent>
     </Dialog>
   )

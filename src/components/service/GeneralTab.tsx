@@ -1,12 +1,13 @@
 import Loader from '../Loader'
 import configPromise from '@payload-config'
+import { TriangleAlert } from 'lucide-react'
 import { getPayload } from 'payload'
 
+// import BuildTypeForm from './BuildTypeForm'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Service } from '@/payload-types'
 
-// import BuildTypeForm from './BuildTypeForm'
 import DatabaseForm from './DatabaseForm'
-import DeploymentForm from './DeploymentForm'
 import ProviderForm from './ProviderForm'
 
 const AppComponent = async ({ service }: { service: Service }) => {
@@ -19,7 +20,18 @@ const AppComponent = async ({ service }: { service: Service }) => {
 
   return (
     <div className='space-y-4'>
-      <DeploymentForm service={service} />
+      <Alert variant='info'>
+        <TriangleAlert className='h-4 w-4' />
+
+        <AlertTitle>We currently support Dockerfile deployments</AlertTitle>
+        <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
+          <p>
+            We&apos;re actively working on adding support for buildpack-based
+            deployments—stay tuned!
+          </p>
+        </AlertDescription>
+      </Alert>
+
       <ProviderForm service={service} gitProviders={gitProviders} />
       {/* <BuildTypeForm service={service} /> */}
     </div>
@@ -29,7 +41,6 @@ const AppComponent = async ({ service }: { service: Service }) => {
 const DatabaseComponent = ({ service }: { service: Service }) => {
   return (
     <div className='space-y-4'>
-      <DeploymentForm service={service} />
       <DatabaseForm service={service} />
     </div>
   )
@@ -45,7 +56,6 @@ const DockerComponent = async ({ service }: { service: Service }) => {
 
   return (
     <div className='space-y-4'>
-      <DeploymentForm service={service} />
       <ProviderForm service={service} gitProviders={gitProviders} />
     </div>
   )

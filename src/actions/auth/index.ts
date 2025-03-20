@@ -43,6 +43,10 @@ export const signInAction = publicClient
       path: '/',
     })
 
+    if (!user.onboarded) {
+      redirect('/onboarding')
+    }
+
     if (user) {
       redirect('/dashboard')
     }
@@ -60,6 +64,7 @@ export const signUpAction = publicClient
       data: {
         email,
         password,
+        onboarded: false,
       },
     })
 

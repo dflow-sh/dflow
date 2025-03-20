@@ -4,12 +4,12 @@ import { Dokku, Linux, Ubuntu } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { Download, Server, Trash2, TriangleAlert } from 'lucide-react'
+import { HardDrive, Trash2, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
 
-import { deleteServerAction, installDokkuAction } from '@/actions/server'
+import { deleteServerAction } from '@/actions/server'
 import {
   Accordion,
   AccordionContent,
@@ -32,7 +32,6 @@ import {
 import { supportedLinuxVersions } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
-import { useTerminal } from '@/providers/ServerTerminalProvider'
 
 import UpdateServer from './CreateServerForm'
 
@@ -43,10 +42,6 @@ const serverType: {
 }
 
 const ServerStatus = ({ server }: { server: ServerType }) => {
-  const { execute, isPending } = useAction(installDokkuAction)
-  const sshKey =
-    typeof server.sshKey === 'object' ? server.sshKey.privateKey : null
-  const { setOpen } = useTerminal()
   const { os } = server
   const ServerTypeIcon = serverType[os.type ?? ''] ?? Linux
 
@@ -67,31 +62,6 @@ const ServerStatus = ({ server }: { server: ServerType }) => {
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-    )
-  }
-
-  if (server.version === 'not-installed') {
-    return (
-      <Button
-        variant='outline'
-        disabled={isPending || !sshKey}
-        onClick={e => {
-          e.stopPropagation()
-
-          if (sshKey) {
-            execute({
-              host: server.ip,
-              port: server.port,
-              privateKey: sshKey,
-              username: server.username,
-              serverId: server.id,
-            })
-            setOpen(true)
-          }
-        }}>
-        <Download />
-        {isPending ? 'Installing...' : 'Install Dokku'}
-      </Button>
     )
   }
 
@@ -120,31 +90,27 @@ const ServerStatus = ({ server }: { server: ServerType }) => {
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center gap-6 font-normal'>
       {os.version && (
-        <div
-          role='status'
-          className='flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.75rem]'>
+        <div role='status' className='flex items-center gap-1.5 text-[0.75rem]'>
           <ServerTypeIcon className='size-5' />
-
           <span>{os.version}</span>
         </div>
       )}
 
-      <div className='flex items-center gap-1.5 rounded-full border border-cyan-900 bg-cyan-100 px-3 py-1 text-[0.75rem] text-cyan-900'>
+      <div className='flex items-center gap-1.5 text-[0.75rem]'>
         <Dokku />
-
         <span>{`v${server.version}`}</span>
       </div>
     </div>
   )
 }
 
-const ServerList = ({
-  servers,
+const ServerItem = ({
+  server,
   sshKeys,
 }: {
-  servers: ServerType[]
+  server: ServerType
   sshKeys: SshKey[]
 }) => {
   const { execute, isPending } = useAction(deleteServerAction, {
@@ -159,93 +125,108 @@ const ServerList = ({
   })
 
   return (
-    <Accordion type='single' collapsible className='w-full'>
-      {servers.map(item => (
-        <AccordionItem value={item.id} key={item.id} className='py-2'>
-          <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
-            <div className='flex w-full items-center justify-between pr-2'>
-              <div className='flex gap-3'>
-                <Server
-                  size={16}
-                  strokeWidth={2}
-                  className='mt-1 shrink-0 text-muted-foreground'
-                  aria-hidden='true'
-                />
+    <AccordionItem value={server.id} className='border-b-0 py-2'>
+      <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
+        <div className='flex w-full items-center justify-between pr-2'>
+          <div className='flex gap-3'>
+            <HardDrive
+              size={16}
+              className='mt-1 shrink-0 text-muted-foreground'
+              aria-hidden='true'
+            />
 
-                <div>
-                  <div className='space-x-2'>
-                    <span>{item.name}</span>
-                  </div>
-
-                  <p className='text-sm font-normal text-muted-foreground'>
-                    {item.description}
-                  </p>
-                </div>
+            <div>
+              <div className='space-x-2'>
+                <span>{server.name}</span>
               </div>
 
-              <ServerStatus server={item} />
+              <p className='text-sm font-normal text-muted-foreground'>
+                {server.description}
+              </p>
             </div>
-          </AccordionTrigger>
+          </div>
 
-          <AccordionContent className='space-y-4 pb-2 ps-7'>
-            <div className='space-y-1'>
-              <Label>IP Address</Label>
-              <Input disabled value={item.ip} />
-            </div>
+          <ServerStatus server={server} />
+        </div>
+      </AccordionTrigger>
 
-            <div className='grid grid-cols-2 gap-2'>
-              <div className='space-y-1'>
-                <Label>Port</Label>
-                <Input disabled value={item.port} />
-              </div>
+      <AccordionContent className='space-y-4 pb-2 ps-7'>
+        <div className='space-y-1'>
+          <Label>IP Address</Label>
+          <Input disabled value={server.ip} />
+        </div>
 
-              <div className='space-y-1'>
-                <Label>Username</Label>
-                <Input disabled value={item.username} />
-              </div>
-            </div>
+        <div className='grid grid-cols-2 gap-2'>
+          <div className='space-y-1'>
+            <Label>Port</Label>
+            <Input disabled value={server.port} />
+          </div>
 
-            {typeof item.sshKey === 'object' && (
-              <div className='space-y-1'>
-                <Label className='block'>SSH Key</Label>
+          <div className='space-y-1'>
+            <Label>Username</Label>
+            <Input disabled value={server.username} />
+          </div>
+        </div>
 
-                <Select disabled value={item.sshKey.id}>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a SSH key' />
-                  </SelectTrigger>
+        {typeof server.sshKey === 'object' && (
+          <div className='space-y-1'>
+            <Label className='block'>SSH Key</Label>
 
-                  <SelectContent>
-                    {sshKeys.map(({ name, id }) => (
-                      <SelectItem key={id} value={id}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <Select disabled value={server.sshKey.id}>
+              <SelectTrigger>
+                <SelectValue placeholder='Select a SSH key' />
+              </SelectTrigger>
 
-            <div className='flex w-full justify-end gap-3'>
-              <UpdateServer
-                sshKeys={sshKeys}
-                type='update'
-                title='Update Server'
-                server={item}
-                description='Update the server-details'
-              />
+              <SelectContent>
+                {sshKeys.map(({ name, id }) => (
+                  <SelectItem key={id} value={id}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-              <Button
-                variant='destructive'
-                disabled={isPending}
-                onClick={() => {
-                  execute({ id: item.id })
-                }}>
-                <Trash2 />
-                Delete
-              </Button>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+        <div className='flex w-full justify-end gap-3'>
+          <UpdateServer
+            sshKeys={sshKeys}
+            type='update'
+            title='Update Server'
+            server={server}
+            description='Update the server-details'
+          />
+
+          <Button
+            variant='destructive'
+            disabled={isPending}
+            onClick={() => {
+              execute({ id: server.id })
+            }}>
+            <Trash2 />
+            Delete
+          </Button>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  )
+}
+
+const ServerList = ({
+  servers,
+  sshKeys,
+}: {
+  servers: ServerType[]
+  sshKeys: SshKey[]
+}) => {
+  return (
+    <Accordion type='single' collapsible className='w-full divide-y-[1px]'>
+      {servers.map(serverDetails => (
+        <ServerItem
+          server={serverDetails}
+          key={serverDetails.id}
+          sshKeys={sshKeys}
+        />
       ))}
     </Accordion>
   )

@@ -28,6 +28,10 @@ const pluginFields: Field[] = [
     ],
     required: true,
   },
+  {
+    name: 'configuration',
+    type: 'json',
+  },
 ]
 
 export const Servers: CollectionConfig = {
@@ -43,7 +47,7 @@ export const Servers: CollectionConfig = {
     create: () => true,
     read: () => true,
     update: () => true,
-    delete: () => false,
+    delete: () => true,
   },
   hooks: {
     afterRead: [populateDokkuVersion],

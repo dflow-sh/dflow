@@ -1,9 +1,12 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
+import { Server } from '@/payload-types'
 
 interface QueueArgs {
   sshDetails: {
@@ -17,8 +20,9 @@ interface QueueArgs {
     enabled: boolean
     name: string
   }
-  serviceDetails: {
+  serverDetails: {
     id: string
+    previousPlugins: Server['plugins']
   }
   payloadToken: string | undefined
 }
@@ -32,14 +36,16 @@ export const togglePluginQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, pluginDetails, payloadToken, serviceDetails } = job.data
+    const { sshDetails, pluginDetails, payloadToken, serverDetails } = job.data
+    const { previousPlugins = [] } = serverDetails
+    let ssh: NodeSSH | null = null
 
     if (!payloadToken) {
       console.warn('Payload token is missing!', payloadToken)
     }
 
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      ssh = await dynamicSSH(sshDetails)
 
       const pluginStatusResponse = await dokku.plugin.toggle({
         enabled: pluginDetails.enabled,
@@ -47,45 +53,79 @@ const worker = new Worker<QueueArgs>(
         ssh,
         options: {
           onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         },
       })
 
       if (pluginStatusResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
-        )
+        await sendEvent({
+          pub,
+          message: `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
+          serverId: serverDetails.id,
+        })
 
-        await pub.publish('my-channel', `Syncing changes...`)
+        await sendEvent({
+          pub,
+          message: `Syncing changes...`,
+          serverId: serverDetails.id,
+        })
 
         const pluginsResponse = await dokku.plugin.list(ssh)
+
+        const filteredPlugins = pluginsResponse.plugins.map(plugin => {
+          const previousPluginDetails = (previousPlugins ?? []).find(
+            previousPlugin => previousPlugin?.name === plugin?.name,
+          )
+
+          return {
+            name: plugin.name,
+            status: plugin.status
+              ? ('enabled' as const)
+              : ('disabled' as const),
+            version: plugin.version,
+            configuration:
+              previousPluginDetails?.configuration &&
+              typeof previousPluginDetails?.configuration === 'object' &&
+              !Array.isArray(previousPluginDetails?.configuration)
+                ? previousPluginDetails.configuration
+                : {},
+          }
+        })
 
         const updatePluginResponse = await payloadWebhook({
           payloadToken: `${payloadToken}`,
           data: {
             type: 'plugin.update',
             data: {
-              serverId: serviceDetails.id,
-              plugins: pluginsResponse.plugins.map(plugin => ({
-                name: plugin.name,
-                status: plugin.status ? 'enabled' : 'disabled',
-                version: plugin.version,
-              })),
+              serverId: serverDetails.id,
+              plugins: filteredPlugins,
             },
           },
         })
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       }
-
-      ssh.dispose()
     } catch (error) {
-      throw error // Re-throw to trigger the failed event
+      const message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ failed to ${pluginDetails?.enabled ? 'enable' : 'disable'} ${pluginDetails?.name} plugin: ${message}`,
+      )
+    } finally {
+      if (ssh) {
+        ssh.dispose()
+      }
     }
   },
   {
@@ -95,19 +135,23 @@ const worker = new Worker<QueueArgs>(
   },
 )
 
-worker.on('completed', job => {})
-
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  const pluginDetails = job?.data?.pluginDetails
   console.log('Failed to toggle plugin', err)
 
-  await pub.publish(
-    'my-channel',
-    `❌ failed to ${pluginDetails?.enabled ? 'enable' : 'disable'} ${pluginDetails?.name} plugin`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
-// Add more event handlers for better debugging
-worker.on('error', err => {})
+export const addTogglePluginQueue = async (data: QueueArgs) => {
+  const id = `toggle-${data.pluginDetails.name}-${data.pluginDetails.enabled}:${new Date().getTime()}`
 
-worker.on('active', job => {})
+  return await togglePluginQueue.add(id, data, {
+    jobId: id,
+    ...jobOptions,
+  })
+}

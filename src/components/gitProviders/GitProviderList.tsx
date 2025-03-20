@@ -30,7 +30,7 @@ const GithubCard = ({ provider }: { provider: GitProvider }) => {
         <div className='flex items-center gap-4'>
           {!provider?.github?.installationId && (
             <Link
-              href={`${provider.github?.appUrl}/installations/new?state=gh_install:${provider.id}`}>
+              href={`${provider.github?.appUrl}/installations/new?state=gh_install:${provider.id}:onboarding`}>
               <Download size={20} />
             </Link>
           )}

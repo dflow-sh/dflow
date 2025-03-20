@@ -56,7 +56,7 @@ const SignUpForm: React.FC = () => {
         <h1 className='mb-6 text-3xl font-semibold'>Sign Up</h1>
 
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
             <FormField
               control={form.control}
               name={'email'}

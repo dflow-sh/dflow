@@ -11,12 +11,17 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Deployment } from '@/payload-types'
-import { useTerminal } from '@/providers/ServerTerminalProvider'
+
+import DeploymentTerminal from './DeploymentTerminal'
 
 const DeploymentList = ({
   deployments,
+  serverId,
+  serviceId,
 }: {
   deployments: (string | Deployment)[]
+  serviceId: string
+  serverId: string
 }) => {
   const statusColors: { [key in Deployment['status']]: string } = {
     success: 'bg-green-300 text-green-900',
@@ -24,7 +29,6 @@ const DeploymentList = ({
     failed: 'bg-red-300 text-red-900',
     queued: 'bg-yellow-300 text-yellow-900',
   }
-  const { setOpen } = useTerminal()
 
   const filteredDeployments = deployments.filter(
     deployment => typeof deployment !== 'string',
@@ -69,15 +73,12 @@ const DeploymentList = ({
                   </div>
                 </div>
 
-                {status === 'building' && (
-                  <Button
-                    variant='outline'
-                    onClick={() => {
-                      setOpen(true)
-                    }}>
-                    View Logs
-                  </Button>
-                )}
+                <DeploymentTerminal
+                  deployment={deploymentDetails}
+                  serverId={serverId}
+                  serviceId={serviceId}>
+                  <Button variant='outline'>View Logs</Button>
+                </DeploymentTerminal>
               </CardContent>
             </Card>
           )

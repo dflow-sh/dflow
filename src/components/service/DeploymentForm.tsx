@@ -1,9 +1,9 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Ban, RefreshCcw } from 'lucide-react'
+import { Ban, RefreshCcw, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
@@ -12,12 +12,17 @@ import { Service } from '@/payload-types'
 
 const DeploymentForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
+  const router = useRouter()
   const { execute, isPending } = useAction(createDeploymentAction, {
     onSuccess: ({ data }) => {
       if (data) {
         toast.info('Deployment Queued', {
           description: 'Added service to deployment queue',
         })
+
+        if (data?.redirectURL) {
+          router.push(data?.redirectURL)
+        }
       }
     },
     onError: ({ error }) => {
@@ -30,7 +35,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     restartServiceAction,
     {
       onSuccess: ({ data }) => {
-        if (data) {
+        if (data?.success) {
           toast.info('Added to queue', {
             description: `Added restarting ${service.type === 'database' ? 'database' : 'app'} to queue`,
           })
@@ -53,19 +58,17 @@ const DeploymentForm = ({ service }: { service: Service }) => {
   )
 
   return (
-    <div className='space-y-4 rounded bg-muted/30 p-4'>
-      <h3 className='text-lg font-semibold'>Deploy Settings</h3>
+    <div className='mt-6 flex gap-x-2 md:mt-0'>
+      <Button
+        disabled={isPending}
+        onClick={() => {
+          execute({ serviceId: params.serviceId, projectId: params.id })
+        }}>
+        <Rocket />
+        Deploy
+      </Button>
 
-      <div className='flex w-full gap-2'>
-        <Button
-          disabled={isPending}
-          onClick={() => {
-            execute({ serviceId: params.serviceId, projectId: params.id })
-          }}>
-          Deploy
-        </Button>
-
-        {/* <Button
+      {/* <Button
           disabled={isRestartingService}
           variant='outline'
           onClick={() => {
@@ -75,26 +78,25 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           Rebuild
         </Button> */}
 
-        <Button
-          disabled={isRestartingService}
-          variant='secondary'
-          onClick={() => {
-            restartService({ id: service.id })
-          }}>
-          <RefreshCcw />
-          Restart
-        </Button>
+      <Button
+        disabled={isRestartingService}
+        variant='secondary'
+        onClick={() => {
+          restartService({ id: service.id })
+        }}>
+        <RefreshCcw />
+        Restart
+      </Button>
 
-        <Button
-          disabled={isStoppingServer}
-          onClick={() => {
-            stopServer({ id: service.id })
-          }}
-          variant='destructive'>
-          <Ban />
-          Stop
-        </Button>
-      </div>
+      <Button
+        disabled={isStoppingServer}
+        onClick={() => {
+          stopServer({ id: service.id })
+        }}
+        variant='destructive'>
+        <Ban />
+        Stop
+      </Button>
     </div>
   )
 }

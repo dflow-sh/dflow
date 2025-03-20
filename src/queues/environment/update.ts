@@ -1,10 +1,12 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 const queueName = 'update-environment-variables'
 
@@ -25,6 +27,9 @@ interface QueueArgs {
     environmentVariables: Record<string, string>
     noRestart: boolean
   }
+  serverDetails: {
+    id: string
+  }
 }
 
 const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
@@ -34,61 +39,88 @@ const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, serviceDetails } = job.data
+    const { sshDetails, serviceDetails, serverDetails } = job.data
+    let ssh: NodeSSH | null = null
 
     console.log(
       `starting updateEnvironmentVariables queue database for service: ${serviceDetails.name}`,
     )
 
-    const ssh = await dynamicSSH(sshDetails)
+    try {
+      ssh = await dynamicSSH(sshDetails)
 
-    const appResponse = await dokku.apps.list(ssh)
+      const appResponse = await dokku.apps.list(ssh)
 
-    if (appResponse.includes(serviceDetails.name)) {
-      const envResponse = await dokku.config.set({
-        ssh,
-        name: serviceDetails.name,
-        values: Object.entries(serviceDetails.environmentVariables).map(
-          ([key, value]) => ({
-            key,
-            value: value as string,
-          }),
-        ),
-        noRestart: serviceDetails.noRestart,
-        options: {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
+      if (appResponse.includes(serviceDetails.name)) {
+        const envResponse = await dokku.config.set({
+          ssh,
+          name: serviceDetails.name,
+          values: Object.entries(serviceDetails.environmentVariables).map(
+            ([key, value]) => ({
+              key,
+              value: `${value}`,
+            }),
+          ),
+          noRestart: serviceDetails.noRestart,
+          options: {
+            onStdout: async chunk => {
+              console.info(chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+            onStderr: async chunk => {
+              console.info(chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
           },
-          onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
-        },
-      })
+        })
 
-      if (envResponse) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully updated environment variables for ${serviceDetails.name}`,
-        )
+        if (envResponse) {
+          await sendEvent({
+            pub,
+            message: `✅ Successfully updated environment variables for ${serviceDetails.name}`,
+            serverId: serverDetails.id,
+          })
 
-        await pub.publish('my-channel', `Syncing details...`)
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+          await sendEvent({
+            pub,
+            message: `Syncing details...`,
+            serverId: serverDetails.id,
+          })
+
+          await pub.publish(
+            'refresh-channel',
+            JSON.stringify({ refresh: true }),
+          )
+        } else {
+          await sendEvent({
+            pub,
+            message: `❌ Failed update environment variables for ${serviceDetails.name}`,
+            serverId: serverDetails.id,
+          })
+        }
       } else {
-        await pub.publish(
-          'my-channel',
-          `❌ Failed update environment variables for ${serviceDetails.name}`,
-        )
+        await sendEvent({
+          pub,
+          message: `❌ Failed to update environment variables for ${serviceDetails.name}. App not found`,
+          serverId: serverDetails.id,
+        })
       }
-    } else {
-      await pub.publish(
-        'my-channel',
-        `❌ Failed to update environment variables for ${serviceDetails.name}. App not found`,
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ Failed update environment variables for ${serviceDetails?.name}: ${message}`,
       )
+    } finally {
+      ssh?.dispose()
     }
-
-    ssh.dispose()
   },
   { connection: queueConnection },
 )
@@ -96,12 +128,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to stop database', err)
 
-  const serviceDetails = job?.data?.serviceDetails
-
-  await pub.publish(
-    'my-channel',
-    `❌ Failed update environment variables for ${serviceDetails?.name}`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) =>

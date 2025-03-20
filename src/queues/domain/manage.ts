@@ -1,9 +1,10 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
-import { SSHExecCommandResponse } from 'node-ssh'
+import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 
-import { pub, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 
 const queueName = 'manage-service-domain'
 
@@ -21,6 +22,9 @@ interface QueueArgs {
     certificateType: 'letsencrypt' | 'none'
     autoRegenerateSSL: boolean
   }
+  serverDetails: {
+    id: string
+  }
 }
 
 const operation = {
@@ -36,112 +40,155 @@ const manageServiceDomainQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails } = job.data
+    const { sshDetails, serverDetails } = job.data
     const { domain, name, action, certificateType } = job.data.serviceDetails
+    let ssh: NodeSSH | null = null
 
-    const ssh = await dynamicSSH(sshDetails)
+    try {
+      ssh = await dynamicSSH(sshDetails)
 
-    let executionResponse: SSHExecCommandResponse = {
-      code: -1,
-      signal: null,
-      stdout: '',
-      stderr: '',
-    }
+      let executionResponse: SSHExecCommandResponse = {
+        code: -1,
+        signal: null,
+        stdout: '',
+        stderr: '',
+      }
 
-    switch (action) {
-      case 'add':
-        executionResponse = await dokku.domains.add(ssh, name, domain, {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
-          onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info({
-              addGlobalDomainLogs: {
+      switch (action) {
+        case 'add':
+          executionResponse = await dokku.domains.add(ssh, name, domain, {
+            onStdout: async chunk => {
+              console.info(chunk.toString())
+              await sendEvent({
+                pub,
                 message: chunk.toString(),
-                type: 'stdout',
-              },
+                serverId: serverDetails.id,
+              })
+            },
+            onStderr: async chunk => {
+              console.info({
+                addGlobalDomainLogs: {
+                  message: chunk.toString(),
+                  type: 'stdout',
+                },
+              })
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+          })
+          break
+        case 'remove':
+          executionResponse = await dokku.domains.remove(ssh, name, domain, {
+            onStdout: async chunk => {
+              console.info(chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+            onStderr: async chunk => {
+              console.info({
+                removeGlobalDomainLogs: {
+                  message: chunk.toString(),
+                  type: 'stdout',
+                },
+              })
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+          })
+          break
+        case 'set':
+          executionResponse = await dokku.domains.set(ssh, name, domain, {
+            onStdout: async chunk => {
+              console.info(chunk.toString())
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+            onStderr: async chunk => {
+              console.info({
+                setGlobalDomainLogs: {
+                  message: chunk.toString(),
+                  type: 'stdout',
+                },
+              })
+              await sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+            },
+          })
+          break
+        default:
+          break
+      }
+
+      if (executionResponse.code === 0) {
+        await sendEvent({
+          pub,
+          message: `✅ Successfully ${operation[action]} domain ${domain}`,
+          serverId: serverDetails.id,
+        })
+      }
+
+      if (certificateType === 'letsencrypt') {
+        await sendEvent({
+          pub,
+          message: `Started adding SSL Certificate to domain ${domain}`,
+          serverId: serverDetails.id,
+        })
+
+        const letsencryptResponse = await dokku.letsencrypt.enable(ssh, name, {
+          onStdout: async chunk => {
+            console.info(chunk.toString())
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
             })
           },
-        })
-        break
-      case 'remove':
-        executionResponse = await dokku.domains.remove(ssh, name, domain, {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
           onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info({
-              removeGlobalDomainLogs: {
-                message: chunk.toString(),
-                type: 'stdout',
-              },
-            })
-          },
-        })
-        break
-      case 'set':
-        executionResponse = await dokku.domains.set(ssh, name, domain, {
-          onStdout: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
-            console.info(chunk.toString())
-          },
-          onStderr: async chunk => {
-            await pub.publish('my-channel', chunk.toString())
             console.info({
               setGlobalDomainLogs: {
                 message: chunk.toString(),
                 type: 'stdout',
               },
             })
+            await sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
           },
         })
-        break
-      default:
-        break
-    }
 
-    if (executionResponse.code === 0) {
-      await pub.publish(
-        'my-channel',
-        `✅ Successfully ${operation[action]} domain ${domain}`,
-      )
-    }
-
-    if (certificateType === 'letsencrypt') {
-      await pub.publish(
-        'my-channel',
-        `Started adding SSL Certificate to domain ${domain}`,
-      )
-
-      const letsencryptResponse = await dokku.letsencrypt.enable(ssh, name, {
-        onStdout: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-          console.info(chunk.toString())
-        },
-        onStderr: async chunk => {
-          await pub.publish('my-channel', chunk.toString())
-          console.info({
-            setGlobalDomainLogs: {
-              message: chunk.toString(),
-              type: 'stdout',
-            },
+        if (letsencryptResponse.code === 0) {
+          await sendEvent({
+            pub,
+            message: `✅ Successfully added SSL Certificate to domain ${domain}`,
+            serverId: serverDetails.id,
           })
-        },
-      })
-
-      if (letsencryptResponse.code === 0) {
-        await pub.publish(
-          'my-channel',
-          `✅ Successfully added SSL Certificate to domain ${domain}`,
-        )
+        }
       }
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(
+        `❌ Failed ${operation[action]} domain ${domain}: ${message}`,
+      )
+    } finally {
+      ssh?.dispose()
     }
-
-    ssh.dispose()
   },
   { connection: queueConnection },
 )
@@ -149,13 +196,19 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed during service-domain operation', err)
 
-  const serverDetails = job?.data?.serviceDetails
-
-  await pub.publish(
-    'my-channel',
-    `Failed ${operation[serverDetails?.action!]} domain ${serverDetails?.domain}`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
-export const addManageServiceDomainQueue = async (data: QueueArgs) =>
-  await manageServiceDomainQueue.add(queueName, data)
+export const addManageServiceDomainQueue = async (data: QueueArgs) => {
+  const id = `manage-domain-${data.serviceDetails.domain}:${new Date().getTime()}`
+  return await manageServiceDomainQueue.add(id, data, {
+    ...jobOptions,
+    jobId: id,
+  })
+}

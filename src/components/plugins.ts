@@ -6,6 +6,7 @@ export type PluginListType = {
   value: z.infer<typeof supportedPluginsSchema>
   githubURL: string
   category: 'database' | 'domain' | 'messageQueue'
+  hasConfig?: boolean
 }
 
 export const pluginList: PluginListType[] = [
@@ -33,6 +34,7 @@ export const pluginList: PluginListType[] = [
     category: 'domain',
     value: 'letsencrypt',
     githubURL: 'https://github.com/dokku/dokku-letsencrypt.git',
+    hasConfig: true,
   },
   {
     category: 'messageQueue',

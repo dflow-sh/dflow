@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { signInAction } from '@/actions/auth'
@@ -26,7 +27,11 @@ const SignInForm: React.FC = () => {
     hasSucceeded: isSuccess,
     hasErrored: isError,
     result,
-  } = useAction(signInAction)
+  } = useAction(signInAction, {
+    onError: ({ error }) => {
+      toast.error(`Failed to sign in: ${error.serverError}`, { duration: 5000 })
+    },
+  })
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -52,7 +57,7 @@ const SignInForm: React.FC = () => {
           <h1 className='mb-6 text-3xl font-semibold'>Sign In</h1>
 
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
               <FormField
                 control={form.control}
                 name={'email'}

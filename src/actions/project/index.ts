@@ -5,6 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { publicClient } from '@/lib/safe-action'
+import { ServerType } from '@/payload-types-overrides'
+import { addDestroyApplicationQueue } from '@/queues/app/destroy'
+import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 
 import {
   createProjectSchema,
@@ -23,6 +26,19 @@ export const createProjectAction = publicClient
   .schema(createProjectSchema)
   .action(async ({ clientInput }) => {
     const { name, description, serverId } = clientInput
+
+    // Fetching the server details before creating the project
+    const { version } = (await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      context: {
+        populateServerDetails: true,
+      },
+    })) as ServerType
+
+    if (!version || version === 'not-installed') {
+      throw new Error('Dokku is not installed!')
+    }
 
     const response = await payload.create({
       collection: 'projects',
@@ -71,12 +87,90 @@ export const deleteProjectAction = publicClient
   .action(async ({ clientInput }) => {
     const { id } = clientInput
 
-    const response = await payload.delete({
+    console.log("I'm inside a project deletion")
+
+    // Fetching all services of project
+    const { server, services } = await payload.findByID({
       collection: 'projects',
-      id,
+      id: id,
+      depth: 10,
+      joins: {
+        services: {
+          limit: 1000,
+        },
+      },
     })
 
-    if (response) {
+    const servicesList = services?.docs?.filter(
+      service => typeof service === 'object',
+    )
+
+    console.dir({ services, server }, { depth: Infinity })
+
+    if (
+      servicesList &&
+      typeof server === 'object' &&
+      typeof server.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: server.sshKey?.privateKey,
+        host: server?.ip,
+        username: server?.username,
+        port: server?.port,
+      }
+
+      // iterating in loop and adding deleting of services to queue
+      for await (const service of servicesList) {
+        let queueId: string | undefined = ''
+
+        // adding deleting of app to queue
+        if (service.type === 'app' || service.type === 'docker') {
+          const appQueueResponse = await addDestroyApplicationQueue({
+            sshDetails,
+            serviceDetails: {
+              name: service.name,
+            },
+            serverDetails: {
+              id: server.id,
+            },
+          })
+
+          queueId = appQueueResponse.id
+        }
+
+        // adding deleting of database to queue
+        if (service.type === 'database' && service.databaseDetails?.type) {
+          const databaseQueueResponse = await addDestroyDatabaseQueue({
+            databaseName: service.name,
+            databaseType: service.databaseDetails?.type,
+            sshDetails,
+            serverDetails: {
+              id: server.id,
+            },
+          })
+
+          queueId = databaseQueueResponse.id
+        }
+
+        console.log('service with queue-id', { service, queueId })
+
+        // If deleting of service is added to queue, deleting the payload entry
+        if (queueId) {
+          await payload.delete({
+            collection: 'services',
+            id: service.id,
+          })
+        }
+      }
+    }
+
+    const deleteProjectResponse = await payload.delete({
+      collection: 'projects',
+      id,
+      depth: 10,
+    })
+
+    if (deleteProjectResponse.id) {
       revalidatePath('/dashboard')
       return { deleted: true }
     }

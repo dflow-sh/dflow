@@ -4,6 +4,7 @@ import React, { JSX, SVGProps } from 'react'
 
 import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+import DeploymentForm from '@/components/service/DeploymentForm'
 import { Badge } from '@/components/ui/badge'
 import { Service } from '@/payload-types'
 
@@ -61,18 +62,25 @@ const ServiceIdLayout = async ({
       />
 
       <section>
-        <div className='mb-8'>
-          <div className='flex items-center gap-2'>
-            {Icon && <Icon className='size-6' />}
-
-            <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
-            {serviceDetails?.databaseDetails?.status && (
-              <Badge className='h-max w-max gap-1'>
-                {serviceDetails?.databaseDetails?.status}
-              </Badge>
-            )}
+        <div
+          className={`mb-6 w-full max-w-5xl md:flex md:justify-between md:gap-x-2`}>
+          <div>
+            <div className='flex items-center gap-2'>
+              {Icon && <Icon className='size-6' />}
+              <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+              {serviceDetails?.databaseDetails?.status && (
+                <Badge className='h-max w-max gap-1' variant={'outline'}>
+                  {serviceDetails?.databaseDetails?.status}
+                </Badge>
+              )}
+            </div>
+            <p
+              className='line-clamp-1 text-muted-foreground'
+              title={serviceDetails.description || undefined}>
+              {serviceDetails.description}
+            </p>
           </div>
-          <p className='text-muted-foreground'>{serviceDetails.description}</p>
+          <DeploymentForm service={{ project, ...serviceDetails }} />
         </div>
 
         <LayoutClient type={serviceDetails.type}>{children}</LayoutClient>

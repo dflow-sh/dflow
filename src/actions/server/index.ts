@@ -4,10 +4,8 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { dokku } from '@/lib/dokku'
-import { pub } from '@/lib/redis'
 import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH } from '@/lib/ssh'
+import { AddInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
@@ -65,6 +63,7 @@ export const updateServerAction = protectedClient
 
     if (response) {
       revalidatePath(`/settings/servers/${id}`)
+      revalidatePath(`/onboarding/add-server`)
     }
 
     return response
@@ -96,33 +95,29 @@ export const installDokkuAction = protectedClient
   })
   .schema(installDokkuSchema)
   .action(async ({ clientInput }) => {
-    const { host, port, privateKey, username, serverId } = clientInput
-
-    const ssh = await dynamicSSH({
-      host,
-      port,
-      privateKey,
-      username,
+    const { serverId } = clientInput
+    const serverDetails = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 10,
     })
 
-    const installationResponse = await dokku.version.install(ssh, {
-      onStdout: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        console.info(chunk.toString())
-      },
-      onStderr: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        console.info({
-          installDokkuLogs: {
-            message: chunk.toString(),
-            type: 'stdout',
-          },
-        })
-      },
-    })
+    if (typeof serverDetails.sshKey === 'object') {
+      const installationResponse = await AddInstallDokkuQueue({
+        serverDetails: {
+          id: serverId,
+        },
+        sshDetails: {
+          host: serverDetails.ip,
+          port: serverDetails.port,
+          privateKey: serverDetails.sshKey.privateKey,
+          username: serverDetails.username,
+        },
+      })
 
-    if (installationResponse.success) {
-      revalidatePath(`/settings/servers/${serverId}`)
+      if (installationResponse.id) {
+        return { success: true }
+      }
     }
   })
 
@@ -165,6 +160,7 @@ export const updateServerDomainAction = protectedClient
           domain,
           action: operation,
         },
+        id,
       },
       sshDetails: {
         host: response.ip,

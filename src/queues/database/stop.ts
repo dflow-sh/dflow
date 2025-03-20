@@ -1,11 +1,13 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
 import { parseDatabaseInfo } from '@/lib/utils'
 
 const queueName = 'stop-database'
@@ -27,6 +29,9 @@ interface QueueArgs {
   serviceDetails: {
     id: string
   }
+  serverDetails: {
+    id: string
+  }
   payloadToken: string | undefined
 }
 
@@ -43,50 +48,58 @@ const worker = new Worker<QueueArgs>(
       sshDetails,
       payloadToken,
       serviceDetails,
+      serverDetails,
     } = job.data
+
+    let ssh: NodeSSH | null = null
 
     console.log(
       `starting stopDatabase queue for ${databaseType} database called ${databaseName}`,
     )
 
-    const ssh = await dynamicSSH(sshDetails)
-    const res = await dokku.database.stop(ssh, databaseName, databaseType, {
-      onStdout: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-        // console.info(chunk.toString());
-      },
-      onStderr: async chunk => {
-        await pub.publish('my-channel', chunk.toString())
-
-        console.info({
-          createDatabaseLogs: {
-            message: chunk.toString(),
-            type: 'stdout',
-          },
-        })
-      },
-    })
-
-    const databaseInfoResponse = await dokku.database.info(
-      ssh,
-      databaseName,
-      databaseType,
-    )
-
-    await pub.publish(
-      'my-channel',
-      `✅ Successfully stopped ${databaseName}-database, updated details...`,
-    )
-
-    await pub.publish('my-channel', `Syncing details...`)
-
-    const formattedData = parseDatabaseInfo({
-      stdout: databaseInfoResponse.stdout,
-      dbType: databaseType,
-    })
-
     try {
-      const webhookResponse = await payloadWebhook({
+      ssh = await dynamicSSH(sshDetails)
+      await dokku.database.stop(ssh, databaseName, databaseType, {
+        onStdout: async chunk => {
+          await sendEvent({
+            pub,
+            message: chunk.toString(),
+            serverId: serverDetails.id,
+          })
+        },
+        onStderr: async chunk => {
+          await sendEvent({
+            pub,
+            message: chunk.toString(),
+            serverId: serverDetails.id,
+          })
+        },
+      })
+
+      const databaseInfoResponse = await dokku.database.info(
+        ssh,
+        databaseName,
+        databaseType,
+      )
+
+      await sendEvent({
+        pub,
+        message: `✅ Successfully stopped ${databaseName}-database`,
+        serverId: serverDetails.id,
+      })
+
+      await sendEvent({
+        pub,
+        message: `Syncing details...`,
+        serverId: serverDetails.id,
+      })
+
+      const formattedData = parseDatabaseInfo({
+        stdout: databaseInfoResponse.stdout,
+        dbType: databaseType,
+      })
+
+      await payloadWebhook({
         payloadToken: `${payloadToken}`,
         data: {
           type: 'database.update',
@@ -97,19 +110,13 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      console.log({ webhookResponse })
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
     } catch (error) {
-      console.log('Webhook Error: ', error)
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(`❌ Failed stop ${databaseName}-database: ${message}`)
+    } finally {
+      ssh?.dispose()
     }
-
-    const publishedResponse = await pub.publish(
-      'refresh-channel',
-      JSON.stringify({ refresh: true }),
-    )
-
-    console.dir({ res, publishedResponse }, { depth: Infinity })
-
-    ssh.dispose()
   },
   { connection: queueConnection },
 )
@@ -117,12 +124,13 @@ const worker = new Worker<QueueArgs>(
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to stop database', err)
 
-  const databaseDetails = job?.data
-
-  await pub.publish(
-    'my-channel',
-    `❌ Failed stop ${databaseDetails?.databaseName}-database`,
-  )
+  if (job?.data) {
+    await sendEvent({
+      pub,
+      message: err.message,
+      serverId: job.data.serverDetails.id,
+    })
+  }
 })
 
 export const addStopDatabaseQueue = async (data: QueueArgs) => {
