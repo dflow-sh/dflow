@@ -131,7 +131,7 @@ export function ProjectCard({
     <>
       <Link href={`/dashboard/project/${project.id}`} className='h-full'>
         <Card className='h-full min-h-36'>
-          <CardHeader className='w-full flex-row items-start justify-between'>
+          <CardHeader className='w-full flex-row items-center justify-between'>
             <div className='flex items-start gap-x-2'>
               <FolderClosed size={18} className='stroke-foreground' />
               <div>
@@ -181,7 +181,7 @@ export function ProjectCard({
             </DropdownMenu>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className='flex justify-end pb-2'>
             <Badge variant={'secondary'}>
               <div className='flex items-center gap-x-2'>
                 <HardDrive size={16} />
@@ -250,7 +250,7 @@ export function ProjectCard({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <time className='flex items-center gap-x-2 text-sm text-muted-foreground'>
+                  <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
                     <Clock size={14} />
                     {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
                   </time>

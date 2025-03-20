@@ -120,7 +120,7 @@ export function ServiceCard({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <time className='flex items-center gap-x-2 text-sm text-muted-foreground'>
+                <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
                   <Clock size={14} />
                   {`Created ${formatDistanceToNow(new Date(service.createdAt), {
                     addSuffix: true,
