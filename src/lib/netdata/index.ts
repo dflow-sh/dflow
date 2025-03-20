@@ -9,6 +9,7 @@ import * as data from './data'
 import * as functions from './functions'
 import * as management from './management'
 import * as nodes from './nodes'
+import * as system from './system'
 import * as weights from './weights'
 
 export const netdata = {
@@ -24,4 +25,5 @@ export const netdata = {
   management,
   nodes,
   weights,
+  system,
 }

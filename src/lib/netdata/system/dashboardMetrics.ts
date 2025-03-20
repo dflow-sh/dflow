@@ -1,5 +1,5 @@
-import { NetdataApiParams } from '.././types'
-import { isApiAccessible, netdataAPI } from '.././utils'
+import { NetdataApiParams } from '../types'
+import { isApiAccessible, netdataAPI } from '../utils'
 
 /**
  * Common response type for all metric functions
@@ -41,10 +41,14 @@ const getTimeSeriesData = async <T>(
   }
 
   // Build query with points parameter to limit data points
-  const query = `data?chart=${chart}&points=${dataPoints}`
+  const query = `data?chart=${chart}&points=${dataPoints}&format=json`
 
   // Fetch data
   const data = await netdataAPI(params, query)
+
+  // if (chart === 'system.ram') {
+  //   console.dir({ resultMemory: data }, { depth: null })
+  // }
 
   // Check if we have data and labels
   if (
@@ -161,11 +165,28 @@ export const getCpuTimeSeriesData = async (
 
   // Transform to match the expected format: { time: 'HH:MM', usage: number }
   const formattedData = result.data!.map((point: any) => {
-    // Calculate total CPU usage (100 - idle)
-    const usage = 100 - (point.idle || 0)
+    // Calculate CPU usage based on all available metrics except 'time' and 'idle'
+    let totalUsage = 0
+
+    // Dynamically process all available CPU states
+    for (const [key, value] of Object.entries(point)) {
+      // Skip the 'time' field and 'idle' if it exists
+      if (key !== 'time' && key !== 'idle' && typeof value === 'number') {
+        totalUsage += value
+      }
+    }
+
+    // If 'idle' is present, use it for the calculation (100 - idle)
+    if (point.idle !== undefined && typeof point.idle === 'number') {
+      totalUsage = 100 - point.idle
+    }
+
+    // Ensure the usage is within 0-100 range
+    totalUsage = Math.min(100, Math.max(0, totalUsage))
+
     return {
       time: point.time,
-      usage: parseFloat(usage.toFixed(1)),
+      usage: parseFloat(totalUsage.toFixed(1)),
     }
   })
 
@@ -189,11 +210,27 @@ export const getMemoryTimeSeriesData = async (
 
   // Transform to match the expected format: { time: 'HH:MM', usage: number }
   const formattedData = result.data!.map((point: any) => {
-    // Calculate memory usage percentage if we have total and free
+    // Calculate memory usage percentage based on the available fields
     let usagePercent = 0
-    if (point.total && point.free) {
-      const used = point.total - point.free
-      usagePercent = Math.round((used / point.total) * 100)
+
+    // Method 1: If we have both used and free fields
+    if (point.used !== undefined && point.free !== undefined) {
+      const total =
+        point.used + point.free + (point.cached || 0) + (point.buffers || 0)
+      usagePercent = Math.round((point.used / total) * 100)
+    }
+    // Method 2: If we only have the used field but no direct total
+    else if (point.used !== undefined) {
+      // Sum all memory components to get total
+      const total =
+        (point.used || 0) +
+        (point.free || 0) +
+        (point.cached || 0) +
+        (point.buffers || 0)
+
+      if (total > 0) {
+        usagePercent = Math.round((point.used / total) * 100)
+      }
     }
 
     return {
@@ -222,16 +259,32 @@ export const getNetworkTimeSeriesData = async (
 
   // Transform to match the expected format: { time: 'HH:MM', incoming: number, outgoing: number }
   const formattedData = result.data!.map((point: any) => {
-    // Convert to MB/s for better readability (assuming data is in bytes/s)
-    const incoming =
-      point.received !== undefined
-        ? parseFloat((point.received / (1024 * 1024)).toFixed(1))
-        : 0
+    // For received (incoming) traffic
+    let incoming = 0
+    if (point.received !== undefined) {
+      // Values are already in bytes/s, convert to MB/s
+      // The values appear to be very small, so they might already be in MB/s or another unit
+      // Check if value is already small (likely already in MB/s)
+      if (Math.abs(point.received) < 1000) {
+        incoming = parseFloat(Math.abs(point.received).toFixed(2))
+      } else {
+        // Convert from bytes/s to MB/s
+        incoming = parseFloat(
+          (Math.abs(point.received) / (1024 * 1024)).toFixed(2),
+        )
+      }
+    }
 
-    const outgoing =
-      point.sent !== undefined
-        ? parseFloat((point.sent / (1024 * 1024)).toFixed(1))
-        : 0
+    // For sent (outgoing) traffic - note that values are negative
+    let outgoing = 0
+    if (point.sent !== undefined) {
+      // Use absolute value since sent traffic is represented as negative
+      if (Math.abs(point.sent) < 1000) {
+        outgoing = parseFloat(Math.abs(point.sent).toFixed(2))
+      } else {
+        outgoing = parseFloat((Math.abs(point.sent) / (1024 * 1024)).toFixed(2))
+      }
+    }
 
     return {
       time: point.time,
@@ -248,41 +301,115 @@ export const getNetworkTimeSeriesData = async (
 }
 
 /**
- * Gets disk usage data in the format expected by shadcn charts
+ * Gets disk space usage data for shadcn charts
+ * This function is specifically for disk space (not I/O)
  */
-export const getDiskUsageChartData = async (
+export const getDiskSpaceChartData = async (
   params: NetdataApiParams,
 ): Promise<MetricsResponse<any[]>> => {
   // Get disk space usage
-  const diskData = await getChartData(params, 'disk_space._')
-  if (!diskData.success) return diskData as any
+  const diskSpaceData = await getTimeSeriesData(params, 'system.storage')
 
   // Format data for a pie chart
-  // Example: [{ name: 'System', value: 12 }, { name: 'Applications', value: 25 }]
-  const data = diskData.data as any
-  const formattedData = []
+  const data = diskSpaceData.data as any[]
+  let formattedData = []
 
-  // Calculate percentage used
-  if (data.avail && data.used) {
-    const total = data.avail + data.used
-    const systemPercent = Math.round((data.used / total) * 100)
-    const availPercent = 100 - systemPercent
+  if (data.length > 0) {
+    // Take the latest data point
+    const latestData = data[data.length - 1]
 
-    formattedData.push(
-      { name: 'System', value: systemPercent },
-      { name: 'Available', value: availPercent },
-    )
-  } else {
-    // If we can't get the exact data, provide sample fallback
-    formattedData.push(
-      { name: 'System', value: 50 },
-      { name: 'Available', value: 50 },
-    )
+    // Check if we have the right properties
+    if (latestData.avail !== undefined && latestData.used !== undefined) {
+      const total = latestData.avail + latestData.used
+      const usedPercent = Math.round((latestData.used / total) * 100)
+      const availPercent = 100 - usedPercent
+
+      formattedData.push(
+        { name: 'Used', value: usedPercent },
+        { name: 'Available', value: availPercent },
+      )
+    } else {
+      // Try alternative property names
+      const used = latestData.used || latestData.space_used || 0
+      const avail = latestData.avail || latestData.space_avail || 0
+
+      if (used || avail) {
+        const total = used + avail
+        const usedPercent = total ? Math.round((used / total) * 100) : 50
+        const availPercent = 100 - usedPercent
+
+        formattedData.push(
+          { name: 'Used', value: usedPercent },
+          { name: 'Available', value: availPercent },
+        )
+      } else {
+        // Fallback if we can't find appropriate metrics
+        formattedData.push(
+          { name: 'Used', value: 50 },
+          { name: 'Available', value: 50 },
+        )
+      }
+    }
   }
 
   return {
     success: true,
-    message: 'Disk usage chart data retrieved successfully',
+    message: 'Disk space usage data retrieved successfully',
+    data: formattedData,
+  }
+}
+
+/**
+ * Gets disk I/O data for shadcn charts
+ */
+export const getDiskIOChartData = async (
+  params: NetdataApiParams,
+  points: number = 24,
+): Promise<MetricsResponse<any[]>> => {
+  // Get disk I/O data
+  const diskIOData = await getTimeSeriesData(params, 'system.io', points)
+  console.dir({ diskIOData }, { depth: null })
+
+  if (!diskIOData.success) return diskIOData as any
+
+  // Transform data for time series chart
+  // Format: [{ time: 'HH:MM', reads: number, writes: number }]
+  const formattedData = diskIOData.data!.map((point: any) => {
+    // Use absolute values for reads and writes
+    // Convert to KB/s for better readability if values are large
+    let reads = 0
+    let writes = 0
+
+    if (point.reads !== undefined) {
+      reads = Math.abs(point.reads)
+      // If reads are very large, convert to KB/s
+      if (reads > 1024) {
+        reads = parseFloat((reads / 1024).toFixed(2))
+      } else {
+        reads = parseFloat(reads.toFixed(2))
+      }
+    }
+
+    if (point.writes !== undefined) {
+      writes = Math.abs(point.writes)
+      // If writes are very large, convert to KB/s
+      if (writes > 1024) {
+        writes = parseFloat((writes / 1024).toFixed(2))
+      } else {
+        writes = parseFloat(writes.toFixed(2))
+      }
+    }
+
+    return {
+      time: point.time,
+      reads,
+      writes,
+    }
+  })
+
+  return {
+    success: true,
+    message: 'Disk I/O data retrieved successfully',
     data: formattedData,
   }
 }
@@ -422,49 +549,45 @@ export const getDashboardMetrics = async (
   params: NetdataApiParams,
   points: number = 24,
 ): Promise<MetricsResponse<any>> => {
-  const [
-    cpuData,
-    memoryData,
-    networkData,
-    diskUsageData,
-    serverLoadData,
-    requestData,
-    responseTimeData,
-  ] = await Promise.all([
+  const results = await Promise.allSettled([
     getCpuTimeSeriesData(params, points),
     getMemoryTimeSeriesData(params, points),
     getNetworkTimeSeriesData(params, points),
-    getDiskUsageChartData(params),
+    getDiskSpaceChartData(params),
+    getDiskIOChartData(params, points),
     getServerLoadTimeSeriesData(params, points),
     getRequestTimeSeriesData(params, points),
     getResponseTimeSeriesData(params, points),
   ])
 
+  // Extract data from settled promises
+  const [
+    cpuData,
+    memoryData,
+    networkData,
+    diskSpaceData,
+    diskIOData,
+    serverLoadData,
+    requestData,
+    responseTimeData,
+  ] = results.map(result =>
+    result.status === 'fulfilled'
+      ? result.value
+      : { success: false, data: null },
+  )
+
   return {
     success: true,
-    message: 'All dashboard metrics retrieved successfully',
+    message: 'Dashboard metrics retrieved - some data may be unavailable',
     data: {
       cpuData: cpuData.success ? cpuData.data : null,
       memoryData: memoryData.success ? memoryData.data : null,
       networkData: networkData.success ? networkData.data : null,
-      diskUsageData: diskUsageData.success ? diskUsageData.data : null,
+      diskSpaceData: diskSpaceData.success ? diskSpaceData.data : null,
+      diskIOData: diskIOData.success ? diskIOData.data : null,
       serverLoadData: serverLoadData.success ? serverLoadData.data : null,
       requestData: requestData.success ? requestData.data : null,
       responseTimeData: responseTimeData.success ? responseTimeData.data : null,
     },
   }
 }
-
-// Export all metrics functions
-export const dashboardMetrics = {
-  getCpuTimeSeriesData,
-  getMemoryTimeSeriesData,
-  getNetworkTimeSeriesData,
-  getDiskUsageChartData,
-  getServerLoadTimeSeriesData,
-  getRequestTimeSeriesData,
-  getResponseTimeSeriesData,
-  getDashboardMetrics,
-}
-
-export default dashboardMetrics

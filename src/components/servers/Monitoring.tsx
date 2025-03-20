@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -48,128 +48,168 @@ import {
 } from '@/components/ui/chart'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { netdata } from '@/lib/netdata'
 import { ServerType } from '@/payload-types-overrides'
 
 const Monitoring = ({ server }: { server: ServerType }) => {
   const [activeTab, setActiveTab] = useState('overview')
   const router = useRouter()
 
-  // Sample data - in a real app this would come from your API
-  const serverStatus = {
-    status: 'online',
-    uptime: '99.98%',
-    lastIncident: '23 days ago',
-    activeAlerts: 2,
-  }
+  // State for server metrics
+  const [serverStatus, setServerStatus] = useState({
+    status: 'loading',
+    uptime: '--',
+    lastIncident: '--',
+    activeAlerts: 0,
+  })
 
-  const cpuData = [
-    { time: '00:00', usage: 45 },
-    { time: '01:00', usage: 32 },
-    { time: '02:00', usage: 28 },
-    { time: '03:00', usage: 25 },
-    { time: '04:00', usage: 30 },
-    { time: '05:00', usage: 42 },
-    { time: '06:00', usage: 68 },
-    { time: '07:00', usage: 75 },
-    { time: '08:00', usage: 80 },
-    { time: '09:00', usage: 85 },
-    { time: '10:00', usage: 78 },
-    { time: '11:00', usage: 72 },
-    { time: '12:00', usage: 86 },
+  const [dashboardMetrics, setDashboardMetrics] = useState({
+    cpuData: [],
+    cpuUsageDistributionData: [],
+    memoryData: [],
+    networkData: [],
+    diskSpaceData: [],
+    diskIOData: [],
+    diskVolumesData: [],
+    inodeUsageData: [],
+    serverLoadData: [],
+    requestData: [],
+    responseTimeData: [],
+  })
+
+  const {
+    cpuData,
+    cpuUsageDistributionData,
+    diskSpaceData,
+    diskIOData,
+    diskVolumesData,
+    inodeUsageData,
+    memoryData,
+    networkData,
+    requestData,
+    responseTimeData,
+    serverLoadData,
+  } = dashboardMetrics
+
+  // Disk Space Data
+  const dummyDiskSpaceData = [
+    { name: 'Used', value: 68 },
+    { name: 'Free', value: 32 },
   ]
 
-  const memoryData = [
-    { time: '00:00', usage: 55 },
-    { time: '01:00', usage: 52 },
-    { time: '02:00', usage: 48 },
-    { time: '03:00', usage: 45 },
-    { time: '04:00', usage: 50 },
-    { time: '05:00', usage: 52 },
-    { time: '06:00', usage: 58 },
-    { time: '07:00', usage: 65 },
-    { time: '08:00', usage: 70 },
-    { time: '09:00', usage: 75 },
-    { time: '10:00', usage: 78 },
-    { time: '11:00', usage: 82 },
-    { time: '12:00', usage: 76 },
+  // Disk Volumes Data
+  const dummyDiskVolumesData = [
+    { name: '/', used: 75, total: 100 },
+    { name: '/home', used: 45, total: 100 },
+    { name: '/var', used: 25, total: 50 },
+    { name: '/tmp', used: 5, total: 20 },
   ]
 
-  const networkData = [
-    { time: '00:00', incoming: 3.2, outgoing: 1.8 },
-    { time: '01:00', incoming: 2.8, outgoing: 1.5 },
-    { time: '02:00', incoming: 2.2, outgoing: 1.2 },
-    { time: '03:00', incoming: 1.8, outgoing: 0.9 },
-    { time: '04:00', incoming: 2.0, outgoing: 1.0 },
-    { time: '05:00', incoming: 2.5, outgoing: 1.3 },
-    { time: '06:00', incoming: 4.2, outgoing: 2.1 },
-    { time: '07:00', incoming: 5.8, outgoing: 3.2 },
-    { time: '08:00', incoming: 7.5, outgoing: 4.8 },
-    { time: '09:00', incoming: 8.2, outgoing: 5.5 },
-    { time: '10:00', incoming: 7.8, outgoing: 5.2 },
-    { time: '11:00', incoming: 6.2, outgoing: 4.5 },
-    { time: '12:00', incoming: 8.5, outgoing: 6.2 },
+  // Inode Usage Data
+  const dummyInodeUsageData = [
+    { name: '/', used: 45 },
+    { name: '/home', used: 35 },
+    { name: '/var', used: 65 },
+    { name: '/tmp', used: 15 },
   ]
 
-  const diskUsageData = [
-    { name: 'System', value: 12 },
-    { name: 'Applications', value: 25 },
-    { name: 'User Data', value: 45 },
-    { name: 'Free Space', value: 18 },
+  const dummyCpuUsageDistributionData = [
+    { name: 'Core 1', usage: 65 },
+    { name: 'Core 2', usage: 85 },
+    { name: 'Core 3', usage: 72 },
+    { name: 'Core 4', usage: 78 },
+    { name: 'Core 5', usage: 62 },
+    { name: 'Core 6', usage: 90 },
+    { name: 'Core 7', usage: 45 },
+    { name: 'Core 8', usage: 68 },
   ]
 
-  const serverLoadData = [
-    { time: '00:00', load: 2.4 },
-    { time: '02:00', load: 1.8 },
-    { time: '04:00', load: 1.6 },
-    { time: '06:00', load: 2.2 },
-    { time: '08:00', load: 3.8 },
-    { time: '10:00', load: 4.2 },
-    { time: '12:00', load: 4.8 },
-  ]
+  // Function to fetch server status
+  const fetchServerStatus = useCallback(async () => {
+    try {
+      const response = await netdata.system.getServerDashboardStatus({
+        host: server.ip,
+      })
 
-  const requestData = [
-    { time: '00:00', success: 120, error: 4 },
-    { time: '01:00', success: 105, error: 2 },
-    { time: '02:00', success: 95, error: 1 },
-    { time: '03:00', success: 85, error: 0 },
-    { time: '04:00', success: 90, error: 1 },
-    { time: '05:00', success: 110, error: 3 },
-    { time: '06:00', success: 145, error: 5 },
-    { time: '07:00', success: 210, error: 7 },
-    { time: '08:00', success: 250, error: 6 },
-    { time: '09:00', success: 280, error: 8 },
-    { time: '10:00', success: 240, error: 5 },
-    { time: '11:00', success: 200, error: 4 },
-    { time: '12:00', success: 260, error: 6 },
-  ]
+      if (response) {
+        setServerStatus({
+          status: response?.data?.serverStatus?.status || 'unknown',
+          uptime: response?.data?.serverStatus?.uptime || '--',
+          lastIncident:
+            response?.data?.serverStatus?.lastIncident || 'No incidents',
+          activeAlerts: response?.data?.serverStatus?.activeAlerts || 0,
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching server status:', error)
+      setServerStatus(prev => ({
+        ...prev,
+        status: 'error',
+      }))
+    }
+  }, [server.ip])
 
-  const responseTimeData = [
-    { time: '00:00', responseTime: 245 },
-    { time: '01:00', responseTime: 232 },
-    { time: '02:00', responseTime: 228 },
-    { time: '03:00', responseTime: 225 },
-    { time: '04:00', responseTime: 230 },
-    { time: '05:00', responseTime: 242 },
-    { time: '06:00', responseTime: 268 },
-    { time: '07:00', responseTime: 295 },
-    { time: '08:00', responseTime: 320 },
-    { time: '09:00', responseTime: 345 },
-    { time: '10:00', responseTime: 328 },
-    { time: '11:00', responseTime: 302 },
-    { time: '12:00', responseTime: 336 },
-  ]
+  // Function to fetch dashboard metrics
+  const fetchDashboardMetrics = useCallback(async () => {
+    try {
+      const response = await netdata.system.getDashboardMetrics({
+        host: server.ip,
+      })
+
+      if (response) {
+        // Process and transform the API response into chart data
+        setDashboardMetrics({
+          cpuData: response?.data?.cpuData || [],
+          cpuUsageDistributionData:
+            response?.data?.cpuUsageDistribution ||
+            dummyCpuUsageDistributionData,
+          memoryData: response?.data?.memoryData || [],
+          networkData: response?.data?.networkData || [],
+          diskSpaceData: response?.data?.diskSpaceData || dummyDiskSpaceData,
+          diskIOData: response?.data?.diskIOData || [],
+          diskVolumesData:
+            response?.data?.diskVolumesData || dummyDiskVolumesData,
+          inodeUsageData: response?.data?.inodeUsageData || dummyInodeUsageData,
+          serverLoadData: response?.data?.serverLoadData || [],
+          requestData: response?.data?.requestData || [],
+          responseTimeData: response?.data?.responseTimeData || [],
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard metrics:', error)
+    }
+  }, [server.ip])
+
+  // Setup polling interval
+  useEffect(() => {
+    // Fetch initial data
+    fetchServerStatus()
+    fetchDashboardMetrics()
+
+    // Set up polling every minute (60000 ms)
+    const statusInterval = setInterval(fetchServerStatus, 60000)
+    const metricsInterval = setInterval(fetchDashboardMetrics, 60000)
+
+    // Cleanup intervals on component unmount
+    return () => {
+      clearInterval(statusInterval)
+      clearInterval(metricsInterval)
+    }
+  }, [fetchServerStatus, fetchDashboardMetrics])
+
+  console.log({ serverStatus, dashboardMetrics })
 
   // Chart configurations
   const cpuChartConfig = {
-    cpu: {
-      label: 'CPU Usage',
+    usage: {
+      label: 'Usage',
       color: 'hsl(var(--chart-1))',
     },
   } satisfies ChartConfig
 
   const memoryChartConfig = {
-    memory: {
-      label: 'Memory Usage',
+    usage: {
+      label: 'Usage',
       color: 'hsl(var(--chart-2))',
     },
   } satisfies ChartConfig
@@ -357,12 +397,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <div className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <div className='text-2xl font-bold'>
-                  {cpuData[cpuData.length - 1].usage}%
+                  {(cpuData as any)?.at(-1)?.usage}%
                 </div>
                 <Cpu className='h-4 w-4 text-muted-foreground' />
               </div>
               <Progress
-                value={cpuData[cpuData.length - 1].usage}
+                value={(cpuData as any)?.at(-1)?.usage}
                 className='h-2'
               />
             </div>
@@ -377,12 +417,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <div className='space-y-2'>
               <div className='flex items-center justify-between'>
                 <div className='text-2xl font-bold'>
-                  {memoryData[memoryData.length - 1].usage}%
+                  {(memoryData as any)?.at(-1)?.usage}%
                 </div>
                 <HardDrive className='h-4 w-4 text-muted-foreground' />
               </div>
               <Progress
-                value={memoryData[memoryData.length - 1].usage}
+                value={(memoryData as any)?.at(-1)?.usage}
                 className='h-2'
               />
             </div>
@@ -403,7 +443,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     In:
                   </span>
                   <span className='font-bold'>
-                    {networkData[networkData.length - 1].incoming} MB/s
+                    {(networkData as any)?.at(-1)?.incoming} MB/s
                   </span>
                 </div>
                 <div>
@@ -411,7 +451,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     Out:
                   </span>
                   <span className='font-bold'>
-                    {networkData[networkData.length - 1].outgoing} MB/s
+                    {(networkData as any)?.at(-1)?.outgoing} MB/s
                   </span>
                 </div>
                 <Wifi className='h-4 w-4 text-muted-foreground' />
@@ -442,7 +482,11 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <Card>
               <CardHeader>
                 <CardTitle>CPU Usage Trend</CardTitle>
-                <CardDescription>Last 12 hours</CardDescription>
+                <CardDescription>
+                  {cpuData.length > 1
+                    ? `${getTimeRange(cpuData)} (from ${(cpuData as any).at(0)?.time} to ${(cpuData as any).at(-1)?.time})`
+                    : 'No data available'}
+                </CardDescription>
               </CardHeader>
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                 <ChartContainer
@@ -453,12 +497,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                       <linearGradient id='fillCpu' x1='0' y1='0' x2='0' y2='1'>
                         <stop
                           offset='5%'
-                          stopColor='var(--color-cpu)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.8}
                         />
                         <stop
                           offset='95%'
-                          stopColor='var(--color-cpu)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.1}
                         />
                       </linearGradient>
@@ -479,7 +523,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     <Line
                       type='monotone'
                       dataKey='usage'
-                      stroke='var(--color-cpu)'
+                      stroke='var(--color-usage)'
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 6, strokeWidth: 0 }}
@@ -497,7 +541,11 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <Card>
               <CardHeader>
                 <CardTitle>Memory Usage Trend</CardTitle>
-                <CardDescription>Last 12 hours</CardDescription>
+                <CardDescription>
+                  {memoryData.length > 1
+                    ? `${getTimeRange(memoryData)} (from ${(memoryData as any).at(0)?.time} to ${(memoryData as any).at(-1)?.time})`
+                    : 'No data available'}
+                </CardDescription>
               </CardHeader>
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                 <ChartContainer
@@ -513,12 +561,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                         y2='1'>
                         <stop
                           offset='5%'
-                          stopColor='var(--color-memory)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.8}
                         />
                         <stop
                           offset='95%'
-                          stopColor='var(--color-memory)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.1}
                         />
                       </linearGradient>
@@ -539,7 +587,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     <Area
                       type='monotone'
                       dataKey='usage'
-                      stroke='var(--color-memory)'
+                      stroke='var(--color-usage)'
                       fill='url(#fillMemory)'
                       strokeWidth={2}
                     />
@@ -556,7 +604,11 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <Card>
               <CardHeader>
                 <CardTitle>Network Traffic</CardTitle>
-                <CardDescription>Incoming vs Outgoing (MB/s)</CardDescription>
+                <CardDescription>
+                  {networkData.length > 1
+                    ? `${getTimeRange(networkData)} (from ${(networkData as any).at(0)?.time} to ${(networkData as any).at(-1)?.time})`
+                    : 'No data available'}
+                </CardDescription>
               </CardHeader>
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                 <ChartContainer
@@ -635,40 +687,89 @@ const Monitoring = ({ server }: { server: ServerType }) => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Disk Usage</CardTitle>
-                <CardDescription>Storage allocation</CardDescription>
+                <CardTitle>Disk I/O</CardTitle>
+                <CardDescription>
+                  Read/Write operations -{' '}
+                  {diskIOData.length > 1
+                    ? `${getTimeRange(diskIOData)} (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
+                    : 'No data available'}
+                </CardDescription>
               </CardHeader>
-
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                 <ChartContainer
-                  config={diskUsageConfig}
+                  config={{
+                    reads: {
+                      label: 'Reads',
+                      color: 'hsl(var(--chart-1))',
+                    },
+                    writes: {
+                      label: 'Writes',
+                      color: 'hsl(var(--chart-2))',
+                    },
+                  }}
                   className='aspect-auto h-[250px] w-full'>
-                  <PieChart>
-                    <Pie
-                      data={diskUsageData}
-                      cx='50%'
-                      cy='50%'
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey='value'
-                      nameKey='name'>
-                      {diskUsageData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={diskColors[index % diskColors.length]}
-                          stroke='transparent'
+                  <LineChart data={diskIOData} accessibilityLayer>
+                    <defs>
+                      <linearGradient id='fillRead' x1='0' y1='0' x2='0' y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='var(--color-reads)'
+                          stopOpacity={0.8}
                         />
-                      ))}
-                    </Pie>
-                    <ChartTooltip
-                      content={
-                        <ChartTooltipContent
-                          labelFormatter={value => 'Disk Usage'}
+                        <stop
+                          offset='95%'
+                          stopColor='var(--color-reads)'
+                          stopOpacity={0.1}
                         />
-                      }
+                      </linearGradient>
+                      <linearGradient
+                        id='fillWrite'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='var(--color-writes)'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='var(--color-writes)'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey='time'
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
                     />
-                  </PieChart>
+                    <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                    <Line
+                      type='monotone'
+                      dataKey='reads'
+                      stroke='var(--color-reads)'
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                    <Line
+                      type='monotone'
+                      dataKey='writes'
+                      stroke='var(--color-writes)'
+                      strokeWidth={2}
+                      dot={false}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator='dot' />}
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                  </LineChart>
                 </ChartContainer>
               </CardContent>
             </Card>
@@ -682,7 +783,9 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               <CardHeader>
                 <CardTitle>CPU Usage Trend</CardTitle>
                 <CardDescription>
-                  Last 12 hours with detailed metrics
+                  {cpuData.length > 1
+                    ? `${getTimeRange(cpuData)} with detailed metrics - (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
+                    : 'No data available'}
                 </CardDescription>
               </CardHeader>
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -699,12 +802,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                         y2='1'>
                         <stop
                           offset='5%'
-                          stopColor='var(--color-cpu)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.8}
                         />
                         <stop
                           offset='95%'
-                          stopColor='var(--color-cpu)'
+                          stopColor='var(--color-usage)'
                           stopOpacity={0.1}
                         />
                       </linearGradient>
@@ -725,7 +828,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     <Area
                       type='monotone'
                       dataKey='usage'
-                      stroke='var(--color-cpu)'
+                      stroke='var(--color-usage)'
                       fill='url(#fillCpuDetailed)'
                       strokeWidth={2}
                     />
@@ -743,7 +846,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               <Card>
                 <CardHeader>
                   <CardTitle>CPU Load Average</CardTitle>
-                  <CardDescription>System load over time</CardDescription>
+                  <CardDescription>
+                    System load over time -{' '}
+                    {serverLoadData.length > 1
+                      ? `${getTimeRange(serverLoadData)} (from ${(serverLoadData as any).at(0)?.time} to ${(serverLoadData as any).at(-1)?.time})`
+                      : 'No data available'}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                   <ChartContainer
@@ -792,12 +900,26 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className='overflow-hidden'>
+                <CardHeader className='relative'>
                   <CardTitle>CPU Usage Distribution</CardTitle>
                   <CardDescription>Current utilization by core</CardDescription>
+                  <Badge
+                    variant='secondary'
+                    className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                    Coming Soon
+                  </Badge>
                 </CardHeader>
-                <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+                <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                  <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                    <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                      <div className='text-xl font-semibold'>Coming Soon</div>
+                      <p className='text-sm text-muted-foreground'>
+                        This feature is under development
+                      </p>
+                    </div>
+                  </div>
+
                   <ChartContainer
                     config={{
                       usage: {
@@ -805,18 +927,9 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                         color: 'hsl(var(--chart-1))',
                       },
                     }}
-                    className='aspect-auto h-[250px] w-full'>
+                    className='pointer-events-none h-[250px] w-full opacity-40'>
                     <BarChart
-                      data={[
-                        { name: 'Core 1', usage: 65 },
-                        { name: 'Core 2', usage: 85 },
-                        { name: 'Core 3', usage: 72 },
-                        { name: 'Core 4', usage: 78 },
-                        { name: 'Core 5', usage: 62 },
-                        { name: 'Core 6', usage: 90 },
-                        { name: 'Core 7', usage: 45 },
-                        { name: 'Core 8', usage: 68 },
-                      ]}
+                      data={cpuUsageDistributionData}
                       layout='vertical'
                       accessibilityLayer>
                       <defs>
@@ -877,7 +990,10 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             <CardHeader>
               <CardTitle>Memory Usage Trend</CardTitle>
               <CardDescription>
-                Last 12 hours with detailed metrics
+                {getTimeRange(memoryData)} with detailed metrics{' '}
+                {memoryData.length > 1
+                  ? ` - (from ${(memoryData as any).at(0)?.time} to ${(memoryData as any).at(-1)?.time})`
+                  : 'No data available'}
               </CardDescription>
             </CardHeader>
             <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -894,12 +1010,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                       y2='1'>
                       <stop
                         offset='5%'
-                        stopColor='var(--color-memory)'
+                        stopColor='var(--color-usage)'
                         stopOpacity={0.8}
                       />
                       <stop
                         offset='95%'
-                        stopColor='var(--color-memory)'
+                        stopColor='var(--color-usage)'
                         stopOpacity={0.1}
                       />
                     </linearGradient>
@@ -920,7 +1036,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   <Area
                     type='monotone'
                     dataKey='usage'
-                    stroke='var(--color-memory)'
+                    stroke='var(--color-usage)'
                     fill='url(#fillMemoryDetailed)'
                     strokeWidth={2}
                   />
@@ -935,13 +1051,26 @@ const Monitoring = ({ server }: { server: ServerType }) => {
           </Card>
 
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <Card>
-              <CardHeader>
+            <Card className='overflow-hidden'>
+              <CardHeader className='relative'>
                 <CardTitle>Memory Allocation</CardTitle>
                 <CardDescription>Current memory distribution</CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
 
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     applications: {
@@ -977,7 +1106,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                       paddingAngle={2}
                       dataKey='value'
                       nameKey='name'>
-                      {diskUsageData.map((entry, index) => (
+                      {diskSpaceData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={diskColors[index % diskColors.length]}
@@ -998,11 +1127,24 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className='relative'>
                 <CardTitle>Swap Usage</CardTitle>
                 <CardDescription>Virtual memory utilization</CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     usage: {
@@ -1078,19 +1220,32 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         {/* Disk Tab */}
         <TabsContent value='disk' className='space-y-4'>
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <Card>
-              <CardHeader>
+            <Card className='overflow-hidden'>
+              <CardHeader className='relative'>
                 <CardTitle>Disk Usage</CardTitle>
                 <CardDescription>Storage allocation</CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
 
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={diskUsageConfig}
                   className='aspect-auto h-[250px] w-full'>
                   <PieChart>
                     <Pie
-                      data={diskUsageData}
+                      data={diskSpaceData}
                       cx='50%'
                       cy='50%'
                       innerRadius={60}
@@ -1098,7 +1253,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                       paddingAngle={2}
                       dataKey='value'
                       nameKey='name'>
-                      {diskUsageData.map((entry, index) => (
+                      {diskSpaceData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={diskColors[index % diskColors.length]}
@@ -1118,51 +1273,40 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className='overflow-hidden'>
               <CardHeader>
                 <CardTitle>Disk I/O</CardTitle>
-                <CardDescription>Read/Write operations</CardDescription>
+                <CardDescription>
+                  Read/Write operations -{' '}
+                  {diskIOData.length > 1
+                    ? `${getTimeRange(diskIOData)} (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
+                    : 'No data available'}
+                </CardDescription>
               </CardHeader>
               <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
                 <ChartContainer
                   config={{
-                    read: {
-                      label: 'Read',
+                    reads: {
+                      label: 'Reads',
                       color: 'hsl(var(--chart-1))',
                     },
-                    write: {
-                      label: 'Write',
+                    writes: {
+                      label: 'Writes',
                       color: 'hsl(var(--chart-2))',
                     },
                   }}
                   className='aspect-auto h-[250px] w-full'>
-                  <LineChart
-                    data={[
-                      { time: '00:00', read: 25, write: 15 },
-                      { time: '01:00', read: 20, write: 12 },
-                      { time: '02:00', read: 18, write: 10 },
-                      { time: '03:00', read: 15, write: 8 },
-                      { time: '04:00', read: 20, write: 10 },
-                      { time: '05:00', read: 22, write: 12 },
-                      { time: '06:00', read: 28, write: 18 },
-                      { time: '07:00', read: 35, write: 25 },
-                      { time: '08:00', read: 40, write: 30 },
-                      { time: '09:00', read: 45, write: 35 },
-                      { time: '10:00', read: 38, write: 28 },
-                      { time: '11:00', read: 32, write: 22 },
-                      { time: '12:00', read: 36, write: 26 },
-                    ]}
-                    accessibilityLayer>
+                  <LineChart data={diskIOData} accessibilityLayer>
                     <defs>
                       <linearGradient id='fillRead' x1='0' y1='0' x2='0' y2='1'>
                         <stop
                           offset='5%'
-                          stopColor='var(--color-read)'
+                          stopColor='var(--color-reads)'
                           stopOpacity={0.8}
                         />
                         <stop
                           offset='95%'
-                          stopColor='var(--color-read)'
+                          stopColor='var(--color-reads)'
                           stopOpacity={0.1}
                         />
                       </linearGradient>
@@ -1174,12 +1318,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                         y2='1'>
                         <stop
                           offset='5%'
-                          stopColor='var(--color-write)'
+                          stopColor='var(--color-writes)'
                           stopOpacity={0.8}
                         />
                         <stop
                           offset='95%'
-                          stopColor='var(--color-write)'
+                          stopColor='var(--color-writes)'
                           stopOpacity={0.1}
                         />
                       </linearGradient>
@@ -1194,16 +1338,16 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     <YAxis tickLine={false} axisLine={false} tickMargin={8} />
                     <Line
                       type='monotone'
-                      dataKey='read'
-                      stroke='var(--color-read)'
+                      dataKey='reads'
+                      stroke='var(--color-reads)'
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 6, strokeWidth: 0 }}
                     />
                     <Line
                       type='monotone'
-                      dataKey='write'
-                      stroke='var(--color-write)'
+                      dataKey='writes'
+                      stroke='var(--color-writes)'
                       strokeWidth={2}
                       dot={false}
                       activeDot={{ r: 6, strokeWidth: 0 }}
@@ -1218,12 +1362,25 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className='overflow-hidden'>
+              <CardHeader className='relative'>
                 <CardTitle>Disk Volumes</CardTitle>
                 <CardDescription>Space usage by volume</CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     used: {
@@ -1237,12 +1394,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   }}
                   className='aspect-auto h-[250px] w-full'>
                   <BarChart
-                    data={[
-                      { name: '/', used: 75, total: 100 },
-                      { name: '/home', used: 45, total: 100 },
-                      { name: '/var', used: 25, total: 50 },
-                      { name: '/tmp', used: 5, total: 20 },
-                    ]}
+                    data={diskVolumesData}
                     layout='vertical'
                     accessibilityLayer>
                     <defs>
@@ -1312,12 +1464,20 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className='overflow-hidden'>
               <CardHeader>
                 <CardTitle>Inode Usage</CardTitle>
                 <CardDescription>File system metadata usage</CardDescription>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     used: {
@@ -1326,14 +1486,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                     },
                   }}
                   className='aspect-auto h-[250px] w-full'>
-                  <BarChart
-                    data={[
-                      { name: '/', used: 45 },
-                      { name: '/home', used: 35 },
-                      { name: '/var', used: 65 },
-                      { name: '/tmp', used: 15 },
-                    ]}
-                    accessibilityLayer>
+                  <BarChart data={inodeUsageData} accessibilityLayer>
                     <defs>
                       <linearGradient
                         id='fillInodeUsed'
@@ -1464,14 +1617,27 @@ const Monitoring = ({ server }: { server: ServerType }) => {
           </Card>
 
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <Card>
-              <CardHeader>
+            <Card className='overflow-hidden'>
+              <CardHeader className='relative'>
                 <CardTitle>Network Packets</CardTitle>
                 <CardDescription>
                   Packet transmission statistics
                 </CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     received: {
@@ -1554,12 +1720,25 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className='overflow-hidden'>
+              <CardHeader className='relative'>
                 <CardTitle>Network Errors</CardTitle>
                 <CardDescription>Error rates and types</CardDescription>
+                <Badge
+                  variant='secondary'
+                  className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
+                  Coming Soon
+                </Badge>
               </CardHeader>
-              <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
+              <CardContent className='relative px-2 pt-4 sm:px-6 sm:pt-6'>
+                <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+                  <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+                    <div className='text-xl font-semibold'>Coming Soon</div>
+                    <p className='text-sm text-muted-foreground'>
+                      This feature is under development
+                    </p>
+                  </div>
+                </div>
                 <ChartContainer
                   config={{
                     dropped: {
@@ -1662,7 +1841,15 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         </TabsContent>
 
         {/* Requests Tab */}
-        <TabsContent value='requests' className='space-y-4'>
+        <TabsContent value='requests' className='relative space-y-4'>
+          <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
+            <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+              <div className='text-xl font-semibold'>Coming Soon</div>
+              <p className='text-sm text-muted-foreground'>
+                This feature is under development
+              </p>
+            </div>
+          </div>
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
             <Card>
               <CardHeader>
@@ -1931,3 +2118,35 @@ const Monitoring = ({ server }: { server: ServerType }) => {
 }
 
 export default Monitoring
+
+const getTimeRange = (data: { time: string }[]) => {
+  if (data.length < 2) return 'No data available'
+
+  // Reverse data to ensure ascending order (earliest to latest)
+  const sortedData = [...data].reverse()
+
+  // Get today's date (assuming data is from today)
+  const today = new Date().toISOString().split('T')[0]
+
+  // Convert time strings to full timestamps
+  const firstTimestamp = new Date(`${today}T${sortedData[0].time}:00`)
+  const lastTimestamp = new Date(
+    `${today}T${sortedData[sortedData.length - 1].time}:00`,
+  )
+
+  if (isNaN(firstTimestamp.getTime()) || isNaN(lastTimestamp.getTime())) {
+    return 'Invalid time data'
+  }
+
+  const diffInMinutes = Math.round(
+    (lastTimestamp.getTime() - firstTimestamp.getTime()) / (1000 * 60),
+  )
+
+  if (diffInMinutes >= 1440) {
+    return `Last ${Math.round(diffInMinutes / 1440)} days`
+  } else if (diffInMinutes >= 60) {
+    return `Last ${Math.round(diffInMinutes / 60)} hours`
+  } else {
+    return `Last ${diffInMinutes} minutes`
+  }
+}
