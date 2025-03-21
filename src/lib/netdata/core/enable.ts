@@ -3,7 +3,7 @@ import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 import { checkInstalled } from './checkInstalled'
 
 /**
- * Enables the Netdata service
+ * Enables the Netdata service on boot
  * @param ssh SSH connection to the remote system
  * @param options SSH execution options
  * @returns Object with success status and output/error messages
