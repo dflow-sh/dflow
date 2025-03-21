@@ -36,7 +36,7 @@ const SuspendedPage = async () => {
 
   return (
     <section className='space-y-6'>
-      <div className='flex items-center justify-between px-4'>
+      <div className='flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Projects</div>
         <CreateProject servers={servers} />
       </div>

@@ -135,9 +135,7 @@ const ServerTerminal = ({
 
   return (
     <>
-      <div
-        tabIndex={0}
-        role='button'
+      <button
         onClick={() => setOpen(true)}
         className={cn(
           'fixed bottom-0 right-0 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
@@ -150,7 +148,7 @@ const ServerTerminal = ({
         </div>
 
         <ChevronsUp size={20} />
-      </div>
+      </button>
 
       <Sheet
         open={open}
