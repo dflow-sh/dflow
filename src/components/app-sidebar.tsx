@@ -8,6 +8,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import * as React from 'react'
 
 import { NavUser } from '@/components/nav-user'
@@ -67,6 +68,7 @@ const settings = [
 
 export function AppSidebar({ user, ...props }: SidebarInterface) {
   const { state } = useSidebar()
+  const pathname = usePathname()
 
   return (
     <Sidebar collapsible='icon' {...props}>
@@ -82,7 +84,9 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
 
         <SidebarMenu>
           <SidebarMenuItem className='mx-2'>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname.includes('/dashboard')}>
               <Link href='/dashboard'>
                 <LayoutDashboard />
                 <span>Dashboard</span>
@@ -96,7 +100,7 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
             <SidebarMenu>
               {settings.map(item => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild isActive={pathname === item.href}>
                     <Link href={item.href}>
                       <item.icon />
                       <span>{item.name}</span>
