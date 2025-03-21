@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import React from 'react'
 
@@ -16,15 +17,19 @@ const ProjectIdLayout = async ({ children, params }: PageProps) => {
 
   const payload = await getPayload({ config: configPromise })
 
-  const { server } = await payload.findByID({
-    collection: 'projects',
-    id,
-    select: {
-      server: true,
-    },
-  })
+  try {
+    const { server } = await payload.findByID({
+      collection: 'projects',
+      id,
+      select: {
+        server: true,
+      },
+    })
 
-  return <ClientLayout server={server}>{children}</ClientLayout>
+    return <ClientLayout server={server}>{children}</ClientLayout>
+  } catch (error) {
+    notFound()
+  }
 }
 
 export default ProjectIdLayout

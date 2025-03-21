@@ -64,7 +64,7 @@ const ProjectTerminal = ({ server }: ProjectTerminalType) => {
       onOpenChange={state => {
         setOpen(state)
       }}>
-      <SheetTrigger>
+      <SheetTrigger asChild>
         <button
           tabIndex={0}
           role='button'
