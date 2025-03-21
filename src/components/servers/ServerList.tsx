@@ -100,7 +100,11 @@ const ServerStatus = ({ server }: { server: ServerType }) => {
 
       <div className='flex items-center gap-1.5 text-[0.75rem]'>
         <Dokku />
-        <span>{`v${server.version}`}</span>
+        <span>
+          {server.version && server.version === 'not-installed'
+            ? 'not-installed'
+            : `v${server.version}`}
+        </span>
       </div>
     </div>
   )

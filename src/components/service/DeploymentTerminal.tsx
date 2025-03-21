@@ -75,7 +75,10 @@ const DeploymentTerminal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Terminal messages={messages} className='min-h-[70vh] w-full' />
+        <Terminal
+          messages={messages}
+          className='min-h-[70vh] w-full overflow-x-hidden'
+        />
       </DialogContent>
     </Dialog>
   )

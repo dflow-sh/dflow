@@ -15,13 +15,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
   const [skipPluginsSync, setSkipPluginsSync] = useState(false)
   const { step, setStep } = useInstallationStep()
   const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
-    useAction(installPluginAction, {
-      onSuccess: ({ data }) => {
-        if (data?.success) {
-          setStep(4)
-        }
-      },
-    })
+    useAction(installPluginAction)
 
   const plugins = server.plugins ?? []
   const letsEncryptPluginInstalled = plugins.find(
