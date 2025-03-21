@@ -4,7 +4,7 @@ import { Button } from '../ui/button'
 import { Loader2, MoreHorizontal, RefreshCcw, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { uninstallNetdataAction } from '@/actions/netdata'
@@ -24,7 +24,7 @@ import StatusOverView from './StatusOverView'
 const Monitoring = ({ server }: { server: ServerType }) => {
   const router = useRouter()
 
-  // State for server metrics
+  // State for server status
   const [serverStatus, setServerStatus] = useState({
     status: 'loading',
     uptime: '--',
@@ -33,6 +33,10 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   })
 
   const [isDataRefreshing, setIsDataRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null) // Last updated time
+
+  // Add a ref to track the interval
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const [dashboardMetrics, setDashboardMetrics] = useState({
     cpuData: [],
@@ -128,7 +132,6 @@ const Monitoring = ({ server }: { server: ServerType }) => {
       })
 
       if (response) {
-        // Process and transform the API response into chart data
         setDashboardMetrics({
           cpuData: response?.data?.cpuData || [],
           cpuUsageDistributionData:
@@ -145,42 +148,65 @@ const Monitoring = ({ server }: { server: ServerType }) => {
           requestData: response?.data?.requestData || [],
           responseTimeData: response?.data?.responseTimeData || [],
         })
+
+        // Update last updated time
+        setLastUpdated(new Date().toLocaleTimeString())
       }
     } catch (error) {
       console.log('Error fetching dashboard metrics:', error)
     }
   }, [server.ip])
 
-  // Manual refresh function
-  const refreshData = async () => {
-    setIsDataRefreshing(true)
-    try {
-      await Promise.all([fetchServerStatus(), fetchDashboardMetrics()])
-      toast.success('Data refreshed successfully')
-    } catch (error) {
-      toast.error('Failed to refresh data')
-      console.error('Error refreshing data:', error)
-    } finally {
-      setIsDataRefreshing(false)
+  // Function to clear and reset the interval
+  const resetInterval = useCallback(() => {
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
     }
-  }
 
-  // Setup polling interval
+    // Set up a new interval
+    intervalRef.current = setInterval(() => refreshData(false), 15000)
+  }, [])
+
+  // Wrap refreshData in useCallback
+  const refreshData = useCallback(
+    async (isManual = false) => {
+      setIsDataRefreshing(true)
+      try {
+        await Promise.allSettled([fetchServerStatus(), fetchDashboardMetrics()])
+
+        if (isManual) {
+          // Reset interval when manually refreshed
+          resetInterval()
+          toast.success('Data refreshed successfully')
+        }
+      } catch (error) {
+        if (isManual) {
+          toast.error('Failed to refresh data')
+        }
+        console.error('Error refreshing data:', error)
+      } finally {
+        setIsDataRefreshing(false)
+      }
+    },
+    [fetchServerStatus, fetchDashboardMetrics, resetInterval],
+  )
+
+  // Updated useEffect for initial setup and cleanup
   useEffect(() => {
     // Fetch initial data
-    fetchServerStatus()
-    fetchDashboardMetrics()
+    refreshData()
 
-    // Set up polling every minute (60000 ms)
-    const statusInterval = setInterval(fetchServerStatus, 500000)
-    const metricsInterval = setInterval(fetchDashboardMetrics, 500000)
+    // Set up initial polling interval
+    resetInterval()
 
-    // Cleanup intervals on component unmount
+    // Cleanup interval on component unmount
     return () => {
-      clearInterval(statusInterval)
-      clearInterval(metricsInterval)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
     }
-  }, [fetchServerStatus, fetchDashboardMetrics])
+  }, [refreshData, resetInterval])
 
   // Action handlers
   const { execute: uninstallNetdata, isPending: isUninstallingNetdata } =
@@ -217,7 +243,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
           <Button
             disabled={isDataRefreshing}
             variant='secondary'
-            onClick={refreshData}>
+            onClick={() => refreshData(true)}>
             {isDataRefreshing ? (
               <Loader2 className='h-4 w-4 animate-spin' />
             ) : (
@@ -249,7 +275,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem
-                onClick={refreshData}
+                onClick={() => refreshData(true)}
                 disabled={isDataRefreshing}>
                 {isDataRefreshing ? (
                   <Loader2 className='h-4 w-4 animate-spin' />
@@ -278,14 +304,20 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         </div>
       </div>
 
+      {/* Last Updated Info with Loading Icon */}
+      <div className='mb-4 flex items-center text-sm text-muted-foreground'>
+        {isDataRefreshing && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+        <p>Last updated at: {lastUpdated || 'Fetching...'}</p>
+      </div>
+
       {/* Status Overview */}
       <StatusOverView serverStatus={serverStatus} />
 
       {/* Current Resource Usage */}
       <CurrentResourceUsage
-        cpuData={cpuData}
-        memoryData={memoryData}
-        networkData={networkData}
+        cpuData={dashboardMetrics.cpuData}
+        memoryData={dashboardMetrics.memoryData}
+        networkData={dashboardMetrics.networkData}
       />
 
       {/* Tabs for detailed charts */}
