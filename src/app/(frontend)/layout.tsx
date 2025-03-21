@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import React from 'react'
 import { Toaster } from 'sonner'
 
+import NProgressProvider from '@/providers/NProgressProvider'
+
 import './globals.css'
 
 const geistSans = Geist({
@@ -36,8 +38,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         )} */}
       </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
-        {children}
-        <Toaster richColors theme='dark' duration={3000} closeButton />
+        <NProgressProvider>
+          {children}
+          <Toaster richColors theme='dark' duration={3000} closeButton />
+        </NProgressProvider>
       </body>
     </html>
   )

@@ -7,7 +7,7 @@ const PageHeader = ({
   description,
   action,
 }: {
-  title: string
+  title: string | JSX.Element
   description?: string
   action?: JSX.Element
 }) => {

@@ -92,6 +92,18 @@ const ServerTerminal = ({
     }
   }, [open, servers])
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === '`' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        setOpen(current => !current)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   // // Connect to a server when its tab becomes active
   useEffect(() => {
     if (open && servers.length > 0 && activeTab < servers.length) {

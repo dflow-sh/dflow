@@ -5,23 +5,9 @@ import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import ServerTerminal from '@/components/ServerTerminal'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset } from '@/components/ui/sidebar'
 import Provider from '@/providers/Provider'
-
-const SuspendedTerminal = async () => {
-  const payload = await getPayload({ config: configPromise })
-  const { docs: servers } = await payload.find({
-    collection: 'servers',
-    pagination: false,
-    select: {
-      name: true,
-    },
-  })
-
-  return <ServerTerminal servers={servers} />
-}
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const headersList = await headers()
@@ -42,7 +28,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
     <>
       <AppSidebar user={user} />
       <SidebarInset>
-        <main className='mt-4 px-4'>{children}</main>
+        <main className='mb-10 mt-4 px-4'>{children}</main>
       </SidebarInset>
     </>
   )
@@ -57,19 +43,6 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       <Suspense fallback={<Loader />}>
         <DashboardLayout>{children}</DashboardLayout>
       </Suspense>
-
-      {/* <Suspense
-        fallback={
-          <Button
-            size='icon'
-            variant='secondary'
-            disabled
-            className='fixed bottom-4 right-4 z-40 size-16 [&_svg]:size-8'>
-            <SquareTerminal />
-          </Button>
-        }>
-        <SuspendedTerminal />
-      </Suspense> */}
     </Provider>
   )
 }

@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
+import { Database, Github, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -44,21 +44,6 @@ import {
 } from '@/components/ui/select'
 import { slugify } from '@/lib/slugify'
 import { Server } from '@/payload-types'
-
-const options = [
-  {
-    label: 'Database',
-    value: 'database',
-  },
-  {
-    label: 'App (Git based application)',
-    value: 'app',
-  },
-  // {
-  //   label: 'Docker',
-  //   value: 'docker',
-  // },
-]
 
 const databaseOptions = [
   {
@@ -189,11 +174,19 @@ const CreateService = ({ server }: { server: Server }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {options.map(({ label, value }) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value='database'>
+                          <div className='flex items-center gap-1.5'>
+                            <Database size={16} className='text-blue-500' />
+                            Database
+                          </div>
+                        </SelectItem>
+
+                        <SelectItem value='app'>
+                          <div className='flex items-center gap-1.5'>
+                            <Github size={16} />
+                            App (Git based application)
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
 
