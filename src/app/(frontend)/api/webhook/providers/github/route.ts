@@ -55,8 +55,6 @@ export async function GET(request: NextRequest) {
         },
       },
     })
-
-    console.log({ setupResponse })
   } else if (action === 'gh_install') {
     await payload.update({
       collection: 'gitProviders',
@@ -71,7 +69,7 @@ export async function GET(request: NextRequest) {
     const { user } = await payload.auth({ headers })
 
     // After successful of github-app making user as onboarded
-    if (user?.id) {
+    if (user?.id && user?.onboarded === false) {
       await payload.update({
         collection: 'users',
         id: user.id,
@@ -80,7 +78,7 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      if (installationOnboarding) {
+      if (installationOnboarding === 'onboarding') {
         redirect('/dashboard')
       }
     }
@@ -90,5 +88,5 @@ export async function GET(request: NextRequest) {
     redirect('/onboarding/install-github')
   }
 
-  return redirect('/settings/git')
+  return redirect(`/settings/git?action=${action}`)
 }

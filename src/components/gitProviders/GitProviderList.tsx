@@ -6,11 +6,20 @@ import { format } from 'date-fns'
 import { Download, Github, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+import { toast } from 'sonner'
 
 import { deleteGitProviderAction } from '@/actions/gitProviders'
 import { GitProvider } from '@/payload-types'
 
-const GithubCard = ({ provider }: { provider: GitProvider }) => {
+const GithubCard = ({
+  provider,
+  onboarding = false,
+}: {
+  provider: GitProvider
+  onboarding?: boolean
+}) => {
   const { execute, isPending } = useAction(deleteGitProviderAction)
 
   return (
@@ -30,7 +39,7 @@ const GithubCard = ({ provider }: { provider: GitProvider }) => {
         <div className='flex items-center gap-4'>
           {!provider?.github?.installationId && (
             <Link
-              href={`${provider.github?.appUrl}/installations/new?state=gh_install:${provider.id}:onboarding`}>
+              href={`${provider.github?.appUrl}/installations/new?state=gh_install:${provider.id}:${onboarding && 'onboarding'}`}>
               <Download size={20} />
             </Link>
           )}
@@ -50,12 +59,51 @@ const GithubCard = ({ provider }: { provider: GitProvider }) => {
   )
 }
 
-const GitProviderList = ({ gitProviders }: { gitProviders: GitProvider[] }) => {
+const GitProviderList = ({
+  gitProviders,
+  onboarding = false,
+}: {
+  gitProviders: GitProvider[]
+  onboarding?: boolean
+}) => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'gh_init') {
+      toast.success('Successfully created github app', {
+        duration: 10000,
+        description: `Please install the github app to deploy your app's.`,
+      })
+
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('action')
+
+      router.replace(`?${params.toString()}`, { scroll: false })
+    } else if (searchParams.get('action') === 'gh_install') {
+      toast.success('Successfully installed github app', {
+        duration: 10000,
+        description: `Github app has been installed successfully.`,
+      })
+
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('action')
+
+      router.replace(`?${params.toString()}`, { scroll: false })
+    }
+  }, [searchParams, router])
+
   return gitProviders.length ? (
     <div className='mt-4 space-y-4'>
       {gitProviders.map(provider => {
         if (provider.type === 'github') {
-          return <GithubCard provider={provider} key={provider.id} />
+          return (
+            <GithubCard
+              provider={provider}
+              key={provider.id}
+              onboarding={onboarding}
+            />
+          )
         }
 
         return null

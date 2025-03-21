@@ -22,6 +22,10 @@ const OnboardingLayout = async ({
     redirect('/sign-in')
   }
 
+  if (user.onboarded) {
+    redirect('/dashboard')
+  }
+
   return children
 }
 

@@ -100,7 +100,9 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
             <SidebarMenu>
               {settings.map(item => (
                 <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.includes(item.href)}>
                     <Link href={item.href}>
                       <item.icon />
                       <span>{item.name}</span>
