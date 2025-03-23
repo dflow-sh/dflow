@@ -8,6 +8,7 @@ import * as cpu from './cpu'
 import * as data from './data'
 import * as functions from './functions'
 import * as management from './management'
+import * as metrics from './metrics'
 import * as nodes from './nodes'
 import * as system from './system'
 import * as weights from './weights'
@@ -26,4 +27,5 @@ export const netdata = {
   nodes,
   weights,
   system,
+  metrics,
 }

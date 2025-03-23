@@ -150,3 +150,13 @@ export interface SystemMetricsResponse extends NetdataApiResponse {
     }
   }
 }
+
+/**
+ * Common response type for all metric functions
+ */
+export interface MetricsResponse<T> {
+  success: boolean
+  message: string
+  data?: T
+  error?: string
+}
