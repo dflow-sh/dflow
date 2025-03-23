@@ -56,17 +56,6 @@ const MonitoringTab = async ({ server }: { server: ServerType }) => {
     })
 
     const netdataStatus = await netdata.core.checkInstalled({ ssh })
-    // const serverStatus = await netdata.system.getServerDashboardStatus({
-    //   host: server.ip,
-    // })
-
-    // console.dir({ serverStatus }, { depth: null })
-
-    // const serverMetrics = await netdata.system.getDashboardMetrics({
-    //   host: server.ip,
-    // })
-
-    // console.dir({ serverMetrics }, { depth: null })
 
     if (!netdataStatus.isInstalled) {
       console.warn('Netdata is not installed on the server.')

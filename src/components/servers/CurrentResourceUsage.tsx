@@ -63,7 +63,9 @@ const CurrentResourceUsage = ({
           <CardContent>
             <div className='space-y-2'>
               <div className='flex items-center justify-between'>
-                <div className='text-2xl font-bold'>{latestMemoryUsage}%</div>
+                <div className='text-2xl font-bold'>
+                  {latestMemoryUsage || 0}%
+                </div>
                 <HardDrive className='h-4 w-4 text-muted-foreground' />
               </div>
               <Progress value={latestMemoryUsage} className='h-2' />

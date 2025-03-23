@@ -52,20 +52,6 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     responseTimeData: [],
   })
 
-  const {
-    cpuData,
-    cpuUsageDistributionData,
-    diskSpaceData,
-    diskIOData,
-    diskVolumesData,
-    inodeUsageData,
-    memoryData,
-    networkData,
-    requestData,
-    responseTimeData,
-    serverLoadData,
-  } = dashboardMetrics
-
   // Disk Space Data
   const dummyDiskSpaceData = [
     { name: 'Used', value: 68 },
@@ -209,21 +195,21 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   }, [refreshData, resetInterval])
 
   // Action handlers
-  const { execute: uninstallNetdata, isPending: isUninstallingNetdata } =
+  const { execute: queueUninstallNetdata, isPending: isUninstallingNetdata } =
     useAction(uninstallNetdataAction, {
       onSuccess: () => {
-        toast.success('Successfully uninstalled Netdata')
+        toast.success('Uninstall Netdata job added to queue')
         router.refresh()
       },
       onError: (error: any) => {
         toast.error(
-          `Failed to uninstall Netdata: ${error.message || 'Unknown error'}`,
+          `Failed to queue Netdata uninstall: ${error.message || 'Unknown error'}`,
         )
       },
     })
 
   const handleUninstall = () => {
-    uninstallNetdata({ serverId: server.id })
+    queueUninstallNetdata({ serverId: server.id })
   }
 
   return (
@@ -261,7 +247,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
             ) : (
               <Trash2 className='h-4 w-4' />
             )}
-            {isUninstallingNetdata ? 'Uninstalling...' : 'Uninstall'}
+            {isUninstallingNetdata ? 'Queuing Uninstall...' : 'Uninstall'}
           </Button>
         </div>
 
@@ -296,7 +282,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
                   <Trash2 className='h-4 w-4' />
                 )}
                 <span>
-                  {isUninstallingNetdata ? 'Uninstalling...' : 'Uninstall'}
+                  {isUninstallingNetdata ? 'Queuing Uninstall...' : 'Uninstall'}
                 </span>
               </DropdownMenuItem>
             </DropdownMenuContent>

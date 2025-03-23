@@ -16,9 +16,12 @@ const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
   const { execute: installNetdata, isPending: isInstallingNetdata } = useAction(
     installNetdataAction,
     {
-      onSuccess: () => {
-        toast.success('Successfully installed netdata')
+      onSuccess: (data: any) => {
+        toast.success(data.message || 'Netdata installation started')
         router.refresh()
+      },
+      onError: (error: any) => {
+        toast.error(`Failed to start Netdata installation: ${error.message}`)
       },
     },
   )
@@ -34,12 +37,10 @@ const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
         <AlertTitle>Netdata is not installed!</AlertTitle>
         <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
           <p>Netdata is required for monitoring. Install it to proceed.</p>
-          <Button
-            disabled={false}
-            onClick={() => {
-              handleInstall()
-            }}>
-            Install Netdata
+          <Button disabled={isInstallingNetdata} onClick={handleInstall}>
+            {isInstallingNetdata
+              ? 'Starting Installation...'
+              : 'Install Netdata'}
           </Button>
         </AlertDescription>
       </Alert>

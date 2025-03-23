@@ -4,9 +4,9 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { netdata } from '@/lib/netdata'
 import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH } from '@/lib/ssh'
+import { addInstallNetdataQueue } from '@/queues/netdata/install'
+import { addUninstallNetdataQueue } from '@/queues/netdata/uninstall'
 
 import { installNetdataSchema, uninstallNetdataSchema } from './validator'
 
@@ -43,24 +43,21 @@ export const installNetdataAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    // Establish SSH connection
-    const ssh = await dynamicSSH(sshDetails)
-
-    // Run the install operation
-    const installResult = await netdata.core.install({ ssh })
-
-    console.log({ installResult })
-
-    // Enable and start Netdata
-    await netdata.core.enable({ ssh })
+    // Add the job to the queue instead of executing directly
+    await addInstallNetdataQueue({
+      sshDetails,
+      serverDetails: {
+        id: serverId,
+      },
+    })
 
     // Refresh the server details page
     revalidatePath(`/settings/servers/${serverId}?tab=monitoring`)
 
     return {
       success: true,
-      message: 'Netdata installed and started successfully.',
-      details: installResult,
+      message:
+        'Netdata installation started. You can monitor progress in the server logs.',
     }
   })
 
@@ -71,47 +68,27 @@ export const uninstallNetdataAction = protectedClient
   .schema(uninstallNetdataSchema)
   .action(async ({ clientInput }) => {
     const { serverId } = clientInput
-
-    // Fetch server details from the database
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 5,
+      depth: 10,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
+    if (typeof serverDetails.sshKey === 'object') {
+      const uninstallResponse = await addUninstallNetdataQueue({
+        serverDetails: {
+          id: serverId,
+        },
+        sshDetails: {
+          host: serverDetails.ip,
+          port: serverDetails.port,
+          privateKey: serverDetails.sshKey.privateKey,
+          username: serverDetails.username,
+        },
+      })
 
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    // Set up SSH connection details
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
-
-    // Establish SSH connection
-    const ssh = await dynamicSSH(sshDetails)
-
-    // Run the uninstall operation
-    const uninstallResult = await netdata.core.uninstall({ ssh })
-
-    console.log({ uninstallResult })
-
-    // Clean up SSH connection
-    ssh.dispose()
-
-    // Refresh the server details page
-    revalidatePath(`/settings/servers/${serverId}?tab=monitoring`)
-
-    return {
-      success: true,
-      message: uninstallResult.message,
-      details: uninstallResult,
+      if (uninstallResponse.id) {
+        return { success: true }
+      }
     }
   })
