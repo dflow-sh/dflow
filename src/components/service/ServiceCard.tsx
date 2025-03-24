@@ -3,7 +3,7 @@
 import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Clock, Database, Ellipsis, Globe, Trash2 } from 'lucide-react'
+import { Clock, Database, Ellipsis, Github, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { JSX } from 'react'
@@ -32,7 +32,7 @@ import {
 import { Service } from '@/payload-types'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
-  app: <Globe className='size-6 text-green-600' />,
+  app: <Github className='size-6' />,
   database: <Database className='size-6 text-destructive' />,
   docker: <Docker className='size-6' />,
 }

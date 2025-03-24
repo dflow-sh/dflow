@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import { Github } from 'lucide-react'
 import { getPayload } from 'payload'
 import React, { JSX, SVGProps } from 'react'
 
@@ -66,7 +67,11 @@ const ServiceIdLayout = async ({
           className={`mb-6 w-full max-w-5xl md:flex md:justify-between md:gap-x-2`}>
           <div>
             <div className='flex items-center gap-2'>
-              {Icon && <Icon className='size-6' />}
+              {Icon ? (
+                <Icon className='size-6' />
+              ) : (
+                <Github className='size-6' />
+              )}
               <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
               {serviceDetails?.databaseDetails?.status && (
                 <Badge className='h-max w-max gap-1' variant={'outline'}>
