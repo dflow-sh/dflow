@@ -399,33 +399,12 @@ const worker = new Worker<QueueArgs>(
             },
           })
 
-          const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
-
-          await payloadWebhook({
-            payloadToken: `${payloadToken}`,
-            data: {
-              type: 'deployment.update',
-              data: {
-                deployment: {
-                  id: serviceDetails.deploymentId,
-                  status: 'success',
-                  logs,
-                },
-              },
-            },
-          })
-
           sendEvent({
             message: `✅ Updated domain details`,
             pub,
             serverId,
             serviceId,
           })
-
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
         }
       } else {
         sendEvent({
@@ -436,6 +415,24 @@ const worker = new Worker<QueueArgs>(
           channelId: serviceDetails.deploymentId,
         })
       }
+
+      const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
+
+      await payloadWebhook({
+        payloadToken: `${payloadToken}`,
+        data: {
+          type: 'deployment.update',
+          data: {
+            deployment: {
+              id: serviceDetails.deploymentId,
+              status: 'success',
+              logs,
+            },
+          },
+        },
+      })
+
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
       // todo: add webhook to update deployment status
     } catch (error) {
