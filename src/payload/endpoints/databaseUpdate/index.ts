@@ -113,6 +113,7 @@ export const databaseUpdate: PayloadHandler = async ({
           collection: 'deployments',
           data: {
             status: deployment.status,
+            logs: deployment.logs,
           },
           id: deployment.id,
         })

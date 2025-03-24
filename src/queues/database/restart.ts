@@ -64,14 +64,14 @@ const worker = new Worker<QueueArgs>(
         databaseType,
         {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -87,13 +87,13 @@ const worker = new Worker<QueueArgs>(
         },
       )
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `✅ Successfully restarted ${databaseName}-database`,
         serverId: serverDetails.id,
       })
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `Syncing details...`,
         serverId: serverDetails.id,
@@ -134,7 +134,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to restart database', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

@@ -50,6 +50,7 @@ export const databaseUpdateSchema = z.union([
       deployment: z.object({
         id: z.string(),
         status: z.enum(['queued', 'building', 'failed', 'success']),
+        logs: z.string().array().optional(),
       }),
     }),
   }),

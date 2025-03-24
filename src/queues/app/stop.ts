@@ -41,14 +41,14 @@ const worker = new Worker<QueueArgs>(
       ssh = await dynamicSSH(sshDetails)
       await dokku.process.stop(ssh, serviceDetails.name, {
         onStdout: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
           })
         },
         onStderr: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
@@ -56,7 +56,7 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `✅ Successfully stopped ${serviceDetails.name}`,
         serverId: serverDetails.id,
@@ -75,7 +75,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to stop app', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

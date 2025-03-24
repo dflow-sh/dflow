@@ -35,7 +35,7 @@ const worker = new Worker<QueueArgs>(
     try {
       ssh = await dynamicSSH(sshDetails)
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `Starting Netdata uninstallation...`,
         serverId: serverDetails.id,
@@ -45,14 +45,14 @@ const worker = new Worker<QueueArgs>(
         ssh,
         options: {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -62,13 +62,13 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (uninstallResponse.success) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully uninstalled Netdata: ${uninstallResponse.message}`,
           serverId: serverDetails.id,
         })
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -100,7 +100,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to uninstall Netdata', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

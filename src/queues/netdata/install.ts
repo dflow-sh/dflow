@@ -35,7 +35,7 @@ const worker = new Worker<QueueArgs>(
     try {
       ssh = await dynamicSSH(sshDetails)
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `Starting Netdata installation...`,
         serverId: serverDetails.id,
@@ -45,14 +45,14 @@ const worker = new Worker<QueueArgs>(
         ssh,
         options: {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -62,7 +62,7 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (installResponse.success) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully installed Netdata: ${installResponse.message}`,
           serverId: serverDetails.id,
@@ -73,14 +73,14 @@ const worker = new Worker<QueueArgs>(
           ssh,
           options: {
             onStdout: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
               })
             },
             onStderr: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -90,7 +90,7 @@ const worker = new Worker<QueueArgs>(
         })
 
         if (enableResponse.success) {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `✅ Successfully enabled and started Netdata service`,
             serverId: serverDetails.id,
@@ -101,7 +101,7 @@ const worker = new Worker<QueueArgs>(
           )
         }
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -131,7 +131,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to install Netdata', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

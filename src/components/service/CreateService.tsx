@@ -85,7 +85,9 @@ const CreateService = ({ server }: { server: Server }) => {
         if (data.redirectUrl) {
           router.push(data?.redirectUrl)
         }
-        toast.success(`Successfully created ${input.name} service`)
+        toast.success(`Successfully created ${input.name} service`, {
+          description: 'Redirecting to service-details page...',
+        })
         setOpen(false)
       }
     },

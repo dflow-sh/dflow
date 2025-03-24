@@ -37,14 +37,14 @@ const worker = new Worker<QueueArgs>(
 
       const installationResponse = await dokku.version.install(ssh, {
         onStdout: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
           })
         },
         onStderr: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
@@ -53,13 +53,13 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (installationResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully installed dokku`,
           serverId: serverDetails.id,
         })
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -87,7 +87,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to install plugin', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

@@ -60,14 +60,14 @@ const worker = new Worker<QueueArgs>(
               global.domain,
               {
                 onStdout: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
                   })
                 },
                 onStderr: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
@@ -82,14 +82,14 @@ const worker = new Worker<QueueArgs>(
               global.domain,
               {
                 onStdout: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
                   })
                 },
                 onStderr: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
@@ -104,14 +104,14 @@ const worker = new Worker<QueueArgs>(
               global.domain,
               {
                 onStdout: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
                   })
                 },
                 onStderr: async chunk => {
-                  await sendEvent({
+                  sendEvent({
                     pub,
                     message: chunk.toString(),
                     serverId: serverDetails.id,
@@ -125,7 +125,7 @@ const worker = new Worker<QueueArgs>(
         }
 
         if (executionResponse.code === 0) {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `✅ Successfully ${global.action}ed global domain ${global.domain}`,
             serverId: serverDetails.id,
@@ -148,7 +148,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed during global-domain operation', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

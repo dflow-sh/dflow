@@ -19,17 +19,25 @@ const DeploymentTerminal = ({
   deployment,
   serviceId,
   serverId,
+  logs,
 }: {
   children: React.ReactNode
   deployment: Deployment
   serviceId: string
   serverId: string
+  logs: unknown[]
 }) => {
   const [messages, setMessages] = useState<string[]>([])
   const [open, setOpen] = useState<boolean>(false)
   const eventSourceRef = useRef<EventSource>(null)
 
   useEffect(() => {
+    if (!!logs.length) {
+      setMessages(logs as string[])
+      eventSourceRef.current?.close()
+      return
+    }
+
     if (!open || eventSourceRef.current) {
       return
     }
@@ -47,7 +55,7 @@ const DeploymentTerminal = ({
     }
 
     eventSourceRef.current = eventSource
-  }, [open])
+  }, [open, logs])
 
   useEffect(() => {
     // On component unmount close the event source
@@ -77,6 +85,7 @@ const DeploymentTerminal = ({
 
         <Terminal
           messages={messages}
+          isLoading={!logs.length}
           className='min-h-[70vh] w-full overflow-x-hidden'
         />
       </DialogContent>

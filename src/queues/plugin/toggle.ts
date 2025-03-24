@@ -53,14 +53,14 @@ const worker = new Worker<QueueArgs>(
         ssh,
         options: {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -70,13 +70,13 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (pluginStatusResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully ${pluginDetails.enabled ? 'enabled' : 'disabled'} ${pluginDetails.name} plugin`,
           serverId: serverDetails.id,
         })
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -139,7 +139,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to toggle plugin', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

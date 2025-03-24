@@ -45,14 +45,14 @@ const worker = new Worker<QueueArgs>(
         email,
         {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -62,7 +62,7 @@ const worker = new Worker<QueueArgs>(
       )
 
       if (letsencryptEmailResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully configured letsencrypt email: ${email}`,
           serverId: serverDetails.id,
@@ -73,14 +73,14 @@ const worker = new Worker<QueueArgs>(
         if (autoGenerateSSL) {
           autoGenerateSSLResponse = await dokku.letsencrypt.cron(ssh, {
             onStdout: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
               })
             },
             onStderr: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -89,21 +89,21 @@ const worker = new Worker<QueueArgs>(
           })
 
           if (autoGenerateSSLResponse.code === 0) {
-            await sendEvent({
+            sendEvent({
               pub,
               message: `✅ Successfully added cron for  SSL certificate auto-generation`,
               serverId: serverDetails.id,
             })
           }
         } else {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `⏭️ Skipping automatic SSL certificate generation!`,
             serverId: serverDetails.id,
           })
         }
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -166,7 +166,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to configure letsencrypt plugin', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

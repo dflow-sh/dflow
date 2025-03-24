@@ -60,7 +60,7 @@ const worker = new Worker<QueueArgs>(
 
       // If already ports exposed, un-exposing them before re-exposing new ports
       if (serviceDetails.previousPorts?.length) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Un-exposing previous ports ${serviceDetails.ports.join(
             ', ',
@@ -75,14 +75,14 @@ const worker = new Worker<QueueArgs>(
           ports: serviceDetails.previousPorts,
           options: {
             onStdout: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
               })
             },
             onStderr: async chunk => {
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -91,7 +91,7 @@ const worker = new Worker<QueueArgs>(
           },
         })
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully Un-exposed previous ports ${serviceDetails.ports.join(
             ', ',
@@ -107,14 +107,14 @@ const worker = new Worker<QueueArgs>(
         ports: serviceDetails.ports,
         options: {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -124,7 +124,7 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (res.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully exposed ${databaseName} on port ${serviceDetails.ports.join(', ')}`,
           serverId: serverDetails.id,
@@ -146,7 +146,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to expose ports', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

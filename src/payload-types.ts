@@ -342,6 +342,15 @@ export interface Deployment {
    */
   service: string | Service;
   status: 'queued' | 'building' | 'failed' | 'success';
+  logs?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -570,6 +579,7 @@ export interface GitProvidersSelect<T extends boolean = true> {
 export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
+  logs?: T;
   updatedAt?: T;
   createdAt?: T;
 }

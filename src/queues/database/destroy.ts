@@ -51,14 +51,14 @@ const worker = new Worker<QueueArgs>(
         databaseType,
         {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -75,7 +75,7 @@ const worker = new Worker<QueueArgs>(
       )
 
       if (deletedResponse) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully deleted ${databaseName}-database`,
           serverId: serverDetails.id,
@@ -99,7 +99,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   const serverDetails = job?.data?.serverDetails
 
   if (serverDetails) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: serverDetails.id,

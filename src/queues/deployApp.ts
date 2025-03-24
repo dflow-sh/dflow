@@ -48,30 +48,30 @@ const worker = new Worker<QueueArgs>(
   QUEUE_NAME,
   async job => {
     let ssh: NodeSSH | null = null
+    const {
+      appName,
+      userName: repoOwner,
+      repoName,
+      branch,
+      sshDetails,
+      serviceDetails,
+      payloadToken,
+    } = job.data
+    const { serverId, serviceId } = serviceDetails
 
     try {
-      const {
-        appName,
-        userName: repoOwner,
-        repoName,
-        branch,
-        sshDetails,
-        serviceDetails,
-        payloadToken,
-      } = job.data
-      const { serverId, serviceId } = serviceDetails
-
       console.log('inside queue: ' + QUEUE_NAME)
       console.log('from queue', job.id)
       ssh = await dynamicSSH(sshDetails)
 
       // Step 1: Setting dokku port
       const port = serviceDetails.port ?? '3000'
-      await sendEvent({
+      sendEvent({
         message: `Stated exposing port ${port}`,
         pub,
         serverId,
         serviceId,
+        channelId: serviceDetails.deploymentId,
       })
 
       const portResponse = await dokku.ports.set(
@@ -82,47 +82,52 @@ const worker = new Worker<QueueArgs>(
         port,
         {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               message: chunk.toString(),
               pub,
               serverId,
               serviceId,
+              channelId: serviceDetails.deploymentId,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               message: chunk.toString(),
               pub,
               serverId,
               serviceId,
+              channelId: serviceDetails.deploymentId,
             })
           },
         },
       )
 
       if (portResponse) {
-        await sendEvent({
+        sendEvent({
           message: `✅ Successfully exposed port ${port}`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
       } else {
-        await sendEvent({
+        sendEvent({
           message: `❌ Failed to exposed port ${port}`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
       }
 
       // Step 2: Setting environment variables & add build-args
       if (serviceDetails.environmentVariables) {
-        await sendEvent({
+        sendEvent({
           message: `Stated setting environment variables`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
 
         const envResponse = await dokku.config.set({
@@ -137,37 +142,41 @@ const worker = new Worker<QueueArgs>(
           noRestart: false,
           options: {
             onStdout: async chunk => {
-              await sendEvent({
+              sendEvent({
                 message: chunk.toString(),
                 pub,
                 serverId,
                 serviceId,
+                channelId: serviceDetails.deploymentId,
               })
             },
             onStderr: async chunk => {
-              await sendEvent({
+              sendEvent({
                 message: chunk.toString(),
                 pub,
                 serverId,
                 serviceId,
+                channelId: serviceDetails.deploymentId,
               })
             },
           },
         })
 
         if (envResponse) {
-          await sendEvent({
+          sendEvent({
             message: `✅ Successfully set environment variables`,
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         } else {
-          await sendEvent({
+          sendEvent({
             message: `❌ Failed to set environment variables`,
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         }
 
@@ -175,11 +184,12 @@ const worker = new Worker<QueueArgs>(
           .map(([key, value]) => `--build-arg ${key}=${value}`)
           .join(' ')
 
-        await sendEvent({
+        sendEvent({
           message: `Stated adding environment variables as build arguments`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
 
         const buildArgsResponse = await dokku.docker.options({
@@ -190,19 +200,21 @@ const worker = new Worker<QueueArgs>(
           ssh,
           options: {
             onStdout: async chunk => {
-              await sendEvent({
+              sendEvent({
                 message: chunk.toString(),
                 pub,
                 serverId,
                 serviceId,
+                channelId: serviceDetails.deploymentId,
               })
             },
             onStderr: async chunk => {
-              await sendEvent({
+              sendEvent({
                 message: chunk.toString(),
                 pub,
                 serverId,
                 serviceId,
+                channelId: serviceDetails.deploymentId,
               })
             },
           },
@@ -211,29 +223,32 @@ const worker = new Worker<QueueArgs>(
         console.log({ buildArgsResponse })
 
         if (buildArgsResponse.code === 0) {
-          await sendEvent({
+          sendEvent({
             message: `✅ Successfully added environment variables as build arguments`,
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         } else {
-          await sendEvent({
+          sendEvent({
             message: `❌ Failed to add environment variables as build arguments`,
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         }
       }
 
       // Step 4: Cloning the repo
       // Generating github-app details for deployment
-      await sendEvent({
+      sendEvent({
         message: `Stated cloning repository`,
         pub,
         serverId,
         serviceId,
+        channelId: serviceDetails.deploymentId,
       })
 
       let token = ''
@@ -274,37 +289,41 @@ const worker = new Worker<QueueArgs>(
         branchName,
         options: {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               message: chunk.toString(),
               pub,
               serverId,
               serviceId,
+              channelId: serviceDetails.deploymentId,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               message: chunk.toString(),
               pub,
               serverId,
               serviceId,
+              channelId: serviceDetails.deploymentId,
             })
           },
         },
       })
 
       if (cloningResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           message: `✅ Successfully cloned & build repository`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
       } else {
-        await sendEvent({
+        sendEvent({
           message: `❌ Failed to clone & build repository`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
 
         // exiting from the flow
@@ -312,36 +331,47 @@ const worker = new Worker<QueueArgs>(
       }
 
       // Step 5: SSL certificate generation
-      await sendEvent({
+      sendEvent({
         message: `Started generating SSL`,
         pub,
         serverId,
         serviceId,
+        channelId: serviceDetails.deploymentId,
       })
 
       const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
         onStdout: async chunk => {
-          await sendEvent({
+          sendEvent({
             message: chunk.toString(),
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         },
-        onStderr: chunk => {},
+        onStderr: async chunk => {
+          sendEvent({
+            message: chunk.toString(),
+            pub,
+            serverId,
+            serviceId,
+            channelId: serviceDetails.deploymentId,
+          })
+        },
       })
 
       console.dir({ letsencryptResponse, serviceDetails }, { depth: Infinity })
 
       if (letsencryptResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           message: `✅ Successfully generated SSL certificates`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
 
-        await sendEvent({
+        sendEvent({
           message: `Updating domain details...`,
           pub,
           serverId,
@@ -353,7 +383,7 @@ const worker = new Worker<QueueArgs>(
         const defaultDomain = domainsResponse?.[0]
 
         if (defaultDomain) {
-          const domainUpdateResponse = await payloadWebhook({
+          await payloadWebhook({
             payloadToken,
             data: {
               type: 'domain.update',
@@ -369,7 +399,9 @@ const worker = new Worker<QueueArgs>(
             },
           })
 
-          const deploymentResponse = await payloadWebhook({
+          const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
+
+          await payloadWebhook({
             payloadToken: `${payloadToken}`,
             data: {
               type: 'deployment.update',
@@ -377,14 +409,13 @@ const worker = new Worker<QueueArgs>(
                 deployment: {
                   id: serviceDetails.deploymentId,
                   status: 'success',
+                  logs,
                 },
               },
             },
           })
 
-          console.log('deploymentResponse', await deploymentResponse.json())
-
-          await sendEvent({
+          sendEvent({
             message: `✅ Updated domain details`,
             pub,
             serverId,
@@ -397,11 +428,12 @@ const worker = new Worker<QueueArgs>(
           )
         }
       } else {
-        await sendEvent({
+        sendEvent({
           message: `❌ Failed to generated SSL certificates`,
           pub,
           serverId,
           serviceId,
+          channelId: serviceDetails.deploymentId,
         })
       }
 
@@ -413,6 +445,32 @@ const worker = new Worker<QueueArgs>(
         message = error.message
       }
 
+      sendEvent({
+        message,
+        pub,
+        serverId,
+        serviceId,
+        channelId: serviceDetails.deploymentId,
+      })
+
+      const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
+
+      // Changing status to failed
+      await payloadWebhook({
+        payloadToken: `${payloadToken}`,
+        data: {
+          type: 'deployment.update',
+          data: {
+            deployment: {
+              id: serviceDetails.deploymentId,
+              status: 'failed',
+              logs,
+            },
+          },
+        },
+      })
+
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
       throw new Error(`❌ Failed to deploy app: ${message}`)
     } finally {
       if (ssh) {
@@ -425,36 +483,6 @@ const worker = new Worker<QueueArgs>(
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to deploy app', err)
-
-  const queueData = job?.data
-
-  if (queueData) {
-    const { serviceDetails, payloadToken } = queueData
-    const { serverId, serviceId } = serviceDetails
-
-    await sendEvent({
-      message: err.message,
-      pub,
-      serverId,
-      serviceId,
-    })
-
-    // Changing status to failed
-    await payloadWebhook({
-      payloadToken: `${payloadToken}`,
-      data: {
-        type: 'deployment.update',
-        data: {
-          deployment: {
-            id: serviceDetails.deploymentId,
-            status: 'failed',
-          },
-        },
-      },
-    })
-
-    await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-  }
 })
 
 export const addDeploymentQueue = async (data: QueueArgs) => {

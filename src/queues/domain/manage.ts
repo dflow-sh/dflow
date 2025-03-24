@@ -59,7 +59,7 @@ const worker = new Worker<QueueArgs>(
           executionResponse = await dokku.domains.add(ssh, name, domain, {
             onStdout: async chunk => {
               console.info(chunk.toString())
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -72,7 +72,7 @@ const worker = new Worker<QueueArgs>(
                   type: 'stdout',
                 },
               })
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -84,7 +84,7 @@ const worker = new Worker<QueueArgs>(
           executionResponse = await dokku.domains.remove(ssh, name, domain, {
             onStdout: async chunk => {
               console.info(chunk.toString())
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -97,7 +97,7 @@ const worker = new Worker<QueueArgs>(
                   type: 'stdout',
                 },
               })
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -109,7 +109,7 @@ const worker = new Worker<QueueArgs>(
           executionResponse = await dokku.domains.set(ssh, name, domain, {
             onStdout: async chunk => {
               console.info(chunk.toString())
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -122,7 +122,7 @@ const worker = new Worker<QueueArgs>(
                   type: 'stdout',
                 },
               })
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -135,7 +135,7 @@ const worker = new Worker<QueueArgs>(
       }
 
       if (executionResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully ${operation[action]} domain ${domain}`,
           serverId: serverDetails.id,
@@ -143,7 +143,7 @@ const worker = new Worker<QueueArgs>(
       }
 
       if (certificateType === 'letsencrypt') {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Started adding SSL Certificate to domain ${domain}`,
           serverId: serverDetails.id,
@@ -152,7 +152,7 @@ const worker = new Worker<QueueArgs>(
         const letsencryptResponse = await dokku.letsencrypt.enable(ssh, name, {
           onStdout: async chunk => {
             console.info(chunk.toString())
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -165,7 +165,7 @@ const worker = new Worker<QueueArgs>(
                 type: 'stdout',
               },
             })
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -174,7 +174,7 @@ const worker = new Worker<QueueArgs>(
         })
 
         if (letsencryptResponse.code === 0) {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `✅ Successfully added SSL Certificate to domain ${domain}`,
             serverId: serverDetails.id,
@@ -197,7 +197,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed during service-domain operation', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

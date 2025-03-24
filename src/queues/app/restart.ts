@@ -40,14 +40,14 @@ const worker = new Worker<QueueArgs>(
       ssh = await dynamicSSH(sshDetails)
       const res = await dokku.process.restart(ssh, serviceDetails.name, {
         onStdout: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
           })
         },
         onStderr: async chunk => {
-          await sendEvent({
+          sendEvent({
             pub,
             message: chunk.toString(),
             serverId: serverDetails.id,
@@ -55,7 +55,7 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      await sendEvent({
+      sendEvent({
         pub,
         message: `✅ Successfully restarted ${serviceDetails.name}`,
         serverId: serverDetails.id,
@@ -76,7 +76,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to restart app', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

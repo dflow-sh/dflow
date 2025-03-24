@@ -38,7 +38,8 @@ const DeploymentList = ({
     <section className='space-y-4'>
       {filteredDeployments.length ? (
         filteredDeployments?.map(deploymentDetails => {
-          const { id, status, createdAt } = deploymentDetails
+          const { id, status, createdAt, logs } = deploymentDetails
+          const deployedLogs = Array.isArray(logs) ? logs : []
 
           return (
             <Card key={id} className='text-sm'>
@@ -74,6 +75,7 @@ const DeploymentList = ({
                 </div>
 
                 <DeploymentTerminal
+                  logs={deployedLogs}
                   deployment={deploymentDetails}
                   serverId={serverId}
                   serviceId={serviceId}>

@@ -149,19 +149,21 @@ const worker = new Worker<QueueArgs>(
 
       const res = await dokku.database.create(ssh, databaseName, databaseType, {
         onStdout: async chunk => {
-          await sendEvent({
+          sendEvent({
             message: chunk.toString(),
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
         },
         onStderr: async chunk => {
-          await sendEvent({
+          sendEvent({
             message: chunk.toString(),
             pub,
             serverId,
             serviceId,
+            channelId: serviceDetails.deploymentId,
           })
 
           console.info({
@@ -173,14 +175,14 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      await sendEvent({
+      sendEvent({
         message: `✅ Successfully created ${databaseName}-database, updated details...`,
         pub,
         serverId,
         serviceId,
       })
 
-      await sendEvent({
+      sendEvent({
         message: `Syncing details...`,
         pub,
         serverId,
@@ -192,7 +194,7 @@ const worker = new Worker<QueueArgs>(
         dbType: databaseType,
       })
 
-      const webhookResponse = await payloadWebhook({
+      await payloadWebhook({
         payloadToken: `${payloadToken}`,
         data: {
           type: 'database.update',
@@ -203,7 +205,9 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      const deploymentResponse = await payloadWebhook({
+      const logs = await pub.lrange(deploymentId, 0, -1)
+
+      await payloadWebhook({
         payloadToken: `${payloadToken}`,
         data: {
           type: 'deployment.update',
@@ -211,18 +215,42 @@ const worker = new Worker<QueueArgs>(
             deployment: {
               id: deploymentId,
               status: 'success',
+              logs,
+            },
+          },
+        },
+      })
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+
+      sendEvent({
+        message,
+        pub,
+        serverId,
+        serviceId,
+        channelId: serviceDetails.deploymentId,
+      })
+
+      const logs = await pub.lrange(deploymentId, 0, -1)
+
+      await payloadWebhook({
+        payloadToken: `${payloadToken}`,
+        data: {
+          type: 'deployment.update',
+          data: {
+            deployment: {
+              id: deploymentId,
+              status: 'failed',
+              logs,
             },
           },
         },
       })
 
-      console.log({ webhookResponse, deploymentResponse })
-
-      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-    } catch (error) {
-      let message = error instanceof Error ? error.message : ''
       throw new Error(`❌ Failed creating ${databaseName}-database: ${message}`)
     } finally {
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
       if (ssh) {
         ssh.dispose()
       }
@@ -232,38 +260,7 @@ const worker = new Worker<QueueArgs>(
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  const databaseDetails = job?.data
-
-  if (databaseDetails) {
-    const { payloadToken } = databaseDetails
-    const {
-      id: serviceId,
-      serverId,
-      deploymentId,
-    } = databaseDetails.serviceDetails
-
-    await sendEvent({
-      message: err.message,
-      pub,
-      serverId,
-      serviceId,
-    })
-
-    await payloadWebhook({
-      payloadToken: `${payloadToken}`,
-      data: {
-        type: 'deployment.update',
-        data: {
-          deployment: {
-            id: deploymentId,
-            status: 'failed',
-          },
-        },
-      },
-    })
-
-    await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-  }
+  console.log('Failed to deploy database', err)
 })
 
 export const addCreateDatabaseQueue = async (data: QueueArgs) => {

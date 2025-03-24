@@ -5,18 +5,39 @@ type SendEventType = {
   serviceId?: string
   pub: Redis
   message: string
+  channelId?: string // this channelId is used for lpush command
 }
 
-export const sendEvent = async ({
+type PublishEventType = {
+  pub: Redis
+  message: string
+  channelId: string
+}
+
+export const sendEvent = ({
   serverId,
   serviceId,
   message,
   pub,
+  channelId,
 }: SendEventType) => {
   const channel = `channel-${serverId}${serviceId ? `-${serviceId}` : ''}`
 
+  void Promise.all([
+    pub.publish(channel, message),
+    channelId ? pub.lpush(channelId, message) : null,
+  ]).catch(error => {
+    console.error(`Failed to process event for ${channel}:`, error)
+  })
+}
+
+export const storeEvent = async ({
+  channelId,
+  message,
+  pub,
+}: PublishEventType) => {
   try {
-    pub.publish(channel, message)
+    pub.lpush(channelId, message)
   } catch (error) {
     let message = ''
 
@@ -24,6 +45,6 @@ export const sendEvent = async ({
       message = error.message
     }
 
-    console.log(`Failed to publish event in channel ${channel}: ${message}`)
+    console.log(`Failed to store log ${channelId}: ${message}`)
   }
 }

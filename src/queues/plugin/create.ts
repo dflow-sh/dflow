@@ -50,14 +50,14 @@ const worker = new Worker<QueueArgs>(
         `${pluginDetails.url} ${pluginDetails.name}`,
         {
           onStdout: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
             })
           },
           onStderr: async chunk => {
-            await sendEvent({
+            sendEvent({
               pub,
               message: chunk.toString(),
               serverId: serverDetails.id,
@@ -67,13 +67,13 @@ const worker = new Worker<QueueArgs>(
       )
 
       if (pluginInstallationResponse.code === 0) {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `✅ Successfully installed ${pluginDetails.name} plugin`,
           serverId: serverDetails.id,
         })
 
-        await sendEvent({
+        sendEvent({
           pub,
           message: `Syncing changes...`,
           serverId: serverDetails.id,
@@ -142,7 +142,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to install plugin', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,

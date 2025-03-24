@@ -50,5 +50,9 @@ export const Deployments: CollectionConfig = {
       required: true,
       defaultValue: 'queued',
     },
+    {
+      name: 'logs',
+      type: 'json',
+    },
   ],
 }

@@ -65,7 +65,7 @@ const worker = new Worker<QueueArgs>(
           options: {
             onStdout: async chunk => {
               console.info(chunk.toString())
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -73,7 +73,7 @@ const worker = new Worker<QueueArgs>(
             },
             onStderr: async chunk => {
               console.info(chunk.toString())
-              await sendEvent({
+              sendEvent({
                 pub,
                 message: chunk.toString(),
                 serverId: serverDetails.id,
@@ -83,13 +83,13 @@ const worker = new Worker<QueueArgs>(
         })
 
         if (envResponse) {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `✅ Successfully updated environment variables for ${serviceDetails.name}`,
             serverId: serverDetails.id,
           })
 
-          await sendEvent({
+          sendEvent({
             pub,
             message: `Syncing details...`,
             serverId: serverDetails.id,
@@ -100,14 +100,14 @@ const worker = new Worker<QueueArgs>(
             JSON.stringify({ refresh: true }),
           )
         } else {
-          await sendEvent({
+          sendEvent({
             pub,
             message: `❌ Failed update environment variables for ${serviceDetails.name}`,
             serverId: serverDetails.id,
           })
         }
       } else {
-        await sendEvent({
+        sendEvent({
           pub,
           message: `❌ Failed to update environment variables for ${serviceDetails.name}. App not found`,
           serverId: serverDetails.id,
@@ -129,7 +129,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to stop database', err)
 
   if (job?.data) {
-    await sendEvent({
+    sendEvent({
       pub,
       message: err.message,
       serverId: job.data.serverDetails.id,
