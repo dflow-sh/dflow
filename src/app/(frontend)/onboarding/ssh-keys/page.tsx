@@ -25,7 +25,7 @@ const SuspendedPage = async () => {
       <CreateSSHKeyForm />
 
       {sshKeys.length ? (
-        <div className='mt-8'>
+        <div className='mt-8 space-y-4'>
           <h3 className='text-xl font-semibold'>SSH Keys</h3>
           <SSHKeysList keys={sshKeys} />
         </div>

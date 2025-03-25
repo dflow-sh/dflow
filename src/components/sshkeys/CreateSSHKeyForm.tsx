@@ -199,11 +199,11 @@ const CreateSSHKey = ({
         <DialogTrigger asChild>
           <Button
             onClick={e => e.stopPropagation()}
+            size={type === 'update' ? 'icon' : 'default'}
             variant={type === 'update' ? 'outline' : 'default'}>
             {type === 'update' ? (
               <>
                 <Pencil />
-                Edit SSH Key
               </>
             ) : (
               <>

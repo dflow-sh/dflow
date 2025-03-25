@@ -266,11 +266,12 @@ const CreateServer = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={type === 'update' ? 'outline' : 'default'}>
+        <Button
+          size={type === 'update' ? 'icon' : 'default'}
+          variant={type === 'update' ? 'outline' : 'default'}>
           {type === 'update' ? (
             <>
               <Pencil />
-              Edit Server
             </>
           ) : (
             <>

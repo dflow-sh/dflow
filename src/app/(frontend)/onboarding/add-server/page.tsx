@@ -37,7 +37,7 @@ const SuspendedPage = async () => {
       <CreateServerForm sshKeys={sshKeys} />
 
       {servers.length ? (
-        <div className='mt-8'>
+        <div className='mt-8 space-y-4'>
           <h3 className='text-xl font-semibold'>Servers</h3>
           <ServerList servers={servers as ServerType[]} sshKeys={sshKeys} />
         </div>

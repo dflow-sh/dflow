@@ -57,16 +57,28 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   )
 
+  const { deployments } = service
+  const deploymentList = deployments?.docs
+    ? deployments.docs.filter(deployment => typeof deployment !== 'string')
+    : []
+  const deploymentSucceed = deploymentList.some(
+    deployment => deployment.status === 'success',
+  )
+
+  console.log({ deploymentSucceed })
+
   return (
     <div className='mt-6 flex gap-x-2 md:mt-0'>
-      <Button
-        disabled={isPending}
-        onClick={() => {
-          execute({ serviceId: params.serviceId, projectId: params.id })
-        }}>
-        <Rocket />
-        Deploy
-      </Button>
+      {!deploymentSucceed && (
+        <Button
+          disabled={isPending}
+          onClick={() => {
+            execute({ serviceId: params.serviceId, projectId: params.id })
+          }}>
+          <Rocket />
+          Deploy
+        </Button>
+      )}
 
       {/* <Button
           disabled={isRestartingService}

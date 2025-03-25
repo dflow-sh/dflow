@@ -2,27 +2,13 @@
 
 import { Dokku, Linux, Ubuntu } from '../icons'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import { Card, CardContent } from '../ui/card'
 import { HardDrive, Trash2, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
 
 import { deleteServerAction } from '@/actions/server'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import {
   Tooltip,
   TooltipContent,
@@ -129,70 +115,22 @@ const ServerItem = ({
   })
 
   return (
-    <AccordionItem value={server.id} className='border-b-0 py-2'>
-      <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
-        <div className='flex w-full items-center justify-between pr-2'>
-          <div className='flex gap-3'>
-            <HardDrive
-              size={16}
-              className='mt-1 shrink-0 text-muted-foreground'
-              aria-hidden='true'
-            />
+    <Card className='max-w-5xl'>
+      <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
+        <div className='flex items-center gap-3'>
+          <HardDrive size={20} />
 
-            <div>
-              <div className='space-x-2'>
-                <span>{server.name}</span>
-              </div>
-
-              <p className='text-sm font-normal text-muted-foreground'>
-                {server.description}
-              </p>
-            </div>
+          <div>
+            <p className='font-semibold'>{server.name}</p>
+            <span className='text-sm text-muted-foreground'>
+              {server.description}
+            </span>
           </div>
+        </div>
 
+        <div className='flex items-center gap-3'>
           <ServerStatus server={server} />
-        </div>
-      </AccordionTrigger>
 
-      <AccordionContent className='space-y-4 pb-2 ps-7'>
-        <div className='space-y-1'>
-          <Label>IP Address</Label>
-          <Input disabled value={server.ip} />
-        </div>
-
-        <div className='grid grid-cols-2 gap-2'>
-          <div className='space-y-1'>
-            <Label>Port</Label>
-            <Input disabled value={server.port} />
-          </div>
-
-          <div className='space-y-1'>
-            <Label>Username</Label>
-            <Input disabled value={server.username} />
-          </div>
-        </div>
-
-        {typeof server.sshKey === 'object' && (
-          <div className='space-y-1'>
-            <Label className='block'>SSH Key</Label>
-
-            <Select disabled value={server.sshKey.id}>
-              <SelectTrigger>
-                <SelectValue placeholder='Select a SSH key' />
-              </SelectTrigger>
-
-              <SelectContent>
-                {sshKeys.map(({ name, id }) => (
-                  <SelectItem key={id} value={id}>
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <div className='flex w-full justify-end gap-3'>
           <UpdateServer
             sshKeys={sshKeys}
             type='update'
@@ -201,17 +139,17 @@ const ServerItem = ({
           />
 
           <Button
-            variant='destructive'
             disabled={isPending}
             onClick={() => {
               execute({ id: server.id })
-            }}>
-            <Trash2 />
-            Delete
+            }}
+            size='icon'
+            variant='outline'>
+            <Trash2 size={20} />
           </Button>
         </div>
-      </AccordionContent>
-    </AccordionItem>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -222,17 +160,9 @@ const ServerList = ({
   servers: ServerType[]
   sshKeys: SshKey[]
 }) => {
-  return (
-    <Accordion type='single' collapsible className='w-full divide-y-[1px]'>
-      {servers.map(serverDetails => (
-        <ServerItem
-          server={serverDetails}
-          key={serverDetails.id}
-          sshKeys={sshKeys}
-        />
-      ))}
-    </Accordion>
-  )
+  return servers.map(server => (
+    <ServerItem server={server} sshKeys={sshKeys} key={server.id} />
+  ))
 }
 
 export default ServerList

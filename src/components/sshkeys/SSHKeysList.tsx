@@ -1,19 +1,12 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Label } from '../ui/label'
-import { Textarea } from '../ui/textarea'
+import { Card, CardContent } from '../ui/card'
 import { KeyRound, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
 import { deleteSSHKeyAction } from '@/actions/sshkeys'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
 import { SshKey } from '@/payload-types'
 
 import UpdateSSHKeyForm from './CreateSSHKeyForm'
@@ -31,39 +24,20 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
   })
 
   return (
-    <AccordionItem value={sshKey.id} className='max-w-5xl border-b-0 py-2'>
-      <AccordionTrigger className='py-2 text-[15px] leading-6 hover:no-underline'>
-        <span className='flex gap-3'>
-          <KeyRound
-            size={16}
-            strokeWidth={2}
-            className='mt-1 shrink-0 text-muted-foreground'
-            aria-hidden='true'
-          />
+    <Card className='max-w-5xl'>
+      <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
+        <div className='flex items-center gap-3'>
+          <KeyRound size={20} />
 
           <div>
-            <div className='space-x-2'>
-              <span>{sshKey.name}</span>
-            </div>
-            <p className='text-sm font-normal text-muted-foreground'>
+            <p className='font-semibold'>{sshKey.name}</p>
+            <span className='text-sm text-muted-foreground'>
               {sshKey.description}
-            </p>
+            </span>
           </div>
-        </span>
-      </AccordionTrigger>
-
-      <AccordionContent className='space-y-4 pb-2 ps-7'>
-        <div className='space-y-1'>
-          <Label>Public Key</Label>
-          <Textarea disabled value={sshKey.publicKey} />
         </div>
 
-        <div className='space-y-1'>
-          <Label>Private Key</Label>
-          <Textarea disabled value={sshKey.privateKey} />
-        </div>
-
-        <div className='flex justify-end gap-3'>
+        <div className='flex items-center gap-3'>
           <UpdateSSHKeyForm
             sshKey={sshKey}
             type='update'
@@ -71,28 +45,22 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           />
 
           <Button
-            variant='destructive'
             disabled={isPending}
             onClick={() => {
               execute({ id: sshKey.id })
-            }}>
-            <Trash2 />
-            Delete
+            }}
+            size='icon'
+            variant='outline'>
+            <Trash2 size={20} />
           </Button>
         </div>
-      </AccordionContent>
-    </AccordionItem>
+      </CardContent>
+    </Card>
   )
 }
 
 const SSHKeysList = ({ keys }: { keys: SshKey[] }) => {
-  return (
-    <Accordion type='single' collapsible className='w-full divide-y-[1px]'>
-      {keys.map(key => (
-        <SSHKeyItem sshKey={key} key={key.id} />
-      ))}
-    </Accordion>
-  )
+  return keys.map(key => <SSHKeyItem sshKey={key} key={key.id} />)
 }
 
 export default SSHKeysList
