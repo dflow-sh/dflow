@@ -23,7 +23,7 @@ const GithubCard = ({
   const { execute, isPending } = useAction(deleteGitProviderAction)
 
   return (
-    <Card key={provider.id} className='max-w-5xl'>
+    <Card key={provider.id}>
       <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
         <div className='flex items-center gap-3'>
           <Github size={20} />

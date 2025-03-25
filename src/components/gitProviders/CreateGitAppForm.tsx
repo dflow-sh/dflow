@@ -32,8 +32,7 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
   return (
     <form
       method='post'
-      action='https://github.com/settings/apps/new?state=gh_init'
-      className='mt-4'>
+      action='https://github.com/settings/apps/new?state=gh_init'>
       <input
         type='text'
         name='manifest'

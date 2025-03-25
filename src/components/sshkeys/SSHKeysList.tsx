@@ -24,7 +24,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
   })
 
   return (
-    <Card className='max-w-5xl'>
+    <Card>
       <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
         <div className='flex items-center gap-3'>
           <KeyRound size={20} />
@@ -60,7 +60,13 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
 }
 
 const SSHKeysList = ({ keys }: { keys: SshKey[] }) => {
-  return keys.map(key => <SSHKeyItem sshKey={key} key={key.id} />)
+  return (
+    <div className='mt-4 w-full space-y-4'>
+      {keys.map(key => (
+        <SSHKeyItem sshKey={key} key={key.id} />
+      ))}
+    </div>
+  )
 }
 
 export default SSHKeysList
