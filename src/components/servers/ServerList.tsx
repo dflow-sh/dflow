@@ -198,7 +198,6 @@ const ServerItem = ({
             type='update'
             title='Update Server'
             server={server}
-            description='Update the server-details'
           />
 
           <Button
