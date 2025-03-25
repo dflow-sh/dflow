@@ -1,13 +1,11 @@
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
-import { Plus } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import PageHeader from '@/components/PageHeader'
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
-import { Button } from '@/components/ui/button'
 
 const SuspendedAddServer = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -40,7 +38,7 @@ const SuspendedPage = async () => {
 const ServersPage = async () => {
   return (
     <>
-      <PageHeader
+      {/* <PageHeader
         title='Servers'
         action={
           <Suspense
@@ -53,10 +51,16 @@ const ServersPage = async () => {
             <SuspendedAddServer />
           </Suspense>
         }
-      />
+      /> */}
 
       <Suspense fallback={<Loader className='h-96 w-full' />}>
-        <SuspendedPage />
+        <LayoutClient>
+          <div className='mb-5 flex items-center justify-between'>
+            <div className='text-2xl font-semibold'>Servers</div>
+            <SuspendedAddServer />
+          </div>
+          <SuspendedPage />
+        </LayoutClient>
       </Suspense>
     </>
   )

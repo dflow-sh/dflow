@@ -1,8 +1,8 @@
+import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
 import Loader from '@/components/Loader'
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminal from '@/components/ServerTerminal'
@@ -74,10 +74,10 @@ const SuspendedPage = async () => {
 const DashboardPage = () => {
   return (
     <>
-      <DynamicBreadcrumbs items={[{ label: 'Dashboard' }]} />
-
       <Suspense fallback={<Loader className='h-96 w-full' />}>
-        <SuspendedPage />
+        <LayoutClient>
+          <SuspendedPage />
+        </LayoutClient>
       </Suspense>
 
       <Suspense>

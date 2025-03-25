@@ -71,9 +71,9 @@ const ProjectTerminal = ({ server }: ProjectTerminalType) => {
           onClick={() => setOpen(true)}
           className={cn(
             'fixed bottom-0 right-0 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
-            state === 'expanded'
-              ? 'md:w-[calc(100%-var(--sidebar-width))]'
-              : 'md:w-[calc(100%-var(--sidebar-width-icon))]',
+            // state === 'expanded'
+            //   ? 'md:w-[calc(100%-var(--sidebar-width))]'
+            //   : 'md:w-[calc(100%-var(--sidebar-width-icon))]',
           )}>
           <div className='flex items-center gap-2 text-sm'>
             <SquareTerminal size={16} /> Console{' - '}

@@ -2,16 +2,21 @@
 
 import { useProgress } from '@bprogress/next'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { useEffect, useMemo, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 
 import Tabs from '@/components/Tabs'
+import { Project } from '@/payload-types'
 
 const LayoutClient = ({
   children,
+  project,
   type,
+  serviceName,
 }: {
   children: React.ReactNode
   type: 'database' | 'app' | 'docker'
+  project: Project | string
+  serviceName: string
 }) => {
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
@@ -25,6 +30,12 @@ const LayoutClient = ({
       'deployments',
     ]).withDefault('general'),
   )
+
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (isPending) {
@@ -56,22 +67,58 @@ const LayoutClient = ({
 
   return (
     <>
-      <Tabs
-        tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
-        onTabChange={index => {
-          const tab = tabsList[index]
+      <div className='relative'>
+        <div className='mx-auto w-full max-w-6xl px-4'>
+          <Tabs
+            tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
+            onTabChange={index => {
+              const tab = tabsList[index]
 
-          startTransition(() => {
-            setTab(tab.slug, {
-              shallow: false,
-            })
-          })
-        }}
-        activeTab={activeTab >= 0 ? activeTab : 0}
-        defaultActiveTab={activeTab >= 0 ? activeTab : 0}
-      />
+              startTransition(() => {
+                setTab(tab.slug, {
+                  shallow: false,
+                })
+              })
+            }}
+            activeTab={activeTab >= 0 ? activeTab : 0}
+            defaultActiveTab={activeTab >= 0 ? activeTab : 0}
+          />
+        </div>
+        <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
+      </div>
 
-      <div className='mb-8 max-w-5xl'>{children}</div>
+      <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>
+        {children}
+      </main>
+
+      {/* {mounted &&
+        createPortal(
+          <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+            <Link
+              href={`/dashboard/project/${typeof project === 'object' ? project.id : project}`}
+              className='flex'>
+              <svg
+                fill='currentColor'
+                viewBox='0 0 20 20'
+                className='h-5 w-5 flex-shrink-0'
+                stroke='stroke-red-500'
+                aria-hidden='true'>
+                <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
+              </svg>{' '}
+              {typeof project === 'object' ? project.name : project}
+            </Link>
+            <svg
+              fill='currentColor'
+              viewBox='0 0 20 20'
+              className='h-5 w-5 flex-shrink-0'
+              stroke='stroke-red-500'
+              aria-hidden='true'>
+              <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
+            </svg>{' '}
+            {serviceName}
+          </div>,
+          document.getElementById('projectName') ?? document.body,
+        )} */}
     </>
   )
 }
