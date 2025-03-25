@@ -1,9 +1,9 @@
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import PageHeader from '@/components/PageHeader'
 import CreateSSHKey from '@/components/sshkeys/CreateSSHKeyForm'
 import SSHKeysList from '@/components/sshkeys/SSHKeysList'
 
@@ -20,10 +20,14 @@ const SuspendedPage = async () => {
 const SSHKeysPage = async () => {
   return (
     <section>
-      <PageHeader title='SSH Keys' action={<CreateSSHKey />} />
-
       <Suspense fallback={<Loader className='h-96 w-full' />}>
-        <SuspendedPage />
+        <LayoutClient>
+          <div className='flex items-center justify-between'>
+            <div className='text-2xl font-semibold'>SSH Keys</div>
+            <CreateSSHKey />
+          </div>
+          <SuspendedPage />
+        </LayoutClient>
       </Suspense>
     </section>
   )

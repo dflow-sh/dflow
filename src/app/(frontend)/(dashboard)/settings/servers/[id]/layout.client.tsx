@@ -1,11 +1,9 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
-import { HardDrive } from 'lucide-react'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useTransition } from 'react'
 
-import PageHeader from '@/components/PageHeader'
 import Tabs from '@/components/Tabs'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -49,29 +47,36 @@ const LayoutClient = ({
 
   return (
     <>
-      <PageHeader
+      {/* <PageHeader
         title={
           <div className='flex items-center gap-2'>
             <HardDrive />
             {server.name}
           </div>
         }
-      />
+      /> */}
 
-      <Tabs
-        tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
-        onTabChange={index => {
-          const tab = tabsList[index]
-          startTransition(() => {
-            setTab(tab.slug, {
-              shallow: false,
-            })
-          })
-        }}
-        defaultActiveTab={activeTab >= 0 ? activeTab : 0}
-      />
+      <div className='relative'>
+        <div className='mx-auto w-full max-w-6xl px-4'>
+          <Tabs
+            tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
+            onTabChange={index => {
+              const tab = tabsList[index]
+              startTransition(() => {
+                setTab(tab.slug, {
+                  shallow: false,
+                })
+              })
+            }}
+            defaultActiveTab={activeTab >= 0 ? activeTab : 0}
+          />
+        </div>
+        <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
+      </div>
 
-      <div className='mb-8 max-w-5xl'>{children}</div>
+      <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>
+        {children}
+      </main>
     </>
   )
 }

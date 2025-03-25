@@ -3,7 +3,6 @@ import { Github } from 'lucide-react'
 import { getPayload } from 'payload'
 import React, { JSX, SVGProps } from 'react'
 
-import { DynamicBreadcrumbs } from '@/components/DynamicBreadcrumbs'
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { Badge } from '@/components/ui/badge'
@@ -46,51 +45,32 @@ const ServiceIdLayout = async ({
     : null
 
   return (
-    <>
-      <DynamicBreadcrumbs
-        items={[
-          { label: 'Dashboard', href: '/dashboard' },
-          ...(typeof project === 'object'
-            ? [
-                {
-                  label: project.name,
-                  href: `/dashboard/project/${id}`,
-                },
-              ]
-            : []),
-          { label: serviceDetails.name },
-        ]}
-      />
-
-      <section>
-        <div
-          className={`mb-6 w-full max-w-5xl md:flex md:justify-between md:gap-x-2`}>
-          <div>
-            <div className='flex items-center gap-2'>
-              {Icon ? (
-                <Icon className='size-6' />
-              ) : (
-                <Github className='size-6' />
-              )}
-              <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
-              {serviceDetails?.databaseDetails?.status && (
-                <Badge className='h-max w-max gap-1' variant={'outline'}>
-                  {serviceDetails?.databaseDetails?.status}
-                </Badge>
-              )}
-            </div>
-            <p
-              className='line-clamp-1 text-muted-foreground'
-              title={serviceDetails.description || undefined}>
-              {serviceDetails.description}
-            </p>
+    <LayoutClient
+      type={serviceDetails.type}
+      project={project}
+      serviceName={serviceDetails.name}>
+      <div className={`mb-6 md:flex md:justify-between md:gap-x-2`}>
+        <div>
+          <div className='flex items-center gap-2'>
+            {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
+            <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+            {serviceDetails?.databaseDetails?.status && (
+              <Badge className='h-max w-max gap-1' variant={'outline'}>
+                {serviceDetails?.databaseDetails?.status}
+              </Badge>
+            )}
           </div>
-          <DeploymentForm service={{ project, ...serviceDetails }} />
+          <p
+            className='line-clamp-1 text-muted-foreground'
+            title={serviceDetails.description || undefined}>
+            {serviceDetails.description}
+          </p>
         </div>
+        <DeploymentForm service={{ project, ...serviceDetails }} />
+      </div>
 
-        <LayoutClient type={serviceDetails.type}>{children}</LayoutClient>
-      </section>
-    </>
+      {children}
+    </LayoutClient>
   )
 }
 

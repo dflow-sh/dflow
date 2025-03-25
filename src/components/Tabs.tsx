@@ -102,7 +102,7 @@ export default function Tabs({
             }}
           />
 
-          <div className='absolute bottom-[-5.5px] h-[1px] w-full bg-muted-foreground/20' />
+          <div className='absolute bottom-[-5.5px] h-[1px] w-full bg-border' />
 
           {/* Active Indicator */}
           <div

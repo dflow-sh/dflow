@@ -1,9 +1,9 @@
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import PageHeader from '@/components/PageHeader'
 import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
 import GitProviderList from '@/components/gitProviders/GitProviderList'
 
@@ -19,17 +19,15 @@ const SuspendedPage = async () => {
 
 const GitPage = () => {
   return (
-    <div>
-      <PageHeader
-        title='Git Providers'
-        description="Connect your git-provider for deploying App's."
-      />
-      <CreateGitAppForm />
-
-      <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <LayoutClient>
+        <div className='flex items-center justify-between'>
+          <div className='text-2xl font-semibold'>Git</div>
+          <CreateGitAppForm />
+        </div>
         <SuspendedPage />
-      </Suspense>
-    </div>
+      </LayoutClient>
+    </Suspense>
   )
 }
 
