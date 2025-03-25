@@ -164,7 +164,11 @@ const ServerTerminal = ({
             <SheetDescription>All console logs appear here</SheetDescription>
           </SheetHeader>
 
-          <Tabs tabs={tabs} onTabChange={handleTabChange} />
+          {servers.length ? (
+            <Tabs tabs={tabs} onTabChange={handleTabChange} />
+          ) : (
+            <p className='text-center'>No Severs Found!</p>
+          )}
         </SheetContent>
       </Sheet>
     </>

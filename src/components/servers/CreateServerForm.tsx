@@ -82,10 +82,15 @@ export const CreateServerForm = ({
     {
       onSuccess: ({ data, input }) => {
         if (data) {
-          toast.success(`Successfully created ${input.name} service`)
-          // setOpen(false)
+          const onboarding = pathName.includes('onboarding')
+          toast.success(`Successfully created ${input.name} service`, {
+            description:
+              onboarding && 'redirecting to dokku-installation page...',
+          })
+
           form.reset()
-          if (pathName.includes('onboarding')) {
+
+          if (onboarding) {
             router.push('/onboarding/dokku-install')
           }
         }
@@ -248,14 +253,12 @@ export const CreateServerForm = ({
 const CreateServer = ({
   sshKeys,
   title = 'Add Server',
-  description = 'This will add a new server',
   type = 'create',
   server,
 }: {
   sshKeys: SshKey[]
   type?: 'create' | 'update'
   title?: string
-  description?: string
   server?: ServerType
 }) => {
   const [open, setOpen] = useState(false)
@@ -281,8 +284,8 @@ const CreateServer = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className='sr-only'>
-            {description}
+          <DialogDescription>
+            We recommend a server of 4GB RAM for supporting proper deployments
           </DialogDescription>
         </DialogHeader>
 

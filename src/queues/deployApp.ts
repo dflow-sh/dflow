@@ -416,7 +416,9 @@ const worker = new Worker<QueueArgs>(
         })
       }
 
-      const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
+      const logs = (
+        await pub.lrange(serviceDetails.deploymentId, 0, -1)
+      ).reverse()
 
       await payloadWebhook({
         payloadToken: `${payloadToken}`,
@@ -450,7 +452,9 @@ const worker = new Worker<QueueArgs>(
         channelId: serviceDetails.deploymentId,
       })
 
-      const logs = await pub.lrange(serviceDetails.deploymentId, 0, -1)
+      const logs = (
+        await pub.lrange(serviceDetails.deploymentId, 0, -1)
+      ).reverse()
 
       // Changing status to failed
       await payloadWebhook({

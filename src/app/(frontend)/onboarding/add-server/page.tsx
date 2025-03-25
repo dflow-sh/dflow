@@ -29,7 +29,8 @@ const SuspendedPage = async () => {
   return (
     <Layout
       currentStep={2}
-      cardTitle={'Add Server'}
+      cardTitle='Add Server'
+      cardDescription='We recommend a server of 4GB RAM for supporting proper deployments'
       prevStepUrl={'/onboarding/ssh-keys'}
       nextStepUrl={'/onboarding/dokku-install'}
       disableNextStep={servers.length !== 0}>
