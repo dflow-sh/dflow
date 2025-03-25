@@ -26,7 +26,16 @@ const ProjectIdLayout = async ({ children, params }: PageProps) => {
       },
     })
 
-    return <ClientLayout server={server}>{children}</ClientLayout>
+    const project = await payload.findByID({
+      collection: 'projects',
+      id,
+    })
+
+    return (
+      <ClientLayout project={project} server={server}>
+        {children}
+      </ClientLayout>
+    )
   } catch (error) {
     notFound()
   }

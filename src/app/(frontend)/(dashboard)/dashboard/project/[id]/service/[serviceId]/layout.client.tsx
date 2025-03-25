@@ -3,6 +3,7 @@
 import { useProgress } from '@bprogress/next'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 
 import Tabs from '@/components/Tabs'
 import { Project } from '@/payload-types'
@@ -91,22 +92,9 @@ const LayoutClient = ({
         {children}
       </main>
 
-      {/* {mounted &&
+      {mounted &&
         createPortal(
           <div className='flex items-center gap-1 text-sm text-muted-foreground'>
-            <Link
-              href={`/dashboard/project/${typeof project === 'object' ? project.id : project}`}
-              className='flex'>
-              <svg
-                fill='currentColor'
-                viewBox='0 0 20 20'
-                className='h-5 w-5 flex-shrink-0'
-                stroke='stroke-red-500'
-                aria-hidden='true'>
-                <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
-              </svg>{' '}
-              {typeof project === 'object' ? project.name : project}
-            </Link>
             <svg
               fill='currentColor'
               viewBox='0 0 20 20'
@@ -117,8 +105,8 @@ const LayoutClient = ({
             </svg>{' '}
             {serviceName}
           </div>,
-          document.getElementById('projectName') ?? document.body,
-        )} */}
+          document.getElementById('serviceName') ?? document.body,
+        )}
     </>
   )
 }
