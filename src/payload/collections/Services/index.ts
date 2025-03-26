@@ -193,7 +193,7 @@ export const Services: CollectionConfig = {
     create: () => false,
     read: () => true,
     update: () => true,
-    delete: () => false,
+    delete: () => true,
   },
   defaultPopulate: {
     name: true,

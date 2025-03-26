@@ -15,7 +15,7 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
     name: `dokflow-${formattedDate}`,
     url: githubCallbackURL,
     hook_attributes: {
-      url: `https://${githubCallbackURL}/api/deploy/github`,
+      url: `${githubCallbackURL}/api/deploy/github`,
     },
     callback_urls: [`${githubCallbackURL}/api/webhook/providers/github`],
     public: false,

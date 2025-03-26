@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^3.10.0",
     "@monaco-editor/react": "4.7.0-rc.0",
     "@octokit/auth-app": "^7.1.5",
+    "@octokit/webhooks": "^13.7.5",
     "@oversightstudio/encrypted-fields": "^1.0.0",
     "@payloadcms/db-mongodb": "latest",
     "@payloadcms/email-resend": "latest",

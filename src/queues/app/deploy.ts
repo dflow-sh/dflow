@@ -1,5 +1,5 @@
-import { dokku } from '../lib/dokku'
-import { dynamicSSH } from '../lib/ssh'
+import { dokku } from '../../lib/dokku'
+import { dynamicSSH } from '../../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
@@ -9,6 +9,8 @@ import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { GitProvider } from '@/payload-types'
+
+import { updateDeploymentStatus } from './updateDeploymentStatus'
 
 interface QueueArgs {
   appName: string
@@ -360,8 +362,6 @@ const worker = new Worker<QueueArgs>(
         },
       })
 
-      console.dir({ letsencryptResponse, serviceDetails }, { depth: Infinity })
-
       if (letsencryptResponse.code === 0) {
         sendEvent({
           message: `✅ Successfully generated SSL certificates`,
@@ -420,17 +420,11 @@ const worker = new Worker<QueueArgs>(
         await pub.lrange(serviceDetails.deploymentId, 0, -1)
       ).reverse()
 
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
-        data: {
-          type: 'deployment.update',
-          data: {
-            deployment: {
-              id: serviceDetails.deploymentId,
-              status: 'success',
-              logs,
-            },
-          },
+      await updateDeploymentStatus({
+        deployment: {
+          id: serviceDetails.deploymentId,
+          status: 'success',
+          logs,
         },
       })
 
@@ -457,17 +451,11 @@ const worker = new Worker<QueueArgs>(
       ).reverse()
 
       // Changing status to failed
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
-        data: {
-          type: 'deployment.update',
-          data: {
-            deployment: {
-              id: serviceDetails.deploymentId,
-              status: 'failed',
-              logs,
-            },
-          },
+      await updateDeploymentStatus({
+        deployment: {
+          id: serviceDetails.deploymentId,
+          status: 'failed',
+          logs,
         },
       })
 
