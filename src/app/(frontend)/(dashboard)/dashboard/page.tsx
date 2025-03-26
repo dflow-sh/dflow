@@ -1,5 +1,6 @@
 import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
+import { Folder } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
@@ -37,7 +38,11 @@ const SuspendedPage = async () => {
   return (
     <section className='space-y-6'>
       <div className='flex items-center justify-between'>
-        <div className='text-2xl font-semibold'>Projects</div>
+        <div className='inline-flex items-center gap-1.5 text-2xl font-semibold'>
+          <Folder />
+          Projects
+        </div>
+
         <CreateProject servers={servers} />
       </div>
 

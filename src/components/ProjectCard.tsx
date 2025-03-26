@@ -1,14 +1,7 @@
 'use client'
 
 import { format, formatDistanceToNow } from 'date-fns'
-import {
-  Clock,
-  Ellipsis,
-  FolderClosed,
-  HardDrive,
-  Pencil,
-  Trash2,
-} from 'lucide-react'
+import { Clock, Ellipsis, HardDrive, Pencil, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -132,14 +125,11 @@ export function ProjectCard({
       <Link href={`/dashboard/project/${project.id}`} className='h-full'>
         <Card className='h-full min-h-36'>
           <CardHeader className='w-full flex-row items-center justify-between'>
-            <div className='flex items-start gap-x-2'>
-              <FolderClosed size={18} className='stroke-foreground' />
-              <div>
-                <CardTitle>{project.name}</CardTitle>
-                <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
-                  {project.description}
-                </CardDescription>
-              </div>
+            <div>
+              <CardTitle>{project.name}</CardTitle>
+              <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
+                {project.description}
+              </CardDescription>
             </div>
 
             <DropdownMenu>

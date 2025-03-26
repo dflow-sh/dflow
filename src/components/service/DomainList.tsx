@@ -34,7 +34,7 @@ const DomainCard = ({
   })
 
   return (
-    <Card className='max-w-5xl text-sm'>
+    <Card className='text-sm'>
       <CardContent className='flex w-full items-center justify-between pt-4'>
         <div className='flex items-center gap-3'>
           <Globe size={20} className='text-green-600' />

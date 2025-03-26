@@ -65,11 +65,9 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     deployment => deployment.status === 'success',
   )
 
-  console.log({ deploymentSucceed })
-
   return (
     <div className='mt-6 flex gap-x-2 md:mt-0'>
-      {!deploymentSucceed && (
+      {deploymentSucceed && service.type === 'database' ? null : (
         <Button
           disabled={isPending}
           onClick={() => {

@@ -181,7 +181,7 @@ export const CreateSSHKeyForm = ({
 }
 
 const CreateSSHKey = ({
-  type,
+  type = 'create',
   description = 'This form adds SSH key',
   sshKey,
 }: {
@@ -217,7 +217,7 @@ const CreateSSHKey = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {type === 'update' ? 'Add SSH key' : 'Edit SSH Key'}
+              {type === 'update' ? 'Edit SSH Key' : 'Add SSH key'}
             </DialogTitle>
             <DialogDescription className='sr-only'>
               {description}
