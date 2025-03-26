@@ -4,6 +4,7 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
+import SelectSearch from '@/components/SelectSearch'
 import ProjectTerminal from '@/components/project/ProjectTerminal'
 import { Project, Server } from '@/payload-types'
 
@@ -11,10 +12,12 @@ const ClientLayout = ({
   project,
   children,
   server,
+  projects,
 }: {
   project: Project
   children: React.ReactNode
   server: Server | string
+  projects: Project[]
 }) => {
   const [mounted, setMounted] = useState(false)
 
@@ -41,6 +44,7 @@ const ClientLayout = ({
               </svg>{' '}
               {project.name}
             </Link>
+            <SelectSearch projects={projects} placeholder='project' />
           </div>,
           document.getElementById('projectName') ?? document.body,
         )}

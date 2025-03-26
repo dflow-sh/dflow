@@ -31,8 +31,12 @@ const ProjectIdLayout = async ({ children, params }: PageProps) => {
       id,
     })
 
+    const { docs: projects } = await payload.find({
+      collection: 'projects',
+    })
+
     return (
-      <ClientLayout project={project} server={server}>
+      <ClientLayout project={project} server={server} projects={projects}>
         {children}
       </ClientLayout>
     )
