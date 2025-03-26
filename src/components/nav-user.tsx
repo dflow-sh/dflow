@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronsUpDown, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 
 import { logoutAction } from '@/actions/auth'
@@ -9,18 +9,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from '@/components/ui/sidebar'
+import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar'
 import { User } from '@/payload-types'
 
 export function NavUser({ user }: { user: User }) {
-  const { isMobile } = useSidebar()
   const { execute } = useAction(logoutAction)
   const initial = user.email.slice(0, 1)
 
@@ -29,28 +25,24 @@ export function NavUser({ user }: { user: User }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size='lg'
-              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'>
-              <Avatar className='h-8 w-8 rounded-lg'>
-                {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
-                <AvatarFallback className='rounded-lg uppercase'>
-                  {initial}
-                </AvatarFallback>
-              </Avatar>
-              <div className='grid flex-1 text-left text-sm leading-tight'>
-                <span className='truncate font-semibold'>Account</span>
-                <span className='truncate text-xs'>{user.email}</span>
-              </div>
-              <ChevronsUpDown className='ml-auto size-4' />
-            </SidebarMenuButton>
+            <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
+              {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
+              <AvatarFallback className='rounded-lg uppercase'>
+                {initial}
+              </AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            className='w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg'
-            side={isMobile ? 'bottom' : 'right'}
-            align='end'
-            sideOffset={4}>
+          <DropdownMenuContent className='rounded-lg' side='bottom' align='end'>
+            <DropdownMenuLabel>
+              <div className='grid flex-1 text-left text-sm leading-tight'>
+                <span className='truncate font-semibold'>Account</span>
+                <span className='truncate text-xs text-muted-foreground'>
+                  {user.email}
+                </span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 execute()

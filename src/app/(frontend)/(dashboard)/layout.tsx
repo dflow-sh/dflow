@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { NavUser } from '@/components/nav-user'
 import Provider from '@/providers/Provider'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -38,11 +38,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
           <div id='serviceName'></div>
         </div>
         <div>
-          <Avatar className='h-8 w-8 rounded-lg'>
-            <AvatarFallback className='rounded-lg uppercase'>
-              {initial}
-            </AvatarFallback>
-          </Avatar>
+          <NavUser user={user} />
         </div>
       </div>
 
