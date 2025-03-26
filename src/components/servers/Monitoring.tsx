@@ -92,6 +92,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         host: server.ip,
       })
 
+      const newRes = await netdata.metrics.getDashboardMetrics({
+        host: server.ip,
+      })
+
+      console.log({ newRes })
+
       if (response) {
         setServerStatus({
           status: response?.data?.serverStatus?.status || 'unknown',
@@ -151,7 +157,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
 
     // Set up a new interval
-    intervalRef.current = setInterval(() => refreshData(false), 15000)
+    intervalRef.current = setInterval(() => refreshData(false), 15000000000000)
   }, [])
 
   // Wrap refreshData in useCallback

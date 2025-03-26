@@ -12,8 +12,9 @@ export const getDashboardMetrics = async (
   points: number = 24,
 ): Promise<MetricsResponse<any>> => {
   const results = await Promise.allSettled([
-    cpuMetrics.getCpuUsageDistribution(params, points),
-    cpuMetrics.getCpuTemperature(params, points),
+    cpuMetrics.getCpuUtilization(params, points),
+    cpuMetrics.getCpuPressure(params, points),
+    cpuMetrics.getCpuPressureStallTime(params, points),
     memoryMetrics.getMemoryUsage(params, points),
     memoryMetrics.getSwapUsage(params, points),
     networkMetrics.getNetworkTraffic(params, points),
@@ -27,8 +28,9 @@ export const getDashboardMetrics = async (
   ])
 
   const [
-    cpuUsage,
-    cpuTemp,
+    cpuUtilization,
+    cpuPressure,
+    cpuPressureStallTime,
     memoryUsage,
     swapUsage,
     networkTraffic,
@@ -50,8 +52,9 @@ export const getDashboardMetrics = async (
     message: 'Dashboard metrics retrieved - some data may be unavailable',
     data: {
       overview: {
-        cpuUsage: cpuUsage.data?.overview,
-        cpuTemperature: cpuTemp.data?.overview,
+        cpuUtilization: cpuUtilization.data?.overview,
+        cpuPressure: cpuPressure.data?.overview,
+        cpuPressureStallTime: cpuPressureStallTime.data?.overview,
         memoryUsage: memoryUsage.data?.overview,
         swapUsage: swapUsage.data?.overview,
         networkTraffic: networkTraffic.data?.overview,
@@ -64,8 +67,9 @@ export const getDashboardMetrics = async (
         responseTimes: responseTimes.data?.overview,
       },
       detailed: {
-        cpuUsage: cpuUsage.data?.detailed,
-        cpuTemperature: cpuTemp.data?.detailed,
+        cpuUtilization: cpuUtilization.data?.detailed,
+        cpuPressure: cpuPressure.data?.detailed,
+        cpuPressureStallTime: cpuPressureStallTime.data?.detailed,
         memoryUsage: memoryUsage.data?.detailed,
         swapUsage: swapUsage.data?.detailed,
         networkTraffic: networkTraffic.data?.detailed,
@@ -76,6 +80,11 @@ export const getDashboardMetrics = async (
         alerts: systemAlerts.data?.detailed,
         webRequests: webRequests.data?.detailed,
         responseTimes: responseTimes.data?.detailed,
+      },
+      latestMetrics: {
+        cpuUsageTrend: cpuUtilization.data?.latest,
+        cpuPressure: cpuPressure.data?.latest,
+        cpuPressureStallTime: cpuPressureStallTime.data?.latest,
       },
     },
   }
