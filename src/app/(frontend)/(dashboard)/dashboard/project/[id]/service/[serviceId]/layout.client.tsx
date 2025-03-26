@@ -5,12 +5,14 @@ import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
+import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
-import { Project } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 const LayoutClient = ({
   children,
   project,
+  services,
   type,
   serviceName,
 }: {
@@ -18,6 +20,7 @@ const LayoutClient = ({
   type: 'database' | 'app' | 'docker'
   project: Project | string
   serviceName: string
+  services: Service[]
 }) => {
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
@@ -94,16 +97,20 @@ const LayoutClient = ({
 
       {mounted &&
         createPortal(
-          <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+          <div className='flex items-center gap-1 text-sm font-normal'>
             <svg
               fill='currentColor'
               viewBox='0 0 20 20'
-              className='h-5 w-5 flex-shrink-0'
-              stroke='stroke-red-500'
+              className='h-5 w-5 flex-shrink-0 stroke-border'
               aria-hidden='true'>
               <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
             </svg>{' '}
             {serviceName}
+            <SelectSearch
+              placeholder='service'
+              services={services}
+              projectId={(project as Project).id}
+            />
           </div>,
           document.getElementById('serviceName') ?? document.body,
         )}

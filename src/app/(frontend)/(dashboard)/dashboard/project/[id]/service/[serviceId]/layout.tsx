@@ -6,7 +6,7 @@ import React, { JSX, SVGProps } from 'react'
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { Badge } from '@/components/ui/badge'
-import { Service } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 import LayoutClient from './layout.client'
 
@@ -48,6 +48,7 @@ const ServiceIdLayout = async ({
     <LayoutClient
       type={serviceDetails.type}
       project={project}
+      services={((project as Project)?.services?.docs as Service[]) || []}
       serviceName={serviceDetails.name}>
       <div className={`mb-6 md:flex md:justify-between md:gap-x-2`}>
         <div>

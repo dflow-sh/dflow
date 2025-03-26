@@ -18,14 +18,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Project } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 export default function SelectSearch({
+  services,
   projects,
   placeholder,
+  projectId,
 }: {
-  projects: Project[]
+  services?: Service[]
+  projects?: Project[]
   placeholder: string
+  projectId?: string
 }) {
   const id = useId()
   const [open, setOpen] = useState<boolean>(false)
@@ -40,7 +44,7 @@ export default function SelectSearch({
             variant={'ghost'}
             role='combobox'
             aria-expanded={open}
-            className='w-full justify-between border-input bg-background px-1 font-normal outline-none outline-offset-0 hover:bg-accent-foreground focus-visible:outline-[3px]'>
+            className='w-full justify-between border-input bg-background px-1.5 font-normal outline-none outline-offset-0 hover:bg-foreground/5 focus-visible:outline-[3px]'>
             <ChevronsUpDown
               size={14}
               className='shrink-0 text-muted-foreground/80'
@@ -54,9 +58,9 @@ export default function SelectSearch({
           <Command>
             <CommandInput placeholder={`Search ${placeholder}...`} />
             <CommandList>
-              <CommandEmpty>No framework found.</CommandEmpty>
+              <CommandEmpty>No {placeholder} found.</CommandEmpty>
               <CommandGroup>
-                {projects.map(project => (
+                {projects?.map(project => (
                   <Link
                     href={`/dashboard/project/${project.id}`}
                     key={project.id}>
@@ -69,6 +73,28 @@ export default function SelectSearch({
                       }}>
                       {project.name}
                       {value === project.name && (
+                        <CheckIcon size={16} className='ml-auto' />
+                      )}
+                    </CommandItem>
+                  </Link>
+                ))}
+                {services?.map(service => (
+                  <Link
+                    href={`/dashboard/project/${projectId}/service/${service.id}`}
+                    key={service.id}>
+                    <CommandItem
+                      key={service.id}
+                      value={service.name}
+                      onSelect={currentValue => {
+                        setValue(() => {
+                          console.log('currentValue', currentValue)
+                          console.log('value', value)
+                          return currentValue === value ? '' : currentValue
+                        })
+                        setOpen(false)
+                      }}>
+                      {service.name}
+                      {value === service.name && (
                         <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>

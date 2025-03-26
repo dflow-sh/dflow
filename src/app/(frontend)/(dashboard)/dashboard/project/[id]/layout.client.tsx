@@ -30,15 +30,14 @@ const ClientLayout = ({
       {children}
       {mounted &&
         createPortal(
-          <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+          <div className='flex items-center gap-1 text-sm font-normal'>
             <Link
               href={`/dashboard/project/${typeof project === 'object' ? project.id : project}`}
               className='flex'>
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 flex-shrink-0'
-                stroke='stroke-red-500'
+                className='h-5 w-5 flex-shrink-0 stroke-border'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}
