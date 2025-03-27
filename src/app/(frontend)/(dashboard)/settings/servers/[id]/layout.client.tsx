@@ -2,9 +2,12 @@
 
 import { useProgress } from '@bprogress/next'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { useEffect, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
+import { createPortal } from 'react-dom'
 
+import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
+import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 const tabsList = [
@@ -17,9 +20,11 @@ const tabsList = [
 const LayoutClient = ({
   children,
   server,
+  servers,
 }: {
   children: React.ReactNode
   server: ServerType
+  servers: Server[]
 }) => {
   const [isPending, startTransition] = useTransition()
   const [tab, setTab] = useQueryState(
@@ -31,6 +36,13 @@ const LayoutClient = ({
       'domains',
     ]).withDefault('general'),
   )
+
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const { start, stop } = useProgress()
 
   const activeTab = tabsList.findIndex(({ slug }) => {
@@ -47,15 +59,6 @@ const LayoutClient = ({
 
   return (
     <>
-      {/* <PageHeader
-        title={
-          <div className='flex items-center gap-2'>
-            <HardDrive />
-            {server.name}
-          </div>
-        }
-      /> */}
-
       <div className='relative'>
         <div className='mx-auto w-full max-w-6xl px-4'>
           <Tabs
@@ -77,6 +80,22 @@ const LayoutClient = ({
       <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>
         {children}
       </main>
+
+      {mounted &&
+        createPortal(
+          <div className='flex items-center gap-1 text-sm font-normal'>
+            <svg
+              fill='currentColor'
+              viewBox='0 0 20 20'
+              className='h-5 w-5 flex-shrink-0 stroke-border'
+              aria-hidden='true'>
+              <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
+            </svg>{' '}
+            {server.name}
+            <SelectSearch placeholder={'server'} servers={servers} />
+          </div>,
+          document.getElementById('serverName') ?? document.body,
+        )}
     </>
   )
 }

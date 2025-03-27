@@ -75,6 +75,11 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
   const payload = await getPayload({ config: configPromise })
 
+  const servers = await payload.find({
+    collection: 'servers',
+    pagination: false,
+  })
+
   const server = (await payload.findByID({
     collection: 'servers',
     id,
@@ -135,7 +140,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   }
 
   return (
-    <LayoutClient server={server}>
+    <LayoutClient server={server} servers={servers.docs}>
       <Component />
     </LayoutClient>
   )

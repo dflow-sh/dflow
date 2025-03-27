@@ -37,32 +37,15 @@ const SuspendedPage = async () => {
 
 const ServersPage = async () => {
   return (
-    <>
-      {/* <PageHeader
-        title='Servers'
-        action={
-          <Suspense
-            fallback={
-              <Button disabled>
-                <Plus />
-                Add Server
-              </Button>
-            }>
-            <SuspendedAddServer />
-          </Suspense>
-        }
-      /> */}
-
-      <Suspense fallback={<Loader className='h-96 w-full' />}>
-        <LayoutClient>
-          <div className='mb-5 flex items-center justify-between'>
-            <div className='text-2xl font-semibold'>Servers</div>
-            <SuspendedAddServer />
-          </div>
-          <SuspendedPage />
-        </LayoutClient>
-      </Suspense>
-    </>
+    <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <LayoutClient>
+        <div className='mb-5 flex items-center justify-between'>
+          <div className='text-2xl font-semibold'>Servers</div>
+          <SuspendedAddServer />
+        </div>
+        <SuspendedPage />
+      </LayoutClient>
+    </Suspense>
   )
 }
 

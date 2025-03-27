@@ -35,7 +35,8 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
             <p>Dokflow</p>
           </Link>
           <div id='projectName'></div>
-          <div id='serviceName'></div>
+          <div id='serviceName' className='-ml-2'></div>
+          <div id='serverName' className='-ml-4'></div>
         </div>
         <div>
           <NavUser user={user} />

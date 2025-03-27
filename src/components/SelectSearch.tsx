@@ -18,18 +18,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Project, Service } from '@/payload-types'
+import { Project, Server, Service } from '@/payload-types'
 
 export default function SelectSearch({
   services,
   projects,
   placeholder,
   projectId,
+  servers,
 }: {
   services?: Service[]
   projects?: Project[]
   placeholder: string
   projectId?: string
+  servers?: Server[]
 }) {
   const id = useId()
   const [open, setOpen] = useState<boolean>(false)
@@ -95,6 +97,24 @@ export default function SelectSearch({
                       }}>
                       {service.name}
                       {value === service.name && (
+                        <CheckIcon size={16} className='ml-auto' />
+                      )}
+                    </CommandItem>
+                  </Link>
+                ))}
+                {servers?.map(server => (
+                  <Link href={`/settings/servers/${server.id}`} key={server.id}>
+                    <CommandItem
+                      key={server.id}
+                      value={server.name}
+                      onSelect={currentValue => {
+                        setValue(() => {
+                          return currentValue === value ? '' : currentValue
+                        })
+                        setOpen(false)
+                      }}>
+                      {server.name}
+                      {value === server.name && (
                         <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>
