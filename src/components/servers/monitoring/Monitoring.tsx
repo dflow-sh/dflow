@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '../ui/button'
 import { Loader2, MoreHorizontal, RefreshCcw, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
@@ -8,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { uninstallNetdataAction } from '@/actions/netdata'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
