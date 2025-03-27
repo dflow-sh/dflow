@@ -9,6 +9,7 @@ import Loader from '@/components/Loader'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import RetryPrompt from '@/components/servers/RetryPrompt'
+import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
@@ -35,7 +36,16 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
     pagination: false,
   })
 
-  return <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+  const serverDetails = await netdata.metrics.getServerDetails({
+    host: server.ip,
+  })
+
+  return (
+    <div className='flex flex-col space-y-5'>
+      <ServerDetails serverDetails={serverDetails} server={server} />
+      <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+    </div>
+  )
 }
 
 const MonitoringTab = async ({ server }: { server: ServerType }) => {

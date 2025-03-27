@@ -7,6 +7,7 @@ export {
 } from './cpuMetrics'
 export { getDashboardMetrics } from './dashboard'
 export { getDiskIO, getDiskSpaceUsage, getSystemIO } from './diskMetrics'
+export { getServerDetails } from './getServerDetails'
 export { getMemoryUsage, getSwapUsage } from './memoryMetrics'
 export { getNetworkPackets, getNetworkTraffic } from './networkMetrics'
 export {
