@@ -36,6 +36,7 @@ export async function POST(request: Request) {
 
   const githubAppDetails = docs?.[0]
 
+  // Checking if github-app is present or not
   if (!githubAppDetails?.id) {
     return Response.json(
       {
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
     )
   }
 
+  // Checking if the webhook request has signature
   if (!signature) {
     return Response.json(
       {
@@ -58,12 +60,25 @@ export async function POST(request: Request) {
     )
   }
 
+  // Checking if the github app installed or not
+  if (!githubAppDetails?.github?.installationId) {
+    return Response.json(
+      {
+        message: 'Github-app not installed',
+      },
+      {
+        status: 400,
+      },
+    )
+  }
+
   const webhooks = new Webhooks({
-    secret: githubAppDetails.github?.webhookSecret,
+    secret: githubAppDetails.github?.webhookSecret ?? '',
   })
 
   const verified = await webhooks.verify(JSON.stringify(body), signature)
 
+  // Verifying if it's a valid request or not
   if (!verified) {
     return Response.json(
       {
@@ -93,11 +108,7 @@ export async function POST(request: Request) {
     },
   })
 
-  console.dir(
-    { body, signature, verified, services, event },
-    { depth: Infinity },
-  )
-
+  // on push event triggering a deployment
   if (event === 'push') {
     for await (const service of services) {
       await triggerDeployment({ serviceId: service.id })

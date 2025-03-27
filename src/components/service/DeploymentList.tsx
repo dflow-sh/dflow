@@ -24,10 +24,10 @@ const DeploymentList = ({
   serverId: string
 }) => {
   const statusColors: { [key in Deployment['status']]: string } = {
-    success: 'bg-green-300 text-green-900',
-    building: 'bg-blue-300 text-blue-900',
-    failed: 'bg-red-300 text-red-900',
-    queued: 'bg-yellow-300 text-yellow-900',
+    success: 'bg-success-foreground text-success border-success/30',
+    building: 'bg-info-foreground text-info border-info/30',
+    failed: 'bg-destructive/30 text-red-500 border-red-500/30',
+    queued: 'bg-warning-foreground text-warning/70 border-warning/70',
   }
 
   const filteredDeployments = deployments.filter(
@@ -47,7 +47,7 @@ const DeploymentList = ({
                 <div className='flex items-center gap-6'>
                   <p
                     role='status'
-                    className={`uppercase ${statusColors[status]} inline-block rounded-md px-2 py-1 text-[0.75rem] font-semibold`}>
+                    className={`border uppercase ${statusColors[status]} inline-block rounded-md px-2 py-1 text-[0.75rem] font-semibold`}>
                     {status}
                   </p>
 

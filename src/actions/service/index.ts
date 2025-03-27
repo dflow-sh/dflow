@@ -207,6 +207,15 @@ export const deleteServiceAction = publicClient
           id,
         })
 
+        const deletedDeploymentsResponse = await payload.delete({
+          collection: 'deployments',
+          where: {
+            service: {
+              equals: id,
+            },
+          },
+        })
+
         if (response) {
           const projectId =
             typeof response.project === 'object'

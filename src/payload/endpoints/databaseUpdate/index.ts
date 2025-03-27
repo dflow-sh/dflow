@@ -56,7 +56,7 @@ export const databaseUpdate: PayloadHandler = async ({
 
       case 'domain.update':
         const { serviceId: domainServiceId, domain } = validatedData.data
-        const { operation } = domain
+        const { operation, domain: newDomain } = domain
 
         // Fetching all domains of particular domain
         const { domains: servicePreviousDomains } = await payload.findByID({
@@ -64,17 +64,19 @@ export const databaseUpdate: PayloadHandler = async ({
           collection: 'services',
         })
 
+        const previousDomains = servicePreviousDomains ?? []
         let updatedDomains = servicePreviousDomains ?? []
 
         if (operation === 'remove') {
           // In remove case removing that particular domain
-          updatedDomains = updatedDomains.filter(
-            domainDetails => domainDetails.domain !== domain.domain,
+          updatedDomains = previousDomains.filter(
+            domainDetails => domainDetails.domain !== newDomain,
           )
         } else if (operation === 'set') {
           updatedDomains = [
             {
-              domain: domain.domain,
+              // here in update case typecasting domain as string
+              domain: newDomain as string,
               default: true,
               autoRegenerateSSL: domain.autoRegenerateSSL,
               certificateType: domain.certificateType,
@@ -82,15 +84,30 @@ export const databaseUpdate: PayloadHandler = async ({
           ]
         } else {
           // in add case directly adding domain
-          updatedDomains = [
-            ...updatedDomains,
-            {
-              domain: domain.domain,
-              default: false,
-              autoRegenerateSSL: domain.autoRegenerateSSL,
-              certificateType: domain.certificateType,
-            },
-          ]
+          const newDomainList =
+            typeof newDomain === 'string' ? [newDomain] : newDomain
+          const newDomainsFilteredList = newDomainList?.filter(domainName => {
+            return !previousDomains.some(
+              previousDomain => previousDomain.domain === domainName,
+            )
+          })
+
+          console.log({ newDomainsFilteredList, updatedDomains, newDomain })
+
+          if (newDomainsFilteredList.length) {
+            updatedDomains = [
+              ...previousDomains,
+              ...newDomainsFilteredList.map(domainName => {
+                return {
+                  domain: domainName,
+                  default: false,
+                  // todo: need to add these parameters dynamically
+                  autoRegenerateSSL: domain.autoRegenerateSSL,
+                  certificateType: domain.certificateType,
+                }
+              }),
+            ]
+          }
         }
 
         const updatedServiceDomainResponse = await payload.update({
