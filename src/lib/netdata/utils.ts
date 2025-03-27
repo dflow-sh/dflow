@@ -110,16 +110,8 @@ export const getTimeSeriesData = async <T>(
   params: NetdataApiParams,
   chart: string,
   minutes: number = 30, // Default to 30 minutes
+  version?: 'v1' | 'v2',
 ): Promise<MetricsResponse<T[]>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   // Calculate seconds for the 'after' parameter
   const secondsAgo = minutes * 60
 
@@ -128,7 +120,7 @@ export const getTimeSeriesData = async <T>(
   const query = `data?chart=${chart}&after=-${secondsAgo}&before=0&format=json&options=seconds`
 
   // Fetch data
-  const data = await netdataAPI(params, query)
+  const data = await netdataAPI(params, query, version)
 
   // Check if we have data and labels
   if (

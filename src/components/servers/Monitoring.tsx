@@ -157,7 +157,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
 
     // Set up a new interval
-    intervalRef.current = setInterval(() => refreshData(false), 15000000000000)
+    intervalRef.current = setInterval(() => refreshData(false), 5000)
   }, [])
 
   // Wrap refreshData in useCallback

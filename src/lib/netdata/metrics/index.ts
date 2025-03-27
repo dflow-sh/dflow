@@ -2,9 +2,11 @@ export {
   getCpuPressure,
   getCpuPressureStallTime,
   getCpuUtilization,
+  getSystemLoad,
+  getSystemUptime,
 } from './cpuMetrics'
 export { getDashboardMetrics } from './dashboard'
-export { getDiskIO, getDiskSpaceUsage } from './diskMetrics'
+export { getDiskIO, getDiskSpaceUsage, getSystemIO } from './diskMetrics'
 export { getMemoryUsage, getSwapUsage } from './memoryMetrics'
 export { getNetworkPackets, getNetworkTraffic } from './networkMetrics'
 export {
