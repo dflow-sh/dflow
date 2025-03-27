@@ -3,6 +3,7 @@
 import { Dokku, Ubuntu } from '../icons'
 import {
   AlertCircle,
+  Check,
   Copy,
   Cpu,
   Globe,
@@ -14,7 +15,7 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -64,7 +65,7 @@ const CompactInfoCard = ({
   value: string
   icon: React.ElementType
 }) => (
-  <Card className='transition-all duration-300 hover:scale-105 hover:border-primary/50 hover:shadow-lg'>
+  <Card>
     <CardHeader className='pb-2'>
       <CardTitle className='flex items-center justify-between text-sm font-medium'>
         {title}
@@ -72,7 +73,7 @@ const CompactInfoCard = ({
       </CardTitle>
     </CardHeader>
     <CardContent>
-      <div className='text-sm font-semibold'>{value}</div>
+      <div className='text-sm font-semibold text-muted-foreground'>{value}</div>
     </CardContent>
   </Card>
 )
@@ -85,7 +86,12 @@ const DetailInfoSection = ({
   title: string
   details: Record<string, any>
 }) => {
+  const [isCopied, setIsCopied] = useState(false)
+
   const copyDetailsToClipboard = () => {
+    // Prevent multiple clicks while in copied state
+    if (isCopied) return
+
     const detailsText = Object.entries(details)
       .flatMap(([key, value]) =>
         typeof value === 'object' && value !== null
@@ -100,23 +106,47 @@ const DetailInfoSection = ({
     toast.success('Copied to Clipboard', {
       description: `${title} details have been copied.`,
     })
+
+    // Change button state to copied
+    setIsCopied(true)
+
+    // Reset button state after 3 seconds
+    const timer = setTimeout(() => {
+      setIsCopied(false)
+    }, 3000)
+
+    // Cleanup the timer if component unmounts
+    return () => clearTimeout(timer)
   }
 
   return (
-    <div className='space-y-4 rounded-lg border bg-background p-4'>
+    <div className='space-y-4 rounded-lg border-[0.5px] bg-background p-4'>
       <div className='flex items-center justify-between'>
         <h3 className='flex items-center gap-2 text-lg font-bold capitalize text-foreground'>
-          <Info className='h-5 w-5 text-primary' /> {title}
+          <Info className='text-muted-foreground' size='16' /> {title}
         </h3>
         <Button
           variant='outline'
+          disabled={isCopied}
+          className={` ${
+            isCopied
+              ? 'cursor-not-allowed border-green-300 bg-green-100 text-green-700 opacity-50 hover:border-green-400 hover:bg-green-200 hover:text-green-700'
+              : ''
+          }`}
           size='sm'
-          onClick={copyDetailsToClipboard}
-          className='hover:bg-primary/10'>
-          <Copy className='mr-2 h-4 w-4' /> Copy Details
+          onClick={copyDetailsToClipboard}>
+          {isCopied ? (
+            <>
+              <Check className='mr-2 h-4 w-4 text-green-700' /> Copied
+            </>
+          ) : (
+            <>
+              <Copy className='mr-2 h-4 w-4' /> Copy Details
+            </>
+          )}
         </Button>
       </div>
-      <Separator />
+      <Separator className='h-[0.5px]' />
       <div className='grid gap-3 md:grid-cols-2'>
         {Object.entries(details).flatMap(([key, value]) =>
           typeof value === 'object' && value !== null
@@ -246,7 +276,7 @@ const ServerDetailsCompact = ({
             <DrawerHeader>
               <div className='flex items-center justify-between'>
                 <DrawerTitle className='flex items-center gap-2'>
-                  <Server className='h-6 w-6 text-primary' />
+                  <Server className='h-5 w-5 text-muted-foreground' />
                   Comprehensive Server Details
                 </DrawerTitle>
                 <DrawerClose asChild>

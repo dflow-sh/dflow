@@ -8,8 +8,9 @@ import { Suspense } from 'react'
 import Loader from '@/components/Loader'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
+import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
-import ServerDetails from '@/components/servers/ServerDetails'
+import ServerDetailsCompact from '@/components/servers/ServerDetails'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
@@ -31,6 +32,7 @@ interface PageProps {
 
 const GeneralTab = async ({ server }: { server: ServerType }) => {
   const payload = await getPayload({ config: configPromise })
+
   const { docs: sshKeys } = await payload.find({
     collection: 'sshKeys',
     pagination: false,
@@ -40,10 +42,24 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
     host: server.ip,
   })
 
+  const { docs: projects } = await payload.find({
+    collection: 'projects',
+    where: {
+      server: { equals: server.id },
+    },
+  })
+
   return (
     <div className='flex flex-col space-y-5'>
-      <ServerDetails serverDetails={serverDetails} server={server} />
-      <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+      <ServerDetailsCompact serverDetails={serverDetails} server={server} />
+
+      <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+        <div className='md:col-span-2'>
+          <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+        </div>
+
+        <ProjectsAndServicesSection projects={projects} />
+      </div>
     </div>
   )
 }
