@@ -1,16 +1,16 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { Octokit } from 'octokit'
+import { getPayload } from 'payload'
 
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { GitProvider } from '@/payload-types'
-
-import { updateDeploymentStatus } from './updateDeploymentStatus'
 
 interface QueueArgs {
   appName: string
@@ -49,6 +49,7 @@ export const deployAppQueue = new Queue<QueueArgs>(QUEUE_NAME, {
 const worker = new Worker<QueueArgs>(
   QUEUE_NAME,
   async job => {
+    const payload = await getPayload({ config: configPromise })
     let ssh: NodeSSH | null = null
     const {
       appName,
@@ -141,7 +142,7 @@ const worker = new Worker<QueueArgs>(
               value: value as string,
             }),
           ),
-          noRestart: false,
+          noRestart: true,
           options: {
             onStdout: async chunk => {
               sendEvent({
@@ -183,8 +184,10 @@ const worker = new Worker<QueueArgs>(
         }
 
         const option = Object.entries(serviceDetails.environmentVariables)
-          .map(([key, value]) => `--build-arg ${key}=${value}`)
+          .map(([key, value]) => `--build-arg ${key}="${value}"`)
           .join(' ')
+
+        console.log('updated build-params', { option })
 
         sendEvent({
           message: `Stated adding environment variables as build arguments`,
@@ -329,7 +332,7 @@ const worker = new Worker<QueueArgs>(
         })
 
         // exiting from the flow
-        return
+        throw new Error('cloning and building failed')
       }
 
       // Step 5: SSL certificate generation
@@ -370,42 +373,6 @@ const worker = new Worker<QueueArgs>(
           serviceId,
           channelId: serviceDetails.deploymentId,
         })
-
-        sendEvent({
-          message: `Updating domain details...`,
-          pub,
-          serverId,
-          serviceId,
-        })
-
-        // todo: for now taking to first domain name
-        const domainsResponse = await dokku.domains.report(ssh, appName)
-        const defaultDomain = domainsResponse?.[0]
-
-        if (defaultDomain) {
-          await payloadWebhook({
-            payloadToken,
-            data: {
-              type: 'domain.update',
-              data: {
-                serviceId: serviceDetails.serviceId,
-                domain: {
-                  domain: defaultDomain,
-                  operation: 'add',
-                  autoRegenerateSSL: false,
-                  certificateType: 'letsencrypt',
-                },
-              },
-            },
-          })
-
-          sendEvent({
-            message: `✅ Updated domain details`,
-            pub,
-            serverId,
-            serviceId,
-          })
-        }
       } else {
         sendEvent({
           message: `❌ Failed to generated SSL certificates`,
@@ -416,16 +383,53 @@ const worker = new Worker<QueueArgs>(
         })
       }
 
+      sendEvent({
+        message: `Updating domain details...`,
+        pub,
+        serverId,
+        serviceId,
+      })
+
+      // todo: for now taking to first domain name
+      const domainsResponse = await dokku.domains.report(ssh, appName)
+      const defaultDomain = domainsResponse
+
+      if (defaultDomain.length) {
+        await payloadWebhook({
+          payloadToken,
+          data: {
+            type: 'domain.update',
+            data: {
+              serviceId: serviceDetails.serviceId,
+              domain: {
+                domain: defaultDomain,
+                operation: 'add',
+                autoRegenerateSSL: false,
+                certificateType: 'letsencrypt',
+              },
+            },
+          },
+        })
+
+        sendEvent({
+          message: `✅ Updated domain details`,
+          pub,
+          serverId,
+          serviceId,
+        })
+      }
+
       const logs = (
         await pub.lrange(serviceDetails.deploymentId, 0, -1)
       ).reverse()
 
-      await updateDeploymentStatus({
-        deployment: {
-          id: serviceDetails.deploymentId,
+      await payload.update({
+        collection: 'deployments',
+        data: {
           status: 'success',
           logs,
         },
+        id: serviceDetails.deploymentId,
       })
 
       await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
@@ -450,13 +454,13 @@ const worker = new Worker<QueueArgs>(
         await pub.lrange(serviceDetails.deploymentId, 0, -1)
       ).reverse()
 
-      // Changing status to failed
-      await updateDeploymentStatus({
-        deployment: {
-          id: serviceDetails.deploymentId,
+      await payload.update({
+        collection: 'deployments',
+        data: {
           status: 'failed',
           logs,
         },
+        id: serviceDetails.deploymentId,
       })
 
       await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))

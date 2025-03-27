@@ -37,7 +37,7 @@ export const databaseUpdateSchema = z.union([
     data: z.object({
       serviceId: z.string(),
       domain: z.object({
-        domain: z.string(),
+        domain: z.union([z.string(), z.array(z.string())]),
         operation: z.enum(['add', 'remove', 'set']),
         autoRegenerateSSL: z.boolean(),
         certificateType: z.enum(['letsencrypt', 'none']),

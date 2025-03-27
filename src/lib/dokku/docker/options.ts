@@ -18,7 +18,7 @@ export const options = async ({
   options,
 }: Args) => {
   const resultOptions = await ssh.execCommand(
-    `dokku docker-options:${action} ${appName} ${phase} ${option}`,
+    `dokku docker-options:${action} ${appName} ${phase} '${option}'`,
     options,
   )
 
