@@ -1,22 +1,17 @@
 'use client'
 
-import { Dokku, Linux, Ubuntu } from '../icons'
+import { Dokku } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, ScreenShareOff } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
-import { JSX, SVGProps } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { installDokkuAction, updateServerAction } from '@/actions/server'
 import { updateServerSchema } from '@/actions/server/validator'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Form,
   FormControl,
@@ -35,75 +30,6 @@ import {
 import { supportedLinuxVersions } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
-
-const serverType: {
-  [key: string]: (props: SVGProps<SVGSVGElement>) => JSX.Element
-} = {
-  Ubuntu: Ubuntu,
-}
-
-const ServerStatus = ({ server }: { server: ServerType }) => {
-  const ServerTypeIcon = serverType[server.os.type ?? ''] ?? Linux
-
-  if (!server.sshConnected) {
-    return (
-      <Alert variant='destructive'>
-        <ScreenShareOff className='h-4 w-4' />
-        <AlertTitle>SSH connection failed</AlertTitle>
-        <AlertDescription>
-          Failed to establish connection to server, please check the server
-          details
-        </AlertDescription>
-      </Alert>
-    )
-  }
-
-  if (!supportedLinuxVersions.includes(server.os.version ?? '')) {
-    return (
-      <Alert variant='destructive'>
-        <AlertCircle className='h-4 w-4' />
-        <AlertTitle>Unsupported OS</AlertTitle>
-        <AlertDescription>
-          {`Dokku doesn't support ${server.os.type} ${server.os.version}, check`}{' '}
-          <Link
-            className='underline'
-            href='https://dokku.com/docs/getting-started/installation/#system-requirements'
-            target='_blank'>
-            docs
-          </Link>
-          {` for more details`}
-        </AlertDescription>
-      </Alert>
-    )
-  }
-
-  return (
-    <div
-      className={`grid ${server.version ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'}`}>
-      <div className='space-y-2'>
-        <Label>OS</Label>
-
-        <div className='flex items-center gap-2 text-sm'>
-          <ServerTypeIcon fontSize={20} />
-
-          {`${server.os.type} ${server.os.version}`}
-        </div>
-      </div>
-
-      {server.version && (
-        <div className='space-y-2'>
-          <Label>Dokku</Label>
-
-          <div className='flex items-center gap-2 text-sm'>
-            <Dokku fontSize={20} />
-
-            {server.version}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 const UpdateServerForm = ({
   server,
@@ -164,10 +90,6 @@ const UpdateServerForm = ({
 
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
-      <h4 className='text-lg font-semibold'>Server Information</h4>
-
-      <ServerStatus server={server} />
-
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

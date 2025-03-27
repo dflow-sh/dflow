@@ -1,5 +1,5 @@
 import { MetricsResponse, NetdataApiParams } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { getTimeSeriesData, netdataAPI } from '../utils'
 
 export const getNetworkTraffic = async (
   params: NetdataApiParams,
@@ -53,4 +53,16 @@ export const getNetworkPackets = async (
       detailed: detailedData,
     },
   }
+}
+
+export const getNetworkErrors = async (params: NetdataApiParams) => {
+  const response = await netdataAPI(params, 'data?chart=net_errors.eth0')
+  return response.data.map((point: number[], i: number) => ({
+    time: new Date(response.after + i * response.point).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    dropped: point[response.labels.indexOf('dropped')],
+    errors: point[response.labels.indexOf('errors')],
+  }))
 }

@@ -271,7 +271,6 @@ export const getDiskIOChartData = async (
 ): Promise<MetricsResponse<any[]>> => {
   // Get disk I/O data
   const diskIOData = await getTimeSeriesData(params, 'system.io', points)
-  console.dir({ diskIOData }, { depth: null })
 
   if (!diskIOData.success) return diskIOData as any
 

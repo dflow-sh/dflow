@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '../ui/button'
 import { Loader2, MoreHorizontal, RefreshCcw, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
@@ -8,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { uninstallNetdataAction } from '@/actions/netdata'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -92,6 +92,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         host: server.ip,
       })
 
+      const newRes = await netdata.metrics.getServerDetails({
+        host: server.ip,
+      })
+
+      console.log({ newRes })
+
       if (response) {
         setServerStatus({
           status: response?.data?.serverStatus?.status || 'unknown',
@@ -151,7 +157,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
 
     // Set up a new interval
-    intervalRef.current = setInterval(() => refreshData(false), 15000)
+    intervalRef.current = setInterval(() => refreshData(false), 500000000)
   }, [])
 
   // Wrap refreshData in useCallback

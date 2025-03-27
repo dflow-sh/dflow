@@ -1,5 +1,8 @@
+'use server'
+
 import axios from 'axios'
 
+import { transformData } from './transformData'
 import { MetricsResponse, NetdataApiParams } from './types'
 
 /**
@@ -97,14 +100,6 @@ export const isApiAccessible = async (
 }
 
 /**
- * Formats a Unix timestamp to a time string in HH:MM format
- */
-export function formatTimestamp(timestamp: number): string {
-  const date = new Date(timestamp * 1000)
-  return date.toTimeString().substring(0, 5) // HH:MM format
-}
-
-/**
  * Fetches and transforms time-series data from Netdata for the last 20 minutes
  * @param params API connection parameters
  * @param chart Chart name to query
@@ -115,16 +110,8 @@ export const getTimeSeriesData = async <T>(
   params: NetdataApiParams,
   chart: string,
   minutes: number = 30, // Default to 30 minutes
+  version?: 'v1' | 'v2',
 ): Promise<MetricsResponse<T[]>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
   // Calculate seconds for the 'after' parameter
   const secondsAgo = minutes * 60
 
@@ -133,7 +120,7 @@ export const getTimeSeriesData = async <T>(
   const query = `data?chart=${chart}&after=-${secondsAgo}&before=0&format=json&options=seconds`
 
   // Fetch data
-  const data = await netdataAPI(params, query)
+  const data = await netdataAPI(params, query, version)
 
   // Check if we have data and labels
   if (
@@ -157,16 +144,19 @@ export const getTimeSeriesData = async <T>(
   let transformedData = transformData(labels, points) as T[]
 
   const convertTimeToTimestamp = (timeStr: string) => {
-    const [hours, minutes] = timeStr.split(':').map(Number)
+    const [hours, minutes, seconds, milliseconds] = timeStr
+      .split(':')
+      .map(Number)
     const now = new Date()
-    now.setHours(hours, minutes, 0, 0)
+    now.setHours(hours, minutes, seconds || 0, milliseconds || 0)
+
     return now.getTime() // Returns timestamp in milliseconds
   }
 
   // Sort data by time
   transformedData = transformedData.sort((a: any, b: any) => {
-    const timeA = convertTimeToTimestamp(a.time || a.timestamp || '00:00')
-    const timeB = convertTimeToTimestamp(b.time || b.timestamp || '00:00')
+    const timeA = convertTimeToTimestamp(a.timestamp || '00:00')
+    const timeB = convertTimeToTimestamp(b.timestamp || '00:00')
     return timeA - timeB
   })
 
@@ -175,28 +165,4 @@ export const getTimeSeriesData = async <T>(
     message: `${chart} time series data retrieved successfully`,
     data: transformedData,
   }
-}
-
-/**
- * Helper function to transform raw data based on labels
- */
-export function transformData(labels: string[], dataPoints: any[]): any[] {
-  const result = []
-
-  // Process each data point
-  for (const point of dataPoints) {
-    const timestamp = point[0] // First element is always timestamp
-    const timeStr = formatTimestamp(timestamp)
-
-    const transformedPoint: any = { time: timeStr }
-
-    // Add values based on label names
-    for (let i = 1; i < labels.length; i++) {
-      transformedPoint[labels[i]] = point[i]
-    }
-
-    result.push(transformedPoint)
-  }
-
-  return result
 }
