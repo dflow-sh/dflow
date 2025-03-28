@@ -24,7 +24,7 @@ export function NavUser({ user }: { user: User }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger>
             <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
               {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
               <AvatarFallback className='rounded-lg uppercase'>

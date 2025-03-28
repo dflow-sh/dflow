@@ -105,3 +105,26 @@ export const getBranchesAction = protectedClient
       branches,
     }
   })
+
+export const getAllAppsAction = protectedClient
+  .metadata({
+    actionName: 'getAllAppsAction',
+  })
+  .action(async () => {
+    const { docs } = await payload.find({
+      collection: 'gitProviders',
+      pagination: false,
+      select: {
+        github: {
+          appName: true,
+          installationId: true,
+          appUrl: true,
+        },
+        createdAt: true,
+        type: true,
+        updatedAt: true,
+      },
+    })
+
+    return docs
+  })

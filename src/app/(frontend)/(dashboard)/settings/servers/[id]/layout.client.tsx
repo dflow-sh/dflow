@@ -60,7 +60,9 @@ const LayoutClient = ({
   return (
     <>
       <div className='relative'>
-        <div className='mx-auto w-full max-w-6xl px-4'>
+        <div
+          className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
+          style={{ scrollbarWidth: 'none' }}>
           <Tabs
             tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
             onTabChange={index => {

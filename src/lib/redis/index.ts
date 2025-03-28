@@ -24,7 +24,7 @@ export const jobOptions: DefaultJobOptions = {
 }
 
 // Create a function to generate new connections
-export const createRedisClient = () => new Redis(env.REDIS_URL, redisOptions)
+export const createRedisClient = () => new Redis(env.REDIS_URI, redisOptions)
 
 // Connection for BullMQ queue operations
 export const queueConnection = createRedisClient()
