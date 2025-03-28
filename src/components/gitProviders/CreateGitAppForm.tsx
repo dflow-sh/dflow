@@ -6,9 +6,7 @@ const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
 const githubCallbackURL =
-  process.env.NODE_ENV === 'development'
-    ? env.NEXT_PUBLIC_WEBHOOK_URL
-    : `https://${env.NEXT_PUBLIC_WEBSITE_URL}`
+  env.NEXT_PUBLIC_WEBHOOK_URL ?? env.NEXT_PUBLIC_WEBSITE_URL
 
 const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
   const value = JSON.stringify({
