@@ -16,11 +16,17 @@ import { GitProvider } from '@/payload-types'
 const GithubCard = ({
   provider,
   onboarding = false,
+  trigger = () => {},
 }: {
   provider: GitProvider
   onboarding?: boolean
+  trigger?: () => void
 }) => {
-  const { execute, isPending } = useAction(deleteGitProviderAction)
+  const { execute, isPending } = useAction(deleteGitProviderAction, {
+    onSuccess: () => {
+      trigger()
+    },
+  })
 
   return (
     <Card key={provider.id}>
@@ -62,9 +68,11 @@ const GithubCard = ({
 const GitProviderList = ({
   gitProviders,
   onboarding = false,
+  trigger = () => {},
 }: {
   gitProviders: GitProvider[]
   onboarding?: boolean
+  trigger?: () => void
 }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -102,6 +110,7 @@ const GitProviderList = ({
               provider={provider}
               key={provider.id}
               onboarding={onboarding}
+              trigger={trigger}
             />
           )
         }

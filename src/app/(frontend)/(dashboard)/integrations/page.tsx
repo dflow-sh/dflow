@@ -48,8 +48,6 @@ const GitHubSheet = () => {
     }
   }, [activeSlide, result.data])
 
-  console.log(result.data)
-
   const icon = integration ? (
     <div className='mb-2 flex size-14 items-center justify-center rounded-md border'>
       <div className='relative'>
@@ -79,7 +77,12 @@ const GitHubSheet = () => {
 
         {!isPending && result.data && (
           <ScrollArea className='flex-grow'>
-            <GitProviderList gitProviders={result.data} />
+            <GitProviderList
+              gitProviders={result.data}
+              trigger={() => {
+                execute()
+              }}
+            />
           </ScrollArea>
         )}
 

@@ -2,7 +2,6 @@
 
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
-import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
@@ -30,7 +29,6 @@ export const deleteGitProviderAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/git')
       return { success: true }
     }
   })
