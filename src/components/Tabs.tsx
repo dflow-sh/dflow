@@ -1,5 +1,6 @@
 'use client'
 
+import { Slot } from '@radix-ui/react-slot'
 import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -9,10 +10,11 @@ export type TabContentProps = {
   setDisableTabs: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-type TabType = {
+export type TabType = {
   label: string | JSX.Element
   content?: (props: TabContentProps) => JSX.Element
   disabled?: boolean
+  asChild?: boolean
 }
 
 export default function Tabs({
@@ -31,7 +33,7 @@ export default function Tabs({
   const [hoverStyle, setHoverStyle] = useState({})
   const [activeStyle, setActiveStyle] = useState({ left: '0px', width: '0px' })
   const [disableTabs, setDisableTabs] = useState(false)
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
+  const tabRefs = useRef<(HTMLButtonElement | HTMLAnchorElement | null)[]>([])
 
   useEffect(() => {
     if (hoveredIndex !== null) {
@@ -52,6 +54,7 @@ export default function Tabs({
 
     if (activeElement) {
       const { offsetLeft, offsetWidth } = activeElement
+
       setActiveStyle({
         left: `${offsetLeft}px`,
         width: `${offsetWidth}px`,
@@ -112,33 +115,35 @@ export default function Tabs({
 
           {/* Tabs */}
           <div className='relative flex items-center space-x-[6px]'>
-            {tabs.map(({ label, disabled = false }, index) => (
-              <button
-                key={index}
-                ref={el => {
-                  tabRefs.current[index] = el
-                }}
-                className={`h-[30px] ${(disableTabs && activeIndex !== index) || disabled ? 'cursor-not-allowed' : ''} px-3 py-2 transition-colors duration-300 ${
-                  index === activeIndex
-                    ? 'text-foreground'
-                    : 'text-muted-foreground'
-                }`}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onFocus={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => {
-                  if (disableTabs || disabled) {
-                    return
-                  }
+            {tabs.map(({ label, disabled = false, asChild }, index) => {
+              const Component = asChild ? Slot : 'button'
 
-                  onTabChange(index)
-                  setActiveIndex(index)
-                }}>
-                <div className='flex h-full items-center justify-center whitespace-nowrap text-sm leading-5'>
+              return (
+                <Component
+                  key={index}
+                  ref={el => {
+                    tabRefs.current[index] = el
+                  }}
+                  className={`h-[30px] ${(disableTabs && activeIndex !== index) || disabled ? 'cursor-not-allowed' : ''} flex items-center justify-center whitespace-nowrap px-3 py-2 text-sm leading-5 transition-colors duration-300 ${
+                    index === activeIndex
+                      ? 'text-foreground'
+                      : 'text-muted-foreground'
+                  }`}
+                  onMouseEnter={() => setHoveredIndex(index)}
+                  onFocus={() => setHoveredIndex(index)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  onClick={() => {
+                    if (disableTabs || disabled) {
+                      return
+                    }
+
+                    onTabChange(index)
+                    setActiveIndex(index)
+                  }}>
                   {label}
-                </div>
-              </button>
-            ))}
+                </Component>
+              )
+            })}
           </div>
         </div>
 

@@ -56,7 +56,9 @@ const MonitoringTabs = ({
       defaultValue='overview'
       className='mt-12 space-y-4'
       onValueChange={setActiveTab}>
-      <TabsList>
+      <TabsList
+        className='w-full max-w-max overflow-x-scroll'
+        style={{ scrollbarWidth: 'none' }}>
         <TabsTrigger value='overview'>Overview</TabsTrigger>
         <TabsTrigger value='cpu'>CPU</TabsTrigger>
         <TabsTrigger value='memory'>Memory</TabsTrigger>
