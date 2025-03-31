@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import 'server-only'
 
-import { addDeploymentQueue } from '@/queues/app/deploy'
+import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
 
 const payload = await getPayload({ config: configPromise })
@@ -54,7 +54,7 @@ export const triggerDeployment = async ({
 
     if (type === 'app' || type === 'docker') {
       if (providerType === 'github' && githubSettings) {
-        const queueResponse = await addDeploymentQueue({
+        const queueResponse = await addRailpackDeployQueue({
           appName: serviceDetails.name,
           userName: githubSettings.owner,
           repoName: githubSettings.repository,

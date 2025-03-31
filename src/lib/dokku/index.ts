@@ -15,6 +15,7 @@ import { report } from './domains/report'
 import { set as domainsSet } from './domains/set'
 import { setGlobal } from './domains/setGlobal'
 import { auth } from './git/auth'
+import { deployImage } from './git/deployImage'
 import { sync } from './git/sync'
 import { unlock } from './git/unlock'
 import { create as createDatabase } from './plugin/database/create'
@@ -103,6 +104,7 @@ export const dokku = {
     sync,
     unlock,
     auth,
+    deployImage,
   },
   version: {
     info: dokkuVersionInfo,

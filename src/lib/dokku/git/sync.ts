@@ -1,17 +1,18 @@
-import { NodeSSH, SSHExecOptions } from 'node-ssh';
+import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
 interface Args {
-  ssh: NodeSSH;
-  appName: string;
-  gitRepoUrl: string;
-  branchName: string;
-  options: SSHExecOptions;
+  ssh: NodeSSH
+  appName: string
+  build?: boolean
+  gitRepoUrl: string
+  branchName: string
+  options: SSHExecOptions
 }
 
-export const sync = async (args: Args) => {
+export const sync = async ({ build = true, ...args }: Args) => {
   const resultGitSync = await args.ssh.execCommand(
-    `dokku git:sync --build ${args.appName} ${args.gitRepoUrl} ${args.branchName}`,
+    `dokku git:sync ${build ? '--build' : ''} ${args.appName} ${args.gitRepoUrl} ${args.branchName}`,
     args.options,
-  );
-  return resultGitSync;
-};
+  )
+  return resultGitSync
+}
