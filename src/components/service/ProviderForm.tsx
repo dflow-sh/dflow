@@ -119,7 +119,7 @@ const GithubForm = ({
     if (provider && provider.github) {
       getRepositories({
         page: 1,
-        limit: 100,
+        limit: 10,
         appId: `${provider.github.appId}`,
         installationId: `${provider.github.installationId}`,
         privateKey: provider.github.privateKey,
@@ -131,7 +131,7 @@ const GithubForm = ({
       ) {
         getBranches({
           page: 1,
-          limit: 100,
+          limit: 10,
           appId: `${provider.github.appId}`,
           installationId: `${provider.github.installationId}`,
           privateKey: provider.github.privateKey,
@@ -266,7 +266,13 @@ const GithubForm = ({
                 defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder='Select a repository' />
+                    <SelectValue
+                      placeholder={
+                        repositoriesLoading
+                          ? 'Fetching repositories...'
+                          : 'Select a repository'
+                      }
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>

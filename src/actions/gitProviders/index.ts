@@ -39,7 +39,7 @@ export const getRepositoriesAction = protectedClient
   })
   .schema(getRepositorySchema)
   .action(async ({ clientInput }) => {
-    const { appId, installationId, privateKey, limit = 10 } = clientInput
+    const { appId, installationId, privateKey } = clientInput
 
     const octokit = new Octokit({
       authStrategy: createAppAuth,
@@ -50,29 +50,28 @@ export const getRepositoriesAction = protectedClient
       },
     })
 
-    let hasMore = true
+    let allRepositories: any[] = []
     let currentPage = 1
+    let hasMore = true
 
     while (hasMore) {
       const { data } =
         await octokit.rest.apps.listReposAccessibleToInstallation({
-          per_page: limit,
+          per_page: 100,
           page: currentPage,
         })
 
-      if (data.repositories.length < limit) {
-        hasMore = false
-      }
+      allRepositories = [...allRepositories, ...data.repositories]
 
-      currentPage++
+      if (data.repositories.length < 100) {
+        hasMore = false
+      } else {
+        currentPage++
+      }
     }
 
-    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
-      per_page: limit,
-    })
-
     return {
-      repositories: data.repositories,
+      repositories: allRepositories.reverse(),
     }
   })
 
