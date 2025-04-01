@@ -71,8 +71,6 @@ export const getSystemAlerts = async (
 ): Promise<MetricsResponse<any>> => {
   const result = await netdataAPI(params, 'alarms')
 
-  console.log({ result })
-
   if (!result.status) {
     return {
       success: false,
