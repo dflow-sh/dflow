@@ -117,6 +117,12 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         host: server.ip,
       })
 
+      const newRes = await netdata.metrics.getDashboardMetrics({
+        host: server.ip,
+      })
+
+      console.log({ newRes })
+
       if (response) {
         setDashboardMetrics({
           cpuData: response?.data?.cpuData || [],
@@ -151,7 +157,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
 
     // Set up a new interval
-    intervalRef.current = setInterval(() => refreshData(false), 5000)
+    intervalRef.current = setInterval(() => refreshData(false), 5000000000000)
   }, [])
 
   // Wrap refreshData in useCallback
@@ -216,10 +222,8 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     <div>
       <div className='mb-6 flex items-start justify-between'>
         <div>
-          <h1 className='mb-2 text-lg font-bold'>
-            Server Monitoring Dashboard
-          </h1>
-          <p className='text-muted-foreground'>
+          <h1 className='text-lg font-bold'>Server Monitoring Dashboard</h1>
+          <p className='text-sm text-muted-foreground'>
             Real-time performance metrics and server status
           </p>
           <p className='mt-2 text-sm text-blue-500'>

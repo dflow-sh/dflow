@@ -1,6 +1,6 @@
 export {
-  getCpuPressure,
-  getCpuPressureStallTime,
+  getCpuSomePressure,
+  getCpuSomePressureStallTime,
   getCpuUtilization,
   getSystemLoad,
   getSystemUptime,
@@ -8,8 +8,18 @@ export {
 export { getDashboardMetrics } from './dashboard'
 export { getDiskIO, getDiskSpaceUsage, getSystemIO } from './diskMetrics'
 export { getServerDetails } from './getServerDetails'
-export { getMemoryUsage, getSwapUsage } from './memoryMetrics'
-export { getNetworkPackets, getNetworkTraffic } from './networkMetrics'
+export {
+  getMemoryAvailable,
+  getMemorySomePressure,
+  getMemorySomePressureStallTime,
+  getMemoryUsage,
+} from './memoryMetrics'
+export {
+  getNetworkBandwidth,
+  getNetworkErrors,
+  getNetworkPackets,
+  getNetworkTraffic,
+} from './networkMetrics'
 export {
   getRecentAlerts,
   getServerDashboardStatus,
