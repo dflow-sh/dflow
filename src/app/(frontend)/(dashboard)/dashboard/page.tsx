@@ -4,11 +4,12 @@ import { Folder } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import Loader from '@/components/Loader'
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminal from '@/components/ServerTerminal'
 import CreateProject from '@/components/project/CreateProject'
 import { Service } from '@/payload-types'
+
+import DashboardLoading from './loading'
 
 const SuspendedTerminal = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -79,7 +80,7 @@ const SuspendedPage = async () => {
 const DashboardPage = () => {
   return (
     <>
-      <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <Suspense fallback={<DashboardLoading />}>
         <LayoutClient>
           <SuspendedPage />
         </LayoutClient>
