@@ -242,7 +242,7 @@ export const updateServiceAction = protectedClient
     const { id, ...data } = clientInput
 
     const filteredObject = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
+      Object.entries(data).filter(([_, value]) => value && value !== undefined),
     )
 
     const response = await payload.update({

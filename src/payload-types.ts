@@ -272,7 +272,7 @@ export interface Service {
     | number
     | boolean
     | null;
-  builder?: ('nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+  builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
   githubSettings?: {

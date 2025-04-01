@@ -18,7 +18,7 @@ interface PageProps {
   searchParams: Promise<SearchParams>
 }
 
-const SuspendedPage = async ({ params, searchParams }: PageProps) => {
+const ServiceIdPage = async ({ params, searchParams }: PageProps) => {
   const { id: projectId, serviceId } = await params
   const { tab } = await loadServicePageTabs(searchParams)
 
@@ -74,14 +74,6 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     default:
       return <GeneralTab service={service} />
   }
-}
-
-const ServiceIdPage = ({ params, searchParams }: PageProps) => {
-  return (
-    // <Suspense fallback={<ServiceLoading />}>
-    <SuspendedPage params={params} searchParams={searchParams} />
-    // </Suspense>
-  )
 }
 
 export default ServiceIdPage

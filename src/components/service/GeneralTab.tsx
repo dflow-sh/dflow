@@ -1,10 +1,8 @@
 import Loader from '../Loader'
 import configPromise from '@payload-config'
-import { TriangleAlert } from 'lucide-react'
 import { getPayload } from 'payload'
 
 // import BuildTypeForm from './BuildTypeForm'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Service } from '@/payload-types'
 
 import DatabaseForm from './DatabaseForm'
@@ -18,24 +16,7 @@ const AppComponent = async ({ service }: { service: Service }) => {
     pagination: false,
   })
 
-  return (
-    <div className='space-y-4'>
-      <Alert variant='info'>
-        <TriangleAlert className='h-4 w-4' />
-
-        <AlertTitle>We currently support Dockerfile deployments</AlertTitle>
-        <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
-          <p>
-            We&apos;re actively working on adding support for buildpack-based
-            deployments—stay tuned!
-          </p>
-        </AlertDescription>
-      </Alert>
-
-      <ProviderForm service={service} gitProviders={gitProviders} />
-      {/* <BuildTypeForm service={service} /> */}
-    </div>
-  )
+  return <ProviderForm service={service} gitProviders={gitProviders} />
 }
 
 const DatabaseComponent = ({ service }: { service: Service }) => {

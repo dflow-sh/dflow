@@ -1,9 +1,13 @@
 'use client'
 
 import Tabs from '../Tabs'
+import { Docker } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Hammer } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
@@ -34,6 +38,21 @@ import {
 } from '@/components/ui/select'
 import { GitProvider, Service } from '@/payload-types'
 
+const options = [
+  {
+    label: 'Default',
+    value: 'railpack',
+    icon: <Hammer size={20} />,
+    description: 'Build app using railpack',
+  },
+  {
+    label: 'Dockerfile',
+    value: 'dockerfile',
+    icon: <Docker fontSize={20} />,
+    description: 'Build app using Dockerfile',
+  },
+]
+
 const GithubForm = ({
   gitProviders,
   service,
@@ -52,12 +71,13 @@ const GithubForm = ({
       id: params.serviceId,
       providerType: 'github',
       githubSettings: {
-        owner: '',
+        owner: service?.githubSettings?.owner ?? '',
         branch: service?.githubSettings?.branch,
         buildPath: service?.githubSettings?.buildPath,
         repository: service?.githubSettings?.repository,
+        port: service?.githubSettings?.port ?? 3000,
       },
-      port: service?.githubSettings?.port ?? 3000,
+      builder: service?.builder ?? 'railpack',
     },
   })
 
@@ -123,6 +143,8 @@ const GithubForm = ({
   }, [])
 
   function onSubmit(values: z.infer<typeof updateServiceSchema>) {
+    console.log({ values })
+
     saveGitProviderDetails(values)
   }
 
@@ -324,7 +346,7 @@ const GithubForm = ({
 
         <FormField
           control={form.control}
-          name='port'
+          name='githubSettings.port'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Port</FormLabel>
@@ -340,6 +362,51 @@ const GithubForm = ({
                     field.onChange(value)
                   }}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name='builder'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Builder</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className='flex w-full flex-col gap-4 md:flex-row'>
+                  {options.map(({ value, label, icon, description }) => (
+                    <FormItem
+                      className='flex w-full items-center space-x-3 space-y-0'
+                      key={value}>
+                      <FormControl>
+                        <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                          <RadioGroupItem
+                            value={value}
+                            id={value}
+                            aria-describedby={`${label}-builder`}
+                            className='order-1 after:absolute after:inset-0'
+                          />
+                          <div className='flex grow items-start gap-3'>
+                            {icon}
+
+                            <div className='grid grow gap-2'>
+                              <Label htmlFor={value}>{label}</Label>
+
+                              <p className='text-xs text-muted-foreground'>
+                                {description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>

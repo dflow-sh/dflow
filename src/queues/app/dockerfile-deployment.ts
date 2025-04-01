@@ -36,7 +36,7 @@ interface QueueArgs {
 
 const QUEUE_NAME = 'deploy-app'
 
-export const deployAppQueue = new Queue<QueueArgs>(QUEUE_NAME, {
+export const dockerdFileAppQueue = new Queue<QueueArgs>(QUEUE_NAME, {
   connection: queueConnection,
   defaultJobOptions: {
     removeOnComplete: {
@@ -478,10 +478,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to deploy app', err)
 })
 
-export const addDeploymentQueue = async (data: QueueArgs) => {
+export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
   // Create a unique job ID that prevents duplicates but allows identification
-  const id = `deploy:${data.appName}:${Date.now()}`
-  return await deployAppQueue.add(id, data, {
+  const id = `dockerfile-deploy:${data.appName}:${Date.now()}`
+  return await dockerdFileAppQueue.add(id, data, {
     ...jobOptions,
     jobId: id,
   })
