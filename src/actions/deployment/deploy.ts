@@ -71,6 +71,7 @@ export const triggerDeployment = async ({
                 ? environmentVariables
                 : undefined,
             serverId: project.server.id,
+            port: githubSettings.port ? githubSettings.port.toString() : '3000',
           },
           payloadToken: `${payloadToken?.value}`,
         })

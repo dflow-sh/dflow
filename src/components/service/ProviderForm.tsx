@@ -57,7 +57,7 @@ const GithubForm = ({
         buildPath: service?.githubSettings?.buildPath,
         repository: service?.githubSettings?.repository,
       },
-      port: 3000,
+      port: service?.githubSettings?.port ?? 3000,
     },
   })
 
