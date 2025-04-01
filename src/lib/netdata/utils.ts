@@ -80,7 +80,7 @@ export function formatTimestamp(
  */
 export const getTimeSeriesData = async <T extends SystemMetrics>(
   params: NetdataApiParams,
-  context?: NetdataContexts,
+  context?: NetdataContexts | string,
   chart?: string,
   minutes: number = 30,
   format: boolean = true,
