@@ -22,10 +22,6 @@ const ServiceLoading = () => {
           </div>
         </div>
 
-        <div>
-          <Skeleton className='h-10 w-full' />
-        </div>
-
         <div className='mt-4'>
           <Skeleton className='h-[400px] w-full' />
         </div>

@@ -9,7 +9,7 @@ import ServerTerminal from '@/components/ServerTerminal'
 import CreateProject from '@/components/project/CreateProject'
 import { Service } from '@/payload-types'
 
-import DashboardLoading from './loading'
+import DashboardLoading from './DashboardLoading'
 
 const SuspendedTerminal = async () => {
   const payload = await getPayload({ config: configPromise })

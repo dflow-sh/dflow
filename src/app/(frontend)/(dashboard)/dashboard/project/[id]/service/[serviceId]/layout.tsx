@@ -1,13 +1,14 @@
 import configPromise from '@payload-config'
 import { Github } from 'lucide-react'
 import { getPayload } from 'payload'
-import React, { JSX, SVGProps } from 'react'
+import React, { JSX, SVGProps, Suspense } from 'react'
 
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { Badge } from '@/components/ui/badge'
 import { Project, Service } from '@/payload-types'
 
+import ServiceLoading from './ServiceLoading'
 import LayoutClient from './layout.client'
 
 type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
@@ -22,7 +23,7 @@ const iconMapping: {
   redis: Redis,
 }
 
-const ServiceIdLayout = async ({
+const SuspendedServicePageLayout = async ({
   children,
   params,
 }: {
@@ -72,6 +73,25 @@ const ServiceIdLayout = async ({
 
       {children}
     </LayoutClient>
+  )
+}
+
+const ServiceIdLayout = async ({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{
+    id: string
+    serviceId: string
+  }>
+}) => {
+  return (
+    <Suspense fallback={<ServiceLoading />}>
+      <SuspendedServicePageLayout params={params}>
+        {children}
+      </SuspendedServicePageLayout>
+    </Suspense>
   )
 }
 

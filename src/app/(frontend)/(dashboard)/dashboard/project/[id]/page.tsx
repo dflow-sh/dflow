@@ -7,7 +7,7 @@ import { Suspense } from 'react'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
 
-import ProjectPageLoading from './loading'
+import ProjectPageLoading from './ProjectLoading'
 
 interface PageProps {
   params: Promise<{
