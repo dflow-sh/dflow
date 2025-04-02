@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { checkInstalled } from './checkInstalled'
+import { getVersion } from './getVersion'
 
 /**
  * Installs Netdata on the remote system using the official install script
@@ -18,11 +18,11 @@ export const install = async ({
   console.log('Installing Netdata...')
 
   // First check if netdata is already installed
-  const checkResult = await checkInstalled({ ssh, options })
-  if (checkResult.isInstalled) {
+  const version = await getVersion({ ssh, options })
+  if (Boolean(version)) {
     return {
       success: true,
-      message: `Netdata is already installed. Version: ${checkResult.version || 'unknown'}`,
+      message: `Netdata is already installed. Version: ${version || 'unknown'}`,
       alreadyInstalled: true,
     }
   }
@@ -35,12 +35,12 @@ export const install = async ({
 
   if (installResult.code === 0) {
     // Verify installation was successful
-    const postCheck = await checkInstalled({ ssh, options })
+    const version = await getVersion({ ssh, options })
 
     return {
-      success: postCheck.isInstalled,
-      message: postCheck.isInstalled
-        ? `Netdata installed successfully. Version: ${postCheck.version || 'unknown'}`
+      success: Boolean(version),
+      message: Boolean(version)
+        ? `Netdata installed successfully. Version: ${version || 'unknown'}`
         : 'Installation script completed but Netdata not detected.',
       output: installResult.stdout,
       error: installResult.stderr,

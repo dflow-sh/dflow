@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { checkInstalled } from './checkInstalled'
+import { getVersion } from './getVersion'
 
 /**
  * Uninstalls Netdata completely from the remote system
@@ -18,8 +18,8 @@ export const uninstall = async ({
   console.log('Uninstalling Netdata...')
 
   // First check if netdata is installed
-  const checkResult = await checkInstalled({ ssh, options })
-  if (!checkResult.isInstalled) {
+  const version = await getVersion({ ssh, options })
+  if (!version) {
     return {
       success: true,
       message: 'Netdata is not installed.',
@@ -59,11 +59,11 @@ export const uninstall = async ({
   await ssh.execCommand(cleanupCommand, options)
 
   // Verify uninstallation was successful
-  const postCheck = await checkInstalled({ ssh, options })
+  const postCheck = await getVersion({ ssh, options })
 
   return {
-    success: !postCheck.isInstalled,
-    message: !postCheck.isInstalled
+    success: !postCheck,
+    message: !postCheck
       ? 'Netdata fully uninstalled.'
       : 'Failed to remove Netdata completely.',
     output: uninstallResult.stdout,

@@ -55,16 +55,18 @@ interface ServerDetails {
   }
 }
 
-// Compact card component
-const CompactInfoCard = ({
-  title,
-  value,
-  icon: Icon,
-}: {
+// Define a type for the icon prop
+type IconComponent = React.ComponentType<any>
+
+// Define card data type
+interface InfoCardProps {
   title: string
   value: string
-  icon: React.ElementType
-}) => (
+  icon: IconComponent
+}
+
+// Compact card component
+const CompactInfoCard = ({ title, value, icon: Icon }: InfoCardProps) => (
   <Card>
     <CardHeader className='pb-2'>
       <CardTitle className='flex items-center justify-between text-sm font-medium'>
@@ -183,55 +185,83 @@ const DetailInfoSection = ({
 }
 
 // Server Details Component
-const ServerDetailsCompact = ({
+const ServerDetails = ({
   serverDetails,
   server,
 }: {
-  serverDetails: ServerDetails
+  serverDetails: ServerDetails | null
   server: ServerType
 }) => {
-  const cardData = [
-    {
+  // Base card data that should always be shown
+  const baseCardData: InfoCardProps[] = []
+
+  // Only add OS info if version exists
+  if (server.os?.version) {
+    baseCardData.push({
       title: 'Operating System',
-      value: serverDetails.os.full_version || 'Unknown',
+      value: server.os.version,
       icon: Ubuntu,
-    },
-    {
+    })
+  }
+
+  // Only add Dokku version if it exists
+  if (server.version) {
+    baseCardData.push({
       title: 'Dokku Version',
-      value: server.version || 'Not Installed',
+      value: server.version,
       icon: Dokku,
-    },
-    {
-      title: 'CPU',
-      value: `${serverDetails.hardware.cpu.cores || 'Unknown'} Cores @ ${serverDetails.hardware.cpu.frequency || 'Unknown'} (${serverDetails.kernel.architecture || 'Unknown'})`,
-      icon: Cpu,
-    },
-    {
-      title: 'RAM',
-      value: serverDetails.hardware.memory.total || 'Unknown',
-      icon: MemoryStick,
-    },
-    {
-      title: 'Disk',
-      value: serverDetails.hardware.storage.total || 'Unknown',
-      icon: HardDrive,
-    },
-    {
-      title: 'Hostname',
-      value: serverDetails.network.hostname || 'Unknown',
-      icon: Server,
-    },
-    {
-      title: 'Virtualization',
-      value: serverDetails.hardware.virtualization.type || 'Unknown',
-      icon: Globe,
-    },
-    {
-      title: 'Kernel',
-      value: `${serverDetails.kernel.name || 'Unknown'} ${serverDetails.kernel.version || ''}`,
-      icon: Info,
-    },
-  ]
+    })
+  }
+
+  // Only add netdata cards if netdataVersion exists AND serverDetails is available
+  let cardData: InfoCardProps[] = [...baseCardData]
+
+  // Check if netdata is installed and details are available
+  const isNetdataAvailable =
+    server.netdataVersion &&
+    serverDetails &&
+    serverDetails.hardware &&
+    serverDetails.network &&
+    serverDetails.kernel
+
+  if (isNetdataAvailable) {
+    // Additional netdata cards that should only be shown if netdataVersion exists
+    const netdataCardData: InfoCardProps[] = [
+      {
+        title: 'CPU',
+        value: `${serverDetails.hardware.cpu.cores || 'Unknown'} Cores @ ${serverDetails.hardware.cpu.frequency || 'Unknown'} (${serverDetails.kernel.architecture || 'Unknown'})`,
+        icon: Cpu,
+      },
+      {
+        title: 'RAM',
+        value: serverDetails.hardware.memory.total || 'Unknown',
+        icon: MemoryStick,
+      },
+      {
+        title: 'Disk',
+        value: serverDetails.hardware.storage.total || 'Unknown',
+        icon: HardDrive,
+      },
+      {
+        title: 'Hostname',
+        value: serverDetails.network.hostname || 'Unknown',
+        icon: Server,
+      },
+      {
+        title: 'Virtualization',
+        value: serverDetails.hardware.virtualization.type || 'Unknown',
+        icon: Globe,
+      },
+      {
+        title: 'Kernel',
+        value: `${serverDetails.kernel.name || 'Unknown'} ${serverDetails.kernel.version || ''}`,
+        icon: Info,
+      },
+    ]
+
+    // Add netdata cards to the card data
+    cardData = [...baseCardData, ...netdataCardData]
+  }
 
   return (
     <div className='space-y-4'>
@@ -246,67 +276,81 @@ const ServerDetailsCompact = ({
           </AlertDescription>
         </Alert>
       )}
-      {!supportedLinuxVersions.includes(server.os.version ?? '') && (
-        <Alert variant='destructive' className='mb-4'>
-          <AlertCircle className='h-4 w-4' />
-          <AlertTitle>Unsupported OS</AlertTitle>
-          <AlertDescription>
-            {`Dokku doesn't support ${server.os.type} ${server.os.version}, check `}{' '}
-            <Link
-              className='underline'
-              href='https://dokku.com/docs/getting-started/installation/#system-requirements'
-              target='_blank'>
-              docs
-            </Link>{' '}
-            for more details.
-          </AlertDescription>
-        </Alert>
-      )}
+      {server.os?.version &&
+        !supportedLinuxVersions.includes(server.os.version) && (
+          <Alert variant='destructive' className='mb-4'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertTitle>Unsupported OS</AlertTitle>
+            <AlertDescription>
+              {`Dokku doesn't support ${server.os.type} ${server.os.version}, check `}{' '}
+              <Link
+                className='underline'
+                href='https://dokku.com/docs/getting-started/installation/#system-requirements'
+                target='_blank'>
+                docs
+              </Link>{' '}
+              for more details.
+            </AlertDescription>
+          </Alert>
+        )}
 
       {/* Server Information */}
       <div className='flex items-center justify-between'>
         <h4 className='text-lg font-semibold'>Server Information</h4>
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button variant='outline' size='sm'>
-              <Info className='h-4 w-4' /> View Complete Details
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className='b-10 h-[90%]'>
-            <DrawerHeader>
-              <div className='flex items-center justify-between'>
-                <DrawerTitle className='flex items-center gap-2'>
-                  <Server className='h-5 w-5 text-muted-foreground' />
-                  Comprehensive Server Details
-                </DrawerTitle>
-                <DrawerClose asChild>
-                  <Button variant='ghost' size='icon'>
-                    <X className='h-5 w-5' />
-                  </Button>
-                </DrawerClose>
+        {isNetdataAvailable && (
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant='outline' size='sm'>
+                <Info className='h-4 w-4' /> View Complete Details
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className='b-10 h-[90%]'>
+              <DrawerHeader>
+                <div className='flex items-center justify-between'>
+                  <DrawerTitle className='flex items-center gap-2'>
+                    <Server className='h-5 w-5 text-muted-foreground' />
+                    Comprehensive Server Details
+                  </DrawerTitle>
+                  <DrawerClose asChild>
+                    <Button variant='ghost' size='icon'>
+                      <X className='h-5 w-5' />
+                    </Button>
+                  </DrawerClose>
+                </div>
+              </DrawerHeader>
+
+              <div className='space-y-6 overflow-y-auto px-4 py-2 pb-16'>
+                {serverDetails &&
+                  Object.entries(serverDetails).map(([section, details]) => (
+                    <DetailInfoSection
+                      key={section}
+                      title={section}
+                      details={details}
+                    />
+                  ))}
               </div>
-            </DrawerHeader>
-
-            <div className='space-y-6 overflow-y-auto px-4 py-2 pb-16'>
-              {Object.entries(serverDetails).map(([section, details]) => (
-                <DetailInfoSection
-                  key={section}
-                  title={section}
-                  details={details}
-                />
-              ))}
-            </div>
-          </DrawerContent>
-        </Drawer>
+            </DrawerContent>
+          </Drawer>
+        )}
       </div>
 
-      <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'>
-        {cardData.map((card, index) => (
-          <CompactInfoCard key={index} {...card} />
-        ))}
-      </div>
+      {cardData.length > 0 ? (
+        <div className='grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4'>
+          {cardData.map((card, index) => (
+            <CompactInfoCard key={index} {...card} />
+          ))}
+        </div>
+      ) : (
+        <Alert variant='default' className='bg-muted/50'>
+          <Info className='h-4 w-4' />
+          <AlertTitle>No Server Information Available</AlertTitle>
+          <AlertDescription>
+            Connect to your server to view detailed information.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   )
 }
 
-export default ServerDetailsCompact
+export default ServerDetails

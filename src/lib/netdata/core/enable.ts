@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { checkInstalled } from './checkInstalled'
+import { getVersion } from './getVersion'
 
 /**
  * Enables the Netdata service on boot
@@ -18,8 +18,8 @@ export const enable = async ({
   console.log('Enabling Netdata...')
 
   // Check if netdata is installed
-  const checkResult = await checkInstalled({ ssh, options })
-  if (!checkResult.isInstalled) {
+  const version = await getVersion({ ssh, options })
+  if (!version) {
     return {
       success: false,
       message: 'Cannot enable Netdata: it is not installed.',

@@ -95,6 +95,6 @@ export const getServerDetails = async (
     return serverDetails
   } catch (error) {
     console.error('Failed to fetch server details:', error)
-    throw error
+    // throw error
   }
 }

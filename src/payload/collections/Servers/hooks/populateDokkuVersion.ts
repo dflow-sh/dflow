@@ -3,6 +3,7 @@ import { CollectionAfterReadHook } from 'payload'
 
 import { supportedLinuxVersions } from '@/lib/constants'
 import { dokku } from '@/lib/dokku'
+import { netdata } from '@/lib/netdata'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { Server } from '@/payload-types'
@@ -25,6 +26,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   const portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
 
   let version: string | undefined
+  let netdataVersion: string | null = null
   let sshConnected = true
   let linuxDistributionVersion
   let linuxDistributionType
@@ -39,6 +41,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           privateKey: sshKey.privateKey,
           username: doc.username,
         })
+
+        netdataVersion = await netdata.core.getVersion({ ssh })
 
         const distroResponse = await dokku.distro.info(ssh)
 
@@ -75,6 +79,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   return {
     ...doc,
     version: version ?? null, // version of dokku
+    netdataVersion,
     portIsOpen, // boolean indicating whether the server is running
     sshConnected, // boolean indicating whether ssh is connected
     os: {

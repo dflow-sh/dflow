@@ -10,7 +10,7 @@ import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
-import ServerDetailsCompact from '@/components/servers/ServerDetails'
+import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
@@ -51,7 +51,7 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
 
   return (
     <div className='flex flex-col space-y-5'>
-      <ServerDetailsCompact serverDetails={serverDetails} server={server} />
+      <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
