@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const ServiceLoading = () => {
   return (
-    <div className='-mt-36 flex h-full w-full items-center justify-center'>
+    <div className='flex h-full w-full justify-center overflow-hidden'>
       <div className='flex w-full max-w-6xl flex-col gap-4 py-4'>
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-2 text-2xl font-semibold'>

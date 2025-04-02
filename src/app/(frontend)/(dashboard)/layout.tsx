@@ -28,10 +28,10 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='w-full'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
-        <div className='flex items-center gap-2 text-2xl font-semibold'>
+        <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
           <Link href={`/dashboard`} className='flex items-center gap-1'>
             <Workflow className='text-primary' />
-            <p className='hidden sm:block'>Dokflow</p>
+            <p className='hidden sm:block'>Dflow</p>
           </Link>
 
           {/* These are replaced with breadcrumbs using react-portals */}
