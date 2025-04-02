@@ -2,8 +2,6 @@ export {
   getCpuSomePressure,
   getCpuSomePressureStallTime,
   getCpuUtilization,
-  getSystemLoad,
-  getSystemUptime,
 } from './cpuMetrics'
 export { getDashboardMetrics } from './dashboard'
 export { getDiskIO, getDiskSpaceUsage, getSystemIO } from './diskMetrics'
@@ -27,5 +25,9 @@ export {
   getServicesHealth,
   getSystemResources,
 } from './serverStatus'
-export { getServerLoad, getSystemAlerts } from './systemMetrics'
+export {
+  getServerLoad,
+  getServerUptime,
+  getSystemAlerts,
+} from './systemMetrics'
 export { getResponseTimes, getWebRequests } from './webMetrics'

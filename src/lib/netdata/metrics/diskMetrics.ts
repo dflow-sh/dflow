@@ -3,21 +3,24 @@ import { getTimeSeriesData } from '../utils'
 
 export interface DiskSpaceUsageDetailed {
   timestamp: string
+  fullTimestamp: string
   usedPercent: number
   [key: string]: string | number
 }
 
 export interface DiskIODetailed {
   timestamp: string
-  readKbps: number
-  writeKbps: number
+  fullTimestamp: string
+  reads: number
+  writes: number
   [key: string]: string | number
 }
 
 export interface SystemIODetailed {
   timestamp: string
-  readKbps: number
-  writeKbps: number
+  fullTimestamp: string
+  reads: number
+  writes: number
   [key: string]: string | number
 }
 
@@ -32,7 +35,11 @@ export const getDiskSpaceUsage = async (
   minutes: number = 30,
 ): Promise<
   MetricsResponse<{
-    overview: { timestamp: string; usedPercent: number }[]
+    overview: {
+      timestamp: string
+      fullTimestamp: string
+      usedPercent: number
+    }[]
     detailed: DiskSpaceUsageDetailed[]
   }>
 > => {
@@ -53,7 +60,8 @@ export const getDiskSpaceUsage = async (
   // Comprehensive formatting of disk space data
   const formattedData: DiskSpaceUsageDetailed[] = result.data.data.map(
     (point: any) => ({
-      timestamp: point.timestamp || new Date().toISOString(),
+      timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
       usedPercent: (() => {
         const used = Number(point.used || 0)
         const avail = Number(point.avail || 0)
@@ -71,6 +79,7 @@ export const getDiskSpaceUsage = async (
   // Create simplified overview data
   const overview = formattedData.map(point => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     usedPercent: point.usedPercent,
   }))
 
@@ -95,7 +104,12 @@ export const getDiskIO = async (
   minutes: number = 30,
 ): Promise<
   MetricsResponse<{
-    overview: { timestamp: string; readKbps: number; writeKbps: number }[]
+    overview: {
+      timestamp: string
+      fullTimestamp: string
+      reads: number
+      writes: number
+    }[]
     detailed: DiskIODetailed[]
   }>
 > => {
@@ -116,14 +130,18 @@ export const getDiskIO = async (
   // Comprehensive formatting of disk I/O data
   const formattedData: DiskIODetailed[] = result.data.data.map(
     (point: any) => ({
-      timestamp: point.timestamp || new Date().toISOString(),
-      readKbps: Math.abs(Number(point.reads || 0) / 1024),
-      writeKbps: Math.abs(Number(point.writes || 0) / 1024),
+      timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
+      reads: Math.abs(Number(point.reads || 0) / 1024),
+      writes: Math.abs(Number(point.writes || 0) / 1024),
       ...Object.fromEntries(
         Object.entries(point)
           .filter(
             ([key]) =>
-              key !== 'timestamp' && key !== 'reads' && key !== 'writes',
+              key !== 'timestamp' &&
+              key !== 'fullTimestamp' &&
+              key !== 'reads' &&
+              key !== 'writes',
           )
           .map(([key, value]) => [key, Number(value) || 0]),
       ),
@@ -133,8 +151,9 @@ export const getDiskIO = async (
   // Create simplified overview data
   const overview = formattedData.map(point => ({
     timestamp: point.timestamp,
-    readKbps: parseFloat(point.readKbps.toFixed(2)),
-    writeKbps: parseFloat(point.writeKbps.toFixed(2)),
+    fullTimestamp: point.fullTimestamp,
+    reads: parseFloat(point.reads.toFixed(2)),
+    writes: parseFloat(point.writes.toFixed(2)),
   }))
 
   return {
@@ -158,7 +177,12 @@ export const getSystemIO = async (
   minutes: number = 30,
 ): Promise<
   MetricsResponse<{
-    overview: { timestamp: string; readKbps: number; writeKbps: number }[]
+    overview: {
+      timestamp: string
+      fullTimestamp: string
+      reads: number
+      writes: number
+    }[]
     detailed: SystemIODetailed[]
   }>
 > => {
@@ -179,14 +203,18 @@ export const getSystemIO = async (
   // Comprehensive formatting of system I/O data
   const formattedData: SystemIODetailed[] = result.data.data.map(
     (point: any) => ({
-      timestamp: point.timestamp || new Date().toISOString(),
-      readKbps: Math.abs(Number(point.reads || 0) / 1024),
-      writeKbps: Math.abs(Number(point.writes || 0) / 1024),
+      timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
+      reads: Math.abs(Number(point.reads || 0) / 1024),
+      writes: Math.abs(Number(point.writes || 0) / 1024),
       ...Object.fromEntries(
         Object.entries(point)
           .filter(
             ([key]) =>
-              key !== 'timestamp' && key !== 'reads' && key !== 'writes',
+              key !== 'timestamp' &&
+              key !== 'fullTimestamp' &&
+              key !== 'reads' &&
+              key !== 'writes',
           )
           .map(([key, value]) => [key, Number(value) || 0]),
       ),
@@ -196,8 +224,9 @@ export const getSystemIO = async (
   // Create simplified overview data
   const overview = formattedData.map(point => ({
     timestamp: point.timestamp,
-    readKbps: parseFloat(point.readKbps.toFixed(2)),
-    writeKbps: parseFloat(point.writeKbps.toFixed(2)),
+    fullTimestamp: point.fullTimestamp,
+    reads: parseFloat(point.reads.toFixed(2)),
+    writes: parseFloat(point.writes.toFixed(2)),
   }))
 
   return {
