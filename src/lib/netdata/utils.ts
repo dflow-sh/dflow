@@ -1,126 +1,124 @@
-'use server'
-
-import axios from 'axios'
-
-import { transformData } from './transformData'
-import { MetricsResponse, NetdataApiParams } from './types'
+import { netdataAPI } from './netdataAPI'
+import {
+  MetricsResponse,
+  NetdataApiParams,
+  NetdataContexts,
+  SystemMetrics,
+} from './types'
 
 /**
- * Makes a direct API call to the Netdata API
- * @param params API parameters
- * @param endpoint API endpoint (e.g., 'data?chart=system.cpu')
- * @param version API version (v1 or v2)
- * @returns Response data or error
+ * Helper function to transform raw data based on labels
+ * @param labels Array of metric labels from Netdata
+ * @param dataPoints Raw data points from Netdata API
+ * @param options Optional configuration for transformation
  */
-export const netdataAPI = async (
-  params: NetdataApiParams,
-  endpoint: string,
-  version: 'v1' | 'v2' = 'v1',
-): Promise<any> => {
+export function transformData(
+  labels: string[],
+  dataPoints: any[],
+  options: {
+    keepOriginalTimestamp?: boolean
+    timestampMultiplier?: number
+  } = {},
+): any[] {
   const {
-    host = 'localhost',
-    port = 19999,
-    after,
-    before,
-    points,
-    group,
-    dimensions,
-    nodes,
-    contexts,
-  } = params
+    keepOriginalTimestamp = false,
+    timestampMultiplier = 1000, // Default to milliseconds
+  } = options
 
-  // Build base URL for API
-  const baseUrl = `/api/${version}/${endpoint}`
+  const result: any[] = []
 
-  // Check if endpoint already has query parameters
-  const hasQueryParams = baseUrl.includes('?')
+  for (const point of dataPoints) {
+    const { timestamp, fullTimestamp } = formatTimestamp(
+      point[0],
+      timestampMultiplier,
+    )
 
-  // Create URLSearchParams object for query parameters
-  const queryParams = new URLSearchParams()
+    const transformedPoint: Record<string, string | number> = {
+      timestamp, // HH:MM:SS
+      fullTimestamp, // Wed, Apr 02, 2025 . 11:20:54
+      ...(keepOriginalTimestamp ? { originalTimestamp: point[0] } : {}),
+    }
 
-  // Add query parameters from endpoint if they exist
-  if (hasQueryParams) {
-    const [path, queryString] = baseUrl.split('?')
-    new URLSearchParams(queryString).forEach((value, key) => {
-      queryParams.append(key, value)
-    })
+    // Map all values starting from index 1
+    for (let i = 1; i < labels.length; i++) {
+      transformedPoint[labels[i].toLowerCase()] = point[i]
+    }
+
+    result.push(transformedPoint)
   }
 
-  // Add common parameters if provided
-  if (after !== undefined) queryParams.append('after', after.toString())
-  if (before !== undefined) queryParams.append('before', before.toString())
-  if (points !== undefined) queryParams.append('points', points.toString())
-  if (group !== undefined) queryParams.append('group', group.toString())
+  return result
+}
 
-  // Additional v2 parameters
-  if (version === 'v2') {
-    if (dimensions !== undefined)
-      queryParams.append('dimensions', dimensions.toString())
-    if (nodes !== undefined) queryParams.append('nodes', nodes.toString())
-    if (contexts !== undefined)
-      queryParams.append('contexts', contexts.toString())
-  }
-
-  // Get the query string
-  const queryString = queryParams.toString()
-
-  // Complete endpoint with query parameters
-  const fullEndpoint = hasQueryParams
-    ? baseUrl.split('?')[0] + '?' + queryString
-    : baseUrl + (queryString ? '?' + queryString : '')
-
+/**
+ * Formats a timestamp into two formats:
+ * 1. `timestamp`: HH:MM:SS
+ * 2. `fullTimestamp`: Wed, Apr 02, 2025 . 11:20:54
+ * @param timestamp Timestamp to format
+ * @param multiplier Multiplier for timestamp (e.g., 1000 for milliseconds)
+ * @returns Object with `timestamp` and `fullTimestamp`
+ */
+export function formatTimestamp(
+  timestamp: number,
+  multiplier: number = 1000,
+): { timestamp: string; fullTimestamp: string } {
   try {
-    // Use axios to make the request directly
-    const apiUrl = `http://${host}:${port}${fullEndpoint}`
+    const date = new Date(timestamp * multiplier)
 
-    const response = await axios.get(apiUrl)
+    const timestampStr = date.toTimeString().substring(0, 8) // HH:MM:SS format
+    const fullTimestampStr = date
+      .toLocaleString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })
+      .replace(',', '.') // Convert comma to dot for your requested format
 
-    return response.data
+    return { timestamp: timestampStr, fullTimestamp: fullTimestampStr }
   } catch (error) {
-    console.error('Netdata API call failed:', error)
-    throw error
+    console.warn('Invalid timestamp:', timestamp)
+    return { timestamp: 'Invalid Time', fullTimestamp: 'Invalid Date' }
   }
 }
 
 /**
- * Checks if Netdata API is accessible
- * @param params API parameters
- * @returns True if API is accessible, false otherwise
+ * Fetches and transforms time-series data from Netdata.
+ *
+ * @template T - The type of system metrics being retrieved.
+ * @param {NetdataApiParams} params - API connection parameters.
+ * @param {NetdataContexts} [context] - The context to query (optional if `chart` is provided).
+ * @param {string} [chart] - The specific chart to query (optional if `context` is provided).
+ * @param {number} [minutes=30] - Number of minutes of data to retrieve (defaults to 30).
+ * @param {boolean} [format=true] - If true, returns formatted data; otherwise, returns raw data.
+ * @returns {Promise<MetricsResponse<{ labels: string[]; data: T[] }>>} - A promise that resolves to the processed time-series data sorted in ascending order by time.
  */
-export const isApiAccessible = async (
+export const getTimeSeriesData = async <T extends SystemMetrics>(
   params: NetdataApiParams,
-): Promise<boolean> => {
-  try {
-    const response = await netdataAPI(params, 'info')
-
-    return !!response?.version
-  } catch (error) {
-    return false
+  context?: NetdataContexts | string,
+  chart?: string,
+  minutes: number = 30,
+  format: boolean = true,
+): Promise<MetricsResponse<{ labels: string[]; data: T[] }>> => {
+  if (!context && !chart) {
+    return {
+      success: false,
+      message: 'Either context or chart must be provided.',
+    }
   }
-}
 
-/**
- * Fetches and transforms time-series data from Netdata for the last 20 minutes
- * @param params API connection parameters
- * @param chart Chart name to query
- * @param minutes Number of minutes of data to retrieve (defaults to 20)
- * @returns Processed time-series data sorted in ascending order by time
- */
-export const getTimeSeriesData = async <T>(
-  params: NetdataApiParams,
-  chart: string,
-  minutes: number = 30, // Default to 30 minutes
-  version?: 'v1' | 'v2',
-): Promise<MetricsResponse<T[]>> => {
   // Calculate seconds for the 'after' parameter
   const secondsAgo = minutes * 60
 
   // Build query with 'after' parameter to get data from the last X minutes
-  // Adding 'options=seconds' will include timestamps in seconds since epoch
-  const query = `data?chart=${chart}&after=-${secondsAgo}&before=0&format=json&options=seconds`
+  const query = `data?${context ? `context=${context}&` : ''}${chart ? `chart=${chart}&` : ''}after=-${secondsAgo}&before=0&format=json&options=seconds`
 
   // Fetch data
-  const data = await netdataAPI(params, query, version)
+  const data = await netdataAPI(params, query)
 
   // Check if we have data and labels
   if (
@@ -132,7 +130,15 @@ export const getTimeSeriesData = async <T>(
   ) {
     return {
       success: false,
-      message: `No data available for ${chart}`,
+      message: `No data available for ${context || chart}`,
+    }
+  }
+
+  if (!format) {
+    return {
+      success: true,
+      message: `${context || chart} raw data retrieved successfully`,
+      data: data as { labels: string[]; data: T[] }, // Returning both labels and data
     }
   }
 
@@ -148,21 +154,24 @@ export const getTimeSeriesData = async <T>(
       .split(':')
       .map(Number)
     const now = new Date()
-    now.setHours(hours, minutes, seconds || 0, milliseconds || 0)
+    now.setHours(hours || 0, minutes || 0, seconds || 0, milliseconds || 0)
 
     return now.getTime() // Returns timestamp in milliseconds
   }
 
   // Sort data by time
-  transformedData = transformedData.sort((a: any, b: any) => {
-    const timeA = convertTimeToTimestamp(a.timestamp || '00:00')
-    const timeB = convertTimeToTimestamp(b.timestamp || '00:00')
+  transformedData = transformedData.sort((a: T, b: T) => {
+    const timeA = convertTimeToTimestamp(a.timestamp || '00:00:00')
+    const timeB = convertTimeToTimestamp(b.timestamp || '00:00:00')
     return timeA - timeB
   })
 
   return {
     success: true,
-    message: `${chart} time series data retrieved successfully`,
-    data: transformedData,
+    message: `${context || chart} time series data retrieved successfully`,
+    data: {
+      labels, // Returning labels
+      data: transformedData, // Returning transformed data
+    },
   }
 }

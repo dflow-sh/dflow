@@ -1,16 +1,7 @@
 'use client'
 
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 
-import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -28,224 +19,374 @@ import {
 
 import { getTimeRange } from './getTimeRange'
 
+// Helper function to convert uptime string to seconds for plotting
+const uptimeToSeconds = (uptimeStr: any) => {
+  if (!uptimeStr) return 0
+
+  const str = String(uptimeStr) // Ensure it's a string
+  const parts = str.split(' ')
+  let totalSeconds = 0
+
+  // Handle days part (e.g., "13d")
+  if (parts[0] && parts[0].endsWith('d')) {
+    const days = parseInt(parts[0].replace('d', ''), 10)
+    totalSeconds += days * 24 * 60 * 60
+  }
+
+  // Handle hours:minutes part (e.g., "04:13")
+  if (parts[1]) {
+    const timeParts = parts[1].split(':')
+    if (timeParts[0]) {
+      totalSeconds += parseInt(timeParts[0], 10) * 60 * 60 // hours
+    }
+    if (timeParts[1]) {
+      totalSeconds += parseInt(timeParts[1], 10) * 60 // minutes
+    }
+  }
+
+  return totalSeconds
+}
+
+// Helper function to format seconds back to uptime display
+const secondsToUptimeFormat = (seconds: number) => {
+  const days = Math.floor(seconds / (24 * 60 * 60))
+  const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60))
+  const minutes = Math.floor((seconds % (60 * 60)) / 60)
+
+  return `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`
+}
+
 const CPUTab = ({
-  cpuData,
-  serverLoadData,
-  cpuUsageDistributionData,
+  cpuUtilization,
+  cpuSomePressure,
+  cpuSomePressureStallTime,
+  serverLoad,
+  serverUptime,
 }: {
-  cpuData: never[]
-  serverLoadData: never[]
-  cpuUsageDistributionData: never[]
+  cpuUtilization: any[]
+  cpuSomePressure: any[]
+  cpuSomePressureStallTime: any[]
+  serverLoad: any[]
+  serverUptime: any[]
 }) => {
+  const cpuMetrics = [
+    { key: 'utilization', label: 'Utilization', color: 'hsl(var(--chart-1))' },
+    { key: 'user', label: 'User', color: 'hsl(var(--chart-2))' },
+    { key: 'system', label: 'System', color: 'hsl(var(--chart-3))' },
+    { key: 'iowait', label: 'IOWait', color: 'hsl(var(--chart-4))' },
+    { key: 'steal', label: 'Steal', color: 'hsl(var(--chart-5))' },
+    { key: 'softirq', label: 'SoftIRQ', color: 'hsl(var(--chart-6))' },
+    { key: 'irq', label: 'IRQ', color: 'hsl(var(--chart-7))' },
+    { key: 'nice', label: 'Nice', color: 'hsl(var(--chart-8))' },
+    { key: 'guest', label: 'Guest', color: 'hsl(var(--chart-9))' },
+    { key: 'guest_nice', label: 'Guest Nice', color: 'hsl(var(--chart-10))' },
+  ]
+
+  const pressureMetrics = [
+    { key: 'some10', label: 'Some 10', color: 'hsl(var(--chart-2))' },
+    { key: 'some60', label: 'Some 60', color: 'hsl(var(--chart-3))' },
+    { key: 'some300', label: 'Some 300', color: 'hsl(var(--chart-4))' },
+  ]
+
+  const stallTimeMetrics = [
+    { key: 'stallTime', label: 'Stall Time', color: 'hsl(var(--chart-3))' },
+  ]
+
+  const loadMetrics = [
+    { key: 'load1m', label: 'Load 1 m', color: 'hsl(var(--chart-4))' },
+    { key: 'load5m', label: 'Load 5 m', color: 'hsl(var(--chart-5))' },
+    { key: 'load15m', label: 'Load 15 m', color: 'hsl(var(--chart-6))' },
+  ]
+
+  const uptimeMetrics = [
+    { key: 'uptime', label: 'Uptime', color: 'hsl(var(--chart-7))' },
+  ]
+
+  // Process uptime data to add a numeric value for charting
+  const processedUptimeData =
+    serverUptime?.map(item => ({
+      ...item,
+      uptimeSeconds: uptimeToSeconds(item.uptime),
+    })) || []
+
+  // Find min and max values for better scaling
+  const uptimeSeconds = processedUptimeData.map(item => item.uptimeSeconds)
+  const minUptime = Math.min(...uptimeSeconds)
+  const maxUptime = Math.max(...uptimeSeconds)
+
   return (
     <div className='grid grid-cols-1 gap-4'>
+      {/* CPU Utilization */}
       <Card>
         <CardHeader>
-          <CardTitle>CPU Usage Trend</CardTitle>
+          <CardTitle>CPU Utilization</CardTitle>
           <CardDescription>
-            {cpuData.length > 1
-              ? `${getTimeRange(cpuData)} with detailed metrics - (from ${(cpuData as any).at(0)?.time} to ${(cpuData as any).at(-1)?.time})`
+            {cpuUtilization?.length > 1
+              ? `${getTimeRange(cpuUtilization)} (from ${cpuUtilization.at(0)?.timestamp} to ${cpuUtilization.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
-            config={{
-              usage: {
-                label: 'Usage',
-                color: 'hsl(var(--chart-1))',
-              },
-            }}
+            config={Object.fromEntries(
+              cpuMetrics.map(m => [m.key, { label: m.label, color: m.color }]),
+            )}
             className='aspect-auto h-[300px] w-full'>
-            <AreaChart data={cpuData} accessibilityLayer>
-              <defs>
-                <linearGradient
-                  id='fillCpuDetailed'
-                  x1='0'
-                  y1='0'
-                  x2='0'
-                  y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <LineChart data={cpuUtilization} syncId='cpu-metrics'>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey='time'
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                domain={[0, 100]}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <Area
-                type='monotone'
-                dataKey='usage'
-                stroke='var(--color-usage)'
-                fill='url(#fillCpuDetailed)'
-                strokeWidth={2}
-              />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis domain={[0, 100]} tickLine={false} axisLine={false} />
+              {cpuMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              ))}
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = cpuUtilization.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
-            </AreaChart>
+            </LineChart>
           </ChartContainer>
         </CardContent>
       </Card>
 
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <Card>
-          <CardHeader>
-            <CardTitle>CPU Load Average</CardTitle>
-            <CardDescription>
-              System load over time -{' '}
-              {serverLoadData.length > 1
-                ? `${getTimeRange(serverLoadData)} (from ${(serverLoadData as any).at(0)?.time} to ${(serverLoadData as any).at(-1)?.time})`
-                : 'No data available'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
-            <ChartContainer
-              config={{
-                load: {
-                  label: 'System Load',
-                  color: 'hsl(var(--chart-1))',
-                },
-              }}
-              className='aspect-auto h-[250px] w-full'>
-              <BarChart data={serverLoadData} accessibilityLayer>
-                <defs>
-                  <linearGradient id='fillLoad' x1='0' y1='0' x2='0' y2='1'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-load)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-load)'
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey='time'
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
+      {/* CPU Some Pressure */}
+      <Card>
+        <CardHeader>
+          <CardTitle>CPU Some Pressure</CardTitle>
+          <CardDescription>
+            {cpuSomePressure?.length > 1
+              ? `${getTimeRange(cpuSomePressure)} (from ${cpuSomePressure.at(0)?.timestamp} to ${cpuSomePressure.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              pressureMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <LineChart data={cpuSomePressure} syncId='cpu-metrics'>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
+              {pressureMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                <Bar
-                  dataKey='load'
-                  fill='url(#fillLoad)'
-                  radius={[4, 4, 0, 0]}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator='dot' />}
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+              ))}
 
-        <Card className='overflow-hidden'>
-          <CardHeader className='relative'>
-            <CardTitle>CPU Usage Distribution</CardTitle>
-            <CardDescription>Current utilization by core</CardDescription>
-            <Badge
-              variant='secondary'
-              className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
-              Coming Soon
-            </Badge>
-          </CardHeader>
-          <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
-            <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
-              <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
-                <div className='text-xl font-semibold'>Coming Soon</div>
-                <p className='text-sm text-muted-foreground'>
-                  This feature is under development
-                </p>
-              </div>
-            </div>
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = cpuSomePressure.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
 
-            <ChartContainer
-              config={{
-                usage: {
-                  label: 'Usage',
-                  color: 'hsl(var(--chart-1))',
-                },
-              }}
-              className='pointer-events-none h-[250px] w-full opacity-40'>
-              <BarChart
-                data={cpuUsageDistributionData}
-                layout='vertical'
-                accessibilityLayer>
-                <defs>
-                  <linearGradient
-                    id='fillCoreUsage'
-                    x1='0'
-                    y1='0'
-                    x2='1'
-                    y2='0'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-usage)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-usage)'
-                      stopOpacity={0.6}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid horizontal={false} />
-                <XAxis
-                  type='number'
-                  domain={[0, 100]}
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
+      {/* CPU Some Pressure Stall Time */}
+      <Card>
+        <CardHeader>
+          <CardTitle>CPU Some Pressure Stall Time</CardTitle>
+          <CardDescription>
+            {cpuSomePressureStallTime?.length > 1
+              ? `${getTimeRange(cpuSomePressureStallTime)} (from ${cpuSomePressureStallTime.at(0)?.timestamp} to ${cpuSomePressureStallTime.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              stallTimeMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <LineChart data={cpuSomePressureStallTime} syncId='cpu-metrics'>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
+              {stallTimeMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
                 />
-                <YAxis
-                  type='category'
-                  dataKey='name'
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = cpuSomePressureStallTime.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* Server Load */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Server Load</CardTitle>
+          <CardDescription>
+            {serverLoad?.length > 1
+              ? `${getTimeRange(serverLoad)} (from ${serverLoad.at(0)?.timestamp} to ${serverLoad.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              loadMetrics.map(m => [m.key, { label: m.label, color: m.color }]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <LineChart data={serverLoad} syncId='cpu-metrics'>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
+              {loadMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
                 />
-                <Bar
-                  dataKey='usage'
-                  fill='url(#fillCoreUsage)'
-                  radius={[4, 4, 0, 0]}
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = serverLoad.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* Server Uptime */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Server Uptime</CardTitle>
+          <CardDescription>
+            {serverUptime?.length > 1
+              ? `${getTimeRange(serverUptime)} (from ${serverUptime.at(0)?.timestamp} to ${serverUptime.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              uptimeMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <LineChart data={processedUptimeData} syncId='cpu-metrics'>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis
+                dataKey='uptimeSeconds'
+                domain={[minUptime, maxUptime]}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={value => secondsToUptimeFormat(value)}
+              />
+              {uptimeMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey='uptimeSeconds'
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
+                  name='uptime'
                 />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator='dot' />}
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='line'
+                    labelFormatter={label => {
+                      const dataPoint = cpuUtilization.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   )
 }

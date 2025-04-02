@@ -12,7 +12,6 @@ import {
   YAxis,
 } from 'recharts'
 
-import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -28,64 +27,62 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 
-const NetworkTab = ({ networkData }: { networkData: never[] }) => {
+import { getTimeRange } from './getTimeRange'
+
+const NetworkTab = ({
+  networkBandwidth,
+  networkTraffic,
+  networkPackets,
+  networkErrors,
+}: {
+  networkBandwidth: any[]
+  networkTraffic: any[]
+  networkPackets: any[]
+  networkErrors: any[]
+}) => {
+  const bandwidthMetrics = [
+    { key: 'incoming', label: 'Incoming', color: 'hsl(var(--chart-1))' },
+    { key: 'outgoing', label: 'Outgoing', color: 'hsl(var(--chart-2))' },
+  ]
+
+  const trafficMetrics = [
+    { key: 'incoming', label: 'Incoming', color: 'hsl(var(--chart-3))' },
+    { key: 'outgoing', label: 'Outgoing', color: 'hsl(var(--chart-4))' },
+  ]
+
+  const packetMetrics = [
+    { key: 'received', label: 'Received', color: 'hsl(var(--chart-5))' },
+    { key: 'sent', label: 'Sent', color: 'hsl(var(--chart-6))' },
+    { key: 'dropped', label: 'Dropped', color: 'hsl(var(--chart-7))' },
+  ]
+
+  const errorMetrics = [
+    { key: 'inbound', label: 'Inbound', color: 'hsl(var(--chart-8))' },
+    { key: 'outbound', label: 'Outbound', color: 'hsl(var(--chart-9))' },
+  ]
+
   return (
     <div className='grid grid-cols-1 gap-4'>
+      {/* Network Bandwidth */}
       <Card>
         <CardHeader>
-          <CardTitle>Network Traffic</CardTitle>
-          <CardDescription>Bandwidth utilization over time</CardDescription>
+          <CardTitle>Network Bandwidth</CardTitle>
+          <CardDescription>
+            {networkBandwidth?.length > 1
+              ? `${getTimeRange(networkBandwidth)} (from ${networkBandwidth.at(0)?.timestamp} to ${networkBandwidth.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
-            config={{
-              incoming: {
-                label: 'Incoming',
-                color: 'hsl(var(--chart-1))',
-              },
-              outgoing: {
-                label: 'Outgoing',
-                color: 'hsl(var(--chart-2))',
-              },
-            }}
+            config={Object.fromEntries(
+              bandwidthMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
             className='aspect-auto h-[300px] w-full'>
-            <AreaChart data={networkData} accessibilityLayer>
-              <defs>
-                <linearGradient
-                  id='fillIncomingDetailed'
-                  x1='0'
-                  y1='0'
-                  x2='0'
-                  y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-incoming)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-incoming)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient
-                  id='fillOutgoingDetailed'
-                  x1='0'
-                  y1='0'
-                  x2='0'
-                  y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-outgoing)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-outgoing)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <AreaChart data={networkBandwidth} accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='time'
@@ -94,23 +91,30 @@ const NetworkTab = ({ networkData }: { networkData: never[] }) => {
                 tickMargin={8}
               />
               <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-              <Area
-                type='monotone'
-                dataKey='incoming'
-                stroke='var(--color-incoming)'
-                fill='url(#fillIncomingDetailed)'
-                strokeWidth={2}
-              />
-              <Area
-                type='monotone'
-                dataKey='outgoing'
-                stroke='var(--color-outgoing)'
-                fill='url(#fillOutgoingDetailed)'
-                strokeWidth={2}
-              />
+              {bandwidthMetrics.map(metric => (
+                <Area
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  fill={metric.color}
+                  strokeWidth={2}
+                />
+              ))}
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='line'
+                    labelFormatter={label => {
+                      const dataPoint = networkBandwidth.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
             </AreaChart>
@@ -118,211 +122,180 @@ const NetworkTab = ({ networkData }: { networkData: never[] }) => {
         </CardContent>
       </Card>
 
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        <Card className='overflow-hidden'>
-          <CardHeader className='relative'>
-            <CardTitle>Network Packets</CardTitle>
-            <CardDescription>Packet transmission statistics</CardDescription>
-            <Badge
-              variant='secondary'
-              className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
-              Coming Soon
-            </Badge>
-          </CardHeader>
-          <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
-            <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
-              <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
-                <div className='text-xl font-semibold'>Coming Soon</div>
-                <p className='text-sm text-muted-foreground'>
-                  This feature is under development
-                </p>
-              </div>
-            </div>
-            <ChartContainer
-              config={{
-                received: {
-                  label: 'Received',
-                  color: 'hsl(var(--chart-1))',
-                },
-                sent: {
-                  label: 'Sent',
-                  color: 'hsl(var(--chart-2))',
-                },
-              }}
-              className='aspect-auto h-[250px] w-full'>
-              <BarChart
-                data={[
-                  { time: '00:00', received: 15000, sent: 8000 },
-                  { time: '02:00', received: 12000, sent: 6500 },
-                  { time: '04:00', received: 10000, sent: 5000 },
-                  { time: '06:00', received: 18000, sent: 9500 },
-                  { time: '08:00', received: 25000, sent: 15000 },
-                  { time: '10:00', received: 22000, sent: 12000 },
-                  { time: '12:00', received: 28000, sent: 14000 },
-                ]}
-                accessibilityLayer>
-                <defs>
-                  <linearGradient id='fillReceived' x1='0' y1='0' x2='0' y2='1'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-received)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-received)'
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient id='fillSent' x1='0' y1='0' x2='0' y2='1'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-sent)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-sent)'
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey='time'
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
+      {/* Network Traffic */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Network Traffic</CardTitle>
+          <CardDescription>
+            {networkTraffic?.length > 1
+              ? `${getTimeRange(networkTraffic)} (from ${networkTraffic.at(0)?.timestamp} to ${networkTraffic.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              trafficMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[300px] w-full'>
+            <LineChart data={networkTraffic} accessibilityLayer>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey='time'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              {trafficMetrics.map(metric => (
+                <Line
+                  key={metric.key}
+                  type='monotone'
+                  dataKey={metric.key}
+                  stroke={metric.color}
+                  strokeWidth={2}
+                  dot={false}
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                <Bar
-                  dataKey='received'
-                  fill='url(#fillReceived)'
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey='sent'
-                  fill='url(#fillSent)'
-                  radius={[4, 4, 0, 0]}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator='dot' />}
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='line'
+                    labelFormatter={label => {
+                      const dataPoint = networkTraffic.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
 
-        <Card className='overflow-hidden'>
-          <CardHeader className='relative'>
-            <CardTitle>Network Errors</CardTitle>
-            <CardDescription>Error rates and types</CardDescription>
-            <Badge
-              variant='secondary'
-              className='absolute right-3 top-2 border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20'>
-              Coming Soon
-            </Badge>
-          </CardHeader>
-          <CardContent className='relative pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
-            <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
-              <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
-                <div className='text-xl font-semibold'>Coming Soon</div>
-                <p className='text-sm text-muted-foreground'>
-                  This feature is under development
-                </p>
-              </div>
-            </div>
-            <ChartContainer
-              config={{
-                dropped: {
-                  label: 'Dropped',
-                  color: 'hsl(var(--chart-3))',
-                },
-                errors: {
-                  label: 'Errors',
-                  color: 'hsl(var(--chart-4))',
-                },
-              }}
-              className='aspect-auto h-[250px] w-full'>
-              <LineChart
-                data={[
-                  { time: '00:00', dropped: 0.2, errors: 0.1 },
-                  { time: '01:00', dropped: 0.1, errors: 0.0 },
-                  { time: '02:00', dropped: 0.1, errors: 0.1 },
-                  { time: '03:00', dropped: 0.0, errors: 0.0 },
-                  { time: '04:00', dropped: 0.1, errors: 0.0 },
-                  { time: '05:00', dropped: 0.2, errors: 0.1 },
-                  { time: '06:00', dropped: 0.3, errors: 0.2 },
-                  { time: '07:00', dropped: 0.4, errors: 0.2 },
-                  { time: '08:00', dropped: 0.5, errors: 0.3 },
-                  { time: '09:00', dropped: 0.4, errors: 0.2 },
-                  { time: '10:00', dropped: 0.3, errors: 0.1 },
-                  { time: '11:00', dropped: 0.2, errors: 0.1 },
-                  { time: '12:00', dropped: 0.3, errors: 0.2 },
-                ]}
-                accessibilityLayer>
-                <defs>
-                  <linearGradient id='fillDropped' x1='0' y1='0' x2='0' y2='1'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-dropped)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-dropped)'
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient id='fillErrors' x1='0' y1='0' x2='0' y2='1'>
-                    <stop
-                      offset='5%'
-                      stopColor='var(--color-errors)'
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset='95%'
-                      stopColor='var(--color-errors)'
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey='time'
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
+      {/* Network Packets */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Network Packets</CardTitle>
+          <CardDescription>
+            {networkPackets?.length > 1
+              ? `${getTimeRange(networkPackets)} (from ${networkPackets.at(0)?.timestamp} to ${networkPackets.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              packetMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <BarChart data={networkPackets} accessibilityLayer>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey='time'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              {packetMetrics.map(metric => (
+                <Bar
+                  key={metric.key}
+                  dataKey={metric.key}
+                  fill={metric.color}
+                  radius={[4, 4, 0, 0]}
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='line'
+                    labelFormatter={label => {
+                      const dataPoint = networkPackets.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* Network Errors */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Network Errors</CardTitle>
+          <CardDescription>
+            {networkErrors?.length > 1
+              ? `${getTimeRange(networkErrors)} (from ${networkErrors.at(0)?.timestamp} to ${networkErrors.at(-1)?.timestamp})`
+              : 'No data available'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <ChartContainer
+            config={Object.fromEntries(
+              errorMetrics.map(m => [
+                m.key,
+                { label: m.label, color: m.color },
+              ]),
+            )}
+            className='aspect-auto h-[250px] w-full'>
+            <LineChart data={networkErrors} accessibilityLayer>
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey='time'
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              {errorMetrics.map(metric => (
                 <Line
+                  key={metric.key}
                   type='monotone'
-                  dataKey='dropped'
-                  stroke='var(--color-dropped)'
+                  dataKey={metric.key}
+                  stroke={metric.color}
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
                 />
-                <Line
-                  type='monotone'
-                  dataKey='errors'
-                  stroke='var(--color-errors)'
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator='dot' />}
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </LineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    indicator='line'
+                    labelFormatter={label => {
+                      const dataPoint = networkErrors.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
+              />
+              <ChartLegend content={<ChartLegendContent />} />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   )
 }

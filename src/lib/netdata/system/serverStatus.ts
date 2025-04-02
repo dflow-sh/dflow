@@ -1,7 +1,7 @@
 'use server'
 
+import { netdataAPI } from '../netdataAPI'
 import { NetdataApiParams } from '../types'
-import { netdataAPI } from '../utils'
 
 /**
  * Common response type for all metric functions

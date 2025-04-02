@@ -1,9 +1,8 @@
 import { SSHExecCommandOptions } from 'node-ssh'
 
-// Common parameters for all API functions
 export interface NetdataApiParams {
   options?: SSHExecCommandOptions
-  host?: string // Optional host, defaults to localhost
+  host: string // Optional host, defaults to localhost
   port?: number // Optional port, defaults to 19999
   after?: number // Start timestamp for data
   before?: number // End timestamp for data
@@ -159,4 +158,149 @@ export interface MetricsResponse<T> {
   message: string
   data?: T
   error?: string
+}
+
+export interface MetricsResponse<T> {
+  success: boolean
+  message: string
+  data?: T
+}
+
+// Define standard metrics interface for different system resources
+export interface SystemMetrics {
+  timestamp: string
+  value: number
+}
+
+// Specific interfaces for different metric types can be extended from this
+export interface CPUMetrics extends SystemMetrics {
+  user?: number
+  system?: number
+  idle?: number
+}
+
+export interface MemoryMetrics extends SystemMetrics {
+  used?: number
+  cached?: number
+  buffers?: number
+  available?: number
+}
+
+export interface NetworkMetrics extends SystemMetrics {
+  received?: number
+  sent?: number
+}
+
+export interface DiskMetrics extends SystemMetrics {
+  reads?: number
+  writes?: number
+}
+
+export interface RequestMetrics extends SystemMetrics {
+  total?: number
+  successful?: number
+  failed?: number
+}
+
+export enum NetdataContexts {
+  // CPU-specific metrics
+  CPU = 'system.cpu',
+  CPU_SOME_PRESSURE = 'system.cpu_some_pressure',
+  CPU_PRESSURE_STALL_TIME = 'system.cpu_some_pressure_stall_time',
+  CPU_FREQ = 'cpu.cpufreq',
+  CPU_SCALING = 'cpu.cpuscaling',
+  CPU_THERMAL = 'cpu.thermal',
+
+  // System-level metrics
+  RAM = 'system.ram',
+  LOAD = 'system.load',
+  NETWORK = 'system.net',
+  INTERRUPTS = 'system.interrupts',
+  SOFTNET = 'system.softnet',
+  PROCESSES = 'system.processes',
+  SYSTEM_IO = 'system.io',
+  ALARMS = 'alarms?all',
+
+  // Disk-specific metrics
+  DISK_IO = 'disk.io',
+  DISK_SPACE = 'disk.space',
+  DISK_OPERATIONS = 'disk.ops',
+  DISK_BYTES = 'disk.bytes',
+  DISK_IOPS = 'disk.iops',
+  DISK_UTIL = 'disk.util',
+
+  // Uptime metrics
+  SERVER_UPTIME = 'system.uptime',
+
+  // Network-specific metrics
+  NETWORK_TRAFFIC = 'net.net',
+  NETWORK_PACKETS = 'net.packets',
+  NETWORK_ERRORS = 'net.errors',
+  NETWORK_DROPS = 'net.drops',
+
+  // Memory-specific metrics
+  MEMORY_AVAILABLE = 'mem.available',
+  MEMORY_SOME_PRESSURE = 'system.memory_some_pressure',
+  MEMORY_PRESSURE_STALL_TIME = 'system.memory_some_pressure_stall_time',
+  MEMORY_NUMA = 'system.numa',
+  MEMORY_KERNEL = 'system.kernel_memory',
+  MEMORY_SLAB = 'system.slab',
+
+  // Filesystem metrics
+  FILESYSTEM_INODES = 'filesystem.inodes',
+
+  // Networking protocols
+  TCP_CONNECTIONS = 'tcp.connections',
+  UDP_CONNECTIONS = 'udp.connections',
+
+  // Web and Application servers
+  REQUESTS = 'system.web_server_requests',
+  HTTP_REQUESTS = 'httpd.requests',
+  NGINX_CONNECTIONS = 'nginx.connections',
+  APACHE_CONNECTIONS = 'apache.connections',
+
+  // Database metrics
+  MYSQL_QUERIES = 'mysql.queries',
+  POSTGRESQL_QUERIES = 'postgres.queries',
+  MONGODB_OPERATIONS = 'mongodb.operations',
+  REDIS_OPERATIONS = 'redis.operations',
+
+  // System services
+  SYSTEMD_UNITS = 'systemd.units',
+  SERVICES_CPU = 'services.cpu',
+  SERVICES_MEMORY = 'services.mem',
+
+  // Containers and virtualization
+  DOCKER_CONTAINERS = 'docker.containers',
+  KUBERNETES_PODS = 'k8s.pods',
+  VIRTUAL_MACHINES = 'libvirt.domains',
+
+  // Power and thermal
+  SYSTEM_POWER = 'system.power',
+  BATTERY = 'system.battery',
+
+  // Sensors and hardware
+  SENSORS_TEMPERATURE = 'sensors.temperature',
+  SENSORS_VOLTAGE = 'sensors.voltage',
+  SENSORS_CURRENT = 'sensors.current',
+
+  // Caches
+  MEMCACHED_OPERATIONS = 'memcached.operations',
+  REDIS_MEMORY = 'redis.memory',
+
+  // Specific application metrics
+  PHP_FPM_PROCESSES = 'phpfpm.processes',
+  NODEJS_METRICS = 'nodejs.metrics',
+
+  // Logging and monitoring
+  SYSTEM_ERRORS = 'system.errors',
+  SYSTEM_LOGS = 'system.logs',
+
+  // Performance metrics
+  CONTEXT_SWITCHES = 'system.context_switches',
+  SYSTEM_FORKS = 'system.forks',
+}
+
+export function getAllNetdataContexts(): string[] {
+  return Object.values(NetdataContexts)
 }

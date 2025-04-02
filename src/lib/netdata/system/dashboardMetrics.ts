@@ -1,73 +1,26 @@
 'use server'
 
 import { MetricsResponse, NetdataApiParams } from '../types'
-import { getTimeSeriesData, isApiAccessible, netdataAPI } from '../utils'
+import { getTimeSeriesData } from '../utils'
 
 /**
- * Gets a single data point for a specific chart
- */
-const getChartData = async <T>(
-  params: NetdataApiParams,
-  chart: string,
-): Promise<MetricsResponse<T>> => {
-  // Check API accessibility first
-  const apiAvailable = await isApiAccessible(params)
-  if (!apiAvailable) {
-    return {
-      success: false,
-      message: 'Netdata API is not accessible',
-    }
-  }
-
-  // Fetch data
-  const data = await netdataAPI(params, `data?chart=${chart}`)
-
-  // Check if we have data and labels
-  if (
-    !data ||
-    !data.data ||
-    data.data.length === 0 ||
-    !data.labels ||
-    data.labels.length === 0
-  ) {
-    return {
-      success: false,
-      message: `No data available for ${chart}`,
-    }
-  }
-
-  // Get latest data point (last item in the data array)
-  const latestData = data.data[data.data.length - 1]
-  const labels = data.labels || []
-
-  // Create a mapping of labels to values
-  const processedData: any = {}
-
-  // Skip the first element (timestamp)
-  for (let i = 1; i < labels.length; i++) {
-    processedData[labels[i]] = latestData[i]
-  }
-
-  return {
-    success: true,
-    message: `${chart} metrics retrieved successfully`,
-    data: processedData as T,
-  }
-}
-
-/**
- * Gets CPU usage time series data for shadcn graphs
+ * Gets CPU usage time series data
  */
 export const getCpuTimeSeriesData = async (
   params: NetdataApiParams,
   points: number = 24, // 24 data points by default
-): Promise<MetricsResponse<any[]>> => {
-  const result = await getTimeSeriesData(params, 'system.cpu', points)
+): Promise<MetricsResponse<any>> => {
+  const result = await getTimeSeriesData(
+    params,
+    'system.cpu',
+    undefined,
+    points,
+  )
 
   if (!result.success) return result
 
   // Transform to match the expected format: { time: 'HH:MM', usage: number }
-  const formattedData = result.data!.map((point: any) => {
+  const formattedData = result.data?.data.map((point: any) => {
     // Calculate CPU usage based on all available metrics except 'time' and 'idle'
     let totalUsage = 0
 
@@ -101,18 +54,23 @@ export const getCpuTimeSeriesData = async (
 }
 
 /**
- * Gets memory usage time series data for shadcn graphs
+ * Gets memory usage time series data
  */
 export const getMemoryTimeSeriesData = async (
   params: NetdataApiParams,
   points: number = 24,
-): Promise<MetricsResponse<any[]>> => {
-  const result = await getTimeSeriesData(params, 'system.ram', points)
+): Promise<MetricsResponse<any>> => {
+  const result = await getTimeSeriesData(
+    params,
+    'system.ram',
+    undefined,
+    points,
+  )
 
   if (!result.success) return result
 
   // Transform to match the expected format: { time: 'HH:MM', usage: number }
-  const formattedData = result.data!.map((point: any) => {
+  const formattedData = result.data?.data.map((point: any) => {
     // Calculate memory usage percentage based on the available fields
     let usagePercent = 0
 
@@ -150,18 +108,23 @@ export const getMemoryTimeSeriesData = async (
 }
 
 /**
- * Gets network usage time series data for shadcn graphs
+ * Gets network usage time series data
  */
 export const getNetworkTimeSeriesData = async (
   params: NetdataApiParams,
   points: number = 24,
-): Promise<MetricsResponse<any[]>> => {
-  const result = await getTimeSeriesData(params, 'system.net', points)
+): Promise<MetricsResponse<any>> => {
+  const result = await getTimeSeriesData(
+    params,
+    'system.net',
+    undefined,
+    points,
+  )
 
   if (!result.success) return result
 
   // Transform to match the expected format: { time: 'HH:MM', incoming: number, outgoing: number }
-  const formattedData = result.data!.map((point: any) => {
+  const formattedData = result.data?.data.map((point: any) => {
     // For received (incoming) traffic
     let incoming = 0
     if (point.received !== undefined) {
@@ -214,7 +177,7 @@ export const getDiskSpaceChartData = async (
   const diskSpaceData = await getTimeSeriesData(params, 'system.storage')
 
   // Format data for a pie chart
-  const data = diskSpaceData.data as any[]
+  const data = diskSpaceData.data?.data as any[]
   let formattedData = []
 
   if (data.length > 0) {
@@ -270,13 +233,18 @@ export const getDiskIOChartData = async (
   points: number = 24,
 ): Promise<MetricsResponse<any[]>> => {
   // Get disk I/O data
-  const diskIOData = await getTimeSeriesData(params, 'system.io', points)
+  const diskIOData = await getTimeSeriesData(
+    params,
+    'system.io',
+    undefined,
+    points,
+  )
 
   if (!diskIOData.success) return diskIOData as any
 
   // Transform data for time series chart
   // Format: [{ time: 'HH:MM', reads: number, writes: number }]
-  const formattedData = diskIOData.data!.map((point: any) => {
+  const formattedData = diskIOData.data?.data.map((point: any) => {
     // Use absolute values for reads and writes
     // Convert to KB/s for better readability if values are large
     let reads = 0
@@ -317,18 +285,23 @@ export const getDiskIOChartData = async (
 }
 
 /**
- * Gets server load time series data for shadcn graphs
+ * Gets server load time series data
  */
 export const getServerLoadTimeSeriesData = async (
   params: NetdataApiParams,
   points: number = 24,
-): Promise<MetricsResponse<any[]>> => {
-  const result = await getTimeSeriesData(params, 'system.load', points)
+): Promise<MetricsResponse<any>> => {
+  const result = await getTimeSeriesData(
+    params,
+    'system.load',
+    undefined,
+    points,
+  )
 
   if (!result.success) return result
 
   // Transform to match the expected format: { time: 'HH:MM', load: number }
-  const formattedData = result.data!.map((point: any) => {
+  const formattedData = result.data?.data.map((point: any) => {
     return {
       time: point.time,
       load: parseFloat(point.load1.toFixed(1)), // Use 1-minute load average
@@ -343,7 +316,7 @@ export const getServerLoadTimeSeriesData = async (
 }
 
 /**
- * Gets request time series data for shadcn graphs (success vs error)
+ * Gets request time series data (success vs error)
  */
 export const getRequestTimeSeriesData = async (
   params: NetdataApiParams,
@@ -355,7 +328,12 @@ export const getRequestTimeSeriesData = async (
 
   // Try each web server until we get data
   for (const server of webServers) {
-    const result = await getTimeSeriesData(params, `${server}.requests`, points)
+    const result = await getTimeSeriesData(
+      params,
+      `${server}.requests`,
+      undefined,
+      points,
+    )
     if (result.success) {
       requestData = result
       break
@@ -370,7 +348,7 @@ export const getRequestTimeSeriesData = async (
   }
 
   // Transform to match the expected format: { time: 'HH:MM', success: number, error: number }
-  const formattedData = requestData.data!.map((point: any) => {
+  const formattedData = requestData.data?.data.map((point: any) => {
     // Calculate success and error requests
     // Different web servers have different metrics, so we need to check for common patterns
     const success = point.success || point['2xx'] || point.requests || 0
@@ -391,7 +369,7 @@ export const getRequestTimeSeriesData = async (
 }
 
 /**
- * Gets response time series data for shadcn graphs
+ * Gets response time series data
  */
 export const getResponseTimeSeriesData = async (
   params: NetdataApiParams,
@@ -406,6 +384,7 @@ export const getResponseTimeSeriesData = async (
     const result = await getTimeSeriesData(
       params,
       `${server}.response_time`,
+      undefined,
       points,
     )
     if (result.success) {
@@ -422,7 +401,7 @@ export const getResponseTimeSeriesData = async (
   }
 
   // Transform to match the expected format: { time: 'HH:MM', responseTime: number }
-  const formattedData = responseData.data!.map((point: any) => {
+  const formattedData = responseData.data?.data.map((point: any) => {
     // Get response time (different web servers might use different property names)
     let responseTime = 0
     if (point.response_time !== undefined) responseTime = point.response_time

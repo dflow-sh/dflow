@@ -28,75 +28,60 @@ import {
 import { getTimeRange } from './getTimeRange'
 
 const OverviewTab = ({
-  cpuData,
-  memoryData,
-  networkData,
-  diskIOData,
+  cpuUtilization,
+  memoryUsage,
+  networkTraffic,
+  diskIO,
 }: {
-  cpuData: never[]
-  memoryData: never[]
-  networkData: never[]
-  diskIOData: never[]
+  cpuUtilization: any[]
+  memoryUsage: any[]
+  networkTraffic: any[]
+  diskIO: any[]
 }) => {
   return (
     <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+      {/* CPU Usage */}
       <Card>
         <CardHeader>
           <CardTitle>CPU Usage Trend</CardTitle>
           <CardDescription>
-            {cpuData.length > 1
-              ? `${getTimeRange(cpuData)} (from ${(cpuData as any).at(0)?.time} to ${(cpuData as any).at(-1)?.time})`
+            {cpuUtilization?.length > 1
+              ? `${getTimeRange(cpuUtilization)} (from ${cpuUtilization.at(0)?.timestamp} to ${cpuUtilization.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
-            config={{
-              usage: {
-                label: 'Usage',
-                color: 'hsl(var(--chart-1))',
-              },
-            }}
+            config={{ usage: { label: 'Usage', color: 'hsl(var(--chart-1))' } }}
             className='aspect-auto h-[250px] w-full'>
-            <LineChart data={cpuData} accessibilityLayer>
-              <defs>
-                <linearGradient id='fillCpu' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <LineChart
+              data={cpuUtilization}
+              syncId='overview-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey='time'
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                domain={[0, 100]}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis domain={[0, 100]} tickLine={false} axisLine={false} />
               <Line
                 type='monotone'
                 dataKey='usage'
-                stroke='var(--color-usage)'
+                stroke='hsl(var(--chart-1))'
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
               />
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = cpuUtilization.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
             </LineChart>
@@ -104,62 +89,48 @@ const OverviewTab = ({
         </CardContent>
       </Card>
 
+      {/* Memory Usage */}
       <Card>
         <CardHeader>
           <CardTitle>Memory Usage Trend</CardTitle>
           <CardDescription>
-            {memoryData.length > 1
-              ? `${getTimeRange(memoryData)} (from ${(memoryData as any).at(0)?.time} to ${(memoryData as any).at(-1)?.time})`
+            {memoryUsage?.length > 1
+              ? `${getTimeRange(memoryUsage)} (from ${memoryUsage.at(0)?.timestamp} to ${memoryUsage.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
-            config={{
-              usage: {
-                label: 'Usage',
-                color: 'hsl(var(--chart-2))',
-              },
-            }}
+            config={{ usage: { label: 'Usage', color: 'hsl(var(--chart-2))' } }}
             className='aspect-auto h-[250px] w-full'>
-            <AreaChart data={memoryData} accessibilityLayer>
-              <defs>
-                <linearGradient id='fillMemory' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-usage)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <AreaChart
+              data={memoryUsage}
+              syncId='overview-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey='time'
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis
-                domain={[0, 100]}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis domain={[0, 100]} tickLine={false} axisLine={false} />
               <Area
                 type='monotone'
                 dataKey='usage'
-                stroke='var(--color-usage)'
-                fill='url(#fillMemory)'
+                stroke='hsl(var(--chart-2))'
+                fill='hsl(var(--chart-2))'
                 strokeWidth={2}
               />
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = memoryUsage.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
             </AreaChart>
@@ -167,82 +138,58 @@ const OverviewTab = ({
         </CardContent>
       </Card>
 
+      {/* Network Traffic */}
       <Card>
         <CardHeader>
           <CardTitle>Network Traffic</CardTitle>
           <CardDescription>
-            {networkData.length > 1
-              ? `${getTimeRange(networkData)} (from ${(networkData as any).at(0)?.time} to ${(networkData as any).at(-1)?.time})`
+            {networkTraffic?.length > 1
+              ? `${getTimeRange(networkTraffic)} (from ${networkTraffic.at(0)?.timestamp} to ${networkTraffic.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
             config={{
-              incoming: {
-                label: 'Incoming',
-                color: 'hsl(var(--chart-1))',
-              },
-              outgoing: {
-                label: 'Outgoing',
-                color: 'hsl(var(--chart-2))',
-              },
+              incoming: { label: 'Incoming', color: 'hsl(var(--chart-3))' },
+              outgoing: { label: 'Outgoing', color: 'hsl(var(--chart-4))' },
             }}
             className='aspect-auto h-[250px] w-full'>
-            <LineChart data={networkData} accessibilityLayer>
-              <defs>
-                <linearGradient id='fillIncoming' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-incoming)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-incoming)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id='fillOutgoing' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-outgoing)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-outgoing)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <LineChart
+              data={networkTraffic}
+              syncId='overview-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey='time'
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
               <Line
                 type='monotone'
                 dataKey='incoming'
-                stroke='var(--color-incoming)'
+                stroke='hsl(var(--chart-3))'
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
               />
               <Line
                 type='monotone'
                 dataKey='outgoing'
-                stroke='var(--color-outgoing)'
+                stroke='hsl(var(--chart-4))'
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
               />
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = networkTraffic.find(
+                        d => d.timestamp === label,
+                      )
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
             </LineChart>
@@ -250,83 +197,56 @@ const OverviewTab = ({
         </CardContent>
       </Card>
 
+      {/* Disk I/O */}
       <Card>
         <CardHeader>
           <CardTitle>Disk I/O</CardTitle>
           <CardDescription>
-            Read/Write operations -{' '}
-            {diskIOData.length > 1
-              ? `${getTimeRange(diskIOData)} (from ${(diskIOData as any).at(0)?.time} to ${(diskIOData as any).at(-1)?.time})`
+            {diskIO?.length > 1
+              ? `${getTimeRange(diskIO)} (from ${diskIO.at(0)?.timestamp} to ${diskIO.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
         <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
           <ChartContainer
             config={{
-              reads: {
-                label: 'Reads',
-                color: 'hsl(var(--chart-1))',
-              },
-              writes: {
-                label: 'Writes',
-                color: 'hsl(var(--chart-2))',
-              },
+              reads: { label: 'Reads', color: 'hsl(var(--chart-1))' },
+              writes: { label: 'Writes', color: 'hsl(var(--chart-2))' },
             }}
             className='aspect-auto h-[250px] w-full'>
-            <LineChart data={diskIOData} accessibilityLayer>
-              <defs>
-                <linearGradient id='fillRead' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-reads)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-reads)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id='fillWrite' x1='0' y1='0' x2='0' y2='1'>
-                  <stop
-                    offset='5%'
-                    stopColor='var(--color-writes)'
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset='95%'
-                    stopColor='var(--color-writes)'
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
+            <LineChart
+              data={diskIO}
+              syncId='overview-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey='time'
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+              <XAxis dataKey='timestamp' tickLine={false} axisLine={false} />
+              <YAxis tickLine={false} axisLine={false} />
               <Line
                 type='monotone'
                 dataKey='reads'
-                stroke='var(--color-reads)'
+                stroke='hsl(var(--chart-1))'
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
               />
               <Line
                 type='monotone'
                 dataKey='writes'
-                stroke='var(--color-writes)'
+                stroke='hsl(var(--chart-2))'
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, strokeWidth: 0 }}
               />
               <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator='dot' />}
+                content={
+                  <ChartTooltipContent
+                    indicator='dot'
+                    labelFormatter={label => {
+                      const dataPoint = diskIO.find(d => d.timestamp === label)
+                      return dataPoint
+                        ? dataPoint.fullTimestamp
+                        : `Time: ${label}`
+                    }}
+                  />
+                }
               />
               <ChartLegend content={<ChartLegendContent />} />
             </LineChart>

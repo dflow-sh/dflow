@@ -6,22 +6,71 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
 const CurrentResourceUsage = ({
-  cpuData,
-  memoryData,
-  networkData,
+  dashboardMetrics,
 }: {
-  cpuData: any
-  memoryData: any
-  networkData: any
+  dashboardMetrics: {
+    overview: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemUptime: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
+    detailed: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemLoad: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
+  }
 }) => {
-  // Extract latest data safely
-  const latestCpuUsage = cpuData?.at(-1)?.usage ?? 0
-  const latestMemoryUsage = memoryData?.at(-1)?.usage ?? 0
-  const latestIncoming = networkData?.at(-1)?.incoming ?? 0
-  const latestOutgoing = networkData?.at(-1)?.outgoing ?? 0
+  // Extract CPU usage safely
+  const latestCpuUsage =
+    dashboardMetrics?.overview?.cpuUtilization?.at(-1)?.usage ?? 0
+
+  // Extract memory usage
+  const latestMemoryUsage =
+    dashboardMetrics?.overview?.memoryUsage?.at(-1)?.usage?.toFixed(2) ?? 0
+
+  // Extract network traffic data
+  const latestNetworkUsage =
+    dashboardMetrics?.overview?.networkTraffic?.at(-1) ?? {}
+
+  const { incoming = 0, outgoing = 0 } = latestNetworkUsage
 
   // Determine overall system health status
-  const highestUsage = Math.max(latestCpuUsage, latestMemoryUsage)
+  const highestUsage = Math.max(latestCpuUsage, Number(latestMemoryUsage))
 
   const getSystemHealthText = () => {
     if (highestUsage > 80) return 'System under heavy load'
@@ -63,12 +112,10 @@ const CurrentResourceUsage = ({
           <CardContent>
             <div className='space-y-2'>
               <div className='flex items-center justify-between'>
-                <div className='text-2xl font-bold'>
-                  {latestMemoryUsage || 0}%
-                </div>
+                <div className='text-2xl font-bold'>{latestMemoryUsage}%</div>
                 <HardDrive className='h-4 w-4 text-muted-foreground' />
               </div>
-              <Progress value={latestMemoryUsage} className='h-2' />
+              <Progress value={Number(latestMemoryUsage)} className='h-2' />
             </div>
           </CardContent>
         </Card>
@@ -88,13 +135,17 @@ const CurrentResourceUsage = ({
                     <span className='mr-1 text-sm text-muted-foreground'>
                       In:
                     </span>
-                    <span className='font-bold'>{latestIncoming} MB/s</span>
+                    <span className='font-bold'>
+                      {incoming.toFixed(2)} MB/s
+                    </span>
                   </div>
                   <div>
                     <span className='mr-1 text-sm text-muted-foreground'>
                       Out:
                     </span>
-                    <span className='font-bold'>{latestOutgoing} MB/s</span>
+                    <span className='font-bold'>
+                      {outgoing.toFixed(2)} MB/s
+                    </span>
                   </div>
                 </div>
                 <Wifi className='h-4 w-4 text-muted-foreground' />
@@ -118,7 +169,7 @@ const CurrentResourceUsage = ({
           </div>
           <div className='mt-2 text-sm text-muted-foreground'>
             CPU: {latestCpuUsage}% • Memory: {latestMemoryUsage}% • Network:{' '}
-            {latestIncoming + latestOutgoing} MB/s
+            {(incoming + outgoing).toFixed(2)} MB/s
           </div>
         </CardContent>
       </Card>
