@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -45,10 +45,12 @@ export const CreateServerForm = ({
   sshKeys,
   type = 'create',
   server,
+  setOpen = () => {},
 }: {
   sshKeys: SshKey[]
   type?: 'create' | 'update'
   server?: ServerType
+  setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const pathName = usePathname()
   const router = useRouter()
@@ -88,6 +90,7 @@ export const CreateServerForm = ({
               onboarding && 'redirecting to dokku-installation page...',
           })
 
+          setOpen(false)
           form.reset()
 
           if (onboarding) {
@@ -107,7 +110,7 @@ export const CreateServerForm = ({
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Successfully updated ${input.name} service`)
-          // setOpen(false)
+          setOpen(false)
           form.reset()
         }
       },
@@ -290,7 +293,12 @@ const CreateServer = ({
           </DialogDescription>
         </DialogHeader>
 
-        <CreateServerForm sshKeys={sshKeys} server={server} type={type} />
+        <CreateServerForm
+          sshKeys={sshKeys}
+          server={server}
+          type={type}
+          setOpen={setOpen}
+        />
       </DialogContent>
     </Dialog>
   )

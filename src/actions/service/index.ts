@@ -252,13 +252,6 @@ export const updateServiceAction = protectedClient
       depth: 10,
     })
 
-    const projectId =
-      typeof response?.project === 'object' ? response.project.id : ''
-
-    if (projectId) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-    }
-
     // If env variables are added then adding it to queue to update env
     if (
       data?.environmentVariables &&

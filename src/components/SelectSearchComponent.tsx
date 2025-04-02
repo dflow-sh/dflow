@@ -6,7 +6,6 @@ import {
   HardDrive,
   TriangleAlert,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { JSX, SVGProps, useEffect, useState } from 'react'
 
@@ -53,8 +52,9 @@ export default function SelectSearchComponent({
 }) {
   const [open, setOpen] = useState<boolean>(false)
   const [server, setServer] = useQueryState('server')
+  const [selectedServer, setSelectedServer] = useState(server)
+
   const { setStep } = useInstallationStep()
-  const router = useRouter()
 
   // Initially if server id is present select the server
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function SelectSearchComponent({
   }, [])
 
   const handleSelect = (serverId: string) => {
-    setServer(serverId)
+    setSelectedServer(serverId)
     setOpen(false)
   }
 
@@ -97,8 +97,8 @@ export default function SelectSearchComponent({
             aria-expanded={open}
             className='w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background hover:text-white focus-visible:outline-[3px]'>
             <span>
-              {server
-                ? servers.find(s => s.id === server)?.name
+              {selectedServer
+                ? servers.find(s => s.id === selectedServer)?.name
                 : `${buttonLabel}`}
             </span>
             <ChevronDownIcon
@@ -168,7 +168,7 @@ export default function SelectSearchComponent({
                           </>
                         )}
 
-                        {server === name && <CheckIcon size={16} />}
+                        {server === id && <CheckIcon size={16} />}
                       </div>
                     </CommandItem>
                   )
@@ -181,9 +181,10 @@ export default function SelectSearchComponent({
 
       <Button
         className='mt-2'
-        disabled={!server}
+        disabled={!selectedServer}
         onClick={() => {
-          if (server) {
+          if (selectedServer) {
+            setServer(selectedServer)
             setStep(2)
           }
         }}>

@@ -1,17 +1,19 @@
-import { CircleCheck } from 'lucide-react'
+import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useQueryState } from 'nuqs'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { installDokkuAction } from '@/actions/server'
 import Loader from '@/components/Loader'
-import { supportedLinuxVersions } from '@/lib/constants'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { supportedDokkuVersion, supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useInstallationStep } from './InstallationStepContext'
 
 const Step2 = ({ server }: { server: ServerType | undefined }) => {
+  const [outdatedDokku, setOutdatedDokku] = useState(false)
   const [selectedServer] = useQueryState('server')
   const { setStep, step } = useInstallationStep()
 
@@ -37,7 +39,19 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
 
   useEffect(() => {
     if (selectedServer && step === 2 && server) {
-      if (server.version && server.version !== 'not-installed') {
+      if (
+        server.version &&
+        server.version !== 'not-installed' &&
+        server.version < supportedDokkuVersion
+      ) {
+        return setOutdatedDokku(true)
+      }
+
+      if (
+        server.version &&
+        server.version !== 'not-installed' &&
+        server.version >= supportedDokkuVersion
+      ) {
         return setStep(3)
       }
 
@@ -50,6 +64,27 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
       }
     }
   }, [selectedServer, server, step])
+
+  if (outdatedDokku) {
+    return (
+      <Alert variant='warning'>
+        <TriangleAlert className='h-4 w-4' />
+
+        <AlertTitle>Upgrade dokku version!</AlertTitle>
+        <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
+          <p>
+            {` ${server?.version} is not supported! please upgrade ${supportedDokkuVersion} for more information check `}
+            <a
+              href='https://dokku.com/docs/getting-started/upgrading/'
+              target='_blank'
+              className='text-foreground underline'>
+              docs
+            </a>
+          </p>
+        </AlertDescription>
+      </Alert>
+    )
+  }
 
   return (
     <div className='space-y-2'>

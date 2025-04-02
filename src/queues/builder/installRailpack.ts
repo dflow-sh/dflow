@@ -1,10 +1,10 @@
-import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { server } from '@/lib/server'
 
 interface QueueArgs {
   sshDetails: {
@@ -18,9 +18,9 @@ interface QueueArgs {
   }
 }
 
-const queueName = 'install-dokku'
+const queueName = 'install-railpack'
 
-export const installDokkuQueue = new Queue<QueueArgs>(queueName, {
+export const installRailpackQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
@@ -30,32 +30,35 @@ const worker = new Worker<QueueArgs>(
     const { sshDetails, serverDetails } = job.data
     let ssh: NodeSSH | null = null
 
-    console.log('inside install plugin queue')
+    console.log('inside install railpack queue')
 
     try {
       ssh = await dynamicSSH(sshDetails)
 
-      const installationResponse = await dokku.version.install(ssh, {
-        onStdout: async chunk => {
-          sendEvent({
-            pub,
-            message: chunk.toString(),
-            serverId: serverDetails.id,
-          })
-        },
-        onStderr: async chunk => {
-          sendEvent({
-            pub,
-            message: chunk.toString(),
-            serverId: serverDetails.id,
-          })
+      const installationResponse = await server.railpack.install({
+        ssh,
+        options: {
+          onStdout: async chunk => {
+            sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
+          },
+          onStderr: async chunk => {
+            sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
+          },
         },
       })
 
       if (installationResponse.code === 0) {
         sendEvent({
           pub,
-          message: `✅ Successfully installed dokku`,
+          message: `✅ Successfully installed builder`,
           serverId: serverDetails.id,
         })
 
@@ -69,7 +72,7 @@ const worker = new Worker<QueueArgs>(
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : ''
-      throw new Error(`❌ failed to install plugin: ${message}`)
+      throw new Error(`❌ failed to install builder: ${message}`)
     } finally {
       if (ssh) {
         ssh.dispose()
@@ -84,7 +87,7 @@ const worker = new Worker<QueueArgs>(
 )
 
 worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to install plugin', err)
+  console.log('Failed to install railpack', err)
 
   if (job?.data) {
     sendEvent({
@@ -95,10 +98,10 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   }
 })
 
-export const addInstallDokkuQueue = async (data: QueueArgs) => {
-  const id = `install-dokku:${new Date().getTime()}`
+export const addInstallRailpackQueue = async (data: QueueArgs) => {
+  const id = `install-railpack:${new Date().getTime()}`
 
-  return await installDokkuQueue.add(id, data, {
+  return await installRailpackQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })

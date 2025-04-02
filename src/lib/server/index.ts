@@ -2,6 +2,8 @@ import { createImage } from './docker/createImage'
 import { createWorkspace } from './git/createWorkspace'
 import { deleteWorkspace } from './git/deleteWorkspace'
 import { available as portsAvailability } from './ports/available'
+import { infoRailpack } from './railpack/info'
+import { installRailpack } from './railpack/install'
 
 export const server = {
   ports: {
@@ -13,5 +15,9 @@ export const server = {
   },
   docker: {
     createImage,
+  },
+  railpack: {
+    install: installRailpack,
+    info: infoRailpack,
   },
 }

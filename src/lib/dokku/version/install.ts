@@ -1,5 +1,7 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
+import { supportedDokkuVersion } from '@/lib/constants'
+
 export const install = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   const dokkuDownloadResult = await ssh.execCommand(
     `wget -NP . https://dokku.com/bootstrap.sh`,
@@ -11,7 +13,7 @@ export const install = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   }
 
   const dokkuInstallationResult = await ssh.execCommand(
-    'sudo DOKKU_TAG=v0.35.15 bash bootstrap.sh',
+    `sudo DOKKU_TAG=v${supportedDokkuVersion} bash bootstrap.sh`,
     options,
   )
 

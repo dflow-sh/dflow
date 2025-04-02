@@ -1,65 +1,49 @@
-'use client'
+import { CircleCheck } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { useEffect, useState } from 'react'
 
-import { useRouter } from 'next/navigation'
-import { useQueryState } from 'nuqs'
-import { useEffect } from 'react'
-import { toast } from 'sonner'
-
-import { pluginList } from '@/components/plugins'
-import { LetsencryptForm } from '@/components/servers/PluginConfigurationForm'
+import { installRailpackAction } from '@/actions/server'
+import Loader from '@/components/Loader'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useInstallationStep } from './InstallationStepContext'
 
 const Step4 = ({ server }: { server: ServerType }) => {
-  const [selectedServer] = useQueryState('server')
-  const { step } = useInstallationStep()
-  const router = useRouter()
+  const { step, setStep } = useInstallationStep()
+  const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
+  const { execute, isPending, hasSucceeded } = useAction(installRailpackAction)
 
-  const plugins = server.plugins ?? []
-  const letsencryptPluginDetails = plugins.find(
-    plugin => plugin.name === 'letsencrypt',
-  )
-
-  const plugin = pluginList.filter(plugin => plugin.value === 'letsencrypt')[0]
-  const pluginDetails = letsencryptPluginDetails ?? plugin
+  const railpackVersion = server?.railpack
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout
-    if ('name' in pluginDetails && step === 4) {
-      const letsencryptConfiguration =
-        pluginDetails.configuration &&
-        typeof pluginDetails.configuration === 'object' &&
-        !Array.isArray(pluginDetails.configuration) &&
-        pluginDetails.configuration.email
-
-      if (!!letsencryptConfiguration && !!selectedServer) {
-        timeout = setTimeout(() => {
-          router.push(`/onboarding/configure-domain?server=${selectedServer}`)
-        }, 8000)
-
-        toast.info('Dokku installation is done', {
-          description: "You'll be redirected in few seconds to next step",
-          action: {
-            label: 'Cancel',
-            onClick: () => clearTimeout(timeout),
-          },
-          duration: 5000,
-        })
+    if (step === 4) {
+      // 1. Check if railpack installed or not if installed skip to next step
+      if (railpackVersion && railpackVersion !== 'not-installed') {
+        setSkipRailpackInstall(true)
+        setStep(5)
+      } else {
+        // 2. If not installed deploy a queue for railpack installation
+        execute({ serverId: server.id })
       }
     }
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [server, selectedServer, step])
+  }, [step, server])
 
   return (
-    <LetsencryptForm
-      plugin={letsencryptPluginDetails ?? plugin}
-      serverId={server.id}
-      key={JSON.stringify(pluginDetails)}
-    />
+    <div className='space-y-2'>
+      {skipRailpackInstall && (
+        <div className='flex items-center gap-2'>
+          <CircleCheck size={24} className='text-primary' />
+          Builder installed
+        </div>
+      )}
+
+      {(isPending || hasSucceeded) &&
+        (!railpackVersion || railpackVersion === 'not-installed') && (
+          <div className='flex items-center gap-2'>
+            <Loader className='h-max w-max' /> Installing Builder...
+          </div>
+        )}
+    </div>
   )
 }
 

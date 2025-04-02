@@ -51,7 +51,7 @@ const SuspendedPage = async ({
     <Layout
       currentStep={3}
       prevStepUrl='/onboarding/add-server'
-      cardTitle={'Dokku Install'}
+      cardTitle={'Dokku & Tools Installation'}
       nextStepUrl={`/onboarding/configure-domain${server ? `?server=${server}` : ''}`}
       disableNextStep={
         installationDone && !!pluginsInstalled && Boolean(emailConfirmationDone)
