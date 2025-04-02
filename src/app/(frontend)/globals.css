@@ -43,11 +43,16 @@
 
     --radius: 0.75rem;
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 340 75% 55%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 160 60% 45%;
+    --chart-1: 220 70% 50%; /* Blue */
+    --chart-2: 340 75% 55%; /* Pink */
+    --chart-3: 30 80% 55%; /* Orange */
+    --chart-4: 280 65% 60%; /* Violet */
+    --chart-5: 160 60% 45%; /* Teal */
+    --chart-6: 0 85% 50%; /* Red */
+    --chart-7: 45 85% 55%; /* Yellow */
+    --chart-8: 200 75% 50%; /* Cyan */
+    --chart-9: 120 70% 50%; /* Green */
+    --chart-10: 260 65% 55%; /* Purple */
   }
 }
 
