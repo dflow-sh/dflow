@@ -15,6 +15,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "@bprogress/next": "^3.2.10",
     "@hookform/resolvers": "^3.10.0",
     "@monaco-editor/react": "4.7.0-rc.0",
