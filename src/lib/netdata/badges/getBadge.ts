@@ -1,5 +1,5 @@
+import { netdataAPI } from '../netdataAPI'
 import { NetdataApiParams } from '../types'
-import { netdataAPI } from '../utils'
 
 /**
  * Generate a badge for a chart or dimension (v1)

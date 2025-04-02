@@ -1,5 +1,5 @@
+import { netdataAPI } from '../netdataAPI'
 import { NetdataApiParams } from '../types'
-import { netdataAPI } from '../utils'
 
 /**
  * Perform full text search on metrics (v2)

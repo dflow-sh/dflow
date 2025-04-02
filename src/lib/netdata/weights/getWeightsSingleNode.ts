@@ -1,5 +1,5 @@
+import { netdataAPI } from '../netdataAPI'
 import { NetdataApiParams } from '../types'
-import { netdataAPI } from '../utils'
 
 /**
  * Score or weight metrics for a single node (v1)

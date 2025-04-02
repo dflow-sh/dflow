@@ -1,5 +1,5 @@
+import { netdataAPI } from '../netdataAPI'
 import { NetdataApiParams } from '../types'
-import { netdataAPI } from '../utils'
 
 /**
  * Get information about a specific context (v1)
