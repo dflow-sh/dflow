@@ -23,20 +23,26 @@ export const getMemoryUsage = async (
     }
   }
 
-  const formattedData = result.data.data.map((point: any) => ({
-    timestamp: point.timestamp,
-    used: point.used || 0,
-    free: point.free || 0,
-    cached: point.cached || 0,
-    buffers: point.buffers || 0,
-  }))
+  const formattedData = result.data.data.map((point: any) => {
+    const totalMemory = point.used + point.free + point.cached + point.buffers
+    const usage = totalMemory > 0 ? (point.used / totalMemory) * 100 : 0
 
+    return {
+      timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
+      used: point.used || 0,
+      free: point.free || 0,
+      cached: point.cached || 0,
+      buffers: point.buffers || 0,
+      usage, // Add calculated usage
+    }
+  })
+
+  // Overview data with only timestamp and usage
   const overview = formattedData.map(point => ({
     timestamp: point.timestamp,
-    used: point.used,
-    free: point.free,
-    cached: point.cached,
-    buffers: point.buffers,
+    fullTimestamp: point.fullTimestamp,
+    usage: point.usage,
   }))
 
   return {
@@ -73,19 +79,15 @@ export const getMemoryAvailable = async (
 
   const formattedData = result.data.data.map((point: any) => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     available: point.avail || 0,
-  }))
-
-  const overview = formattedData.map(point => ({
-    timestamp: point.timestamp,
-    available: point.available,
   }))
 
   return {
     success: true,
     message: 'Available memory retrieved successfully',
     data: {
-      overview,
+      overview: formattedData,
       detailed: formattedData,
     },
   }
@@ -115,6 +117,7 @@ export const getMemorySomePressure = async (
 
   const formattedData = result.data.data.map((point: any) => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     some10: parseFloat((point['some 10'] || 0).toFixed(1)),
     some60: parseFloat((point['some 60'] || 0).toFixed(1)),
     some300: parseFloat((point['some 300'] || 0).toFixed(1)),
@@ -155,6 +158,7 @@ export const getMemorySomePressureStallTime = async (
 
   const formattedData = result.data.data.map((point: any) => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     stallTime: parseFloat((point.time || 0).toFixed(1)),
   }))
 
