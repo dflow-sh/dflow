@@ -173,7 +173,7 @@ const CPUTab = ({
           <CardTitle>CPU Some Pressure</CardTitle>
           <CardDescription>
             {cpuSomePressure?.length > 1
-              ? `${getTimeRange(cpuSomePressure)}`
+              ? `${getTimeRange(cpuSomePressure)} (from ${cpuSomePressure.at(0)?.timestamp} to ${cpuSomePressure.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
@@ -228,7 +228,7 @@ const CPUTab = ({
           <CardTitle>CPU Some Pressure Stall Time</CardTitle>
           <CardDescription>
             {cpuSomePressureStallTime?.length > 1
-              ? `${getTimeRange(cpuSomePressureStallTime)}`
+              ? `${getTimeRange(cpuSomePressureStallTime)} (from ${cpuSomePressureStallTime.at(0)?.timestamp} to ${cpuSomePressureStallTime.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
@@ -282,7 +282,7 @@ const CPUTab = ({
           <CardTitle>Server Load</CardTitle>
           <CardDescription>
             {serverLoad?.length > 1
-              ? `${getTimeRange(serverLoad)}`
+              ? `${getTimeRange(serverLoad)} (from ${serverLoad.at(0)?.timestamp} to ${serverLoad.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>
@@ -333,7 +333,7 @@ const CPUTab = ({
           <CardTitle>Server Uptime</CardTitle>
           <CardDescription>
             {serverUptime?.length > 1
-              ? `${getTimeRange(serverUptime)}`
+              ? `${getTimeRange(serverUptime)} (from ${serverUptime.at(0)?.timestamp} to ${serverUptime.at(-1)?.timestamp})`
               : 'No data available'}
           </CardDescription>
         </CardHeader>

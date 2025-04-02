@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import CPUTab from './CPUTab'
+import MemoryTab from './MemoryTab'
 import OverviewTab from './OverviewTab'
 
 const MonitoringTabs = ({
@@ -87,7 +88,7 @@ const MonitoringTabs = ({
 
       {/* Memory Tab */}
       <TabsContent value='memory' className='space-y-4'>
-        {/* <MemoryTab {...detailed} /> */}
+        <MemoryTab {...detailed} />
       </TabsContent>
 
       {/* Disk Tab */}
