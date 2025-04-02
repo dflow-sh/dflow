@@ -82,7 +82,10 @@ const NetworkTab = ({
               ]),
             )}
             className='aspect-auto h-[300px] w-full'>
-            <AreaChart data={networkBandwidth} accessibilityLayer>
+            <AreaChart
+              data={networkBandwidth}
+              syncId='network-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='time'
@@ -141,7 +144,10 @@ const NetworkTab = ({
               ]),
             )}
             className='aspect-auto h-[300px] w-full'>
-            <LineChart data={networkTraffic} accessibilityLayer>
+            <LineChart
+              data={networkTraffic}
+              syncId='network-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='time'
@@ -200,7 +206,10 @@ const NetworkTab = ({
               ]),
             )}
             className='aspect-auto h-[250px] w-full'>
-            <BarChart data={networkPackets} accessibilityLayer>
+            <BarChart
+              data={networkPackets}
+              syncId='network-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='time'
@@ -257,7 +266,10 @@ const NetworkTab = ({
               ]),
             )}
             className='aspect-auto h-[250px] w-full'>
-            <LineChart data={networkErrors} accessibilityLayer>
+            <LineChart
+              data={networkErrors}
+              syncId='network-metrics'
+              accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey='time'
