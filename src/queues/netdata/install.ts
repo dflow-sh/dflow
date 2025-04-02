@@ -30,8 +30,6 @@ const worker = new Worker<QueueArgs>(
     const { sshDetails, serverDetails } = job.data
     let ssh: NodeSSH | null = null
 
-    console.log('inside install netdata queue')
-
     try {
       ssh = await dynamicSSH(sshDetails)
 
@@ -122,7 +120,6 @@ const worker = new Worker<QueueArgs>(
   },
   {
     connection: queueConnection,
-    // Add concurrency limit
     concurrency: 1,
   },
 )

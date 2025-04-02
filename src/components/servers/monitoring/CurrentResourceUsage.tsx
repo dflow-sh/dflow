@@ -8,19 +8,60 @@ import { Progress } from '@/components/ui/progress'
 const CurrentResourceUsage = ({
   dashboardMetrics,
 }: {
-  dashboardMetrics: any
+  dashboardMetrics: {
+    overview: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemUptime: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
+    detailed: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemLoad: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
+  }
 }) => {
   // Extract CPU usage safely
   const latestCpuUsage =
     dashboardMetrics?.overview?.cpuUtilization?.at(-1)?.usage ?? 0
 
   // Extract memory usage
-  const latestMemoryData = dashboardMetrics?.overview?.memoryUsage?.at(-1) ?? {}
-  const { used = 0, free = 0, cached = 0, buffers = 0 } = latestMemoryData
-  const totalMemory = used + free + cached + buffers
-  const latestMemoryUsage = totalMemory
-    ? ((used / totalMemory) * 100).toFixed(2)
-    : 0
+  const latestMemoryUsage =
+    dashboardMetrics?.overview?.memoryUsage?.at(-1)?.usage?.toFixed(2) ?? 0
 
   // Extract network traffic data
   const latestNetworkUsage =

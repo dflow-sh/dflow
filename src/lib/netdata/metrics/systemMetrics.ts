@@ -164,7 +164,7 @@ export const getSystemAlerts = async (
 
     // Current timestamp for the data point
     const { timestamp, fullTimestamp } = formatTimestamp(
-      alarm.last_updated_date,
+      alarm.last_updated,
       1000,
     )
 

@@ -1,11 +1,19 @@
 'use client'
 
+import { Loader2, MoreHorizontal, RefreshCcw, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { uninstallNetdataAction } from '@/actions/netdata'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { netdata } from '@/lib/netdata'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -95,6 +103,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         await Promise.allSettled([fetchServerStatus(), fetchDashboardMetrics()])
 
         if (isManual) {
+          // Reset interval when manually refreshed
           resetInterval()
           toast.success('Data refreshed successfully')
         }
@@ -110,10 +119,15 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     [fetchServerStatus, fetchDashboardMetrics, resetInterval],
   )
 
+  // Updated useEffect for initial setup and cleanup
   useEffect(() => {
+    // Fetch initial data
     refreshData()
+
+    // Set up initial polling interval
     resetInterval()
 
+    // Cleanup interval on component unmount
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
@@ -121,15 +135,16 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     }
   }, [refreshData, resetInterval])
 
+  // Action handlers
   const { execute: queueUninstallNetdata, isPending: isUninstallingNetdata } =
     useAction(uninstallNetdataAction, {
       onSuccess: () => {
-        toast.success('Uninstall Netdata job added to queue')
+        toast.success('Uninstall Monitoring Tools job added to queue')
         router.refresh()
       },
       onError: (error: any) => {
         toast.error(
-          `Failed to queue Netdata uninstall: ${error.message || 'Unknown error'}`,
+          `Failed to queue Monitoring Tools uninstall: ${error.message || 'Unknown error'}`,
         )
       },
     })
@@ -140,8 +155,98 @@ const Monitoring = ({ server }: { server: ServerType }) => {
 
   return (
     <div>
-      <StatusOverView serverStatus={serverStatus} />
-      <CurrentResourceUsage dashboardMetrics={dashboardMetrics} />
+      <div className='mb-6 flex items-start justify-between'>
+        <div>
+          <h1 className='mb-2 text-lg font-bold'>
+            Server Monitoring Dashboard
+          </h1>
+          <p className='text-muted-foreground'>
+            Real-time performance metrics and server status
+          </p>
+        </div>
+
+        {/* Desktop Action Icons */}
+        <div className='hidden items-center space-x-2 md:flex'>
+          <Button
+            disabled={isDataRefreshing}
+            variant='secondary'
+            onClick={() => refreshData(true)}>
+            {isDataRefreshing ? (
+              <Loader2 className='h-4 w-4 animate-spin' />
+            ) : (
+              <RefreshCcw className='h-4 w-4' />
+            )}
+            {isDataRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          </Button>
+
+          <Button
+            disabled={isUninstallingNetdata}
+            onClick={handleUninstall}
+            variant='destructive'>
+            {isUninstallingNetdata ? (
+              <Loader2 className='h-4 w-4 animate-spin' />
+            ) : (
+              <Trash2 className='h-4 w-4' />
+            )}
+            {isUninstallingNetdata ? 'Queuing Uninstall...' : 'Uninstall'}
+          </Button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        <div className='md:hidden'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='outline' size='icon'>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem
+                onClick={() => refreshData(true)}
+                disabled={isDataRefreshing}>
+                {isDataRefreshing ? (
+                  <Loader2 className='h-4 w-4 animate-spin' />
+                ) : (
+                  <RefreshCcw className='h-4 w-4' />
+                )}
+                <span>
+                  {isDataRefreshing ? 'Refreshing...' : 'Refresh Data'}
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleUninstall}
+                disabled={isUninstallingNetdata}
+                className='text-destructive'>
+                {isUninstallingNetdata ? (
+                  <Loader2 className='h-4 w-4 animate-spin' />
+                ) : (
+                  <Trash2 className='h-4 w-4' />
+                )}
+                <span>
+                  {isUninstallingNetdata ? 'Queuing Uninstall...' : 'Uninstall'}
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Last Updated Info with Loading Icon */}
+      <div className='mb-4 flex items-center text-sm text-muted-foreground'>
+        {isDataRefreshing && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+        <p>Last updated at: {lastUpdated || 'Fetching...'}</p>
+      </div>
+
+      {/* Status Overview */}
+      <StatusOverView
+        serverStatus={serverStatus}
+        dashboardMetrics={dashboardMetrics as any}
+      />
+
+      {/* Current Resource Usage */}
+      <CurrentResourceUsage dashboardMetrics={dashboardMetrics as any} />
+
+      {/* Tabs for detailed charts */}
       <MonitoringTabs dashboardMetrics={dashboardMetrics as any} />
     </div>
   )

@@ -17,11 +17,13 @@ const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
     installNetdataAction,
     {
       onSuccess: (data: any) => {
-        toast.success(data.message || 'Netdata installation started')
+        toast.success(data.message || 'Monitoring Tools installation started')
         router.refresh()
       },
       onError: (error: any) => {
-        toast.error(`Failed to start Netdata installation: ${error.message}`)
+        toast.error(
+          `Failed to start Monitoring Tools installation: ${error.message}`,
+        )
       },
     },
   )
@@ -40,7 +42,7 @@ const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
           <Button disabled={isInstallingNetdata} onClick={handleInstall}>
             {isInstallingNetdata
               ? 'Starting Installation...'
-              : 'Install Netdata'}
+              : 'Install Monitoring Tools'}
           </Button>
         </AlertDescription>
       </Alert>
