@@ -1,5 +1,5 @@
 import { MetricsResponse, NetdataApiParams, NetdataContexts } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { formatTimestamp, getTimeSeriesData } from '../utils'
 
 export interface DiskSpaceUsageDetailed {
   timestamp: string
@@ -70,7 +70,7 @@ export const getDiskSpaceUsage = async (
       })(),
       ...Object.fromEntries(
         Object.entries(point)
-          .filter(([key]) => key !== 'timestamp')
+          .filter(([key]) => key !== 'timestamp' && key !== 'fullTimestamp')
           .map(([key, value]) => [key, Number(value) || 0]),
       ),
     }),
@@ -118,7 +118,9 @@ export const getDiskIO = async (
     NetdataContexts.DISK_IO,
     undefined,
     minutes,
+    false,
   )
+
   if (!result.success || !result.data) {
     return {
       success: false,
@@ -127,26 +129,41 @@ export const getDiskIO = async (
     }
   }
 
+  // Get the data array and labels
+  const dataPoints = result.data.data
+  const labels = result.data.labels
+
   // Comprehensive formatting of disk I/O data
-  const formattedData: DiskIODetailed[] = result.data.data.map(
-    (point: any) => ({
-      timestamp: point.timestamp,
-      fullTimestamp: point.fullTimestamp,
-      reads: Math.abs(Number(point.reads || 0) / 1024),
-      writes: Math.abs(Number(point.writes || 0) / 1024),
-      ...Object.fromEntries(
-        Object.entries(point)
-          .filter(
-            ([key]) =>
-              key !== 'timestamp' &&
-              key !== 'fullTimestamp' &&
-              key !== 'reads' &&
-              key !== 'writes',
-          )
-          .map(([key, value]) => [key, Number(value) || 0]),
-      ),
-    }),
-  )
+  const formattedData = dataPoints.map((point: any) => {
+    const { timestamp, fullTimestamp } = formatTimestamp(point[0], 1000)
+
+    let reads = 0
+    let writes = 0
+
+    for (let i = 1; i < labels.length; i++) {
+      if (labels[i] === 'reads' && point[i] !== undefined) {
+        // Convert to MB/s if needed
+        if (Math.abs(point[i]) < 1000) {
+          reads += parseFloat(Math.abs(point[i]).toFixed(2))
+        } else {
+          reads += parseFloat((Math.abs(point[i]) / (1024 * 1024)).toFixed(2))
+        }
+      } else if (labels[i] === 'writes' && point[i] !== undefined) {
+        if (Math.abs(point[i]) < 1000) {
+          writes += parseFloat(Math.abs(point[i]).toFixed(2))
+        } else {
+          writes += parseFloat((Math.abs(point[i]) / (1024 * 1024)).toFixed(2))
+        }
+      }
+    }
+
+    return {
+      timestamp,
+      fullTimestamp,
+      reads,
+      writes,
+    }
+  })
 
   // Create simplified overview data
   const overview = formattedData.map(point => ({

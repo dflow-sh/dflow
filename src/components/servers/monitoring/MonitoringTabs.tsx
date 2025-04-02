@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import CPUTab from './CPUTab'
+import DiskTab from './DiskTab'
 import MemoryTab from './MemoryTab'
 import OverviewTab from './OverviewTab'
 
@@ -93,7 +94,7 @@ const MonitoringTabs = ({
 
       {/* Disk Tab */}
       <TabsContent value='disk' className='space-y-4'>
-        {/* <DiskTab diskColors={diskColors} {...detailed} /> */}
+        <DiskTab {...detailed} />
       </TabsContent>
 
       {/* Network Tab */}
