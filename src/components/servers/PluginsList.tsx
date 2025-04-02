@@ -4,6 +4,7 @@ import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Switch } from '../ui/switch'
+import { env } from 'env'
 import {
   Download,
   LucideIcon,
@@ -78,6 +79,7 @@ const PluginCard = ({
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   server: ServerType
 }) => {
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
   const { execute: installPlugin, isPending: isInstallingPlugin } = useAction(
     installPluginAction,
     {
@@ -148,7 +150,7 @@ const PluginCard = ({
           <div className='space-x-2'>
             <Button
               variant='outline'
-              disabled={!notCustomPlugin || isDeletingPlugin}
+              disabled={!notCustomPlugin || isDeletingPlugin || isDemo}
               onClick={() => {
                 if (notCustomPlugin) {
                   deletePlugin({
@@ -164,7 +166,7 @@ const PluginCard = ({
 
             {'hasConfig' in plugin && plugin.hasConfig && (
               <PluginConfigurationForm plugin={installedPlugin}>
-                <Button variant='outline' size='icon'>
+                <Button variant='outline' size='icon' disabled={isDemo}>
                   <Settings />
                 </Button>
               </PluginConfigurationForm>
@@ -173,7 +175,7 @@ const PluginCard = ({
         ) : (
           <Button
             variant='outline'
-            disabled={isInstallingPlugin}
+            disabled={isInstallingPlugin || isDemo}
             onClick={() => {
               if (notCustomPlugin) {
                 installPlugin({
@@ -190,7 +192,7 @@ const PluginCard = ({
 
         {installedPlugin && (
           <Switch
-            disabled={!notCustomPlugin || isUpdatingPluginStatus}
+            disabled={!notCustomPlugin || isUpdatingPluginStatus || isDemo}
             defaultChecked={installedPlugin.status === 'enabled'}
             onCheckedChange={enabled => {
               if (notCustomPlugin) {

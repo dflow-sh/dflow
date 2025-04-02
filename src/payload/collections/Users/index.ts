@@ -1,3 +1,4 @@
+import { env } from 'env'
 import type { CollectionConfig } from 'payload'
 
 import { beforeCreateHandleOnboarding } from './hooks/beforeCreateHandleOnboarding'
@@ -12,6 +13,11 @@ export const Users: CollectionConfig = {
   },
   hooks: {
     beforeChange: [beforeCreateHandleOnboarding],
+  },
+  access: {
+    admin: ({ req }) => {
+      return !Boolean(env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO')
+    },
   },
   fields: [
     {

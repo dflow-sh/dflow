@@ -4,6 +4,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { env } from 'env'
 import { Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
@@ -192,27 +193,30 @@ const CreateSSHKey = ({
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const [open, setOpen] = useState<boolean>(false)
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            onClick={e => e.stopPropagation()}
-            size={type === 'update' ? 'icon' : 'default'}
-            variant={type === 'update' ? 'outline' : 'default'}>
-            {type === 'update' ? (
-              <>
-                <Pencil />
-              </>
-            ) : (
-              <>
-                <Plus />
-                Add SSH key
-              </>
-            )}
-          </Button>
-        </DialogTrigger>
+        {!isDemo && (
+          <DialogTrigger asChild>
+            <Button
+              onClick={e => e.stopPropagation()}
+              size={type === 'update' ? 'icon' : 'default'}
+              variant={type === 'update' ? 'outline' : 'default'}>
+              {type === 'update' ? (
+                <>
+                  <Pencil />
+                </>
+              ) : (
+                <>
+                  <Plus />
+                  Add SSH key
+                </>
+              )}
+            </Button>
+          </DialogTrigger>
+        )}
 
         <DialogContent>
           <DialogHeader>

@@ -2,6 +2,7 @@
 
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
+import { env } from 'env'
 import { KeyRound, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
@@ -22,10 +23,11 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
       toast.error(`Failed to delete SSH key: ${error.serverError}`)
     },
   })
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <Card>
-      <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
+      <CardContent className='flex h-24 w-full items-center justify-between gap-3 pt-4'>
         <div className='flex items-center gap-3'>
           <KeyRound size={20} />
 
@@ -37,23 +39,25 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           </div>
         </div>
 
-        <div className='flex items-center gap-3'>
-          <UpdateSSHKeyForm
-            sshKey={sshKey}
-            type='update'
-            description='This form updates SSH key'
-          />
+        {!isDemo && (
+          <div className='flex items-center gap-3'>
+            <UpdateSSHKeyForm
+              sshKey={sshKey}
+              type='update'
+              description='This form updates SSH key'
+            />
 
-          <Button
-            disabled={isPending}
-            onClick={() => {
-              execute({ id: sshKey.id })
-            }}
-            size='icon'
-            variant='outline'>
-            <Trash2 size={20} />
-          </Button>
-        </div>
+            <Button
+              disabled={isPending}
+              onClick={() => {
+                execute({ id: sshKey.id })
+              }}
+              size='icon'
+              variant='outline'>
+              <Trash2 size={20} />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

@@ -2,6 +2,7 @@
 
 import { Button } from '../ui/button'
 import { Switch } from '../ui/switch'
+import { env } from 'env'
 import { Globe, Info, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
@@ -41,6 +42,7 @@ const DomainItem = ({
   domain: NonNullable<ServerType['domains']>[number]
   server: ServerType | Server
 }) => {
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
   const { execute, isPending } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
       if (data?.success) {
@@ -97,35 +99,37 @@ const DomainItem = ({
             </Dialog>
           </div>
 
-          <div className='flex items-center gap-4 self-end'>
-            <Switch
-              defaultChecked={domain.default}
-              disabled={domain.default}
-              onCheckedChange={checked => {
-                if (checked) {
+          {!isDemo && (
+            <div className='flex items-center gap-4 self-end'>
+              <Switch
+                defaultChecked={domain.default}
+                disabled={domain.default}
+                onCheckedChange={checked => {
+                  if (checked) {
+                    execute({
+                      operation: 'set',
+                      domain: domain.domain,
+                      id: server.id,
+                    })
+                  }
+                }}
+              />
+
+              <Button
+                size='icon'
+                onClick={() => {
                   execute({
-                    operation: 'set',
+                    operation: 'remove',
                     domain: domain.domain,
                     id: server.id,
                   })
-                }
-              }}
-            />
-
-            <Button
-              size='icon'
-              onClick={() => {
-                execute({
-                  operation: 'remove',
-                  domain: domain.domain,
-                  id: server.id,
-                })
-              }}
-              disabled={isPending}
-              variant='outline'>
-              <Trash2 />
-            </Button>
-          </div>
+                }}
+                disabled={isPending}
+                variant='outline'>
+                <Trash2 />
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </>
@@ -140,10 +144,11 @@ const DomainList = ({
   showForm?: boolean
 }) => {
   const addedDomains = server.domains ?? []
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <div className='space-y-4'>
-      {showForm && <DomainForm server={server} />}
+      {showForm && !isDemo && <DomainForm server={server} />}
 
       {addedDomains.length ? (
         <div className='space-y-4'>
