@@ -12,6 +12,7 @@
 //   },
 // }
 // export default withPayload(nextConfig)
+import { withContentCollections } from '@content-collections/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
@@ -39,4 +40,4 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 }
 
-export default withPayload(nextConfig)
+export default withPayload(withContentCollections(nextConfig))
