@@ -242,7 +242,7 @@ export const updateServiceAction = protectedClient
     const { id, ...data } = clientInput
 
     const filteredObject = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
+      Object.entries(data).filter(([_, value]) => value && value !== undefined),
     )
 
     const response = await payload.update({
@@ -251,13 +251,6 @@ export const updateServiceAction = protectedClient
       id,
       depth: 10,
     })
-
-    const projectId =
-      typeof response?.project === 'object' ? response.project.id : ''
-
-    if (projectId) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-    }
 
     // If env variables are added then adding it to queue to update env
     if (

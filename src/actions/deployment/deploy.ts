@@ -1,9 +1,9 @@
 import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
-import 'server-only'
 
-import { addDeploymentQueue } from '@/queues/app/deploy'
+import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
+import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
 
 const payload = await getPayload({ config: configPromise })
@@ -54,28 +54,61 @@ export const triggerDeployment = async ({
 
     if (type === 'app' || type === 'docker') {
       if (providerType === 'github' && githubSettings) {
-        const queueResponse = await addDeploymentQueue({
-          appName: serviceDetails.name,
-          userName: githubSettings.owner,
-          repoName: githubSettings.repository,
-          branch: githubSettings.branch,
-          sshDetails: sshDetails,
-          serviceDetails: {
-            deploymentId: deploymentResponse.id,
-            serviceId: serviceDetails.id,
-            provider,
-            environmentVariables:
-              typeof environmentVariables === 'object' &&
-              environmentVariables &&
-              !Array.isArray(environmentVariables)
-                ? environmentVariables
-                : undefined,
-            serverId: project.server.id,
-          },
-          payloadToken: `${payloadToken?.value}`,
-        })
+        const builder = serviceDetails.builder ?? 'railpack'
 
-        queueResponseId = queueResponse.id
+        if (builder === 'railpack') {
+          const { id } = await addRailpackDeployQueue({
+            appName: serviceDetails.name,
+            userName: githubSettings.owner,
+            repoName: githubSettings.repository,
+            branch: githubSettings.branch,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              environmentVariables:
+                typeof environmentVariables === 'object' &&
+                environmentVariables &&
+                !Array.isArray(environmentVariables)
+                  ? environmentVariables
+                  : undefined,
+              serverId: project.server.id,
+              port: githubSettings.port
+                ? githubSettings.port.toString()
+                : '3000',
+            },
+            payloadToken: `${payloadToken?.value}`,
+          })
+
+          queueResponseId = id
+        } else if (builder === 'dockerfile') {
+          const { id } = await addDockerFileDeploymentQueue({
+            appName: serviceDetails.name,
+            userName: githubSettings.owner,
+            repoName: githubSettings.repository,
+            branch: githubSettings.branch,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              environmentVariables:
+                typeof environmentVariables === 'object' &&
+                environmentVariables &&
+                !Array.isArray(environmentVariables)
+                  ? environmentVariables
+                  : undefined,
+              serverId: project.server.id,
+              port: githubSettings.port
+                ? githubSettings.port.toString()
+                : '3000',
+            },
+            payloadToken: `${payloadToken?.value}`,
+          })
+
+          queueResponseId = id
+        }
       }
     }
 

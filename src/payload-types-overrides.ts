@@ -8,4 +8,5 @@ export interface ServerType extends Server {
     type: string | null
     version: string | null
   }
+  railpack: string | undefined
 }

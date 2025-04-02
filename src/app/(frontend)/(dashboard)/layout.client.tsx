@@ -1,42 +1,31 @@
 'use client'
 
-import { useProgress } from '@bprogress/next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useMemo, useTransition } from 'react'
+import React from 'react'
 
 import Tabs from '@/components/Tabs'
 
 const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
-  const [isPending, startTransition] = useTransition()
-  const { start, stop } = useProgress()
-
-  useEffect(() => {
-    if (isPending) {
-      start()
-    } else {
-      stop()
-    }
-  }, [isPending])
-
   const pathName = usePathname()
-
-  const tabsList = useMemo(() => {
-    return [
-      { label: 'Dashboard', slug: '/dashboard' },
-      { label: 'Servers', slug: '/settings/servers' },
-      { label: 'SSH Keys', slug: '/settings/ssh-keys' },
-      { label: 'Git', slug: '/settings/git' },
-    ] as const
-  }, [])
+  const tabsList = [
+    { label: 'Dashboard', slug: '/dashboard' },
+    { label: 'Servers', slug: '/settings/servers' },
+    { label: 'SSH Keys', slug: '/settings/ssh-keys' },
+    { label: 'Integrations', slug: '/integrations' },
+    { label: 'Docs', slug: '/docs/getting-started/introduction' },
+  ]
 
   return (
     <>
       <div className='relative'>
-        <div className='mx-auto w-full max-w-6xl px-4'>
+        <div
+          className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
+          style={{ scrollbarWidth: 'none' }}>
           <Tabs
             tabs={tabsList.map(({ label, slug }) => ({
               label: <Link href={slug}>{label}</Link>,
+              asChild: true,
             }))}
             defaultActiveTab={tabsList.findIndex(({ slug }) =>
               pathName.includes(slug),
@@ -46,7 +35,6 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
         <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      {/* {children} */}
       <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>
         {children}
       </main>

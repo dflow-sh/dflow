@@ -1,18 +1,17 @@
 import { Button } from '../ui/button'
-import { Github } from 'lucide-react'
+import { env } from 'env'
+import { PlusIcon } from 'lucide-react'
 
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
 const githubCallbackURL =
-  process.env.NODE_ENV === 'development'
-    ? process.env.WEBHOOK_URL
-    : `https://${process.env.NEXT_PUBLIC_WEBSITE_URL}`
+  env.NEXT_PUBLIC_WEBHOOK_URL ?? env.NEXT_PUBLIC_WEBSITE_URL
 
 const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
   const value = JSON.stringify({
     redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=${onboarding}`,
-    name: `dokflow-${formattedDate}`,
+    name: `dflow-${formattedDate}`,
     url: githubCallbackURL,
     hook_attributes: {
       url: `${githubCallbackURL}/api/deploy/github`,
@@ -43,8 +42,8 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
 
       {/* Added github option in GitProviders collection */}
       <Button type='submit'>
-        <Github />
-        Github
+        <PlusIcon />
+        Create Github App
       </Button>
     </form>
   )

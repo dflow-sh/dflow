@@ -54,7 +54,7 @@ const DomainItem = ({
   return (
     <>
       <Card className='text-sm'>
-        <CardContent className='flex w-full items-center justify-between pt-4'>
+        <CardContent className='flex w-full flex-col gap-6 pt-4 sm:flex-row sm:justify-between'>
           <div className='flex items-center gap-3'>
             <Globe size={20} className='text-green-600' />
             <p className='font-semibold'>{domain.domain}</p>
@@ -97,7 +97,7 @@ const DomainItem = ({
             </Dialog>
           </div>
 
-          <div className='space-x-4'>
+          <div className='flex items-center gap-4 self-end'>
             <Switch
               defaultChecked={domain.default}
               disabled={domain.default}

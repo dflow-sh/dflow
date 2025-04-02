@@ -16,50 +16,56 @@ const Step3 = ({ server }: { server: ServerType }) => {
   const { step, setStep } = useInstallationStep()
   const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
     useAction(installPluginAction)
-
-  const plugins = server.plugins ?? []
-  const letsEncryptPluginInstalled = plugins.find(
-    plugin => plugin.name === 'letsencrypt',
-  )
   const {
     execute: syncPlugins,
     isPending: isSyncingPlugins,
     hasSucceeded: syncedPlugins,
-  } = useAction(syncPluginAction, {
-    onSuccess: ({ data }) => {
-      const plugins = data?.plugins ?? []
+    result: syncPluginResult,
+  } = useAction(syncPluginAction)
 
+  const plugins = (syncPluginResult?.data?.plugins || server?.plugins) ?? []
+  const letsEncryptPluginInstalled = plugins.find(
+    plugin => plugin.name === 'letsencrypt',
+  )
+
+  useEffect(() => {
+    if (step === 3) {
+      // 1. if all plugins are already installed skipping plugin installation step
+      if (letsEncryptPluginInstalled) {
+        setSkipPluginsSync(true)
+        setStep(4)
+      } else {
+        // 2. if not installed syncing plugins
+        syncPlugins({ serverId: server.id })
+      }
+    }
+  }, [step, server])
+
+  useEffect(() => {
+    const plugins = syncPluginResult.data?.plugins
+
+    if (step === 3) {
       if (plugins) {
-        // check for letsencrypt plugin
         const letsEncryptPluginInstalled = plugins.filter(
           plugin => plugin.name === 'letsencrypt',
         )[0]
 
+        // 3. Once plugin are synced checking letsencrypt plugin status if not installed then installing
         if (!letsEncryptPluginInstalled) {
           installPlugin({
             pluginName: 'letsencrypt',
-            serverId: server.id,
+            serverId: server?.id,
             pluginURL:
               pluginList.find(plugin => plugin.value === 'letsencrypt')
                 ?.githubURL ?? '',
           })
         } else {
+          // 4. If letsencrypt plugin is installed go to the next step
           setStep(4)
         }
       }
-    },
-  })
-
-  useEffect(() => {
-    if (step === 3) {
-      if (letsEncryptPluginInstalled) {
-        setSkipPluginsSync(true)
-        setStep(4)
-      } else {
-        syncPlugins({ serverId: server.id })
-      }
     }
-  }, [step, server])
+  }, [syncPluginResult, server])
 
   if (step < 3) {
     return null
@@ -67,7 +73,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='space-y-2'>
-      {isSyncingPlugins && (
+      {isSyncingPlugins && !letsEncryptPluginInstalled && (
         <div className='flex items-center gap-2'>
           <Loader className='h-max w-max' /> Syncing plugins...
         </div>
@@ -76,7 +82,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
       {(syncedPlugins || skipPluginsSync) && !!plugins.length && (
         <div className='flex items-center gap-2'>
           <CircleCheck size={24} className='text-primary' />
-          {`${(server.plugins ?? []).length} Synced plugins!`}
+          {`${plugins.length} Synced plugins`}
         </div>
       )}
 

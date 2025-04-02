@@ -4,9 +4,10 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import Loader from '@/components/Loader'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
+
+import ProjectPageLoading from './ProjectLoading'
 
 interface PageProps {
   params: Promise<{
@@ -76,7 +77,7 @@ const SuspendedPage = async ({ params }: PageProps) => {
 
 const ProjectIdPage = async ({ params }: PageProps) => {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<ProjectPageLoading />}>
       <LayoutClient>
         <SuspendedPage params={params} />
       </LayoutClient>

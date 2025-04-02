@@ -257,12 +257,13 @@ export const Services: CollectionConfig = {
       name: 'builder',
       type: 'select',
       options: [
+        { label: 'Railpack', value: 'railpack' },
         { label: 'Nixpacks', value: 'nixpacks' },
         { label: 'Dockerfile', value: 'dockerfile' },
         { label: 'Heroku build packs', value: 'herokuBuildPacks' },
         { label: 'Build packs', value: 'buildPacks' },
       ],
-      defaultValue: 'nixpacks',
+      defaultValue: 'railpack',
       admin: {
         condition: data => {
           if (data.type === 'app' || data.type === 'docker') {

@@ -13,16 +13,18 @@ const changeBasedOnENV = (env: any) => {
 export const env = createEnv({
   server: {
     DATABASE_URI: z.string().min(1),
-    REDIS_URL: z.string().min(1),
+    REDIS_URI: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
+    NEXT_PUBLIC_WEBHOOK_URL: z.string().url().optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
       process.env.NEXT_PUBLIC_WEBSITE_URL || process.env.RAILWAY_PUBLIC_DOMAIN,
     ),
+    NEXT_PUBLIC_WEBHOOK_URL: process.env.NEXT_PUBLIC_WEBHOOK_URL,
     DATABASE_URI: process.env.DATABASE_URI,
-    REDIS_URL: process.env.REDIS_URL,
+    REDIS_URI: process.env.REDIS_URI,
   },
 })

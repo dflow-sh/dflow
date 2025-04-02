@@ -95,7 +95,7 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   }
 })
 
-export const AddInstallDokkuQueue = async (data: QueueArgs) => {
+export const addInstallDokkuQueue = async (data: QueueArgs) => {
   const id = `install-dokku:${new Date().getTime()}`
 
   return await installDokkuQueue.add(id, data, {

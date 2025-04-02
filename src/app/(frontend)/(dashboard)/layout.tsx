@@ -15,7 +15,6 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const payload = await getPayload({ config: configPromise })
 
   const { user } = await payload.auth({ headers: headersList })
-  const initial = user?.email.slice(0, 1)
 
   // Redirecting user to sign-in if user is not signed in
   if (!user) {
@@ -29,15 +28,18 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='w-full'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
-        <div className='flex items-center gap-2 text-2xl font-semibold'>
-          <Link href={`/dashboard`} className='flex items-center gap-x-2'>
+        <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
+          <Link href={`/dashboard`} className='flex items-center gap-1'>
             <Workflow className='text-primary' />
-            <p>Dokflow</p>
+            <p className='hidden sm:block'>Dflow</p>
           </Link>
+
+          {/* These are replaced with breadcrumbs using react-portals */}
           <div id='projectName'></div>
           <div id='serviceName' className='-ml-2'></div>
           <div id='serverName' className='-ml-4'></div>
         </div>
+
         <div>
           <NavUser user={user} />
         </div>

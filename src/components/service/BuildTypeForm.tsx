@@ -23,21 +23,25 @@ import { Service } from '@/payload-types'
 
 const options = [
   {
-    label: 'Nixpacks',
-    value: 'nixpacks',
+    label: 'Railpack',
+    value: 'railpack',
   },
   {
     label: 'Dockerfile',
     value: 'dockerfile',
   },
-  {
-    label: 'Heroku Build Packs',
-    value: 'herokuBuildPacks',
-  },
-  {
-    label: 'Build Packs',
-    value: 'buildPacks',
-  },
+  // {
+  //   label: 'Nixpacks',
+  //   value: 'nixpacks',
+  // },
+  // {
+  //   label: 'Heroku Build Packs',
+  //   value: 'herokuBuildPacks',
+  // },
+  // {
+  //   label: 'Build Packs',
+  //   value: 'buildPacks',
+  // },
 ]
 
 const BuildTypeForm = ({ service }: { service: Service }) => {

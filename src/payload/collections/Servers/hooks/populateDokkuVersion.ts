@@ -3,6 +3,7 @@ import { CollectionAfterReadHook } from 'payload'
 
 import { supportedLinuxVersions } from '@/lib/constants'
 import { dokku } from '@/lib/dokku'
+import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
@@ -27,6 +28,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   let sshConnected = true
   let linuxDistributionVersion
   let linuxDistributionType
+  let railpack: string | undefined
 
   if (sshKey && sshKey?.privateKey) {
     if (portIsOpen) {
@@ -57,6 +59,9 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           version = await dokku.version.info(ssh)
         }
 
+        const railpackResponse = await server.railpack.info({ ssh })
+        railpack = railpackResponse
+
         ssh.dispose()
       } catch (error) {
         console.log({ error })
@@ -76,5 +81,6 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       type: linuxDistributionType ?? null,
       version: linuxDistributionVersion ?? null,
     },
+    railpack,
   }
 }

@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ keepalive: true })}\n\n`),
         )
-      }, 30000)
+      }, 29000)
 
       req.signal.addEventListener('abort', () => {
         duplicateSubscriber.unsubscribe('refresh-channel')

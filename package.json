@@ -15,6 +15,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "@bprogress/next": "^3.2.10",
     "@hookform/resolvers": "^3.10.0",
     "@monaco-editor/react": "4.7.0-rc.0",
@@ -81,6 +82,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@content-collections/core": "^0.8.2",
+    "@content-collections/mdx": "^0.2.2",
+    "@content-collections/next": "^0.2.6",
     "@eslint/eslintrc": "^3.2.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/debug": "^4.1.12",

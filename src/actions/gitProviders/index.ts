@@ -2,7 +2,6 @@
 
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
-import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
@@ -30,7 +29,6 @@ export const deleteGitProviderAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/git')
       return { success: true }
     }
   })
@@ -41,13 +39,7 @@ export const getRepositoriesAction = protectedClient
   })
   .schema(getRepositorySchema)
   .action(async ({ clientInput }) => {
-    const {
-      page = 1,
-      appId,
-      installationId,
-      privateKey,
-      limit = 100,
-    } = clientInput
+    const { appId, installationId, privateKey } = clientInput
 
     const octokit = new Octokit({
       authStrategy: createAppAuth,
@@ -58,14 +50,28 @@ export const getRepositoriesAction = protectedClient
       },
     })
 
-    const { data } = await octokit.rest.apps.listReposAccessibleToInstallation({
-      per_page: limit,
-      page,
-    })
+    let allRepositories: any[] = []
+    let currentPage = 1
+    let hasMore = true
+
+    while (hasMore) {
+      const { data } =
+        await octokit.rest.apps.listReposAccessibleToInstallation({
+          per_page: 100,
+          page: currentPage,
+        })
+
+      allRepositories = [...allRepositories, ...data.repositories]
+
+      if (data.repositories.length < 100) {
+        hasMore = false
+      } else {
+        currentPage++
+      }
+    }
 
     return {
-      repositories: data.repositories,
-      hasMore: data.total_count > page * limit,
+      repositories: allRepositories.reverse(),
     }
   })
 
@@ -104,4 +110,27 @@ export const getBranchesAction = protectedClient
     return {
       branches,
     }
+  })
+
+export const getAllAppsAction = protectedClient
+  .metadata({
+    actionName: 'getAllAppsAction',
+  })
+  .action(async () => {
+    const { docs } = await payload.find({
+      collection: 'gitProviders',
+      pagination: false,
+      select: {
+        github: {
+          appName: true,
+          installationId: true,
+          appUrl: true,
+        },
+        createdAt: true,
+        type: true,
+        updatedAt: true,
+      },
+    })
+
+    return docs
   })

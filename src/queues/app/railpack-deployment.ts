@@ -10,6 +10,7 @@ import { getPayload } from 'payload'
 import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { server } from '@/lib/server'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
@@ -36,7 +37,7 @@ interface QueueArgs {
 
 const QUEUE_NAME = 'deploy-app'
 
-export const deployAppQueue = new Queue<QueueArgs>(QUEUE_NAME, {
+export const railpackDeployQueue = new Queue<QueueArgs>(QUEUE_NAME, {
   connection: queueConnection,
   defaultJobOptions: {
     removeOnComplete: {
@@ -182,71 +183,9 @@ const worker = new Worker<QueueArgs>(
             channelId: serviceDetails.deploymentId,
           })
         }
-
-        const option = Object.entries(serviceDetails.environmentVariables)
-          .map(([key, value]) => `--build-arg ${key}="${value}"`)
-          .join(' ')
-
-        console.log('updated build-params', { option })
-
-        sendEvent({
-          message: `Stated adding environment variables as build arguments`,
-          pub,
-          serverId,
-          serviceId,
-          channelId: serviceDetails.deploymentId,
-        })
-
-        const buildArgsResponse = await dokku.docker.options({
-          action: 'add',
-          appName,
-          option,
-          phase: 'build',
-          ssh,
-          options: {
-            onStdout: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-            onStderr: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-          },
-        })
-
-        console.log({ buildArgsResponse })
-
-        if (buildArgsResponse.code === 0) {
-          sendEvent({
-            message: `✅ Successfully added environment variables as build arguments`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `❌ Failed to add environment variables as build arguments`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        }
       }
 
-      // Step 4: Cloning the repo
+      // Step 3: Cloning the repo
       // Generating github-app details for deployment
       sendEvent({
         message: `Stated cloning repository`,
@@ -290,6 +229,7 @@ const worker = new Worker<QueueArgs>(
       const cloningResponse = await dokku.git.sync({
         ssh,
         appName: appName,
+        build: false,
         gitRepoUrl: `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`,
         branchName,
         options: {
@@ -316,7 +256,7 @@ const worker = new Worker<QueueArgs>(
 
       if (cloningResponse.code === 0) {
         sendEvent({
-          message: `✅ Successfully cloned & build repository`,
+          message: `✅ Successfully cloned repository`,
           pub,
           serverId,
           serviceId,
@@ -324,7 +264,7 @@ const worker = new Worker<QueueArgs>(
         })
       } else {
         sendEvent({
-          message: `❌ Failed to clone & build repository`,
+          message: `❌ Failed to clone repository`,
           pub,
           serverId,
           serviceId,
@@ -332,10 +272,146 @@ const worker = new Worker<QueueArgs>(
         })
 
         // exiting from the flow
-        throw new Error('cloning and building failed')
+        throw new Error('failed to clone repository')
       }
 
-      // Step 5: SSL certificate generation
+      // creating a workspace from bare repository
+      sendEvent({
+        message: `Started creating a git-workspace`,
+        pub,
+        serverId,
+        serviceId,
+        channelId: serviceDetails.deploymentId,
+      })
+
+      // Step 4: Creating a workspace from bare repository
+      const workspaceResponse = await server.git.createWorkspace({
+        appName,
+        options: {
+          onStdout: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+          onStderr: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+        },
+        ssh,
+      })
+
+      console.log({ workspaceResponse })
+
+      if (workspaceResponse.code === 0) {
+        sendEvent({
+          message: `✅ Successfully created workspace`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      } else {
+        throw new Error('❌ Failed to create workspace, please try again!')
+      }
+
+      // Step 5: Building the image with railpack
+      const imageCreationResponse = await server.docker.createImage({
+        appName,
+        options: {
+          onStdout: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+          onStderr: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+        },
+        ssh,
+        environmentVariables: serviceDetails.environmentVariables,
+      })
+
+      console.log({ imageCreationResponse })
+
+      if (imageCreationResponse.code === 0) {
+        sendEvent({
+          message: `✅ Successfully created docker-image`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      } else {
+        // Deleting the workspace if railpack image creation failed
+        await server.git.deleteWorkspace({ appName, ssh })
+
+        throw new Error('❌ Failed to create docker-image')
+      }
+
+      // Step 6: Deploying the docker image
+      const deployImageResponse = await dokku.git.deployImage({
+        ssh,
+        appName,
+        options: {
+          onStdout: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+          onStderr: async chunk => {
+            sendEvent({
+              message: chunk.toString(),
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          },
+        },
+      })
+
+      console.log({ deployImageResponse })
+
+      // Regardless of deployment status deleting the workspace
+      await server.git.deleteWorkspace({ appName, ssh })
+
+      if (deployImageResponse.code === 0) {
+        sendEvent({
+          message: `✅ Successfully deployed app`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      } else {
+        throw new Error('❌ Failed to deploy app')
+      }
+
+      // Step 7: SSL certificate generation
       sendEvent({
         message: `Started generating SSL`,
         pub,
@@ -390,7 +466,7 @@ const worker = new Worker<QueueArgs>(
         serviceId,
       })
 
-      // todo: for now taking to first domain name
+      // Step 8: updating the domain details
       const domainsResponse = await dokku.domains.report(ssh, appName)
       const defaultDomain = domainsResponse
 
@@ -419,6 +495,7 @@ const worker = new Worker<QueueArgs>(
         })
       }
 
+      // Step 9: saving the deployment logs
       const logs = (
         await pub.lrange(serviceDetails.deploymentId, 0, -1)
       ).reverse()
@@ -478,10 +555,11 @@ worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
   console.log('Failed to deploy app', err)
 })
 
-export const addDeploymentQueue = async (data: QueueArgs) => {
+export const addRailpackDeployQueue = async (data: QueueArgs) => {
   // Create a unique job ID that prevents duplicates but allows identification
-  const id = `deploy:${data.appName}:${Date.now()}`
-  return await deployAppQueue.add(id, data, {
+  const id = `railpack-deploy:${data.appName}:${Date.now()}`
+
+  return await railpackDeployQueue.add(id, data, {
     ...jobOptions,
     jobId: id,
   })

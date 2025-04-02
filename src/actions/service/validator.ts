@@ -19,7 +19,13 @@ export const deleteServiceSchema = z.object({
 
 export const updateServiceSchema = z.object({
   builder: z
-    .enum(['nixpacks', 'dockerfile', 'herokuBuildPacks', 'buildPacks'])
+    .enum([
+      'nixpacks',
+      'dockerfile',
+      'herokuBuildPacks',
+      'buildPacks',
+      'railpack',
+    ])
     .optional(),
   provider: z.string().optional(),
   providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
@@ -29,12 +35,12 @@ export const updateServiceSchema = z.object({
       owner: z.string(),
       branch: z.string(),
       buildPath: z.string(),
+      port: z.number().default(3000),
     })
     .optional(),
   environmentVariables: z.record(z.string()).optional(),
   noRestart: z.boolean().optional(),
   id: z.string(),
-  port: z.number().default(3000),
 })
 
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({

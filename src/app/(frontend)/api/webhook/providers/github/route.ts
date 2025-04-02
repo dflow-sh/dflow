@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       },
     )
 
-    const setupResponse = await payload.create({
+    await payload.create({
       collection: 'gitProviders',
       data: {
         type: 'github',
@@ -88,5 +88,5 @@ export async function GET(request: NextRequest) {
     redirect('/onboarding/install-github')
   }
 
-  return redirect(`/settings/git?action=${action}`)
+  return redirect(`/integrations/?action=${action}&active=github`)
 }

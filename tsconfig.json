@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@payload-config": ["./src/payload.config.ts"]
+      "@payload-config": ["./src/payload.config.ts"],
+      "content-collections": ["./.content-collections/generated"]
     },
     "target": "ES2022"
   },

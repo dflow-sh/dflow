@@ -5,7 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
-import { AddInstallDokkuQueue } from '@/queues/dokku/install'
+import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
+import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
@@ -103,7 +104,7 @@ export const installDokkuAction = protectedClient
     })
 
     if (typeof serverDetails.sshKey === 'object') {
-      const installationResponse = await AddInstallDokkuQueue({
+      const installationResponse = await addInstallDokkuQueue({
         serverDetails: {
           id: serverId,
         },
@@ -173,5 +174,37 @@ export const updateServerDomainAction = protectedClient
     if (queueResponse.id) {
       revalidatePath(`/settings/servers/${id}`)
       return { success: true }
+    }
+  })
+
+export const installRailpackAction = protectedClient
+  .metadata({
+    actionName: 'installRailpackAction',
+  })
+  .schema(installDokkuSchema)
+  .action(async ({ clientInput }) => {
+    const { serverId } = clientInput
+    const serverDetails = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 10,
+    })
+
+    if (typeof serverDetails.sshKey === 'object') {
+      const installationResponse = await addInstallRailpackQueue({
+        serverDetails: {
+          id: serverId,
+        },
+        sshDetails: {
+          host: serverDetails.ip,
+          port: serverDetails.port,
+          privateKey: serverDetails.sshKey.privateKey,
+          username: serverDetails.username,
+        },
+      })
+
+      if (installationResponse.id) {
+        return { success: true }
+      }
     }
   })

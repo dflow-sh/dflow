@@ -89,6 +89,7 @@ export const Servers: CollectionConfig = {
         description: 'Enter the IP address of the server.',
         placeholder: 'e.g: 0:0:0:0',
       },
+      unique: true,
     },
     {
       name: 'port',

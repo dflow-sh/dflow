@@ -28,6 +28,7 @@ const ClientLayout = ({
   return (
     <>
       {children}
+
       {mounted &&
         createPortal(
           <div className='flex items-center gap-1 text-sm font-normal'>

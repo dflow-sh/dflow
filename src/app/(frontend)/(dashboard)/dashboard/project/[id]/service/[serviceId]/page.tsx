@@ -2,9 +2,7 @@ import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
-import { Suspense } from 'react'
 
-import Loader from '@/components/Loader'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import EnvironmentVariablesForm from '@/components/service/EnvironmentVariablesForm'
@@ -20,7 +18,7 @@ interface PageProps {
   searchParams: Promise<SearchParams>
 }
 
-const SuspendedPage = async ({ params, searchParams }: PageProps) => {
+const ServiceIdPage = async ({ params, searchParams }: PageProps) => {
   const { id: projectId, serviceId } = await params
   const { tab } = await loadServicePageTabs(searchParams)
 
@@ -76,14 +74,6 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     default:
       return <GeneralTab service={service} />
   }
-}
-
-const ServiceIdPage = ({ params, searchParams }: PageProps) => {
-  return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
-      <SuspendedPage params={params} searchParams={searchParams} />
-    </Suspense>
-  )
 }
 
 export default ServiceIdPage
