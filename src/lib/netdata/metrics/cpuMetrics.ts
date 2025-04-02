@@ -4,6 +4,7 @@ import { getTimeSeriesData } from '../utils'
 // Define structured interfaces for metrics
 export interface CPUMetricsData {
   timestamp: string
+  fullTimestamp: string
   utilization: number
   user?: number
   system?: number
@@ -18,19 +19,8 @@ export interface CPUMetricsData {
 
 export interface CPUPressureData {
   timestamp: string
+  fullTimestamp: string
   pressure: number
-}
-
-export interface SystemLoadData {
-  timestamp: string
-  load1m: number
-  load5m: number
-  load15m: number
-}
-
-export interface SystemUptimeData {
-  timestamp: string
-  uptimeSeconds: number
 }
 
 /**
@@ -64,7 +54,7 @@ export const getCpuUtilization = async (
   minutes = 30,
 ): Promise<
   MetricsResponse<{
-    overview: { timestamp: string; usage: number }[]
+    overview: { timestamp: string; fullTimestamp: string; usage: number }[]
     detailed: CPUMetricsData[]
   }>
 > => {
@@ -87,10 +77,11 @@ export const getCpuUtilization = async (
   const formattedData: CPUMetricsData[] = result.data.data.map(
     (point: any) => ({
       timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
       utilization: calculateCPUUtilization(point),
       ...Object.fromEntries(
         Object.entries(point)
-          .filter(([key]) => key !== 'timestamp')
+          .filter(([key]) => key !== 'timestamp' && key !== 'fullTimestamp')
           .map(([key, value]) => [key, Number(value) || 0]),
       ),
     }),
@@ -99,6 +90,7 @@ export const getCpuUtilization = async (
   // Create simplified overview data with timestamp and usage
   const overview = formattedData.map(point => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     usage: point.utilization,
   }))
 
@@ -136,6 +128,7 @@ export const getCpuSomePressure = async (
 
   const formattedData = result.data.data.map((point: any) => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     some10: parseFloat((point['some 10'] || 0).toFixed(1)),
     some60: parseFloat((point['some 60'] || 0).toFixed(1)),
     some300: parseFloat((point['some 300'] || 0).toFixed(1)),
@@ -176,6 +169,7 @@ export const getCpuSomePressureStallTime = async (
 
   const formattedData = result.data.data.map((point: any) => ({
     timestamp: point.timestamp,
+    fullTimestamp: point.fullTimestamp,
     stallTime: parseFloat((point.time || 0).toFixed(1)),
   }))
 
@@ -185,115 +179,6 @@ export const getCpuSomePressureStallTime = async (
     data: {
       overview: formattedData,
       detailed: formattedData,
-    },
-  }
-}
-
-/**
- * Retrieves system load metrics.
- */
-export const getSystemLoad = async (
-  params: NetdataApiParams,
-  minutes = 30,
-): Promise<
-  MetricsResponse<{
-    overview: {
-      timestamp: string
-      load1m: number
-      load5m: number
-      load15m: number
-    }[]
-    detailed: any[]
-  }>
-> => {
-  const result = await getTimeSeriesData<any>(
-    params,
-    NetdataContexts.LOAD,
-    undefined,
-    minutes,
-  )
-
-  if (!result.success || !result.data) {
-    return {
-      success: false,
-      message: result.message || 'Failed to retrieve system load data',
-      data: undefined,
-    }
-  }
-
-  const formattedData: SystemLoadData[] = result.data.data.map(
-    (point: any) => ({
-      timestamp: point.timestamp,
-      load1m: parseFloat((point.load1 || 0).toFixed(2)),
-      load5m: parseFloat((point.load5 || 0).toFixed(2)),
-      load15m: parseFloat((point.load15 || 0).toFixed(2)),
-    }),
-  )
-
-  // Create simplified overview (in this case it's the same structure as formattedData)
-  const overview = formattedData.map(point => ({
-    timestamp: point.timestamp,
-    load1m: point.load1m,
-    load5m: point.load5m,
-    load15m: point.load15m,
-  }))
-
-  return {
-    success: true,
-    message: 'System load trend retrieved successfully',
-    data: {
-      overview,
-      detailed: result.data.data,
-    },
-  }
-}
-
-/**
- * Retrieves system uptime metrics.
- */
-export const getSystemUptime = async (
-  params: NetdataApiParams,
-  minutes = 30,
-): Promise<
-  MetricsResponse<{
-    overview: { timestamp: string; uptimeSeconds: number }[]
-    detailed: any[]
-  }>
-> => {
-  const result = await getTimeSeriesData<any>(
-    params,
-    NetdataContexts.SYSTEM_UPTIME,
-    undefined,
-    minutes,
-  )
-
-  if (!result.success || !result.data) {
-    return {
-      success: false,
-      message: result.message || 'Failed to retrieve system uptime data',
-      data: undefined,
-    }
-  }
-
-  const formattedData: SystemUptimeData[] = result.data.data.map(
-    (point: any) => ({
-      timestamp: point.timestamp,
-      uptimeSeconds: point.value || 0,
-    }),
-  )
-
-  // Create simplified overview (same structure as formattedData in this case)
-  const overview = formattedData.map(point => ({
-    timestamp: point.timestamp,
-    uptimeSeconds: point.uptimeSeconds,
-  }))
-
-  return {
-    success: true,
-    message: 'System uptime retrieved successfully',
-    data: {
-      overview,
-      detailed: result.data.data,
     },
   }
 }

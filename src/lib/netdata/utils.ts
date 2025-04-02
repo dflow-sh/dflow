@@ -28,17 +28,19 @@ export function transformData(
   const result: any[] = []
 
   for (const point of dataPoints) {
-    const timestamp = point[0] // First element is always timestamp
-    const timeStr = formatTimestamp(timestamp, timestampMultiplier)
+    const { timestamp, fullTimestamp } = formatTimestamp(
+      point[0],
+      timestampMultiplier,
+    )
 
     const transformedPoint: Record<string, string | number> = {
-      timestamp: timeStr,
-      ...(keepOriginalTimestamp ? { originalTimestamp: timestamp } : {}),
+      timestamp, // HH:MM:SS
+      fullTimestamp, // Wed, Apr 02, 2025 . 11:20:54
+      ...(keepOriginalTimestamp ? { originalTimestamp: point[0] } : {}),
     }
 
-    // Simply map all values starting from index 1
+    // Map all values starting from index 1
     for (let i = 1; i < labels.length; i++) {
-      // Use labels[i] as key, convert to lowercase for consistency
       transformedPoint[labels[i].toLowerCase()] = point[i]
     }
 
@@ -49,21 +51,38 @@ export function transformData(
 }
 
 /**
- * Formats a timestamp to a time string
+ * Formats a timestamp into two formats:
+ * 1. `timestamp`: HH:MM:SS
+ * 2. `fullTimestamp`: Wed, Apr 02, 2025 . 11:20:54
  * @param timestamp Timestamp to format
  * @param multiplier Multiplier for timestamp (e.g., 1000 for milliseconds)
- * @returns Formatted time string in HH:MM:SS format
+ * @returns Object with `timestamp` and `fullTimestamp`
  */
 export function formatTimestamp(
   timestamp: number,
   multiplier: number = 1000,
-): string {
+): { timestamp: string; fullTimestamp: string } {
   try {
     const date = new Date(timestamp * multiplier)
-    return date.toTimeString().substring(0, 8) // HH:MM:SS format
+
+    const timestampStr = date.toTimeString().substring(0, 8) // HH:MM:SS format
+    const fullTimestampStr = date
+      .toLocaleString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })
+      .replace(',', '.') // Convert comma to dot for your requested format
+
+    return { timestamp: timestampStr, fullTimestamp: fullTimestampStr }
   } catch (error) {
     console.warn('Invalid timestamp:', timestamp)
-    return 'Invalid Time'
+    return { timestamp: 'Invalid Time', fullTimestamp: 'Invalid Date' }
   }
 }
 

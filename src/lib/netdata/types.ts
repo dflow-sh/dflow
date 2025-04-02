@@ -230,7 +230,7 @@ export enum NetdataContexts {
   DISK_UTIL = 'disk.util',
 
   // Uptime metrics
-  SYSTEM_UPTIME = 'system.uptime',
+  SERVER_UPTIME = 'system.uptime',
 
   // Network-specific metrics
   NETWORK_TRAFFIC = 'net.net',
