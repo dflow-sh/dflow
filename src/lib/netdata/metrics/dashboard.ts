@@ -5,7 +5,6 @@ import * as diskMetrics from './diskMetrics'
 import * as memoryMetrics from './memoryMetrics'
 import * as networkMetrics from './networkMetrics'
 import * as systemMetrics from './systemMetrics'
-import * as webMetrics from './webMetrics'
 
 export const getDashboardMetrics = async (
   params: NetdataApiParams,
@@ -29,8 +28,8 @@ export const getDashboardMetrics = async (
     systemMetrics.getServerLoad(params, points),
     systemMetrics.getServerUptime(params, points),
     systemMetrics.getSystemAlerts(params),
-    webMetrics.getWebRequests(params, points),
-    webMetrics.getResponseTimes(params, points),
+    // webMetrics.getWebRequests(params, points),
+    // webMetrics.getResponseTimes(params, points),
   ])
 
   const [
@@ -51,8 +50,8 @@ export const getDashboardMetrics = async (
     serverLoad,
     serverUptime,
     systemAlerts,
-    webRequests,
-    responseTimes,
+    // webRequests,
+    // responseTimes,
   ] = results.map(result =>
     result.status === 'fulfilled'
       ? result.value
@@ -81,8 +80,8 @@ export const getDashboardMetrics = async (
         serverLoad: serverLoad.data?.overview,
         serverUptime: serverUptime.data?.overview,
         systemAlerts: systemAlerts.data?.overview,
-        webRequests: webRequests.data?.overview,
-        responseTimes: responseTimes.data?.overview,
+        // webRequests: webRequests.data?.overview,
+        // responseTimes: responseTimes.data?.overview,
       },
       detailed: {
         cpuUtilization: cpuUtilization.data?.detailed,
@@ -102,8 +101,8 @@ export const getDashboardMetrics = async (
         serverLoad: serverLoad.data?.detailed,
         serverUptime: serverUptime.data?.overview,
         systemAlerts: systemAlerts.data?.detailed,
-        webRequests: webRequests.data?.detailed,
-        responseTimes: responseTimes.data?.detailed,
+        // webRequests: webRequests.data?.detailed,
+        // responseTimes: responseTimes.data?.detailed,
       },
     },
   }

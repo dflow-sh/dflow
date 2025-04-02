@@ -1,5 +1,5 @@
+import { netdataAPI } from '.././netdataAPI'
 import { CpuMetricsResponse, NetdataApiParams } from '.././types'
-import { isApiAccessible, netdataAPI } from '.././utils'
 
 /**
  * Gets CPU usage metrics from Netdata
@@ -10,15 +10,6 @@ export const getCpuUsage = async (
   params: NetdataApiParams,
 ): Promise<CpuMetricsResponse> => {
   try {
-    // Check if the API is accessible
-    const apiAvailable = await isApiAccessible(params)
-    if (!apiAvailable) {
-      return {
-        success: false,
-        message: 'Netdata API is not accessible',
-      }
-    }
-
     // Get CPU data
     const cpuData = await netdataAPI(params, 'data?chart=system.cpu')
 

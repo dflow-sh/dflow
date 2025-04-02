@@ -1,9 +1,10 @@
+import { netdataAPI } from '../netdataAPI'
 import { MetricsResponse, NetdataApiParams } from '../types'
-import { getTimeSeriesData, netdataAPI } from '../utils'
+import { getTimeSeriesData } from '../utils'
 
 // Define specific data types for clarity
 interface WebRequestData {
-  time: string
+  timestamp: string
   success: number
   clientErrors: number
   serverErrors: number
@@ -32,7 +33,12 @@ export const getWebRequests = async (
   let result = null
 
   for (const server of webServers) {
-    const temp = await getTimeSeriesData(params, `${server}.requests`, points)
+    const temp = await getTimeSeriesData(
+      params,
+      `${server}.requests`,
+      undefined,
+      points,
+    )
     if (temp.success) {
       result = temp
       break
@@ -43,8 +49,8 @@ export const getWebRequests = async (
     return { success: false, message: 'No web metrics available' }
   }
 
-  const detailedData: WebRequestData[] = result.data!.map((point: any) => ({
-    time: point.time,
+  const detailedData: any = result.data?.data.map((point: any) => ({
+    timestamp: point.time,
     success: point.success || point['2xx'] || point.requests || 0,
     clientErrors: point['4xx'] || 0,
     serverErrors: point['5xx'] || 0,
@@ -78,6 +84,7 @@ export const getResponseTimes = async (
     const temp = await getTimeSeriesData(
       params,
       `${server}.response_time`,
+      undefined,
       points,
     )
     if (temp.success) {
@@ -90,7 +97,7 @@ export const getResponseTimes = async (
     return { success: false, message: 'No response time metrics available' }
   }
 
-  const detailedData: ResponseTimeData[] = result.data!.map((point: any) => ({
+  const detailedData: any = result.data?.data.map((point: any) => ({
     time: point.time,
     responseTime:
       (point.response_time || point.avg || 0) *
