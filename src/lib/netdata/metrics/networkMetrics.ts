@@ -1,5 +1,5 @@
 import { MetricsResponse, NetdataApiParams, NetdataContexts } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { formatTimestamp, getTimeSeriesData } from '../utils'
 
 /**
  * Retrieves bandwidth metrics for individual physical network interfaces.
@@ -25,7 +25,7 @@ export const getNetworkBandwidth = async (
     }
   }
 
-  // Transform to match the expected format: { time: 'HH:MM', incoming: number, outgoing: number }
+  // Transform to match the expected format: { timestamp: 'HH:MM', incoming: number, outgoing: number }
   const formattedData = result.data.data.map((point: any) => {
     // For received (incoming) traffic
     let incoming = 0
@@ -55,7 +55,8 @@ export const getNetworkBandwidth = async (
     }
 
     return {
-      time: point.timestamp, // Using timestamp from the input data
+      timestamp: point.timestamp,
+      fullTimestamp: point.fullTimestamp,
       incoming,
       outgoing,
     }
@@ -100,12 +101,9 @@ export const getNetworkTraffic = async (
   const dataPoints = result.data.data
   const labels = result.data.labels
 
-  // Transform to match the expected format: { time: 'HH:MM', incoming: number, outgoing: number }
+  // Transform to match the expected format: { timestamp: 'HH:MM', incoming: number, outgoing: number }
   const formattedData = dataPoints.map((point: any) => {
-    // Extract timestamp (first element) and format it to HH:MM:SS
-    const timestamp = point[0]
-    const date = new Date(timestamp * 1000)
-    const timeStr = date.toTimeString().substring(0, 8) // Format as HH:MM:SS
+    const { timestamp, fullTimestamp } = formatTimestamp(point[0], 1000)
 
     // Calculate total incoming traffic (sum of all 'received' values)
     let incoming = 0
@@ -136,7 +134,8 @@ export const getNetworkTraffic = async (
     }
 
     return {
-      time: timeStr,
+      timestamp,
+      fullTimestamp,
       incoming,
       outgoing,
     }
@@ -181,10 +180,7 @@ export const getNetworkPackets = async (
 
   // Transform to match the expected format: { timestamp: 'HH:MM:SS', received: number, sent: number, dropped: number }
   const formattedData = dataPoints.map((point: any) => {
-    // Extract timestamp (first element) and format it
-    const timestamp = point[0]
-    const date = new Date(timestamp * 1000)
-    const timeStr = date.toTimeString().substring(0, 8) // Format as HH:MM:SS
+    const { timestamp, fullTimestamp } = formatTimestamp(point[0], 1000)
 
     // Calculate totals for received, sent, and dropped packets
     let received = 0
@@ -209,7 +205,8 @@ export const getNetworkPackets = async (
     dropped = parseFloat(dropped.toFixed(2))
 
     return {
-      timestamp: timeStr,
+      timestamp,
+      fullTimestamp,
       received,
       sent,
       dropped,
@@ -255,10 +252,7 @@ export const getNetworkErrors = async (
 
   // Transform to match the expected format: { timestamp: 'HH:MM:SS', inbound: number, outbound: number }
   const formattedData = dataPoints.map((point: any) => {
-    // Extract timestamp (first element) and format it
-    const timestamp = point[0]
-    const date = new Date(timestamp * 1000)
-    const timeStr = date.toTimeString().substring(0, 8) // Format as HH:MM:SS
+    const { timestamp, fullTimestamp } = formatTimestamp(point[0], 1000)
 
     // Calculate total inbound and outbound errors
     let inbound = 0
@@ -278,7 +272,8 @@ export const getNetworkErrors = async (
     outbound = parseFloat(outbound.toFixed(2))
 
     return {
-      timestamp: timeStr,
+      timestamp,
+      fullTimestamp,
       inbound,
       outbound,
     }
