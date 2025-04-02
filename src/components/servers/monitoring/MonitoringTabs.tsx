@@ -1,49 +1,63 @@
 'use client'
 
-import { useState } from 'react'
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import CPUTab from './CPUTab'
-import DiskTab from './DiskTab'
-import MemoryTab from './MemoryTab'
-import NetworkTab from './NetworkTab'
 import OverviewTab from './OverviewTab'
-import RequestsTab from './RequestsTab'
 
 const MonitoringTabs = ({
   dashboardMetrics,
 }: {
   dashboardMetrics: {
-    cpuData: never[]
-    cpuUsageDistributionData: never[]
-    memoryData: never[]
-    networkData: never[]
-    diskSpaceData: never[]
-    diskIOData: never[]
-    diskVolumesData: never[]
-    inodeUsageData: never[]
-    serverLoadData: never[]
-    requestData: never[]
-    responseTimeData: never[]
+    overview: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemUptime: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
+    detailed: {
+      cpuUtilization: any[]
+      cpuSomePressure: any[]
+      cpuSomePressureStallTime: any[]
+      systemLoad: any[]
+      diskSpace: any[]
+      diskIO: any[]
+      systemIO: any[]
+      memoryUsage: any[]
+      memoryAvailable: any[]
+      memorySomePressure: any[]
+      memorySomePressureStallTime: any[]
+      networkBandwidth: any[]
+      networkTraffic: any[]
+      networkPackets: any[]
+      networkErrors: any[]
+      serverLoad: any[]
+      serverUptime: any[]
+      systemAlerts: any[]
+      webRequests: any[]
+      responseTimes: any[]
+    }
   }
 }) => {
-  const [activeTab, setActiveTab] = useState('overview')
+  const { overview, detailed } = dashboardMetrics
 
-  const {
-    cpuData,
-    cpuUsageDistributionData,
-    diskSpaceData,
-    diskIOData,
-    diskVolumesData,
-    inodeUsageData,
-    memoryData,
-    networkData,
-    requestData,
-    responseTimeData,
-    serverLoadData,
-  } = dashboardMetrics
-
+  // Define disk colors
   const diskColors = [
     'hsl(var(--chart-1))',
     'hsl(var(--chart-2))',
@@ -52,68 +66,38 @@ const MonitoringTabs = ({
   ]
 
   return (
-    <Tabs
-      defaultValue='overview'
-      className='mt-12 space-y-4'
-      onValueChange={setActiveTab}>
+    <Tabs defaultValue='overview' className='mt-12 space-y-4'>
       <TabsList>
         <TabsTrigger value='overview'>Overview</TabsTrigger>
         <TabsTrigger value='cpu'>CPU</TabsTrigger>
         <TabsTrigger value='memory'>Memory</TabsTrigger>
         <TabsTrigger value='disk'>Disk</TabsTrigger>
         <TabsTrigger value='network'>Network</TabsTrigger>
-        <TabsTrigger value='requests'>Requests</TabsTrigger>
       </TabsList>
 
       {/* Overview Tab */}
       <TabsContent value='overview' className='space-y-4'>
-        <OverviewTab
-          cpuData={cpuData}
-          diskIOData={diskIOData}
-          memoryData={memoryData}
-          networkData={networkData}
-        />
+        <OverviewTab {...overview} />
       </TabsContent>
 
       {/* CPU Tab */}
       <TabsContent value='cpu' className='space-y-4'>
-        <CPUTab
-          cpuData={cpuData}
-          cpuUsageDistributionData={cpuUsageDistributionData}
-          serverLoadData={serverLoadData}
-        />
+        <CPUTab {...detailed} />
       </TabsContent>
 
       {/* Memory Tab */}
       <TabsContent value='memory' className='space-y-4'>
-        <MemoryTab
-          diskColors={diskColors}
-          diskSpaceData={diskSpaceData}
-          memoryData={memoryData}
-        />
+        {/* <MemoryTab {...detailed} /> */}
       </TabsContent>
 
       {/* Disk Tab */}
       <TabsContent value='disk' className='space-y-4'>
-        <DiskTab
-          diskColors={diskColors}
-          diskIOData={diskIOData}
-          diskSpaceData={diskSpaceData}
-          diskVolumesData={diskVolumesData}
-        />
+        {/* <DiskTab diskColors={diskColors} {...detailed} /> */}
       </TabsContent>
 
       {/* Network Tab */}
       <TabsContent value='network' className='space-y-4'>
-        <NetworkTab networkData={networkData} />
-      </TabsContent>
-
-      {/* Requests Tab */}
-      <TabsContent value='requests' className='relative space-y-4'>
-        <RequestsTab
-          requestData={requestData}
-          responseTimeData={responseTimeData}
-        />
+        {/* <NetworkTab {...detailed} /> */}
       </TabsContent>
     </Tabs>
   )
