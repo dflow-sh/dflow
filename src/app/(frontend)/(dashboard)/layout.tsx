@@ -44,19 +44,20 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
             <div id='serverName' className='-ml-4'></div>
           </div>
 
-        <div className='flex items-center gap-x-4'>
-          <Link
-            className='flex items-center text-sm hover:text-primary hover:underline'
-            href={'https://dflow.sh/changelog'}
-            target='_blank'>
-            <span>Changelog</span>
-            <ArrowUpRight size={16} />
-          </Link>
-          <NavUser user={user} />
+          <div className='flex items-center gap-x-4'>
+            <Link
+              className='flex items-center text-sm hover:text-primary hover:underline'
+              href={'https://dflow.sh/changelog'}
+              target='_blank'>
+              <span>Changelog</span>
+              <ArrowUpRight size={16} />
+            </Link>
+            <NavUser user={user} />
+          </div>
         </div>
-      </div>
 
-      {children}
+        {children}
+      </div>
     </div>
   )
 }
