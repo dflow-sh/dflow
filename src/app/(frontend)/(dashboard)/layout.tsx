@@ -55,9 +55,9 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
             <NavUser user={user} />
           </div>
         </div>
-
-        {children}
       </div>
+
+      {children}
     </div>
   )
 }
