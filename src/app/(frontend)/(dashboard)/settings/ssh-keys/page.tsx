@@ -3,9 +3,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import Loader from '@/components/Loader'
 import CreateSSHKey from '@/components/sshkeys/CreateSSHKeyForm'
 import SSHKeysList from '@/components/sshkeys/SSHKeysList'
+
+import SSHLoading from './SSHLoading'
 
 const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -20,7 +21,7 @@ const SuspendedPage = async () => {
 const SSHKeysPage = async () => {
   return (
     <section>
-      <Suspense fallback={<Loader className='h-96 w-full' />}>
+      <Suspense fallback={<SSHLoading />}>
         <LayoutClient>
           <div className='flex items-center justify-between'>
             <div className='text-2xl font-semibold'>SSH Keys</div>
