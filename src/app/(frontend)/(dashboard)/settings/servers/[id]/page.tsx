@@ -21,6 +21,7 @@ import { loadServerPageTabs } from '@/lib/searchParams'
 import { dynamicSSH } from '@/lib/ssh'
 import { ServerType } from '@/payload-types-overrides'
 
+import ServerLoading from './ServerLoading'
 import LayoutClient from './layout.client'
 
 interface PageProps {
@@ -174,7 +175,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
 const ServerIdPage = ({ params, searchParams }: PageProps) => {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<ServerLoading />}>
       <SuspendedPage params={params} searchParams={searchParams} />
     </Suspense>
   )
