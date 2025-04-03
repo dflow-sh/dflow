@@ -3,9 +3,10 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import Loader from '@/components/Loader'
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
+
+import ServersLoading from './ServersLoading'
 
 const SuspendedAddServer = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -37,7 +38,7 @@ const SuspendedPage = async () => {
 
 const ServersPage = async () => {
   return (
-    <Suspense fallback={<Loader className='h-96 w-full' />}>
+    <Suspense fallback={<ServersLoading />}>
       <LayoutClient>
         <div className='mb-5 flex items-center justify-between'>
           <div className='text-2xl font-semibold'>Servers</div>
