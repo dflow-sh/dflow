@@ -29,19 +29,20 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className='w-full'>
-      {env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO' && <HeaderBanner />}
-      <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
-        <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
-          <Link href={`/dashboard`} className='flex items-center gap-1'>
-            <Workflow className='text-primary' />
-            <p className='hidden sm:block'>Dflow</p>
-          </Link>
+      <div className='sticky top-0 z-50 w-full bg-background'>
+        {env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO' && <HeaderBanner />}
+        <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
+          <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
+            <Link href={`/dashboard`} className='flex items-center gap-1'>
+              <Workflow className='text-primary' />
+              <p className='hidden sm:block'>Dflow</p>
+            </Link>
 
-          {/* These are replaced with breadcrumbs using react-portals */}
-          <div id='projectName'></div>
-          <div id='serviceName' className='-ml-2'></div>
-          <div id='serverName' className='-ml-4'></div>
-        </div>
+            {/* These are replaced with breadcrumbs using react-portals */}
+            <div id='projectName'></div>
+            <div id='serviceName' className='-ml-2'></div>
+            <div id='serverName' className='-ml-4'></div>
+          </div>
 
         <div className='flex items-center gap-x-4'>
           <Link

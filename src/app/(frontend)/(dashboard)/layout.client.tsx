@@ -18,7 +18,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <>
-      <div className='relative'>
+      <div className='sticky top-[116px] z-40 bg-background'>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
@@ -35,9 +35,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
         <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>
-        {children}
-      </main>
+      <main className='mx-auto mb-10 w-full max-w-6xl px-4'>{children}</main>
     </>
   )
 }
