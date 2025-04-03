@@ -20,6 +20,6 @@ export const deleteSSHKeySchema = z.object({
 
 // Define a schema for generating SSH keys (no persistence)
 export const generateSSHKeySchema = z.object({
-  name: z.string().optional(), // Used as comment
-  type: z.enum(['rsa', 'ed25519']).default('rsa'), // Key type: RSA or ED25519
+  comment: z.string().optional(),
+  type: z.enum(['rsa', 'ed25519']).default('rsa'),
 })
