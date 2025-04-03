@@ -7,7 +7,7 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
 import { getAllAppsAction } from '@/actions/gitProviders'
-import Loader from '@/components/Loader'
+import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
 import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
 import GitProviderList from '@/components/gitProviders/GitProviderList'
 import { Badge } from '@/components/ui/badge'
@@ -71,9 +71,12 @@ const GitHubSheet = () => {
 
           <p className='pt-4 font-semibold'>{integration?.label}</p>
           <SheetDescription>{integration?.description}</SheetDescription>
+          {isPending && (
+            <div className='mt-4'>
+              <GithubIntegrationsLoading />
+            </div>
+          )}
         </SheetHeader>
-
-        {isPending && <Loader className='h-full w-full' />}
 
         {!isPending && result.data && (
           <ScrollArea className='flex-grow'>
