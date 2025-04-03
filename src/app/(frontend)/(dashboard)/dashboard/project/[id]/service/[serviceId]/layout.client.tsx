@@ -71,7 +71,7 @@ const LayoutClient = ({
 
   return (
     <>
-      <div className='relative'>
+      <div className='sticky top-[116px] z-40 bg-background'>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>

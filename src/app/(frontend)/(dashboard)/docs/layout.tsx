@@ -34,9 +34,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() // Get current URL path
   return (
     <LayoutClient>
-      <section className='flex'>
+      <section className='flex h-full w-full'>
         {/* Sidebar */}
-        <aside className='w-64 border-r p-4'>
+        <aside className='sticky left-0 top-[170px] h-screen w-64 border-r p-4'>
           <nav>
             {sortedCategories.map(({ category, docs }) => {
               return (
@@ -67,7 +67,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Right Side Content */}
-        <div className='flex-1 p-6'>{children}</div>
+        <div className='h-full flex-1 p-6'>{children}</div>
       </section>
     </LayoutClient>
   )
