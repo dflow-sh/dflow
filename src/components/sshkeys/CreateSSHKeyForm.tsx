@@ -5,7 +5,7 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
-import { Download, Key, Pencil, Plus } from 'lucide-react'
+import { Check, Copy, Download, Key, Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -89,6 +89,9 @@ export const CreateSSHKeyForm = ({
 }) => {
   const pathName = usePathname()
   const router = useRouter()
+  const [publicKeyCopied, setPublicKeyCopied] = useState(false)
+  const [privateKeyCopied, setPrivateKeyCopied] = useState(false)
+
   const form = useForm<z.infer<typeof createSSHKeySchema>>({
     resolver: zodResolver(createSSHKeySchema),
     defaultValues: sshKey
@@ -229,6 +232,37 @@ export const CreateSSHKeyForm = ({
     )
   }
 
+  // Copy key to clipboard
+  const copyToClipboard = (keyType: 'public' | 'private') => {
+    const keyContent =
+      keyType === 'public'
+        ? form.getValues('publicKey')
+        : form.getValues('privateKey')
+
+    if (!keyContent) {
+      toast.error(`No ${keyType} key to copy`)
+      return
+    }
+
+    navigator.clipboard.writeText(keyContent).then(
+      () => {
+        if (keyType === 'public') {
+          setPublicKeyCopied(true)
+          setTimeout(() => setPublicKeyCopied(false), 2000)
+        } else {
+          setPrivateKeyCopied(true)
+          setTimeout(() => setPrivateKeyCopied(false), 2000)
+        }
+        toast.success(
+          `${keyType.charAt(0).toUpperCase() + keyType.slice(1)} key copied to clipboard`,
+        )
+      },
+      () => {
+        toast.error(`Failed to copy ${keyType} key`)
+      },
+    )
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
@@ -290,7 +324,22 @@ export const CreateSSHKeyForm = ({
           name='publicKey'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Public Key</FormLabel>
+              <div className='flex items-center justify-between'>
+                <FormLabel>Public Key</FormLabel>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => copyToClipboard('public')}
+                  className='h-8 px-2 text-xs'>
+                  {publicKeyCopied ? (
+                    <Check className='max-h-[13px] max-w-[13px]' />
+                  ) : (
+                    <Copy className='max-h-[13px] max-w-[13px]' />
+                  )}
+                  {publicKeyCopied ? 'Copied' : 'Copy'}
+                </Button>
+              </div>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -304,7 +353,22 @@ export const CreateSSHKeyForm = ({
           name='privateKey'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Private Key</FormLabel>
+              <div className='flex items-center justify-between'>
+                <FormLabel>Private Key</FormLabel>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  onClick={() => copyToClipboard('private')}
+                  className='h-8 px-2 text-xs'>
+                  {privateKeyCopied ? (
+                    <Check className='max-h-[13px] max-w-[13px]' />
+                  ) : (
+                    <Copy className='max-h-[13px] max-w-[13px]' />
+                  )}
+                  {privateKeyCopied ? 'Copied' : 'Copy'}
+                </Button>
+              </div>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
