@@ -17,3 +17,9 @@ export const updateSSHKeySchema = createSSHKeySchema.extend({
 export const deleteSSHKeySchema = z.object({
   id: z.string(),
 })
+
+// Define a schema for generating SSH keys (no persistence)
+export const generateSSHKeySchema = z.object({
+  comment: z.string().optional(),
+  type: z.enum(['rsa', 'ed25519']).default('rsa'),
+})

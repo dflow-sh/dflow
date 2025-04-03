@@ -5,7 +5,7 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
-import { Pencil, Plus } from 'lucide-react'
+import { Download, Key, Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -13,7 +13,11 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createSSHKeyAction, updateSSHKeyAction } from '@/actions/sshkeys'
+import {
+  createSSHKeyAction,
+  generateSSHKeyAction,
+  updateSSHKeyAction,
+} from '@/actions/sshkeys'
 import { createSSHKeySchema } from '@/actions/sshkeys/validator'
 import {
   Dialog,
@@ -34,6 +38,45 @@ import {
 } from '@/components/ui/form'
 import { SshKey } from '@/payload-types'
 
+// Helper function to determine key type from content
+const determineKeyType = (
+  keyContent: string,
+): 'rsa' | 'ed25519' | 'dsa' | 'ecdsa' => {
+  if (!keyContent) return 'rsa' // Default if empty
+
+  const content = keyContent.trim()
+
+  if (content.includes('ssh-rsa')) {
+    return 'rsa'
+  } else if (content.includes('ssh-ed25519')) {
+    return 'ed25519'
+  } else if (content.includes('ssh-dss') || content.includes('ssh-dsa')) {
+    return 'dsa'
+  } else if (content.includes('ecdsa-sha2')) {
+    return 'ecdsa'
+  }
+
+  // Check for the PEM format header/footer
+  if (
+    content.includes('BEGIN RSA PRIVATE KEY') ||
+    content.includes('BEGIN RSA PUBLIC KEY')
+  ) {
+    return 'rsa'
+  } else if (
+    content.includes('BEGIN OPENSSH PRIVATE KEY') &&
+    content.includes('ed25519')
+  ) {
+    return 'ed25519'
+  } else if (content.includes('BEGIN DSA PRIVATE KEY')) {
+    return 'dsa'
+  } else if (content.includes('BEGIN EC PRIVATE KEY')) {
+    return 'ecdsa'
+  }
+
+  // Default to RSA if can't determine
+  return 'rsa'
+}
+
 export const CreateSSHKeyForm = ({
   type = 'create',
   sshKey,
@@ -46,7 +89,6 @@ export const CreateSSHKeyForm = ({
 }) => {
   const pathName = usePathname()
   const router = useRouter()
-
   const form = useForm<z.infer<typeof createSSHKeySchema>>({
     resolver: zodResolver(createSSHKeySchema),
     defaultValues: sshKey
@@ -101,6 +143,23 @@ export const CreateSSHKeyForm = ({
     },
   )
 
+  // Action to generate SSH keys
+  const { execute: generateSSHKey, isPending: isGeneratingSSHKey } = useAction(
+    generateSSHKeyAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          form.setValue('publicKey', data.publicKey)
+          form.setValue('privateKey', data.privateKey)
+          toast.success('SSH key pair generated successfully')
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to generate SSH key: ${error.serverError}`)
+      },
+    },
+  )
+
   function onSubmit(values: z.infer<typeof createSSHKeySchema>) {
     if (type === 'update' && sshKey) {
       updateSSHKey({ id: sshKey.id, ...values })
@@ -109,9 +168,95 @@ export const CreateSSHKeyForm = ({
     }
   }
 
+  // Handlers for generating RSA and ED25519 keys
+  const handleGenerateRSA = () => {
+    generateSSHKey({ type: 'rsa' })
+  }
+
+  const handleGenerateED25519 = () => {
+    generateSSHKey({ type: 'ed25519' })
+  }
+
+  // Handlers for downloading keys
+  const downloadKey = (keyType: 'public' | 'private') => {
+    const keyContent =
+      keyType === 'public'
+        ? form.getValues('publicKey')
+        : form.getValues('privateKey')
+    if (!keyContent) {
+      toast.error(`No ${keyType} key to download`)
+      return
+    }
+
+    // Determine the file extension and base name based on key type
+    const generatedType =
+      keyType === 'public'
+        ? determineKeyType(form.getValues('publicKey'))
+        : determineKeyType(form.getValues('privateKey'))
+
+    // Set the base name according to the SSH key type
+    let baseName
+    switch (generatedType) {
+      case 'rsa':
+        baseName = 'id_rsa'
+        break
+      case 'ed25519':
+        baseName = 'id_ed25519'
+        break
+      case 'dsa':
+        baseName = 'id_dsa'
+        break
+      case 'ecdsa':
+        baseName = 'id_ecdsa'
+        break
+      default:
+        baseName = 'id_rsa'
+    }
+
+    const fileName = keyType === 'public' ? `${baseName}.pub` : baseName
+
+    const blob = new Blob([keyContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(
+      `${keyType.charAt(0).toUpperCase() + keyType.slice(1)} key downloaded as ${fileName}`,
+    )
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+        {/* Only show generate buttons if not editing */}
+        {type === 'create' && (
+          <div className='flex flex-col gap-4 sm:flex-row'>
+            <Button
+              type='button'
+              variant='secondary'
+              disabled={isGeneratingSSHKey}
+              onClick={handleGenerateRSA}
+              className='w-full'>
+              <Key className='mr-2 h-4 w-4' />
+              Generate RSA Key
+            </Button>
+
+            <Button
+              type='button'
+              variant='secondary'
+              disabled={isGeneratingSSHKey}
+              onClick={handleGenerateED25519}
+              className='w-full'>
+              <Key className='mr-2 h-4 w-4' />
+              Generate ED25519 Key
+            </Button>
+          </div>
+        )}
+
         <FormField
           control={form.control}
           name='name'
@@ -168,11 +313,31 @@ export const CreateSSHKeyForm = ({
           )}
         />
 
-        <DialogFooter>
+        <DialogFooter className='flex flex-col gap-4 sm:flex-row sm:justify-between'>
+          <div className='flex flex-col gap-2 sm:flex-row'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => downloadKey('public')}
+              className='w-full sm:w-auto'>
+              <Download className='mr-2 h-4 w-4' />
+              Public Key
+            </Button>
+
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => downloadKey('private')}
+              className='w-full sm:w-auto'>
+              <Download className='mr-2 h-4 w-4' />
+              Private Key
+            </Button>
+          </div>
+
           <Button
             type='submit'
             disabled={isCreatingSSHKey || isUpdatingSSHKey}
-            className='mt-6'>
+            className='w-full sm:w-auto'>
             {type === 'create' ? 'Add SSH key' : 'Update SSH key'}
           </Button>
         </DialogFooter>
@@ -183,7 +348,7 @@ export const CreateSSHKeyForm = ({
 
 const CreateSSHKey = ({
   type = 'create',
-  description = 'This form adds SSH key',
+  description = 'This form allows you to add an SSH key manually or generate a new RSA or ED25519 key pair to populate the fields.',
   sshKey,
 }: {
   type?: 'create' | 'update'
@@ -196,41 +361,37 @@ const CreateSSHKey = ({
   const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            disabled={isDemo}
-            onClick={e => e.stopPropagation()}
-            size={type === 'update' ? 'icon' : 'default'}
-            variant={type === 'update' ? 'outline' : 'default'}>
-            {type === 'update' ? (
-              <>
-                <Pencil />
-              </>
-            ) : (
-              <>
-                <Plus />
-                Add SSH key
-              </>
-            )}
-          </Button>
-        </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          disabled={isDemo}
+          onClick={e => e.stopPropagation()}
+          size={type === 'update' ? 'icon' : 'default'}
+          variant={type === 'update' ? 'outline' : 'default'}>
+          {type === 'update' ? (
+            <>
+              <Pencil />
+            </>
+          ) : (
+            <>
+              <Plus />
+              Add SSH key
+            </>
+          )}
+        </Button>
+      </DialogTrigger>
 
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {type === 'update' ? 'Edit SSH Key' : 'Add SSH key'}
-            </DialogTitle>
-            <DialogDescription className='sr-only'>
-              {description}
-            </DialogDescription>
-          </DialogHeader>
+      <DialogContent className='sm:max-w-2xl'>
+        <DialogHeader>
+          <DialogTitle>
+            {type === 'update' ? 'Edit SSH Key' : 'Add SSH key'}
+          </DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
 
-          <CreateSSHKeyForm type={type} sshKey={sshKey} setOpen={setOpen} />
-        </DialogContent>
-      </Dialog>
-    </>
+        <CreateSSHKeyForm type={type} sshKey={sshKey} setOpen={setOpen} />
+      </DialogContent>
+    </Dialog>
   )
 }
 

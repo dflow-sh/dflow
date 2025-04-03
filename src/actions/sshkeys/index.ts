@@ -3,12 +3,14 @@
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
+import * as ssh2 from 'ssh2'
 
 import { protectedClient } from '@/lib/safe-action'
 
 import {
   createSSHKeySchema,
   deleteSSHKeySchema,
+  generateSSHKeySchema,
   updateSSHKeySchema,
 } from './validator'
 
@@ -77,5 +79,30 @@ export const deleteSSHKeyAction = protectedClient
     if (response) {
       revalidatePath('/settings/ssh-keys')
       return { deleted: true }
+    }
+  })
+
+export const generateSSHKeyAction = protectedClient
+  .metadata({
+    actionName: 'generateSSHKeyAction',
+  })
+  .schema(generateSSHKeySchema)
+  .action(async ({ clientInput }) => {
+    const { comment = 'dflow', type } = clientInput
+
+    // Generate the SSH key pair using ssh2
+    const keys =
+      type === 'rsa'
+        ? ssh2.utils.generateKeyPairSync('rsa', {
+            bits: 2048,
+            comment,
+          })
+        : ssh2.utils.generateKeyPairSync('ed25519', {
+            comment,
+          })
+
+    return {
+      privateKey: keys.private,
+      publicKey: keys.public,
     }
   })

@@ -1,3 +1,4 @@
+import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
 export const SSHKeys: CollectionConfig = {
@@ -33,17 +34,17 @@ export const SSHKeys: CollectionConfig = {
         description: 'Provide a brief description of the ssh key.',
       },
     },
-    {
+    encryptedField({
       name: 'publicKey',
       type: 'text',
       label: 'Public Key',
       required: true,
-    },
-    {
+    }),
+    encryptedField({
       name: 'privateKey',
       type: 'text',
       label: 'Private Key',
       required: true,
-    },
+    }),
   ],
 }
