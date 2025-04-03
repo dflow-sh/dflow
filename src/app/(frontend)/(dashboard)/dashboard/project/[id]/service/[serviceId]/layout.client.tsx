@@ -1,12 +1,14 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
+import { env } from 'env'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
+import { cn } from '@/lib/utils'
 import { Project, Service } from '@/payload-types'
 
 const LayoutClient = ({
@@ -71,7 +73,11 @@ const LayoutClient = ({
 
   return (
     <>
-      <div className='sticky top-[116px] z-40 bg-background'>
+      <div
+        className={cn(
+          'sticky z-40 bg-background',
+          env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO' ? 'top-[116px]' : 'top-[68px]',
+        )}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>

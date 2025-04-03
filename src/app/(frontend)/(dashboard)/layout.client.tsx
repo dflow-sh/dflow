@@ -1,10 +1,12 @@
 'use client'
 
+import { env } from 'env'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import Tabs from '@/components/Tabs'
+import { cn } from '@/lib/utils'
 
 const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
   const pathName = usePathname()
@@ -18,7 +20,11 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <>
-      <div className='sticky top-[116px] z-40 bg-background'>
+      <div
+        className={cn(
+          'sticky z-40 bg-background',
+          env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO' ? 'top-[116px]' : 'top-[68px]',
+        )}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
