@@ -109,20 +109,19 @@ const ServerCard = ({ server }: { server: Server }) => {
             </div>
 
             <DropdownMenu>
-              {!isDemo && (
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='!mt-0'
-                    onClick={e => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                    }}>
-                    <Ellipsis />
-                  </Button>
-                </DropdownMenuTrigger>
-              )}
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='!mt-0'
+                  disabled={isDemo}
+                  onClick={e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}>
+                  <Ellipsis />
+                </Button>
+              </DropdownMenuTrigger>
 
               <DropdownMenuContent align='end'>
                 <DropdownMenuItem

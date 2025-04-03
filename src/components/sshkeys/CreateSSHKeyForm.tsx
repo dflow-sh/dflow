@@ -198,25 +198,24 @@ const CreateSSHKey = ({
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        {!isDemo && (
-          <DialogTrigger asChild>
-            <Button
-              onClick={e => e.stopPropagation()}
-              size={type === 'update' ? 'icon' : 'default'}
-              variant={type === 'update' ? 'outline' : 'default'}>
-              {type === 'update' ? (
-                <>
-                  <Pencil />
-                </>
-              ) : (
-                <>
-                  <Plus />
-                  Add SSH key
-                </>
-              )}
-            </Button>
-          </DialogTrigger>
-        )}
+        <DialogTrigger asChild>
+          <Button
+            disabled={isDemo}
+            onClick={e => e.stopPropagation()}
+            size={type === 'update' ? 'icon' : 'default'}
+            variant={type === 'update' ? 'outline' : 'default'}>
+            {type === 'update' ? (
+              <>
+                <Pencil />
+              </>
+            ) : (
+              <>
+                <Plus />
+                Add SSH key
+              </>
+            )}
+          </Button>
+        </DialogTrigger>
 
         <DialogContent>
           <DialogHeader>

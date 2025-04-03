@@ -3,6 +3,7 @@
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
+import { env } from 'env'
 import { Download, Github, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
@@ -22,6 +23,7 @@ const GithubCard = ({
   onboarding?: boolean
   trigger?: () => void
 }) => {
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
   const { execute, isPending } = useAction(deleteGitProviderAction, {
     onSuccess: () => {
       trigger()
@@ -51,7 +53,7 @@ const GithubCard = ({
           )}
 
           <Button
-            disabled={isPending}
+            disabled={isPending || isDemo}
             onClick={() => {
               execute({ id: provider.id })
             }}

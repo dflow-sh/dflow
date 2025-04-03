@@ -270,24 +270,23 @@ const CreateServer = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {!isDemo && (
-        <DialogTrigger asChild>
-          <Button
-            size={type === 'update' ? 'icon' : 'default'}
-            variant={type === 'update' ? 'outline' : 'default'}>
-            {type === 'update' ? (
-              <>
-                <Pencil />
-              </>
-            ) : (
-              <>
-                <Plus />
-                Add Server
-              </>
-            )}
-          </Button>
-        </DialogTrigger>
-      )}
+      <DialogTrigger asChild>
+        <Button
+          disabled={isDemo}
+          size={type === 'update' ? 'icon' : 'default'}
+          variant={type === 'update' ? 'outline' : 'default'}>
+          {type === 'update' ? (
+            <>
+              <Pencil />
+            </>
+          ) : (
+            <>
+              <Plus />
+              Add Server
+            </>
+          )}
+        </Button>
+      </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>

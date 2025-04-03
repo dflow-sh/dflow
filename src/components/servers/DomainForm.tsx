@@ -4,6 +4,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { env } from 'env'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -192,11 +193,14 @@ export const DomainFormWithoutDialog = ({
 
 const DomainForm = ({ server }: { server: ServerType | Server }) => {
   const [open, setOpen] = useState(false)
+  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button onClick={e => e.stopPropagation()}>Add Domain</Button>
+        <Button disabled={isDemo} onClick={e => e.stopPropagation()}>
+          Add Domain
+        </Button>
       </DialogTrigger>
 
       <DialogContent>

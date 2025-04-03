@@ -222,14 +222,12 @@ const UpdateServerForm = ({
               </Button>
             )}
 
-            {!isDemo && (
-              <Button
-                type='submit'
-                variant='outline'
-                disabled={isUpdatingService}>
-                Save
-              </Button>
-            )}
+            <Button
+              type='submit'
+              variant='outline'
+              disabled={isUpdatingService || isDemo}>
+              Save
+            </Button>
           </div>
         </form>
       </Form>

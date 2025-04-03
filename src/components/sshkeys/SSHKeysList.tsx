@@ -39,25 +39,23 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           </div>
         </div>
 
-        {!isDemo && (
-          <div className='flex items-center gap-3'>
-            <UpdateSSHKeyForm
-              sshKey={sshKey}
-              type='update'
-              description='This form updates SSH key'
-            />
+        <div className='flex items-center gap-3'>
+          <UpdateSSHKeyForm
+            sshKey={sshKey}
+            type='update'
+            description='This form updates SSH key'
+          />
 
-            <Button
-              disabled={isPending}
-              onClick={() => {
-                execute({ id: sshKey.id })
-              }}
-              size='icon'
-              variant='outline'>
-              <Trash2 size={20} />
-            </Button>
-          </div>
-        )}
+          <Button
+            disabled={isPending || isDemo}
+            onClick={() => {
+              execute({ id: sshKey.id })
+            }}
+            size='icon'
+            variant='outline'>
+            <Trash2 size={20} />
+          </Button>
+        </div>
       </CardContent>
     </Card>
   )

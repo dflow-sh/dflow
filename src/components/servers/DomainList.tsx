@@ -99,37 +99,35 @@ const DomainItem = ({
             </Dialog>
           </div>
 
-          {!isDemo && (
-            <div className='flex items-center gap-4 self-end'>
-              <Switch
-                defaultChecked={domain.default}
-                disabled={domain.default}
-                onCheckedChange={checked => {
-                  if (checked) {
-                    execute({
-                      operation: 'set',
-                      domain: domain.domain,
-                      id: server.id,
-                    })
-                  }
-                }}
-              />
-
-              <Button
-                size='icon'
-                onClick={() => {
+          <div className='flex items-center gap-4 self-end'>
+            <Switch
+              defaultChecked={domain.default}
+              disabled={domain.default || isDemo}
+              onCheckedChange={checked => {
+                if (checked) {
                   execute({
-                    operation: 'remove',
+                    operation: 'set',
                     domain: domain.domain,
                     id: server.id,
                   })
-                }}
-                disabled={isPending}
-                variant='outline'>
-                <Trash2 />
-              </Button>
-            </div>
-          )}
+                }
+              }}
+            />
+
+            <Button
+              size='icon'
+              onClick={() => {
+                execute({
+                  operation: 'remove',
+                  domain: domain.domain,
+                  id: server.id,
+                })
+              }}
+              disabled={isPending || isDemo}
+              variant='outline'>
+              <Trash2 />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </>
@@ -144,11 +142,10 @@ const DomainList = ({
   showForm?: boolean
 }) => {
   const addedDomains = server.domains ?? []
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <div className='space-y-4'>
-      {showForm && !isDemo && <DomainForm server={server} />}
+      {showForm && <DomainForm server={server} />}
 
       {addedDomains.length ? (
         <div className='space-y-4'>
