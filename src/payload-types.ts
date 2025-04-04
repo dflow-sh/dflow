@@ -222,6 +222,7 @@ export interface Server {
         id?: string | null;
       }[]
     | null;
+  onboarded?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -534,6 +535,7 @@ export interface ServersSelect<T extends boolean = true> {
         default?: T;
         id?: T;
       };
+  onboarded?: T;
   updatedAt?: T;
   createdAt?: T;
 }
