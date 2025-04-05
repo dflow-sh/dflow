@@ -3,6 +3,7 @@
 import {
   AuthorizeSecurityGroupIngressCommand,
   CreateSecurityGroupCommand,
+  DescribeInstancesCommand,
   EC2Client,
   ImportKeyPairCommand,
   RunInstancesCommand,
@@ -27,7 +28,6 @@ export const createEC2InstanceAction = protectedClient
   })
   .schema(createEC2InstanceSchema)
   .action(async ({ clientInput }) => {
-    console.log('Im hitted')
     const {
       name,
       accountId,
@@ -122,12 +122,6 @@ export const createEC2InstanceAction = protectedClient
           ],
         },
       ],
-      // NetworkInterfaces: [
-      //   {
-      //     AssociatePublicIpAddress: true,
-      //     DeviceIndex: 0,
-      //   },
-      // ],
     })
 
     const ec2Response = await ec2Client.send(ec2Command)
@@ -136,7 +130,29 @@ export const createEC2InstanceAction = protectedClient
     const instanceDetails = ec2Response.Instances?.[0]
 
     if (instanceDetails) {
-      // 6. Updating the instance details in database with private-ip address
+      // 6. Poll for the public IP address of the instance
+      async function pollForPublicIP() {
+        for (let i = 0; i < 10; i++) {
+          const describeCommand = new DescribeInstancesCommand({
+            InstanceIds: [instanceDetails?.InstanceId!],
+          })
+
+          const result = await ec2Client.send(describeCommand)
+          const ip = result.Reservations?.[0]?.Instances?.[0]?.PublicIpAddress
+
+          if (ip) {
+            return ip
+          }
+
+          await new Promise(r => setTimeout(r, 5000)) // wait 5 seconds
+        }
+
+        throw new Error('Public IP not assigned yet after waiting')
+      }
+
+      const ip = await pollForPublicIP()
+
+      // 7. Updating the instance details in database with private-ip address
       const serverResponse = await payload.create({
         collection: 'servers',
         data: {
@@ -145,7 +161,7 @@ export const createEC2InstanceAction = protectedClient
           port: 22,
           sshKey: sshKeyId,
           username: 'ubuntu',
-          ip: instanceDetails.PrivateIpAddress ?? '',
+          ip,
         },
       })
 

@@ -1,17 +1,3 @@
-// import { withPayload } from '@payloadcms/next/withPayload'
-// import type { NextConfig } from 'next'
-// const nextConfig: NextConfig = {
-//   // Your Next.js config here
-//   webpack(config) {
-//     // Handle .node files
-//     config.module.rules.push({
-//       test: /\.node$/,
-//       use: 'file-loader',
-//     })
-//     return config
-//   },
-// }
-// export default withPayload(nextConfig)
 import { withContentCollections } from '@content-collections/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
@@ -37,7 +23,7 @@ const nextConfig: NextConfig = {
 
     return config
   },
-  output: 'standalone',
+  // output: 'standalone',
 }
 
 export default withPayload(withContentCollections(nextConfig))

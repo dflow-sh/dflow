@@ -4,8 +4,9 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
@@ -29,14 +30,30 @@ import {
 import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 
-const CreateEC2InstanceForm = ({ sshKeys }: { sshKeys: SshKey[] }) => {
+const CreateEC2InstanceForm = ({
+  sshKeys,
+  setOpen = () => {},
+}: {
+  sshKeys: SshKey[]
+  setOpen?: Dispatch<SetStateAction<boolean>>
+}) => {
   const {
     execute: getAccounts,
     isPending: accountsPending,
     result: accountDetails,
   } = useAction(getCloudProvidersAccountsAction)
   const { execute: createEC2Instance, isPending: creatingEC2Instance } =
-    useAction(createEC2InstanceAction)
+    useAction(createEC2InstanceAction, {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success('EC2 instance created successfully')
+          setOpen(false)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to create EC2 instance: ${error.serverError}`)
+      },
+    })
 
   const form = useForm<z.infer<typeof createEC2InstanceSchema>>({
     resolver: zodResolver(createEC2InstanceSchema),
@@ -56,8 +73,6 @@ const CreateEC2InstanceForm = ({ sshKeys }: { sshKeys: SshKey[] }) => {
   }, [])
 
   function onSubmit(values: z.infer<typeof createEC2InstanceSchema>) {
-    console.log({ values })
-
     createEC2Instance(values)
   }
 
@@ -249,7 +264,7 @@ const CreateEC2InstanceForm = ({ sshKeys }: { sshKeys: SshKey[] }) => {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder='Select a SSH key' />
+                    <SelectValue placeholder='Select a Region' />
                   </SelectTrigger>
                 </FormControl>
 

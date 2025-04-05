@@ -145,7 +145,7 @@ function Component({
   }, [])
 
   if (type === 'aws') {
-    return <CreateEC2InstanceForm sshKeys={sshKeys} />
+    return <CreateEC2InstanceForm sshKeys={sshKeys} setOpen={setOpen} />
   }
 
   if (type === 'manual') {
