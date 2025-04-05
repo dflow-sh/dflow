@@ -1,14 +1,16 @@
 'use client'
 
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
-import { Pencil, Plus } from 'lucide-react'
+import { ArrowRight, Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Options, parseAsString, useQueryState } from 'nuqs'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -32,6 +34,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -39,8 +43,130 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cloudProvidersList } from '@/lib/integrationList'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
+
+import CreateEC2InstanceForm from './CreateEC2InstanceForm'
+
+const DefaultForm = ({
+  setCloudProvider,
+  setType,
+  cloudProvider,
+}: {
+  setCloudProvider: Dispatch<SetStateAction<string>>
+  setType: (
+    value: string | ((old: string) => string | null) | null,
+    options?: Options,
+  ) => Promise<URLSearchParams>
+  cloudProvider: string
+}) => {
+  return (
+    <>
+      <div>
+        <h3 className='font-semibold'>Cloud Providers</h3>
+        <p className='mb-4 text-muted-foreground'>
+          Create a server on your preferred cloud provider
+        </p>
+
+        <RadioGroup
+          className='grid-cols-4 gap-4'
+          onValueChange={value => setCloudProvider(value)}>
+          {cloudProvidersList.map(({ label, Icon, live, slug }) => {
+            return (
+              <div
+                key={label}
+                className='has-data-[state=checked]:border-ring shadow-xs relative flex flex-col gap-4 rounded-md border border-input p-4 outline-none'>
+                <div className='flex justify-between gap-2'>
+                  <RadioGroupItem
+                    id={slug}
+                    value={slug}
+                    disabled={!live}
+                    className='order-1 after:absolute after:inset-0'
+                  />
+
+                  <Icon className='size-7' />
+                </div>
+
+                <Label htmlFor={slug}>{label}</Label>
+                {!live && (
+                  <Badge className='w-max' variant={'outline'}>
+                    Coming Soon
+                  </Badge>
+                )}
+              </div>
+            )
+          })}
+        </RadioGroup>
+
+        <Button
+          className='mt-4 w-full'
+          disabled={!cloudProvider}
+          onClick={() => setType(cloudProvider)}>
+          Continue
+          <ArrowRight />
+        </Button>
+      </div>
+
+      <div className='relative mt-4 grid place-items-center border-t'>
+        <p className='inline-block -translate-y-3 bg-background px-4'>Or</p>
+      </div>
+
+      <Button
+        variant='outline'
+        className='w-full'
+        onClick={() => {
+          setType('manual')
+        }}>
+        Attach Server Details
+      </Button>
+    </>
+  )
+}
+
+function Component({
+  sshKeys,
+  server,
+  setOpen,
+  type: formType,
+}: {
+  sshKeys: SshKey[]
+  type?: 'create' | 'update'
+  server?: ServerType
+  setOpen?: Dispatch<SetStateAction<boolean>>
+}) {
+  const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
+  const [cloudProvider, setCloudProvider] = useState(type)
+
+  useEffect(() => {
+    return () => {
+      setType('')
+    }
+  }, [])
+
+  if (type === 'aws') {
+    return <CreateEC2InstanceForm sshKeys={sshKeys} />
+  }
+
+  if (type === 'manual') {
+    return (
+      <CreateServerForm
+        sshKeys={sshKeys}
+        server={server}
+        type={formType}
+        setOpen={setOpen}
+      />
+    )
+  }
+
+  return (
+    <DefaultForm
+      setCloudProvider={setCloudProvider}
+      cloudProvider={cloudProvider}
+      setType={setType}
+    />
+  )
+}
 
 export const CreateServerForm = ({
   sshKeys,
@@ -131,94 +257,19 @@ export const CreateServerForm = ({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} className='rounded-sm' />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='description'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='sshKey'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SSH key</FormLabel>
-
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a SSH key' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {sshKeys.map(({ name, id }) => (
-                    <SelectItem key={id} value={id}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name='ip'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>IP Address</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className='grid grid-cols-2 gap-4'>
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='w-full space-y-6'>
           <FormField
             control={form.control}
-            name='port'
+            name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Port</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input
-                    type='number'
-                    {...field}
-                    onChange={e => {
-                      form.setValue('port', +e.target.value, {
-                        shouldValidate: true,
-                      })
-                    }}
-                  />
+                  <Input {...field} className='rounded-sm' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -227,10 +278,53 @@ export const CreateServerForm = ({
 
           <FormField
             control={form.control}
-            name='username'
+            name='description'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Username</FormLabel>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='sshKey'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SSH key</FormLabel>
+
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select a SSH key' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sshKeys.map(({ name, id }) => (
+                      <SelectItem key={id} value={id}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='ip'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>IP Address</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -238,18 +332,56 @@ export const CreateServerForm = ({
               </FormItem>
             )}
           />
-        </div>
 
-        <DialogFooter>
-          <Button
-            type='submit'
-            disabled={isCreatingService || isUpdatingService}
-            className='mt-6'>
-            {type === 'create' ? 'Add Server' : 'Update Server'}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+          <div className='grid grid-cols-2 gap-4'>
+            <FormField
+              control={form.control}
+              name='port'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Port</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='number'
+                      {...field}
+                      onChange={e => {
+                        form.setValue('port', +e.target.value, {
+                          shouldValidate: true,
+                        })
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              type='submit'
+              disabled={isCreatingService || isUpdatingService}
+              className='mt-6'>
+              {type === 'create' ? 'Add Server' : 'Update Server'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </>
   )
 }
 
@@ -288,15 +420,15 @@ const CreateServer = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className='w-full max-w-4xl'>
+        <DialogHeader className='mb-2'>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            We recommend a server of 4GB RAM for supporting proper deployments
+          <DialogDescription className='sr-only'>
+            {type === 'update' ? 'Update Server Details' : 'Attach Server'}
           </DialogDescription>
         </DialogHeader>
 
-        <CreateServerForm
+        <Component
           sshKeys={sshKeys}
           server={server}
           type={type}

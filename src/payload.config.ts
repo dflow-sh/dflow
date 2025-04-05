@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
@@ -35,6 +36,7 @@ export default buildConfig({
     SSHKeys,
     GitProviders,
     Deployments,
+    CloudProviderAccounts,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

@@ -72,6 +72,7 @@ export interface Config {
     sshKeys: SshKey;
     gitProviders: GitProvider;
     deployments: Deployment;
+    cloudProviderAccounts: CloudProviderAccount;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -92,6 +93,7 @@ export interface Config {
     sshKeys: SshKeysSelect<false> | SshKeysSelect<true>;
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
+    cloudProviderAccounts: CloudProviderAccountsSelect<false> | CloudProviderAccountsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -357,6 +359,40 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cloudProviderAccounts".
+ */
+export interface CloudProviderAccount {
+  id: string;
+  name: string;
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  awsDetails?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  gcpDetails?: {
+    /**
+     * Paste your GCP service account JSON key here
+     */
+    serviceAccountKey: string;
+    projectId: string;
+  };
+  digitaloceanDetails?: {
+    /**
+     * Personal Access Token from DigitalOcean API settings
+     */
+    accessToken: string;
+  };
+  azureDetails?: {
+    clientId: string;
+    clientSecret: string;
+    tenantId: string;
+    subscriptionId: string;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -389,6 +425,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'deployments';
         value: string | Deployment;
+      } | null)
+    | ({
+        relationTo: 'cloudProviderAccounts';
+        value: string | CloudProviderAccount;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -582,6 +622,41 @@ export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
   logs?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cloudProviderAccounts_select".
+ */
+export interface CloudProviderAccountsSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  awsDetails?:
+    | T
+    | {
+        accessKeyId?: T;
+        secretAccessKey?: T;
+      };
+  gcpDetails?:
+    | T
+    | {
+        serviceAccountKey?: T;
+        projectId?: T;
+      };
+  digitaloceanDetails?:
+    | T
+    | {
+        accessToken?: T;
+      };
+  azureDetails?:
+    | T
+    | {
+        clientId?: T;
+        clientSecret?: T;
+        tenantId?: T;
+        subscriptionId?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
