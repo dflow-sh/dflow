@@ -87,6 +87,24 @@ export const createEC2InstanceAction = protectedClient
           ToPort: 22,
           IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'SSH access' }],
         },
+        {
+          IpProtocol: 'tcp',
+          FromPort: 80,
+          ToPort: 80,
+          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTP access' }],
+        },
+        {
+          IpProtocol: 'tcp',
+          FromPort: 443,
+          ToPort: 443,
+          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTPS access' }],
+        },
+        {
+          IpProtocol: 'tcp',
+          FromPort: 19999,
+          ToPort: 19999,
+          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'Netdata Metrics' }],
+        },
       ],
     })
 
