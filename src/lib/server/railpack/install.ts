@@ -7,7 +7,7 @@ interface Args {
 
 export const installRailpack = async ({ options, ssh }: Args) => {
   const resultInstallRailpack = await ssh.execCommand(
-    `curl -sSL https://railpack.com/install.sh | sh`,
+    `sudo su -c "curl -sSL https://railpack.com/install.sh | sh"`,
     options,
   )
 

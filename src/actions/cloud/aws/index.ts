@@ -67,7 +67,7 @@ export const createEC2InstanceAction = protectedClient
       PublicKeyMaterial: Buffer.from(sshKeyDetails.publicKey),
     })
 
-    const keyResponse = await ec2Client.send(keyCommand)
+    await ec2Client.send(keyCommand)
 
     // 3. Create a security group with SSH access
     const securityGroupCommand = new CreateSecurityGroupCommand({
