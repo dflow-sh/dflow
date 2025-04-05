@@ -19,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { loadServerPageTabs } from '@/lib/searchParams'
-import { dynamicSSH } from '@/lib/ssh'
 import { ServerType } from '@/payload-types-overrides'
 
 import ServerLoading from './ServerLoading'
@@ -40,9 +39,10 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
     pagination: false,
   })
 
-  const serverDetails = await netdata.metrics.getServerDetails({
-    host: server.ip,
-  })
+  // Only trigger the getServerDetails API call if server.netdataVersion is available
+  const serverDetails = server.netdataVersion
+    ? await netdata.metrics.getServerDetails({ host: server.ip })
+    : {}
 
   const { docs: projects } = await payload.find({
     collection: 'projects',
@@ -76,16 +76,7 @@ const MonitoringTab = async ({ server }: { server: ServerType }) => {
   }
 
   try {
-    const ssh = await dynamicSSH({
-      host: server.ip,
-      username: server.username,
-      port: server.port,
-      privateKey: server.sshKey.privateKey,
-    })
-
-    const netdataStatus = await netdata.core.checkInstalled({ ssh })
-
-    if (!netdataStatus.isInstalled) {
+    if (!server.netdataVersion) {
       console.warn('Netdata is not installed on the server.')
       return <NetdataInstallPrompt server={server} />
     }
