@@ -132,5 +132,11 @@ export const Servers: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'onboarded',
+      type: 'checkbox',
+      label: 'Onboarded',
+      defaultValue: false,
+    },
   ],
 }

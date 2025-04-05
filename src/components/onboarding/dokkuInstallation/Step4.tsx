@@ -6,27 +6,28 @@ import { installRailpackAction } from '@/actions/server'
 import Loader from '@/components/Loader'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useInstallationStep } from './InstallationStepContext'
+import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step4 = ({ server }: { server: ServerType }) => {
-  const { step, setStep } = useInstallationStep()
+  const { dokkuInstallationStep, setDokkuInstallationStep } =
+    useDokkuInstallationStep()
   const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
   const { execute, isPending, hasSucceeded } = useAction(installRailpackAction)
 
   const railpackVersion = server?.railpack
 
   useEffect(() => {
-    if (step === 4) {
-      // 1. Check if railpack installed or not if installed skip to next step
+    if (dokkuInstallationStep === 4) {
+      // 1. Check if railpack installed or not if installed skip to next dokkuInstallationStep
       if (railpackVersion && railpackVersion !== 'not-installed') {
         setSkipRailpackInstall(true)
-        setStep(5)
+        setDokkuInstallationStep(5)
       } else {
         // 2. If not installed deploy a queue for railpack installation
         execute({ serverId: server.id })
       }
     }
-  }, [step, server])
+  }, [dokkuInstallationStep, server])
 
   return (
     <div className='space-y-2'>

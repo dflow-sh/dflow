@@ -9,11 +9,17 @@ import { pluginList } from '@/components/plugins'
 import { LetsencryptForm } from '@/components/servers/PluginConfigurationForm'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useInstallationStep } from './InstallationStepContext'
+import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
-const Step5 = ({ server }: { server: ServerType }) => {
+const Step5 = ({
+  server,
+  isServerOnboarding = false,
+}: {
+  server: ServerType
+  isServerOnboarding?: boolean
+}) => {
   const [selectedServer] = useQueryState('server')
-  const { step } = useInstallationStep()
+  const { dokkuInstallationStep } = useDokkuInstallationStep()
   const router = useRouter()
 
   const plugins = server?.plugins ?? []
@@ -27,14 +33,18 @@ const Step5 = ({ server }: { server: ServerType }) => {
   useEffect(() => {
     let timeout: NodeJS.Timeout
 
-    if ('name' in pluginDetails && step === 5) {
+    if ('name' in pluginDetails && dokkuInstallationStep === 5) {
       const letsencryptConfiguration =
         pluginDetails.configuration &&
         typeof pluginDetails.configuration === 'object' &&
         !Array.isArray(pluginDetails.configuration) &&
         pluginDetails.configuration.email
 
-      if (!!letsencryptConfiguration && !!selectedServer) {
+      if (
+        !!letsencryptConfiguration &&
+        !!selectedServer &&
+        !isServerOnboarding
+      ) {
         timeout = setTimeout(() => {
           router.push(`/onboarding/configure-domain?server=${selectedServer}`)
         }, 8000)
@@ -53,7 +63,7 @@ const Step5 = ({ server }: { server: ServerType }) => {
     return () => {
       clearTimeout(timeout)
     }
-  }, [server, selectedServer, step])
+  }, [server, selectedServer, dokkuInstallationStep])
 
   return (
     <LetsencryptForm

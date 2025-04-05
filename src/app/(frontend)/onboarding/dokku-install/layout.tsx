@@ -1,4 +1,4 @@
-import { InstallationStepContextProvider } from '@/components/onboarding/dokkuInstallation/InstallationStepContext'
+import { DokkuInstallationStepContextProvider } from '@/components/onboarding/dokkuInstallation/DokkuInstallationStepContext'
 
 export default function DokkuInstallationLayout({
   children,
@@ -6,8 +6,8 @@ export default function DokkuInstallationLayout({
   children: React.ReactNode
 }) {
   return (
-    <InstallationStepContextProvider>
+    <DokkuInstallationStepContextProvider>
       {children}
-    </InstallationStepContextProvider>
+    </DokkuInstallationStepContextProvider>
   )
 }

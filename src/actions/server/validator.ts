@@ -31,3 +31,7 @@ export const updateServerDomainSchema = z.object({
   operation: z.enum(['add', 'remove', 'set']),
   id: z.string(),
 })
+
+export const completeServerOnboardingSchema = z.object({
+  serverId: z.string().min(1, 'Server ID is required'),
+})

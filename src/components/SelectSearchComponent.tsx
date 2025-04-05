@@ -28,7 +28,7 @@ import { supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import { Dokku, Linux, Ubuntu } from './icons'
-import { useInstallationStep } from './onboarding/dokkuInstallation/InstallationStepContext'
+import { useDokkuInstallationStep } from './onboarding/dokkuInstallation/DokkuInstallationStepContext'
 import { Separator } from './ui/separator'
 
 const serverType: {
@@ -54,26 +54,39 @@ export default function SelectSearchComponent({
   const [server, setServer] = useQueryState('server')
   const [selectedServer, setSelectedServer] = useState(server)
 
-  const { setStep } = useInstallationStep()
+  const { setDokkuInstallationStep } = useDokkuInstallationStep()
 
-  // Initially if server id is present select the server
+  // Check if server is eligible for auto-selection
+  const isServerEligible = (serverDetails: ServerType) => {
+    return (
+      serverDetails.portIsOpen &&
+      serverDetails.sshConnected &&
+      supportedLinuxVersions.includes(serverDetails.os.version ?? '')
+    )
+  }
+
   useEffect(() => {
+    // Case 1: Server ID is present in URL query
     if (server) {
-      const selectedServer = servers.find(
+      const foundServer = servers.find(
         serverDetails => serverDetails.id === server,
       )
 
-      if (
-        selectedServer &&
-        selectedServer.portIsOpen &&
-        selectedServer.sshConnected &&
-        supportedLinuxVersions.includes(selectedServer.os.version ?? '')
-      ) {
+      if (foundServer && isServerEligible(foundServer)) {
         setServer(server, {
           shallow: false,
         })
-        setStep(2)
+        setDokkuInstallationStep(2)
       }
+    }
+    // Case 2: Only one server is available and it's eligible
+    else if (servers.length === 1 && isServerEligible(servers[0])) {
+      const singleServer = servers[0]
+      setSelectedServer(singleServer.id)
+      setServer(singleServer.id, {
+        shallow: false,
+      })
+      setDokkuInstallationStep(2)
     }
   }, [])
 
@@ -185,7 +198,7 @@ export default function SelectSearchComponent({
         onClick={() => {
           if (selectedServer) {
             setServer(selectedServer)
-            setStep(2)
+            setDokkuInstallationStep(2)
           }
         }}>
         Select Server
