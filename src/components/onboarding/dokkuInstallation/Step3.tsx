@@ -9,11 +9,12 @@ import Loader from '@/components/Loader'
 import { pluginList } from '@/components/plugins'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useInstallationStep } from './InstallationStepContext'
+import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step3 = ({ server }: { server: ServerType }) => {
   const [skipPluginsSync, setSkipPluginsSync] = useState(false)
-  const { step, setStep } = useInstallationStep()
+  const { dokkuInstallationStep, setDokkuInstallationStep } =
+    useDokkuInstallationStep()
   const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
     useAction(installPluginAction)
   const {
@@ -29,22 +30,22 @@ const Step3 = ({ server }: { server: ServerType }) => {
   )
 
   useEffect(() => {
-    if (step === 3) {
-      // 1. if all plugins are already installed skipping plugin installation step
+    if (dokkuInstallationStep === 3) {
+      // 1. if all plugins are already installed skipping plugin installation dokkuInstallationStep
       if (letsEncryptPluginInstalled) {
         setSkipPluginsSync(true)
-        setStep(4)
+        setDokkuInstallationStep(4)
       } else {
         // 2. if not installed syncing plugins
         syncPlugins({ serverId: server.id })
       }
     }
-  }, [step, server])
+  }, [dokkuInstallationStep, server])
 
   useEffect(() => {
     const plugins = syncPluginResult.data?.plugins
 
-    if (step === 3) {
+    if (dokkuInstallationStep === 3) {
       if (plugins) {
         const letsEncryptPluginInstalled = plugins.filter(
           plugin => plugin.name === 'letsencrypt',
@@ -60,14 +61,14 @@ const Step3 = ({ server }: { server: ServerType }) => {
                 ?.githubURL ?? '',
           })
         } else {
-          // 4. If letsencrypt plugin is installed go to the next step
-          setStep(4)
+          // 4. If letsencrypt plugin is installed go to the next dokkuInstallationStep
+          setDokkuInstallationStep(4)
         }
       }
     }
   }, [syncPluginResult, server])
 
-  if (step < 3) {
+  if (dokkuInstallationStep < 3) {
     return null
   }
 

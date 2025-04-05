@@ -10,12 +10,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedDokkuVersion, supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useInstallationStep } from './InstallationStepContext'
+import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step2 = ({ server }: { server: ServerType | undefined }) => {
   const [outdatedDokku, setOutdatedDokku] = useState(false)
   const [selectedServer] = useQueryState('server')
-  const { setStep, step } = useInstallationStep()
+  const { setDokkuInstallationStep, dokkuInstallationStep } =
+    useDokkuInstallationStep()
 
   const {
     execute: installDokku,
@@ -38,7 +39,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
   })
 
   useEffect(() => {
-    if (selectedServer && step === 2 && server) {
+    if (selectedServer && dokkuInstallationStep === 2 && server) {
       if (
         server.version &&
         server.version !== 'not-installed' &&
@@ -52,7 +53,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
         server.version !== 'not-installed' &&
         server.version >= supportedDokkuVersion
       ) {
-        return setStep(3)
+        return setDokkuInstallationStep(3)
       }
 
       if (
@@ -63,7 +64,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
         installDokku({ serverId: selectedServer })
       }
     }
-  }, [selectedServer, server, step])
+  }, [selectedServer, server, dokkuInstallationStep])
 
   if (outdatedDokku) {
     return (

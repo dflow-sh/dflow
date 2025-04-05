@@ -14,6 +14,7 @@ import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
+import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
@@ -168,7 +169,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
   return (
     <LayoutClient server={server} servers={servers.docs}>
-      <Component />
+      {server.onboarded ? <Component /> : <ServerOnboarding server={server} />}
     </LayoutClient>
   )
 }

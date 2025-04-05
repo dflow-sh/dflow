@@ -10,6 +10,7 @@ import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
+  completeServerOnboardingSchema,
   createServerSchema,
   deleteServerSchema,
   installDokkuSchema,
@@ -207,4 +208,28 @@ export const installRailpackAction = protectedClient
         return { success: true }
       }
     }
+  })
+
+export const completeServerOnboardingAction = protectedClient
+  .metadata({
+    actionName: 'completeServerOnboardingAction',
+  })
+  .schema(completeServerOnboardingSchema)
+  .action(async ({ clientInput }) => {
+    const { serverId } = clientInput
+
+    const response = await payload.update({
+      id: serverId,
+      data: {
+        onboarded: true,
+      },
+      collection: 'servers',
+    })
+
+    if (response) {
+      revalidatePath(`/settings/servers/${serverId}`)
+      return { success: true, server: response }
+    }
+
+    return { success: false }
   })
