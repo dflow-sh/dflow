@@ -4,7 +4,7 @@ import { DokkuInstallationStepContextProvider } from '@/components/onboarding/do
 import { ServerType } from '@/payload-types-overrides'
 
 import ConfigureDomain from './ConfigureDomain'
-import DokuInstallation from './DokuInstallation'
+import DokkuInstallation from './DokkuInstallation'
 import {
   ServerOnboardingProvider,
   useServerOnboarding,
@@ -15,8 +15,7 @@ const ServerOnboardingContent = ({ server }: { server: ServerType }) => {
 
   return (
     <>
-      {currentStep === 1 && <DokuInstallation server={server} />}
-
+      {currentStep === 1 && <DokkuInstallation server={server} />}
       {currentStep === 2 && <ConfigureDomain server={server} />}
     </>
   )

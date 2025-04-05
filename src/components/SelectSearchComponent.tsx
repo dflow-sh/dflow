@@ -71,7 +71,6 @@ export default function SelectSearchComponent({
       const foundServer = servers.find(
         serverDetails => serverDetails.id === server,
       )
-
       if (foundServer && isServerEligible(foundServer)) {
         setServer(server, {
           shallow: false,
@@ -79,15 +78,16 @@ export default function SelectSearchComponent({
         setDokkuInstallationStep(2)
       }
     }
+
     // Case 2: Only one server is available and it's eligible
-    else if (servers.length === 1 && isServerEligible(servers[0])) {
-      const singleServer = servers[0]
-      setSelectedServer(singleServer.id)
-      setServer(singleServer.id, {
-        shallow: false,
-      })
-      setDokkuInstallationStep(2)
-    }
+    // else if (servers.length === 1 && isServerEligible(servers[0])) {
+    //   const singleServer = servers[0]
+    //   setSelectedServer(singleServer.id)
+    //   setServer(singleServer.id, {
+    //     shallow: false,
+    //   })
+    //   setDokkuInstallationStep(2)
+    // }
   }, [])
 
   const handleSelect = (serverId: string) => {

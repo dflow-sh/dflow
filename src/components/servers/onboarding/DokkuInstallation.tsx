@@ -15,11 +15,9 @@ import Step4 from '@/components/onboarding/dokkuInstallation/Step4'
 import Step5 from '@/components/onboarding/dokkuInstallation/Step5'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useServerOnboarding } from './ServerOnboardingContext'
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
-const DokuInstallation = ({ server }: { server: ServerType }) => {
-  const { currentStep, totalSteps } = useServerOnboarding()
+const DokkuInstallation = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
 
@@ -42,7 +40,9 @@ const DokuInstallation = ({ server }: { server: ServerType }) => {
       {
         title: 'Dokku Installation',
         description: 'Installing dokku for deployment management',
-        content: <Step2 server={server} />,
+        content: (
+          <Step2 server={dokkuInstallationStep >= 2 ? server : undefined} />
+        ),
         icon: <Dokku fontSize={16} />,
         disabled: dokkuInstallationStep < 2,
         highlighted: dokkuInstallationStep > 2,
@@ -101,4 +101,4 @@ const DokuInstallation = ({ server }: { server: ServerType }) => {
   )
 }
 
-export default DokuInstallation
+export default DokkuInstallation
