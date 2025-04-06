@@ -11,5 +11,9 @@ export const installRailpack = async ({ options, ssh }: Args) => {
     options,
   )
 
+  await ssh.execCommand(
+    `docker run -d --name buildkitd --privileged moby/buildkit:latest`,
+  )
+
   return resultInstallRailpack
 }

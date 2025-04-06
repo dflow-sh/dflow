@@ -53,6 +53,9 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (installationResponse.code === 0) {
+        await ssh.execCommand(
+          `docker run -d --name buildkitd --privileged moby/buildkit:latest`,
+        )
         sendEvent({
           pub,
           message: `✅ Successfully installed dokku`,
