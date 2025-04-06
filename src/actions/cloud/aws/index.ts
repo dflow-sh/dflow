@@ -70,6 +70,8 @@ export const createEC2InstanceAction = protectedClient
     await ec2Client.send(keyCommand)
 
     // 3. Create a security group with SSH access
+    // TODO: create a security group under the name (dflow)
+    // TODO: If dflow security group already exists, then use that
     const securityGroupCommand = new CreateSecurityGroupCommand({
       GroupName: `${name}-securitygroup`,
       Description: `Security group for ${name}`,
