@@ -21,7 +21,9 @@ const Step5 = ({
 }) => {
   const [selectedServer] = useQueryState('server')
   const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const serverOnboardingContext = useServerOnboarding()
+  const serverOnboardingContext = isServerOnboarding
+    ? useServerOnboarding()
+    : null
   const router = useRouter()
 
   const plugins = server?.plugins ?? []
@@ -50,7 +52,7 @@ const Step5 = ({
           duration: 3000,
           onAutoClose: () => {
             if (isServerOnboarding) {
-              serverOnboardingContext.nextStep()
+              serverOnboardingContext?.nextStep()
             } else {
               router.push(
                 `/onboarding/configure-domain?server=${selectedServer}`,
