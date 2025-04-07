@@ -8,8 +8,8 @@ interface Args {
 
 export const createWorkspace = async ({ appName, options, ssh }: Args) => {
   const resultWorkspace = await ssh.execCommand(
-    `mkdir -p /home/dokku/${appName}-docker && \
-    git --git-dir=/home/dokku/${appName} --work-tree=/home/dokku/${appName}-docker checkout -f
+    `sudo mkdir -p /home/dokku/${appName}-docker && \
+    sudo git --git-dir=/home/dokku/${appName} --work-tree=/home/dokku/${appName}-docker checkout -f
     `,
     options,
   )

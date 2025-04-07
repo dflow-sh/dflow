@@ -53,13 +53,8 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (installationResponse.code === 0) {
-        await ssh.execCommand(
-          'sudo groupadd -f dokku-access && ' +
-            'sudo usermod -aG dokku-access ubuntu && ' +
-            'sudo usermod -aG dokku-access dokku && ' +
-            'sudo chown -R dokku:dokku-access /home/dokku && ' +
-            'sudo chmod -R 770 /home/dokku',
-        )
+        await ssh.execCommand('sudo usermod -aG dokku ubuntu')
+
         sendEvent({
           pub,
           message: `✅ Successfully installed dokku`,

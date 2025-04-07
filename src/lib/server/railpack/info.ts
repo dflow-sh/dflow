@@ -5,7 +5,7 @@ interface Args {
 }
 
 export const infoRailpack = async ({ ssh }: Args) => {
-  const resultInstallRailpack = await ssh.execCommand(`railpack --version`)
+  const resultInstallRailpack = await ssh.execCommand(`sudo railpack --version`)
 
   if (resultInstallRailpack.code === 1 || resultInstallRailpack.code === 127) {
     console.error(resultInstallRailpack)

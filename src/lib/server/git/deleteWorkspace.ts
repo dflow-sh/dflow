@@ -8,7 +8,7 @@ interface Args {
 
 export const deleteWorkspace = async ({ appName, options, ssh }: Args) => {
   const resultDeleteWorkspace = await ssh.execCommand(
-    `rm -rf /home/dokku/${appName}-docker`,
+    `sudo rm -rf /home/dokku/${appName}-docker`,
     options,
   )
   return resultDeleteWorkspace
