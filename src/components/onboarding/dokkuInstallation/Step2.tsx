@@ -87,6 +87,10 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
     )
   }
 
+  if (dokkuInstallationStep < 2) {
+    return null
+  }
+
   return (
     <div className='space-y-2'>
       {(isInstallingDokku || hasSucceeded) &&

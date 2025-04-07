@@ -157,7 +157,6 @@ export const createEC2InstanceAction = protectedClient
       SecurityGroupIds: [securityGroupId ?? ''],
       BlockDeviceMappings: [
         {
-          // DeviceName: '/dev/xvda',
           DeviceName: '/dev/sda1',
           Ebs: {
             VolumeSize: diskSize,
@@ -217,6 +216,7 @@ export const createEC2InstanceAction = protectedClient
           sshKey: sshKeyId,
           username: 'ubuntu',
           ip,
+          provider: 'aws',
         },
       })
 

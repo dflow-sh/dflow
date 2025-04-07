@@ -62,12 +62,11 @@ export const DomainFormWithoutDialog = ({
   const pathName = usePathname()
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [confirm, setConfirm] = useState(false)
 
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      domain: '',
+      domain: `${server.ip}.nip.io`,
       defaultDomain: true,
     },
   })
@@ -179,7 +178,6 @@ export const DomainFormWithoutDialog = ({
           <DialogFooter>
             <Button
               onClick={() => {
-                setConfirm(true)
                 router.push('/onboarding/install-github')
               }}>
               I&apos;ve added records

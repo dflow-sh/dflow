@@ -189,6 +189,7 @@ export interface Server {
    * Provide a brief description of the service.
    */
   description?: string | null;
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
   sshKey: string | SshKey;
   securityGroups: (string | SecurityGroup)[];
   /**
@@ -629,6 +630,7 @@ export interface ServicesSelect<T extends boolean = true> {
 export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  provider?: T;
   sshKey?: T;
   securityGroups?: T;
   ip?: T;

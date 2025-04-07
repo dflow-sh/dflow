@@ -5,6 +5,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { Server } from '@/payload-types'
 
 interface QueueArgs {
   sshDetails: {
@@ -15,6 +16,7 @@ interface QueueArgs {
   }
   serverDetails: {
     id: string
+    provider: Server['provider']
   }
 }
 
@@ -53,7 +55,10 @@ const worker = new Worker<QueueArgs>(
       })
 
       if (installationResponse.code === 0) {
-        await ssh.execCommand('sudo usermod -aG dokku ubuntu')
+        // For AWS, add the dokku permission to ubuntu user
+        if (serverDetails.provider === 'aws') {
+          await ssh.execCommand('sudo usermod -aG dokku ubuntu')
+        }
 
         sendEvent({
           pub,

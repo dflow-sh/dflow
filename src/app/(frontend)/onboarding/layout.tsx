@@ -14,15 +14,22 @@ const OnboardingLayout = async ({
 }) => {
   const headersList = await headers()
   const payload = await getPayload({ config: configPromise })
-
   const { user } = await payload.auth({ headers: headersList })
+  const { totalDocs } = await payload.count({
+    collection: 'users',
+    where: {
+      onboarded: {
+        equals: true,
+      },
+    },
+  })
 
   // Redirecting user to sign-in if user is not signed in
   if (!user) {
     redirect('/sign-in')
   }
 
-  if (user.onboarded) {
+  if (user.onboarded || totalDocs > 0) {
     redirect('/dashboard')
   }
 

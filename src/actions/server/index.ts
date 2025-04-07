@@ -39,6 +39,7 @@ export const createServerAction = protectedClient
         port,
         username,
         sshKey,
+        provider: 'other',
       },
     })
 
@@ -108,6 +109,7 @@ export const installDokkuAction = protectedClient
       const installationResponse = await addInstallDokkuQueue({
         serverDetails: {
           id: serverId,
+          provider: serverDetails.provider,
         },
         sshDetails: {
           host: serverDetails.ip,
