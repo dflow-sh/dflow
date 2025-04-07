@@ -46,7 +46,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
               {/* <Workflow className='text-primary' /> */}
 
               <Image
-                src='/images/dFlow-no-bg.png'
+                src='/images/dflow-no-bg.png'
                 alt='dFlow-logo'
                 width={32}
                 height={32}
