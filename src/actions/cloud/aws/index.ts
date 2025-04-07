@@ -4,6 +4,7 @@ import {
   AuthorizeSecurityGroupIngressCommand,
   CreateSecurityGroupCommand,
   DescribeInstancesCommand,
+  DescribeKeyPairsCommand,
   DescribeSecurityGroupsCommand,
   EC2Client,
   ImportKeyPairCommand,
@@ -51,8 +52,6 @@ export const createEC2InstanceAction = protectedClient
       id: sshKeyId,
     })
 
-    const keyName = `${sshKeyDetails.name}-${new Date().getTime()}`
-
     // 1. Create the EC2 client
     const ec2Client = new EC2Client({
       region,
@@ -62,13 +61,24 @@ export const createEC2InstanceAction = protectedClient
       },
     })
 
-    // 2. Create an SSH key-pair for the account
-    const keyCommand = new ImportKeyPairCommand({
-      KeyName: keyName,
-      PublicKeyMaterial: Buffer.from(sshKeyDetails.publicKey),
+    // 2. Check if a key pair with this name already exists
+    const describeKeysCommand = new DescribeKeyPairsCommand({
+      KeyNames: [sshKeyDetails.name],
     })
+    const sshKeys = await ec2Client.send(describeKeysCommand)
 
-    await ec2Client.send(keyCommand)
+    const sshKey = sshKeys.KeyPairs?.find(
+      key => key.KeyName === sshKeyDetails.name,
+    )
+
+    // Create the key pair if it doesn't exist
+    if (!sshKey?.KeyName) {
+      const keyCommand = new ImportKeyPairCommand({
+        KeyName: sshKeyDetails.name,
+        PublicKeyMaterial: Buffer.from(sshKeyDetails.publicKey),
+      })
+      await ec2Client.send(keyCommand)
+    }
 
     // 3. Check if dflow-securitygroup already exists, if not create it
     let securityGroupId
@@ -143,7 +153,7 @@ export const createEC2InstanceAction = protectedClient
       InstanceType: instanceType as _InstanceType,
       MinCount: 1,
       MaxCount: 1,
-      KeyName: keyName,
+      KeyName: sshKeyDetails.name,
       SecurityGroupIds: [securityGroupId ?? ''],
       BlockDeviceMappings: [
         {
