@@ -1,7 +1,8 @@
 import configPromise from '@payload-config'
 import { env } from 'env'
-import { ArrowUpRight, Workflow } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import { headers } from 'next/headers'
+import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -42,8 +43,16 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
         <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
           <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
             <Link href={`/dashboard`} className='flex items-center gap-1'>
-              <Workflow className='text-primary' />
-              <p className='hidden sm:block'>Dflow</p>
+              {/* <Workflow className='text-primary' /> */}
+
+              <Image
+                src='/images/dFlow-no-bg.png'
+                alt='dFlow-logo'
+                width={32}
+                height={32}
+                className='object-contain'
+              />
+              <p className='hidden sm:block'>dFlow</p>
             </Link>
 
             {/* These are replaced with breadcrumbs using react-portals */}
@@ -55,7 +64,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
           <div className='flex items-center gap-x-4'>
             <Link
               className='flex items-center text-sm hover:text-primary hover:underline'
-              href={'https://dflow.sh/changelog'}
+              href={'https://dFlow.sh/changelog'}
               target='_blank'>
               <span>Changelog</span>
               <ArrowUpRight size={16} />
