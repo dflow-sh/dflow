@@ -3,6 +3,7 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
+import { useQueryState } from 'nuqs'
 import { toast } from 'sonner'
 
 import { completeServerOnboardingAction } from '@/actions/server'
@@ -27,6 +28,7 @@ const ServerOnboardingLayout = ({
 }) => {
   const { currentStep, totalSteps, nextStep, previousStep } =
     useServerOnboarding()
+  const [_selectedServer, setSelectedServer] = useQueryState('server')
   const router = useRouter()
 
   const isLastStep = currentStep === totalSteps
@@ -92,7 +94,7 @@ const ServerOnboardingLayout = ({
     <div className='mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4'>
       <div className='flex w-full items-center justify-start gap-2 text-2xl font-semibold'>
         <Server />
-        <p>{server.name} Server Onboarding</p>
+        <p>{server.name} - Onboarding</p>
       </div>
 
       <Card className='w-full'>
@@ -115,7 +117,10 @@ const ServerOnboardingLayout = ({
           <Button
             variant={'outline'}
             size={'icon'}
-            onClick={previousStep}
+            onClick={() => {
+              setSelectedServer('')
+              previousStep()
+            }}
             disabled={currentStep === 1}>
             <ChevronLeft size={24} />
           </Button>

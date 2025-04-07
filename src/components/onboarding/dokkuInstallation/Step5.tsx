@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { pluginList } from '@/components/plugins'
 import { LetsencryptForm } from '@/components/servers/PluginConfigurationForm'
+import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
@@ -20,6 +21,7 @@ const Step5 = ({
 }) => {
   const [selectedServer] = useQueryState('server')
   const { dokkuInstallationStep } = useDokkuInstallationStep()
+  const serverOnboardingContext = useServerOnboarding()
   const router = useRouter()
 
   const plugins = server?.plugins ?? []
@@ -31,8 +33,6 @@ const Step5 = ({
   const pluginDetails = letsencryptPluginDetails ?? plugin
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout
-
     if ('name' in pluginDetails && dokkuInstallationStep === 5) {
       const letsencryptConfiguration =
         pluginDetails.configuration &&
@@ -40,28 +40,25 @@ const Step5 = ({
         !Array.isArray(pluginDetails.configuration) &&
         pluginDetails.configuration.email
 
-      if (
-        !!letsencryptConfiguration &&
-        !!selectedServer &&
-        !isServerOnboarding
-      ) {
-        timeout = setTimeout(() => {
-          router.push(`/onboarding/configure-domain?server=${selectedServer}`)
-        }, 8000)
-
-        toast.info('Dokku installation is done', {
-          description: "You'll be redirected in few seconds to next step",
+      if (!!letsencryptConfiguration && !!selectedServer) {
+        toast.info('Setup is done', {
+          description: 'Redirecting to next step...',
           action: {
             label: 'Cancel',
-            onClick: () => clearTimeout(timeout),
+            onClick: () => {},
           },
-          duration: 5000,
+          duration: 3000,
+          onAutoClose: () => {
+            if (isServerOnboarding) {
+              serverOnboardingContext.nextStep()
+            } else {
+              router.push(
+                `/onboarding/configure-domain?server=${selectedServer}`,
+              )
+            }
+          },
         })
       }
-    }
-
-    return () => {
-      clearTimeout(timeout)
     }
   }, [server, selectedServer, dokkuInstallationStep])
 

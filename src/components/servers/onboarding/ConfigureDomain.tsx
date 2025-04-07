@@ -5,11 +5,9 @@ import DomainList from '../DomainList'
 
 import { ServerType } from '@/payload-types-overrides'
 
-import { useServerOnboarding } from './ServerOnboardingContext'
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
 const ConfigureDomain = ({ server }: { server: ServerType }) => {
-  const { currentStep, totalSteps } = useServerOnboarding()
   const isDomainConfigured = !!(server.domains ?? []).length
 
   return (

@@ -73,6 +73,34 @@ export const Servers: CollectionConfig = {
       },
     },
     {
+      name: 'provider',
+      type: 'select',
+      required: true,
+      options: [
+        {
+          label: 'DigitalOcean',
+          value: 'digitalocean',
+        },
+        {
+          label: 'AWS',
+          value: 'aws',
+        },
+        {
+          label: 'Google Cloud Platform',
+          value: 'gcp',
+        },
+        {
+          label: 'Azure',
+          value: 'azure',
+        },
+        {
+          label: 'Other',
+          value: 'other',
+        },
+      ],
+      defaultValue: 'other',
+    },
+    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',

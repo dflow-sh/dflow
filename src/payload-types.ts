@@ -187,6 +187,7 @@ export interface Server {
    * Provide a brief description of the service.
    */
   description?: string | null;
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
   sshKey: string | SshKey;
   /**
    * Enter the IP address of the server.
@@ -555,6 +556,7 @@ export interface ServicesSelect<T extends boolean = true> {
 export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  provider?: T;
   sshKey?: T;
   ip?: T;
   port?: T;

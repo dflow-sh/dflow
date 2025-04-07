@@ -47,8 +47,8 @@ export const LetsencryptForm = ({
     !Array.isArray(plugin.configuration) &&
     typeof plugin.configuration === 'object'
       ? {
-          email: plugin.configuration.email,
-          autoGenerateSSL: plugin.configuration.autoGenerateSSL,
+          email: plugin.configuration.email ?? '',
+          autoGenerateSSL: plugin.configuration.autoGenerateSSL ?? true,
         }
       : {
           email: '',
