@@ -1,12 +1,7 @@
 'use client'
 
-import {
-  GitBranch,
-  HardDrive,
-  KeyRound,
-  LayoutDashboard,
-  Workflow,
-} from 'lucide-react'
+import { GitBranch, HardDrive, KeyRound, LayoutDashboard } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import * as React from 'react'
@@ -74,7 +69,14 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
         <div className='mt-2 flex items-center gap-2 text-2xl font-semibold'>
-          <Workflow className='text-primary' />
+          {/* <Workflow className='text-primary' /> */}
+          <Image
+            src='/images/dFlow-no-bg.png'
+            alt='dFlow-logo'
+            width={32}
+            height={32}
+            className='object-contain'
+          />
           {state === 'expanded' && <p>Dokflow</p>}
         </div>
       </SidebarHeader>

@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight, Workflow } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -24,8 +25,15 @@ export default async function Layout({
   return (
     <div className='mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-4 px-5'>
       <div className='mt-20 flex items-center gap-2 text-2xl font-semibold'>
-        <Workflow className='text-primary' />
-        <p>Dflow Onboarding</p>
+        {/* <Workflow className='text-primary' /> */}
+        <Image
+          src='/images/dFlow-no-bg.png'
+          alt='dFlow-logo'
+          width={32}
+          height={32}
+          className='object-contain'
+        />
+        <p>dFlow Onboarding</p>
       </div>
 
       <Card className='mb-20 w-full max-w-4xl'>

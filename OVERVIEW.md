@@ -27,7 +27,7 @@ In the above example,
 
 So from the above example, what are the required parameters
 
-1. During the installation of dflow, we should ensure `letsencypt` plugin is
+1. During the installation of dFlow, we should ensure `letsencypt` plugin is
    installed
 2. while user is creating the service, which is not a database, we should take
    1. port number => default 3000

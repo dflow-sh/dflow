@@ -88,7 +88,7 @@ export const generateSSHKeyAction = protectedClient
   })
   .schema(generateSSHKeySchema)
   .action(async ({ clientInput }) => {
-    const { comment = 'dflow', type } = clientInput
+    const { comment = 'dFlow', type } = clientInput
 
     // Generate the SSH key pair using ssh2
     const keys =

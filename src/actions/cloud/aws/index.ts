@@ -80,14 +80,14 @@ export const createEC2InstanceAction = protectedClient
       await ec2Client.send(keyCommand)
     }
 
-    // 3. Check if dflow-securitygroup already exists, if not create it
+    // 3. Check if dFlow-securitygroup already exists, if not create it
     let securityGroupId
     // Check if the security group already exists
     const describeSecurityGroupsCommand = new DescribeSecurityGroupsCommand({
       Filters: [
         {
           Name: 'group-name',
-          Values: ['dflow-securitygroup'],
+          Values: ['dFlow-securitygroup'],
         },
       ],
     })
@@ -95,23 +95,23 @@ export const createEC2InstanceAction = protectedClient
     const existingGroups = await ec2Client.send(describeSecurityGroupsCommand)
 
     const securityGroup = existingGroups.SecurityGroups?.find(
-      group => group.GroupName === 'dflow-securitygroup',
+      group => group.GroupName === 'dFlow-securitygroup',
     )
 
     if (securityGroup) {
       // Use the existing security group
       securityGroupId = securityGroup.GroupId
-      console.log('Using existing dflow-securitygroup:', securityGroupId)
+      console.log('Using existing dFlow-securitygroup:', securityGroupId)
     } else {
       // Create a new security group
       const securityGroupCommand = new CreateSecurityGroupCommand({
-        GroupName: 'dflow-securitygroup',
-        Description: 'Security group for dflow',
+        GroupName: 'dFlow-securitygroup',
+        Description: 'Security group for dFlow',
       })
 
       const securityGroupResponse = await ec2Client.send(securityGroupCommand)
       securityGroupId = securityGroupResponse.GroupId
-      console.log('Created new dflow-securitygroup:', securityGroupId)
+      console.log('Created new dFlow-securitygroup:', securityGroupId)
 
       // 4. Authorize access to the security group
       const authorizeCommand = new AuthorizeSecurityGroupIngressCommand({
