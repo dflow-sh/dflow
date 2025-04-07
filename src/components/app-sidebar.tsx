@@ -71,7 +71,7 @@ export function AppSidebar({ user, ...props }: SidebarInterface) {
         <div className='mt-2 flex items-center gap-2 text-2xl font-semibold'>
           {/* <Workflow className='text-primary' /> */}
           <Image
-            src='/images/dFlow-no-bg.png'
+            src='/images/dflow-no-bg.png'
             alt='dFlow-logo'
             width={32}
             height={32}
