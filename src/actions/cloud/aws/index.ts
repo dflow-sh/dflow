@@ -4,6 +4,7 @@ import {
   AuthorizeSecurityGroupIngressCommand,
   CreateSecurityGroupCommand,
   DescribeInstancesCommand,
+  DescribeSecurityGroupsCommand,
   EC2Client,
   ImportKeyPairCommand,
   RunInstancesCommand,
@@ -69,48 +70,72 @@ export const createEC2InstanceAction = protectedClient
 
     await ec2Client.send(keyCommand)
 
-    // 3. Create a security group with SSH access
-    // TODO: create a security group under the name (dflow)
-    // TODO: If dflow security group already exists, then use that
-    const securityGroupCommand = new CreateSecurityGroupCommand({
-      GroupName: `${name}-securitygroup`,
-      Description: `Security group for ${name}`,
-    })
-
-    const securityGroupResponse = await ec2Client.send(securityGroupCommand)
-
-    // 4. Authorize SSH access to the security group
-    const authorizeCommand = new AuthorizeSecurityGroupIngressCommand({
-      GroupId: securityGroupResponse.GroupId,
-      IpPermissions: [
+    // 3. Check if dflow-securitygroup already exists, if not create it
+    let securityGroupId
+    // Check if the security group already exists
+    const describeSecurityGroupsCommand = new DescribeSecurityGroupsCommand({
+      Filters: [
         {
-          IpProtocol: 'tcp',
-          FromPort: 22,
-          ToPort: 22,
-          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'SSH access' }],
-        },
-        {
-          IpProtocol: 'tcp',
-          FromPort: 80,
-          ToPort: 80,
-          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTP access' }],
-        },
-        {
-          IpProtocol: 'tcp',
-          FromPort: 443,
-          ToPort: 443,
-          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTPS access' }],
-        },
-        {
-          IpProtocol: 'tcp',
-          FromPort: 19999,
-          ToPort: 19999,
-          IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'Netdata Metrics' }],
+          Name: 'group-name',
+          Values: ['dflow-securitygroup'],
         },
       ],
     })
 
-    await ec2Client.send(authorizeCommand)
+    const existingGroups = await ec2Client.send(describeSecurityGroupsCommand)
+
+    const securityGroup = existingGroups.SecurityGroups?.find(
+      group => group.GroupName === 'dflow-securitygroup',
+    )
+
+    if (securityGroup) {
+      // Use the existing security group
+      securityGroupId = securityGroup.GroupId
+      console.log('Using existing dflow-securitygroup:', securityGroupId)
+    } else {
+      // Create a new security group
+      const securityGroupCommand = new CreateSecurityGroupCommand({
+        GroupName: 'dflow-securitygroup',
+        Description: 'Security group for dflow',
+      })
+
+      const securityGroupResponse = await ec2Client.send(securityGroupCommand)
+      securityGroupId = securityGroupResponse.GroupId
+      console.log('Created new dflow-securitygroup:', securityGroupId)
+
+      // 4. Authorize access to the security group
+      const authorizeCommand = new AuthorizeSecurityGroupIngressCommand({
+        GroupId: securityGroupId,
+        IpPermissions: [
+          {
+            IpProtocol: 'tcp',
+            FromPort: 22,
+            ToPort: 22,
+            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'SSH access' }],
+          },
+          {
+            IpProtocol: 'tcp',
+            FromPort: 80,
+            ToPort: 80,
+            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTP access' }],
+          },
+          {
+            IpProtocol: 'tcp',
+            FromPort: 443,
+            ToPort: 443,
+            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTPS access' }],
+          },
+          {
+            IpProtocol: 'tcp',
+            FromPort: 19999,
+            ToPort: 19999,
+            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'Netdata Metrics' }],
+          },
+        ],
+      })
+
+      await ec2Client.send(authorizeCommand)
+    }
 
     // 5. Create the EC2 instance with the SSH key-pair, Security Group, Disk Storage
     const ec2Command = new RunInstancesCommand({
@@ -119,7 +144,7 @@ export const createEC2InstanceAction = protectedClient
       MinCount: 1,
       MaxCount: 1,
       KeyName: keyName,
-      SecurityGroupIds: [securityGroupResponse.GroupId ?? ''],
+      SecurityGroupIds: [securityGroupId ?? ''],
       BlockDeviceMappings: [
         {
           // DeviceName: '/dev/xvda',
