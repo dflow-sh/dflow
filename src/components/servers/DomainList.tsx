@@ -2,7 +2,6 @@
 
 import { Button } from '../ui/button'
 import { Switch } from '../ui/switch'
-import { env } from 'env'
 import { Globe, Info, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
@@ -25,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { isDemoEnvironment } from '@/lib/constants'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -42,7 +42,6 @@ const DomainItem = ({
   domain: NonNullable<ServerType['domains']>[number]
   server: ServerType | Server
 }) => {
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
   const { execute, isPending } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
       if (data?.success) {
@@ -102,7 +101,7 @@ const DomainItem = ({
           <div className='flex items-center gap-4 self-end'>
             <Switch
               defaultChecked={domain.default}
-              disabled={domain.default || isDemo}
+              disabled={domain.default || isDemoEnvironment}
               onCheckedChange={checked => {
                 if (checked) {
                   execute({
@@ -123,7 +122,7 @@ const DomainItem = ({
                   id: server.id,
                 })
               }}
-              disabled={isPending || isDemo}
+              disabled={isPending || isDemoEnvironment}
               variant='outline'>
               <Trash2 />
             </Button>

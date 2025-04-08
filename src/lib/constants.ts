@@ -1,3 +1,5 @@
+import { env } from 'env'
+
 export const supportedLinuxVersions = ['11', '12', '20.04', '22.04', '24.04']
 
 export const supportedDokkuVersion = '0.35.15'
@@ -66,3 +68,5 @@ export const instanceTypes = [
     value: 't3.xlarge',
   },
 ] as const
+
+export const isDemoEnvironment = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'

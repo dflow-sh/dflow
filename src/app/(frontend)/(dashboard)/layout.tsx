@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { env } from 'env'
 import { ArrowUpRight } from 'lucide-react'
 import { headers } from 'next/headers'
 import Image from 'next/image'
@@ -11,6 +10,7 @@ import React, { Suspense } from 'react'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import Loader from '@/components/Loader'
 import { NavUser } from '@/components/nav-user'
+import { isDemoEnvironment } from '@/lib/constants'
 import Provider from '@/providers/Provider'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -39,7 +39,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='w-full'>
       <div className='sticky top-0 z-50 w-full bg-background'>
-        {env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO' && <HeaderBanner />}
+        {isDemoEnvironment && <HeaderBanner />}
         <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
           <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
             <Link href={`/dashboard`} className='flex items-center gap-1'>

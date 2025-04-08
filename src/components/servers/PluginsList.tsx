@@ -4,7 +4,6 @@ import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Switch } from '../ui/switch'
-import { env } from 'env'
 import {
   Download,
   LucideIcon,
@@ -36,6 +35,7 @@ import {
   Redis,
 } from '@/components/icons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { isDemoEnvironment } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import PluginConfigurationForm from './PluginConfigurationForm'
@@ -79,7 +79,6 @@ const PluginCard = ({
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   server: ServerType
 }) => {
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
   const { execute: installPlugin, isPending: isInstallingPlugin } = useAction(
     installPluginAction,
     {
@@ -150,7 +149,9 @@ const PluginCard = ({
           <div className='space-x-2'>
             <Button
               variant='outline'
-              disabled={!notCustomPlugin || isDeletingPlugin || isDemo}
+              disabled={
+                !notCustomPlugin || isDeletingPlugin || isDemoEnvironment
+              }
               onClick={() => {
                 if (notCustomPlugin) {
                   deletePlugin({
@@ -166,7 +167,10 @@ const PluginCard = ({
 
             {'hasConfig' in plugin && plugin.hasConfig && (
               <PluginConfigurationForm plugin={installedPlugin}>
-                <Button variant='outline' size='icon' disabled={isDemo}>
+                <Button
+                  variant='outline'
+                  size='icon'
+                  disabled={isDemoEnvironment}>
                   <Settings />
                 </Button>
               </PluginConfigurationForm>
@@ -175,7 +179,7 @@ const PluginCard = ({
         ) : (
           <Button
             variant='outline'
-            disabled={isInstallingPlugin || isDemo}
+            disabled={isInstallingPlugin || isDemoEnvironment}
             onClick={() => {
               if (notCustomPlugin) {
                 installPlugin({
@@ -192,7 +196,9 @@ const PluginCard = ({
 
         {installedPlugin && (
           <Switch
-            disabled={!notCustomPlugin || isUpdatingPluginStatus || isDemo}
+            disabled={
+              !notCustomPlugin || isUpdatingPluginStatus || isDemoEnvironment
+            }
             defaultChecked={installedPlugin.status === 'enabled'}
             onCheckedChange={enabled => {
               if (notCustomPlugin) {

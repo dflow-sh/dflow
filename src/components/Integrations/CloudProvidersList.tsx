@@ -5,6 +5,7 @@ import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 
 import { deleteAWSAccountAction } from '@/actions/cloud/aws'
+import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount } from '@/payload-types'
 
 import AWSAccountForm from './aws/AWSAccountForm'
@@ -23,7 +24,7 @@ const EditForm = ({
   if (account.type === 'aws') {
     return (
       <AWSAccountForm account={account} refetch={refetch}>
-        <Button size='icon' variant='outline'>
+        <Button size='icon' variant='outline' disabled={isDemoEnvironment}>
           <Pencil size={20} />
         </Button>
       </AWSAccountForm>
@@ -68,7 +69,7 @@ const CloudProviderCard = ({
             size='icon'
             variant='outline'
             onClick={() => deleteAccount({ id: account.id })}
-            disabled={deletingAccount}>
+            disabled={deletingAccount || isDemoEnvironment}>
             <Trash2 size={20} />
           </Button>
         </div>
