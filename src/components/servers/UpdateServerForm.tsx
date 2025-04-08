@@ -5,7 +5,6 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { env } from 'env'
 import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -28,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { supportedLinuxVersions } from '@/lib/constants'
+import { isDemoEnvironment, supportedLinuxVersions } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -52,7 +51,6 @@ const UpdateServerForm = ({
       id: server.id,
     },
   })
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   const { execute: updateService, isPending: isUpdatingService } = useAction(
     updateServerAction,
@@ -225,7 +223,7 @@ const UpdateServerForm = ({
             <Button
               type='submit'
               variant='outline'
-              disabled={isUpdatingService || isDemo}>
+              disabled={isUpdatingService || isDemoEnvironment}>
               Save
             </Button>
           </div>

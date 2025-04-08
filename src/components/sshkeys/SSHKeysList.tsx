@@ -2,12 +2,12 @@
 
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
-import { env } from 'env'
 import { KeyRound, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
 import { deleteSSHKeyAction } from '@/actions/sshkeys'
+import { isDemoEnvironment } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 
 import UpdateSSHKeyForm from './CreateSSHKeyForm'
@@ -23,7 +23,6 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
       toast.error(`Failed to delete SSH key: ${error.serverError}`)
     },
   })
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <Card>
@@ -47,7 +46,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
           />
 
           <Button
-            disabled={isPending || isDemo}
+            disabled={isPending || isDemoEnvironment}
             onClick={() => {
               execute({ id: sshKey.id })
             }}

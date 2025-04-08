@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { env } from 'env'
 import { Ellipsis, HardDrive, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
@@ -32,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { isDemoEnvironment } from '@/lib/constants'
 import { Server } from '@/payload-types'
 
 export function DeleteServerAlert({
@@ -93,7 +93,6 @@ export function DeleteServerAlert({
 
 const ServerCard = ({ server }: { server: Server }) => {
   const [open, setOpen] = useState(false)
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <>
@@ -114,7 +113,7 @@ const ServerCard = ({ server }: { server: Server }) => {
                   variant='ghost'
                   size='icon'
                   className='!mt-0'
-                  disabled={isDemo}
+                  disabled={isDemoEnvironment}
                   onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()

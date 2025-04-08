@@ -1,7 +1,6 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { env } from 'env'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -20,6 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { isDemoEnvironment } from '@/lib/constants'
 
 const SignInForm: React.FC = () => {
   const {
@@ -34,14 +34,12 @@ const SignInForm: React.FC = () => {
     },
   })
 
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
-
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     mode: 'onBlur',
     defaultValues: {
-      email: isDemo ? 'admin@example.com' : '',
-      password: isDemo ? 'changeme' : '',
+      email: isDemoEnvironment ? 'admin@example.com' : '',
+      password: isDemoEnvironment ? 'changeme' : '',
     },
   })
 

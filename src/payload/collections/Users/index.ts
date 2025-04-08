@@ -1,5 +1,6 @@
-import { env } from 'env'
 import type { CollectionConfig } from 'payload'
+
+import { isDemoEnvironment } from '@/lib/constants'
 
 import { beforeCreateHandleOnboarding } from './hooks/beforeCreateHandleOnboarding'
 
@@ -16,7 +17,7 @@ export const Users: CollectionConfig = {
   },
   access: {
     admin: ({ req }) => {
-      return !Boolean(env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO')
+      return !Boolean(isDemoEnvironment)
     },
   },
   fields: [
