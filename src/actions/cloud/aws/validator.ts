@@ -20,4 +20,5 @@ export const createEC2InstanceSchema = z.object({
   ami: z.string(),
   instanceType: z.string(),
   diskSize: z.number().min(30),
+  securityGroupIds: z.array(z.string()).optional(),
 })

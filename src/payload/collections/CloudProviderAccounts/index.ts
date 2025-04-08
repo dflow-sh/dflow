@@ -3,6 +3,9 @@ import { CollectionConfig } from 'payload'
 
 export const CloudProviderAccounts: CollectionConfig = {
   slug: 'cloudProviderAccounts',
+  admin: {
+    useAsTitle: 'name',
+  },
   fields: [
     {
       name: 'name',

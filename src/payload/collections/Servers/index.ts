@@ -81,6 +81,14 @@ export const Servers: CollectionConfig = {
       maxDepth: 10,
     },
     {
+      name: 'securityGroups',
+      type: 'relationship',
+      relationTo: 'securityGroups',
+      hasMany: true,
+      required: true,
+      maxDepth: 10,
+    },
+    {
       name: 'ip',
       type: 'text',
       label: 'IP Address',
