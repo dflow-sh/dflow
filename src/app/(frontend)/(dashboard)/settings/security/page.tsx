@@ -51,9 +51,13 @@ const SuspendedContent = async () => {
             {keys.length ? (
               <SSHKeysList keys={keys} />
             ) : (
-              <p className='py-4 text-center text-muted-foreground'>
-                No SSH Keys Found!
-              </p>
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <KeyRound className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
+                <p className='text-muted-foreground'>No SSH Keys Found</p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  Add your first SSH key to securely access your resources
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -75,9 +79,15 @@ const SuspendedContent = async () => {
             {securityGroups.length ? (
               <SecurityGroupsList securityGroups={securityGroups} />
             ) : (
-              <p className='py-4 text-center text-muted-foreground'>
-                No Security Groups Found!
-              </p>
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <Shield className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
+                <p className='text-muted-foreground'>
+                  No Security Groups Found
+                </p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  Create a security group to control access to your resources
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
