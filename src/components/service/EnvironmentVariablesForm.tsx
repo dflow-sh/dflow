@@ -1,17 +1,112 @@
 'use client'
 
-import { Trash2 } from 'lucide-react'
+import Loader from '../Loader'
+import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import { Link, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
-import { ChangeEvent, ClipboardEvent, useState } from 'react'
+import {
+  ChangeEvent,
+  ClipboardEvent,
+  JSX,
+  memo,
+  useEffect,
+  useState,
+} from 'react'
 import { toast } from 'sonner'
 
+import { getProjectDatabasesAction } from '@/actions/project'
 import { updateServiceAction } from '@/actions/service'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Service } from '@/payload-types'
 
+type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
 const VALID_KEY_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+
+const isKeyValid = (key: string) => {
+  return key.trim() !== '' && VALID_KEY_REGEX.test(key)
+}
+
+const databaseIcons: {
+  [key in StatusType]: JSX.Element
+} = {
+  postgres: <PostgreSQL className='size-6' />,
+  mariadb: <MariaDB className='size-6' />,
+  mongo: <MongoDB className='size-6' />,
+  mysql: <MySQL className='size-6' />,
+  redis: <Redis className='size-6' />,
+}
+
+const DatabaseLink = memo(
+  ({
+    databaseList,
+    gettingDatabases,
+    keyInfo: { value, valid },
+  }: {
+    databaseList?: Service[]
+    gettingDatabases: boolean
+    keyInfo: {
+      value: string
+      valid: boolean
+    }
+  }) => {
+    const list = databaseList ?? []
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant='ghost' size={'icon'}>
+            <Link size={16} className='text-primary' />
+          </Button>
+        </DropdownMenuTrigger>
+
+        {gettingDatabases && (
+          <DropdownMenuContent className='pb-2' align='end'>
+            <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+
+            <DropdownMenuItem disabled>
+              <Loader className='h-min w-min' />
+              Fetching databases...
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        )}
+
+        {list.length && !gettingDatabases ? (
+          <DropdownMenuContent className='pb-2' align='end'>
+            <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+
+            {list.map(database => {
+              return (
+                <DropdownMenuItem
+                  key={database.id}
+                  onSelect={() => {
+                    if (valid) {
+                      toast.info(`Linked ${database.name} to ${value}`)
+                    } else {
+                      toast.error('Enter a key to link database')
+                    }
+                  }}>
+                  {database.databaseDetails?.type &&
+                    databaseIcons[database.databaseDetails?.type]}
+
+                  {database.name}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        ) : null}
+      </DropdownMenu>
+    )
+  },
+)
 
 const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
   const initialEnv =
@@ -27,7 +122,10 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
     useState<{ key: string; value: string }[]>(initialEnv)
   const { serviceId } = useParams<{ id: string; serviceId: string }>()
 
-  const { execute, isPending } = useAction(updateServiceAction, {
+  const {
+    execute: saveEnvironmentVariables,
+    isPending: savingEnvironmentVariables,
+  } = useAction(updateServiceAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
         toast.info('Added updating environment-variables to queue', {
@@ -43,13 +141,28 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
     },
   })
 
-  const isKeyValid = (key: string) => {
-    return key.trim() !== '' && VALID_KEY_REGEX.test(key)
-  }
+  const {
+    execute: getDatabases,
+    isPending: gettingDatabases,
+    result: databaseList,
+    hasSucceeded,
+  } = useAction(getProjectDatabasesAction)
+
+  useEffect(() => {
+    if (!hasSucceeded) {
+      getDatabases({
+        id:
+          typeof service.project === 'string'
+            ? service.project
+            : service.project.id,
+      })
+    }
+  }, [])
 
   const areAllKeysValid = () => {
     const keys = envVariables.map(env => env.key.trim())
     const uniqueKeys = new Set(keys)
+
     return (
       keys.every(key => isKeyValid(key) || key === '') &&
       uniqueKeys.size === keys.length
@@ -142,7 +255,7 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
       {} as Record<string, string>,
     )
 
-    execute({
+    saveEnvironmentVariables({
       environmentVariables: envObject,
       id: serviceId,
       noRestart,
@@ -166,6 +279,7 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
               </th>
             </tr>
           </thead>
+
           <tbody>
             {envVariables.map((env, index) => (
               <tr key={index} className=''>
@@ -179,10 +293,11 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
                       handlePaste(index, 'key', e)
                     }
                     placeholder='e.g., API_KEY'
-                    className={`w-full ${!isKeyValid(env.key) && env.key !== '' ? 'border-red-500' : ''}`}
-                    disabled={isPending}
+                    className={`w-full ${!isKeyValid(env.key) && env.key !== '' ? 'border-destructive' : ''}`}
+                    disabled={savingEnvironmentVariables}
                   />
                 </td>
+
                 <td className='p-2'>
                   <Input
                     value={env.value}
@@ -194,16 +309,26 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
                     }
                     placeholder='e.g., abc123xyz'
                     className='w-full'
-                    disabled={isPending}
+                    disabled={savingEnvironmentVariables}
                   />
                 </td>
-                <td className='p-2'>
+
+                <td className='flex items-center gap-1 p-2'>
+                  <DatabaseLink
+                    databaseList={databaseList.data}
+                    gettingDatabases={gettingDatabases}
+                    keyInfo={{
+                      value: env.key,
+                      valid: isKeyValid(env.key),
+                    }}
+                  />
+
                   <Button
                     variant='ghost'
                     size={'icon'}
                     onClick={() => handleDelete(index)}
-                    disabled={isPending}>
-                    <Trash2 className='h-4 w-4 text-red-500' />
+                    disabled={savingEnvironmentVariables}>
+                    <Trash2 className='h-4 w-4 text-destructive' />
                   </Button>
                 </td>
               </tr>
@@ -216,20 +341,21 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
         <Button
           variant='outline'
           onClick={handleAddVariable}
-          disabled={isPending || !isLastEntryValid()}>
+          disabled={savingEnvironmentVariables || !isLastEntryValid()}>
           + Add Variable
         </Button>
       </div>
 
       <div className='flex w-full justify-end gap-4'>
         <Button
-          disabled={isPending || !areAllKeysValid()}
+          disabled={savingEnvironmentVariables || !areAllKeysValid()}
           variant='outline'
           onClick={() => handleSubmit(true)}>
           Save
         </Button>
+
         <Button
-          disabled={isPending || !areAllKeysValid()}
+          disabled={savingEnvironmentVariables || !areAllKeysValid()}
           variant='secondary'
           onClick={() => handleSubmit(false)}>
           Save & Restart

@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { protectedClient } from '@/lib/safe-action'
 import { ServerType } from '@/payload-types-overrides'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
@@ -18,7 +18,7 @@ import {
 const payload = await getPayload({ config: configPromise })
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
-export const createProjectAction = publicClient
+export const createProjectAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'createProjectAction',
@@ -56,7 +56,7 @@ export const createProjectAction = publicClient
     return response
   })
 
-export const updateProjectAction = publicClient
+export const updateProjectAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'updateProjectAction',
@@ -78,7 +78,7 @@ export const updateProjectAction = publicClient
     return response
   })
 
-export const deleteProjectAction = publicClient
+export const deleteProjectAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'deleteProjectAction',
@@ -174,4 +174,27 @@ export const deleteProjectAction = publicClient
       revalidatePath('/dashboard')
       return { deleted: true }
     }
+  })
+
+export const getProjectDatabasesAction = protectedClient
+  .metadata({
+    actionName: 'getProjectDatabasesAction',
+  })
+  .schema(deleteProjectSchema)
+  .action(async ({ clientInput }) => {
+    const { id } = clientInput
+    const { docs } = await payload.find({
+      collection: 'services',
+      where: {
+        project: {
+          equals: id,
+        },
+        type: {
+          equals: 'database',
+        },
+      },
+      pagination: false,
+    })
+
+    return docs
   })

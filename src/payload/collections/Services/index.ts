@@ -318,5 +318,12 @@ export const Services: CollectionConfig = {
       collection: 'deployments',
       on: 'service',
     },
+    // linked services
+    {
+      label: 'Linked Services',
+      name: 'linkedServices',
+      type: 'text',
+      hasMany: true,
+    },
   ],
 }
