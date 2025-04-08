@@ -3,14 +3,13 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
+import CreateSSHKey from '@/components/security/CreateSSHKeyForm'
 import CreateSecurityGroup from '@/components/security/CreateSecurityGroup'
+import SSHKeysList from '@/components/security/SSHKeysList'
+import SSHLoading from '@/components/security/SSHLoading'
 import SecurityGroupsList from '@/components/security/SecurityGroupsList'
 import SecurityGroupsLoading from '@/components/security/SecurityGroupsLoading'
 import SecuritySidebar from '@/components/security/SecuritySidebar'
-import CreateSSHKey from '@/components/sshkeys/CreateSSHKeyForm'
-import SSHKeysList from '@/components/sshkeys/SSHKeysList'
-
-import SSHLoading from './SSHLoading'
 
 const SuspendedContent = async () => {
   const payload = await getPayload({ config: configPromise })

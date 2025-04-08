@@ -4,8 +4,8 @@ import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import { CreateSSHKeyForm } from '@/components/sshkeys/CreateSSHKeyForm'
-import SSHKeysList from '@/components/sshkeys/SSHKeysList'
+import { CreateSSHKeyForm } from '@/components/security/CreateSSHKeyForm'
+import SSHKeysList from '@/components/security/SSHKeysList'
 
 const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
