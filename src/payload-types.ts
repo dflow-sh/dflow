@@ -310,6 +310,7 @@ export interface Service {
     docs?: (string | Deployment)[] | null;
     hasNextPage?: boolean | null;
   } | null;
+  linkedServices?: string[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -546,6 +547,7 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   deployments?: T;
+  linkedServices?: T;
   updatedAt?: T;
   createdAt?: T;
 }
