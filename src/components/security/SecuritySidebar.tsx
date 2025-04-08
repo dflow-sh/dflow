@@ -13,7 +13,7 @@ const SecuritySidebar = () => {
   }
 
   return (
-    <div className='sticky left-0 top-[170px] h-screen w-64 border-r pr-4'>
+    <div className='sticky top-0 h-screen w-64 border-r pr-4'>
       <div className='py-6'>
         <h2 className='mb-4 px-2 text-lg font-semibold'>Security</h2>
         <div className='space-y-1'>

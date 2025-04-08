@@ -41,7 +41,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
         <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-10 w-full max-w-6xl px-4'>{children}</main>
+      <main className='mx-auto mb-32 w-full max-w-6xl px-4'>{children}</main>
     </>
   )
 }
