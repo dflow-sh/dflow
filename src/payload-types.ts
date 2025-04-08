@@ -73,6 +73,7 @@ export interface Config {
     gitProviders: GitProvider;
     deployments: Deployment;
     cloudProviderAccounts: CloudProviderAccount;
+    securityGroups: SecurityGroup;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -94,6 +95,7 @@ export interface Config {
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
     cloudProviderAccounts: CloudProviderAccountsSelect<false> | CloudProviderAccountsSelect<true>;
+    securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -188,6 +190,7 @@ export interface Server {
    */
   description?: string | null;
   sshKey: string | SshKey;
+  securityGroups: (string | SecurityGroup)[];
   /**
    * Enter the IP address of the server.
    */
@@ -244,6 +247,94 @@ export interface SshKey {
   description?: string | null;
   publicKey: string;
   privateKey: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securityGroups".
+ */
+export interface SecurityGroup {
+  id: string;
+  name: string;
+  description?: string | null;
+  region: string;
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
+  /**
+   * The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)
+   */
+  groupId: string;
+  /**
+   * The ID of the VPC/Virtual Network this security group belongs to
+   */
+  vpcId?: string | null;
+  /**
+   * Specify whether this is an inbound or outbound rule
+   */
+  ruleType: 'ingress' | 'egress';
+  rule: {
+    protocol: 'tcp' | 'udp' | 'icmp' | '-1';
+    fromPort?: number | null;
+    toPort?: number | null;
+    targetType: 'cidr' | 'sg' | 'prefix';
+    /**
+     * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+     */
+    cidrValue?: string | null;
+    /**
+     * ID of the security group
+     */
+    securityGroupId?: string | null;
+    /**
+     * ID of the prefix list
+     */
+    prefixListId?: string | null;
+    description?: string | null;
+  };
+  /**
+   * Key-value pairs used to organize and categorize resources
+   */
+  tags?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cloudProviderAccounts".
+ */
+export interface CloudProviderAccount {
+  id: string;
+  name: string;
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  awsDetails?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  gcpDetails?: {
+    /**
+     * Paste your GCP service account JSON key here
+     */
+    serviceAccountKey: string;
+    projectId: string;
+  };
+  digitaloceanDetails?: {
+    /**
+     * Personal Access Token from DigitalOcean API settings
+     */
+    accessToken: string;
+  };
+  azureDetails?: {
+    clientId: string;
+    clientSecret: string;
+    tenantId: string;
+    subscriptionId: string;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -359,40 +450,6 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cloudProviderAccounts".
- */
-export interface CloudProviderAccount {
-  id: string;
-  name: string;
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  awsDetails?: {
-    accessKeyId: string;
-    secretAccessKey: string;
-  };
-  gcpDetails?: {
-    /**
-     * Paste your GCP service account JSON key here
-     */
-    serviceAccountKey: string;
-    projectId: string;
-  };
-  digitaloceanDetails?: {
-    /**
-     * Personal Access Token from DigitalOcean API settings
-     */
-    accessToken: string;
-  };
-  azureDetails?: {
-    clientId: string;
-    clientSecret: string;
-    tenantId: string;
-    subscriptionId: string;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -429,6 +486,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'cloudProviderAccounts';
         value: string | CloudProviderAccount;
+      } | null)
+    | ({
+        relationTo: 'securityGroups';
+        value: string | SecurityGroup;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -556,6 +617,7 @@ export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   sshKey?: T;
+  securityGroups?: T;
   ip?: T;
   port?: T;
   username?: T;
@@ -656,6 +718,40 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
         clientSecret?: T;
         tenantId?: T;
         subscriptionId?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securityGroups_select".
+ */
+export interface SecurityGroupsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  region?: T;
+  cloudProviderAccount?: T;
+  groupId?: T;
+  vpcId?: T;
+  ruleType?: T;
+  rule?:
+    | T
+    | {
+        protocol?: T;
+        fromPort?: T;
+        toPort?: T;
+        targetType?: T;
+        cidrValue?: T;
+        securityGroupId?: T;
+        prefixListId?: T;
+        description?: T;
+      };
+  tags?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
