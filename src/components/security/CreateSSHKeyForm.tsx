@@ -1,5 +1,6 @@
 'use client'
 
+import SecretContent from '../ui/blur-reveal'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -341,7 +342,9 @@ export const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <Textarea {...field} />
+                <SecretContent placeholder='Click to reveal public key'>
+                  <Textarea {...field} />
+                </SecretContent>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -370,7 +373,9 @@ export const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <Textarea {...field} />
+                <SecretContent placeholder='Click to reveal private key'>
+                  <Textarea {...field} />
+                </SecretContent>
               </FormControl>
               <FormMessage />
             </FormItem>
