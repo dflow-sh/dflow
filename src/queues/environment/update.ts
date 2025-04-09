@@ -24,7 +24,7 @@ interface QueueArgs {
   }
   serviceDetails: {
     name: string
-    environmentVariables: Record<string, string>
+    environmentVariables: Record<string, unknown>
     noRestart: boolean
   }
   serverDetails: {
