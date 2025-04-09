@@ -118,9 +118,13 @@ const AWSAccountForm = ({
                 <FormItem>
                   <FormLabel>Access Key ID</FormLabel>
                   <FormControl>
-                    <SecretContent placeholder='Click to reveal Access Key ID'>
+                    {account ? (
+                      <SecretContent placeholder='Click to reveal Access Key ID'>
+                        <Input {...field} className='rounded-sm' />
+                      </SecretContent>
+                    ) : (
                       <Input {...field} className='rounded-sm' />
-                    </SecretContent>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,9 +138,13 @@ const AWSAccountForm = ({
                 <FormItem>
                   <FormLabel>Secret Access Key</FormLabel>
                   <FormControl>
-                    <SecretContent placeholder='Click to reveal Secret Access Key'>
+                    {account ? (
+                      <SecretContent placeholder='Click to reveal Secret Access Key'>
+                        <Input {...field} className='rounded-sm' />
+                      </SecretContent>
+                    ) : (
                       <Input {...field} className='rounded-sm' />
-                    </SecretContent>
+                    )}
                   </FormControl>
                   <FormMessage />
                 </FormItem>
