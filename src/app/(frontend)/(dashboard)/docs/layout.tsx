@@ -5,6 +5,8 @@ import { allApis, allIntroductions } from 'content-collections'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
+import { isDemoEnvironment } from '@/lib/constants'
+
 type Doc = (typeof allApis)[number] | (typeof allIntroductions)[number] // Type for a single doc
 type GroupedDocs = Record<string, Doc[]> // Object where keys are categories
 
@@ -36,7 +38,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <LayoutClient>
       <section className='flex h-full w-full'>
         {/* Sidebar */}
-        <aside className='sticky left-0 top-[170px] h-screen w-64 border-r p-4'>
+        <aside
+          className={`sticky left-0 ${isDemoEnvironment ? 'top-[170px]' : ''} h-screen w-64 border-r p-4`}>
           <nav>
             {sortedCategories.map(({ category, docs }) => {
               return (
