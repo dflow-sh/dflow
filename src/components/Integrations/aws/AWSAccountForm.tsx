@@ -119,7 +119,7 @@ const AWSAccountForm = ({
                   <FormLabel>Access Key ID</FormLabel>
                   <FormControl>
                     {account ? (
-                      <SecretContent placeholder='Click to reveal Access Key ID'>
+                      <SecretContent>
                         <Input {...field} className='rounded-sm' />
                       </SecretContent>
                     ) : (
@@ -139,7 +139,7 @@ const AWSAccountForm = ({
                   <FormLabel>Secret Access Key</FormLabel>
                   <FormControl>
                     {account ? (
-                      <SecretContent placeholder='Click to reveal Secret Access Key'>
+                      <SecretContent>
                         <Input {...field} className='rounded-sm' />
                       </SecretContent>
                     ) : (
