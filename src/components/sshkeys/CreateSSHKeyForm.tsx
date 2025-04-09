@@ -342,9 +342,13 @@ export const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <SecretContent placeholder='Click to reveal public key'>
+                {type === 'create' ? (
                   <Textarea {...field} />
-                </SecretContent>
+                ) : (
+                  <SecretContent placeholder='Click to reveal public key'>
+                    <Textarea {...field} />
+                  </SecretContent>
+                )}
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -373,9 +377,13 @@ export const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <SecretContent placeholder='Click to reveal private key'>
+                {type === 'create' ? (
                   <Textarea {...field} />
-                </SecretContent>
+                ) : (
+                  <SecretContent placeholder='Click to reveal private key'>
+                    <Textarea {...field} />
+                  </SecretContent>
+                )}
               </FormControl>
               <FormMessage />
             </FormItem>
