@@ -36,7 +36,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { isDemoEnvironment } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 
 // Helper function to determine key type from content
@@ -345,7 +344,7 @@ export const CreateSSHKeyForm = ({
                 {type === 'create' ? (
                   <Textarea {...field} />
                 ) : (
-                  <SecretContent placeholder='Click to reveal public key'>
+                  <SecretContent>
                     <Textarea {...field} />
                   </SecretContent>
                 )}
@@ -380,7 +379,7 @@ export const CreateSSHKeyForm = ({
                 {type === 'create' ? (
                   <Textarea {...field} />
                 ) : (
-                  <SecretContent placeholder='Click to reveal private key'>
+                  <SecretContent>
                     <Textarea {...field} />
                   </SecretContent>
                 )}
@@ -440,7 +439,7 @@ const CreateSSHKey = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={isDemoEnvironment}
+          // disabled={isDemoEnvironment}
           onClick={e => e.stopPropagation()}
           size={type === 'update' ? 'icon' : 'default'}
           variant={type === 'update' ? 'outline' : 'default'}>
