@@ -16,7 +16,7 @@ import {
 import { toast } from 'sonner'
 
 import { getProjectDatabasesAction } from '@/actions/project'
-import { updateServiceAction } from '@/actions/service'
+import { linkDatabaseAction, updateServiceAction } from '@/actions/service'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -50,6 +50,7 @@ const DatabaseLink = memo(
     databaseList,
     gettingDatabases,
     keyInfo: { value, valid },
+    service,
   }: {
     databaseList?: Service[]
     gettingDatabases: boolean
@@ -57,52 +58,64 @@ const DatabaseLink = memo(
       value: string
       valid: boolean
     }
+    service: Service
   }) => {
     const list = databaseList ?? []
+    const { execute: linkDatabase, isPending } = useAction(linkDatabaseAction, {
+      onSuccess: ({ data, input }) => {
+        if (data?.success) {
+          toast.info(`Linked to database`)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to link database: ${error?.serverError}`)
+      },
+    })
 
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' size={'icon'}>
+          <Button variant='ghost' size={'icon'} disabled={isPending}>
             <Link size={16} className='text-primary' />
           </Button>
         </DropdownMenuTrigger>
 
-        {gettingDatabases && (
-          <DropdownMenuContent className='pb-2' align='end'>
-            <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+        <DropdownMenuContent className='pb-2' align='end'>
+          <DropdownMenuLabel>Link Database</DropdownMenuLabel>
 
+          {gettingDatabases && (
             <DropdownMenuItem disabled>
               <Loader className='h-min w-min' />
               Fetching databases...
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        )}
+          )}
 
-        {list.length && !gettingDatabases ? (
-          <DropdownMenuContent className='pb-2' align='end'>
-            <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+          {list.length && !gettingDatabases
+            ? list.map(database => {
+                return (
+                  <DropdownMenuItem
+                    key={database.id}
+                    onSelect={() => {
+                      if (valid) {
+                        toast.info(`Linked ${database.name} to ${value}`)
+                        linkDatabase({
+                          databaseServiceId: database.id,
+                          serviceId: service.id,
+                          environmentVariableName: value,
+                        })
+                      } else {
+                        toast.error('Enter a key to link database')
+                      }
+                    }}>
+                    {database.databaseDetails?.type &&
+                      databaseIcons[database.databaseDetails?.type]}
 
-            {list.map(database => {
-              return (
-                <DropdownMenuItem
-                  key={database.id}
-                  onSelect={() => {
-                    if (valid) {
-                      toast.info(`Linked ${database.name} to ${value}`)
-                    } else {
-                      toast.error('Enter a key to link database')
-                    }
-                  }}>
-                  {database.databaseDetails?.type &&
-                    databaseIcons[database.databaseDetails?.type]}
-
-                  {database.name}
-                </DropdownMenuItem>
-              )
-            })}
-          </DropdownMenuContent>
-        ) : null}
+                    {database.name}
+                  </DropdownMenuItem>
+                )
+              })
+            : null}
+        </DropdownMenuContent>
       </DropdownMenu>
     )
   },
@@ -114,12 +127,12 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
     service.environmentVariables
       ? Object.entries(service.environmentVariables).map(([key, value]) => ({
           key,
-          value: String(value),
+          value,
         }))
       : []
 
   const [envVariables, setEnvVariables] =
-    useState<{ key: string; value: string }[]>(initialEnv)
+    useState<{ key: string; value: unknown }[]>(initialEnv)
   const { serviceId } = useParams<{ id: string; serviceId: string }>()
 
   const {
@@ -252,7 +265,7 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
         if (key.trim()) acc[key] = value
         return acc
       },
-      {} as Record<string, string>,
+      {} as Record<string, unknown>,
     )
 
     saveEnvironmentVariables({
@@ -281,58 +294,68 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
           </thead>
 
           <tbody>
-            {envVariables.map((env, index) => (
-              <tr key={index} className=''>
-                <td className='p-2'>
-                  <Input
-                    value={env.key}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleChange(index, 'key', e.target.value)
-                    }
-                    onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
-                      handlePaste(index, 'key', e)
-                    }
-                    placeholder='e.g., API_KEY'
-                    className={`w-full ${!isKeyValid(env.key) && env.key !== '' ? 'border-destructive' : ''}`}
-                    disabled={savingEnvironmentVariables}
-                  />
-                </td>
+            {envVariables.map((env, index) => {
+              const value =
+                env.value &&
+                typeof env.value === 'object' &&
+                'value' in env.value
+                  ? env.value.value
+                  : env.value
 
-                <td className='p-2'>
-                  <Input
-                    value={env.value}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleChange(index, 'value', e.target.value)
-                    }
-                    onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
-                      handlePaste(index, 'value', e)
-                    }
-                    placeholder='e.g., abc123xyz'
-                    className='w-full'
-                    disabled={savingEnvironmentVariables}
-                  />
-                </td>
+              return (
+                <tr key={index} className=''>
+                  <td className='p-2'>
+                    <Input
+                      value={env.key}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(index, 'key', e.target.value)
+                      }
+                      onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
+                        handlePaste(index, 'key', e)
+                      }
+                      placeholder='e.g., API_KEY'
+                      className={`w-full ${!isKeyValid(env.key) && env.key !== '' ? 'border-destructive' : ''}`}
+                      disabled={savingEnvironmentVariables}
+                    />
+                  </td>
 
-                <td className='flex items-center gap-1 p-2'>
-                  <DatabaseLink
-                    databaseList={databaseList.data}
-                    gettingDatabases={gettingDatabases}
-                    keyInfo={{
-                      value: env.key,
-                      valid: isKeyValid(env.key),
-                    }}
-                  />
+                  <td className='p-2'>
+                    <Input
+                      value={value as string}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleChange(index, 'value', e.target.value)
+                      }
+                      onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
+                        handlePaste(index, 'value', e)
+                      }
+                      placeholder='e.g., abc123xyz'
+                      className='w-full'
+                      disabled={savingEnvironmentVariables}
+                    />
+                  </td>
 
-                  <Button
-                    variant='ghost'
-                    size={'icon'}
-                    onClick={() => handleDelete(index)}
-                    disabled={savingEnvironmentVariables}>
-                    <Trash2 className='h-4 w-4 text-destructive' />
-                  </Button>
-                </td>
-              </tr>
-            ))}
+                  <td className='flex items-center gap-1 p-2'>
+                    <DatabaseLink
+                      databaseList={databaseList.data}
+                      gettingDatabases={gettingDatabases}
+                      keyInfo={{
+                        value: env.key,
+                        valid: isKeyValid(env.key),
+                      }}
+                      service={service}
+                    />
+
+                    <Button
+                      variant='ghost'
+                      size={'icon'}
+                      onClick={() => handleDelete(index)}
+                      disabled={savingEnvironmentVariables}>
+                      <Trash2 className='h-4 w-4 text-destructive' />
+                    </Button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
