@@ -8,6 +8,7 @@ import { z } from 'zod'
 
 import { connectAWSAccountAction } from '@/actions/cloud/aws'
 import { connectAWSAccountSchema } from '@/actions/cloud/aws/validator'
+import SecretContent from '@/components/ui/blur-reveal'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -117,7 +118,9 @@ const AWSAccountForm = ({
                 <FormItem>
                   <FormLabel>Access Key ID</FormLabel>
                   <FormControl>
-                    <Input {...field} className='rounded-sm' />
+                    <SecretContent placeholder='Click to reveal Access Key ID'>
+                      <Input {...field} className='rounded-sm' />
+                    </SecretContent>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,7 +134,9 @@ const AWSAccountForm = ({
                 <FormItem>
                   <FormLabel>Secret Access Key</FormLabel>
                   <FormControl>
-                    <Input {...field} className='rounded-sm' />
+                    <SecretContent placeholder='Click to reveal Secret Access Key'>
+                      <Input {...field} className='rounded-sm' />
+                    </SecretContent>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
