@@ -258,9 +258,9 @@ export interface SshKey {
 export interface SecurityGroup {
   id: string;
   name: string;
-  description?: string | null;
+  description: string;
   cloudProvider: 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  cloudProviderAccount?: (string | null) | CloudProviderAccount;
+  cloudProviderAccount: string | CloudProviderAccount;
   inboundRules?:
     | {
         name: string;

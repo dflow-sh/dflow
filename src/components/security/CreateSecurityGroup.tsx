@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { SecurityGroup } from '@/payload-types'
+import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
 import CreateSecurityGroupForm from './CreateSecurityGroupForm'
 
@@ -21,12 +21,14 @@ const CreateSecurityGroup = ({
   type = 'create',
   description = 'This form allows you to add a security group to your cloud environment.',
   securityGroup,
+  cloudProviderAccounts,
 }: {
   type?: 'create' | 'update'
   description?: string
   securityGroup?: SecurityGroup
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
+  cloudProviderAccounts: CloudProviderAccount[]
 }) => {
   const [open, setOpen] = useState<boolean>(false)
   const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
@@ -64,6 +66,7 @@ const CreateSecurityGroup = ({
           type={type}
           securityGroup={securityGroup}
           setOpen={setOpen}
+          cloudProviderAccounts={cloudProviderAccounts}
         />
       </DialogContent>
     </Dialog>

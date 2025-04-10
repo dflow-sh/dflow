@@ -12,9 +12,9 @@ import {
 } from '../ui/select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, ShieldAlert, ShieldCheck, Tag, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -36,38 +36,77 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Separator } from '@/components/ui/separator'
-import { SecurityGroup } from '@/payload-types'
+import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
-// Define rule schema to use in the extended schema
-const securityRuleSchema = z.object({
-  protocol: z.enum(['tcp', 'udp', 'icmp', '-1']),
-  fromPort: z.number().min(0).max(65535).optional(),
-  toPort: z.number().min(0).max(65535).optional(),
-  targetType: z.enum(['cidr', 'sg', 'prefix']),
-  cidrValue: z.string().optional(),
-  prefixListId: z.string().optional(),
+// Inbound rule schema
+const inboundRuleSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
+  type: z.enum([
+    'all-traffic',
+    'custom-tcp',
+    'custom-udp',
+    'custom-icmp',
+    'ssh',
+    'https',
+    'http',
+    'rdp',
+    'custom',
+  ]),
+  protocol: z.enum(['tcp', 'udp', 'icmp', 'all']),
+  fromPort: z.number().min(0).max(65535),
+  toPort: z.number().min(0).max(65535),
+  sourceType: z.enum(['my-ip', 'anywhere-ipv4', 'anywhere-ipv6', 'custom']),
+  source: z.string(),
 })
 
-// Extend the schema to include all fields from the updated PayloadCMS collection
+// Outbound rule schema
+const outboundRuleSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+  type: z.enum([
+    'all-traffic',
+    'custom-tcp',
+    'custom-udp',
+    'custom-icmp',
+    'ssh',
+    'https',
+    'http',
+    'rdp',
+    'custom',
+  ]),
+  protocol: z.enum(['tcp', 'udp', 'icmp', 'all']),
+  fromPort: z.number().min(0).max(65535),
+  toPort: z.number().min(0).max(65535),
+  destinationType: z.enum([
+    'my-ip',
+    'anywhere-ipv4',
+    'anywhere-ipv6',
+    'custom',
+  ]),
+  destination: z.string(),
+})
+
+// Define tag schema
+const tagSchema = z.object({
+  key: z.string().min(1, 'Key is required'),
+  value: z.string().optional(),
+})
+
+// Define the extended schema for the form
 const extendedSecurityGroupSchema = createSecurityGroupSchema.extend({
-  cloudProviderAccount: z.string().optional(),
-  groupId: z.string().min(1),
-  rules: z.array(securityRuleSchema).min(1).default([]),
-  tags: z
-    .array(
-      z.object({
-        key: z.string(),
-        value: z.string(),
-      }),
-    )
-    .default([]),
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().min(1, 'Description is required'),
+  cloudProvider: z.enum(['aws', 'azure', 'gcp', 'digitalocean']),
+  cloudProviderAccount: z.string().min(1, 'Cloud Provider Account is required'),
+  inboundRules: z.array(inboundRuleSchema).optional().default([]),
+  outboundRules: z.array(outboundRuleSchema).optional().default([]),
+  tags: z.array(tagSchema).optional().default([]),
 })
 
-// Use the extended schema type
 type FormValues = z.infer<typeof extendedSecurityGroupSchema>
 
-const CreateSecurityGroupForm = ({
+const SecurityGroupForm = ({
   type = 'create',
   securityGroup,
   setOpen,
@@ -77,9 +116,8 @@ const CreateSecurityGroupForm = ({
   securityGroup?: SecurityGroup
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
-  cloudProviderAccounts?: { id: string; label: string }[]
+  cloudProviderAccounts: CloudProviderAccount[]
 }) => {
-  const pathName = usePathname()
   const router = useRouter()
 
   const form = useForm<FormValues>({
@@ -87,39 +125,57 @@ const CreateSecurityGroupForm = ({
     defaultValues: {
       name: securityGroup?.name || '',
       description: securityGroup?.description || '',
-      region: securityGroup?.region || '',
-      groupId: securityGroup?.groupId || '',
-      ruleType: securityGroup?.ruleType || 'ingress',
-      vpcId: securityGroup?.vpcId || '',
+      cloudProvider: (securityGroup?.cloudProvider as any) || 'aws',
       cloudProviderAccount:
-        (securityGroup?.cloudProviderAccount as string) || '',
-      // Use rules array from updated schema
-      rules: securityGroup?.rules || [
+        ((securityGroup?.cloudProviderAccount as CloudProviderAccount)
+          ?.id as string) || '',
+      inboundRules: (securityGroup?.inboundRules as any[]) || [
         {
+          name: '',
+          description: '',
+          type: 'custom-tcp',
           protocol: 'tcp',
           fromPort: 0,
           toPort: 0,
-          targetType: 'cidr',
-          cidrValue: '',
-          prefixListId: '',
-          description: '',
+          sourceType: 'custom',
+          source: '',
         },
       ],
-      tags: securityGroup?.tags || [],
+      outboundRules: (securityGroup?.outboundRules as any[]) || [
+        {
+          name: '',
+          description: '',
+          type: 'all-traffic',
+          protocol: 'all',
+          fromPort: 0,
+          toPort: 0,
+          destinationType: 'anywhere-ipv4',
+          destination: '0.0.0.0/0',
+        },
+      ],
+      tags: (securityGroup?.tags as any[]) || [],
     },
   })
 
-  // Setup field array for security rules
+  // Setup field arrays
   const {
-    fields: ruleFields,
-    append: appendRule,
-    remove: removeRule,
+    fields: inboundRuleFields,
+    append: appendInboundRule,
+    remove: removeInboundRule,
   } = useFieldArray({
     control: form.control,
-    name: 'rules',
+    name: 'inboundRules',
   })
 
-  // Setup field array for tags
+  const {
+    fields: outboundRuleFields,
+    append: appendOutboundRule,
+    remove: removeOutboundRule,
+  } = useFieldArray({
+    control: form.control,
+    name: 'outboundRules',
+  })
+
   const {
     fields: tagFields,
     append: appendTag,
@@ -157,7 +213,7 @@ const CreateSecurityGroupForm = ({
       },
     })
 
-  function onSubmit(values: FormValues) {
+  const onSubmit = (values: FormValues) => {
     if (type === 'update' && securityGroup) {
       updateSecurityGroup({
         id: securityGroup.id,
@@ -168,17 +224,25 @@ const CreateSecurityGroupForm = ({
     }
   }
 
+  const watchCloudProvider = form.watch('cloudProvider')
+
+  // Filter cloud provider accounts based on selected provider
+  const filteredAccounts = cloudProviderAccounts.filter(
+    account => account.type === watchCloudProvider,
+  )
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
         <ScrollArea className='h-[60vh] pl-1 pr-4'>
           <div className='space-y-4'>
+            {/* Basic Information */}
             <FormField
               control={form.control}
               name='name'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Security Group Name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -204,37 +268,34 @@ const CreateSecurityGroupForm = ({
             <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               <FormField
                 control={form.control}
-                name='region'
+                name='cloudProvider'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Region</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
+                    <FormLabel>Cloud Provider</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select cloud provider' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='aws'>AWS</SelectItem>
+                        <SelectItem value='azure'>Azure</SelectItem>
+                        <SelectItem value='gcp'>
+                          Google Cloud Platform
+                        </SelectItem>
+                        <SelectItem value='digitalocean'>
+                          Digital Ocean
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='groupId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Security Group ID</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder='sg-12345' />
-                    </FormControl>
-                    <FormDescription>
-                      The ID of the security group in the cloud provider
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
               <FormField
                 control={form.control}
                 name='cloudProviderAccount'
@@ -250,9 +311,9 @@ const CreateSecurityGroupForm = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {cloudProviderAccounts.map(account => (
+                        {filteredAccounts?.map(account => (
                           <SelectItem key={account.id} value={account.id}>
-                            {account.label}
+                            {account.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -261,72 +322,29 @@ const CreateSecurityGroupForm = ({
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name='vpcId'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>VPC ID (optional)</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder='vpc-12345' />
-                    </FormControl>
-                    <FormDescription>
-                      The ID of the VPC/Virtual Network this security group
-                      belongs to
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
-
-            <FormField
-              control={form.control}
-              name='ruleType'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rule Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select rule type' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='ingress'>Ingress (Inbound)</SelectItem>
-                      <SelectItem value='egress'>Egress (Outbound)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Specify whether these are inbound or outbound rules
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
 
           <Separator className='my-4' />
 
+          {/* Inbound Rules */}
           <div className='space-y-4'>
             <div className='flex items-center justify-between'>
-              <h3 className='text-lg font-medium'>Security Rules</h3>
+              <h3 className='text-lg font-medium'>Inbound Rules</h3>
               <Button
                 type='button'
                 variant='outline'
                 size='sm'
                 onClick={() =>
-                  appendRule({
+                  appendInboundRule({
+                    name: '',
+                    description: '',
+                    type: 'custom-tcp',
                     protocol: 'tcp',
                     fromPort: 0,
                     toPort: 0,
-                    targetType: 'cidr',
-                    cidrValue: '',
-                    prefixListId: '',
-                    description: '',
+                    sourceType: 'custom',
+                    source: '',
                   })
                 }>
                 <Plus className='mr-2 h-4 w-4' />
@@ -334,47 +352,98 @@ const CreateSecurityGroupForm = ({
               </Button>
             </div>
 
-            {ruleFields.map((field, index) => {
-              const watchProtocol = form.watch(`rules.${index}.protocol`)
-              const watchTargetType = form.watch(`rules.${index}.targetType`)
+            {inboundRuleFields.length === 0 && (
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <ShieldAlert className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
+                <p className='text-muted-foreground'>No Inbound Rules Found</p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  Add inbound rules to control incoming traffic to your
+                  resources
+                </p>
+              </div>
+            )}
+
+            {inboundRuleFields.map((field, index) => {
+              const watchRuleType = form.watch(`inboundRules.${index}.type`)
+              const watchSourceType = form.watch(
+                `inboundRules.${index}.sourceType`,
+              )
 
               return (
                 <div key={field.id} className='space-y-4 rounded-md border p-4'>
                   <div className='flex items-center justify-between'>
-                    <h4 className='font-medium'>Rule {index + 1}</h4>
-                    {/* Only show the remove button if there's more than one rule */}
-                    {ruleFields.length > 1 && (
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => removeRule(index)}
-                        className='text-red-500 hover:text-red-600'>
-                        <Trash2 className='mr-1 h-4 w-4' />
-                        Remove
-                      </Button>
-                    )}
+                    <h4 className='font-medium'>Inbound Rule {index + 1}</h4>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => removeInboundRule(index)}
+                      className='text-red-500 hover:text-red-600'>
+                      <Trash2 className='mr-1 h-4 w-4' />
+                      Remove
+                    </Button>
                   </div>
 
                   <FormField
                     control={form.control}
-                    name={`rules.${index}.protocol`}
+                    name={`inboundRules.${index}.name`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Protocol</FormLabel>
+                        <FormLabel>Rule Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`inboundRules.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`inboundRules.${index}.type`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder='Select protocol' />
+                              <SelectValue placeholder='Select rule type' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value='tcp'>TCP</SelectItem>
-                            <SelectItem value='udp'>UDP</SelectItem>
-                            <SelectItem value='icmp'>ICMP</SelectItem>
-                            <SelectItem value='-1'>All</SelectItem>
+                            <SelectItem value='all-traffic'>
+                              All Traffic
+                            </SelectItem>
+                            <SelectItem value='custom-tcp'>
+                              Custom TCP
+                            </SelectItem>
+                            <SelectItem value='custom-udp'>
+                              Custom UDP
+                            </SelectItem>
+                            <SelectItem value='custom-icmp'>
+                              Custom ICMP
+                            </SelectItem>
+                            <SelectItem value='ssh'>SSH</SelectItem>
+                            <SelectItem value='https'>HTTPS</SelectItem>
+                            <SelectItem value='http'>HTTP</SelectItem>
+                            <SelectItem value='rdp'>RDP</SelectItem>
+                            <SelectItem value='custom'>Custom</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -382,14 +451,53 @@ const CreateSecurityGroupForm = ({
                     )}
                   />
 
-                  {watchProtocol !== 'icmp' && watchProtocol !== '-1' && (
+                  {watchRuleType === 'custom' && (
+                    <FormField
+                      control={form.control}
+                      name={`inboundRules.${index}.protocol`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Protocol</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='Select protocol' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value='tcp'>TCP</SelectItem>
+                              <SelectItem value='udp'>UDP</SelectItem>
+                              <SelectItem value='icmp'>ICMP</SelectItem>
+                              <SelectItem value='all'>All</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {([
+                    'custom-tcp',
+                    'custom-udp',
+                    'ssh',
+                    'http',
+                    'https',
+                    'rdp',
+                  ].includes(watchRuleType) ||
+                    (watchRuleType === 'custom' &&
+                      form.watch(`inboundRules.${index}.protocol`) !== 'icmp' &&
+                      form.watch(`inboundRules.${index}.protocol`) !==
+                        'all')) && (
                     <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                       <FormField
                         control={form.control}
-                        name={`rules.${index}.fromPort`}
+                        name={`inboundRules.${index}.fromPort`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>From Port</FormLabel>
+                            <FormLabel>Port Range (From)</FormLabel>
                             <FormControl>
                               <Input
                                 type='number'
@@ -397,9 +505,11 @@ const CreateSecurityGroupForm = ({
                                 max={65535}
                                 {...field}
                                 onChange={e =>
-                                  field.onChange(parseInt(e.target.value, 10))
+                                  field.onChange(
+                                    parseInt(e.target.value, 10) || 0,
+                                  )
                                 }
-                                value={field.value || ''}
+                                value={field.value || 0}
                               />
                             </FormControl>
                             <FormMessage />
@@ -409,10 +519,10 @@ const CreateSecurityGroupForm = ({
 
                       <FormField
                         control={form.control}
-                        name={`rules.${index}.toPort`}
+                        name={`inboundRules.${index}.toPort`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>To Port</FormLabel>
+                            <FormLabel>Port Range (To)</FormLabel>
                             <FormControl>
                               <Input
                                 type='number'
@@ -420,9 +530,11 @@ const CreateSecurityGroupForm = ({
                                 max={65535}
                                 {...field}
                                 onChange={e =>
-                                  field.onChange(parseInt(e.target.value, 10))
+                                  field.onChange(
+                                    parseInt(e.target.value, 10) || 0,
+                                  )
                                 }
-                                value={field.value || ''}
+                                value={field.value || 0}
                               />
                             </FormControl>
                             <FormMessage />
@@ -434,22 +546,27 @@ const CreateSecurityGroupForm = ({
 
                   <FormField
                     control={form.control}
-                    name={`rules.${index}.targetType`}
+                    name={`inboundRules.${index}.sourceType`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Target Type</FormLabel>
+                        <FormLabel>Source Type</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder='Select target type' />
+                              <SelectValue placeholder='Select source type' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value='cidr'>CIDR Block</SelectItem>
-                            <SelectItem value='sg'>Security Group</SelectItem>
-                            <SelectItem value='prefix'>Prefix List</SelectItem>
+                            <SelectItem value='my-ip'>My IP</SelectItem>
+                            <SelectItem value='anywhere-ipv4'>
+                              Anywhere-IPv4
+                            </SelectItem>
+                            <SelectItem value='anywhere-ipv6'>
+                              Anywhere-IPv6
+                            </SelectItem>
+                            <SelectItem value='custom'>Custom</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -457,56 +574,18 @@ const CreateSecurityGroupForm = ({
                     )}
                   />
 
-                  {watchTargetType === 'cidr' && (
-                    <FormField
-                      control={form.control}
-                      name={`rules.${index}.cidrValue`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>CIDR Value</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder='0.0.0.0/0' />
-                          </FormControl>
-                          <FormDescription>
-                            CIDR notation (e.g., 0.0.0.0/0 for anywhere)
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
-                  {watchTargetType === 'prefix' && (
-                    <FormField
-                      control={form.control}
-                      name={`rules.${index}.prefixListId`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Prefix List ID</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder='pl-12345' />
-                          </FormControl>
-                          <FormDescription>
-                            ID of the prefix list
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-
                   <FormField
                     control={form.control}
-                    name={`rules.${index}.description`}
+                    name={`inboundRules.${index}.source`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Rule Description</FormLabel>
+                        <FormLabel>Source</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            placeholder='Describe the purpose of this rule'
-                          />
+                          <Input {...field} placeholder='0.0.0.0/0' />
                         </FormControl>
+                        <FormDescription>
+                          CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -518,6 +597,277 @@ const CreateSecurityGroupForm = ({
 
           <Separator className='my-4' />
 
+          {/* Outbound Rules */}
+          <div className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-lg font-medium'>Outbound Rules</h3>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                onClick={() =>
+                  appendOutboundRule({
+                    name: '',
+                    description: '',
+                    type: 'all-traffic',
+                    protocol: 'all',
+                    fromPort: 0,
+                    toPort: 0,
+                    destinationType: 'anywhere-ipv4',
+                    destination: '0.0.0.0/0',
+                  })
+                }>
+                <Plus className='mr-2 h-4 w-4' />
+                Add Rule
+              </Button>
+            </div>
+
+            {outboundRuleFields.length === 0 && (
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <ShieldCheck className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
+                <p className='text-muted-foreground'>No Outbound Rules Found</p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  Add outbound rules to control traffic leaving your resources
+                </p>
+              </div>
+            )}
+
+            {outboundRuleFields.map((field, index) => {
+              const watchRuleType = form.watch(`outboundRules.${index}.type`)
+              const watchDestinationType = form.watch(
+                `outboundRules.${index}.destinationType`,
+              )
+
+              return (
+                <div key={field.id} className='space-y-4 rounded-md border p-4'>
+                  <div className='flex items-center justify-between'>
+                    <h4 className='font-medium'>Outbound Rule {index + 1}</h4>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => removeOutboundRule(index)}
+                      className='text-red-500 hover:text-red-600'>
+                      <Trash2 className='mr-1 h-4 w-4' />
+                      Remove
+                    </Button>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name={`outboundRules.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rule Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`outboundRules.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`outboundRules.${index}.type`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select rule type' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='all-traffic'>
+                              All Traffic
+                            </SelectItem>
+                            <SelectItem value='custom-tcp'>
+                              Custom TCP
+                            </SelectItem>
+                            <SelectItem value='custom-udp'>
+                              Custom UDP
+                            </SelectItem>
+                            <SelectItem value='custom-icmp'>
+                              Custom ICMP
+                            </SelectItem>
+                            <SelectItem value='ssh'>SSH</SelectItem>
+                            <SelectItem value='https'>HTTPS</SelectItem>
+                            <SelectItem value='http'>HTTP</SelectItem>
+                            <SelectItem value='rdp'>RDP</SelectItem>
+                            <SelectItem value='custom'>Custom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {watchRuleType === 'custom' && (
+                    <FormField
+                      control={form.control}
+                      name={`outboundRules.${index}.protocol`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Protocol</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='Select protocol' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value='tcp'>TCP</SelectItem>
+                              <SelectItem value='udp'>UDP</SelectItem>
+                              <SelectItem value='icmp'>ICMP</SelectItem>
+                              <SelectItem value='all'>All</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {([
+                    'custom-tcp',
+                    'custom-udp',
+                    'ssh',
+                    'http',
+                    'https',
+                    'rdp',
+                  ].includes(watchRuleType) ||
+                    (watchRuleType === 'custom' &&
+                      form.watch(`outboundRules.${index}.protocol`) !==
+                        'icmp' &&
+                      form.watch(`outboundRules.${index}.protocol`) !==
+                        'all')) && (
+                    <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                      <FormField
+                        control={form.control}
+                        name={`outboundRules.${index}.fromPort`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Port Range (From)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                min={0}
+                                max={65535}
+                                {...field}
+                                onChange={e =>
+                                  field.onChange(
+                                    parseInt(e.target.value, 10) || 0,
+                                  )
+                                }
+                                value={field.value || 0}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`outboundRules.${index}.toPort`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Port Range (To)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                min={0}
+                                max={65535}
+                                {...field}
+                                onChange={e =>
+                                  field.onChange(
+                                    parseInt(e.target.value, 10) || 0,
+                                  )
+                                }
+                                value={field.value || 0}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name={`outboundRules.${index}.destinationType`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destination Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select destination type' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='my-ip'>My IP</SelectItem>
+                            <SelectItem value='anywhere-ipv4'>
+                              Anywhere-IPv4
+                            </SelectItem>
+                            <SelectItem value='anywhere-ipv6'>
+                              Anywhere-IPv6
+                            </SelectItem>
+                            <SelectItem value='custom'>Custom</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`outboundRules.${index}.destination`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destination</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder='0.0.0.0/0' />
+                        </FormControl>
+                        <FormDescription>
+                          CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <Separator className='my-4' />
+
+          {/* Tags */}
           <div className='mb-10 space-y-4'>
             <div className='flex items-center justify-between'>
               <h3 className='text-lg font-medium'>Tags</h3>
@@ -532,8 +882,12 @@ const CreateSecurityGroupForm = ({
             </div>
 
             {tagFields.length === 0 && (
-              <div className='py-4 text-center text-gray-500'>
-                No tags added. Click "Add Tag" to create a new tag.
+              <div className='flex flex-col items-center justify-center py-12 text-center'>
+                <Tag className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
+                <p className='text-muted-foreground'>No Tags Found</p>
+                <p className='mt-1 text-sm text-muted-foreground'>
+                  Add tags to organize and manage your resources
+                </p>
               </div>
             )}
 
@@ -583,7 +937,9 @@ const CreateSecurityGroupForm = ({
             type='submit'
             disabled={isCreatingSecurityGroup || isUpdatingSecurityGroup}
             className='w-full sm:w-auto'>
-            {type === 'create' ? 'Add Security Group' : 'Update Security Group'}
+            {type === 'create'
+              ? 'Create Security Group'
+              : 'Update Security Group'}
           </Button>
         </DialogFooter>
       </form>
@@ -591,4 +947,4 @@ const CreateSecurityGroupForm = ({
   )
 }
 
-export default CreateSecurityGroupForm
+export default SecurityGroupForm

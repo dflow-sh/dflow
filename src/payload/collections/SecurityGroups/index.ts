@@ -22,6 +22,7 @@ const SecurityGroups: CollectionConfig = {
       name: 'description',
       type: 'textarea',
       label: 'Description',
+      required: true,
     },
     {
       name: 'cloudProvider',
@@ -40,11 +41,12 @@ const SecurityGroups: CollectionConfig = {
       type: 'relationship',
       relationTo: 'cloudProviderAccounts',
       label: 'Cloud Provider Account',
+      required: true,
       filterOptions: ({ relationTo, siblingData }) => {
         if (relationTo === 'cloudProviderAccounts') {
           return {
             type: {
-              equals: siblingData?.cloudProvider,
+              equals: (siblingData as any)?.cloudProvider,
             },
           }
         }

@@ -6,7 +6,10 @@ import { z } from 'zod'
 
 import { protectedClient } from '@/lib/safe-action'
 
-import { createSecurityGroupSchema } from './validator'
+import {
+  createSecurityGroupSchema,
+  updateSecurityGroupSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -16,17 +19,26 @@ export const createSecurityGroupAction = protectedClient
   })
   .schema(createSecurityGroupSchema)
   .action(async ({ clientInput }) => {
-    const { name, description, region, groupId, ruleType, vpcId } = clientInput
+    const {
+      name,
+      description,
+      cloudProvider,
+      cloudProviderAccount,
+      inboundRules,
+      outboundRules,
+      tags,
+    } = clientInput
 
     const securityGroup = await payload.create({
       collection: 'securityGroups',
       data: {
         name,
         description,
-        region,
-        groupId,
-        ruleType,
-        vpcId,
+        cloudProvider,
+        cloudProviderAccount,
+        inboundRules,
+        outboundRules,
+        tags,
       },
     })
 
@@ -37,20 +49,18 @@ export const updateSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'updateSecurityGroupAction',
   })
-  .schema(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      description: z.string().optional(),
-      region: z.string(),
-      groupId: z.string(),
-      ruleType: z.enum(['ingress', 'egress']),
-      vpcId: z.string().optional(),
-    }),
-  )
+  .schema(updateSecurityGroupSchema)
   .action(async ({ clientInput }) => {
-    const { id, name, description, region, groupId, ruleType, vpcId } =
-      clientInput
+    const {
+      id,
+      name,
+      description,
+      cloudProvider,
+      cloudProviderAccount,
+      inboundRules,
+      outboundRules,
+      tags,
+    } = clientInput
 
     const updatedSecurityGroup = await payload.update({
       collection: 'securityGroups',
@@ -58,10 +68,11 @@ export const updateSecurityGroupAction = protectedClient
       data: {
         name,
         description,
-        region,
-        groupId,
-        ruleType,
-        vpcId,
+        cloudProvider,
+        cloudProviderAccount,
+        inboundRules,
+        outboundRules,
+        tags,
       },
     })
 
@@ -74,7 +85,7 @@ export const deleteSecurityGroupAction = protectedClient
   })
   .schema(
     z.object({
-      id: z.string(),
+      id: z.string().min(1, 'ID is required'),
     }),
   )
   .action(async ({ clientInput }) => {

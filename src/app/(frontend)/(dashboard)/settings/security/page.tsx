@@ -1,5 +1,4 @@
 import LayoutClient from '../../layout.client'
-import { DescribeSecurityGroupsCommand, EC2Client } from '@aws-sdk/client-ec2'
 import configPromise from '@payload-config'
 import { KeyRound, Shield } from 'lucide-react'
 import { getPayload } from 'payload'
@@ -29,29 +28,35 @@ const SuspendedContent = async () => {
     pagination: false,
   })
 
+  // Fetch cloud provider accounts
+  const { docs: cloudProviderAccounts } = await payload.find({
+    collection: 'cloudProviderAccounts',
+    pagination: false,
+  })
+
   // Fetch security groups
   const { docs: securityGroups } = await payload.find({
     collection: 'securityGroups',
     pagination: false,
   })
 
-  const awsAccountDetails = await payload.findByID({
-    collection: 'cloudProviderAccounts',
-    id: '67f6005f4a4228403133aee7',
-  })
+  // const awsAccountDetails = await payload.findByID({
+  //   collection: 'cloudProviderAccounts',
+  //   id: '67f6005f4a4228403133aee7',
+  // })
 
-  const ec2Client = new EC2Client({
-    region: 'us-east-1',
-    credentials: {
-      accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
-      secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
-    },
-  })
+  // const ec2Client = new EC2Client({
+  //   region: 'us-east-1',
+  //   credentials: {
+  //     accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
+  //     secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
+  //   },
+  // })
 
-  const command = new DescribeSecurityGroupsCommand({})
-  const response = await ec2Client.send(command)
+  // const command = new DescribeSecurityGroupsCommand({})
+  // const response = await ec2Client.send(command)
 
-  console.dir({ response }, { depth: Infinity })
+  // console.dir({ response }, { depth: Infinity })
 
   return (
     <>
@@ -87,7 +92,9 @@ const SuspendedContent = async () => {
           <CardHeader>
             <div className='flex items-center justify-between'>
               <CardTitle className='text-2xl'>Security Groups</CardTitle>
-              <CreateSecurityGroup />
+              <CreateSecurityGroup
+                cloudProviderAccounts={cloudProviderAccounts}
+              />
             </div>
             <CardDescription>
               Configure security groups to control traffic to your
