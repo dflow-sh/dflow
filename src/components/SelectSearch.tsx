@@ -89,8 +89,6 @@ export default function SelectSearch({
                       value={service.name}
                       onSelect={currentValue => {
                         setValue(() => {
-                          console.log('currentValue', currentValue)
-                          console.log('value', value)
                           return currentValue === value ? '' : currentValue
                         })
                         setOpen(false)
