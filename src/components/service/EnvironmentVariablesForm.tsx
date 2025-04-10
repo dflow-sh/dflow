@@ -206,6 +206,7 @@ const DatabaseLink = memo(
     )
   },
 )
+DatabaseLink.displayName = 'DatabaseLink'
 
 const EnvironmentVariableOption = memo(
   ({
@@ -413,6 +414,7 @@ const EnvironmentVariableOption = memo(
     )
   },
 )
+EnvironmentVariableOption.displayName = 'EnvironmentVariableOption'
 
 const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
   const [envVariables, setEnvVariables] = useState<
