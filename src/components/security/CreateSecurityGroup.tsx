@@ -52,7 +52,7 @@ const CreateSecurityGroup = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className='sm:max-w-2xl'>
+      <DialogContent className='sm:max-w-4xl'>
         <DialogHeader>
           <DialogTitle>
             {type === 'update' ? 'Edit Security Group' : 'Add Security Group'}

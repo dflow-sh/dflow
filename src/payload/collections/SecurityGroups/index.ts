@@ -24,65 +24,83 @@ const SecurityGroups: CollectionConfig = {
       label: 'Description',
     },
     {
-      name: 'region',
-      type: 'text',
+      name: 'cloudProvider',
+      type: 'select',
       required: true,
-      label: 'Region',
+      options: [
+        { label: 'AWS', value: 'aws' },
+        { label: 'Azure', value: 'azure' },
+        { label: 'Google Cloud Platform', value: 'gcp' },
+        { label: 'Digital Ocean', value: 'digitalocean' },
+      ],
+      label: 'Cloud Provider',
     },
     {
       name: 'cloudProviderAccount',
       type: 'relationship',
       relationTo: 'cloudProviderAccounts',
       label: 'Cloud Provider Account',
-    },
-    {
-      name: 'groupId',
-      type: 'text',
-      required: true,
-      label: 'Security Group ID',
-      admin: {
-        description:
-          'The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)',
+      filterOptions: ({ relationTo, siblingData }) => {
+        if (relationTo === 'cloudProviderAccounts') {
+          return {
+            type: {
+              equals: siblingData?.cloudProvider,
+            },
+          }
+        }
+
+        return false
       },
     },
     {
-      name: 'vpcId',
-      type: 'text',
-      label: 'VPC ID',
-      admin: {
-        condition: data => ['aws', 'azure'].includes(data?.provider),
-        description:
-          'The ID of the VPC/Virtual Network this security group belongs to',
-      },
-    },
-    {
-      name: 'ruleType',
-      type: 'select',
-      required: true,
-      options: [
-        { label: 'Ingress (Inbound)', value: 'ingress' },
-        { label: 'Egress (Outbound)', value: 'egress' },
-      ],
-      label: 'Rule Type',
-      admin: {
-        description: 'Specify whether this is an inbound or outbound rule',
-      },
-    },
-    {
-      name: 'rule',
-      type: 'group',
-      label: 'Security Rule',
+      name: 'inboundRules',
+      type: 'array',
+      label: 'Inbound Rules',
       fields: [
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+          label: 'Security Group Name',
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          label: 'Description',
+        },
+        {
+          name: 'type',
+          type: 'select',
+          required: true,
+          label: 'Type',
+          options: [
+            { label: 'All Traffic', value: 'all-traffic' },
+            { label: 'Custom TCP', value: 'custom-tcp' },
+            { label: 'Custom UDP', value: 'custom-udp' },
+            { label: 'Custom ICMP', value: 'custom-icmp' },
+            { label: 'SSH', value: 'ssh' },
+            { label: 'HTTPS', value: 'https' },
+            { label: 'HTTP', value: 'http' },
+            { label: 'RDP', value: 'rdp' },
+            { label: 'Custom', value: 'custom' },
+          ],
+          defaultValue: 'custom-tcp',
+        },
         {
           name: 'protocol',
           type: 'select',
           required: true,
+          label: 'Protocol',
           options: [
             { label: 'TCP', value: 'tcp' },
             { label: 'UDP', value: 'udp' },
             { label: 'ICMP', value: 'icmp' },
-            { label: 'All', value: '-1' },
+            { label: 'All', value: 'all' },
           ],
+          defaultValue: 'tcp',
+          admin: {
+            condition: (data, siblingData) => siblingData?.type === 'custom',
+          },
         },
         {
           name: 'fromPort',
@@ -90,9 +108,17 @@ const SecurityGroups: CollectionConfig = {
           required: true,
           min: 0,
           max: 65535,
+          label: 'Port Range (From)',
           admin: {
-            condition: (data, siblingData) =>
-              siblingData.protocol !== 'icmp' && siblingData.protocol !== '-1',
+            condition: (data, siblingData) => {
+              if (siblingData?.type === 'custom') {
+                return (
+                  siblingData?.protocol !== 'icmp' &&
+                  siblingData?.protocol !== 'all'
+                )
+              }
+              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+            },
           },
         },
         {
@@ -101,51 +127,172 @@ const SecurityGroups: CollectionConfig = {
           required: true,
           min: 0,
           max: 65535,
+          label: 'Port Range (To)',
           admin: {
-            condition: (data, siblingData) =>
-              siblingData.protocol !== 'icmp' && siblingData.protocol !== '-1',
+            condition: (data, siblingData) => {
+              if (siblingData?.type === 'custom') {
+                return (
+                  siblingData?.protocol !== 'icmp' &&
+                  siblingData?.protocol !== 'all'
+                )
+              }
+              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+            },
           },
         },
         {
-          name: 'targetType',
+          name: 'sourceType',
           type: 'select',
           required: true,
+          label: 'Source Type',
           options: [
-            { label: 'CIDR Block', value: 'cidr' },
-            { label: 'Security Group', value: 'sg' },
-            { label: 'Prefix List', value: 'prefix' },
+            { label: 'My IP', value: 'my-ip' },
+            { label: 'Anywhere-IPv4', value: 'anywhere-ipv4' },
+            { label: 'Anywhere-IPv6', value: 'anywhere-ipv6' },
+            { label: 'Custom', value: 'custom' },
           ],
           defaultValue: 'cidr',
         },
         {
-          name: 'cidrValue',
+          name: 'source',
           type: 'text',
+          label: 'Source',
+          required: true,
           admin: {
-            condition: (data, siblingData) => siblingData.targetType === 'cidr',
             description: 'CIDR notation (e.g., 0.0.0.0/0 for anywhere)',
           },
         },
         {
-          name: 'securityGroupId',
+          name: 'securityGroupRuleId',
           type: 'text',
+          label: 'Security Group Rule ID',
           admin: {
-            condition: (data, siblingData) => siblingData.targetType === 'sg',
-            description: 'ID of the security group',
+            readOnly: true,
+            description:
+              'Auto-generate after creation. The ID of the security group rule.',
           },
         },
+      ],
+    },
+    {
+      name: 'outboundRules',
+      type: 'array',
+      label: 'Outbound Rules',
+      fields: [
         {
-          name: 'prefixListId',
+          name: 'name',
           type: 'text',
-          admin: {
-            condition: (data, siblingData) =>
-              siblingData.targetType === 'prefix',
-            description: 'ID of the prefix list',
-          },
+          required: true,
+          label: 'Security Group Name',
         },
         {
           name: 'description',
+          type: 'textarea',
+          label: 'Description',
+        },
+        {
+          name: 'type',
+          type: 'select',
+          required: true,
+          label: 'Type',
+          options: [
+            { label: 'All Traffic', value: 'all-traffic' },
+            { label: 'Custom TCP', value: 'custom-tcp' },
+            { label: 'Custom UDP', value: 'custom-udp' },
+            { label: 'Custom ICMP', value: 'custom-icmp' },
+            { label: 'SSH', value: 'ssh' },
+            { label: 'HTTPS', value: 'https' },
+            { label: 'HTTP', value: 'http' },
+            { label: 'RDP', value: 'rdp' },
+            { label: 'Custom', value: 'custom' },
+          ],
+          defaultValue: 'custom-tcp',
+        },
+        {
+          name: 'protocol',
+          type: 'select',
+          required: true,
+          label: 'Protocol',
+          options: [
+            { label: 'TCP', value: 'tcp' },
+            { label: 'UDP', value: 'udp' },
+            { label: 'ICMP', value: 'icmp' },
+            { label: 'All', value: 'all' },
+          ],
+          defaultValue: 'tcp',
+          admin: {
+            condition: (data, siblingData) => siblingData?.type === 'custom',
+          },
+        },
+        {
+          name: 'fromPort',
+          type: 'number',
+          required: true,
+          min: 0,
+          max: 65535,
+          label: 'Port Range (From)',
+          admin: {
+            condition: (data, siblingData) => {
+              if (siblingData?.type === 'custom') {
+                return (
+                  siblingData?.protocol !== 'icmp' &&
+                  siblingData?.protocol !== 'all'
+                )
+              }
+              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+            },
+          },
+        },
+        {
+          name: 'toPort',
+          type: 'number',
+          required: true,
+          min: 0,
+          max: 65535,
+          label: 'Port Range (To)',
+          admin: {
+            condition: (data, siblingData) => {
+              if (siblingData?.type === 'custom') {
+                return (
+                  siblingData?.protocol !== 'icmp' &&
+                  siblingData?.protocol !== 'all'
+                )
+              }
+              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+            },
+          },
+        },
+        {
+          name: 'destinationType',
+          type: 'select',
+          required: true,
+          label: 'Destination Type',
+          options: [
+            { label: 'My IP', value: 'my-ip' },
+            { label: 'Anywhere-IPv4', value: 'anywhere-ipv4' },
+            { label: 'Anywhere-IPv6', value: 'anywhere-ipv6' },
+            { label: 'Custom', value: 'custom' },
+          ],
+          defaultValue: 'cidr',
+        },
+        {
+          name: 'destination',
           type: 'text',
-          label: 'Rule Description',
+          label: 'Destination',
+          required: true,
+          admin: {
+            description: 'CIDR notation (e.g., 0.0.0.0/0 for anywhere)',
+          },
+        },
+        {
+          name: 'securityGroupRuleId',
+          type: 'text',
+          label: 'Security Group Rule ID',
+          admin: {
+            readOnly: true,
+            description:
+              'Auto-generate after creation. The ID of the security group rule.',
+          },
         },
       ],
     },
@@ -162,13 +309,24 @@ const SecurityGroups: CollectionConfig = {
           name: 'key',
           type: 'text',
           required: true,
+          label: 'Key',
         },
         {
           name: 'value',
           type: 'text',
-          required: true,
+          label: 'Value',
         },
       ],
+    },
+    {
+      name: 'securityGroupId',
+      type: 'text',
+      label: 'Security Group ID',
+      admin: {
+        readOnly: true,
+        description:
+          'Auto-generate after creation. The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)',
+      },
     },
   ],
 }

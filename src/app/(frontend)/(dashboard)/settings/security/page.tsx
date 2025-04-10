@@ -1,4 +1,5 @@
 import LayoutClient from '../../layout.client'
+import { DescribeSecurityGroupsCommand, EC2Client } from '@aws-sdk/client-ec2'
 import configPromise from '@payload-config'
 import { KeyRound, Shield } from 'lucide-react'
 import { getPayload } from 'payload'
@@ -33,6 +34,24 @@ const SuspendedContent = async () => {
     collection: 'securityGroups',
     pagination: false,
   })
+
+  const awsAccountDetails = await payload.findByID({
+    collection: 'cloudProviderAccounts',
+    id: '67f6005f4a4228403133aee7',
+  })
+
+  const ec2Client = new EC2Client({
+    region: 'us-east-1',
+    credentials: {
+      accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
+      secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
+    },
+  })
+
+  const command = new DescribeSecurityGroupsCommand({})
+  const response = await ec2Client.send(command)
+
+  console.dir({ response }, { depth: Infinity })
 
   return (
     <>

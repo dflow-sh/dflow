@@ -258,49 +258,62 @@ export interface SecurityGroup {
   id: string;
   name: string;
   description?: string | null;
-  region: string;
+  cloudProvider: 'aws' | 'azure' | 'gcp' | 'digitalocean';
   cloudProviderAccount?: (string | null) | CloudProviderAccount;
-  /**
-   * The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)
-   */
-  groupId: string;
-  /**
-   * The ID of the VPC/Virtual Network this security group belongs to
-   */
-  vpcId?: string | null;
-  /**
-   * Specify whether this is an inbound or outbound rule
-   */
-  ruleType: 'ingress' | 'egress';
-  rule: {
-    protocol: 'tcp' | 'udp' | 'icmp' | '-1';
-    fromPort?: number | null;
-    toPort?: number | null;
-    targetType: 'cidr' | 'sg' | 'prefix';
-    /**
-     * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
-     */
-    cidrValue?: string | null;
-    /**
-     * ID of the security group
-     */
-    securityGroupId?: string | null;
-    /**
-     * ID of the prefix list
-     */
-    prefixListId?: string | null;
-    description?: string | null;
-  };
+  inboundRules?:
+    | {
+        name: string;
+        description?: string | null;
+        type: 'all-traffic' | 'custom-tcp' | 'custom-udp' | 'custom-icmp' | 'ssh' | 'https' | 'http' | 'rdp' | 'custom';
+        protocol?: ('tcp' | 'udp' | 'icmp' | 'all') | null;
+        fromPort?: number | null;
+        toPort?: number | null;
+        sourceType: 'my-ip' | 'anywhere-ipv4' | 'anywhere-ipv6' | 'custom';
+        /**
+         * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+         */
+        source: string;
+        /**
+         * Auto-generate after creation. The ID of the security group rule.
+         */
+        securityGroupRuleId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  outboundRules?:
+    | {
+        name: string;
+        description?: string | null;
+        type: 'all-traffic' | 'custom-tcp' | 'custom-udp' | 'custom-icmp' | 'ssh' | 'https' | 'http' | 'rdp' | 'custom';
+        protocol?: ('tcp' | 'udp' | 'icmp' | 'all') | null;
+        fromPort?: number | null;
+        toPort?: number | null;
+        destinationType: 'my-ip' | 'anywhere-ipv4' | 'anywhere-ipv6' | 'custom';
+        /**
+         * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+         */
+        destination: string;
+        /**
+         * Auto-generate after creation. The ID of the security group rule.
+         */
+        securityGroupRuleId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Key-value pairs used to organize and categorize resources
    */
   tags?:
     | {
         key: string;
-        value: string;
+        value?: string | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Auto-generate after creation. The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)
+   */
+  securityGroupId?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -729,22 +742,35 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
 export interface SecurityGroupsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
-  region?: T;
+  cloudProvider?: T;
   cloudProviderAccount?: T;
-  groupId?: T;
-  vpcId?: T;
-  ruleType?: T;
-  rule?:
+  inboundRules?:
     | T
     | {
+        name?: T;
+        description?: T;
+        type?: T;
         protocol?: T;
         fromPort?: T;
         toPort?: T;
-        targetType?: T;
-        cidrValue?: T;
-        securityGroupId?: T;
-        prefixListId?: T;
+        sourceType?: T;
+        source?: T;
+        securityGroupRuleId?: T;
+        id?: T;
+      };
+  outboundRules?:
+    | T
+    | {
+        name?: T;
         description?: T;
+        type?: T;
+        protocol?: T;
+        fromPort?: T;
+        toPort?: T;
+        destinationType?: T;
+        destination?: T;
+        securityGroupRuleId?: T;
+        id?: T;
       };
   tags?:
     | T
@@ -753,6 +779,7 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  securityGroupId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
