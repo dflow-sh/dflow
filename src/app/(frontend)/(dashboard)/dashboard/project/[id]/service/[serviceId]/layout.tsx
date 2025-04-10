@@ -53,7 +53,6 @@ const SuspendedServicePageLayout = async ({
     : null
 
   const domains = serviceDetails.domains
-  console.log('domain is ', domains?.length && domains[0])
 
   return (
     <LayoutClient
