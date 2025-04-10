@@ -1,7 +1,9 @@
 'use client'
 
+import Loader from '../Loader'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -53,7 +55,14 @@ const SignUpForm: React.FC = () => {
   return (
     <div className='flex min-h-screen w-full items-center justify-center'>
       <div className='w-full max-w-md p-6'>
-        <h1 className='mb-6 text-3xl font-semibold'>Sign Up</h1>
+        <Image
+          src='/images/dflow-no-bg.png'
+          alt='dFlow logo'
+          className='m-auto mb-4'
+          width={50}
+          height={50}
+        />
+        <h1 className='mb-6 text-center text-3xl font-semibold'>Sign Up</h1>
 
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
@@ -107,7 +116,7 @@ const SignUpForm: React.FC = () => {
             />
 
             <Button type='submit' className='w-full' disabled={isPending}>
-              {isPending ? 'Creating account...' : 'Sign Up'}
+              {isPending ? <Loader /> : 'Sign Up'}
             </Button>
           </form>
         </Form>
