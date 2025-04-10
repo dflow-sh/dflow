@@ -136,5 +136,14 @@
   "prettier.importOrderSortSpecifiers": true,
   "files.associations": {
     "*.mdx": "markdown"
+  },
+
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true
   }
 }
