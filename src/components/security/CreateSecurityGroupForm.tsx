@@ -14,7 +14,6 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, ShieldAlert, ShieldCheck, Tag, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -109,6 +108,7 @@ type FormValues = z.infer<typeof extendedSecurityGroupSchema>
 const SecurityGroupForm = ({
   type = 'create',
   securityGroup,
+  open,
   setOpen,
   cloudProviderAccounts = [],
 }: {
@@ -118,8 +118,6 @@ const SecurityGroupForm = ({
   setOpen?: Dispatch<SetStateAction<boolean>>
   cloudProviderAccounts: CloudProviderAccount[]
 }) => {
-  const router = useRouter()
-
   const form = useForm<FormValues>({
     resolver: zodResolver(extendedSecurityGroupSchema),
     defaultValues: {

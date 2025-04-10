@@ -1,6 +1,7 @@
 'use server'
 
 import configPromise from '@payload-config'
+import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
@@ -42,6 +43,10 @@ export const createSecurityGroupAction = protectedClient
       },
     })
 
+    if (securityGroup) {
+      revalidatePath('/settings/security')
+    }
+
     return securityGroup
   })
 
@@ -76,6 +81,10 @@ export const updateSecurityGroupAction = protectedClient
       },
     })
 
+    if (updatedSecurityGroup) {
+      revalidatePath('/settings/security')
+    }
+
     return updatedSecurityGroup
   })
 
@@ -91,25 +100,15 @@ export const deleteSecurityGroupAction = protectedClient
   .action(async ({ clientInput }) => {
     const { id } = clientInput
 
-    const response = await payload.delete({
+    const deleteSecurityGroup = await payload.delete({
       collection: 'securityGroups',
       id,
     })
 
-    if (response) {
-      return { success: true }
+    if (deleteSecurityGroup) {
+      revalidatePath('/settings/security')
+      return { deleted: true }
     }
-  })
 
-export const getAllSecurityGroupsAction = protectedClient
-  .metadata({
-    actionName: 'getAllSecurityGroupsAction',
-  })
-  .action(async () => {
-    const { docs } = await payload.find({
-      collection: 'securityGroups',
-      pagination: false,
-    })
-
-    return docs
+    return deleteSecurityGroup
   })

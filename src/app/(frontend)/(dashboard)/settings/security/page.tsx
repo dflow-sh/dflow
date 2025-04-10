@@ -4,7 +4,7 @@ import { KeyRound, Shield } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
-import CreateSSHKey from '@/components/security/CreateSSHKeyForm'
+import CreateSSHKey from '@/components/security/CreateSSHKey'
 import CreateSecurityGroup from '@/components/security/CreateSecurityGroup'
 import SSHKeysList from '@/components/security/SSHKeysList'
 import SecurityGroupsList from '@/components/security/SecurityGroupsList'
@@ -28,15 +28,15 @@ const SuspendedContent = async () => {
     pagination: false,
   })
 
-  // Fetch cloud provider accounts
-  const { docs: cloudProviderAccounts } = await payload.find({
-    collection: 'cloudProviderAccounts',
-    pagination: false,
-  })
-
   // Fetch security groups
   const { docs: securityGroups } = await payload.find({
     collection: 'securityGroups',
+    pagination: false,
+  })
+
+  // Fetch cloud provider accounts
+  const { docs: cloudProviderAccounts } = await payload.find({
+    collection: 'cloudProviderAccounts',
     pagination: false,
   })
 
@@ -103,7 +103,10 @@ const SuspendedContent = async () => {
           </CardHeader>
           <CardContent>
             {securityGroups.length ? (
-              <SecurityGroupsList securityGroups={securityGroups} />
+              <SecurityGroupsList
+                securityGroups={securityGroups}
+                cloudProviderAccounts={cloudProviderAccounts}
+              />
             ) : (
               <div className='flex flex-col items-center justify-center py-12 text-center'>
                 <Shield className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />

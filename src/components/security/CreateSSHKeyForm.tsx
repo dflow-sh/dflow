@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Check, Copy, Download, Key, Pencil, Plus } from 'lucide-react'
+import { Check, Copy, Download, Key } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -19,15 +19,7 @@ import {
   updateSSHKeyAction,
 } from '@/actions/sshkeys'
 import { createSSHKeySchema } from '@/actions/sshkeys/validator'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -77,7 +69,7 @@ const determineKeyType = (
   return 'rsa'
 }
 
-export const CreateSSHKeyForm = ({
+const CreateSSHKeyForm = ({
   type = 'create',
   sshKey,
   setOpen,
@@ -422,52 +414,4 @@ export const CreateSSHKeyForm = ({
   )
 }
 
-const CreateSSHKey = ({
-  type = 'create',
-  description = 'This form allows you to add an SSH key manually or generate a new RSA or ED25519 key pair to populate the fields.',
-  sshKey,
-}: {
-  type?: 'create' | 'update'
-  description?: string
-  sshKey?: SshKey
-  open?: boolean
-  setOpen?: Dispatch<SetStateAction<boolean>>
-}) => {
-  const [open, setOpen] = useState<boolean>(false)
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          // disabled={isDemoEnvironment}
-          onClick={e => e.stopPropagation()}
-          size={type === 'update' ? 'icon' : 'default'}
-          variant={type === 'update' ? 'outline' : 'default'}>
-          {type === 'update' ? (
-            <>
-              <Pencil />
-            </>
-          ) : (
-            <>
-              <Plus />
-              Add SSH key
-            </>
-          )}
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className='sm:max-w-2xl'>
-        <DialogHeader>
-          <DialogTitle>
-            {type === 'update' ? 'Edit SSH Key' : 'Add SSH key'}
-          </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-
-        <CreateSSHKeyForm type={type} sshKey={sshKey} setOpen={setOpen} />
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-export default CreateSSHKey
+export default CreateSSHKeyForm

@@ -2,20 +2,22 @@
 
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
-import { env } from 'env'
 import { Shield, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
 import { deleteSecurityGroupAction } from '@/actions/securityGroups'
-import { SecurityGroup } from '@/payload-types'
+import { isDemoEnvironment } from '@/lib/constants'
+import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
 import UpdateSecurityGroup from './CreateSecurityGroup'
 
 const SecurityGroupItem = ({
   securityGroup,
+  cloudProviderAccounts,
 }: {
   securityGroup: SecurityGroup
+  cloudProviderAccounts: CloudProviderAccount[]
 }) => {
   const { execute, isPending } = useAction(deleteSecurityGroupAction, {
     onSuccess: ({ data }) => {
@@ -27,7 +29,6 @@ const SecurityGroupItem = ({
       toast.error(`Failed to delete security group: ${error.serverError}`)
     },
   })
-  const isDemo = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 
   return (
     <Card>
@@ -38,8 +39,7 @@ const SecurityGroupItem = ({
           <div>
             <p className='font-semibold'>{securityGroup.name}</p>
             <span className='text-sm text-muted-foreground'>
-              {securityGroup.description ||
-                `Region: ${securityGroup.region} • ID: ${securityGroup.groupId}`}
+              {securityGroup.description}
             </span>
           </div>
         </div>
@@ -49,10 +49,11 @@ const SecurityGroupItem = ({
             securityGroup={securityGroup}
             type='update'
             description='This form updates security group'
+            cloudProviderAccounts={cloudProviderAccounts}
           />
 
           <Button
-            disabled={isPending || isDemo}
+            disabled={isPending || isDemoEnvironment}
             onClick={() => {
               execute({ id: securityGroup.id })
             }}
@@ -68,13 +69,19 @@ const SecurityGroupItem = ({
 
 const SecurityGroupsList = ({
   securityGroups,
+  cloudProviderAccounts,
 }: {
   securityGroups: SecurityGroup[]
+  cloudProviderAccounts: CloudProviderAccount[]
 }) => {
   return (
     <div className='mt-4 w-full space-y-4'>
       {securityGroups.map(group => (
-        <SecurityGroupItem securityGroup={group} key={group.id} />
+        <SecurityGroupItem
+          securityGroup={group}
+          key={group.id}
+          cloudProviderAccounts={cloudProviderAccounts}
+        />
       ))}
     </div>
   )
