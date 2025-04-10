@@ -112,3 +112,31 @@ export const deleteSecurityGroupAction = protectedClient
 
     return deleteSecurityGroup
   })
+
+export const syncSecurityGroupAction = protectedClient
+  .metadata({
+    actionName: 'syncSecurityGroupAction',
+  })
+  .schema(
+    z.object({
+      id: z.string().min(1, 'ID is required'),
+    }),
+  )
+  .action(async ({ clientInput }) => {
+    const { id } = clientInput
+
+    const updatedSecurityGroup = await payload.update({
+      collection: 'securityGroups',
+      id,
+      data: {
+        syncStatus: true,
+      },
+    })
+
+    if (updatedSecurityGroup) {
+      revalidatePath('/settings/security')
+      return { synced: true }
+    }
+
+    return updatedSecurityGroup
+  })

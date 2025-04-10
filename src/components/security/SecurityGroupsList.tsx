@@ -2,11 +2,14 @@
 
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
-import { Shield, Trash2 } from 'lucide-react'
+import { RefreshCw, Shield, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { deleteSecurityGroupAction } from '@/actions/securityGroups'
+import {
+  deleteSecurityGroupAction,
+  syncSecurityGroupAction,
+} from '@/actions/securityGroups'
 import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
@@ -19,16 +22,33 @@ const SecurityGroupItem = ({
   securityGroup: SecurityGroup
   cloudProviderAccounts: CloudProviderAccount[]
 }) => {
-  const { execute, isPending } = useAction(deleteSecurityGroupAction, {
-    onSuccess: ({ data }) => {
-      if (data) {
-        toast.success(`Successfully deleted security group`)
-      }
+  const { execute: executeDelete, isPending: isDeletePending } = useAction(
+    deleteSecurityGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.success(`Successfully deleted security group`)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to delete security group: ${error.serverError}`)
+      },
     },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete security group: ${error.serverError}`)
+  )
+
+  const { execute: executeSync, isPending: isSyncPending } = useAction(
+    syncSecurityGroupAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data) {
+          toast.success(`Successfully synced security group`)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to sync security group: ${error.serverError}`)
+      },
     },
-  })
+  )
 
   return (
     <Card>
@@ -45,6 +65,22 @@ const SecurityGroupItem = ({
         </div>
 
         <div className='flex items-center gap-3'>
+          <Button
+            disabled={
+              securityGroup.syncStatus || isSyncPending || isDemoEnvironment
+            }
+            onClick={() => {
+              executeSync({ id: securityGroup.id })
+            }}
+            size='icon'
+            variant='outline'
+            title='Sync security group'>
+            <RefreshCw
+              size={20}
+              className={isSyncPending ? 'animate-spin' : ''}
+            />
+          </Button>
+
           <UpdateSecurityGroup
             securityGroup={securityGroup}
             type='update'
@@ -53,12 +89,13 @@ const SecurityGroupItem = ({
           />
 
           <Button
-            disabled={isPending || isDemoEnvironment}
+            disabled={isDeletePending || isDemoEnvironment}
             onClick={() => {
-              execute({ id: securityGroup.id })
+              executeDelete({ id: securityGroup.id })
             }}
             size='icon'
-            variant='outline'>
+            variant='outline'
+            title='Delete security group'>
             <Trash2 size={20} />
           </Button>
         </div>

@@ -315,6 +315,10 @@ export interface SecurityGroup {
    * Auto-generate after creation. The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)
    */
   securityGroupId?: string | null;
+  /**
+   * Indicates whether the security group is synced with the cloud provider
+   */
+  syncStatus?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -782,6 +786,7 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
         id?: T;
       };
   securityGroupId?: T;
+  syncStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }

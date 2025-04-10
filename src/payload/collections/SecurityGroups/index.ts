@@ -1,5 +1,8 @@
 import { CollectionConfig } from 'payload'
 
+import { securityGroupBeforeChangeHook } from './hooks/securityGroupBeforeChangeHook'
+import { securityGroupBeforeDeleteHook } from './hooks/securityGroupBeforeDeleteHook'
+
 const SecurityGroups: CollectionConfig = {
   slug: 'securityGroups',
   admin: {
@@ -7,9 +10,13 @@ const SecurityGroups: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    create: () => false,
+    update: () => false,
+    delete: () => false,
+  },
+  hooks: {
+    beforeChange: [securityGroupBeforeChangeHook],
+    beforeDelete: [securityGroupBeforeDeleteHook],
   },
   fields: [
     {
@@ -325,9 +332,22 @@ const SecurityGroups: CollectionConfig = {
       type: 'text',
       label: 'Security Group ID',
       admin: {
+        position: 'sidebar',
         readOnly: true,
         description:
           'Auto-generate after creation. The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)',
+      },
+    },
+    {
+      name: 'syncStatus',
+      type: 'checkbox',
+      label: 'Sync Status',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        // readOnly: true,
+        description:
+          'Indicates whether the security group is synced with the cloud provider',
       },
     },
   ],
