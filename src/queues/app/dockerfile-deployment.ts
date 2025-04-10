@@ -137,10 +137,18 @@ const worker = new Worker<QueueArgs>(
           ssh,
           name: appName,
           values: Object.entries(serviceDetails.environmentVariables).map(
-            ([key, value]) => ({
-              key,
-              value: value as string,
-            }),
+            ([key, value]) => {
+              // handling the case where value is an object for reference environment variables
+              const formattedValue =
+                value && typeof value === 'object' && 'value' in value
+                  ? value.value
+                  : value
+
+              return {
+                key,
+                value: `${formattedValue}`,
+              }
+            },
           ),
           noRestart: true,
           options: {
@@ -184,7 +192,15 @@ const worker = new Worker<QueueArgs>(
         }
 
         const option = Object.entries(serviceDetails.environmentVariables)
-          .map(([key, value]) => `--build-arg ${key}="${value}"`)
+          .map(([key, value]) => {
+            // handling the case where value is an object for reference environment variables
+            const formattedValue =
+              value && typeof value === 'object' && 'value' in value
+                ? value.value
+                : value
+
+            return `--build-arg ${key}="${formattedValue}"`
+          })
           .join(' ')
 
         console.log('updated build-params', { option })

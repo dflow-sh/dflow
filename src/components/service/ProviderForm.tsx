@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
-import MultipleSelector, { Option } from '@/components/ui/multiselect'
+import { Option } from '@/components/ui/multiselect'
 import {
   Select,
   SelectContent,
@@ -486,33 +486,6 @@ const GithubForm = ({
             </FormItem>
           )}
         />
-
-        <div className='*:not-first:mt-2'>
-          <Label>Multiselect with placeholder and clear</Label>
-          <MultipleSelector
-            commandProps={{
-              label: 'Select frameworks',
-            }}
-            defaultOptions={frameworks}
-            placeholder='Select frameworks'
-            emptyIndicator={
-              <p className='text-center text-sm'>No results found</p>
-            }
-          />
-          <p
-            className='mt-2 text-xs text-muted-foreground'
-            role='region'
-            aria-live='polite'>
-            Inspired by{' '}
-            <a
-              className='underline hover:text-foreground'
-              href='https://shadcnui-expansions.typeart.cc/docs/multiple-selector'
-              target='_blank'
-              rel='noopener nofollow'>
-              shadcn/ui expansions
-            </a>
-          </p>
-        </div>
 
         <div className='flex w-full justify-end'>
           <Button type='submit' disabled={isPending} variant='outline'>

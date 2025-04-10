@@ -14,7 +14,14 @@ export const createImage = async ({
   environmentVariables,
 }: Args) => {
   const variables = Object.entries(environmentVariables ?? {})
-    .map(([key, value]) => `--env ${key}="${value}"`)
+    .map(([key, value]) => {
+      const formattedValue =
+        value && typeof value === 'object' && 'value' in value
+          ? value.value
+          : value
+
+      return `--env ${key}="${formattedValue}"`
+    })
     .join(' ')
 
   const resultCreateImage = await ssh.execCommand(

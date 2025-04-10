@@ -67,3 +67,9 @@ export const linkDatabaseSchema = z.object({
   serviceId: z.string(),
   environmentVariableName: z.string(),
 })
+
+export const unlinkDatabaseSchema = z.object({
+  databaseServiceName: z.string(),
+  serviceId: z.string(),
+  environmentVariableName: z.string(),
+})

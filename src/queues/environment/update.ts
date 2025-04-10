@@ -56,10 +56,16 @@ const worker = new Worker<QueueArgs>(
           ssh,
           name: serviceDetails.name,
           values: Object.entries(serviceDetails.environmentVariables).map(
-            ([key, value]) => ({
-              key,
-              value: `${value}`,
-            }),
+            ([key, value]) => {
+              const formattedValue =
+                value && typeof value === 'object' && 'value' in value
+                  ? value.value
+                  : value
+              return {
+                key,
+                value: `${formattedValue}`,
+              }
+            },
           ),
           noRestart: serviceDetails.noRestart,
           options: {
