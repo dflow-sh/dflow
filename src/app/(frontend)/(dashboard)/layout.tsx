@@ -8,10 +8,11 @@ import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
 import { HeaderBanner } from '@/components/HeaderBanner'
-import Loader from '@/components/Loader'
 import { NavUser } from '@/components/nav-user'
 import { isDemoEnvironment } from '@/lib/constants'
 import Provider from '@/providers/Provider'
+
+import DashboardLoading from './dashboard/DashboardLoading'
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const headersList = await headers()
@@ -85,7 +86,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     // Added a suspense boundary to show loading response until user promise is resolved
     <Provider>
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<DashboardLoading />}>
         <DashboardLayout>{children}</DashboardLayout>
       </Suspense>
     </Provider>
