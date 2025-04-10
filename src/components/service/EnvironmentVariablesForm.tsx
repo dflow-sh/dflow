@@ -132,8 +132,6 @@ const DatabaseLink = memo(
         : null
     ) as Record<string, string> | null
 
-    console.log({ databaseDetails })
-
     return databaseDetails ? (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -298,11 +296,9 @@ const EnvironmentVariableOption = memo(
       setEnvVariables(envVariables.filter((_, i) => i !== index))
     }
 
-    const parsedEnvironmentVariable = (
-      variable?.value && typeof variable?.value === 'object'
-        ? variable?.value
-        : null
-    ) as Record<string, string> | null
+    const parsedEnvironmentVariable = variable?.value as
+      | Record<string, string>
+      | string
 
     return (
       <>
@@ -326,7 +322,11 @@ const EnvironmentVariableOption = memo(
           {/* value */}
           <td className='p-2'>
             <Input
-              value={parsedEnvironmentVariable?.value as string}
+              value={
+                typeof parsedEnvironmentVariable === 'object'
+                  ? parsedEnvironmentVariable?.value
+                  : parsedEnvironmentVariable
+              }
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 handleChange(index, 'value', e.target.value)
               }
@@ -379,7 +379,8 @@ const EnvironmentVariableOption = memo(
               <AlertDialogDescription>
                 This action will unlink the{' '}
                 <strong className='text-foreground'>
-                  {parsedEnvironmentVariable?.linkedService}
+                  {typeof parsedEnvironmentVariable === 'object' &&
+                    parsedEnvironmentVariable?.linkedService}
                 </strong>{' '}
                 database connection & delete {variable.key} environment variable
               </AlertDialogDescription>
@@ -396,7 +397,10 @@ const EnvironmentVariableOption = memo(
                 variant='destructive'
                 disabled={unlinkingDatabase}
                 onClick={() => {
-                  if (parsedEnvironmentVariable?.linkedService) {
+                  if (
+                    typeof parsedEnvironmentVariable === 'object' &&
+                    parsedEnvironmentVariable?.linkedService
+                  ) {
                     unlinkDatabase({
                       serviceId: service.id,
                       environmentVariableName: variable.key,
@@ -465,10 +469,12 @@ const EnvironmentVariablesForm = ({ service }: { service: Service }) => {
     const initialEnv =
       typeof service?.environmentVariables === 'object' &&
       service.environmentVariables
-        ? Object.entries(service.environmentVariables).map(([key, value]) => ({
-            key,
-            value,
-          }))
+        ? Object.entries(service.environmentVariables).map(([key, value]) => {
+            return {
+              key,
+              value,
+            }
+          })
         : []
 
     setEnvVariables(initialEnv)

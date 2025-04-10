@@ -68,7 +68,7 @@ const SuspendedServicePageLayout = async ({
             {domains?.length ? (
               <>
                 <Globe size={16} />
-                <Link href={`${domains[0].domain}`} target='_blank'>
+                <Link href={`//${domains[0].domain}`} target='_blank'>
                   <div className='flex items-center gap-x-1 text-sm hover:text-primary'>
                     {domains[0].domain}
                     <ExternalLink size={14} />
@@ -76,6 +76,7 @@ const SuspendedServicePageLayout = async ({
                 </Link>
               </>
             ) : null}
+
             {domains?.length && domains.length > 1 ? (
               <TooltipProvider>
                 <Tooltip>
@@ -88,7 +89,7 @@ const SuspendedServicePageLayout = async ({
                       <div
                         key={index}
                         className='flex items-center gap-x-1 text-sm hover:text-primary'>
-                        <Link href={domain.domain} target='_blank'>
+                        <Link href={`//${domain.domain}`} target='_blank'>
                           {domain.domain}
                         </Link>
                         <ExternalLink size={14} />
