@@ -5,10 +5,10 @@ export const enable = async (
   name: string,
   options?: SSHExecOptions,
 ) => {
-  const resultDatabaseCreate = await ssh.execCommand(
+  const resultLetsEncryptEnabled = await ssh.execCommand(
     `dokku letsencrypt:enable ${name}`,
     options,
   )
 
-  return resultDatabaseCreate
+  return resultLetsEncryptEnabled
 }

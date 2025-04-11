@@ -13,6 +13,8 @@ import { Service } from '@/payload-types'
 const DeploymentForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
   const router = useRouter()
+  const { deployments } = service
+
   const { execute, isPending } = useAction(createDeploymentAction, {
     onSuccess: ({ data }) => {
       if (data) {
@@ -57,42 +59,62 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   )
 
-  const { deployments } = service
-  const deploymentList = deployments?.docs
-    ? deployments.docs.filter(deployment => typeof deployment !== 'string')
-    : []
-  const deploymentSucceed = deploymentList.some(
-    deployment => deployment.status === 'success',
-  )
+  const Deploy = () => {
+    const deploymentList = deployments?.docs
+      ? deployments.docs.filter(deployment => typeof deployment !== 'string')
+      : []
+    const deploymentSucceed = deploymentList.some(
+      deployment => deployment.status === 'success',
+    )
+
+    // For database services, we don't want to show the deploy button if the last deployment was successful
+    if (deploymentSucceed && service.type === 'database') {
+      return null
+    }
+
+    // Adding disabled state for deploy button
+    // 1. if service is app
+    // 2. if git provider is not set
+    // 3. if git provider is github and branch, owner, repository are not set
+    const disabled =
+      service.type === 'app' &&
+      (!service.providerType ||
+        (service?.providerType === 'github' &&
+          (!service?.githubSettings?.branch ||
+            !service?.githubSettings?.owner ||
+            !service?.githubSettings?.repository)))
+
+    return (
+      <Button
+        disabled={isPending}
+        onClick={() => {
+          if (disabled) {
+            toast.warning('Please attach all git-provider details to deploy')
+          } else {
+            execute({ serviceId: params.serviceId, projectId: params.id })
+          }
+        }}>
+        <Rocket />
+        {deploymentSucceed ? 'Redeploy' : 'Deploy'}
+      </Button>
+    )
+  }
+
+  const noDeployments = deployments?.docs?.length === 0
 
   return (
     <div className='mt-6 flex gap-x-2 md:mt-0'>
-      {deploymentSucceed && service.type === 'database' ? null : (
-        <Button
-          disabled={isPending}
-          onClick={() => {
-            execute({ serviceId: params.serviceId, projectId: params.id })
-          }}>
-          <Rocket />
-          Deploy
-        </Button>
-      )}
-
-      {/* <Button
-          disabled={isRestartingService}
-          variant='outline'
-          onClick={() => {
-            restartService({ id: service.id })
-          }}>
-          <Hammer />
-          Rebuild
-        </Button> */}
+      <Deploy />
 
       <Button
         disabled={isRestartingService}
         variant='secondary'
         onClick={() => {
-          restartService({ id: service.id })
+          if (noDeployments) {
+            toast.warning('Please deploy the service before restarting')
+          } else {
+            restartService({ id: service.id })
+          }
         }}>
         <RefreshCcw />
         Restart
@@ -101,7 +123,11 @@ const DeploymentForm = ({ service }: { service: Service }) => {
       <Button
         disabled={isStoppingServer}
         onClick={() => {
-          stopServer({ id: service.id })
+          if (noDeployments) {
+            toast.warning('Please deploy the service before stopping')
+          } else {
+            stopServer({ id: service.id })
+          }
         }}
         variant='destructive'>
         <Ban />

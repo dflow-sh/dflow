@@ -6,9 +6,14 @@ import { type ReactNode, useState } from 'react'
 interface SecretContentProps {
   children: ReactNode
   className?: string
+  placeholder?: string
 }
 
-const SecretContent = ({ children, className = '' }: SecretContentProps) => {
+const SecretContent = ({
+  children,
+  className = '',
+  placeholder = 'reveal / edit',
+}: SecretContentProps) => {
   const [isVisible, setIsVisible] = useState(false)
 
   return (
@@ -20,7 +25,7 @@ const SecretContent = ({ children, className = '' }: SecretContentProps) => {
           onClick={() => setIsVisible(true)}>
           <div className='flex items-center gap-2 text-sm'>
             <Eye className='h-4 w-4' />
-            <span>reveal / edit</span>
+            <span>{placeholder}</span>
           </div>
         </div>
       )}

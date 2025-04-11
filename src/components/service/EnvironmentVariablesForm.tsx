@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog'
+import SecretContent from '../ui/blur-reveal'
 import { Info, Link, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
@@ -321,26 +322,28 @@ const EnvironmentVariableOption = memo(
 
           {/* value */}
           <td className='p-2'>
-            <Input
-              value={
-                typeof parsedEnvironmentVariable === 'object'
-                  ? parsedEnvironmentVariable?.value
-                  : parsedEnvironmentVariable
-              }
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                handleChange(index, 'value', e.target.value)
-              }
-              onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
-                handlePaste(index, 'value', e)
-              }
-              placeholder='e.g., abc123xyz'
-              className='w-full'
-              disabled={
-                savingEnvironmentVariables ||
-                typeof variable.value === 'object' ||
-                addedToUnlinkQueue
-              }
-            />
+            <SecretContent placeholder='reveal'>
+              <Input
+                value={
+                  typeof parsedEnvironmentVariable === 'object'
+                    ? parsedEnvironmentVariable?.value
+                    : parsedEnvironmentVariable
+                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  handleChange(index, 'value', e.target.value)
+                }
+                onPaste={(e: ClipboardEvent<HTMLInputElement>) =>
+                  handlePaste(index, 'value', e)
+                }
+                placeholder='e.g., abc123xyz'
+                className='w-full'
+                disabled={
+                  savingEnvironmentVariables ||
+                  typeof variable.value === 'object' ||
+                  addedToUnlinkQueue
+                }
+              />
+            </SecretContent>
           </td>
 
           {/* actions */}

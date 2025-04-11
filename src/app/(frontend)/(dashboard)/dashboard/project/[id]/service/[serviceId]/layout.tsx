@@ -111,6 +111,7 @@ const SuspendedServicePageLayout = async ({
             {serviceDetails.description}
           </p>
         </div>
+
         <DeploymentForm service={{ project, ...serviceDetails }} />
       </div>
 

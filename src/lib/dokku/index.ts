@@ -36,6 +36,7 @@ import { installed } from './plugin/installed'
 import { addCron } from './plugin/letsEncrypt/cron'
 import { letsencryptEmail } from './plugin/letsEncrypt/email'
 import { enable } from './plugin/letsEncrypt/enable'
+import { status as letsencryptStatus } from './plugin/letsEncrypt/status'
 import { list } from './plugin/list'
 import { toggle } from './plugin/toggle'
 import { uninstall as PluginUninstall } from './plugin/uninstall'
@@ -99,6 +100,7 @@ export const dokku = {
     email: letsencryptEmail,
     cron: addCron,
     enable,
+    status: letsencryptStatus,
   },
   git: {
     sync,

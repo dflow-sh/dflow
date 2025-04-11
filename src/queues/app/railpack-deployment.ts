@@ -35,7 +35,7 @@ interface QueueArgs {
   payloadToken: string
 }
 
-const QUEUE_NAME = 'deploy-app'
+const QUEUE_NAME = 'deploy-app-railpack'
 
 export const railpackDeployQueue = new Queue<QueueArgs>(QUEUE_NAME, {
   connection: queueConnection,
@@ -418,39 +418,15 @@ const worker = new Worker<QueueArgs>(
         throw new Error('❌ Failed to deploy app')
       }
 
-      // Step 7: SSL certificate generation
-      sendEvent({
-        message: `Started generating SSL`,
-        pub,
-        serverId,
-        serviceId,
-        channelId: serviceDetails.deploymentId,
+      // Step 7: Check for Let's Encrypt status & generate SSL
+      const letsencryptStatus = await dokku.letsencrypt.status({
+        appName,
+        ssh,
       })
 
-      const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
-        onStdout: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        },
-        onStderr: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        },
-      })
-
-      if (letsencryptResponse.code === 0) {
+      if (letsencryptStatus.code === 0 && letsencryptStatus.stdout === 'true') {
         sendEvent({
-          message: `✅ Successfully generated SSL certificates`,
+          message: `✅ SSL enabled, skipping SSL generation`,
           pub,
           serverId,
           serviceId,
@@ -458,12 +434,55 @@ const worker = new Worker<QueueArgs>(
         })
       } else {
         sendEvent({
-          message: `❌ Failed to generated SSL certificates`,
+          message: `Started generating SSL`,
           pub,
           serverId,
           serviceId,
           channelId: serviceDetails.deploymentId,
         })
+
+        const letsencryptResponse = await dokku.letsencrypt.enable(
+          ssh,
+          appName,
+          {
+            onStdout: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            },
+            onStderr: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            },
+          },
+        )
+
+        if (letsencryptResponse.code === 0) {
+          sendEvent({
+            message: `✅ Successfully generated SSL certificates`,
+            pub,
+            serverId,
+            serviceId,
+            channelId: serviceDetails.deploymentId,
+          })
+        } else {
+          sendEvent({
+            message: `❌ Failed to generated SSL certificates`,
+            pub,
+            serverId,
+            serviceId,
+            channelId: serviceDetails.deploymentId,
+          })
+        }
       }
 
       sendEvent({
