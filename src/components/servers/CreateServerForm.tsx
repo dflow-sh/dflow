@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, Pencil, Plus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Options, parseAsString, useQueryState } from 'nuqs'
@@ -49,18 +49,18 @@ import { ServerType } from '@/payload-types-overrides'
 
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
 
-const DefaultForm = ({
-  setCloudProvider,
+const ServerSelectionForm = ({
   setType,
-  cloudProvider,
+  type,
 }: {
-  setCloudProvider: Dispatch<SetStateAction<string>>
   setType: (
     value: string | ((old: string) => string | null) | null,
     options?: Options,
   ) => Promise<URLSearchParams>
-  cloudProvider: string
+  type: string
 }) => {
+  const [cloudProvider, setCloudProvider] = useState(type)
+
   return (
     <>
       <div>
@@ -109,7 +109,7 @@ const DefaultForm = ({
       </div>
 
       <div className='relative mt-4 grid place-items-center border-t'>
-        <p className='inline-block -translate-y-3 bg-background px-4'>Or</p>
+        <p className='inline-block -translate-y-3 px-4'>Or</p>
       </div>
 
       <Button
@@ -124,7 +124,7 @@ const DefaultForm = ({
   )
 }
 
-function Component({
+export function ServerForm({
   sshKeys,
   server,
   setOpen,
@@ -136,7 +136,6 @@ function Component({
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
-  const [cloudProvider, setCloudProvider] = useState(type)
 
   useEffect(() => {
     return () => {
@@ -159,13 +158,7 @@ function Component({
     )
   }
 
-  return (
-    <DefaultForm
-      setCloudProvider={setCloudProvider}
-      cloudProvider={cloudProvider}
-      setType={setType}
-    />
-  )
+  return <ServerSelectionForm type={type} setType={setType} />
 }
 
 export const CreateServerForm = ({
@@ -179,8 +172,11 @@ export const CreateServerForm = ({
   server?: ServerType
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
+  const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
+
   const pathName = usePathname()
   const router = useRouter()
+  const isOnboarding = pathName.includes('onboarding')
 
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
@@ -206,21 +202,20 @@ export const CreateServerForm = ({
         },
   })
 
-  const { execute: createService, isPending: isCreatingService } = useAction(
+  const { execute: createServer, isPending: isCreatingServer } = useAction(
     createServerAction,
     {
       onSuccess: ({ data, input }) => {
         if (data) {
-          const onboarding = pathName.includes('onboarding')
-          toast.success(`Successfully created ${input.name} service`, {
+          toast.success(`Successfully created ${input.name} server`, {
             description:
-              onboarding && 'redirecting to dokku-installation page...',
+              isOnboarding && 'redirecting to dokku-installation page...',
           })
 
           setOpen(false)
           form.reset()
 
-          if (onboarding) {
+          if (isOnboarding) {
             router.push('/onboarding/dokku-install')
           }
         }
@@ -231,7 +226,7 @@ export const CreateServerForm = ({
     },
   )
 
-  const { execute: updateService, isPending: isUpdatingService } = useAction(
+  const { execute: updateServer, isPending: isUpdatingServer } = useAction(
     updateServerAction,
     {
       onSuccess: ({ data, input }) => {
@@ -249,10 +244,10 @@ export const CreateServerForm = ({
 
   function onSubmit(values: z.infer<typeof createServerSchema>) {
     if (type === 'create') {
-      createService(values)
+      createServer(values)
     } else if (type === 'update' && server) {
       // passing extra id-field during update operation
-      updateService({ ...values, id: server.id })
+      updateServer({ ...values, id: server.id })
     }
   }
 
@@ -371,11 +366,15 @@ export const CreateServerForm = ({
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className='mt-6'>
+            <Button variant='outline' onClick={() => setType(null)}>
+              <ArrowLeft />
+              Go back
+            </Button>
+
             <Button
               type='submit'
-              disabled={isCreatingService || isUpdatingService}
-              className='mt-6'>
+              disabled={isCreatingServer || isUpdatingServer}>
               {type === 'create' ? 'Add Server' : 'Update Server'}
             </Button>
           </DialogFooter>
@@ -427,7 +426,7 @@ const CreateServer = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Component
+        <ServerForm
           sshKeys={sshKeys}
           server={server}
           type={type}

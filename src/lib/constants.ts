@@ -67,6 +67,10 @@ export const instanceTypes = [
     label: 't3.xlarge (4 vCPUs, 16 GiB RAM)',
     value: 't3.xlarge',
   },
+  {
+    label: 'c5.xlarge (4 vCPUs, 8 GiB RAM)',
+    value: 'c5.xlarge',
+  },
 ] as const
 
 export const isDemoEnvironment = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'

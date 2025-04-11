@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import { CreateServerForm } from '@/components/servers/CreateServerForm'
+import { ServerForm } from '@/components/servers/CreateServerForm'
 import ServerList from '@/components/servers/ServerList'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -30,11 +30,11 @@ const SuspendedPage = async () => {
     <Layout
       currentStep={2}
       cardTitle='Add Server'
-      cardDescription='We recommend a server of 4GB RAM for supporting proper deployments'
+      cardDescription='We recommend a server of 8GB RAM for supporting proper deployments'
       prevStepUrl={'/onboarding/ssh-keys'}
       nextStepUrl={'/onboarding/dokku-install'}
       disableNextStep={servers.length !== 0}>
-      <CreateServerForm sshKeys={sshKeys} />
+      <ServerForm sshKeys={sshKeys} />
 
       {servers.length ? (
         <div className='mt-8 space-y-4'>
