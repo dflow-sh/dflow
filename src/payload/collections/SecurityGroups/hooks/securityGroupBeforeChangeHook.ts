@@ -5,6 +5,7 @@ import {
   CreateTagsCommand,
   DeleteTagsCommand,
   DescribeSecurityGroupRulesCommand,
+  DescribeTagsCommand,
   EC2Client,
   ModifySecurityGroupRulesCommand,
   RevokeSecurityGroupEgressCommand,
@@ -475,17 +476,37 @@ export const securityGroupBeforeChangeHook: CollectionBeforeChangeHook<
       )
     }
 
-    // Tag processing
-    const existingTags: SecurityGroup['tags'] = (originalDoc?.tags || [])
-      .filter(tag => tag && tag.key)
-      .map(tag => ({ id: tag.id, key: tag.key, value: tag.value }))
-    const newTags: SecurityGroup['tags'] = (data.tags || [])
-      .filter(tag => tag && tag.key)
-      .map(tag => ({ id: tag.id, key: tag.key, value: tag.value }))
+    // Use DescribeTagsCommand instead of relying on originalDoc
+    // Fetch existing tags directly from AWS
+    const tagsResponse = await ec2Client.send(
+      new DescribeTagsCommand({
+        Filters: [
+          {
+            Name: 'resource-id',
+            Values: [securityGroupId],
+          },
+        ],
+      }),
+    )
 
+    // Format the AWS tags into our application format
+    const existingTags =
+      tagsResponse.Tags?.map(tag => ({
+        id: `${tag.Key}-${Date.now()}`, // Generate an ID since AWS doesn't provide one
+        key: tag.Key || '',
+        value: tag.Value || '',
+      })) || []
+
+    // Format the new tags from the request data
+    const newTags = (data.tags || [])
+      .filter(tag => tag && tag.key)
+      .map(tag => ({ id: tag.id, key: tag.key, value: tag.value || '' }))
+
+    // Create maps for easier comparison
     const existingTagsMap = new Map(existingTags.map(tag => [tag.key, tag]))
     const newTagsMap = new Map(newTags.map(tag => [tag.key, tag]))
 
+    // Determine tag changes
     const tagsToCreate = newTags.filter(tag => !existingTagsMap.has(tag.key))
     const tagsToUpdate = newTags.filter(
       tag =>
@@ -494,6 +515,8 @@ export const securityGroupBeforeChangeHook: CollectionBeforeChangeHook<
     )
     const tagsToRemove = existingTags.filter(tag => !newTagsMap.has(tag.key))
 
+    // Always process tag changes even if they appear empty
+    // Remove tags that don't exist in the new configuration
     if (tagsToRemove.length > 0) {
       await ec2Client.send(
         new DeleteTagsCommand({
@@ -503,6 +526,7 @@ export const securityGroupBeforeChangeHook: CollectionBeforeChangeHook<
       )
     }
 
+    // Create or update tags
     if (tagsToCreate.length > 0 || tagsToUpdate.length > 0) {
       await ec2Client.send(
         new CreateTagsCommand({
