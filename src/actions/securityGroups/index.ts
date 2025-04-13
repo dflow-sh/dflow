@@ -9,6 +9,7 @@ import { protectedClient } from '@/lib/safe-action'
 
 import {
   createSecurityGroupSchema,
+  getSecurityGroupsSchema,
   updateSecurityGroupSchema,
 } from './validator'
 
@@ -142,4 +143,34 @@ export const syncSecurityGroupAction = protectedClient
     }
 
     return updatedSecurityGroup
+  })
+
+export const getSecurityGroupsAction = protectedClient
+  .metadata({
+    actionName: 'getSecurityGroupsAction',
+  })
+  .schema(getSecurityGroupsSchema)
+  .action(async ({ clientInput }) => {
+    const { cloudProviderAccountId } = clientInput
+
+    const { docs: securityGroups } = await payload.find({
+      collection: 'securityGroups',
+      pagination: false,
+      where: {
+        and: [
+          {
+            cloudProvider: {
+              equals: 'aws',
+            },
+          },
+          {
+            cloudProviderAccount: {
+              equals: cloudProviderAccountId,
+            },
+          },
+        ],
+      },
+    })
+
+    return securityGroups
   })

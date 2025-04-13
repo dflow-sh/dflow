@@ -151,7 +151,10 @@ export const updateSecurityGroupSchema = z.object({
   tags: z.array(tagsSchema).optional(),
 })
 
-// No changes needed for deleteSecurityGroupSchema
 export const deleteSecurityGroupSchema = z.object({
   id: z.string().min(1, 'ID is required'),
+})
+
+export const getSecurityGroupsSchema = z.object({
+  cloudProviderAccountId: z.string(),
 })

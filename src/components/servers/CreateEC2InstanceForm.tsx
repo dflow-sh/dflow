@@ -1,6 +1,7 @@
 import { Button } from '../ui/button'
 import { DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
@@ -28,13 +29,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
-import { SshKey } from '@/payload-types'
+import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 
 const CreateEC2InstanceForm = ({
   sshKeys,
+  securityGroups,
   setOpen = () => {},
 }: {
   sshKeys: SshKey[]
+  securityGroups: SecurityGroup[]
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const {
@@ -60,6 +63,7 @@ const CreateEC2InstanceForm = ({
     defaultValues: {
       name: '',
       sshKeyId: '',
+      securityGroupIds: [],
       accountId: '',
       description: '',
       ami: 'ami-0e35ddab05955cf57',
@@ -75,6 +79,15 @@ const CreateEC2InstanceForm = ({
   function onSubmit(values: z.infer<typeof createEC2InstanceSchema>) {
     createEC2Instance(values)
   }
+
+  const selectedAwsAccountId = form.watch('accountId')
+
+  const filteredSecurityGroups = securityGroups?.filter(
+    securityGroup =>
+      securityGroup.cloudProvider === 'aws' &&
+      (securityGroup.cloudProviderAccount as CloudProviderAccount).id ===
+        selectedAwsAccountId,
+  )
 
   return (
     <Form {...form}>
@@ -107,37 +120,56 @@ const CreateEC2InstanceForm = ({
           )}
         />
 
+        <FormField
+          control={form.control}
+          name='accountId'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>AWS Account</FormLabel>
+
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger disabled={accountsPending}>
+                    <SelectValue
+                      placeholder={
+                        accountsPending
+                          ? 'Fetching account details...'
+                          : 'Select a Account'
+                      }
+                    />
+                  </SelectTrigger>
+                </FormControl>
+
+                <SelectContent>
+                  {accountDetails?.data?.map(({ name, id }) => (
+                    <SelectItem key={id} value={id}>
+                      {name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className='grid gap-4 md:grid-cols-2'>
           <FormField
             control={form.control}
-            name='accountId'
+            name='securityGroupIds'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>AWS Account</FormLabel>
-
-                <Select
+                <FormLabel>Security Groups</FormLabel>
+                <MultiSelect
+                  options={filteredSecurityGroups.map(({ name, id }) => ({
+                    label: name,
+                    value: id,
+                  }))}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger disabled={accountsPending}>
-                      <SelectValue
-                        placeholder={
-                          accountsPending
-                            ? 'Fetching account details...'
-                            : 'Select a Account'
-                        }
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-
-                  <SelectContent>
-                    {accountDetails?.data?.map(({ name, id }) => (
-                      <SelectItem key={id} value={id}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  defaultValue={field.value || []}
+                  placeholder='Select security groups'
+                  className='w-full'
+                />
                 <FormMessage />
               </FormItem>
             )}

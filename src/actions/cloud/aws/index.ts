@@ -1,11 +1,8 @@
 'use server'
 
 import {
-  AuthorizeSecurityGroupIngressCommand,
-  CreateSecurityGroupCommand,
   DescribeInstancesCommand,
   DescribeKeyPairsCommand,
-  DescribeSecurityGroupsCommand,
   EC2Client,
   ImportKeyPairCommand,
   RunInstancesCommand,
@@ -39,6 +36,7 @@ export const createEC2InstanceAction = protectedClient
       diskSize,
       instanceType,
       region,
+      securityGroupIds,
     } = clientInput
     const payload = await getPayload({ config: configPromise })
 
@@ -80,81 +78,97 @@ export const createEC2InstanceAction = protectedClient
       await ec2Client.send(keyCommand)
     }
 
-    // 3. Check if dFlow-securitygroup already exists, if not create it
-    let securityGroupId
-    // Check if the security group already exists
-    const describeSecurityGroupsCommand = new DescribeSecurityGroupsCommand({
-      Filters: [
-        {
-          Name: 'group-name',
-          Values: ['dFlow-securitygroup'],
+    // 3. Get security groups and check sync status
+    const { docs: securityGroups } = await payload.find({
+      collection: 'securityGroups',
+      pagination: false,
+      where: {
+        id: {
+          in: securityGroupIds,
         },
-      ],
+      },
     })
 
-    const existingGroups = await ec2Client.send(describeSecurityGroupsCommand)
-
-    const securityGroup = existingGroups.SecurityGroups?.find(
-      group => group.GroupName === 'dFlow-securitygroup',
+    // 4. Check for unsynced security groups and trigger sync
+    const unsyncedGroups = securityGroups.filter(
+      sg => sg.syncStatus !== 'in-sync',
     )
 
-    if (securityGroup) {
-      // Use the existing security group
-      securityGroupId = securityGroup.GroupId
-      console.log('Using existing dFlow-securitygroup:', securityGroupId)
-    } else {
-      // Create a new security group
-      const securityGroupCommand = new CreateSecurityGroupCommand({
-        GroupName: 'dFlow-securitygroup',
-        Description: 'Security group for dFlow',
+    if (unsyncedGroups.length > 0) {
+      // Update status to start sync
+      await Promise.all(
+        unsyncedGroups.map(
+          async sg =>
+            await payload.update({
+              collection: 'securityGroups',
+              id: sg.id,
+              data: {
+                syncStatus: 'start-sync',
+              },
+            }),
+        ),
+      )
+
+      // Wait for sync to complete (you might need a more robust solution here)
+      let allSynced = false
+      let attempts = 0
+      const maxAttempts = 10
+      const delay = 5000 // 5 seconds
+
+      while (!allSynced && attempts < maxAttempts) {
+        attempts++
+        await new Promise(r => setTimeout(r, delay))
+
+        // Fetch latest status
+        const { docs: updatedGroups } = await payload.find({
+          collection: 'securityGroups',
+          pagination: false,
+          where: {
+            id: {
+              in: unsyncedGroups.map(g => g.id),
+            },
+          },
+        })
+
+        allSynced = updatedGroups.every(g => g.syncStatus === 'in-sync')
+      }
+
+      if (!allSynced) {
+        throw new Error('Some security groups failed to sync')
+      }
+
+      // Refetch all security groups to get updated securityGroupIds
+      const { docs: refreshedGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: securityGroupIds,
+          },
+        },
       })
 
-      const securityGroupResponse = await ec2Client.send(securityGroupCommand)
-      securityGroupId = securityGroupResponse.GroupId
-      console.log('Created new dFlow-securitygroup:', securityGroupId)
-
-      // 4. Authorize access to the security group
-      const authorizeCommand = new AuthorizeSecurityGroupIngressCommand({
-        GroupId: securityGroupId,
-        IpPermissions: [
-          {
-            IpProtocol: 'tcp',
-            FromPort: 22,
-            ToPort: 22,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'SSH access' }],
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 80,
-            ToPort: 80,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTP access' }],
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 443,
-            ToPort: 443,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTPS access' }],
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 19999,
-            ToPort: 19999,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'Netdata Metrics' }],
-          },
-        ],
-      })
-
-      await ec2Client.send(authorizeCommand)
+      // Update the security groups array with refreshed data
+      securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
     }
 
-    // 5. Create the EC2 instance with the SSH key-pair, Security Group, Disk Storage
+    // 5. Get valid security group IDs
+    const validSecurityGroupIds = securityGroups
+      .map(sg => sg.securityGroupId)
+      .filter((sgId): sgId is string => sgId !== null && sgId !== undefined)
+
+    if (validSecurityGroupIds.length === 0) {
+      throw new Error('No valid security groups available')
+    }
+
+    // 6. Create the EC2 instance
     const ec2Command = new RunInstancesCommand({
       ImageId: ami,
       InstanceType: instanceType as _InstanceType,
       MinCount: 1,
       MaxCount: 1,
       KeyName: sshKeyDetails.name,
-      SecurityGroupIds: [securityGroupId ?? ''],
+      SecurityGroupIds: validSecurityGroupIds,
       BlockDeviceMappings: [
         {
           DeviceName: '/dev/sda1',
@@ -184,7 +198,7 @@ export const createEC2InstanceAction = protectedClient
     const instanceDetails = ec2Response.Instances?.[0]
 
     if (instanceDetails) {
-      // 6. Poll for the public IP address of the instance
+      // 7. Poll for the public IP address of the instance
       async function pollForPublicIP() {
         for (let i = 0; i < 10; i++) {
           const describeCommand = new DescribeInstancesCommand({
@@ -206,7 +220,7 @@ export const createEC2InstanceAction = protectedClient
 
       const ip = await pollForPublicIP()
 
-      // 7. Updating the instance details in database with private-ip address
+      // 8. Create server record
       const serverResponse = await payload.create({
         collection: 'servers',
         data: {
@@ -217,11 +231,12 @@ export const createEC2InstanceAction = protectedClient
           username: 'ubuntu',
           ip,
           provider: 'aws',
+          securityGroups: securityGroups.map(sg => sg.id),
         },
       })
 
       if (serverResponse.id) {
-        revalidatePath(`/settings/servers`)
+        revalidatePath('/settings/servers')
         return { success: true }
       }
     }

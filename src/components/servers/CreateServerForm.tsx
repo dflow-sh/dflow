@@ -44,7 +44,7 @@ import {
 } from '@/components/ui/select'
 import { isDemoEnvironment } from '@/lib/constants'
 import { cloudProvidersList } from '@/lib/integrationList'
-import { SshKey } from '@/payload-types'
+import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
@@ -126,11 +126,13 @@ const DefaultForm = ({
 
 function Component({
   sshKeys,
+  securityGroups,
   server,
   setOpen,
   type: formType,
 }: {
   sshKeys: SshKey[]
+  securityGroups: SecurityGroup[]
   type?: 'create' | 'update'
   server?: ServerType
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -145,7 +147,13 @@ function Component({
   }, [])
 
   if (type === 'aws') {
-    return <CreateEC2InstanceForm sshKeys={sshKeys} setOpen={setOpen} />
+    return (
+      <CreateEC2InstanceForm
+        sshKeys={sshKeys}
+        setOpen={setOpen}
+        securityGroups={securityGroups}
+      />
+    )
   }
 
   if (type === 'manual') {
@@ -388,11 +396,13 @@ export const CreateServerForm = ({
 // Using same form for create & update operations
 const CreateServer = ({
   sshKeys,
+  securityGroups,
   title = 'Add Server',
   type = 'create',
   server,
 }: {
   sshKeys: SshKey[]
+  securityGroups: SecurityGroup[]
   type?: 'create' | 'update'
   title?: string
   server?: ServerType
@@ -429,6 +439,7 @@ const CreateServer = ({
 
         <Component
           sshKeys={sshKeys}
+          securityGroups={securityGroups}
           server={server}
           type={type}
           setOpen={setOpen}
