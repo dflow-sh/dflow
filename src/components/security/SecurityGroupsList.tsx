@@ -1,5 +1,6 @@
 'use client'
 
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { RefreshCw, Shield, Trash2 } from 'lucide-react'
@@ -14,6 +15,13 @@ import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
 import UpdateSecurityGroup from './CreateSecurityGroup'
+
+const syncStatusMap = {
+  'in-sync': { label: 'In Sync', variant: 'default' as const },
+  'start-sync': { label: 'Syncing', variant: 'default' as const },
+  pending: { label: 'Pending', variant: 'secondary' as const },
+  failed: { label: 'Failed', variant: 'destructive' as const },
+}
 
 const SecurityGroupItem = ({
   securityGroup,
@@ -50,33 +58,37 @@ const SecurityGroupItem = ({
     },
   )
 
-  return (
-    <Card>
-      <CardContent className='flex h-24 w-full items-center justify-between gap-3 pt-4'>
-        <div className='flex items-center gap-3'>
-          <Shield size={20} />
+  const status = securityGroup.syncStatus || 'pending'
+  const statusConfig = syncStatusMap[status]
 
-          <div>
-            <p className='font-semibold'>{securityGroup.name}</p>
-            <span className='text-sm text-muted-foreground'>
-              {securityGroup.description}
-            </span>
-          </div>
+  return (
+    <Card className='transition-shadow hover:shadow-md'>
+      <CardContent className='grid h-24 w-full grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-4'>
+        <Shield className='flex-shrink-0' size={20} />
+
+        <div className='min-w-0 space-y-1 overflow-hidden'>
+          <p className='truncate font-semibold'>{securityGroup.name}</p>
+          <p className='truncate text-sm text-muted-foreground'>
+            {securityGroup.description}
+          </p>
         </div>
 
-        <div className='flex items-center gap-3'>
+        <Badge variant={statusConfig.variant} className='w-24 justify-center'>
+          {statusConfig.label}
+        </Badge>
+
+        <div className='flex items-center gap-2'>
           <Button
-            disabled={
-              securityGroup.syncStatus || isSyncPending || isDemoEnvironment
-            }
+            disabled={isSyncPending || isDemoEnvironment}
             onClick={() => {
               executeSync({ id: securityGroup.id })
             }}
             size='icon'
             variant='outline'
-            title='Sync security group'>
+            title='Sync security group'
+            className='h-9 w-9'>
             <RefreshCw
-              size={20}
+              size={16}
               className={isSyncPending ? 'animate-spin' : ''}
             />
           </Button>
@@ -95,8 +107,9 @@ const SecurityGroupItem = ({
             }}
             size='icon'
             variant='outline'
-            title='Delete security group'>
-            <Trash2 size={20} />
+            title='Delete security group'
+            className='h-9 w-9'>
+            <Trash2 size={16} />
           </Button>
         </div>
       </CardContent>
@@ -112,7 +125,7 @@ const SecurityGroupsList = ({
   cloudProviderAccounts: CloudProviderAccount[]
 }) => {
   return (
-    <div className='mt-4 w-full space-y-4'>
+    <div className='mt-4 w-full space-y-3'>
       {securityGroups.map(group => (
         <SecurityGroupItem
           securityGroup={group}

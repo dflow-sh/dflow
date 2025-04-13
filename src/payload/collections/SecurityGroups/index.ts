@@ -10,9 +10,9 @@ const SecurityGroups: CollectionConfig = {
   },
   access: {
     read: () => true,
-    create: () => false,
-    update: () => false,
-    delete: () => false,
+    create: () => true,
+    update: () => true,
+    delete: () => true,
   },
   hooks: {
     beforeChange: [securityGroupBeforeChangeHook],
@@ -24,12 +24,20 @@ const SecurityGroups: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Security Group Name',
+      access: {
+        create: () => true,
+        update: () => false,
+      },
     },
     {
       name: 'description',
       type: 'textarea',
       label: 'Description',
       required: true,
+      access: {
+        create: () => true,
+        update: () => false,
+      },
     },
     {
       name: 'cloudProvider',
@@ -42,6 +50,10 @@ const SecurityGroups: CollectionConfig = {
         { label: 'Digital Ocean', value: 'digitalocean' },
       ],
       label: 'Cloud Provider',
+      access: {
+        create: () => true,
+        update: () => false,
+      },
     },
     {
       name: 'cloudProviderAccount',
@@ -60,21 +72,20 @@ const SecurityGroups: CollectionConfig = {
 
         return false
       },
+      access: {
+        create: () => true,
+        update: () => false,
+      },
     },
     {
       name: 'inboundRules',
       type: 'array',
       label: 'Inbound Rules',
+      minRows: 1,
       fields: [
         {
-          name: 'name',
-          type: 'text',
-          required: true,
-          label: 'Security Group Name',
-        },
-        {
           name: 'description',
-          type: 'textarea',
+          type: 'text',
           label: 'Description',
         },
         {
@@ -84,68 +95,62 @@ const SecurityGroups: CollectionConfig = {
           label: 'Type',
           options: [
             { label: 'All Traffic', value: 'all-traffic' },
+            { label: 'All TCP', value: 'all-tcp' },
+            { label: 'All UDP', value: 'all-udp' },
+            { label: 'SSH', value: 'ssh' },
+            { label: 'HTTP', value: 'http' },
+            { label: 'HTTPS', value: 'https' },
             { label: 'Custom TCP', value: 'custom-tcp' },
             { label: 'Custom UDP', value: 'custom-udp' },
-            { label: 'Custom ICMP', value: 'custom-icmp' },
-            { label: 'SSH', value: 'ssh' },
-            { label: 'HTTPS', value: 'https' },
-            { label: 'HTTP', value: 'http' },
+            { label: 'ICMP', value: 'icmp' },
+            { label: 'ICMPv6', value: 'icmpv6' },
+            { label: 'SMTP', value: 'smtp' },
+            { label: 'POP3', value: 'pop3' },
+            { label: 'IMAP', value: 'imap' },
+            { label: 'MS SQL', value: 'ms-sql' },
+            { label: 'MySQL/Aurora', value: 'mysql-aurora' },
+            { label: 'PostgreSQL', value: 'postgresql' },
+            { label: 'DNS (UDP)', value: 'dns-udp' },
             { label: 'RDP', value: 'rdp' },
-            { label: 'Custom', value: 'custom' },
+            { label: 'NFS', value: 'nfs' },
+            { label: 'Custom Protocol', value: 'custom-protocol' },
           ],
           defaultValue: 'custom-tcp',
         },
         {
           name: 'protocol',
-          type: 'select',
-          required: true,
+          type: 'text',
           label: 'Protocol',
-          options: [
-            { label: 'TCP', value: 'tcp' },
-            { label: 'UDP', value: 'udp' },
-            { label: 'ICMP', value: 'icmp' },
-            { label: 'All', value: 'all' },
-          ],
-          defaultValue: 'tcp',
           admin: {
-            condition: (data, siblingData) => siblingData?.type === 'custom',
+            condition: (data, siblingData) =>
+              siblingData?.type === 'custom-protocol',
           },
         },
         {
           name: 'fromPort',
           type: 'number',
-          required: true,
-          min: 0,
+          label: 'From Port',
+          min: -1,
           max: 65535,
-          label: 'Port Range (From)',
           admin: {
             condition: (data, siblingData) => {
-              if (siblingData?.type === 'custom') {
-                return (
-                  siblingData?.protocol !== 'icmp' &&
-                  siblingData?.protocol !== 'all'
-                )
-              }
-              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+              return !['all-traffic', 'icmp', 'icmpv6'].includes(
+                siblingData?.type,
+              )
             },
           },
         },
         {
           name: 'toPort',
           type: 'number',
-          required: true,
-          min: 0,
+          label: 'To Port',
+          min: -1,
           max: 65535,
-          label: 'Port Range (To)',
           admin: {
             condition: (data, siblingData) => {
-              if (siblingData?.type === 'custom') {
-                return (
-                  siblingData?.protocol !== 'icmp' &&
-                  siblingData?.protocol !== 'all'
-                )
-              }
-              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+              return !['all-traffic', 'icmp', 'icmpv6'].includes(
+                siblingData?.type,
+              )
             },
           },
         },
@@ -160,7 +165,7 @@ const SecurityGroups: CollectionConfig = {
             { label: 'Anywhere-IPv6', value: 'anywhere-ipv6' },
             { label: 'Custom', value: 'custom' },
           ],
-          defaultValue: 'cidr',
+          defaultValue: 'anywhere-ipv4',
         },
         {
           name: 'source',
@@ -177,8 +182,7 @@ const SecurityGroups: CollectionConfig = {
           label: 'Security Group Rule ID',
           admin: {
             readOnly: true,
-            description:
-              'Auto-generate after creation. The ID of the security group rule.',
+            description: 'Auto-generated after creation',
           },
         },
       ],
@@ -187,16 +191,11 @@ const SecurityGroups: CollectionConfig = {
       name: 'outboundRules',
       type: 'array',
       label: 'Outbound Rules',
+      minRows: 1,
       fields: [
         {
-          name: 'name',
-          type: 'text',
-          required: true,
-          label: 'Security Group Name',
-        },
-        {
           name: 'description',
-          type: 'textarea',
+          type: 'text',
           label: 'Description',
         },
         {
@@ -206,68 +205,62 @@ const SecurityGroups: CollectionConfig = {
           label: 'Type',
           options: [
             { label: 'All Traffic', value: 'all-traffic' },
+            { label: 'All TCP', value: 'all-tcp' },
+            { label: 'All UDP', value: 'all-udp' },
+            { label: 'SSH', value: 'ssh' },
+            { label: 'HTTP', value: 'http' },
+            { label: 'HTTPS', value: 'https' },
             { label: 'Custom TCP', value: 'custom-tcp' },
             { label: 'Custom UDP', value: 'custom-udp' },
-            { label: 'Custom ICMP', value: 'custom-icmp' },
-            { label: 'SSH', value: 'ssh' },
-            { label: 'HTTPS', value: 'https' },
-            { label: 'HTTP', value: 'http' },
+            { label: 'ICMP', value: 'icmp' },
+            { label: 'ICMPv6', value: 'icmpv6' },
+            { label: 'SMTP', value: 'smtp' },
+            { label: 'POP3', value: 'pop3' },
+            { label: 'IMAP', value: 'imap' },
+            { label: 'MS SQL', value: 'ms-sql' },
+            { label: 'MySQL/Aurora', value: 'mysql-aurora' },
+            { label: 'PostgreSQL', value: 'postgresql' },
+            { label: 'DNS (UDP)', value: 'dns-udp' },
             { label: 'RDP', value: 'rdp' },
-            { label: 'Custom', value: 'custom' },
+            { label: 'NFS', value: 'nfs' },
+            { label: 'Custom Protocol', value: 'custom-protocol' },
           ],
-          defaultValue: 'custom-tcp',
+          defaultValue: 'all-traffic',
         },
         {
           name: 'protocol',
-          type: 'select',
-          required: true,
+          type: 'text',
           label: 'Protocol',
-          options: [
-            { label: 'TCP', value: 'tcp' },
-            { label: 'UDP', value: 'udp' },
-            { label: 'ICMP', value: 'icmp' },
-            { label: 'All', value: 'all' },
-          ],
-          defaultValue: 'tcp',
           admin: {
-            condition: (data, siblingData) => siblingData?.type === 'custom',
+            condition: (data, siblingData) =>
+              siblingData?.type === 'custom-protocol',
           },
         },
         {
           name: 'fromPort',
           type: 'number',
-          required: true,
-          min: 0,
+          label: 'From Port',
+          min: -1,
           max: 65535,
-          label: 'Port Range (From)',
           admin: {
             condition: (data, siblingData) => {
-              if (siblingData?.type === 'custom') {
-                return (
-                  siblingData?.protocol !== 'icmp' &&
-                  siblingData?.protocol !== 'all'
-                )
-              }
-              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+              return !['all-traffic', 'icmp', 'icmpv6'].includes(
+                siblingData?.type,
+              )
             },
           },
         },
         {
           name: 'toPort',
           type: 'number',
-          required: true,
-          min: 0,
+          label: 'To Port',
+          min: -1,
           max: 65535,
-          label: 'Port Range (To)',
           admin: {
             condition: (data, siblingData) => {
-              if (siblingData?.type === 'custom') {
-                return (
-                  siblingData?.protocol !== 'icmp' &&
-                  siblingData?.protocol !== 'all'
-                )
-              }
-              return !['all-traffic', 'custom-icmp'].includes(siblingData?.type)
+              return !['all-traffic', 'icmp', 'icmpv6'].includes(
+                siblingData?.type,
+              )
             },
           },
         },
@@ -282,7 +275,7 @@ const SecurityGroups: CollectionConfig = {
             { label: 'Anywhere-IPv6', value: 'anywhere-ipv6' },
             { label: 'Custom', value: 'custom' },
           ],
-          defaultValue: 'cidr',
+          defaultValue: 'anywhere-ipv4',
         },
         {
           name: 'destination',
@@ -299,8 +292,7 @@ const SecurityGroups: CollectionConfig = {
           label: 'Security Group Rule ID',
           admin: {
             readOnly: true,
-            description:
-              'Auto-generate after creation. The ID of the security group rule.',
+            description: 'Auto-generated after creation',
           },
         },
       ],
@@ -309,10 +301,6 @@ const SecurityGroups: CollectionConfig = {
       name: 'tags',
       type: 'array',
       label: 'Tags',
-      admin: {
-        description:
-          'Key-value pairs used to organize and categorize resources',
-      },
       fields: [
         {
           name: 'key',
@@ -332,22 +320,30 @@ const SecurityGroups: CollectionConfig = {
       type: 'text',
       label: 'Security Group ID',
       admin: {
+        // readOnly: true,
         position: 'sidebar',
-        readOnly: true,
-        description:
-          'Auto-generate after creation. The ID of the security group in the cloud provider (e.g., sg-12345 for AWS)',
+        description: 'Auto-generated by cloud provider',
       },
     },
     {
       name: 'syncStatus',
-      type: 'checkbox',
-      label: 'Sync Status',
-      defaultValue: false,
+      type: 'select',
+      options: [
+        { label: 'In Sync', value: 'in-sync' },
+        { label: 'Pending Sync', value: 'pending' },
+        { label: 'Sync Failed', value: 'failed' },
+        { label: 'Sync Started', value: 'start-sync' },
+      ],
+      defaultValue: 'pending',
       admin: {
         position: 'sidebar',
-        // readOnly: true,
-        description:
-          'Indicates whether the security group is synced with the cloud provider',
+      },
+    },
+    {
+      name: 'lastSyncedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
       },
     },
   ],

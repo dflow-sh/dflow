@@ -15,7 +15,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
-    "@aws-sdk/client-ec2": "^3.783.0",
+    "@aws-sdk/client-ec2": "^3.787.0",
     "@bprogress/next": "^3.2.10",
     "@hookform/resolvers": "^3.10.0",
     "@monaco-editor/react": "4.7.0-rc.0",

@@ -40,6 +40,7 @@ export const createSecurityGroupAction = protectedClient
         inboundRules,
         outboundRules,
         tags,
+        syncStatus: 'pending',
       },
     })
 
@@ -78,6 +79,7 @@ export const updateSecurityGroupAction = protectedClient
         inboundRules,
         outboundRules,
         tags,
+        syncStatus: 'pending',
       },
     })
 
@@ -129,7 +131,8 @@ export const syncSecurityGroupAction = protectedClient
       collection: 'securityGroups',
       id,
       data: {
-        syncStatus: true,
+        syncStatus: 'start-sync',
+        lastSyncedAt: new Date().toISOString(),
       },
     })
 

@@ -139,6 +139,9 @@ const SecurityPage = async () => {
     limit: 0,
   })
 
+  // Fetch counts and unsynced items
+  // const unsyncedItems = await getUnsyncedItems()
+
   return (
     <LayoutClient>
       <div>
@@ -149,6 +152,14 @@ const SecurityPage = async () => {
             infrastructure.
           </p>
         </div>
+
+        {/* <SyncBanner
+          unsyncedItems={unsyncedItems}
+          onSyncAll={async () => {
+            'use server'
+            return await syncAllItems()
+          }}
+        /> */}
 
         <Tabs defaultValue='ssh-keys' className='w-full'>
           <TabsList className='grid w-full max-w-md grid-cols-2'>
