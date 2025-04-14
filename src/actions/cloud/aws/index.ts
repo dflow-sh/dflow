@@ -1,10 +1,12 @@
 'use server'
 
 import {
+  CreateTagsCommand,
   DescribeInstancesCommand,
   DescribeKeyPairsCommand,
   EC2Client,
   ImportKeyPairCommand,
+  ModifyInstanceAttributeCommand,
   RunInstancesCommand,
   _InstanceType,
 } from '@aws-sdk/client-ec2'
@@ -19,6 +21,7 @@ import {
   connectAWSAccountSchema,
   createEC2InstanceSchema,
   deleteAWSAccountSchema,
+  updateEC2InstanceSchema,
 } from './validator'
 
 export const createEC2InstanceAction = protectedClient
@@ -38,6 +41,7 @@ export const createEC2InstanceAction = protectedClient
       region,
       securityGroupIds,
     } = clientInput
+
     const payload = await getPayload({ config: configPromise })
 
     const awsAccountDetails = await payload.findByID({
@@ -50,7 +54,6 @@ export const createEC2InstanceAction = protectedClient
       id: sshKeyId,
     })
 
-    // 1. Create the EC2 client
     const ec2Client = new EC2Client({
       region,
       credentials: {
@@ -59,17 +62,16 @@ export const createEC2InstanceAction = protectedClient
       },
     })
 
-    // 2. Check if a key pair with this name already exists
     const describeKeysCommand = new DescribeKeyPairsCommand({
       KeyNames: [sshKeyDetails.name],
     })
+
     const sshKeys = await ec2Client.send(describeKeysCommand)
 
     const sshKey = sshKeys.KeyPairs?.find(
       key => key.KeyName === sshKeyDetails.name,
     )
 
-    // Create the key pair if it doesn't exist
     if (!sshKey?.KeyName) {
       const keyCommand = new ImportKeyPairCommand({
         KeyName: sshKeyDetails.name,
@@ -78,7 +80,6 @@ export const createEC2InstanceAction = protectedClient
       await ec2Client.send(keyCommand)
     }
 
-    // 3. Get security groups and check sync status
     const { docs: securityGroups } = await payload.find({
       collection: 'securityGroups',
       pagination: false,
@@ -89,55 +90,40 @@ export const createEC2InstanceAction = protectedClient
       },
     })
 
-    // 4. Check for unsynced security groups and trigger sync
     const unsyncedGroups = securityGroups.filter(
       sg => sg.syncStatus !== 'in-sync',
     )
 
     if (unsyncedGroups.length > 0) {
-      // Update status to start sync
       await Promise.all(
-        unsyncedGroups.map(
-          async sg =>
-            await payload.update({
-              collection: 'securityGroups',
-              id: sg.id,
-              data: {
-                syncStatus: 'start-sync',
-              },
-            }),
+        unsyncedGroups.map(sg =>
+          payload.update({
+            collection: 'securityGroups',
+            id: sg.id,
+            data: { syncStatus: 'start-sync' },
+          }),
         ),
       )
 
-      // Wait for sync to complete (you might need a more robust solution here)
-      let allSynced = false
-      let attempts = 0
-      const maxAttempts = 10
-      const delay = 5000 // 5 seconds
-
-      while (!allSynced && attempts < maxAttempts) {
-        attempts++
-        await new Promise(r => setTimeout(r, delay))
-
-        // Fetch latest status
-        const { docs: updatedGroups } = await payload.find({
-          collection: 'securityGroups',
-          pagination: false,
-          where: {
-            id: {
-              in: unsyncedGroups.map(g => g.id),
-            },
+      // Re-check sync status once
+      const { docs: updatedGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: unsyncedGroups.map(g => g.id),
           },
-        })
+        },
+      })
 
-        allSynced = updatedGroups.every(g => g.syncStatus === 'in-sync')
-      }
+      const stillNotSynced = updatedGroups.filter(
+        g => g.syncStatus !== 'in-sync',
+      )
 
-      if (!allSynced) {
+      if (stillNotSynced.length > 0) {
         throw new Error('Some security groups failed to sync')
       }
 
-      // Refetch all security groups to get updated securityGroupIds
       const { docs: refreshedGroups } = await payload.find({
         collection: 'securityGroups',
         pagination: false,
@@ -148,20 +134,17 @@ export const createEC2InstanceAction = protectedClient
         },
       })
 
-      // Update the security groups array with refreshed data
       securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
     }
 
-    // 5. Get valid security group IDs
     const validSecurityGroupIds = securityGroups
       .map(sg => sg.securityGroupId)
-      .filter((sgId): sgId is string => sgId !== null && sgId !== undefined)
+      .filter((sgId): sgId is string => !!sgId)
 
     if (validSecurityGroupIds.length === 0) {
       throw new Error('No valid security groups available')
     }
 
-    // 6. Create the EC2 instance
     const ec2Command = new RunInstancesCommand({
       ImageId: ami,
       InstanceType: instanceType as _InstanceType,
@@ -182,12 +165,7 @@ export const createEC2InstanceAction = protectedClient
       TagSpecifications: [
         {
           ResourceType: 'instance',
-          Tags: [
-            {
-              Key: 'Name',
-              Value: name,
-            },
-          ],
+          Tags: [{ Key: 'Name', Value: name }],
         },
       ],
     })
@@ -198,21 +176,18 @@ export const createEC2InstanceAction = protectedClient
     const instanceDetails = ec2Response.Instances?.[0]
 
     if (instanceDetails) {
-      // 7. Poll for the public IP address of the instance
-      async function pollForPublicIP() {
+      const pollForPublicIP = async () => {
         for (let i = 0; i < 10; i++) {
           const describeCommand = new DescribeInstancesCommand({
-            InstanceIds: [instanceDetails?.InstanceId!],
+            InstanceIds: [instanceDetails.InstanceId!],
           })
 
           const result = await ec2Client.send(describeCommand)
           const ip = result.Reservations?.[0]?.Instances?.[0]?.PublicIpAddress
 
-          if (ip) {
-            return ip
-          }
+          if (ip) return ip
 
-          await new Promise(r => setTimeout(r, 5000)) // wait 5 seconds
+          await new Promise(r => setTimeout(r, 5000))
         }
 
         throw new Error('Public IP not assigned yet after waiting')
@@ -220,7 +195,6 @@ export const createEC2InstanceAction = protectedClient
 
       const ip = await pollForPublicIP()
 
-      // 8. Create server record
       const serverResponse = await payload.create({
         collection: 'servers',
         data: {
@@ -232,6 +206,8 @@ export const createEC2InstanceAction = protectedClient
           ip,
           provider: 'aws',
           securityGroups: securityGroups.map(sg => sg.id),
+          cloudProviderAccount: accountId,
+          instanceId: instanceDetails.InstanceId,
         },
       })
 
@@ -298,4 +274,57 @@ export const deleteAWSAccountAction = protectedClient
     })
 
     return response
+  })
+
+export const updateEC2InstanceAction = protectedClient
+  .metadata({
+    actionName: 'updateEC2InstanceAction',
+  })
+  .schema(updateEC2InstanceSchema)
+  .action(async ({ clientInput }) => {
+    const { instanceId, accountId, region, newSecurityGroupIds, newName } =
+      clientInput
+
+    const payload = await getPayload({ config: configPromise })
+
+    const awsAccountDetails = await payload.findByID({
+      collection: 'cloudProviderAccounts',
+      id: accountId,
+    })
+
+    const ec2Client = new EC2Client({
+      region,
+      credentials: {
+        accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
+        secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
+      },
+    })
+
+    // Update security groups
+    if (newSecurityGroupIds?.length) {
+      await ec2Client.send(
+        new ModifyInstanceAttributeCommand({
+          InstanceId: instanceId,
+          Groups: newSecurityGroupIds,
+        }),
+      )
+    }
+
+    // Update Name tag
+    if (newName) {
+      await ec2Client.send(
+        new CreateTagsCommand({
+          Resources: [instanceId],
+          Tags: [
+            {
+              Key: 'Name',
+              Value: newName,
+            },
+          ],
+        }),
+      )
+    }
+
+    revalidatePath('/settings/servers')
+    return { success: true }
   })

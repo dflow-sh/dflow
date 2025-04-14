@@ -16,6 +16,7 @@ export const createServerSchema = z.object({
 
 export const updateServerSchema = createServerSchema.extend({
   id: z.string(),
+  securityGroupIds: z.array(z.string()).optional(),
 })
 
 export const deleteServerSchema = z.object({

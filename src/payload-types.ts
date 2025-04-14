@@ -190,6 +190,8 @@ export interface Server {
    */
   description?: string | null;
   provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
+  instanceId?: string | null;
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
   sshKey: string | SshKey;
   securityGroups?: (string | SecurityGroup)[] | null;
   /**
@@ -229,6 +231,40 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cloudProviderAccounts".
+ */
+export interface CloudProviderAccount {
+  id: string;
+  name: string;
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  awsDetails?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  gcpDetails?: {
+    /**
+     * Paste your GCP service account JSON key here
+     */
+    serviceAccountKey: string;
+    projectId: string;
+  };
+  digitaloceanDetails?: {
+    /**
+     * Personal Access Token from DigitalOcean API settings
+     */
+    accessToken: string;
+  };
+  azureDetails?: {
+    clientId: string;
+    clientSecret: string;
+    tenantId: string;
+    subscriptionId: string;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -352,40 +388,6 @@ export interface SecurityGroup {
   securityGroupId?: string | null;
   syncStatus?: ('in-sync' | 'pending' | 'failed' | 'start-sync') | null;
   lastSyncedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cloudProviderAccounts".
- */
-export interface CloudProviderAccount {
-  id: string;
-  name: string;
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  awsDetails?: {
-    accessKeyId: string;
-    secretAccessKey: string;
-  };
-  gcpDetails?: {
-    /**
-     * Paste your GCP service account JSON key here
-     */
-    serviceAccountKey: string;
-    projectId: string;
-  };
-  digitaloceanDetails?: {
-    /**
-     * Personal Access Token from DigitalOcean API settings
-     */
-    accessToken: string;
-  };
-  azureDetails?: {
-    clientId: string;
-    clientSecret: string;
-    tenantId: string;
-    subscriptionId: string;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -670,6 +672,8 @@ export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   provider?: T;
+  instanceId?: T;
+  cloudProviderAccount?: T;
   sshKey?: T;
   securityGroups?: T;
   ip?: T;

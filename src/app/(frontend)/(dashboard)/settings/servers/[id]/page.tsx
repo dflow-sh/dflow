@@ -51,13 +51,54 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
     },
   })
 
+  const { docs: securityGroups } = await payload.find({
+    collection: 'securityGroups',
+    pagination: false,
+    where: {
+      and: [
+        {
+          or: [
+            {
+              cloudProvider: {
+                equals: server.provider,
+              },
+            },
+            {
+              cloudProvider: {
+                exists: false,
+              },
+            },
+          ],
+        },
+        {
+          or: [
+            {
+              cloudProviderAccount: {
+                equals: server.cloudProviderAccount,
+              },
+            },
+            {
+              cloudProviderAccount: {
+                exists: false,
+              },
+            },
+          ],
+        },
+      ],
+    },
+  })
+
   return (
     <div className='flex flex-col space-y-5'>
       <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
-          <UpdateServerForm server={server as ServerType} sshKeys={sshKeys} />
+          <UpdateServerForm
+            server={server as ServerType}
+            sshKeys={sshKeys}
+            securityGroups={securityGroups}
+          />
         </div>
 
         <ProjectsAndServicesSection projects={projects} />

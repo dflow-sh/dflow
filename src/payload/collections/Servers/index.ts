@@ -101,6 +101,33 @@ export const Servers: CollectionConfig = {
       defaultValue: 'other',
     },
     {
+      name: 'instanceId',
+      type: 'text',
+      admin: {
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
+    },
+    {
+      name: 'cloudProviderAccount',
+      type: 'relationship',
+      relationTo: 'cloudProviderAccounts',
+      admin: {
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
+    },
+    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',
@@ -116,7 +143,7 @@ export const Servers: CollectionConfig = {
       maxDepth: 10,
       admin: {
         condition: data => {
-          if (data.provider) {
+          if (data.provider !== 'other') {
             return true
           }
 
