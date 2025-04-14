@@ -179,13 +179,20 @@ const CreateEC2InstanceForm = ({
               <FormItem>
                 <FormLabel>Security Groups</FormLabel>
                 <MultiSelect
-                  options={filteredSecurityGroups.map(({ name, id }) => ({
-                    label: name,
-                    value: id,
-                  }))}
+                  options={(filteredSecurityGroups || [])?.map(
+                    ({ name, id }) => ({
+                      label: name,
+                      value: id,
+                    }),
+                  )}
                   onValueChange={field.onChange}
                   defaultValue={field.value || []}
-                  placeholder='Select security groups'
+                  placeholder={
+                    !filteredSecurityGroups ||
+                    filteredSecurityGroups.length === 0
+                      ? 'No security groups available'
+                      : 'Select security groups'
+                  }
                   className='w-full'
                 />
                 <FormMessage />
