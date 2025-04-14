@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Pencil, Plus, WandSparkles } from 'lucide-react'
+import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import {
@@ -29,75 +29,6 @@ const CreateSecurityGroup = ({
   cloudProviderAccounts: CloudProviderAccount[]
 }) => {
   const [open, setOpen] = useState<boolean>(false)
-  const [generatedData, setGeneratedData] =
-    useState<Omit<Partial<SecurityGroup>, 'id'>>()
-
-  const generateCommonRules = () => {
-    const awsAccount = cloudProviderAccounts.find(
-      account => account.type === 'aws',
-    )
-
-    const commonData: Partial<SecurityGroup> = {
-      name: 'MySecurityGroup',
-      description: 'Security group with common rules',
-      cloudProvider: 'aws',
-      cloudProviderAccount: awsAccount?.id || '',
-      inboundRules: [
-        {
-          description: 'SSH access',
-          type: 'ssh',
-          protocol: 'tcp',
-          fromPort: 22,
-          toPort: 22,
-          sourceType: 'anywhere-ipv4',
-          source: '0.0.0.0/0',
-        },
-        {
-          description: 'HTTP access',
-          type: 'http',
-          protocol: 'tcp',
-          fromPort: 80,
-          toPort: 80,
-          sourceType: 'anywhere-ipv4',
-          source: '0.0.0.0/0',
-        },
-        {
-          description: 'HTTPS access',
-          type: 'https',
-          protocol: 'tcp',
-          fromPort: 443,
-          toPort: 443,
-          sourceType: 'anywhere-ipv4',
-          source: '0.0.0.0/0',
-        },
-        {
-          description: 'Custom application port',
-          type: 'custom-tcp',
-          protocol: 'tcp',
-          fromPort: 3000,
-          toPort: 3000,
-          sourceType: 'anywhere-ipv4',
-          source: '0.0.0.0/0',
-        },
-      ],
-      outboundRules: [
-        {
-          description: 'Allow all outbound traffic',
-          type: 'all-traffic',
-          protocol: 'all',
-          destinationType: 'anywhere-ipv4',
-          destination: '0.0.0.0/0',
-        },
-      ],
-      tags: [
-        { key: 'Name', value: 'MySecurityGroup' },
-        { key: 'Environment', value: 'Production' },
-      ],
-    }
-
-    setGeneratedData(commonData)
-    setOpen(true)
-  }
 
   return (
     <div className='flex gap-2'>
@@ -129,23 +60,12 @@ const CreateSecurityGroup = ({
 
           <SecurityGroupForm
             type={type}
-            securityGroup={type === 'update' ? securityGroup : generatedData}
+            securityGroup={securityGroup}
             setOpen={setOpen}
             cloudProviderAccounts={cloudProviderAccounts}
           />
         </DialogContent>
       </Dialog>
-
-      {type === 'create' && (
-        <Button
-          variant='secondary'
-          onClick={generateCommonRules}
-          disabled={isDemoEnvironment}
-          className='gap-2'>
-          <WandSparkles className='h-4 w-4' />
-          Quick Create
-        </Button>
-      )}
     </div>
   )
 }
