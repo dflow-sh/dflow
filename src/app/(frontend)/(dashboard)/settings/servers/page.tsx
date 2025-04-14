@@ -15,7 +15,12 @@ const SuspendedAddServer = async () => {
     pagination: false,
   })
 
-  return <CreateServer sshKeys={keys} />
+  const { docs: securityGroups } = await payload.find({
+    collection: 'securityGroups',
+    pagination: false,
+  })
+
+  return <CreateServer sshKeys={keys} securityGroups={securityGroups} />
 }
 
 const SuspendedPage = async () => {

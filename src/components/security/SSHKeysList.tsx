@@ -10,7 +10,7 @@ import { deleteSSHKeyAction } from '@/actions/sshkeys'
 import { isDemoEnvironment } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 
-import UpdateSSHKeyForm from './CreateSSHKeyForm'
+import UpdateSSHKey from './CreateSSHKey'
 
 const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
   const { execute, isPending } = useAction(deleteSSHKeyAction, {
@@ -39,7 +39,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
         </div>
 
         <div className='flex items-center gap-3'>
-          <UpdateSSHKeyForm
+          <UpdateSSHKey
             sshKey={sshKey}
             type='update'
             description='This form updates SSH key'
