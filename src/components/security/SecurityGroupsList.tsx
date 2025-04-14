@@ -3,7 +3,14 @@
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
-import { RefreshCw, Shield, Trash2 } from 'lucide-react'
+import {
+  CheckCircle,
+  Clock,
+  RefreshCw,
+  Shield,
+  Trash2,
+  XCircle,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
@@ -17,11 +24,33 @@ import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 import UpdateSecurityGroup from './CreateSecurityGroup'
 
 const syncStatusMap = {
-  'in-sync': { label: 'In Sync', variant: 'default' as const },
-  'start-sync': { label: 'Syncing', variant: 'default' as const },
-  pending: { label: 'Pending', variant: 'secondary' as const },
-  failed: { label: 'Failed', variant: 'destructive' as const },
-}
+  'in-sync': {
+    label: 'In Sync',
+    variant: 'default' as const,
+    icon: <CheckCircle className='mr-1 h-3 w-3' />,
+    className:
+      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  },
+  'start-sync': {
+    label: 'Syncing',
+    variant: 'secondary' as const,
+    icon: <RefreshCw className='mr-1 h-3 w-3 animate-spin' />,
+    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  },
+  pending: {
+    label: 'Not Synced',
+    variant: 'outline' as const,
+    icon: <Clock className='mr-1 h-3 w-3' />,
+    className:
+      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  },
+  failed: {
+    label: 'Failed',
+    variant: 'destructive' as const,
+    icon: <XCircle className='mr-1 h-3 w-3' />,
+    className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  },
+} as const
 
 const SecurityGroupItem = ({
   securityGroup,
@@ -73,7 +102,10 @@ const SecurityGroupItem = ({
           </p>
         </div>
 
-        <Badge variant={statusConfig.variant} className='w-24 justify-center'>
+        <Badge
+          variant={statusConfig.variant}
+          className={`w-24 items-center justify-center ${statusConfig.className}`}>
+          {statusConfig.icon}
           {statusConfig.label}
         </Badge>
 
