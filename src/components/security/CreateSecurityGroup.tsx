@@ -132,7 +132,6 @@ const CreateSecurityGroup = ({
             securityGroup={type === 'update' ? securityGroup : generatedData}
             setOpen={setOpen}
             cloudProviderAccounts={cloudProviderAccounts}
-            generatedData={type === 'create' ? generatedData : undefined}
           />
         </DialogContent>
       </Dialog>

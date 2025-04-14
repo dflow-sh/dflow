@@ -29,26 +29,28 @@ const syncStatusMap = {
     variant: 'default' as const,
     icon: <CheckCircle className='mr-1 h-3 w-3' />,
     className:
-      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
   },
   'start-sync': {
     label: 'Syncing',
     variant: 'secondary' as const,
     icon: <RefreshCw className='mr-1 h-3 w-3 animate-spin' />,
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    className:
+      'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
   },
   pending: {
     label: 'Not Synced',
     variant: 'outline' as const,
     icon: <Clock className='mr-1 h-3 w-3' />,
     className:
-      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
   },
   failed: {
     label: 'Failed',
     variant: 'destructive' as const,
     icon: <XCircle className='mr-1 h-3 w-3' />,
-    className: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+    className:
+      'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
   },
 } as const
 
@@ -104,7 +106,7 @@ const SecurityGroupItem = ({
 
         <Badge
           variant={statusConfig.variant}
-          className={`w-24 items-center justify-center ${statusConfig.className}`}>
+          className={`items-center justify-center ${statusConfig.className}`}>
           {statusConfig.icon}
           {statusConfig.label}
         </Badge>

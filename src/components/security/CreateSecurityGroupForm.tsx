@@ -272,23 +272,15 @@ const SecurityGroupForm = ({
   open,
   setOpen,
   cloudProviderAccounts = [],
-  generatedData,
 }: {
   type?: 'create' | 'update'
   securityGroup?: Partial<SecurityGroup>
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
   cloudProviderAccounts: CloudProviderAccount[]
-  generatedData?: Partial<SecurityGroup>
 }) => {
-  // Combine initial data from securityGroup and generatedData
-  const initialData = {
-    ...(securityGroup || {}),
-    ...(generatedData || {}),
-  }
-
   // Transform inbound rules
-  const initialInboundRules = initialData?.inboundRules?.map(rule => ({
+  const initialInboundRules = securityGroup?.inboundRules?.map(rule => ({
     description: rule.description || '',
     type: rule.type,
     protocol: rule.protocol || 'tcp',
@@ -310,7 +302,7 @@ const SecurityGroupForm = ({
   ]
 
   // Transform outbound rules
-  const initialOutboundRules = initialData?.outboundRules?.map(rule => ({
+  const initialOutboundRules = securityGroup?.outboundRules?.map(rule => ({
     description: rule.description || '',
     type: rule.type,
     protocol: rule.protocol || 'all',
@@ -332,15 +324,15 @@ const SecurityGroupForm = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(extendedSecurityGroupSchema),
     defaultValues: {
-      name: initialData?.name || '',
-      description: initialData?.description || '',
-      cloudProvider: (initialData?.cloudProvider as any) || 'aws',
+      name: securityGroup?.name || '',
+      description: securityGroup?.description || '',
+      cloudProvider: (securityGroup?.cloudProvider as any) || 'aws',
       cloudProviderAccount:
-        ((initialData?.cloudProviderAccount as CloudProviderAccount)
+        ((securityGroup?.cloudProviderAccount as CloudProviderAccount)
           ?.id as string) || '',
       inboundRules: initialInboundRules,
       outboundRules: initialOutboundRules,
-      tags: (initialData?.tags as any[]) || [],
+      tags: (securityGroup?.tags as any[]) || [],
     },
   })
 
@@ -484,23 +476,6 @@ const SecurityGroupForm = ({
     handleTypeChange,
     handleSourceTypeChange,
   ])
-
-  // Reset form when generatedData changes
-  useEffect(() => {
-    if (generatedData) {
-      form.reset({
-        name: generatedData.name || '',
-        description: generatedData.description || '',
-        cloudProvider: (generatedData.cloudProvider as any) || 'aws',
-        cloudProviderAccount:
-          ((generatedData.cloudProviderAccount as CloudProviderAccount)
-            ?.id as string) || '',
-        inboundRules: initialInboundRules,
-        outboundRules: initialOutboundRules,
-        tags: (generatedData.tags as any[]) || [],
-      })
-    }
-  }, [generatedData, form, initialInboundRules, initialOutboundRules])
 
   const { execute: createSecurityGroup, isPending: isCreatingSecurityGroup } =
     useAction(createSecurityGroupAction, {
