@@ -219,7 +219,7 @@ const CreateService = ({ server }: { server: Server }) => {
                               enable appropriate plugin on{' '}
                               <Link
                                 className='text-primary underline'
-                                href={`/settings/servers/${server.id}/general`}>
+                                href={`/settings/servers/${server.id}?tab=plugins`}>
                                 server
                               </Link>
                             </SelectLabel>

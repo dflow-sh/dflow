@@ -38,7 +38,7 @@ export const updateServiceSchema = z.object({
       port: z.number().default(3000),
     })
     .optional(),
-  environmentVariables: z.record(z.string()).optional(),
+  environmentVariables: z.record(z.string(), z.unknown()).optional(),
   noRestart: z.boolean().optional(),
   id: z.string(),
 })
@@ -60,4 +60,16 @@ export const updateServiceDomainSchema = z.object({
   }),
   operation: z.enum(['add', 'remove', 'set']),
   id: z.string(),
+})
+
+export const linkDatabaseSchema = z.object({
+  databaseServiceId: z.string(),
+  serviceId: z.string(),
+  environmentVariableName: z.string(),
+})
+
+export const unlinkDatabaseSchema = z.object({
+  databaseServiceName: z.string(),
+  serviceId: z.string(),
+  environmentVariableName: z.string(),
 })

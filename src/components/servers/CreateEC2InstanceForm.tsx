@@ -4,7 +4,10 @@ import { Input } from '../ui/input'
 import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { usePathname, useRouter } from 'next/navigation'
+import { parseAsString, useQueryState } from 'nuqs'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -40,17 +43,32 @@ const CreateEC2InstanceForm = ({
   securityGroups: SecurityGroup[]
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
+  const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
+
+  const pathname = usePathname()
+  const router = useRouter()
+  const isOnboarding = pathname.includes('onboarding')
+
   const {
     execute: getAccounts,
     isPending: accountsPending,
     result: accountDetails,
   } = useAction(getCloudProvidersAccountsAction)
+
   const { execute: createEC2Instance, isPending: creatingEC2Instance } =
     useAction(createEC2InstanceAction, {
       onSuccess: ({ data }) => {
         if (data?.success) {
-          toast.success('EC2 instance created successfully')
+          toast.success('EC2 instance created successfully', {
+            description:
+              isOnboarding && 'redirecting to dokku-installation page...',
+          })
+
           setOpen(false)
+
+          if (isOnboarding) {
+            router.push('/onboarding/dokku-install')
+          }
         }
       },
       onError: ({ error }) => {
@@ -313,8 +331,13 @@ const CreateEC2InstanceForm = ({
           )}
         />
 
-        <DialogFooter>
-          <Button type='submit' disabled={creatingEC2Instance} className='mt-6'>
+        <DialogFooter className='mt-6'>
+          <Button variant='outline' onClick={() => setType(null)}>
+            <ArrowLeft />
+            Go back
+          </Button>
+
+          <Button type='submit' disabled={creatingEC2Instance}>
             Create EC2 Instance
           </Button>
         </DialogFooter>

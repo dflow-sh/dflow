@@ -248,6 +248,16 @@ export const Services: CollectionConfig = {
         { label: 'Docker', value: 'docker' },
       ],
     },
+    // Storing environment variables in JSON format
+    // there will be 2 types of variables
+    // 1. default variables MY_VARIABLE="Something"
+    // 2. reference variables 👇
+    //   DATABASE_URI: {
+    //   type: "reference",
+    //   value: "mongodb://something",
+    //   linkedService: "mongo-database", // the Dokku service name
+    //   dokkuAlias: "MONGO_DATABASE_DB_URL",  // used when running dokku config
+    // }
     {
       name: 'environmentVariables',
       type: 'json',
@@ -317,6 +327,13 @@ export const Services: CollectionConfig = {
       label: 'Deployments',
       collection: 'deployments',
       on: 'service',
+    },
+    // linked services
+    {
+      label: 'Linked Services',
+      name: 'linkedServices',
+      type: 'text',
+      hasMany: true,
     },
   ],
 }

@@ -34,7 +34,7 @@ interface QueueArgs {
   payloadToken: string
 }
 
-const QUEUE_NAME = 'deploy-app'
+const QUEUE_NAME = 'deploy-app-dockerfile'
 
 export const dockerdFileAppQueue = new Queue<QueueArgs>(QUEUE_NAME, {
   connection: queueConnection,
@@ -137,10 +137,18 @@ const worker = new Worker<QueueArgs>(
           ssh,
           name: appName,
           values: Object.entries(serviceDetails.environmentVariables).map(
-            ([key, value]) => ({
-              key,
-              value: value as string,
-            }),
+            ([key, value]) => {
+              // handling the case where value is an object for reference environment variables
+              const formattedValue =
+                value && typeof value === 'object' && 'value' in value
+                  ? value.value
+                  : value
+
+              return {
+                key,
+                value: `${formattedValue}`,
+              }
+            },
           ),
           noRestart: true,
           options: {
@@ -184,7 +192,15 @@ const worker = new Worker<QueueArgs>(
         }
 
         const option = Object.entries(serviceDetails.environmentVariables)
-          .map(([key, value]) => `--build-arg ${key}="${value}"`)
+          .map(([key, value]) => {
+            // handling the case where value is an object for reference environment variables
+            const formattedValue =
+              value && typeof value === 'object' && 'value' in value
+                ? value.value
+                : value
+
+            return `--build-arg ${key}="${formattedValue}"`
+          })
           .join(' ')
 
         console.log('updated build-params', { option })
@@ -335,39 +351,15 @@ const worker = new Worker<QueueArgs>(
         throw new Error('cloning and building failed')
       }
 
-      // Step 5: SSL certificate generation
-      sendEvent({
-        message: `Started generating SSL`,
-        pub,
-        serverId,
-        serviceId,
-        channelId: serviceDetails.deploymentId,
+      // Step 5: Check for Let's Encrypt status & generate SSL
+      const letsencryptStatus = await dokku.letsencrypt.status({
+        appName,
+        ssh,
       })
 
-      const letsencryptResponse = await dokku.letsencrypt.enable(ssh, appName, {
-        onStdout: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        },
-        onStderr: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        },
-      })
-
-      if (letsencryptResponse.code === 0) {
+      if (letsencryptStatus.code === 0 && letsencryptStatus.stdout === 'true') {
         sendEvent({
-          message: `✅ Successfully generated SSL certificates`,
+          message: `✅ SSL enabled, skipping SSL generation`,
           pub,
           serverId,
           serviceId,
@@ -375,12 +367,55 @@ const worker = new Worker<QueueArgs>(
         })
       } else {
         sendEvent({
-          message: `❌ Failed to generated SSL certificates`,
+          message: `Started generating SSL`,
           pub,
           serverId,
           serviceId,
           channelId: serviceDetails.deploymentId,
         })
+
+        const letsencryptResponse = await dokku.letsencrypt.enable(
+          ssh,
+          appName,
+          {
+            onStdout: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            },
+            onStderr: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            },
+          },
+        )
+
+        if (letsencryptResponse.code === 0) {
+          sendEvent({
+            message: `✅ Successfully generated SSL certificates`,
+            pub,
+            serverId,
+            serviceId,
+            channelId: serviceDetails.deploymentId,
+          })
+        } else {
+          sendEvent({
+            message: `❌ Failed to generated SSL certificates`,
+            pub,
+            serverId,
+            serviceId,
+            channelId: serviceDetails.deploymentId,
+          })
+        }
       }
 
       sendEvent({

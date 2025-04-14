@@ -11,8 +11,10 @@ import { protectedClient, publicClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
+import { addLinkDatabaseQueueQueue } from '@/queues/app/link-database'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
+import { addUnlinkDatabaseQueueQueue } from '@/queues/app/unlink-database'
 import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
@@ -24,6 +26,8 @@ import {
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
+  linkDatabaseSchema,
+  unlinkDatabaseSchema,
   updateServiceDomainSchema,
   updateServiceEnvironmentsSchema,
   updateServiceSchema,
@@ -645,4 +649,130 @@ export const updateServiceDomainAction = protectedClient
         return { success: true }
       }
     }
+  })
+
+export const linkDatabaseAction = protectedClient
+  .metadata({
+    actionName: 'linkDatabaseAction',
+  })
+  .schema(linkDatabaseSchema)
+  .action(async ({ clientInput }) => {
+    const { databaseServiceId, serviceId, environmentVariableName } =
+      clientInput
+
+    const databaseService = await payload.findByID({
+      collection: 'services',
+      id: databaseServiceId,
+    })
+
+    const service = await payload.findByID({
+      collection: 'services',
+      id: serviceId,
+      depth: 10,
+    })
+
+    const serverDetails =
+      typeof service.project === 'object' &&
+      typeof service.project.server === 'object'
+        ? service.project.server
+        : null
+
+    const sshKey =
+      serverDetails && typeof serverDetails.sshKey === 'object'
+        ? serverDetails.sshKey
+        : null
+
+    // add linking database to queue
+    if (databaseService.databaseDetails && serverDetails && sshKey) {
+      addLinkDatabaseQueueQueue({
+        databaseDetails: {
+          name: databaseService.name,
+          type: databaseService.databaseDetails.type!,
+        },
+        serviceDetails: {
+          name: service.name,
+          environmentVariableName,
+          id: service.id,
+        },
+        sshDetails: {
+          host: serverDetails.ip,
+          port: serverDetails.port,
+          privateKey: sshKey.privateKey,
+          username: serverDetails.username,
+        },
+        serverDetails: {
+          id: serverDetails.id,
+        },
+      })
+    }
+
+    return { success: true }
+  })
+
+export const unlinkDatabaseAction = protectedClient
+  .metadata({
+    actionName: 'unlinkDatabaseAction',
+  })
+  .schema(unlinkDatabaseSchema)
+  .action(async ({ clientInput }) => {
+    const { databaseServiceName, serviceId, environmentVariableName } =
+      clientInput
+
+    const { docs } = await payload.find({
+      collection: 'services',
+      where: {
+        name: {
+          equals: databaseServiceName,
+        },
+        type: {
+          equals: 'database',
+        },
+      },
+      pagination: false,
+    })
+
+    const service = await payload.findByID({
+      collection: 'services',
+      id: serviceId,
+      depth: 10,
+    })
+
+    const serverDetails =
+      typeof service.project === 'object' &&
+      typeof service.project.server === 'object'
+        ? service.project.server
+        : null
+
+    const sshKey =
+      serverDetails && typeof serverDetails.sshKey === 'object'
+        ? serverDetails.sshKey
+        : null
+
+    const databaseService = docs?.[0]
+
+    // add linking database to queue
+    if (databaseService.databaseDetails && serverDetails && sshKey) {
+      addUnlinkDatabaseQueueQueue({
+        databaseDetails: {
+          name: databaseService.name,
+          type: databaseService.databaseDetails.type!,
+        },
+        serviceDetails: {
+          name: service.name,
+          environmentVariableName,
+          id: service.id,
+        },
+        sshDetails: {
+          host: serverDetails.ip,
+          port: serverDetails.port,
+          privateKey: sshKey.privateKey,
+          username: serverDetails.username,
+        },
+        serverDetails: {
+          id: serverDetails.id,
+        },
+      })
+    }
+
+    return { success: true }
   })
