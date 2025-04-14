@@ -29,28 +29,32 @@ const syncStatusMap = {
     variant: 'default' as const,
     icon: <CheckCircle className='mr-1 h-3 w-3' />,
     className:
-      'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700',
+      'bg-green-900 text-green-200 border-green-700 ' +
+      'hover:bg-green-800 hover:border-green-600',
   },
   'start-sync': {
     label: 'Syncing',
     variant: 'secondary' as const,
     icon: <RefreshCw className='mr-1 h-3 w-3 animate-spin' />,
     className:
-      'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+      'bg-blue-900 text-blue-200 border-blue-700 ' +
+      'hover:bg-blue-800 hover:border-blue-600',
   },
   pending: {
     label: 'Not Synced',
     variant: 'outline' as const,
     icon: <Clock className='mr-1 h-3 w-3' />,
     className:
-      'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700',
+      'bg-yellow-900 text-yellow-200 border-yellow-700 ' +
+      'hover:bg-yellow-800 hover:border-yellow-600',
   },
   failed: {
     label: 'Failed',
     variant: 'destructive' as const,
     icon: <XCircle className='mr-1 h-3 w-3' />,
     className:
-      'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700',
+      'bg-red-900 text-red-200 border-red-700 ' +
+      'hover:bg-red-800 hover:border-red-600',
   },
 } as const
 
