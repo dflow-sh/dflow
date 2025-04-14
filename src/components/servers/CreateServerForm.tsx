@@ -132,7 +132,7 @@ export function ServerForm({
   type: formType,
 }: {
   sshKeys: SshKey[]
-  securityGroups: SecurityGroup[]
+  securityGroups?: SecurityGroup[]
   type?: 'create' | 'update'
   server?: ServerType
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -401,7 +401,7 @@ const CreateServer = ({
   server,
 }: {
   sshKeys: SshKey[]
-  securityGroups: SecurityGroup[]
+  securityGroups?: SecurityGroup[]
   type?: 'create' | 'update'
   title?: string
   server?: ServerType

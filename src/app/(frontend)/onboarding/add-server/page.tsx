@@ -18,6 +18,11 @@ const SuspendedPage = async () => {
     pagination: false,
   })
 
+  const { docs: securityGroups } = await payload.find({
+    collection: 'securityGroups',
+    pagination: false,
+  })
+
   const { docs: servers } = await payload.find({
     collection: 'servers',
     pagination: false,
@@ -34,7 +39,7 @@ const SuspendedPage = async () => {
       prevStepUrl={'/onboarding/ssh-keys'}
       nextStepUrl={'/onboarding/dokku-install'}
       disableNextStep={servers.length !== 0}>
-      <ServerForm sshKeys={sshKeys} />
+      <ServerForm sshKeys={sshKeys} securityGroups={securityGroups} />
 
       {servers.length ? (
         <div className='mt-8 space-y-4'>

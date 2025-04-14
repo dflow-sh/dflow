@@ -40,7 +40,7 @@ const CreateEC2InstanceForm = ({
   setOpen = () => {},
 }: {
   sshKeys: SshKey[]
-  securityGroups: SecurityGroup[]
+  securityGroups?: SecurityGroup[]
   setOpen?: Dispatch<SetStateAction<boolean>>
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))

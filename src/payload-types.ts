@@ -191,7 +191,7 @@ export interface Server {
   description?: string | null;
   provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
   sshKey: string | SshKey;
-  securityGroups: (string | SecurityGroup)[];
+  securityGroups?: (string | SecurityGroup)[] | null;
   /**
    * Enter the IP address of the server.
    */

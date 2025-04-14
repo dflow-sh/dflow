@@ -113,8 +113,16 @@ export const Servers: CollectionConfig = {
       type: 'relationship',
       relationTo: 'securityGroups',
       hasMany: true,
-      required: true,
       maxDepth: 10,
+      admin: {
+        condition: data => {
+          if (data.provider) {
+            return true
+          }
+
+          return false
+        },
+      },
     },
     {
       name: 'ip',

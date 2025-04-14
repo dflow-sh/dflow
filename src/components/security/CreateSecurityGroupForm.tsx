@@ -14,7 +14,7 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, ShieldAlert, ShieldCheck, Tag, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -144,7 +144,7 @@ const mapRuleTypeToValues = (
 const mapSourceTypeToValue = (sourceType: string): string => {
   switch (sourceType) {
     case 'my-ip':
-      return 'YOUR_IP/32' // Replace with actual IP fetching logic if needed
+      return 'YOUR_IP/32'
     case 'anywhere-ipv4':
       return '0.0.0.0/0'
     case 'anywhere-ipv6':
@@ -272,14 +272,14 @@ const SecurityGroupForm = ({
   open,
   setOpen,
   cloudProviderAccounts = [],
-  generatedData, // Add this new prop
+  generatedData,
 }: {
   type?: 'create' | 'update'
   securityGroup?: Partial<SecurityGroup>
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
   cloudProviderAccounts: CloudProviderAccount[]
-  generatedData?: Partial<SecurityGroup> // Add this new prop
+  generatedData?: Partial<SecurityGroup>
 }) => {
   // Combine initial data from securityGroup and generatedData
   const initialData = {
@@ -344,23 +344,6 @@ const SecurityGroupForm = ({
     },
   })
 
-  // Reset form when generatedData changes
-  useEffect(() => {
-    if (generatedData) {
-      form.reset({
-        name: generatedData.name || '',
-        description: generatedData.description || '',
-        cloudProvider: (generatedData.cloudProvider as any) || 'aws',
-        cloudProviderAccount:
-          ((generatedData.cloudProviderAccount as CloudProviderAccount)
-            ?.id as string) || '',
-        inboundRules: initialInboundRules,
-        outboundRules: initialOutboundRules,
-        tags: (generatedData.tags as any[]) || [],
-      })
-    }
-  }, [generatedData])
-
   // Setup field arrays
   const {
     fields: inboundRuleFields,
@@ -388,6 +371,136 @@ const SecurityGroupForm = ({
     control: form.control,
     name: 'tags',
   })
+
+  const handleTypeChange = useCallback(
+    (value: RuleType, index: number, isInbound: boolean) => {
+      const { protocol, fromPort, toPort } = mapRuleTypeToValues(value)
+
+      if (isInbound) {
+        const protocolPath: `inboundRules.${number}.protocol` = `inboundRules.${index}.protocol`
+        const fromPortPath: `inboundRules.${number}.fromPort` = `inboundRules.${index}.fromPort`
+        const toPortPath: `inboundRules.${number}.toPort` = `inboundRules.${index}.toPort`
+
+        form.setValue(protocolPath, protocol)
+        form.setValue(fromPortPath, fromPort)
+        form.setValue(toPortPath, toPort)
+      } else {
+        const protocolPath: `outboundRules.${number}.protocol` = `outboundRules.${index}.protocol`
+        const fromPortPath: `outboundRules.${number}.fromPort` = `outboundRules.${index}.fromPort`
+        const toPortPath: `outboundRules.${number}.toPort` = `outboundRules.${index}.toPort`
+
+        form.setValue(protocolPath, protocol)
+        form.setValue(fromPortPath, fromPort)
+        form.setValue(toPortPath, toPort)
+      }
+    },
+    [form],
+  )
+
+  const handleSourceTypeChange = useCallback(
+    (value: string, index: number, isInbound: boolean) => {
+      const sourceValue = mapSourceTypeToValue(value)
+
+      if (isInbound) {
+        const sourcePath: `inboundRules.${number}.source` = `inboundRules.${index}.source`
+        form.setValue(sourcePath, sourceValue)
+      } else {
+        const destinationPath: `outboundRules.${number}.destination` = `outboundRules.${index}.destination`
+        form.setValue(destinationPath, sourceValue)
+      }
+    },
+    [form],
+  )
+
+  // Watch inbound rule types and source types
+  useEffect(() => {
+    const subscriptions = inboundRuleFields.map((_, index) => {
+      const ruleTypeSubscription = form.watch((value, { name }) => {
+        if (name === `inboundRules.${index}.type`) {
+          handleTypeChange(
+            value.inboundRules?.[index]?.type as RuleType,
+            index,
+            true,
+          )
+        }
+      })
+
+      const sourceTypeSubscription = form.watch((value, { name }) => {
+        if (name === `inboundRules.${index}.sourceType`) {
+          handleSourceTypeChange(
+            value.inboundRules?.[index]?.sourceType as string,
+            index,
+            true,
+          )
+        }
+      })
+
+      return () => {
+        ruleTypeSubscription.unsubscribe()
+        sourceTypeSubscription.unsubscribe()
+      }
+    })
+
+    return () => {
+      subscriptions.forEach(unsub => unsub && unsub())
+    }
+  }, [inboundRuleFields.length, form, handleTypeChange, handleSourceTypeChange])
+
+  // Watch outbound rule types and destination types
+  useEffect(() => {
+    const subscriptions = outboundRuleFields.map((_, index) => {
+      const ruleTypeSubscription = form.watch((value, { name }) => {
+        if (name === `outboundRules.${index}.type`) {
+          handleTypeChange(
+            value.outboundRules?.[index]?.type as RuleType,
+            index,
+            false,
+          )
+        }
+      })
+
+      const destinationTypeSubscription = form.watch((value, { name }) => {
+        if (name === `outboundRules.${index}.destinationType`) {
+          handleSourceTypeChange(
+            value.outboundRules?.[index]?.destinationType as string,
+            index,
+            false,
+          )
+        }
+      })
+
+      return () => {
+        ruleTypeSubscription.unsubscribe()
+        destinationTypeSubscription.unsubscribe()
+      }
+    })
+
+    return () => {
+      subscriptions.forEach(unsub => unsub && unsub())
+    }
+  }, [
+    outboundRuleFields.length,
+    form,
+    handleTypeChange,
+    handleSourceTypeChange,
+  ])
+
+  // Reset form when generatedData changes
+  useEffect(() => {
+    if (generatedData) {
+      form.reset({
+        name: generatedData.name || '',
+        description: generatedData.description || '',
+        cloudProvider: (generatedData.cloudProvider as any) || 'aws',
+        cloudProviderAccount:
+          ((generatedData.cloudProviderAccount as CloudProviderAccount)
+            ?.id as string) || '',
+        inboundRules: initialInboundRules,
+        outboundRules: initialOutboundRules,
+        tags: (generatedData.tags as any[]) || [],
+      })
+    }
+  }, [generatedData, form, initialInboundRules, initialOutboundRules])
 
   const { execute: createSecurityGroup, isPending: isCreatingSecurityGroup } =
     useAction(createSecurityGroupAction, {
@@ -417,77 +530,12 @@ const SecurityGroupForm = ({
       },
     })
 
-  // Update the handleTypeChange and handleSourceTypeChange functions to use the typed paths
-  const handleTypeChange = (
-    value: RuleType,
-    index: number,
-    isInbound: boolean,
-  ) => {
-    const { protocol, fromPort, toPort } = mapRuleTypeToValues(value)
+  const watchCloudProvider = form.watch('cloudProvider')
 
-    if (isInbound) {
-      const protocolPath: `inboundRules.${number}.protocol` = `inboundRules.${index}.protocol`
-      const fromPortPath: `inboundRules.${number}.fromPort` = `inboundRules.${index}.fromPort`
-      const toPortPath: `inboundRules.${number}.toPort` = `inboundRules.${index}.toPort`
-
-      form.setValue(protocolPath, protocol)
-      form.setValue(fromPortPath, fromPort)
-      form.setValue(toPortPath, toPort)
-    } else {
-      const protocolPath: `outboundRules.${number}.protocol` = `outboundRules.${index}.protocol`
-      const fromPortPath: `outboundRules.${number}.fromPort` = `outboundRules.${index}.fromPort`
-      const toPortPath: `outboundRules.${number}.toPort` = `outboundRules.${index}.toPort`
-
-      form.setValue(protocolPath, protocol)
-      form.setValue(fromPortPath, fromPort)
-      form.setValue(toPortPath, toPort)
-    }
-  }
-
-  const handleSourceTypeChange = (
-    value: string,
-    index: number,
-    isInbound: boolean,
-  ) => {
-    const sourceValue = mapSourceTypeToValue(value)
-
-    if (isInbound) {
-      const sourcePath: `inboundRules.${number}.source` = `inboundRules.${index}.source`
-      form.setValue(sourcePath, sourceValue)
-    } else {
-      const destinationPath: `outboundRules.${number}.destination` = `outboundRules.${index}.destination`
-      form.setValue(destinationPath, sourceValue)
-    }
-  }
-
-  // Watch type and sourceType/destinationType to trigger prefilling
-  inboundRuleFields.forEach((_, index) => {
-    const watchRuleType = form.watch(`inboundRules.${index}.type`)
-    const watchSourceType = form.watch(`inboundRules.${index}.sourceType`)
-
-    useEffect(() => {
-      handleTypeChange(watchRuleType, index, true)
-    }, [watchRuleType])
-
-    useEffect(() => {
-      handleSourceTypeChange(watchSourceType, index, true)
-    }, [watchSourceType])
-  })
-
-  outboundRuleFields.forEach((_, index) => {
-    const watchRuleType = form.watch(`outboundRules.${index}.type`)
-    const watchDestinationType = form.watch(
-      `outboundRules.${index}.destinationType`,
-    )
-
-    useEffect(() => {
-      handleTypeChange(watchRuleType, index, false)
-    }, [watchRuleType])
-
-    useEffect(() => {
-      handleSourceTypeChange(watchDestinationType, index, false)
-    }, [watchDestinationType])
-  })
+  // Filter cloud provider accounts based on selected provider
+  const filteredAccounts = cloudProviderAccounts.filter(
+    account => account.type === watchCloudProvider,
+  )
 
   // Transform values during submission to ensure protocol and ports are set
   const onSubmit = (values: FormValues) => {
@@ -500,7 +548,6 @@ const SecurityGroupForm = ({
           protocol: rule.protocol || protocol,
           fromPort: rule.fromPort !== undefined ? rule.fromPort : -1,
           toPort: rule.toPort !== undefined ? rule.toPort : -1,
-          // Preserve securityGroupRuleId if it exists
           securityGroupRuleId: rule.securityGroupRuleId,
         }
       }),
@@ -511,7 +558,6 @@ const SecurityGroupForm = ({
           protocol: rule.protocol || protocol,
           fromPort: rule.fromPort !== undefined ? rule.fromPort : -1,
           toPort: rule.toPort !== undefined ? rule.toPort : -1,
-          // Preserve securityGroupRuleId if it exists
           securityGroupRuleId: rule.securityGroupRuleId,
         }
       }),
@@ -526,13 +572,6 @@ const SecurityGroupForm = ({
       createSecurityGroup(transformedValues)
     }
   }
-
-  const watchCloudProvider = form.watch('cloudProvider')
-
-  // Filter cloud provider accounts based on selected provider
-  const filteredAccounts = cloudProviderAccounts.filter(
-    account => account.type === watchCloudProvider,
-  )
 
   return (
     <Form {...form}>
