@@ -2,7 +2,7 @@
 
 import { KeyRound, Shield } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import CreateSSHKey from '@/components/security/CreateSSHKey'
 import CreateSecurityGroup from '@/components/security/CreateSecurityGroup'
@@ -27,16 +27,24 @@ interface Props {
   cloudProviderAccounts: CloudProviderAccount[]
 }
 
-export default function SecurityTabs({
+const SecurityTabs = ({
   sshKeysCount,
   securityGroupsCount,
   keys,
   securityGroups,
   cloudProviderAccounts,
-}: Props) {
+}: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const tab = searchParams.get('tab') || 'ssh-keys'
+
+  useEffect(() => {
+    if (!searchParams.get('tab')) {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('tab', 'ssh-keys')
+      router.replace(`?${params.toString()}`)
+    }
+  }, [searchParams, router])
 
   const handleTabChange = useCallback(
     (value: string) => {
@@ -132,3 +140,5 @@ export default function SecurityTabs({
     </Tabs>
   )
 }
+
+export default SecurityTabs
