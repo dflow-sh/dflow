@@ -6,7 +6,7 @@ import { Suspense, use } from 'react'
 import SecurityTabs from '@/components/security/SecurityTabs'
 import SecurityTabsSkeleton from '@/components/security/SecurityTabsSkeleton'
 
-const SuspendedSecurityTabs = () => {
+const SuspendedPage = () => {
   const payload = use(getPayload({ config: configPromise }))
 
   const [
@@ -43,7 +43,7 @@ const SecurityPage = async () => {
         </p>
       </div>
       <Suspense fallback={<SecurityTabsSkeleton />}>
-        <SuspendedSecurityTabs />
+        <SuspendedPage />
       </Suspense>
     </LayoutClient>
   )

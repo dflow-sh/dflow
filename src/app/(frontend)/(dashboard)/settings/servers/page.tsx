@@ -1,34 +1,38 @@
 import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
 
-import ServersLoading from './ServersLoading'
+import ButtonSkeleton from './ButtonSkeleton'
+import ServersSkeleton from './ServersSkeleton'
 
-const SuspendedAddServer = async () => {
-  const payload = await getPayload({ config: configPromise })
-  const { docs: keys } = await payload.find({
-    collection: 'sshKeys',
-    pagination: false,
-  })
+const SuspendedAddServer = () => {
+  const payload = use(getPayload({ config: configPromise }))
 
-  const { docs: securityGroups } = await payload.find({
-    collection: 'securityGroups',
-    pagination: false,
-  })
+  const [sshKeysRes, securityGroupsRes] = use(
+    Promise.all([
+      payload.find({ collection: 'sshKeys', pagination: false }),
+      payload.find({ collection: 'securityGroups', pagination: false }),
+    ]),
+  )
 
-  return <CreateServer sshKeys={keys} securityGroups={securityGroups} />
+  return (
+    <CreateServer
+      sshKeys={sshKeysRes.docs}
+      securityGroups={securityGroupsRes.docs}
+    />
+  )
 }
 
-const SuspendedPage = async () => {
-  const payload = await getPayload({ config: configPromise })
-  const { docs: servers } = await payload.find({
-    collection: 'servers',
-    pagination: false,
-  })
+const SuspendedServers = () => {
+  const payload = use(getPayload({ config: configPromise }))
+
+  const { docs: servers } = use(
+    payload.find({ collection: 'servers', pagination: false }),
+  )
 
   return servers.length ? (
     <div className='grid gap-4 md:grid-cols-3'>
@@ -43,15 +47,17 @@ const SuspendedPage = async () => {
 
 const ServersPage = async () => {
   return (
-    <Suspense fallback={<ServersLoading />}>
-      <LayoutClient>
-        <div className='mb-5 flex items-center justify-between'>
-          <div className='text-2xl font-semibold'>Servers</div>
+    <LayoutClient>
+      <div className='mb-5 flex items-center justify-between'>
+        <div className='text-2xl font-semibold'>Servers</div>
+        <Suspense fallback={<ButtonSkeleton />}>
           <SuspendedAddServer />
-        </div>
-        <SuspendedPage />
-      </LayoutClient>
-    </Suspense>
+        </Suspense>
+      </div>
+      <Suspense fallback={<ServersSkeleton />}>
+        <SuspendedServers />
+      </Suspense>
+    </LayoutClient>
   )
 }
 
