@@ -1,14 +1,15 @@
+import SecurityGroupForm from '../security/CreateSecurityGroupForm'
 import { Button } from '../ui/button'
 import { DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, PlusCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -16,6 +17,14 @@ import { z } from 'zod'
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
 import { createEC2InstanceAction } from '@/actions/cloud/aws'
 import { createEC2InstanceSchema } from '@/actions/cloud/aws/validator'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -31,19 +40,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
+import {
+  amiList,
+  awsRegions,
+  instanceTypes,
+  isDemoEnvironment,
+} from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 
 const CreateEC2InstanceForm = ({
   sshKeys,
   securityGroups,
   setOpen = () => {},
+  allowSecurityGroupCreation = false,
 }: {
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
   setOpen?: Dispatch<SetStateAction<boolean>>
+  allowSecurityGroupCreation?: boolean
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
+  const [securityGroupDialogOpen, setSecurityGroupDialogOpen] = useState(false)
 
   const pathname = usePathname()
   const router = useRouter()
@@ -178,23 +195,61 @@ const CreateEC2InstanceForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Security Groups</FormLabel>
-                <MultiSelect
-                  options={(filteredSecurityGroups || [])?.map(
-                    ({ name, id }) => ({
-                      label: name,
-                      value: id,
-                    }),
+                <div className='flex items-center space-x-2'>
+                  <div className='flex-1'>
+                    <MultiSelect
+                      options={(filteredSecurityGroups || [])?.map(
+                        ({ name, id }) => ({
+                          label: name,
+                          value: id,
+                        }),
+                      )}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || []}
+                      placeholder={
+                        !filteredSecurityGroups ||
+                        filteredSecurityGroups.length === 0
+                          ? 'No security groups available'
+                          : 'Select security groups'
+                      }
+                      className='w-full'
+                    />
+                  </div>
+                  {allowSecurityGroupCreation && (
+                    <Dialog
+                      open={securityGroupDialogOpen}
+                      onOpenChange={setSecurityGroupDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          disabled={isDemoEnvironment}
+                          onClick={e => e.stopPropagation()}
+                          size='sm'
+                          variant='outline'
+                          className='m-0 h-fit shrink-0 rounded-full p-2'>
+                          <PlusCircle className='h-4 w-4' />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className='sm:max-w-4xl'>
+                        <DialogHeader>
+                          <DialogTitle>Add Security Group</DialogTitle>
+                          <DialogDescription>
+                            Create a new security group for your EC2 instance
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <SecurityGroupForm
+                          type='create'
+                          setOpen={setSecurityGroupDialogOpen}
+                          cloudProviderAccounts={accountDetails.data || []}
+                          securityGroup={{
+                            cloudProvider: 'aws',
+                            cloudProviderAccount: form.watch('accountId'),
+                          }}
+                        />
+                      </DialogContent>
+                    </Dialog>
                   )}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value || []}
-                  placeholder={
-                    !filteredSecurityGroups ||
-                    filteredSecurityGroups.length === 0
-                      ? 'No security groups available'
-                      : 'Select security groups'
-                  }
-                  className='w-full'
-                />
+                </div>
                 <FormMessage />
               </FormItem>
             )}

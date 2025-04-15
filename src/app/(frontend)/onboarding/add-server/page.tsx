@@ -39,7 +39,11 @@ const SuspendedPage = async () => {
       prevStepUrl={'/onboarding/ssh-keys'}
       nextStepUrl={'/onboarding/dokku-install'}
       disableNextStep={servers.length !== 0}>
-      <ServerForm sshKeys={sshKeys} securityGroups={securityGroups} />
+      <ServerForm
+        sshKeys={sshKeys}
+        securityGroups={securityGroups}
+        allowSecurityGroupCreation
+      />
 
       {servers.length ? (
         <div className='mt-8 space-y-4'>

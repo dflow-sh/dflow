@@ -335,8 +335,9 @@ const SecurityGroupForm = ({
       description: securityGroup?.description || '',
       cloudProvider: (securityGroup?.cloudProvider as any) || 'aws',
       cloudProviderAccount:
-        ((securityGroup?.cloudProviderAccount as CloudProviderAccount)
-          ?.id as string) || '',
+        typeof securityGroup?.cloudProviderAccount === 'object'
+          ? securityGroup?.cloudProviderAccount?.id
+          : securityGroup?.cloudProviderAccount || '',
       inboundRules: initialInboundRules,
       outboundRules: initialOutboundRules,
       tags: (securityGroup?.tags as any[]) || [],
