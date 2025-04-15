@@ -5,6 +5,7 @@ import { Settings } from 'lucide-react'
 import { parseAsString, useQueryState } from 'nuqs'
 
 import AWSDrawer from '@/components/Integrations/AWSDrawer'
+import DockerRegistryDrawer from '@/components/Integrations/DockerRegistryDrawer'
 import GitHubDrawer from '@/components/Integrations/GithubDrawer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -71,6 +72,7 @@ const IntegrationsPage = () => {
 
         <GitHubDrawer />
         <AWSDrawer />
+        <DockerRegistryDrawer />
       </section>
     </LayoutClient>
   )

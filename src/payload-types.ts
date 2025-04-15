@@ -74,6 +74,7 @@ export interface Config {
     deployments: Deployment;
     cloudProviderAccounts: CloudProviderAccount;
     securityGroups: SecurityGroup;
+    dockerRegistries: DockerRegistry;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -96,6 +97,7 @@ export interface Config {
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
     cloudProviderAccounts: CloudProviderAccountsSelect<false> | CloudProviderAccountsSelect<true>;
     securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
+    dockerRegistries: DockerRegistriesSelect<false> | DockerRegistriesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -504,6 +506,19 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dockerRegistries".
+ */
+export interface DockerRegistry {
+  id: string;
+  name: string;
+  type: 'docker' | 'github' | 'digitalocean' | 'quay';
+  username: string;
+  password: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -544,6 +559,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'securityGroups';
         value: string | SecurityGroup;
+      } | null)
+    | ({
+        relationTo: 'dockerRegistries';
+        value: string | DockerRegistry;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -825,6 +844,18 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
   securityGroupId?: T;
   syncStatus?: T;
   lastSyncedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dockerRegistries_select".
+ */
+export interface DockerRegistriesSelect<T extends boolean = true> {
+  name?: T;
+  type?: T;
+  username?: T;
+  password?: T;
   updatedAt?: T;
   createdAt?: T;
 }
