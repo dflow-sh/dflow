@@ -103,7 +103,7 @@ const CreateEC2InstanceForm = ({
   const filteredSecurityGroups = securityGroups?.filter(
     securityGroup =>
       securityGroup.cloudProvider === 'aws' &&
-      (securityGroup.cloudProviderAccount as CloudProviderAccount).id ===
+      (securityGroup.cloudProviderAccount as CloudProviderAccount)?.id ===
         selectedAwsAccountId,
   )
 

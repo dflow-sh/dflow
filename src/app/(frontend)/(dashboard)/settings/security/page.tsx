@@ -40,24 +40,6 @@ const SuspendedContent = async () => {
     pagination: false,
   })
 
-  // const awsAccountDetails = await payload.findByID({
-  //   collection: 'cloudProviderAccounts',
-  //   id: '67f6005f4a4228403133aee7',
-  // })
-
-  // const ec2Client = new EC2Client({
-  //   region: 'us-east-1',
-  //   credentials: {
-  //     accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
-  //     secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
-  //   },
-  // })
-
-  // const command = new DescribeSecurityGroupsCommand({})
-  // const response = await ec2Client.send(command)
-
-  // console.dir({ response }, { depth: Infinity })
-
   return (
     <>
       <TabsContent value='ssh-keys' className='mt-4'>

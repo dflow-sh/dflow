@@ -264,8 +264,8 @@ const tagSchema = z.object({
 const extendedSecurityGroupSchema = createSecurityGroupSchema.extend({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
-  cloudProvider: z.enum(['aws', 'azure', 'gcp', 'digitalocean']),
-  cloudProviderAccount: z.string().min(1, 'Cloud Provider Account is required'),
+  cloudProvider: z.enum(['aws', 'azure', 'gcp', 'digitalocean']).optional(),
+  cloudProviderAccount: z.string().optional(),
   inboundRules: z.array(inboundRuleSchema).optional().default([]),
   outboundRules: z.array(outboundRuleSchema).optional().default([]),
   tags: z.array(tagSchema).optional().default([]),

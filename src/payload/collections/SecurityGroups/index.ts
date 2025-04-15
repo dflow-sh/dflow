@@ -42,7 +42,7 @@ const SecurityGroups: CollectionConfig = {
     {
       name: 'cloudProvider',
       type: 'select',
-      required: true,
+      required: false,
       options: [
         { label: 'AWS', value: 'aws' },
         { label: 'Azure', value: 'azure' },
@@ -60,7 +60,7 @@ const SecurityGroups: CollectionConfig = {
       type: 'relationship',
       relationTo: 'cloudProviderAccounts',
       label: 'Cloud Provider Account',
-      required: true,
+      required: false,
       filterOptions: ({ relationTo, siblingData }) => {
         if (relationTo === 'cloudProviderAccounts') {
           return {

@@ -295,8 +295,8 @@ export interface SecurityGroup {
   id: string;
   name: string;
   description: string;
-  cloudProvider: 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  cloudProviderAccount: string | CloudProviderAccount;
+  cloudProvider?: ('aws' | 'azure' | 'gcp' | 'digitalocean') | null;
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
   inboundRules?:
     | {
         description?: string | null;

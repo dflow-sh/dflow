@@ -1,9 +1,11 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import {
+  AlertCircle,
   CheckCircle,
   Clock,
   RefreshCw,
@@ -96,16 +98,54 @@ const SecurityGroupItem = ({
   const status = securityGroup.syncStatus || 'pending'
   const statusConfig = syncStatusMap[status]
 
+  // Check if required fields are missing
+  const isMissingCloudProvider = !securityGroup.cloudProvider
+  const isMissingAccount = !securityGroup.cloudProviderAccount
+  const hasMissingFields = isMissingCloudProvider || isMissingAccount
+
+  const handleSyncClick = () => {
+    if (hasMissingFields) {
+      let message = 'Cannot sync security group:'
+      if (isMissingCloudProvider) message += ' Cloud provider is required.'
+      if (isMissingAccount) message += ' Cloud provider account is required.'
+      toast.warning(message, {
+        duration: 5000,
+      })
+      return
+    }
+    executeSync({ id: securityGroup.id })
+  }
+
   return (
     <Card className='transition-shadow hover:shadow-md'>
-      <CardContent className='grid h-24 w-full grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-4'>
+      <CardContent className='grid h-full w-full grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-4'>
         <Shield className='flex-shrink-0' size={20} />
 
         <div className='min-w-0 space-y-1 overflow-hidden'>
-          <p className='truncate font-semibold'>{securityGroup.name}</p>
+          <div className='flex items-center gap-2'>
+            <p className='truncate font-semibold'>{securityGroup.name}</p>
+          </div>
           <p className='truncate text-sm text-muted-foreground'>
             {securityGroup.description}
           </p>
+          {hasMissingFields && (
+            <Alert variant='warning' className='mt-2 py-2'>
+              <AlertCircle className='h-4 w-4' />
+              <AlertTitle className='text-xs font-medium'>
+                Missing required configuration
+              </AlertTitle>
+              <AlertDescription className='text-xs'>
+                <ul className='ml-5 mt-1 list-disc space-y-1'>
+                  {isMissingCloudProvider && (
+                    <li>Cloud provider not selected</li>
+                  )}
+                  {isMissingAccount && (
+                    <li>Cloud provider account not linked</li>
+                  )}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
         <Badge
@@ -117,14 +157,16 @@ const SecurityGroupItem = ({
 
         <div className='flex items-center gap-2'>
           <Button
-            disabled={isSyncPending || isDemoEnvironment}
-            onClick={() => {
-              executeSync({ id: securityGroup.id })
-            }}
+            disabled={hasMissingFields || isSyncPending || isDemoEnvironment}
+            onClick={handleSyncClick}
             size='icon'
             variant='outline'
-            title='Sync security group'
-            className='h-9 w-9'>
+            title={
+              hasMissingFields
+                ? 'Cannot sync - missing required fields'
+                : 'Sync security group'
+            }
+            className='h-9 w-9 disabled:cursor-not-allowed'>
             <RefreshCw
               size={16}
               className={isSyncPending ? 'animate-spin' : ''}

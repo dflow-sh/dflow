@@ -11,7 +11,7 @@ import {
   RevokeSecurityGroupEgressCommand,
   RevokeSecurityGroupIngressCommand,
 } from '@aws-sdk/client-ec2'
-import { CollectionBeforeChangeHook } from 'payload'
+import { APIError, CollectionBeforeChangeHook } from 'payload'
 
 import { awsRegions } from '@/lib/constants'
 import { SecurityGroup } from '@/payload-types'
@@ -119,14 +119,43 @@ const areRulesEquivalent = (rule1: any, rule2: any): boolean => {
 export const securityGroupBeforeChangeHook: CollectionBeforeChangeHook<
   SecurityGroup
 > = async ({ data, originalDoc, req }) => {
-  if (data.cloudProvider !== 'aws' || data.syncStatus !== 'start-sync') {
-    return data
+  const { payload } = req
+
+  if (data.syncStatus !== 'start-sync') return data
+
+  if (!data.cloudProvider) {
+    throw new APIError(
+      'Cloud provider is required when syncing.',
+      400,
+      [
+        {
+          field: 'cloudProvider',
+          message: 'Cloud provider is required when syncing.',
+        },
+      ],
+      false,
+    )
   }
 
-  const payload = req.payload
+  if (!data.cloudProviderAccount) {
+    throw new APIError(
+      'Cloud provider account is required when syncing.',
+      400,
+      [
+        {
+          field: 'cloudProviderAccount',
+          message: 'Cloud provider account is required when syncing.',
+        },
+      ],
+      false,
+    )
+  }
+
+  if (data.cloudProvider !== 'aws') return data
+
   const cloudProviderAccountId = String(
     typeof data.cloudProviderAccount === 'object'
-      ? data.cloudProviderAccount.id
+      ? data.cloudProviderAccount?.id
       : data.cloudProviderAccount,
   )
 
