@@ -100,7 +100,12 @@ export const createEC2InstanceAction = protectedClient
           payload.update({
             collection: 'securityGroups',
             id: sg.id,
-            data: { syncStatus: 'start-sync' },
+            data: {
+              syncStatus: 'start-sync',
+              cloudProvider: 'aws',
+              cloudProviderAccount: accountId,
+              lastSyncedAt: new Date().toISOString(),
+            },
           }),
         ),
       )

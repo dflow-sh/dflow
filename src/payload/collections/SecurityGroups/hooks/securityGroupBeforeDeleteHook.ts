@@ -6,26 +6,38 @@ import { awsRegions } from '@/lib/constants'
 export const securityGroupBeforeDeleteHook: CollectionBeforeDeleteHook =
   async ({ req, id }) => {
     try {
-      // Fetch the security group document using Payload API
       const doc = await req.payload.findByID({
-        collection: 'securityGroups', // Make sure this matches your collection slug
+        collection: 'securityGroups',
         id,
-        depth: 0, // No need for depth since we just need basic info
+        depth: 0,
       })
 
-      // Check if this is an AWS security group with an ID
-      if (!doc || doc.cloudProvider !== 'aws' || !doc.securityGroupId) {
+      if (!doc) return
+
+      // Only process if AWS provider and required info is available
+      if (doc.cloudProvider !== 'aws') return
+
+      if (!doc.cloudProviderAccount) {
+        console.warn('[SecurityGroup Delete] No cloudProviderAccount linked.')
         return
       }
 
-      // Get the associated cloud provider account
+      if (!doc.securityGroupId) {
+        console.warn(
+          '[SecurityGroup Delete] No AWS securityGroupId set on the document.',
+        )
+        return
+      }
+
       const accountId =
         typeof doc.cloudProviderAccount === 'object'
           ? doc.cloudProviderAccount.id
           : doc.cloudProviderAccount
 
       if (!accountId) {
-        console.warn('No cloud provider account associated with security group')
+        console.warn(
+          '[SecurityGroup Delete] Could not determine cloudProviderAccount ID.',
+        )
         return
       }
 
@@ -34,31 +46,44 @@ export const securityGroupBeforeDeleteHook: CollectionBeforeDeleteHook =
         id: accountId,
       })
 
-      if (
-        !account?.awsDetails?.accessKeyId ||
-        !account.awsDetails.secretAccessKey
-      ) {
-        console.warn('AWS credentials missing for account')
+      if (!account) {
+        console.warn(
+          `[SecurityGroup Delete] Cloud provider account not found: ${accountId}`,
+        )
         return
       }
 
-      // Create EC2 client
+      const { accessKeyId, secretAccessKey } = account.awsDetails || {}
+
+      if (!accessKeyId || !secretAccessKey) {
+        console.warn(
+          '[SecurityGroup Delete] AWS credentials missing in cloud provider account.',
+        )
+        return
+      }
+
       const ec2Client = new EC2Client({
         region: awsRegions?.[0]?.value || 'ap-south-1',
         credentials: {
-          accessKeyId: account.awsDetails.accessKeyId,
-          secretAccessKey: account.awsDetails.secretAccessKey,
+          accessKeyId,
+          secretAccessKey,
         },
       })
 
-      // Delete the security group in AWS
       await ec2Client.send(
         new DeleteSecurityGroupCommand({
           GroupId: doc.securityGroupId,
         }),
       )
+
+      console.log(
+        `[SecurityGroup Delete] Deleted AWS Security Group: ${doc.securityGroupId}`,
+      )
     } catch (error) {
-      console.error('Failed to delete AWS security group:', error)
-      throw error // Prevent deletion if AWS deletion fails
+      console.error(
+        '[SecurityGroup Delete] Failed to delete AWS security group:',
+        error,
+      )
+      throw error
     }
   }

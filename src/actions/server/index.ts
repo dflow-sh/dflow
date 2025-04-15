@@ -116,7 +116,12 @@ export const updateServerAction = protectedClient
               payload.update({
                 collection: 'securityGroups',
                 id: sg.id,
-                data: { syncStatus: 'start-sync' },
+                data: {
+                  syncStatus: 'start-sync',
+                  cloudProvider: 'aws',
+                  cloudProviderAccount: awsAccountDetails.id,
+                  lastSyncedAt: new Date().toISOString(),
+                },
               }),
             ),
           )
