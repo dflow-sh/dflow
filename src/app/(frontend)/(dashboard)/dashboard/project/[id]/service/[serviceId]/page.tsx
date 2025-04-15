@@ -4,6 +4,7 @@ import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import DatabaseBackup from '@/components/service/DatabaseBackup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import GeneralTab from '@/components/service/GeneralTab'
@@ -75,6 +76,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         />
       )
 
+    case 'backup':
+      return <DatabaseBackup />
+
+    // In default case also returning general tab
     default:
       return <GeneralTab service={service} />
   }
