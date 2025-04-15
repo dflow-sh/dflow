@@ -18,6 +18,7 @@ import { auth } from './git/auth'
 import { deployImage } from './git/deployImage'
 import { sync } from './git/sync'
 import { unlock } from './git/unlock'
+import { auth as DatabaseAuth } from './plugin/database/backup/auth'
 import { create as createDatabase } from './plugin/database/create'
 import { destroy as destroyDb } from './plugin/database/destroy'
 import { expose as exposeDatabasePort } from './plugin/database/expose'
@@ -76,6 +77,9 @@ export const dokku = {
     stop: stopDatabase,
     expose: exposeDatabasePort,
     unexpose: unexposeDatabasePort,
+    backup: {
+      auth: DatabaseAuth,
+    },
   },
   ports: {
     list: portsList,
