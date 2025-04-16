@@ -1,3 +1,4 @@
+import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
 import SecurityGroupForm from '../security/CreateSecurityGroupForm'
 import { Button } from '../ui/button'
 import { DialogFooter } from '../ui/dialog'
@@ -5,7 +6,7 @@ import { Input } from '../ui/input'
 import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, PlusCircle } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -52,12 +53,10 @@ const CreateEC2InstanceForm = ({
   sshKeys,
   securityGroups,
   setOpen = () => {},
-  allowSecurityGroupCreation = false,
 }: {
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
   setOpen?: Dispatch<SetStateAction<boolean>>
-  allowSecurityGroupCreation?: boolean
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [securityGroupDialogOpen, setSecurityGroupDialogOpen] = useState(false)
@@ -161,28 +160,43 @@ const CreateEC2InstanceForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>AWS Account</FormLabel>
+              <div className='flex items-center space-x-2'>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger disabled={accountsPending}>
+                      <SelectValue
+                        placeholder={
+                          accountsPending
+                            ? 'Fetching account details...'
+                            : 'Select a Account'
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
 
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger disabled={accountsPending}>
-                    <SelectValue
-                      placeholder={
-                        accountsPending
-                          ? 'Fetching account details...'
-                          : 'Select a Account'
-                      }
-                    />
-                  </SelectTrigger>
-                </FormControl>
-
-                <SelectContent>
-                  {accountDetails?.data?.map(({ name, id }) => (
-                    <SelectItem key={id} value={id}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectContent>
+                    {accountDetails?.data?.map(({ name, id }) => (
+                      <SelectItem key={id} value={id}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {isOnboarding && (
+                  <AWSAccountForm refetch={getAccounts}>
+                    <Button
+                      disabled={isDemoEnvironment}
+                      onClick={e => e.stopPropagation()}
+                      size='sm'
+                      variant='outline'
+                      className='m-0 h-fit shrink-0 p-2'>
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  </AWSAccountForm>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -215,7 +229,7 @@ const CreateEC2InstanceForm = ({
                       className='w-full'
                     />
                   </div>
-                  {allowSecurityGroupCreation && (
+                  {isOnboarding && (
                     <Dialog
                       open={securityGroupDialogOpen}
                       onOpenChange={setSecurityGroupDialogOpen}>
@@ -225,8 +239,8 @@ const CreateEC2InstanceForm = ({
                           onClick={e => e.stopPropagation()}
                           size='sm'
                           variant='outline'
-                          className='m-0 h-fit shrink-0 rounded-full p-2'>
-                          <PlusCircle className='h-4 w-4' />
+                          className='m-0 h-fit shrink-0 p-2'>
+                          <Plus className='h-4 w-4' />
                         </Button>
                       </DialogTrigger>
                       <DialogContent className='sm:max-w-4xl'>

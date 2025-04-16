@@ -130,14 +130,12 @@ export function ServerForm({
   server,
   setOpen,
   type: formType,
-  allowSecurityGroupCreation,
 }: {
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
   type?: 'create' | 'update'
   server?: ServerType
   setOpen?: Dispatch<SetStateAction<boolean>>
-  allowSecurityGroupCreation?: boolean
 }) {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
 
@@ -153,7 +151,6 @@ export function ServerForm({
         sshKeys={sshKeys}
         setOpen={setOpen}
         securityGroups={securityGroups}
-        allowSecurityGroupCreation={allowSecurityGroupCreation}
       />
     )
   }
