@@ -9,9 +9,8 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { exposeDatabasePortAction } from '@/actions/service'
+import { numberRegex } from '@/lib/constants'
 import { Service } from '@/payload-types'
-
-const numberRegex = /^\d+$/
 
 const PortForm = ({ service }: { service: Service }) => {
   const [tags, setTags] = useState<Tag[]>(

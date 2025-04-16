@@ -41,6 +41,13 @@ export const updateServiceSchema = z.object({
   environmentVariables: z.record(z.string(), z.unknown()).optional(),
   noRestart: z.boolean().optional(),
   id: z.string(),
+  dockerDetails: z
+    .object({
+      url: z.string(),
+      account: z.string().optional(),
+      ports: z.number().array().optional(),
+    })
+    .optional(),
 })
 
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({

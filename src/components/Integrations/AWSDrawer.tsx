@@ -63,13 +63,12 @@ const AWSDrawer = () => {
           </SheetTitle>
 
           <p className='pt-4 font-semibold'>{integration?.label}</p>
-          <SheetDescription>{integration?.description}</SheetDescription>
-          {isPending && (
-            <div className='mt-4'>
-              <GithubIntegrationsLoading />
-            </div>
-          )}
+          <SheetDescription className='!mt-0'>
+            {integration?.description}
+          </SheetDescription>
         </SheetHeader>
+
+        {isPending && <GithubIntegrationsLoading />}
 
         {!isPending && result.data && (
           <ScrollArea className='flex-grow'>

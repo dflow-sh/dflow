@@ -29,7 +29,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
-import { Option } from '@/components/ui/multiselect'
 import {
   Select,
   SelectContent,
@@ -51,73 +50,6 @@ const options = [
     value: 'dockerfile',
     icon: <Docker fontSize={20} />,
     description: 'Build app using Dockerfile',
-  },
-]
-
-const frameworks: Option[] = [
-  {
-    value: 'next.js',
-    label: 'Next.js',
-  },
-  {
-    value: 'sveltekit',
-    label: 'SvelteKit',
-  },
-  {
-    value: 'nuxt.js',
-    label: 'Nuxt.js',
-  },
-  {
-    value: 'remix',
-    label: 'Remix',
-  },
-  {
-    value: 'astro',
-    label: 'Astro',
-  },
-  {
-    value: 'angular',
-    label: 'Angular',
-  },
-  {
-    value: 'vue',
-    label: 'Vue.js',
-  },
-  {
-    value: 'react',
-    label: 'React',
-  },
-  {
-    value: 'ember',
-    label: 'Ember.js',
-  },
-  {
-    value: 'gatsby',
-    label: 'Gatsby',
-  },
-  {
-    value: 'eleventy',
-    label: 'Eleventy',
-  },
-  {
-    value: 'solid',
-    label: 'SolidJS',
-  },
-  {
-    value: 'preact',
-    label: 'Preact',
-  },
-  {
-    value: 'qwik',
-    label: 'Qwik',
-  },
-  {
-    value: 'alpine',
-    label: 'Alpine.js',
-  },
-  {
-    value: 'lit',
-    label: 'Lit',
   },
 ]
 
@@ -211,8 +143,6 @@ const GithubForm = ({
   }, [])
 
   function onSubmit(values: z.infer<typeof updateServiceSchema>) {
-    console.log({ values })
-
     saveGitProviderDetails(values)
   }
 

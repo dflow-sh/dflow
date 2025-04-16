@@ -4,7 +4,7 @@ const databaseField: Field = {
   label: 'Database Details',
   type: 'collapsible',
   admin: {
-    // App settings field will be considered if service-type is app
+    // databaseDetails will be considered if service-type is database
     condition: data => {
       if (data.type === 'database') {
         return true
@@ -177,6 +177,59 @@ const applicationField: Field = {
   ],
 }
 
+const dockerField: Field = {
+  label: 'Docker Details',
+  type: 'collapsible',
+  admin: {
+    // dockerDetails will be considered if service-type is docker
+    condition: data => {
+      if (data.type === 'docker') {
+        return true
+      }
+      return false
+    },
+  },
+  fields: [
+    {
+      name: 'dockerDetails',
+      label: 'Docker Details',
+      type: 'group',
+      admin: {
+        // dockerDetails will be considered if service-type is docker
+        condition: data => {
+          if (data.type === 'docker') {
+            return true
+          }
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          admin: {
+            description:
+              'Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest',
+          },
+        },
+        {
+          name: 'account',
+          type: 'relationship',
+          relationTo: 'dockerRegistries',
+          hasMany: false,
+        },
+        {
+          name: 'ports',
+          type: 'number',
+          defaultValue: 3000,
+          hasMany: true,
+        },
+      ],
+    },
+  ],
+}
+
 export const Services: CollectionConfig = {
   slug: 'services',
   labels: {
@@ -285,6 +338,7 @@ export const Services: CollectionConfig = {
     },
     applicationField,
     databaseField,
+    dockerField,
     {
       name: 'domains',
       type: 'array',
@@ -327,13 +381,6 @@ export const Services: CollectionConfig = {
       label: 'Deployments',
       collection: 'deployments',
       on: 'service',
-    },
-    // linked services
-    {
-      label: 'Linked Services',
-      name: 'linkedServices',
-      type: 'text',
-      hasMany: true,
     },
   ],
 }

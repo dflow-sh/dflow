@@ -442,6 +442,14 @@ export interface Service {
     status?: ('running' | 'missing' | 'exited') | null;
     exposedPorts?: string[] | null;
   };
+  dockerDetails?: {
+    /**
+     * Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest
+     */
+    url: string;
+    account?: (string | null) | DockerRegistry;
+    ports?: number[] | null;
+  };
   domains?:
     | {
         domain: string;
@@ -455,7 +463,6 @@ export interface Service {
     docs?: (string | Deployment)[] | null;
     hasNextPage?: boolean | null;
   } | null;
-  linkedServices?: string[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -483,6 +490,19 @@ export interface GitProvider {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dockerRegistries".
+ */
+export interface DockerRegistry {
+  id: string;
+  name: string;
+  type: 'docker' | 'github' | 'digitalocean' | 'quay';
+  username: string;
+  password: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "deployments".
  */
 export interface Deployment {
@@ -501,19 +521,6 @@ export interface Deployment {
     | number
     | boolean
     | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dockerRegistries".
- */
-export interface DockerRegistry {
-  id: string;
-  name: string;
-  type: 'docker' | 'github' | 'digitalocean' | 'quay';
-  username: string;
-  password: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -669,6 +676,13 @@ export interface ServicesSelect<T extends boolean = true> {
         status?: T;
         exposedPorts?: T;
       };
+  dockerDetails?:
+    | T
+    | {
+        url?: T;
+        account?: T;
+        ports?: T;
+      };
   domains?:
     | T
     | {
@@ -679,7 +693,6 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   deployments?: T;
-  linkedServices?: T;
   updatedAt?: T;
   createdAt?: T;
 }

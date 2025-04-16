@@ -74,3 +74,4 @@ export const instanceTypes = [
 ] as const
 
 export const isDemoEnvironment = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
+export const numberRegex = /^\d+$/
