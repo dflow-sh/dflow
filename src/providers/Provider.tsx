@@ -1,5 +1,6 @@
 'use client'
 
+import { ReactFlowProvider } from '@xyflow/react'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import React from 'react'
 
@@ -12,7 +13,9 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
     <>
       <NuqsAdapter>
         <SidebarProvider>
-          <RefreshProvider>{children}</RefreshProvider>
+          <ReactFlowProvider>
+            <RefreshProvider>{children}</RefreshProvider>
+          </ReactFlowProvider>
         </SidebarProvider>
       </NuqsAdapter>
     </>
