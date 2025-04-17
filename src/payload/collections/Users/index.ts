@@ -27,5 +27,13 @@ export const Users: CollectionConfig = {
       label: 'Onboarded',
       defaultValue: false,
     },
+    {
+      name: 'role',
+      type: 'select',
+      options: ['admin', 'user', 'demo'],
+      hasMany: true,
+      saveToJWT: true,
+      defaultValue: 'user',
+    },
   ],
 }
