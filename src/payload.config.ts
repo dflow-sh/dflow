@@ -13,6 +13,7 @@ import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
+import { Template } from './payload/collections/Templates'
 import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
@@ -37,6 +38,7 @@ export default buildConfig({
     GitProviders,
     Deployments,
     CloudProviderAccounts,
+    Template,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
