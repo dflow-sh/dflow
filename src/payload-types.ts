@@ -446,9 +446,16 @@ export interface Service {
     /**
      * Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest
      */
-    url: string;
+    url?: string | null;
     account?: (string | null) | DockerRegistry;
-    ports?: number[] | null;
+    ports?:
+      | {
+          hostPort: number;
+          containerPort: number;
+          scheme: 'http' | 'https';
+          id?: string | null;
+        }[]
+      | null;
   };
   domains?:
     | {
@@ -681,7 +688,14 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         url?: T;
         account?: T;
-        ports?: T;
+        ports?:
+          | T
+          | {
+              hostPort?: T;
+              containerPort?: T;
+              scheme?: T;
+              id?: T;
+            };
       };
   domains?:
     | T

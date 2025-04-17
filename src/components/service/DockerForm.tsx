@@ -4,11 +4,9 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Tag, TagInput } from 'emblor'
-import { X } from 'lucide-react'
+import { Plus, Trash2, X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -30,8 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { numberRegex } from '@/lib/constants'
 import { DockerRegistry, Service } from '@/payload-types'
+
+const schema = ['http', 'https']
 
 const DockerForm = ({
   accounts,
@@ -41,15 +40,6 @@ const DockerForm = ({
   service: Service
 }) => {
   const { dockerDetails } = service
-  const [ports, setPorts] = useState<Tag[]>(
-    dockerDetails?.ports?.length
-      ? dockerDetails?.ports?.map((port, index) => ({
-          text: `${port}`,
-          id: `${new Date().getTime() + index}`,
-        }))
-      : [],
-  )
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
 
   const { execute: saveDockerRegistryDetails, isPending } = useAction(
     updateServiceAction,
@@ -72,26 +62,23 @@ const DockerForm = ({
             ? dockerDetails?.account?.id
             : dockerDetails?.account
           : '',
+        ports: dockerDetails?.ports ?? [],
       },
       id: service.id,
     },
   })
 
-  function onSubmit(values: z.infer<typeof updateServiceSchema>) {
-    const details = values?.dockerDetails
-      ? {
-          dockerDetails: {
-            ...values.dockerDetails,
-            ...(ports.length
-              ? {
-                  ports: ports.map(({ text }) => +text),
-                }
-              : {}),
-          },
-        }
-      : {}
+  const {
+    fields,
+    append: appendPort,
+    remove: removePort,
+  } = useFieldArray({
+    control: form.control,
+    name: 'dockerDetails.ports',
+  })
 
-    saveDockerRegistryDetails({ ...details, id: service.id })
+  function onSubmit(values: z.infer<typeof updateServiceSchema>) {
+    saveDockerRegistryDetails({ ...values, id: service.id })
   }
 
   const { dockerDetails: dockerFieldDetails } = useWatch({
@@ -129,7 +116,7 @@ const DockerForm = ({
 
                           {dockerFieldDetails?.account && (
                             <div
-                              className='absolute right-8 top-2.5 cursor-wait'
+                              className='absolute right-8 top-2.5 cursor-pointer text-muted-foreground'
                               onClick={e => {
                                 form.setValue('dockerDetails.account', '', {
                                   shouldValidate: true,
@@ -174,21 +161,115 @@ const DockerForm = ({
           </div>
 
           <div className='space-y-2'>
-            <Label>Ports</Label>
-            <TagInput
-              tags={ports}
-              setTags={newTags => {
-                if (Array.isArray(newTags)) {
-                  setPorts(newTags.filter(tag => numberRegex.test(tag.text)))
-                }
-              }}
-              styleClasses={{
-                input: 'bg-transparent',
-                inlineTagsContainer: 'bg-transparent',
-              }}
-              activeTagIndex={activeTagIndex}
-              setActiveTagIndex={setActiveTagIndex}
-            />
+            <Label className='block'>Ports</Label>
+
+            {fields.length ? (
+              <div className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+                <p className='font-semibold'>Host Port</p>
+                <p className='font-semibold'>Container Port</p>
+                <p className='font-semibold'>Schema</p>
+              </div>
+            ) : null}
+
+            {fields.map((field, index) => {
+              return (
+                <div
+                  key={field?.id ?? index}
+                  className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4'>
+                  <FormField
+                    control={form.control}
+                    name={`dockerDetails.ports.${index}.hostPort`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            onChange={e => {
+                              const value = e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : 0
+                              field.onChange(value)
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`dockerDetails.ports.${index}.containerPort`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            onChange={e => {
+                              const value = e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : 0
+                              field.onChange(value)
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`dockerDetails.ports.${index}.scheme`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select a schema' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {schema.map(item => (
+                              <SelectItem value={item} key={item}>
+                                {item}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    variant='ghost'
+                    type='button'
+                    size='icon'
+                    onClick={() => {
+                      removePort(index)
+                    }}>
+                    <Trash2 className='text-destructive' />
+                  </Button>
+                </div>
+              )
+            })}
+
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => {
+                appendPort({
+                  containerPort: 3000,
+                  hostPort: 80,
+                  scheme: 'http',
+                })
+              }}>
+              <Plus /> Add
+            </Button>
           </div>
 
           <div className='flex w-full justify-end'>

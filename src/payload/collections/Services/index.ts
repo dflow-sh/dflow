@@ -200,6 +200,7 @@ const dockerField: Field = {
           if (data.type === 'docker') {
             return true
           }
+
           return false
         },
       },
@@ -207,7 +208,6 @@ const dockerField: Field = {
         {
           name: 'url',
           type: 'text',
-          required: true,
           admin: {
             description:
               'Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest',
@@ -221,9 +221,32 @@ const dockerField: Field = {
         },
         {
           name: 'ports',
-          type: 'number',
-          defaultValue: 3000,
-          hasMany: true,
+          type: 'array',
+          fields: [
+            {
+              name: 'hostPort',
+              label: 'Host Port',
+              type: 'number',
+              required: true,
+            },
+            {
+              name: 'containerPort',
+              label: 'Container Port',
+              type: 'number',
+              required: true,
+            },
+            {
+              name: 'scheme',
+              label: 'Scheme',
+              type: 'select',
+              options: [
+                { label: 'http', value: 'http' },
+                { label: 'https', value: 'https' },
+              ],
+              required: true,
+              defaultValue: 'http',
+            },
+          ],
         },
       ],
     },

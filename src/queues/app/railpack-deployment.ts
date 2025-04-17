@@ -78,13 +78,10 @@ const worker = new Worker<QueueArgs>(
         channelId: serviceDetails.deploymentId,
       })
 
-      const portResponse = await dokku.ports.set(
+      const portResponse = await dokku.ports.set({
         ssh,
         appName,
-        'http',
-        '80',
-        port,
-        {
+        options: {
           onStdout: async chunk => {
             sendEvent({
               message: chunk.toString(),
@@ -104,7 +101,14 @@ const worker = new Worker<QueueArgs>(
             })
           },
         },
-      )
+        ports: [
+          {
+            scheme: 'http',
+            host: '80',
+            container: port,
+          },
+        ],
+      })
 
       if (portResponse) {
         sendEvent({
@@ -379,6 +383,7 @@ const worker = new Worker<QueueArgs>(
       const deployImageResponse = await dokku.git.deployImage({
         ssh,
         appName,
+        imageName: `${appName}-docker`,
         options: {
           onStdout: async chunk => {
             sendEvent({

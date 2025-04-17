@@ -45,7 +45,15 @@ export const updateServiceSchema = z.object({
     .object({
       url: z.string(),
       account: z.string().optional(),
-      ports: z.number().array().optional(),
+      ports: z
+        .array(
+          z.object({
+            hostPort: z.number(),
+            containerPort: z.number(),
+            scheme: z.enum(['http', 'https']),
+          }),
+        )
+        .optional(),
     })
     .optional(),
 })
