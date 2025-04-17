@@ -8,8 +8,9 @@ import { protectedClient } from '@/lib/safe-action'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStartAppQueue } from '@/queues/app/start'
 import { addStopAppQueue } from '@/queues/app/stop'
-import { addInstallTerminalQueue } from '@/queues/terminal/install'
-import { addUninstallTerminalQueue } from '@/queues/terminal/uninstall'
+
+// import { addInstallTerminalQueue } from '@/queues/terminal/install'
+// import { addUninstallTerminalQueue } from '@/queues/terminal/uninstall'
 
 import {
   installTerminalSchema,
@@ -55,17 +56,17 @@ export const installTerminalAction = protectedClient
     }
 
     // Add the job to the queue instead of executing directly
-    await addInstallTerminalQueue({
-      sshDetails,
-      serverDetails: {
-        id: serverId,
-      },
-      terminalDetails: {
-        name: TERMINAL_APP_NAME,
-        image: 'wettyoss/wetty:latest',
-        port: 3000, // Port for the wetty terminal
-      },
-    })
+    // await addInstallTerminalQueue({
+    //   sshDetails,
+    //   serverDetails: {
+    //     id: serverId,
+    //   },
+    //   terminalDetails: {
+    //     name: TERMINAL_APP_NAME,
+    //     image: 'wettyoss/wetty:latest',
+    //     port: 3000, // Port for the wetty terminal
+    //   },
+    // })
 
     // Refresh the server details page
     revalidatePath(`/settings/servers/${serverId}`)
@@ -94,25 +95,25 @@ export const uninstallTerminalAction = protectedClient
       throw new Error('SSH key not found')
     }
 
-    const uninstallResponse = await addUninstallTerminalQueue({
-      serverDetails: {
-        id: serverId,
-      },
-      sshDetails: {
-        host: serverDetails.ip,
-        port: serverDetails.port,
-        privateKey: serverDetails.sshKey.privateKey,
-        username: serverDetails.username,
-      },
-      terminalDetails: {
-        name: TERMINAL_APP_NAME,
-      },
-    })
+    // const uninstallResponse = await addUninstallTerminalQueue({
+    //   serverDetails: {
+    //     id: serverId,
+    //   },
+    //   sshDetails: {
+    //     host: serverDetails.ip,
+    //     port: serverDetails.port,
+    //     privateKey: serverDetails.sshKey.privateKey,
+    //     username: serverDetails.username,
+    //   },
+    //   terminalDetails: {
+    //     name: TERMINAL_APP_NAME,
+    //   },
+    // })
 
-    if (uninstallResponse.id) {
-      revalidatePath(`/settings/servers/${serverId}`)
-      return { success: true, message: 'Terminal uninstallation started' }
-    }
+    // if (uninstallResponse.id) {
+    //   revalidatePath(`/settings/servers/${serverId}`)
+    //   return { success: true, message: 'Terminal uninstallation started' }
+    // }
 
     return {
       success: false,
