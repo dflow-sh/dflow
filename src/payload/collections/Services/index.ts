@@ -202,6 +202,7 @@ export const Services: CollectionConfig = {
     createdAt: true,
     type: true,
     databaseDetails: true,
+    environmentVariables: true,
   },
   fields: [
     {
