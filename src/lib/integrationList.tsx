@@ -4,6 +4,7 @@ import {
   AmazonWebServices,
   Azure,
   DigitalOcean,
+  Docker,
   GoogleCloudPlatform,
 } from '@/components/icons'
 
@@ -22,6 +23,13 @@ export const integrationsList = [
     description: 'Manage your AWS account EC2 instances',
     live: true,
     slug: 'aws',
+  },
+  {
+    label: 'Docker Registry',
+    icon: Docker,
+    description: 'Deploy docker images from your preferred registries',
+    live: true,
+    slug: 'docker-registry',
   },
 ] as const
 

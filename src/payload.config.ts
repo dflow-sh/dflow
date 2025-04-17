@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
+import { DockerRegistries } from './payload/collections/DockerRegistries'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
@@ -41,6 +42,7 @@ export default buildConfig({
     CloudProviderAccounts,
     Template,
     SecurityGroups,
+    DockerRegistries,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

@@ -4,7 +4,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import { getDockerRegistries } from '@/actions/dockerRegistry'
 import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -18,26 +18,24 @@ import {
 import { isDemoEnvironment } from '@/lib/constants'
 import { integrationsList } from '@/lib/integrationList'
 
-import CloudProvidersList from './CloudProvidersList'
-import AWSAccountForm from './aws/AWSAccountForm'
+import DockerRegistryForm from './dockerRegistry/Form'
+import DockerRegistryList from './dockerRegistry/List'
 
-const AWSDrawer = () => {
+const DockerRegistryDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(
     'active',
     parseAsString.withDefault(''),
   )
 
-  const { execute, isPending, result } = useAction(
-    getCloudProvidersAccountsAction,
-  )
+  const { execute, isPending, result } = useAction(getDockerRegistries)
 
   const integration = integrationsList.find(
-    integration => integration.slug === 'aws',
+    integration => integration.slug === 'docker-registry',
   )
 
   useEffect(() => {
-    if (activeSlide === 'aws' && !result?.data) {
-      execute({ type: 'aws' })
+    if (activeSlide === 'docker-registry' && !result?.data) {
+      execute()
     }
   }, [activeSlide, result.data])
 
@@ -52,9 +50,9 @@ const AWSDrawer = () => {
 
   return (
     <Sheet
-      open={activeSlide === 'aws'}
+      open={activeSlide === 'docker-registry'}
       onOpenChange={state => {
-        setActiveSlide(state ? 'aws' : '')
+        setActiveSlide(state ? 'docker-registry' : '')
       }}>
       <SheetContent className='flex w-full flex-col justify-between sm:max-w-lg'>
         <SheetHeader className='text-left'>
@@ -72,21 +70,21 @@ const AWSDrawer = () => {
 
         {!isPending && result.data && (
           <ScrollArea className='flex-grow'>
-            <CloudProvidersList accounts={result.data} refetch={execute} />
+            <DockerRegistryList accounts={result.data} refetch={execute} />
           </ScrollArea>
         )}
 
         <SheetFooter>
-          <AWSAccountForm refetch={execute}>
+          <DockerRegistryForm refetch={execute}>
             <Button disabled={isDemoEnvironment}>
               <Link />
-              Connect account
+              Connect registry
             </Button>
-          </AWSAccountForm>
+          </DockerRegistryForm>
         </SheetFooter>
       </SheetContent>
     </Sheet>
   )
 }
 
-export default AWSDrawer
+export default DockerRegistryDrawer

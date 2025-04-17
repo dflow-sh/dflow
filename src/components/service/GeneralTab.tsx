@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import { Service } from '@/payload-types'
 
 import DatabaseForm from './DatabaseForm'
+import DockerForm from './DockerForm'
 import ProviderForm from './ProviderForm'
 
 const AppComponent = async ({ service }: { service: Service }) => {
@@ -30,16 +31,12 @@ const DatabaseComponent = ({ service }: { service: Service }) => {
 const DockerComponent = async ({ service }: { service: Service }) => {
   const payload = await getPayload({ config: configPromise })
 
-  const { docs: gitProviders } = await payload.find({
-    collection: 'gitProviders',
+  const { docs: accounts } = await payload.find({
+    collection: 'dockerRegistries',
     pagination: false,
   })
 
-  return (
-    <div className='space-y-4'>
-      <ProviderForm service={service} gitProviders={gitProviders} />
-    </div>
-  )
+  return <DockerForm service={service} accounts={accounts} />
 }
 
 const GeneralTab = ({ service }: { service: Service }) => {
