@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const Deployments: CollectionConfig = {
   slug: 'deployments',
   labels: {
@@ -7,10 +9,11 @@ export const Deployments: CollectionConfig = {
     plural: 'Deployments',
   },
   access: {
-    create: () => true,
-    read: () => true,
-    update: () => false,
-    delete: () => false,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   hooks: {
     // afterChange: [triggerDokkuDeployment],

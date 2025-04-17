@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 import { securityGroupBeforeChangeHook } from './hooks/securityGroupBeforeChangeHook'
 import { securityGroupBeforeDeleteHook } from './hooks/securityGroupBeforeDeleteHook'
 
@@ -9,10 +11,11 @@ const SecurityGroups: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   hooks: {
     beforeChange: [securityGroupBeforeChangeHook],

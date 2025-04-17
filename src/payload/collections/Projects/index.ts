@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const Projects: CollectionConfig = {
   slug: 'projects',
   labels: {
@@ -10,12 +12,12 @@ export const Projects: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    create: () => false,
-    read: () => true,
-    update: () => true,
-    delete: () => false,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
-
   fields: [
     {
       name: 'name',

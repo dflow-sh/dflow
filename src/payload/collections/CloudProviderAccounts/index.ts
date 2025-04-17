@@ -1,10 +1,19 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const CloudProviderAccounts: CollectionConfig = {
   slug: 'cloudProviderAccounts',
   admin: {
     useAsTitle: 'name',
+  },
+  access: {
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   fields: [
     {
