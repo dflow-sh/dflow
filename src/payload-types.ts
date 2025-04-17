@@ -73,6 +73,7 @@ export interface Config {
     gitProviders: GitProvider;
     deployments: Deployment;
     cloudProviderAccounts: CloudProviderAccount;
+    templates: Template;
     securityGroups: SecurityGroup;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -95,6 +96,7 @@ export interface Config {
     gitProviders: GitProvidersSelect<false> | GitProvidersSelect<true>;
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
     cloudProviderAccounts: CloudProviderAccountsSelect<false> | CloudProviderAccountsSelect<true>;
+    templates: TemplatesSelect<false> | TemplatesSelect<true>;
     securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -505,6 +507,48 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "templates".
+ */
+export interface Template {
+  id: string;
+  name: string;
+  description?: string | null;
+  services?:
+    | {
+        type: 'app' | 'database';
+        /**
+         * Mount path to attach volume
+         */
+        mountPath?: string | null;
+        provider?: (string | null) | GitProvider;
+        providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
+        githubSettings?: {
+          repository: string;
+          owner: string;
+          branch: string;
+          buildPath: string;
+          port?: number | null;
+        };
+        /**
+         * select database you want
+         */
+        databaseType?: ('MONGODB' | 'REDIS' | 'MYSQL' | 'POSTGRESQL' | 'MARIADB') | null;
+        name?: string | null;
+        variables?:
+          | {
+              key: string;
+              value?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -541,6 +585,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'cloudProviderAccounts';
         value: string | CloudProviderAccount;
+      } | null)
+    | ({
+        relationTo: 'templates';
+        value: string | Template;
       } | null)
     | ({
         relationTo: 'securityGroups';
@@ -778,6 +826,43 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
         clientSecret?: T;
         tenantId?: T;
         subscriptionId?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "templates_select".
+ */
+export interface TemplatesSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  services?:
+    | T
+    | {
+        type?: T;
+        mountPath?: T;
+        provider?: T;
+        providerType?: T;
+        githubSettings?:
+          | T
+          | {
+              repository?: T;
+              owner?: T;
+              branch?: T;
+              buildPath?: T;
+              port?: T;
+            };
+        databaseType?: T;
+        name?: T;
+        variables?:
+          | T
+          | {
+              key?: T;
+              value?: T;
+              id?: T;
+            };
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

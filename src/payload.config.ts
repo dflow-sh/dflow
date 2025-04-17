@@ -14,6 +14,7 @@ import { SSHKeys } from './payload/collections/SSHkeys'
 import SecurityGroups from './payload/collections/SecurityGroups'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
+import { Template } from './payload/collections/Templates'
 import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
@@ -38,6 +39,7 @@ export default buildConfig({
     GitProviders,
     Deployments,
     CloudProviderAccounts,
+    Template,
     SecurityGroups,
   ],
   editor: lexicalEditor(),
