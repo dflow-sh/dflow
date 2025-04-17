@@ -9,7 +9,7 @@ import {
 } from '@xyflow/react'
 import { useEffect, useRef } from 'react'
 
-import ReactFlowConfig from '@/app/(frontend)/(dashboard)/reactflow/reactflow.config'
+import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Service } from '@/payload-types'
 
 function convertToGraph(data: Service[]) {
