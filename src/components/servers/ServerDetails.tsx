@@ -12,9 +12,13 @@ import {
   MemoryStick,
   ScreenShareOff,
   Server,
+  Terminal,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
+// Server Details Component
+// Server Details Component
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -184,7 +188,6 @@ const DetailInfoSection = ({
   )
 }
 
-// Server Details Component
 const ServerDetails = ({
   serverDetails,
   server,
@@ -192,6 +195,18 @@ const ServerDetails = ({
   serverDetails: ServerDetails | null
   server: ServerType
 }) => {
+  const router = useRouter()
+
+  // Function to handle opening terminal in new window
+  const handleOpenTerminal = () => {
+    // Open terminal in a new window - adjust the URL as needed based on your setup
+    window.open(
+      `http://localhost:3000/settings/servers/${server.id}`,
+      '_blank',
+      'width=1024,height=768',
+    )
+  }
+
   // Base card data that should always be shown
   const baseCardData: InfoCardProps[] = []
 
@@ -263,6 +278,10 @@ const ServerDetails = ({
     cardData = [...baseCardData, ...netdataCardData]
   }
 
+  // Check if terminal is available
+  const isTerminalAvailable = server.sshConnected
+  // && server.terminalInstalled
+
   return (
     <div className='space-y-4'>
       {/* Alerts */}
@@ -297,41 +316,57 @@ const ServerDetails = ({
       {/* Server Information */}
       <div className='flex items-center justify-between'>
         <h4 className='text-lg font-semibold'>Server Information</h4>
-        {isNetdataAvailable && (
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button variant='outline' size='sm'>
-                <Info className='h-4 w-4' /> View Complete Details
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className='b-10 h-[90%]'>
-              <DrawerHeader>
-                <div className='flex items-center justify-between'>
-                  <DrawerTitle className='flex items-center gap-2'>
-                    <Server className='h-5 w-5 text-muted-foreground' />
-                    Comprehensive Server Details
-                  </DrawerTitle>
-                  <DrawerClose asChild>
-                    <Button variant='ghost' size='icon'>
-                      <X className='h-5 w-5' />
-                    </Button>
-                  </DrawerClose>
-                </div>
-              </DrawerHeader>
+        <div className='flex items-center space-x-2'>
+          {isNetdataAvailable && (
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant='outline' size='sm'>
+                  <Info className='mr-2 h-4 w-4' /> View Complete Details
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className='b-10 h-[90%]'>
+                <DrawerHeader>
+                  <div className='flex items-center justify-between'>
+                    <DrawerTitle className='flex items-center gap-2'>
+                      <Server className='h-5 w-5 text-muted-foreground' />
+                      Comprehensive Server Details
+                    </DrawerTitle>
+                    <DrawerClose asChild>
+                      <Button variant='ghost' size='icon'>
+                        <X className='h-5 w-5' />
+                      </Button>
+                    </DrawerClose>
+                  </div>
+                </DrawerHeader>
 
-              <div className='space-y-6 overflow-y-auto px-4 py-2 pb-16'>
-                {serverDetails &&
-                  Object.entries(serverDetails).map(([section, details]) => (
-                    <DetailInfoSection
-                      key={section}
-                      title={section}
-                      details={details}
-                    />
-                  ))}
-              </div>
-            </DrawerContent>
-          </Drawer>
-        )}
+                <div className='space-y-6 overflow-y-auto px-4 py-2 pb-16'>
+                  {serverDetails &&
+                    Object.entries(serverDetails).map(([section, details]) => (
+                      <DetailInfoSection
+                        key={section}
+                        title={section}
+                        details={details}
+                      />
+                    ))}
+                </div>
+              </DrawerContent>
+            </Drawer>
+          )}
+          {server.sshConnected && (
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleOpenTerminal}
+              disabled={!isTerminalAvailable}
+              title={
+                !isTerminalAvailable
+                  ? 'Terminal not available or not installed'
+                  : 'Open terminal in new window'
+              }>
+              <Terminal className='mr-2 h-4 w-4' /> Open Terminal
+            </Button>
+          )}
+        </div>
       </div>
 
       {cardData.length > 0 ? (
