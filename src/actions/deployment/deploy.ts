@@ -129,7 +129,11 @@ export const triggerDeployment = async ({
       queueResponseId = databaseQueueResponse.id
     }
 
-    if (type === 'docker' && serviceDetails.dockerDetails) {
+    if (
+      type === 'docker' &&
+      serviceDetails.dockerDetails &&
+      serviceDetails.dockerDetails.url
+    ) {
       const { account, url, ports } = serviceDetails.dockerDetails
 
       const dockerImageQueueResponse = await addDockerImageDeploymentQueue({
