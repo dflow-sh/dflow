@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { isDemoEnvironment } from '@/lib/constants'
+import { isAdmin } from '@/payload/access/isAdmin'
 
 import { beforeCreateHandleOnboarding } from './hooks/beforeCreateHandleOnboarding'
 
@@ -19,6 +20,11 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => {
       return !Boolean(isDemoEnvironment)
     },
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    unlock: isAdmin,
   },
   fields: [
     {

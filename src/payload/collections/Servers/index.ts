@@ -1,5 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 import { populateDokkuVersion } from './hooks/populateDokkuVersion'
 
 const pluginFields: Field[] = [
@@ -44,10 +46,11 @@ export const Servers: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    create: () => true,
-    read: () => true,
-    update: () => true,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   hooks: {
     afterRead: [populateDokkuVersion],
