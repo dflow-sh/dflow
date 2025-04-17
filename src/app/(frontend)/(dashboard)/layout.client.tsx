@@ -15,6 +15,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
     { label: 'Servers', slug: '/settings/servers' },
     { label: 'SSH Keys', slug: '/settings/ssh-keys' },
     { label: 'Integrations', slug: '/integrations' },
+    { label: 'Templates', slug: '/templates' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
