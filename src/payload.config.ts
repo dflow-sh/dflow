@@ -11,6 +11,7 @@ import { Deployments } from './payload/collections/Deployments'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
+import SecurityGroups from './payload/collections/SecurityGroups'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
@@ -39,6 +40,7 @@ export default buildConfig({
     Deployments,
     CloudProviderAccounts,
     Template,
+    SecurityGroups,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

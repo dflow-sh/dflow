@@ -1,6 +1,8 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const SSHKeys: CollectionConfig = {
   slug: 'sshKeys',
   labels: {
@@ -11,10 +13,11 @@ export const SSHKeys: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    create: () => false,
-    read: () => true,
-    update: () => false,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   fields: [
     {

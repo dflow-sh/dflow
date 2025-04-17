@@ -13,7 +13,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
     { label: 'Servers', slug: '/settings/servers' },
-    { label: 'SSH Keys', slug: '/settings/ssh-keys' },
+    { label: 'Security', slug: '/settings/security' },
     { label: 'Integrations', slug: '/integrations' },
     { label: 'Templates', slug: '/templates' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
@@ -42,7 +42,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
         <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-10 w-full max-w-6xl px-4'>{children}</main>
+      <main className='mx-auto mb-32 w-full max-w-6xl px-4'>{children}</main>
     </>
   )
 }

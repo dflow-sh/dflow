@@ -1,5 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 import { populateDokkuVersion } from './hooks/populateDokkuVersion'
 
 const pluginFields: Field[] = [
@@ -44,10 +46,11 @@ export const Servers: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    create: () => true,
-    read: () => true,
-    update: () => true,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   hooks: {
     afterRead: [populateDokkuVersion],
@@ -101,12 +104,55 @@ export const Servers: CollectionConfig = {
       defaultValue: 'other',
     },
     {
+      name: 'instanceId',
+      type: 'text',
+      admin: {
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
+    },
+    {
+      name: 'cloudProviderAccount',
+      type: 'relationship',
+      relationTo: 'cloudProviderAccounts',
+      admin: {
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
+    },
+    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',
       hasMany: false,
       required: true,
       maxDepth: 10,
+    },
+    {
+      name: 'securityGroups',
+      type: 'relationship',
+      relationTo: 'securityGroups',
+      hasMany: true,
+      maxDepth: 10,
+      admin: {
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
     },
     {
       name: 'ip',

@@ -74,6 +74,7 @@ export interface Config {
     deployments: Deployment;
     cloudProviderAccounts: CloudProviderAccount;
     templates: Template;
+    securityGroups: SecurityGroup;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -96,6 +97,7 @@ export interface Config {
     deployments: DeploymentsSelect<false> | DeploymentsSelect<true>;
     cloudProviderAccounts: CloudProviderAccountsSelect<false> | CloudProviderAccountsSelect<true>;
     templates: TemplatesSelect<false> | TemplatesSelect<true>;
+    securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -139,6 +141,7 @@ export interface UserAuthOperations {
 export interface User {
   id: string;
   onboarded?: boolean | null;
+  role?: ('admin' | 'user' | 'demo')[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -190,7 +193,10 @@ export interface Server {
    */
   description?: string | null;
   provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
+  instanceId?: string | null;
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
   sshKey: string | SshKey;
+  securityGroups?: (string | SecurityGroup)[] | null;
   /**
    * Enter the IP address of the server.
    */
@@ -233,6 +239,40 @@ export interface Server {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cloudProviderAccounts".
+ */
+export interface CloudProviderAccount {
+  id: string;
+  name: string;
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  awsDetails?: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  };
+  gcpDetails?: {
+    /**
+     * Paste your GCP service account JSON key here
+     */
+    serviceAccountKey: string;
+    projectId: string;
+  };
+  digitaloceanDetails?: {
+    /**
+     * Personal Access Token from DigitalOcean API settings
+     */
+    accessToken: string;
+  };
+  azureDetails?: {
+    clientId: string;
+    clientSecret: string;
+    tenantId: string;
+    subscriptionId: string;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sshKeys".
  */
 export interface SshKey {
@@ -247,6 +287,110 @@ export interface SshKey {
   description?: string | null;
   publicKey: string;
   privateKey: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securityGroups".
+ */
+export interface SecurityGroup {
+  id: string;
+  name: string;
+  description: string;
+  cloudProvider?: ('aws' | 'azure' | 'gcp' | 'digitalocean') | null;
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
+  inboundRules?:
+    | {
+        description?: string | null;
+        type:
+          | 'all-traffic'
+          | 'all-tcp'
+          | 'all-udp'
+          | 'ssh'
+          | 'http'
+          | 'https'
+          | 'custom-tcp'
+          | 'custom-udp'
+          | 'icmp'
+          | 'icmpv6'
+          | 'smtp'
+          | 'pop3'
+          | 'imap'
+          | 'ms-sql'
+          | 'mysql-aurora'
+          | 'postgresql'
+          | 'dns-udp'
+          | 'rdp'
+          | 'nfs'
+          | 'custom-protocol';
+        protocol?: string | null;
+        fromPort?: number | null;
+        toPort?: number | null;
+        sourceType: 'my-ip' | 'anywhere-ipv4' | 'anywhere-ipv6' | 'custom';
+        /**
+         * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+         */
+        source: string;
+        /**
+         * Auto-generated after creation
+         */
+        securityGroupRuleId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  outboundRules?:
+    | {
+        description?: string | null;
+        type:
+          | 'all-traffic'
+          | 'all-tcp'
+          | 'all-udp'
+          | 'ssh'
+          | 'http'
+          | 'https'
+          | 'custom-tcp'
+          | 'custom-udp'
+          | 'icmp'
+          | 'icmpv6'
+          | 'smtp'
+          | 'pop3'
+          | 'imap'
+          | 'ms-sql'
+          | 'mysql-aurora'
+          | 'postgresql'
+          | 'dns-udp'
+          | 'rdp'
+          | 'nfs'
+          | 'custom-protocol';
+        protocol?: string | null;
+        fromPort?: number | null;
+        toPort?: number | null;
+        destinationType: 'my-ip' | 'anywhere-ipv4' | 'anywhere-ipv6' | 'custom';
+        /**
+         * CIDR notation (e.g., 0.0.0.0/0 for anywhere)
+         */
+        destination: string;
+        /**
+         * Auto-generated after creation
+         */
+        securityGroupRuleId?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  tags?:
+    | {
+        key: string;
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Auto-generated by cloud provider
+   */
+  securityGroupId?: string | null;
+  syncStatus?: ('in-sync' | 'pending' | 'failed' | 'start-sync') | null;
+  lastSyncedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -363,40 +507,6 @@ export interface Deployment {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "cloudProviderAccounts".
- */
-export interface CloudProviderAccount {
-  id: string;
-  name: string;
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
-  awsDetails?: {
-    accessKeyId: string;
-    secretAccessKey: string;
-  };
-  gcpDetails?: {
-    /**
-     * Paste your GCP service account JSON key here
-     */
-    serviceAccountKey: string;
-    projectId: string;
-  };
-  digitaloceanDetails?: {
-    /**
-     * Personal Access Token from DigitalOcean API settings
-     */
-    accessToken: string;
-  };
-  azureDetails?: {
-    clientId: string;
-    clientSecret: string;
-    tenantId: string;
-    subscriptionId: string;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "templates".
  */
 export interface Template {
@@ -479,6 +589,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'templates';
         value: string | Template;
+      } | null)
+    | ({
+        relationTo: 'securityGroups';
+        value: string | SecurityGroup;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -528,6 +642,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   onboarded?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -607,7 +722,10 @@ export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   provider?: T;
+  instanceId?: T;
+  cloudProviderAccount?: T;
   sshKey?: T;
+  securityGroups?: T;
   ip?: T;
   port?: T;
   username?: T;
@@ -746,6 +864,54 @@ export interface TemplatesSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "securityGroups_select".
+ */
+export interface SecurityGroupsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  cloudProvider?: T;
+  cloudProviderAccount?: T;
+  inboundRules?:
+    | T
+    | {
+        description?: T;
+        type?: T;
+        protocol?: T;
+        fromPort?: T;
+        toPort?: T;
+        sourceType?: T;
+        source?: T;
+        securityGroupRuleId?: T;
+        id?: T;
+      };
+  outboundRules?:
+    | T
+    | {
+        description?: T;
+        type?: T;
+        protocol?: T;
+        fromPort?: T;
+        toPort?: T;
+        destinationType?: T;
+        destination?: T;
+        securityGroupRuleId?: T;
+        id?: T;
+      };
+  tags?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  securityGroupId?: T;
+  syncStatus?: T;
+  lastSyncedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

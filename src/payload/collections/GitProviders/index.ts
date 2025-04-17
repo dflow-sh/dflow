@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 // import { populateInstallationToken } from './hooks/populateInstallationToken'
 
 export const GitProviders: CollectionConfig = {
@@ -9,10 +11,11 @@ export const GitProviders: CollectionConfig = {
     plural: 'Git Providers',
   },
   access: {
-    create: () => true,
-    read: () => true,
-    update: () => false,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   hooks: {
     // afterChange: [populateInstallationToken],

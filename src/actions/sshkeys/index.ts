@@ -37,7 +37,7 @@ export const createSSHKeyAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/ssh-keys')
+      revalidatePath('/settings/security')
     }
 
     return response
@@ -56,7 +56,7 @@ export const updateSSHKeyAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/ssh-keys')
+      revalidatePath('/settings/security')
     }
 
     return response
@@ -77,7 +77,7 @@ export const deleteSSHKeyAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/ssh-keys')
+      revalidatePath('/settings/security')
       return { deleted: true }
     }
   })

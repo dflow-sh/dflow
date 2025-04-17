@@ -1,13 +1,12 @@
 'use server'
 
 import {
-  AuthorizeSecurityGroupIngressCommand,
-  CreateSecurityGroupCommand,
+  CreateTagsCommand,
   DescribeInstancesCommand,
   DescribeKeyPairsCommand,
-  DescribeSecurityGroupsCommand,
   EC2Client,
   ImportKeyPairCommand,
+  ModifyInstanceAttributeCommand,
   RunInstancesCommand,
   _InstanceType,
 } from '@aws-sdk/client-ec2'
@@ -22,6 +21,7 @@ import {
   connectAWSAccountSchema,
   createEC2InstanceSchema,
   deleteAWSAccountSchema,
+  updateEC2InstanceSchema,
 } from './validator'
 
 export const createEC2InstanceAction = protectedClient
@@ -39,7 +39,9 @@ export const createEC2InstanceAction = protectedClient
       diskSize,
       instanceType,
       region,
+      securityGroupIds,
     } = clientInput
+
     const payload = await getPayload({ config: configPromise })
 
     const awsAccountDetails = await payload.findByID({
@@ -52,7 +54,6 @@ export const createEC2InstanceAction = protectedClient
       id: sshKeyId,
     })
 
-    // 1. Create the EC2 client
     const ec2Client = new EC2Client({
       region,
       credentials: {
@@ -61,17 +62,16 @@ export const createEC2InstanceAction = protectedClient
       },
     })
 
-    // 2. Check if a key pair with this name already exists
     const describeKeysCommand = new DescribeKeyPairsCommand({
       KeyNames: [sshKeyDetails.name],
     })
+
     const sshKeys = await ec2Client.send(describeKeysCommand)
 
     const sshKey = sshKeys.KeyPairs?.find(
       key => key.KeyName === sshKeyDetails.name,
     )
 
-    // Create the key pair if it doesn't exist
     if (!sshKey?.KeyName) {
       const keyCommand = new ImportKeyPairCommand({
         KeyName: sshKeyDetails.name,
@@ -80,81 +80,83 @@ export const createEC2InstanceAction = protectedClient
       await ec2Client.send(keyCommand)
     }
 
-    // 3. Check if dFlow-securitygroup already exists, if not create it
-    let securityGroupId
-    // Check if the security group already exists
-    const describeSecurityGroupsCommand = new DescribeSecurityGroupsCommand({
-      Filters: [
-        {
-          Name: 'group-name',
-          Values: ['dFlow-securitygroup'],
+    const { docs: securityGroups } = await payload.find({
+      collection: 'securityGroups',
+      pagination: false,
+      where: {
+        id: {
+          in: securityGroupIds,
         },
-      ],
+      },
     })
 
-    const existingGroups = await ec2Client.send(describeSecurityGroupsCommand)
-
-    const securityGroup = existingGroups.SecurityGroups?.find(
-      group => group.GroupName === 'dFlow-securitygroup',
+    const unsyncedGroups = securityGroups.filter(
+      sg => sg.syncStatus !== 'in-sync',
     )
 
-    if (securityGroup) {
-      // Use the existing security group
-      securityGroupId = securityGroup.GroupId
-      console.log('Using existing dFlow-securitygroup:', securityGroupId)
-    } else {
-      // Create a new security group
-      const securityGroupCommand = new CreateSecurityGroupCommand({
-        GroupName: 'dFlow-securitygroup',
-        Description: 'Security group for dFlow',
+    if (unsyncedGroups.length > 0) {
+      await Promise.all(
+        unsyncedGroups.map(sg =>
+          payload.update({
+            collection: 'securityGroups',
+            id: sg.id,
+            data: {
+              syncStatus: 'start-sync',
+              cloudProvider: 'aws',
+              cloudProviderAccount: accountId,
+              lastSyncedAt: new Date().toISOString(),
+            },
+          }),
+        ),
+      )
+
+      // Re-check sync status once
+      const { docs: updatedGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: unsyncedGroups.map(g => g.id),
+          },
+        },
       })
 
-      const securityGroupResponse = await ec2Client.send(securityGroupCommand)
-      securityGroupId = securityGroupResponse.GroupId
-      console.log('Created new dFlow-securitygroup:', securityGroupId)
+      const stillNotSynced = updatedGroups.filter(
+        g => g.syncStatus !== 'in-sync',
+      )
 
-      // 4. Authorize access to the security group
-      const authorizeCommand = new AuthorizeSecurityGroupIngressCommand({
-        GroupId: securityGroupId,
-        IpPermissions: [
-          {
-            IpProtocol: 'tcp',
-            FromPort: 22,
-            ToPort: 22,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'SSH access' }],
+      if (stillNotSynced.length > 0) {
+        throw new Error('Some security groups failed to sync')
+      }
+
+      const { docs: refreshedGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: securityGroupIds,
           },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 80,
-            ToPort: 80,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTP access' }],
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 443,
-            ToPort: 443,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'HTTPS access' }],
-          },
-          {
-            IpProtocol: 'tcp',
-            FromPort: 19999,
-            ToPort: 19999,
-            IpRanges: [{ CidrIp: '0.0.0.0/0', Description: 'Netdata Metrics' }],
-          },
-        ],
+        },
       })
 
-      await ec2Client.send(authorizeCommand)
+      securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
     }
 
-    // 5. Create the EC2 instance with the SSH key-pair, Security Group, Disk Storage
+    const validSecurityGroupIds = securityGroups
+      .map(sg => sg.securityGroupId)
+      .filter((sgId): sgId is string => !!sgId)
+
+    if (validSecurityGroupIds.length === 0) {
+      throw new Error('No valid security groups available')
+    }
+
     const ec2Command = new RunInstancesCommand({
       ImageId: ami,
       InstanceType: instanceType as _InstanceType,
       MinCount: 1,
       MaxCount: 1,
       KeyName: sshKeyDetails.name,
-      SecurityGroupIds: [securityGroupId ?? ''],
+      SecurityGroupIds: validSecurityGroupIds,
       BlockDeviceMappings: [
         {
           DeviceName: '/dev/sda1',
@@ -168,12 +170,7 @@ export const createEC2InstanceAction = protectedClient
       TagSpecifications: [
         {
           ResourceType: 'instance',
-          Tags: [
-            {
-              Key: 'Name',
-              Value: name,
-            },
-          ],
+          Tags: [{ Key: 'Name', Value: name }],
         },
       ],
     })
@@ -184,21 +181,18 @@ export const createEC2InstanceAction = protectedClient
     const instanceDetails = ec2Response.Instances?.[0]
 
     if (instanceDetails) {
-      // 6. Poll for the public IP address of the instance
-      async function pollForPublicIP() {
+      const pollForPublicIP = async () => {
         for (let i = 0; i < 10; i++) {
           const describeCommand = new DescribeInstancesCommand({
-            InstanceIds: [instanceDetails?.InstanceId!],
+            InstanceIds: [instanceDetails.InstanceId!],
           })
 
           const result = await ec2Client.send(describeCommand)
           const ip = result.Reservations?.[0]?.Instances?.[0]?.PublicIpAddress
 
-          if (ip) {
-            return ip
-          }
+          if (ip) return ip
 
-          await new Promise(r => setTimeout(r, 5000)) // wait 5 seconds
+          await new Promise(r => setTimeout(r, 5000))
         }
 
         throw new Error('Public IP not assigned yet after waiting')
@@ -206,7 +200,6 @@ export const createEC2InstanceAction = protectedClient
 
       const ip = await pollForPublicIP()
 
-      // 7. Updating the instance details in database with private-ip address
       const serverResponse = await payload.create({
         collection: 'servers',
         data: {
@@ -217,11 +210,14 @@ export const createEC2InstanceAction = protectedClient
           username: 'ubuntu',
           ip,
           provider: 'aws',
+          securityGroups: securityGroups.map(sg => sg.id),
+          cloudProviderAccount: accountId,
+          instanceId: instanceDetails.InstanceId,
         },
       })
 
       if (serverResponse.id) {
-        revalidatePath(`/settings/servers`)
+        revalidatePath('/settings/servers')
         return { success: true }
       }
     }
@@ -283,4 +279,57 @@ export const deleteAWSAccountAction = protectedClient
     })
 
     return response
+  })
+
+export const updateEC2InstanceAction = protectedClient
+  .metadata({
+    actionName: 'updateEC2InstanceAction',
+  })
+  .schema(updateEC2InstanceSchema)
+  .action(async ({ clientInput }) => {
+    const { instanceId, accountId, region, newSecurityGroupIds, newName } =
+      clientInput
+
+    const payload = await getPayload({ config: configPromise })
+
+    const awsAccountDetails = await payload.findByID({
+      collection: 'cloudProviderAccounts',
+      id: accountId,
+    })
+
+    const ec2Client = new EC2Client({
+      region,
+      credentials: {
+        accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
+        secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
+      },
+    })
+
+    // Update security groups
+    if (newSecurityGroupIds?.length) {
+      await ec2Client.send(
+        new ModifyInstanceAttributeCommand({
+          InstanceId: instanceId,
+          Groups: newSecurityGroupIds,
+        }),
+      )
+    }
+
+    // Update Name tag
+    if (newName) {
+      await ec2Client.send(
+        new CreateTagsCommand({
+          Resources: [instanceId],
+          Tags: [
+            {
+              Key: 'Name',
+              Value: newName,
+            },
+          ],
+        }),
+      )
+    }
+
+    revalidatePath('/settings/servers')
+    return { success: true }
   })

@@ -1,5 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 const databaseField: Field = {
   label: 'Database Details',
   type: 'collapsible',
@@ -190,10 +192,11 @@ export const Services: CollectionConfig = {
     // afterDelete: [deleteDokkuService],
   },
   access: {
-    create: () => false,
-    read: () => true,
-    update: () => true,
-    delete: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
+    readVersions: isAdmin,
   },
   defaultPopulate: {
     name: true,

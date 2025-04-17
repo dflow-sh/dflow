@@ -3,6 +3,7 @@
 import { Dokku } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
@@ -28,15 +29,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { isDemoEnvironment, supportedLinuxVersions } from '@/lib/constants'
-import { SshKey } from '@/payload-types'
+import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 const UpdateServerForm = ({
   server,
   sshKeys,
+  securityGroups,
 }: {
   server: ServerType
   sshKeys: SshKey[]
+  securityGroups?: SecurityGroup[]
 }) => {
   const form = useForm<z.infer<typeof updateServerSchema>>({
     resolver: zodResolver(updateServerSchema),
@@ -49,6 +52,9 @@ const UpdateServerForm = ({
         typeof server.sshKey === 'object' ? server.sshKey.id : server.sshKey,
       username: server.username,
       id: server.id,
+      securityGroupIds: server.securityGroups?.map(sg =>
+        typeof sg === 'object' ? sg.id : sg,
+      ),
     },
   })
 
@@ -122,34 +128,59 @@ const UpdateServerForm = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name='sshKey'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>SSH key</FormLabel>
+          <div className='grid grid-cols-2 gap-4'>
+            <FormField
+              control={form.control}
+              name='sshKey'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>SSH key</FormLabel>
 
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Select a SSH key' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {sshKeys.map(({ name, id }) => (
-                      <SelectItem key={id} value={id}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select a SSH key' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {sshKeys.map(({ name, id }) => (
+                        <SelectItem key={id} value={id}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <FormMessage />
-              </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {server.provider && securityGroups && securityGroups.length > 0 && (
+              <FormField
+                control={form.control}
+                name='securityGroupIds'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Security Groups</FormLabel>
+                    <MultiSelect
+                      options={securityGroups.map(({ name, id }) => ({
+                        label: name,
+                        value: id,
+                      }))}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || []}
+                      placeholder='Select security groups'
+                      className='w-full'
+                    />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
+          </div>
 
           <FormField
             control={form.control}
