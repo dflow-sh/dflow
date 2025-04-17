@@ -11,8 +11,8 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-import FloatingEdge from '@/app/(frontend)/(dashboard)/reactflow/FloatingEdges'
-import FloatingConnectionLine from '@/app/(frontend)/(dashboard)/reactflow/FloatingEdges/FloatingConnectionLine'
+import FloatingEdge from '@/components/reactflow/FloatingEdges'
+import FloatingConnectionLine from '@/components/reactflow/FloatingEdges/FloatingConnectionLine'
 import { cn } from '@/lib/utils'
 
 import CustomNode from './CustomNodes'
@@ -62,8 +62,8 @@ const ReactFlowConfig = ({
         connectionLineComponent={FloatingConnectionLine}
         className='z-10'>
         <Background
-          variant={BackgroundVariant.Lines}
-          lineWidth={0.1}
+          variant={BackgroundVariant.Cross}
+          lineWidth={0.2}
           gap={32}
           className='bg-base-100 text-base-content/80'
         />

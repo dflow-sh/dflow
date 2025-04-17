@@ -53,7 +53,23 @@
     --chart-8: 200 75% 50%; /* Cyan */
     --chart-9: 120 70% 50%; /* Green */
     --chart-10: 260 65% 55%; /* Purple */
+    --xy-controls-button-background-color-default: #2020f3;
+    --xy-controls-button-background-color-default: #2020f3;
   }
+}
+
+/* react flow */
+.react-flow__controls {
+  background: hsl(var(--muted) / 0.3) !important; /* Dark background */
+  color: white !important;
+}
+.react-flow__controls-button {
+  background-color: hsl(
+    var(--muted) / 0.3
+  ) !important; /* Tailwind bg-gray-700 */
+  color: white !important;
+  margin: 0.25rem 0;
+  border-bottom: 2px solid rgb(113, 112, 112) !important;
 }
 
 /* @layer base {
