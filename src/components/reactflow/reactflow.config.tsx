@@ -62,8 +62,8 @@ const ReactFlowConfig = ({
         connectionLineComponent={FloatingConnectionLine}
         className='z-10'>
         <Background
-          variant={BackgroundVariant.Lines}
-          lineWidth={0.1}
+          variant={BackgroundVariant.Cross}
+          lineWidth={0.2}
           gap={32}
           className='bg-base-100 text-base-content/80'
         />
