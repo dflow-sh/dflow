@@ -69,7 +69,7 @@ const ServerOnboardingLayout = ({
           id: 'complete-server',
         })
         // Navigate to the server dashboard
-        router.push(`/settings/servers/${server.id}`)
+        router.push(`/servers/${server.id}`)
       } else {
         toast.error('Failed to complete server setup', {
           id: 'complete-server',

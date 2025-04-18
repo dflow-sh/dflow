@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-export const ServerLayoutSkeleton = () => {
+export const ServiceLayoutSkeleton = () => {
   return (
     <div className='w-full'>
       <div className='sticky top-[68px] z-40 bg-background'>

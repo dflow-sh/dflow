@@ -52,7 +52,7 @@ export const installNetdataAction = protectedClient
     })
 
     // Refresh the server details page
-    revalidatePath(`/settings/servers/${serverId}?tab=monitoring`)
+    revalidatePath(`/servers/${serverId}?tab=monitoring`)
 
     return {
       success: true,

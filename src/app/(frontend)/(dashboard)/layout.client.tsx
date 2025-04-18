@@ -12,7 +12,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
   const pathName = usePathname()
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
-    { label: 'Servers', slug: '/settings/servers' },
+    { label: 'Servers', slug: '/servers' },
     { label: 'Security', slug: '/settings/security' },
     { label: 'Integrations', slug: '/integrations' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },

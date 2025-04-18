@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-export const ServerSkeleton = () => {
+export const ServiceSkeleton = () => {
   return (
     <main className='mx-auto mb-10 mt-4 w-full max-w-6xl'>
       <div className='space-y-4 rounded bg-muted/30 p-4'>

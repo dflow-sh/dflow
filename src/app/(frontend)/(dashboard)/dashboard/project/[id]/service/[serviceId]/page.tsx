@@ -9,7 +9,7 @@ import DomainList from '@/components/service/DomainList'
 import EnvironmentVariablesForm from '@/components/service/EnvironmentVariablesForm'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTab from '@/components/service/LogsTab'
-import { ServerSkeleton } from '@/components/skeletons/SeverSkeleton'
+import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
 
 interface PageProps {
@@ -82,7 +82,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
 const ServiceIdPage = async (props: PageProps) => {
   return (
-    <Suspense fallback={<ServerSkeleton />}>
+    <Suspense fallback={<ServiceSkeleton />}>
       <SuspendedPage {...props} />
     </Suspense>
   )

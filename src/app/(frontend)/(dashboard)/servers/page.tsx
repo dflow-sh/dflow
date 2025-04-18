@@ -1,13 +1,14 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
-
-import ButtonSkeleton from './ButtonSkeleton'
-import ServersSkeleton from './ServersSkeleton'
+import {
+  CreateServerButtonSkeleton,
+  ServersSkeleton,
+} from '@/components/skeletons/ServersSkeleton'
 
 const SuspendedAddServer = () => {
   const payload = use(getPayload({ config: configPromise }))
@@ -50,7 +51,7 @@ const ServersPage = async () => {
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Servers</div>
-        <Suspense fallback={<ButtonSkeleton />}>
+        <Suspense fallback={<CreateServerButtonSkeleton />}>
           <SuspendedAddServer />
         </Suspense>
       </div>

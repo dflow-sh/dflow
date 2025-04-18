@@ -6,7 +6,7 @@ import React, { JSX, SVGProps, Suspense, use } from 'react'
 
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
-import { ServerLayoutSkeleton } from '@/components/skeletons/ServerLayoutSkeleton'
+import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
@@ -134,7 +134,7 @@ const ServiceIdLayout = ({
   }>
 }) => {
   return (
-    <Suspense fallback={<ServerLayoutSkeleton />}>
+    <Suspense fallback={<ServiceLayoutSkeleton />}>
       <SuspendedServicePageLayout params={params}>
         {children}
       </SuspendedServicePageLayout>
