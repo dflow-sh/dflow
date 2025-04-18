@@ -101,7 +101,7 @@ export default function SelectSearch({
                   </Link>
                 ))}
                 {servers?.map(server => (
-                  <Link href={`/settings/servers/${server.id}`} key={server.id}>
+                  <Link href={`/servers/${server.id}`} key={server.id}>
                     <CommandItem
                       key={server.id}
                       value={server.name}

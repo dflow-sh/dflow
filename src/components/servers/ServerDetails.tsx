@@ -201,7 +201,7 @@ const ServerDetails = ({
   const handleOpenTerminal = () => {
     // Open terminal in a new window - adjust the URL as needed based on your setup
     window.open(
-      `http://localhost:3000/settings/servers/${server.id}`,
+      `http://localhost:3000/servers/${server.id}`,
       '_blank',
       'width=1024,height=768',
     )

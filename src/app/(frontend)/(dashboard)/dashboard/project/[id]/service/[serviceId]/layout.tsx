@@ -2,7 +2,7 @@ import configPromise from '@payload-config'
 import { ExternalLink, Github, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
-import React, { JSX, SVGProps, Suspense } from 'react'
+import React, { JSX, SVGProps, Suspense, use } from 'react'
 
 import {
   Docker,
@@ -13,6 +13,7 @@ import {
   Redis,
 } from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
+import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
@@ -22,7 +23,6 @@ import {
 } from '@/components/ui/tooltip'
 import { Project, Service } from '@/payload-types'
 
-import ServiceLoading from './ServiceLoading'
 import LayoutClient from './layout.client'
 
 type StatusType =
@@ -42,7 +42,7 @@ const iconMapping: {
   docker: Docker,
 }
 
-const SuspendedServicePageLayout = async ({
+const SuspendedServicePageLayout = ({
   children,
   params,
 }: {
@@ -52,13 +52,16 @@ const SuspendedServicePageLayout = async ({
     serviceId: string
   }>
 }) => {
-  const { id, serviceId } = await params
-  const payload = await getPayload({ config: configPromise })
+  const { id, serviceId } = use(params)
 
-  const { project, ...serviceDetails } = await payload.findByID({
-    collection: 'services',
-    id: serviceId,
-  })
+  const payload = use(getPayload({ config: configPromise }))
+
+  const { project, ...serviceDetails } = use(
+    payload.findByID({
+      collection: 'services',
+      id: serviceId,
+    }),
+  )
 
   const Icon =
     serviceDetails.type === 'database' && serviceDetails.databaseDetails?.type
@@ -75,7 +78,7 @@ const SuspendedServicePageLayout = async ({
       project={project}
       services={((project as Project)?.services?.docs as Service[]) || []}
       serviceName={serviceDetails.name}>
-      <div className={`mb-6 md:flex md:justify-between md:gap-x-2`}>
+      <div className='mb-6 md:flex md:justify-between md:gap-x-2'>
         <div>
           <div className='flex items-center gap-2'>
             {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
@@ -136,7 +139,7 @@ const SuspendedServicePageLayout = async ({
   )
 }
 
-const ServiceIdLayout = async ({
+const ServiceIdLayout = ({
   children,
   params,
 }: {
@@ -147,7 +150,7 @@ const ServiceIdLayout = async ({
   }>
 }) => {
   return (
-    <Suspense fallback={<ServiceLoading />}>
+    <Suspense fallback={<ServiceLayoutSkeleton />}>
       <SuspendedServicePageLayout params={params}>
         {children}
       </SuspendedServicePageLayout>

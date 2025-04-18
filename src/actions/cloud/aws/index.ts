@@ -217,7 +217,7 @@ export const createEC2InstanceAction = protectedClient
       })
 
       if (serverResponse.id) {
-        revalidatePath('/settings/servers')
+        revalidatePath('/servers')
         return { success: true }
       }
     }
@@ -330,6 +330,6 @@ export const updateEC2InstanceAction = protectedClient
       )
     }
 
-    revalidatePath('/settings/servers')
+    revalidatePath('/servers')
     return { success: true }
   })

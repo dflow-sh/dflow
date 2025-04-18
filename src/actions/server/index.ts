@@ -46,7 +46,7 @@ export const createServerAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/settings/servers')
+      revalidatePath('/servers')
     }
 
     return response
@@ -178,7 +178,7 @@ export const updateServerAction = protectedClient
     }
 
     if (response) {
-      revalidatePath(`/settings/servers/${id}`)
+      revalidatePath(`/servers/${id}`)
       revalidatePath(`/onboarding/add-server`)
     }
 
@@ -200,7 +200,7 @@ export const deleteServerAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(`/settings/servers/${id}`)
+      revalidatePath(`/servers/${id}`)
       return { deleted: true }
     }
   })
@@ -288,7 +288,7 @@ export const updateServerDomainAction = protectedClient
     })
 
     if (queueResponse.id) {
-      revalidatePath(`/settings/servers/${id}`)
+      revalidatePath(`/servers/${id}`)
       return { success: true }
     }
   })
@@ -342,7 +342,7 @@ export const completeServerOnboardingAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(`/settings/servers/${serverId}`)
+      revalidatePath(`/servers/${serverId}`)
       return { success: true, server: response }
     }
 

@@ -69,7 +69,7 @@ export const installTerminalAction = protectedClient
     // })
 
     // Refresh the server details page
-    revalidatePath(`/settings/servers/${serverId}`)
+    revalidatePath(`/servers/${serverId}`)
 
     return {
       success: true,
@@ -111,7 +111,7 @@ export const uninstallTerminalAction = protectedClient
     // })
 
     // if (uninstallResponse.id) {
-    //   revalidatePath(`/settings/servers/${serverId}`)
+    //   revalidatePath(`/servers/${serverId}`)
     //   return { success: true, message: 'Terminal uninstallation started' }
     // }
 
@@ -155,7 +155,7 @@ export const startTerminalAction = protectedClient
     })
 
     if (startResponse.id) {
-      revalidatePath(`/settings/servers/${serverId}`)
+      revalidatePath(`/servers/${serverId}`)
       return { success: true, message: 'Terminal start initiated' }
     }
 
@@ -196,7 +196,7 @@ export const stopTerminalAction = protectedClient
     })
 
     if (stopResponse.id) {
-      revalidatePath(`/settings/servers/${serverId}`)
+      revalidatePath(`/servers/${serverId}`)
       return { success: true, message: 'Terminal stop initiated' }
     }
 
@@ -237,7 +237,7 @@ export const restartTerminalAction = protectedClient
     })
 
     if (restartResponse.id) {
-      revalidatePath(`/settings/servers/${serverId}`)
+      revalidatePath(`/servers/${serverId}`)
       return { success: true, message: 'Terminal restart initiated' }
     }
 

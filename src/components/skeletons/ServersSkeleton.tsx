@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-const ServersSkeleton = () => {
+export const ServersSkeleton = () => {
   return (
     <main className='mx-auto mb-32 w-full max-w-6xl'>
       {/* Server Grid */}
@@ -75,4 +75,6 @@ const ServersSkeleton = () => {
   )
 }
 
-export default ServersSkeleton
+export const CreateServerButtonSkeleton = () => {
+  return <Skeleton className='h-9 w-32 rounded-md' aria-hidden='true' />
+}

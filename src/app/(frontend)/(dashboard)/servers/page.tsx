@@ -1,13 +1,15 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import ServerTerminal from '@/components/ServerTerminal'
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
-
-import ButtonSkeleton from './ButtonSkeleton'
-import ServersSkeleton from './ServersSkeleton'
+import {
+  CreateServerButtonSkeleton,
+  ServersSkeleton,
+} from '@/components/skeletons/ServersSkeleton'
 
 const SuspendedAddServer = () => {
   const payload = use(getPayload({ config: configPromise }))
@@ -34,14 +36,20 @@ const SuspendedServers = () => {
     payload.find({ collection: 'servers', pagination: false }),
   )
 
-  return servers.length ? (
-    <div className='grid gap-4 md:grid-cols-3'>
-      {servers.map(server => (
-        <ServerCard server={server} key={server.id} />
-      ))}
-    </div>
-  ) : (
-    <p className='text-center'>No Servers Added!</p>
+  return (
+    <>
+      {servers.length ? (
+        <div className='grid gap-4 md:grid-cols-3'>
+          {servers.map(server => (
+            <ServerCard server={server} key={server.id} />
+          ))}
+        </div>
+      ) : (
+        <p className='text-center'>No Servers Added!</p>
+      )}
+
+      <ServerTerminal servers={servers} />
+    </>
   )
 }
 
@@ -50,7 +58,7 @@ const ServersPage = async () => {
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Servers</div>
-        <Suspense fallback={<ButtonSkeleton />}>
+        <Suspense fallback={<CreateServerButtonSkeleton />}>
           <SuspendedAddServer />
         </Suspense>
       </div>
