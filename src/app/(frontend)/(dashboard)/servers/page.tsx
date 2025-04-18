@@ -3,6 +3,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import ServerTerminal from '@/components/ServerTerminal'
 import CreateServer from '@/components/servers/CreateServerForm'
 import ServerCard from '@/components/servers/ServerCard'
 import {
@@ -35,14 +36,20 @@ const SuspendedServers = () => {
     payload.find({ collection: 'servers', pagination: false }),
   )
 
-  return servers.length ? (
-    <div className='grid gap-4 md:grid-cols-3'>
-      {servers.map(server => (
-        <ServerCard server={server} key={server.id} />
-      ))}
-    </div>
-  ) : (
-    <p className='text-center'>No Servers Added!</p>
+  return (
+    <>
+      {servers.length ? (
+        <div className='grid gap-4 md:grid-cols-3'>
+          {servers.map(server => (
+            <ServerCard server={server} key={server.id} />
+          ))}
+        </div>
+      ) : (
+        <p className='text-center'>No Servers Added!</p>
+      )}
+
+      <ServerTerminal servers={servers} />
+    </>
   )
 }
 

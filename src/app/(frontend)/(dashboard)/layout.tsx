@@ -82,11 +82,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    // Added a suspense boundary to show loading response until user promise is resolved
     <Provider>
-      {/* <Suspense fallback={<></>}> */}
       <DashboardLayout>{children}</DashboardLayout>
-      {/* </Suspense> */}
     </Provider>
   )
 }
