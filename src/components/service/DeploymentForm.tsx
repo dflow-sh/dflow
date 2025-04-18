@@ -86,7 +86,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
 
     return (
       <Button
-        disabled={isPending}
+        disabled={isPending || disabled}
         onClick={() => {
           if (disabled) {
             toast.warning('Please attach all git-provider details to deploy')

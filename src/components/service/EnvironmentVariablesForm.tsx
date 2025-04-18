@@ -179,20 +179,20 @@ const DatabaseLink = memo(
             ? list.map(database => {
                 const { deployments } = database
 
-                const hasDeployed = deployments?.docs?.find(deployment => {
-                  return (
-                    typeof deployment === 'object' &&
-                    deployment?.status === 'success'
-                  )
-                })
+                const disabled =
+                  typeof deployments?.docs?.find(deployment => {
+                    return (
+                      typeof deployment === 'object' &&
+                      deployment?.status === 'success'
+                    )
+                  }) === 'undefined'
 
                 return (
                   <DropdownMenuItem
                     key={database.id}
-                    disabled={!!hasDeployed}
+                    disabled={disabled}
                     onSelect={() => {
                       if (valid) {
-                        toast.info(`Linked ${database.name} to ${value}`)
                         linkDatabase({
                           databaseServiceId: database.id,
                           serviceId: service.id,
@@ -205,7 +205,7 @@ const DatabaseLink = memo(
                     {database.databaseDetails?.type &&
                       databaseIcons[database.databaseDetails?.type]}
 
-                    {`${database.name} ${!!hasDeployed ? '(not-deployed)' : ''}`}
+                    {`${database.name} ${disabled ? '(not-deployed)' : ''}`}
                   </DropdownMenuItem>
                 )
               })

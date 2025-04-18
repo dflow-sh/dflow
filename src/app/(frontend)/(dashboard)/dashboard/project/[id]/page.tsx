@@ -68,6 +68,7 @@ const SuspendedPage = async ({ params }: PageProps) => {
             </div>
           </section>
         )}
+
         {services?.docs?.length! > 0 && (
           <ServicesArchitecture services={services?.docs as Service[]} />
         )}

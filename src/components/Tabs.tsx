@@ -85,10 +85,12 @@ export default function Tabs({
   const TabContent = useMemo(() => {
     const ContentComponent = tabs[activeIndex]?.content
     return ContentComponent ? (
-      <ContentComponent
-        disableTabs={disableTabs}
-        setDisableTabs={setDisableTabs}
-      />
+      <div className='mt-4'>
+        <ContentComponent
+          disableTabs={disableTabs}
+          setDisableTabs={setDisableTabs}
+        />
+      </div>
     ) : null
   }, [activeIndex, tabs, disableTabs, setDisableTabs, activeTab])
 
