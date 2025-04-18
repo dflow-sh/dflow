@@ -46,7 +46,7 @@ export const createSecurityGroupAction = protectedClient
     })
 
     if (securityGroup) {
-      revalidatePath('/settings/security')
+      revalidatePath('/security')
     }
 
     return securityGroup
@@ -85,7 +85,7 @@ export const updateSecurityGroupAction = protectedClient
     })
 
     if (updatedSecurityGroup) {
-      revalidatePath('/settings/security')
+      revalidatePath('/security')
     }
 
     return updatedSecurityGroup
@@ -109,7 +109,7 @@ export const deleteSecurityGroupAction = protectedClient
     })
 
     if (deleteSecurityGroup) {
-      revalidatePath('/settings/security')
+      revalidatePath('/security')
       return { deleted: true }
     }
 
@@ -138,7 +138,7 @@ export const syncSecurityGroupAction = protectedClient
     })
 
     if (updatedSecurityGroup) {
-      revalidatePath('/settings/security')
+      revalidatePath('/security')
       return { synced: true }
     }
 

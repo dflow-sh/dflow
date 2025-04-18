@@ -13,7 +13,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
     { label: 'Servers', slug: '/servers' },
-    { label: 'Security', slug: '/settings/security' },
+    { label: 'Security', slug: '/security' },
     { label: 'Integrations', slug: '/integrations' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]

@@ -1,6 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-const SecurityTabsSkeleton = () => {
+export const SecuritySkeleton = () => {
   return (
     <main className='mx-auto mb-32 w-full max-w-6xl'>
       {/* Tab List */}
@@ -100,5 +100,3 @@ const SecurityTabsSkeleton = () => {
     </main>
   )
 }
-
-export default SecurityTabsSkeleton

@@ -1,10 +1,11 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import ServerTerminal from '@/components/ServerTerminal'
 import SecurityTabs from '@/components/security/SecurityTabs'
-import SecurityTabsSkeleton from '@/components/security/SecurityTabsSkeleton'
+import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
 
 const SuspendedPage = () => {
   const payload = use(getPayload({ config: configPromise }))
@@ -13,22 +14,33 @@ const SuspendedPage = () => {
     { docs: keys, totalDocs: sshKeysCount },
     { docs: securityGroups, totalDocs: securityGroupsCount },
     { docs: cloudProviderAccounts },
+    { docs: servers },
   ] = use(
     Promise.all([
       payload.find({ collection: 'sshKeys', pagination: false }),
       payload.find({ collection: 'securityGroups', pagination: false }),
       payload.find({ collection: 'cloudProviderAccounts', pagination: false }),
+      payload.find({
+        collection: 'servers',
+        pagination: false,
+        select: {
+          name: true,
+        },
+      }),
     ]),
   )
 
   return (
-    <SecurityTabs
-      sshKeysCount={sshKeysCount}
-      securityGroupsCount={securityGroupsCount}
-      keys={keys}
-      securityGroups={securityGroups}
-      cloudProviderAccounts={cloudProviderAccounts}
-    />
+    <>
+      <SecurityTabs
+        sshKeysCount={sshKeysCount}
+        securityGroupsCount={securityGroupsCount}
+        keys={keys}
+        securityGroups={securityGroups}
+        cloudProviderAccounts={cloudProviderAccounts}
+      />
+      <ServerTerminal servers={servers} />
+    </>
   )
 }
 
@@ -42,7 +54,7 @@ const SecurityPage = async () => {
           infrastructure.
         </p>
       </div>
-      <Suspense fallback={<SecurityTabsSkeleton />}>
+      <Suspense fallback={<SecuritySkeleton />}>
         <SuspendedPage />
       </Suspense>
     </LayoutClient>
