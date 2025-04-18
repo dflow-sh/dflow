@@ -1,6 +1,7 @@
 import LayoutClient from '../layout.client'
 import { Suspense, lazy } from 'react'
 
+import DockerRegistryDrawer from '@/components/Integrations/DockerRegistryDrawer'
 import { IntegrationsSkeleton } from '@/components/skeletons/IntegrationsSkeleton'
 
 const GitHubDrawer = lazy(
@@ -17,6 +18,7 @@ const SuspendedIntegrationsPage = () => {
       <IntegrationsList />
       <GitHubDrawer />
       <AWSDrawer />
+      <DockerRegistryDrawer />
     </>
   )
 }
