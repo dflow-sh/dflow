@@ -1,3 +1,5 @@
+'use client'
+
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
