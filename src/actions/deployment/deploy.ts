@@ -2,6 +2,7 @@ import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
+import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
 import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
@@ -52,7 +53,7 @@ export const triggerDeployment = async ({
       port: project?.server?.port,
     }
 
-    if (type === 'app' || type === 'docker') {
+    if (type === 'app') {
       if (providerType === 'github' && githubSettings) {
         const builder = serviceDetails.builder ?? 'railpack'
 
@@ -126,6 +127,36 @@ export const triggerDeployment = async ({
       })
 
       queueResponseId = databaseQueueResponse.id
+    }
+
+    if (
+      type === 'docker' &&
+      serviceDetails.dockerDetails &&
+      serviceDetails.dockerDetails.url
+    ) {
+      const { account, url, ports } = serviceDetails.dockerDetails
+
+      const dockerImageQueueResponse = await addDockerImageDeploymentQueue({
+        sshDetails,
+        payloadToken: `${payloadToken?.value}`,
+        appName: serviceDetails.name,
+        serviceDetails: {
+          deploymentId: deploymentResponse.id,
+          account: typeof account === 'object' ? account : null,
+          environmentVariables:
+            typeof environmentVariables === 'object' &&
+            environmentVariables &&
+            !Array.isArray(environmentVariables)
+              ? environmentVariables
+              : undefined,
+          imageName: url,
+          ports,
+          serverId: project.server.id,
+          serviceId: serviceDetails.id,
+        },
+      })
+
+      queueResponseId = dockerImageQueueResponse.id
     }
   }
 

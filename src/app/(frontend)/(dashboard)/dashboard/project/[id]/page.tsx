@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import ServicesArchitecture from '@/components/project/ServicesArchitecture'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
@@ -41,12 +42,10 @@ const SuspendedPage = ({ params }: PageProps) => {
             {projectDetails.description}
           </p>
         </div>
-
         {typeof projectDetails.server === 'object' && (
           <CreateService server={projectDetails.server} />
         )}
       </div>
-
       {services?.docs && services.docs.length ? (
         <div className='mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
           {services.docs.map((service, index) => {
@@ -73,6 +72,10 @@ const SuspendedPage = ({ params }: PageProps) => {
             </p>
           </div>
         </section>
+      )}
+
+      {services?.docs?.length! > 0 && (
+        <ServicesArchitecture services={services?.docs as Service[]} />
       )}
     </section>
   )

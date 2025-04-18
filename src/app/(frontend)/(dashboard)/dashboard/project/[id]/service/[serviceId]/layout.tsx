@@ -4,7 +4,14 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import React, { JSX, SVGProps, Suspense, use } from 'react'
 
-import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+import {
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '@/components/icons'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +25,10 @@ import { Project, Service } from '@/payload-types'
 
 import LayoutClient from './layout.client'
 
-type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
+type StatusType =
+  | NonNullable<NonNullable<Service['databaseDetails']>['type']>
+  | 'app'
+  | 'docker'
 
 const iconMapping: {
   [key in StatusType]: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -28,6 +38,8 @@ const iconMapping: {
   mongo: MongoDB,
   mysql: MySQL,
   redis: Redis,
+  app: props => <Github {...props} />,
+  docker: Docker,
 }
 
 const SuspendedServicePageLayout = ({
@@ -51,9 +63,12 @@ const SuspendedServicePageLayout = ({
     }),
   )
 
-  const Icon = serviceDetails.databaseDetails?.type
-    ? iconMapping[serviceDetails.databaseDetails.type]
-    : null
+  const Icon =
+    serviceDetails.type === 'database' && serviceDetails.databaseDetails?.type
+      ? iconMapping[serviceDetails.databaseDetails.type]
+      : serviceDetails.type === 'database'
+        ? undefined // Handle "database" type explicitly if no icon is needed
+        : iconMapping[serviceDetails.type as Exclude<StatusType, 'database'>]
 
   const domains = serviceDetails.domains
 
@@ -67,6 +82,7 @@ const SuspendedServicePageLayout = ({
         <div>
           <div className='flex items-center gap-2'>
             {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
+
             <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
             {domains?.length ? (
               <>

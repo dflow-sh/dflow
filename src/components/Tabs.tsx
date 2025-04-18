@@ -85,17 +85,19 @@ export default function Tabs({
   const TabContent = useMemo(() => {
     const ContentComponent = tabs[activeIndex]?.content
     return ContentComponent ? (
-      <ContentComponent
-        disableTabs={disableTabs}
-        setDisableTabs={setDisableTabs}
-      />
+      <div className='mt-4'>
+        <ContentComponent
+          disableTabs={disableTabs}
+          setDisableTabs={setDisableTabs}
+        />
+      </div>
     ) : null
   }, [activeIndex, tabs, disableTabs, setDisableTabs, activeTab])
 
   return (
     <Card className='flex w-full items-center rounded-none border-none bg-transparent shadow-none'>
       <CardContent className='w-full p-0'>
-        <div className='relative'>
+        <div className='relative min-h-9'>
           {/* Hover Highlight */}
           <div
             className='absolute flex h-[30px] items-center rounded bg-muted-foreground/10 transition-all duration-300 ease-out'
@@ -105,11 +107,11 @@ export default function Tabs({
             }}
           />
 
-          <div className='absolute bottom-[-5.5px] h-[1px] w-full bg-border' />
+          <div className='absolute bottom-0 h-[1px] w-full bg-border' />
 
           {/* Active Indicator */}
           <div
-            className='absolute bottom-[-6px] h-[2px] rounded-full bg-foreground transition-all duration-300 ease-out'
+            className='absolute bottom-0 h-[2px] rounded-full bg-foreground transition-all duration-300 ease-out'
             style={activeStyle}
           />
 
@@ -148,7 +150,7 @@ export default function Tabs({
         </div>
 
         {/* Tab Content */}
-        <div className='mt-6'>{TabContent}</div>
+        {TabContent}
       </CardContent>
     </Card>
   )

@@ -10,11 +10,13 @@ import { cn } from '@/lib/utils'
 
 const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
   const pathName = usePathname()
+
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
     { label: 'Servers', slug: '/servers' },
     { label: 'Security', slug: '/security' },
     { label: 'Integrations', slug: '/integrations' },
+    // { label: 'Templates', slug: '/templates' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
@@ -38,10 +40,13 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
             )}
           />
         </div>
-        <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
+
+        <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-32 w-full max-w-6xl px-4'>{children}</main>
+      <main className='mx-auto mb-32 w-full max-w-6xl px-4 pt-4'>
+        {children}
+      </main>
     </>
   )
 }

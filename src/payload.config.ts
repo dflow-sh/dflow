@@ -8,12 +8,14 @@ import { fileURLToPath } from 'url'
 
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
+import { DockerRegistries } from './payload/collections/DockerRegistries'
 import { GitProviders } from './payload/collections/GitProviders'
 import { Projects } from './payload/collections/Projects'
 import { SSHKeys } from './payload/collections/SSHkeys'
 import SecurityGroups from './payload/collections/SecurityGroups'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
+import { Template } from './payload/collections/Templates'
 import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
@@ -38,7 +40,9 @@ export default buildConfig({
     GitProviders,
     Deployments,
     CloudProviderAccounts,
+    Template,
     SecurityGroups,
+    DockerRegistries,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

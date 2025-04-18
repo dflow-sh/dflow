@@ -82,7 +82,7 @@ const LayoutClient = ({
             defaultActiveTab={activeTab >= 0 ? activeTab : 0}
           />
         </div>
-        <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border' />
+        <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
       </div>
 
       <main className='mx-auto mb-10 mt-4 w-full max-w-6xl px-4'>

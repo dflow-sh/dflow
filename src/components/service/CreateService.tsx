@@ -1,6 +1,6 @@
 'use client'
 
-import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -174,17 +174,24 @@ const CreateService = ({ server }: { server: Server }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='database'>
-                          <div className='flex items-center gap-1.5'>
-                            <Database size={16} className='text-blue-500' />
-                            Database
-                          </div>
-                        </SelectItem>
-
                         <SelectItem value='app'>
                           <div className='flex items-center gap-1.5'>
                             <Github size={16} />
                             App (Git based application)
+                          </div>
+                        </SelectItem>
+
+                        <SelectItem value='docker'>
+                          <div className='flex items-center gap-1.5'>
+                            <Docker className='size-4 text-blue-500' />
+                            Docker
+                          </div>
+                        </SelectItem>
+
+                        <SelectItem value='database'>
+                          <div className='flex items-center gap-1.5'>
+                            <Database size={16} className='text-blue-500' />
+                            Database
                           </div>
                         </SelectItem>
                       </SelectContent>

@@ -177,12 +177,22 @@ const DatabaseLink = memo(
 
           {list.length && !gettingDatabases
             ? list.map(database => {
+                const { deployments } = database
+
+                const disabled =
+                  typeof deployments?.docs?.find(deployment => {
+                    return (
+                      typeof deployment === 'object' &&
+                      deployment?.status === 'success'
+                    )
+                  }) === 'undefined'
+
                 return (
                   <DropdownMenuItem
                     key={database.id}
+                    disabled={disabled}
                     onSelect={() => {
                       if (valid) {
-                        toast.info(`Linked ${database.name} to ${value}`)
                         linkDatabase({
                           databaseServiceId: database.id,
                           serviceId: service.id,
@@ -195,7 +205,7 @@ const DatabaseLink = memo(
                     {database.databaseDetails?.type &&
                       databaseIcons[database.databaseDetails?.type]}
 
-                    {database.name}
+                    {`${database.name} ${disabled ? '(not-deployed)' : ''}`}
                   </DropdownMenuItem>
                 )
               })
@@ -301,6 +311,11 @@ const EnvironmentVariableOption = memo(
       | Record<string, string>
       | string
 
+    const value =
+      typeof parsedEnvironmentVariable === 'object'
+        ? parsedEnvironmentVariable?.value
+        : parsedEnvironmentVariable
+
     return (
       <>
         <tr>
@@ -322,13 +337,9 @@ const EnvironmentVariableOption = memo(
 
           {/* value */}
           <td className='p-2'>
-            <SecretContent placeholder='reveal'>
+            <SecretContent defaultHide={!!value}>
               <Input
-                value={
-                  typeof parsedEnvironmentVariable === 'object'
-                    ? parsedEnvironmentVariable?.value
-                    : parsedEnvironmentVariable
-                }
+                value={value}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   handleChange(index, 'value', e.target.value)
                 }

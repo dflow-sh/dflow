@@ -68,12 +68,14 @@ export function DeleteServiceAlert({
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const { execute } = useAction(deleteServiceAction, {
+  const { execute, isPending } = useAction(deleteServiceAction, {
     onSuccess: ({ data }) => {
       if (data?.deleted) {
         toast.info('Added to queue', {
           description: 'Added deleting service to queue',
         })
+
+        setOpen(false)
       }
     },
     onError: ({ error }) => {
@@ -97,6 +99,7 @@ export function DeleteServiceAlert({
 
           <AlertDialogAction
             variant='destructive'
+            disabled={isPending}
             onClick={() => {
               execute({
                 id: service.id,
@@ -118,18 +121,6 @@ export function ServiceCard({
   projectId: string
 }) {
   const [deleteAlertOpen, setDeleteAlertOpen] = useState<boolean>(false)
-  const { execute } = useAction(deleteServiceAction, {
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        toast.info('Added to queue', {
-          description: 'Added deleting service to queue',
-        })
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete service ${error.serverError}`)
-    },
-  })
 
   return (
     <>

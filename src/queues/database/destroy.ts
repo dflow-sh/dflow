@@ -45,6 +45,56 @@ const worker = new Worker<QueueArgs>(
 
     try {
       ssh = await dynamicSSH(sshDetails)
+      // 1. Unlink database from all-apps before deleting
+      const linkedAppsList = await dokku.database.listLinks({
+        ssh,
+        databaseName,
+        databaseType,
+      })
+
+      // unlinking all apps connected to database
+      if (linkedAppsList.length) {
+        for await (const app of linkedAppsList) {
+          const unlinkResponse = await dokku.database.unlink({
+            ssh,
+            databaseName,
+            databaseType,
+            appName: app,
+            noRestart: true,
+            options: {
+              onStdout: async chunk => {
+                sendEvent({
+                  pub,
+                  message: chunk.toString(),
+                  serverId: serverDetails.id,
+                })
+              },
+              onStderr: async chunk => {
+                sendEvent({
+                  pub,
+                  message: chunk.toString(),
+                  serverId: serverDetails.id,
+                })
+
+                console.info({
+                  createDatabaseLogs: {
+                    message: chunk.toString(),
+                    type: 'stdout',
+                  },
+                })
+              },
+            },
+          })
+
+          // if there is failure while unlinking database thronging error
+          if (unlinkResponse.code !== 0) {
+            throw new Error(
+              `unlinking ${databaseName}-database from ${app} failed!`,
+            )
+          }
+        }
+      }
+
       const deletedResponse = await dokku.database.destroy(
         ssh,
         databaseName,
