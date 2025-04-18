@@ -3,9 +3,8 @@ import { TriangleAlert } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
-import { Suspense } from 'react'
+import { Suspense, use } from 'react'
 
-import Loader from '@/components/Loader'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
@@ -15,13 +14,17 @@ import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
+import {
+  GeneralTabSkeleton,
+  MonitoringTabSkeleton,
+  PluginsTabSkeleton,
+} from '@/components/skeletons/ServerSkeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { loadServerPageTabs } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
 
-import ServerLoading from './ServerLoading'
 import LayoutClient from './layout.client'
 
 interface PageProps {
@@ -31,62 +34,52 @@ interface PageProps {
   searchParams: Promise<SearchParams>
 }
 
-const GeneralTab = async ({ server }: { server: ServerType }) => {
-  const payload = await getPayload({ config: configPromise })
-
-  const { docs: sshKeys } = await payload.find({
-    collection: 'sshKeys',
-    pagination: false,
-  })
-
-  // Only trigger the getServerDetails API call if server.netdataVersion is available
-  const serverDetails = server.netdataVersion
-    ? await netdata.metrics.getServerDetails({ host: server.ip })
-    : {}
-
-  const { docs: projects } = await payload.find({
-    collection: 'projects',
-    where: {
-      server: { equals: server.id },
-    },
-  })
-
-  const { docs: securityGroups } = await payload.find({
-    collection: 'securityGroups',
-    pagination: false,
-    where: {
-      and: [
-        {
-          or: [
-            {
-              cloudProvider: {
-                equals: server.provider,
+const GeneralTab = ({ server }: { server: ServerType }) => {
+  const [sshKeys, projects, securityGroups] = use(
+    Promise.all([
+      getPayload({ config: configPromise }).then(payload =>
+        payload.find({ collection: 'sshKeys', pagination: false }),
+      ),
+      getPayload({ config: configPromise }).then(payload =>
+        payload.find({
+          collection: 'projects',
+          where: { server: { equals: server.id } },
+        }),
+      ),
+      getPayload({ config: configPromise }).then(payload =>
+        payload.find({
+          collection: 'securityGroups',
+          pagination: false,
+          where: {
+            and: [
+              {
+                or: [
+                  { cloudProvider: { equals: server.provider } },
+                  { cloudProvider: { exists: false } },
+                ],
               },
-            },
-            {
-              cloudProvider: {
-                exists: false,
+              {
+                or: [
+                  {
+                    cloudProviderAccount: {
+                      equals: server.cloudProviderAccount,
+                    },
+                  },
+                  { cloudProviderAccount: { exists: false } },
+                ],
               },
-            },
-          ],
-        },
-        {
-          or: [
-            {
-              cloudProviderAccount: {
-                equals: server.cloudProviderAccount,
-              },
-            },
-            {
-              cloudProviderAccount: {
-                exists: false,
-              },
-            },
-          ],
-        },
-      ],
-    },
-  })
+            ],
+          },
+        }),
+      ),
+    ]),
+  )
+
+  const serverDetails = use(
+    server.netdataVersion
+      ? netdata.metrics.getServerDetails({ host: server.ip })
+      : Promise.resolve({}),
+  )
 
   return (
     <div className='flex flex-col space-y-5'>
@@ -95,19 +88,19 @@ const GeneralTab = async ({ server }: { server: ServerType }) => {
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
           <UpdateServerForm
-            server={server as ServerType}
-            sshKeys={sshKeys}
-            securityGroups={securityGroups}
+            server={server}
+            sshKeys={sshKeys.docs}
+            securityGroups={securityGroups.docs}
           />
         </div>
 
-        <ProjectsAndServicesSection projects={projects} />
+        <ProjectsAndServicesSection projects={projects.docs} />
       </div>
     </div>
   )
 }
 
-const MonitoringTab = async ({ server }: { server: ServerType }) => {
+const MonitoringTab = ({ server }: { server: ServerType }) => {
   if (
     !server ||
     typeof server !== 'object' ||
@@ -116,102 +109,98 @@ const MonitoringTab = async ({ server }: { server: ServerType }) => {
     return <RetryPrompt />
   }
 
-  try {
-    if (!server.netdataVersion) {
-      console.warn('Netdata is not installed on the server.')
-      return <NetdataInstallPrompt server={server} />
-    }
-
-    return <Monitoring server={server} />
-  } catch (error) {
-    console.log('SSH Connection Error:', error)
-    return <RetryPrompt />
+  if (!server.netdataVersion) {
+    return <NetdataInstallPrompt server={server} />
   }
+
+  return <Monitoring server={server} />
 }
 
-const SuspendedPage = async ({ params, searchParams }: PageProps) => {
-  const { id } = await params
-  const { tab } = await loadServerPageTabs(searchParams)
+const SuspendedPage = ({ params, searchParams }: PageProps) => {
+  const { id } = use(params)
+  const { tab } = use(loadServerPageTabs(searchParams))
 
-  const payload = await getPayload({ config: configPromise })
+  const payload = use(getPayload({ config: configPromise }))
+  const [servers, server] = use(
+    Promise.all([
+      payload.find({ collection: 'servers', pagination: false }),
+      payload.findByID({
+        collection: 'servers',
+        id,
+        context: { populateServerDetails: true },
+      }) as Promise<ServerType>,
+    ]),
+  )
 
-  const servers = await payload.find({
-    collection: 'servers',
-    pagination: false,
-  })
-
-  const server = (await payload.findByID({
-    collection: 'servers',
-    id,
-    context: {
-      populateServerDetails: true,
-    },
-  })) as ServerType
-
-  if (!server?.id) {
-    return notFound()
-  }
+  if (!server?.id) return notFound()
 
   const dokkuInstalled =
     server.sshConnected &&
     supportedLinuxVersions.includes(server.os.version ?? '') &&
     server.version
 
-  const Component = () => {
+  const renderTab = () => {
     switch (tab) {
       case 'general':
         return (
-          <Suspense fallback={<Loader className='h-96 w-full' />}>
+          <Suspense fallback={<GeneralTabSkeleton />}>
             <GeneralTab server={server} />
           </Suspense>
         )
 
       case 'plugins':
-        return dokkuInstalled ? (
-          <PluginsList server={server} />
-        ) : (
-          <Alert variant='info'>
-            <TriangleAlert className='h-4 w-4' />
-
-            <AlertTitle>Dokku not found!</AlertTitle>
-            <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
-              <p>
-                Either dokku not installed on your server, or your os
-                doesn&apos;t support dokku, refer{' '}
-                <a
-                  className='underline'
-                  href='https://dokku.com/docs/getting-started/installation/'>
-                  docs
-                </a>
-              </p>
-            </AlertDescription>
-          </Alert>
+        return (
+          <Suspense fallback={<PluginsTabSkeleton />}>
+            {dokkuInstalled ? (
+              <PluginsList server={server} />
+            ) : (
+              <Alert variant='info'>
+                <TriangleAlert className='h-4 w-4' />
+                <AlertTitle>Dokku not found!</AlertTitle>
+                <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
+                  <p>
+                    Either dokku is not installed on your server, or your OS
+                    doesn&apos;t support it. Refer to{' '}
+                    <a
+                      className='underline'
+                      href='https://dokku.com/docs/getting-started/installation/'>
+                      the docs
+                    </a>
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+          </Suspense>
         )
 
       case 'domains':
         return <DomainList server={server} />
 
       case 'monitoring':
-        return <MonitoringTab server={server} />
+        return (
+          <Suspense fallback={<MonitoringTabSkeleton />}>
+            <MonitoringTab server={server} />
+          </Suspense>
+        )
 
       default:
-        return <GeneralTab server={server} />
+        return (
+          <Suspense fallback={<GeneralTabSkeleton />}>
+            <GeneralTab server={server} />
+          </Suspense>
+        )
     }
   }
 
   return (
     <LayoutClient server={server} servers={servers.docs}>
-      {server.onboarded ? <Component /> : <ServerOnboarding server={server} />}
+      {server.onboarded ? renderTab() : <ServerOnboarding server={server} />}
     </LayoutClient>
   )
 }
 
-const ServerIdPage = ({ params, searchParams }: PageProps) => {
-  return (
-    <Suspense fallback={<ServerLoading />}>
-      <SuspendedPage params={params} searchParams={searchParams} />
-    </Suspense>
-  )
+const ServerIdPage = (props: PageProps) => {
+  return <SuspendedPage {...props} />
 }
 
 export default ServerIdPage
