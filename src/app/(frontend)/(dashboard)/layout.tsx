@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import React, { Suspense, use } from 'react'
 
+import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
 import { DashboardHeaderSkeleton } from '@/components/skeletons/DashbaordLayoutSkeleton'
@@ -76,11 +77,15 @@ const DashboardLayoutInner = () => {
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='w-full'>
-      <Suspense fallback={<DashboardHeaderSkeleton />}>
-        <DashboardLayoutInner />
-      </Suspense>
-      {children}
+    <div className='relative flex h-screen w-full overflow-hidden'>
+      <div className='flex-1 overflow-y-auto'>
+        <Suspense fallback={<DashboardHeaderSkeleton />}>
+          <DashboardLayoutInner />
+        </Suspense>
+        {children}
+      </div>
+
+      <DocSidebar />
     </div>
   )
 }
