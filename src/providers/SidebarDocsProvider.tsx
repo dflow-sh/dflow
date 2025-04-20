@@ -1,12 +1,12 @@
 'use client'
 
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 
 type SidebarDocsContextType = {
   isOpen: boolean
-  toggle: () => void
+  currentSlug: string | null
+  openWith: (slug: string) => void
   close: () => void
-  open: () => void
 }
 
 const SidebarDocsContext = createContext<SidebarDocsContextType | undefined>(
@@ -19,13 +19,21 @@ export const SidebarDocsProvider = ({
   children: React.ReactNode
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [currentSlug, setCurrentSlug] = useState<string | null>(null)
 
-  const toggle = () => setIsOpen(prev => !prev)
-  const close = () => setIsOpen(false)
-  const open = () => setIsOpen(true)
+  const openWith = useCallback((slug: string) => {
+    setCurrentSlug(slug)
+    setIsOpen(true)
+  }, [])
+
+  const close = useCallback(() => {
+    setIsOpen(false)
+    setCurrentSlug(null)
+  }, [])
 
   return (
-    <SidebarDocsContext.Provider value={{ isOpen, toggle, close, open }}>
+    <SidebarDocsContext.Provider
+      value={{ isOpen, currentSlug, openWith, close }}>
       {children}
     </SidebarDocsContext.Provider>
   )
@@ -33,8 +41,8 @@ export const SidebarDocsProvider = ({
 
 export const useSidebarDocs = () => {
   const context = useContext(SidebarDocsContext)
-  if (context === undefined) {
-    throw new Error('useSidebarDocs must be used within a SidebarProvider')
+  if (!context) {
+    throw new Error('useSidebarDocs must be used within a SidebarDocsProvider')
   }
   return context
 }
