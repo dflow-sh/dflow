@@ -34,3 +34,11 @@ export const DashboardHeaderSkeleton = () => {
     </div>
   )
 }
+
+export const NavUserSkeleton = () => {
+  return (
+    <div className='relative flex shrink-0'>
+      <Skeleton className='h-8 w-8 rounded-lg' />
+    </div>
+  )
+}

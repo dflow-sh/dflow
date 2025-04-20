@@ -10,33 +10,36 @@ import React, { Suspense, use } from 'react'
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
-import { DashboardHeaderSkeleton } from '@/components/skeletons/DashbaordLayoutSkeleton'
+import {
+  DashboardHeaderSkeleton,
+  NavUserSkeleton,
+} from '@/components/skeletons/DashboardLayoutSkeleton'
 import { isDemoEnvironment } from '@/lib/constants'
+import { User } from '@/payload-types'
 import Provider from '@/providers/Provider'
 
+const payload = await getPayload({ config: configPromise })
+
+const NavUserSuspended = ({ user }: { user: User }) => {
+  return <NavUser user={user} />
+}
+
 const DashboardLayoutInner = () => {
-  const [userData, totalUsers] = use(
+  const headersList = use(headers())
+
+  const [{ totalDocs: totalUsers }, { user }] = use(
     Promise.all([
-      (async () => {
-        const payload = await getPayload({ config: configPromise })
-        const headersList = await headers()
-        const { user } = await payload.auth({ headers: headersList })
-        return { user, payload }
-      })(),
-      getPayload({ config: configPromise }).then(payload =>
-        payload.count({
-          collection: 'users',
-          where: { onboarded: { equals: true } },
-        }),
-      ),
+      payload.count({
+        collection: 'users',
+
+        where: { onboarded: { equals: true } },
+      }),
+      payload.auth({ headers: headersList }),
     ]),
   )
 
-  const { user, payload } = userData
-  const { totalDocs } = totalUsers
-
   if (!user) redirect('/sign-in')
-  if (!user.onboarded && totalDocs === 0) redirect('/onboarding')
+  if (!user.onboarded && totalUsers === 0) redirect('/onboarding')
 
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
@@ -68,7 +71,10 @@ const DashboardLayoutInner = () => {
             <span>Changelog</span>
             <ArrowUpRight size={16} />
           </Link>
-          <NavUser user={user} />
+
+          <Suspense fallback={<NavUserSkeleton />}>
+            <NavUserSuspended user={user} />
+          </Suspense>
         </div>
       </div>
     </div>
