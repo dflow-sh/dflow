@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import React, { Suspense } from 'react'
 
+import DocSidebar from '@/components/DocSidebar'
 import Loader from '@/components/Loader'
 import Provider from '@/providers/Provider'
 
@@ -33,7 +34,12 @@ const OnboardingLayout = async ({
     redirect('/dashboard')
   }
 
-  return children
+  return (
+    <div className='relative flex h-screen w-full overflow-hidden'>
+      <div className='flex-1 overflow-y-auto'>{children}</div>
+      <DocSidebar />
+    </div>
+  )
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
