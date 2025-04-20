@@ -7,6 +7,7 @@ import React from 'react'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
 import RefreshProvider from './RefreshProvider'
+import { SidebarDocsProvider } from './SidebarDocsProvider'
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,7 +15,9 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
       <NuqsAdapter>
         <SidebarProvider>
           <ReactFlowProvider>
-            <RefreshProvider>{children}</RefreshProvider>
+            <RefreshProvider>
+              <SidebarDocsProvider>{children}</SidebarDocsProvider>
+            </RefreshProvider>
           </ReactFlowProvider>
         </SidebarProvider>
       </NuqsAdapter>
