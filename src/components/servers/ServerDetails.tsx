@@ -1,6 +1,7 @@
 'use client'
 
 import { Dokku, Ubuntu } from '../icons'
+import { Badge } from '../ui/badge'
 import {
   AlertCircle,
   Check,
@@ -353,18 +354,21 @@ const ServerDetails = ({
             </Drawer>
           )}
           {server.sshConnected && (
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={handleOpenTerminal}
-              disabled={!isTerminalAvailable}
-              title={
-                !isTerminalAvailable
-                  ? 'Terminal not available or not installed'
-                  : 'Open terminal in new window'
-              }>
-              <Terminal className='mr-2 h-4 w-4' /> Open Terminal
-            </Button>
+            <div className='relative inline-flex'>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={true}
+                title='Terminal feature coming soon'>
+                <Terminal className='mr-1 h-3 w-3' />
+                <span className='text-xs'>Open Terminal</span>
+              </Button>
+              <Badge
+                variant='secondary'
+                className='absolute -right-8 -top-2 z-10 px-1 py-0 text-[0.6rem]'>
+                Coming Soon
+              </Badge>
+            </div>
           )}
         </div>
       </div>
