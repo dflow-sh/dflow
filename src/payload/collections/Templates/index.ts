@@ -144,24 +144,24 @@ export const Template: CollectionConfig = {
           required: true,
           options: [
             {
-              label: 'MongoDB',
-              value: 'MONGODB',
+              label: 'Postgres',
+              value: 'postgres',
             },
             {
-              label: 'Redis',
-              value: 'REDIS',
+              label: 'MongoDB',
+              value: 'mongo',
             },
             {
               label: 'MySQL',
-              value: 'MYSQL',
+              value: 'mysql',
             },
             {
-              label: 'PostgreSQL',
-              value: 'POSTGRESQL',
+              label: 'Redis',
+              value: 'redis',
             },
             {
               label: 'MariaDB',
-              value: 'MARIADB',
+              value: 'mariadb',
             },
           ],
           admin: {
@@ -177,22 +177,9 @@ export const Template: CollectionConfig = {
           label: 'Name',
         },
         {
-          name: 'variables',
+          name: 'environmentVariables',
           label: 'Environment Variables',
-          type: 'array',
-          fields: [
-            {
-              name: 'key',
-              label: 'Key',
-              type: 'text',
-              required: true,
-            },
-            {
-              name: 'value',
-              label: 'Value',
-              type: 'text',
-            },
-          ],
+          type: 'json',
         },
       ],
     },
