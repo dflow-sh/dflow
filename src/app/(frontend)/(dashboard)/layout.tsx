@@ -10,10 +10,7 @@ import React, { Suspense, use } from 'react'
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
-import {
-  DashboardHeaderSkeleton,
-  NavUserSkeleton,
-} from '@/components/skeletons/DashboardLayoutSkeleton'
+import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { isDemoEnvironment } from '@/lib/constants'
 import { User } from '@/payload-types'
 import Provider from '@/providers/Provider'
@@ -85,9 +82,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className='relative flex h-screen w-full overflow-hidden'>
       <div className='flex-1 overflow-y-auto'>
-        <Suspense fallback={<DashboardHeaderSkeleton />}>
-          <DashboardLayoutInner />
-        </Suspense>
+        <DashboardLayoutInner />
         {children}
       </div>
 
