@@ -120,16 +120,16 @@ export const getAllAppsAction = protectedClient
     const { docs } = await payload.find({
       collection: 'gitProviders',
       pagination: false,
-      select: {
-        github: {
-          appName: true,
-          installationId: true,
-          appUrl: true,
-        },
-        createdAt: true,
-        type: true,
-        updatedAt: true,
-      },
+      // select: {
+      //   github: {
+      //     appName: true,
+      //     installationId: true,
+      //     appUrl: true,
+      //   },
+      //   createdAt: true,
+      //   type: true,
+      //   updatedAt: true,
+      // },
     })
 
     return docs
