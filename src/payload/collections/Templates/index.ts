@@ -138,38 +138,45 @@ export const Template: CollectionConfig = {
         },
 
         {
-          type: 'select',
-          name: 'databaseType',
-          label: 'Database Type',
-          required: true,
-          options: [
-            {
-              label: 'Postgres',
-              value: 'postgres',
-            },
-            {
-              label: 'MongoDB',
-              value: 'mongo',
-            },
-            {
-              label: 'MySQL',
-              value: 'mysql',
-            },
-            {
-              label: 'Redis',
-              value: 'redis',
-            },
-            {
-              label: 'MariaDB',
-              value: 'mariadb',
-            },
-          ],
+          type: 'group',
+          name: 'databaseDetails',
+          label: 'Database Details',
           admin: {
             description: 'select database you want',
             condition: (data, siblingsData) => {
               return siblingsData.type === 'database'
             },
           },
+          fields: [
+            {
+              type: 'select',
+              name: 'type',
+              label: 'Database Type',
+              required: true,
+              options: [
+                {
+                  label: 'Postgres',
+                  value: 'postgres',
+                },
+                {
+                  label: 'MongoDB',
+                  value: 'mongo',
+                },
+                {
+                  label: 'MySQL',
+                  value: 'mysql',
+                },
+                {
+                  label: 'Redis',
+                  value: 'redis',
+                },
+                {
+                  label: 'MariaDB',
+                  value: 'mariadb',
+                },
+              ],
+            },
+          ],
         },
         {
           type: 'text',
