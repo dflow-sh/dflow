@@ -243,11 +243,16 @@ export const updateServiceAction = protectedClient
   })
   .schema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, ...data } = clientInput
+    const { id, variables, ...data } = clientInput
 
     const filteredObject = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => value && value !== undefined),
     )
+
+    const previousDetails = await payload.findByID({
+      collection: 'services',
+      id,
+    })
 
     const response = await payload.update({
       collection: 'services',
@@ -256,16 +261,20 @@ export const updateServiceAction = protectedClient
       depth: 10,
     })
 
+    const environmentVariablesChange =
+      variables &&
+      JSON.stringify(previousDetails.variables) !== JSON.stringify(variables)
+
     // If env variables are added then adding it to queue to update env
     if (
-      data?.environmentVariables &&
+      environmentVariablesChange &&
       typeof response?.project === 'object' &&
       typeof response?.project?.server === 'object' &&
       typeof response?.project?.server?.sshKey === 'object'
     ) {
       await addUpdateEnvironmentVariablesQueue({
         serviceDetails: {
-          environmentVariables: data?.environmentVariables,
+          variables,
           name: response?.name,
           noRestart: data?.noRestart ?? true,
         },
@@ -282,6 +291,11 @@ export const updateServiceAction = protectedClient
     }
 
     if (response?.id) {
+      const projectId =
+        typeof response?.project === 'object'
+          ? response?.project?.id
+          : response?.project
+      revalidatePath(`/dashboard/project/${projectId}/service/${response?.id}`)
       return { success: true }
     }
   })

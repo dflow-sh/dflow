@@ -6,9 +6,9 @@ import { Suspense, use } from 'react'
 
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
-import EnvironmentVariablesForm from '@/components/service/EnvironmentVariablesForm'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTab from '@/components/service/LogsTab'
+import VariablesForm from '@/components/service/VariablesForm'
 import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
 
@@ -53,7 +53,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return <GeneralTab service={service} />
 
     case 'environment':
-      return <EnvironmentVariablesForm service={service} />
+      return <VariablesForm service={service} />
 
     case 'deployments':
       return (

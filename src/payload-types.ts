@@ -424,6 +424,22 @@ export interface Service {
     | number
     | boolean
     | null;
+  variables?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  linkedServices?:
+    | {
+        alias: string;
+        value: string;
+        serviceName: string;
+        type: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb';
+        id?: string | null;
+      }[]
+    | null;
   builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
@@ -708,6 +724,22 @@ export interface ServicesSelect<T extends boolean = true> {
   description?: T;
   type?: T;
   environmentVariables?: T;
+  variables?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  linkedServices?:
+    | T
+    | {
+        alias?: T;
+        value?: T;
+        serviceName?: T;
+        type?: T;
+        id?: T;
+      };
   builder?: T;
   provider?: T;
   providerType?: T;

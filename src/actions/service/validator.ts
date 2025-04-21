@@ -56,6 +56,13 @@ export const updateServiceSchema = z.object({
         .optional(),
     })
     .optional(),
+  variables: z
+    .object({
+      key: z.string().min(1, 'Key must be at-least 1 character'),
+      value: z.string().min(1, 'Value must be at-least 1 character'),
+    })
+    .array()
+    .optional(),
 })
 
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({
