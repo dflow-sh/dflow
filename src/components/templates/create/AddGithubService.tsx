@@ -197,7 +197,9 @@ const AddGithubService = ({
                     <SelectTrigger>
                       <SelectValue
                         placeholder={
-                          isPending ? 'Fetching accounts' : 'Select a account'
+                          isPending
+                            ? 'Fetching accounts...'
+                            : 'Select a account'
                         }
                       />
                     </SelectTrigger>
@@ -323,7 +325,7 @@ const AddGithubService = ({
                         <SelectValue
                           placeholder={
                             branchesLoading
-                              ? 'Fetching branches'
+                              ? 'Fetching branches...'
                               : 'Select a branch'
                           }
                         />
@@ -388,7 +390,9 @@ const AddGithubService = ({
             )}
           />
           <DialogFooter>
-            <Button disabled={!githubSettings?.repository} type='submit'>
+            <Button
+              disabled={!githubSettings?.repository || !githubSettings?.branch}
+              type='submit'>
               Add
             </Button>
           </DialogFooter>
