@@ -30,3 +30,7 @@ export const createTemplateSchema = z.object({
 })
 
 export type CreateTemplateSchemaType = z.infer<typeof createTemplateSchema>
+
+export const DeleteTemplateSchema = z.object({
+  id: z.string(),
+})
