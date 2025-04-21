@@ -15,7 +15,11 @@ import {
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Service } from '@/payload-types'
 
-const CustomNode = ({ data }: { data: ServiceNode }) => {
+const CustomNode = ({
+  data,
+}: {
+  data: ServiceNode & { onClick?: () => void }
+}) => {
   const icon: { [key in ServiceNode['type']]: JSX.Element } = {
     app: <Github className='size-6' />,
     database: <Database className='size-6 text-destructive' />,
@@ -35,7 +39,7 @@ const CustomNode = ({ data }: { data: ServiceNode }) => {
   }
 
   return (
-    <Card className='h-full min-h-36 backdrop-blur-md'>
+    <Card onClick={data?.onClick} className='h-full min-h-36 backdrop-blur-md'>
       <Handle
         type='source'
         style={{
@@ -58,14 +62,16 @@ const CustomNode = ({ data }: { data: ServiceNode }) => {
         </div>
       </CardHeader>
 
-      <CardFooter>
-        <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
-          <Clock size={14} />
-          {`Created ${formatDistanceToNow(new Date(data.createdAt), {
-            addSuffix: true,
-          })}`}
-        </time>
-      </CardFooter>
+      {data?.createdAt && (
+        <CardFooter>
+          <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+            <Clock size={14} />
+            {`Created ${formatDistanceToNow(new Date(data?.createdAt), {
+              addSuffix: true,
+            })}`}
+          </time>
+        </CardFooter>
+      )}
       <Handle
         type='target'
         style={{
