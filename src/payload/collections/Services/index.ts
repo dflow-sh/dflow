@@ -2,6 +2,29 @@ import { CollectionConfig, Field } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+const databaseOptions = [
+  {
+    label: 'Postgres',
+    value: 'postgres',
+  },
+  {
+    label: 'MongoDB',
+    value: 'mongo',
+  },
+  {
+    label: 'MySQL',
+    value: 'mysql',
+  },
+  {
+    label: 'Redis',
+    value: 'redis',
+  },
+  {
+    label: 'MariaDB',
+    value: 'mariadb',
+  },
+]
+
 const databaseField: Field = {
   label: 'Database Details',
   type: 'collapsible',
@@ -23,28 +46,7 @@ const databaseField: Field = {
         {
           name: 'type',
           type: 'select',
-          options: [
-            {
-              label: 'Postgres',
-              value: 'postgres',
-            },
-            {
-              label: 'MongoDB',
-              value: 'mongo',
-            },
-            {
-              label: 'MySQL',
-              value: 'mysql',
-            },
-            {
-              label: 'Redis',
-              value: 'redis',
-            },
-            {
-              label: 'MariaDB',
-              value: 'mariadb',
-            },
-          ],
+          options: databaseOptions,
         },
         {
           name: 'username',
@@ -341,6 +343,49 @@ export const Services: CollectionConfig = {
     {
       name: 'environmentVariables',
       type: 'json',
+    },
+    {
+      name: 'variables',
+      type: 'array',
+      fields: [
+        {
+          name: 'key',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'value',
+          type: 'text',
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'linkedServices',
+      type: 'array',
+      fields: [
+        {
+          name: 'alias',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'value',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'serviceName',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'type',
+          type: 'select',
+          options: databaseOptions,
+          required: true,
+        },
+      ],
     },
     // Builder settings
     {

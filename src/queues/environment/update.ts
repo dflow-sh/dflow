@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { Service } from '@/payload-types'
 
 const queueName = 'update-environment-variables'
 
@@ -24,8 +25,8 @@ interface QueueArgs {
   }
   serviceDetails: {
     name: string
-    environmentVariables: Record<string, unknown>
     noRestart: boolean
+    variables: NonNullable<Service['variables']>
   }
   serverDetails: {
     id: string
@@ -50,6 +51,18 @@ const worker = new Worker<QueueArgs>(
       ssh = await dynamicSSH(sshDetails)
 
       const appResponse = await dokku.apps.list(ssh)
+
+      // env example
+      // NEXT_PUBLIC_PUBLIC_URL=something
+      // DATABASE_URI=${{payload-mongo.DATABASE_URI}}
+      // REDIS_URI=${{payload.redis.DATABASE_URI}}
+      // DUPLICATE_URI=${{payload-mongo.DATABASE_URI}}
+
+      // step 1 -> separate reference from normal variables
+      // step-2 -> group the same reference variables
+      // step-3 -> go through reference variables and check if database is already linked or not
+      // step-4 -> if not linked link the env with this syntax payload-mongo -> PAYLOAD_MONGO_DB then `$(dokku config:get ${serviceDetails.name} PAYLOAD_MONGO_DB_URL)` (or) if service already linked directly find for PAYLOAD_MONGO_DB_URL & `$(dokku config:get ${serviceDetails.name} PAYLOAD_MONGO_DB_URL)`
+      // step-5 -> do set environment variables
 
       if (appResponse.includes(serviceDetails.name)) {
         const envResponse = await dokku.config.set({
