@@ -50,7 +50,7 @@ const ReactFlowConfig = ({
   }
 
   return (
-    <div className={cn('h-[calc(100%-80px)] w-[calc(100%-40px)]', className)}>
+    <div className={cn('h-[calc(100%-40px)] w-full', className)}>
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}
