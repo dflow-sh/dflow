@@ -81,6 +81,7 @@
     "ssh2": "^1.16.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "unique-names-generator": "^4.7.1",
     "vaul": "^1.1.2",
     "zod": "^3.24.1"
   },
