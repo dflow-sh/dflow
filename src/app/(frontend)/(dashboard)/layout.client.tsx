@@ -16,7 +16,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
     { label: 'Servers', slug: '/servers' },
     { label: 'Security', slug: '/security' },
     { label: 'Integrations', slug: '/integrations' },
-    // { label: 'Templates', slug: '/templates' },
+    { label: 'Templates', slug: '/templates' },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
