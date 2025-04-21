@@ -15,6 +15,7 @@ import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
 import {
+  DomainsTabSkeleton,
   GeneralTabSkeleton,
   MonitoringTabSkeleton,
   PluginsTabSkeleton,
@@ -174,7 +175,11 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         )
 
       case 'domains':
-        return <DomainList server={server} />
+        return (
+          <Suspense fallback={<DomainsTabSkeleton />}>
+            <DomainList server={server} />
+          </Suspense>
+        )
 
       case 'monitoring':
         return (
