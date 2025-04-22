@@ -76,83 +76,12 @@ export const Servers: CollectionConfig = {
       },
     },
     {
-      name: 'provider',
-      type: 'select',
-      required: true,
-      options: [
-        {
-          label: 'DigitalOcean',
-          value: 'digitalocean',
-        },
-        {
-          label: 'AWS',
-          value: 'aws',
-        },
-        {
-          label: 'Google Cloud Platform',
-          value: 'gcp',
-        },
-        {
-          label: 'Azure',
-          value: 'azure',
-        },
-        {
-          label: 'Other',
-          value: 'other',
-        },
-      ],
-      defaultValue: 'other',
-    },
-    {
-      name: 'instanceId',
-      type: 'text',
-      admin: {
-        condition: data => {
-          if (data.provider !== 'other') {
-            return true
-          }
-
-          return false
-        },
-      },
-    },
-    {
-      name: 'cloudProviderAccount',
-      type: 'relationship',
-      relationTo: 'cloudProviderAccounts',
-      admin: {
-        condition: data => {
-          if (data.provider !== 'other') {
-            return true
-          }
-
-          return false
-        },
-      },
-    },
-    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',
       hasMany: false,
       required: true,
       maxDepth: 10,
-    },
-    {
-      name: 'securityGroups',
-      type: 'relationship',
-      relationTo: 'securityGroups',
-      hasMany: true,
-      maxDepth: 10,
-      admin: {
-        condition: data => {
-          if (data.provider !== 'other') {
-            return true
-          }
-
-          return false
-        },
-      },
     },
     {
       name: 'ip',
@@ -211,6 +140,266 @@ export const Servers: CollectionConfig = {
       type: 'checkbox',
       label: 'Onboarded',
       defaultValue: false,
+    },
+    {
+      name: 'provider',
+      type: 'select',
+      required: true,
+      options: [
+        {
+          label: 'DigitalOcean',
+          value: 'digitalocean',
+        },
+        {
+          label: 'AWS',
+          value: 'aws',
+        },
+        {
+          label: 'Google Cloud Platform',
+          value: 'gcp',
+        },
+        {
+          label: 'Azure',
+          value: 'azure',
+        },
+        {
+          label: 'Other',
+          value: 'other',
+        },
+      ],
+      defaultValue: 'other',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'cloudProviderAccount',
+      type: 'relationship',
+      relationTo: 'cloudProviderAccounts',
+      admin: {
+        position: 'sidebar',
+        condition: data => {
+          if (data.provider !== 'other') {
+            return true
+          }
+
+          return false
+        },
+      },
+    },
+    {
+      name: 'awsEc2Details',
+      type: 'group',
+      admin: {
+        condition: data => data.provider === 'aws',
+        description: 'AWS EC2 instance details',
+        position: 'sidebar',
+      },
+      fields: [
+        {
+          name: 'instanceId',
+          type: 'text',
+          label: 'Instance ID',
+          admin: {
+            description: 'The EC2 instance ID (e.g., i-1234567890abcdef0)',
+          },
+        },
+        {
+          name: 'region',
+          type: 'text',
+          label: 'AWS Region',
+          admin: {
+            description:
+              'The AWS region where the instance is deployed (e.g., us-east-1)',
+          },
+        },
+        {
+          name: 'imageId',
+          type: 'text',
+          label: 'AMI Image ID',
+          admin: {
+            description:
+              'The Amazon Machine Image (AMI) ID used to launch the instance',
+          },
+        },
+        {
+          name: 'instanceType',
+          type: 'text',
+          label: 'Instance Type',
+          admin: {
+            description: 'The EC2 instance type (e.g., t2.micro, m5.large)',
+          },
+        },
+        {
+          name: 'diskSize',
+          type: 'number',
+          label: 'Disk Size (GB)',
+          admin: {
+            description: 'The size of the root volume in GB',
+          },
+        },
+        {
+          name: 'securityGroups',
+          type: 'relationship',
+          relationTo: 'securityGroups',
+          hasMany: true,
+          maxDepth: 10,
+          admin: {
+            description: 'Security groups associated with this instance',
+          },
+        },
+        {
+          name: 'securityGroupIds',
+          type: 'array',
+          label: 'Security Group IDs',
+          fields: [
+            {
+              name: 'id',
+              type: 'text',
+              label: 'Security Group ID',
+            },
+          ],
+          admin: {
+            description:
+              'The security groups IDs associated with this instance',
+          },
+        },
+        {
+          name: 'blockDeviceMappings',
+          type: 'array',
+          label: 'Block Device Mappings',
+          fields: [
+            {
+              name: 'deviceName',
+              type: 'text',
+              label: 'Device Name',
+            },
+            {
+              name: 'volumeSize',
+              type: 'number',
+              label: 'Volume Size (GB)',
+            },
+            {
+              name: 'volumeType',
+              type: 'text',
+              label: 'Volume Type',
+            },
+            {
+              name: 'deleteOnTermination',
+              type: 'checkbox',
+              label: 'Delete On Termination',
+            },
+          ],
+          admin: {
+            description: 'The block devices attached to the instance',
+          },
+        },
+        {
+          name: 'tags',
+          type: 'array',
+          label: 'Resource Tags',
+          fields: [
+            {
+              name: 'key',
+              type: 'text',
+              label: 'Tag Key',
+            },
+            {
+              name: 'value',
+              type: 'text',
+              label: 'Tag Value',
+            },
+          ],
+          admin: {
+            description: 'Tags assigned to the instance',
+          },
+        },
+        {
+          name: 'launchTime',
+          type: 'date',
+          label: 'Launch Time',
+          admin: {
+            description: 'When the instance was launched',
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
+        },
+        {
+          name: 'state',
+          type: 'text',
+          label: 'Instance State',
+          admin: {
+            description:
+              'Current state of the instance (e.g., running, stopped)',
+          },
+        },
+        {
+          name: 'subnetId',
+          type: 'text',
+          label: 'Subnet ID',
+          admin: {
+            description: 'The subnet where the instance is running',
+          },
+        },
+        {
+          name: 'vpcId',
+          type: 'text',
+          label: 'VPC ID',
+          admin: {
+            description: 'The VPC where the instance is running',
+          },
+        },
+        {
+          name: 'publicDnsName',
+          type: 'text',
+          label: 'Public DNS Name',
+          admin: {
+            description: 'The public DNS name assigned to the instance',
+          },
+        },
+        {
+          name: 'privateDnsName',
+          type: 'text',
+          label: 'Private DNS Name',
+          admin: {
+            description: 'The private DNS name assigned to the instance',
+          },
+        },
+        {
+          name: 'privateIpAddress',
+          type: 'text',
+          label: 'Private IP Address',
+          admin: {
+            description: 'The private IP address assigned to the instance',
+          },
+        },
+        {
+          name: 'publicIpAddress',
+          type: 'text',
+          label: 'Public IP Address',
+          admin: {
+            description: 'The public IP address assigned to the instance',
+          },
+        },
+        {
+          name: 'keyName',
+          type: 'text',
+          label: 'Key Pair Name',
+          admin: {
+            description: 'The key pair used to launch the instance',
+          },
+        },
+        {
+          name: 'architecture',
+          type: 'text',
+          label: 'Architecture',
+          admin: {
+            description:
+              'The architecture of the instance (e.g., x86_64, arm64)',
+          },
+        },
+      ],
     },
   ],
 }

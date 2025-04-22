@@ -194,11 +194,7 @@ export interface Server {
    * Provide a brief description of the service.
    */
   description?: string | null;
-  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
-  instanceId?: string | null;
-  cloudProviderAccount?: (string | null) | CloudProviderAccount;
   sshKey: string | SshKey;
-  securityGroups?: (string | SecurityGroup)[] | null;
   /**
    * Enter the IP address of the server.
    */
@@ -236,6 +232,126 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
+  cloudProviderAccount?: (string | null) | CloudProviderAccount;
+  /**
+   * AWS EC2 instance details
+   */
+  awsEc2Details?: {
+    /**
+     * The EC2 instance ID (e.g., i-1234567890abcdef0)
+     */
+    instanceId?: string | null;
+    /**
+     * The AWS region where the instance is deployed (e.g., us-east-1)
+     */
+    region?: string | null;
+    /**
+     * The Amazon Machine Image (AMI) ID used to launch the instance
+     */
+    imageId?: string | null;
+    /**
+     * The EC2 instance type (e.g., t2.micro, m5.large)
+     */
+    instanceType?: string | null;
+    /**
+     * The size of the root volume in GB
+     */
+    diskSize?: number | null;
+    /**
+     * Security groups associated with this instance
+     */
+    securityGroups?: (string | SecurityGroup)[] | null;
+    /**
+     * The security groups IDs associated with this instance
+     */
+    securityGroupIds?:
+      | {
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The block devices attached to the instance
+     */
+    blockDeviceMappings?:
+      | {
+          deviceName?: string | null;
+          volumeSize?: number | null;
+          volumeType?: string | null;
+          deleteOnTermination?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Tags assigned to the instance
+     */
+    tags?:
+      | {
+          key?: string | null;
+          value?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * When the instance was launched
+     */
+    launchTime?: string | null;
+    /**
+     * Current state of the instance (e.g., running, stopped)
+     */
+    state?: string | null;
+    /**
+     * The subnet where the instance is running
+     */
+    subnetId?: string | null;
+    /**
+     * The VPC where the instance is running
+     */
+    vpcId?: string | null;
+    /**
+     * The public DNS name assigned to the instance
+     */
+    publicDnsName?: string | null;
+    /**
+     * The private DNS name assigned to the instance
+     */
+    privateDnsName?: string | null;
+    /**
+     * The private IP address assigned to the instance
+     */
+    privateIpAddress?: string | null;
+    /**
+     * The public IP address assigned to the instance
+     */
+    publicIpAddress?: string | null;
+    /**
+     * The key pair used to launch the instance
+     */
+    keyName?: string | null;
+    /**
+     * The architecture of the instance (e.g., x86_64, arm64)
+     */
+    architecture?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sshKeys".
+ */
+export interface SshKey {
+  id: string;
+  /**
+   * Enter the name of the ssh key.
+   */
+  name: string;
+  /**
+   * Provide a brief description of the ssh key.
+   */
+  description?: string | null;
+  publicKey: string;
+  privateKey: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -270,25 +386,6 @@ export interface CloudProviderAccount {
     tenantId: string;
     subscriptionId: string;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "sshKeys".
- */
-export interface SshKey {
-  id: string;
-  /**
-   * Enter the name of the ssh key.
-   */
-  name: string;
-  /**
-   * Provide a brief description of the ssh key.
-   */
-  description?: string | null;
-  publicKey: string;
-  privateKey: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -767,11 +864,7 @@ export interface ServicesSelect<T extends boolean = true> {
 export interface ServersSelect<T extends boolean = true> {
   name?: T;
   description?: T;
-  provider?: T;
-  instanceId?: T;
-  cloudProviderAccount?: T;
   sshKey?: T;
-  securityGroups?: T;
   ip?: T;
   port?: T;
   username?: T;
@@ -792,6 +885,49 @@ export interface ServersSelect<T extends boolean = true> {
         id?: T;
       };
   onboarded?: T;
+  provider?: T;
+  cloudProviderAccount?: T;
+  awsEc2Details?:
+    | T
+    | {
+        instanceId?: T;
+        region?: T;
+        imageId?: T;
+        instanceType?: T;
+        diskSize?: T;
+        securityGroups?: T;
+        securityGroupIds?:
+          | T
+          | {
+              id?: T;
+            };
+        blockDeviceMappings?:
+          | T
+          | {
+              deviceName?: T;
+              volumeSize?: T;
+              volumeType?: T;
+              deleteOnTermination?: T;
+              id?: T;
+            };
+        tags?:
+          | T
+          | {
+              key?: T;
+              value?: T;
+              id?: T;
+            };
+        launchTime?: T;
+        state?: T;
+        subnetId?: T;
+        vpcId?: T;
+        publicDnsName?: T;
+        privateDnsName?: T;
+        privateIpAddress?: T;
+        publicIpAddress?: T;
+        keyName?: T;
+        architecture?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
