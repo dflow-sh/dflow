@@ -14,7 +14,8 @@ import { Service } from '@/payload-types'
 
 function convertToGraph(data: Service[]) {
   const nodes = data.map(item => ({
-    id: item.name,
+    id: item.id,
+    name: item.name,
     type: item.type,
     createdAt: item.createdAt,
     databaseDetails: item.databaseDetails,
