@@ -36,10 +36,10 @@ import { Textarea } from '@/components/ui/textarea'
 
 import AddDatabaseService from './AddDatabaseService'
 import AddGithubService from './AddGithubService'
+import ReorderList from './DeploymentOrder'
 
 const convertNodesToServices = (nodes: any[]) => {
   return nodes.map(({ data }) => ({
-    name: data?.id,
     ...data,
   }))
 }
@@ -158,15 +158,14 @@ const CreateNewTemplate = () => {
       services: convertNodesToServices(nodes),
     })
   }
-  console.log('nodes', nodes)
-  console.log('errors', errors)
+
   return (
     <ReactFlowConfig
       nodes={nodes}
       edges={edges}
       onEdgesChange={onEdgesChange}
       onNodesChange={onNodesChange}>
-      <section className='mx-auto w-full max-w-6xl p-4'>
+      <section className='mx-auto w-full max-w-6xl overflow-y-hidden p-4'>
         <div className='flex w-full items-center justify-end gap-x-2'>
           <Button
             className='z-20'
@@ -294,6 +293,11 @@ const CreateNewTemplate = () => {
             </form>
           </DialogContent>
         </Dialog>
+        {nodes?.length > 1 && (
+          <div className='absolute right-2 top-1/2 z-20 -translate-y-1/2'>
+            <ReorderList nodes={nodes as any} setNodes={setNodes as any} />
+          </div>
+        )}
       </section>
     </ReactFlowConfig>
   )
