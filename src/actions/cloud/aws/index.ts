@@ -53,7 +53,6 @@ export const createEC2InstanceAction = protectedClient
       collection: 'sshKeys',
       id: sshKeyId,
     })
-
     const ec2Client = new EC2Client({
       region,
       credentials: {
@@ -62,9 +61,7 @@ export const createEC2InstanceAction = protectedClient
       },
     })
 
-    const describeKeysCommand = new DescribeKeyPairsCommand({
-      KeyNames: [sshKeyDetails.name],
-    })
+    const describeKeysCommand = new DescribeKeyPairsCommand()
 
     const sshKeys = await ec2Client.send(describeKeysCommand)
 
@@ -146,10 +143,6 @@ export const createEC2InstanceAction = protectedClient
       .map(sg => sg.securityGroupId)
       .filter((sgId): sgId is string => !!sgId)
 
-    if (validSecurityGroupIds.length === 0) {
-      throw new Error('No valid security groups available')
-    }
-
     const ec2Command = new RunInstancesCommand({
       ImageId: ami,
       InstanceType: instanceType as _InstanceType,
@@ -176,7 +169,6 @@ export const createEC2InstanceAction = protectedClient
     })
 
     const ec2Response = await ec2Client.send(ec2Command)
-    console.dir({ ec2Response }, { depth: Infinity })
 
     const instanceDetails = ec2Response.Instances?.[0]
 
@@ -305,12 +297,81 @@ export const updateEC2InstanceAction = protectedClient
       },
     })
 
-    // Update security groups
+    // Update security groups - with validation like in createEC2InstanceAction
     if (newSecurityGroupIds?.length) {
+      const { docs: securityGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: newSecurityGroupIds,
+          },
+        },
+      })
+
+      const unsyncedGroups = securityGroups.filter(
+        sg => sg.syncStatus !== 'in-sync',
+      )
+
+      if (unsyncedGroups.length > 0) {
+        await Promise.all(
+          unsyncedGroups.map(sg =>
+            payload.update({
+              collection: 'securityGroups',
+              id: sg.id,
+              data: {
+                syncStatus: 'start-sync',
+                cloudProvider: 'aws',
+                cloudProviderAccount: accountId,
+                lastSyncedAt: new Date().toISOString(),
+              },
+            }),
+          ),
+        )
+
+        // Re-check sync status once
+        const { docs: updatedGroups } = await payload.find({
+          collection: 'securityGroups',
+          pagination: false,
+          where: {
+            id: {
+              in: unsyncedGroups.map(g => g.id),
+            },
+          },
+        })
+
+        const stillNotSynced = updatedGroups.filter(
+          g => g.syncStatus !== 'in-sync',
+        )
+
+        if (stillNotSynced.length > 0) {
+          throw new Error('Some security groups failed to sync')
+        }
+
+        const { docs: refreshedGroups } = await payload.find({
+          collection: 'securityGroups',
+          pagination: false,
+          where: {
+            id: {
+              in: newSecurityGroupIds,
+            },
+          },
+        })
+
+        securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
+      }
+
+      const validSecurityGroupIds = securityGroups
+        .map(sg => sg.securityGroupId)
+        .filter((sgId): sgId is string => !!sgId)
+
+      console.dir({ validSecurityGroupIds }, { depth: Infinity })
+
+      // Now use the validated security group IDs
       await ec2Client.send(
         new ModifyInstanceAttributeCommand({
           InstanceId: instanceId,
-          Groups: newSecurityGroupIds,
+          Groups: validSecurityGroupIds,
         }),
       )
     }
