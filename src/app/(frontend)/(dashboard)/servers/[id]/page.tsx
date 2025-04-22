@@ -10,6 +10,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
+import UpdateEC2InstanceForm from '@/components/servers/UpdateEC2InstanceForm'
 import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
@@ -36,7 +37,7 @@ interface PageProps {
 }
 
 const GeneralTab = ({ server }: { server: ServerType }) => {
-  const [sshKeys, projects, securityGroups] = use(
+  const [{ docs: sshKeys }, { docs: projects }, { docs: securityGroups }] = use(
     Promise.all([
       getPayload({ config: configPromise }).then(payload =>
         payload.find({ collection: 'sshKeys', pagination: false }),
@@ -76,26 +77,39 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
     ]),
   )
 
-  const serverDetails = use(
-    server.netdataVersion
-      ? netdata.metrics.getServerDetails({ host: server.ip })
-      : Promise.resolve({}),
-  )
+  const serverDetails = server.netdataVersion
+    ? use(netdata.metrics.getServerDetails({ host: server.ip }))
+    : {}
+
+  const renderUpdateForm = () => {
+    switch (server.provider) {
+      case 'aws':
+        return (
+          <UpdateEC2InstanceForm
+            server={server}
+            securityGroups={securityGroups}
+          />
+        )
+
+      default:
+        return (
+          <UpdateServerForm
+            server={server}
+            sshKeys={sshKeys}
+            securityGroups={securityGroups}
+          />
+        )
+    }
+  }
 
   return (
     <div className='flex flex-col space-y-5'>
       <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-        <div className='md:col-span-2'>
-          <UpdateServerForm
-            server={server}
-            sshKeys={sshKeys.docs}
-            securityGroups={securityGroups.docs}
-          />
-        </div>
+        <div className='md:col-span-2'>{renderUpdateForm()}</div>
 
-        <ProjectsAndServicesSection projects={projects.docs} />
+        <ProjectsAndServicesSection projects={projects} />
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 'use server'
 
 import {
-  CreateTagsCommand,
   DescribeInstancesCommand,
   DescribeKeyPairsCommand,
   EC2Client,
@@ -14,6 +13,7 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
+import { awsRegions } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
@@ -202,9 +202,11 @@ export const createEC2InstanceAction = protectedClient
           username: 'ubuntu',
           ip,
           provider: 'aws',
-          securityGroups: securityGroups.map(sg => sg.id),
           cloudProviderAccount: accountId,
-          instanceId: instanceDetails.InstanceId,
+          awsEc2Details: {
+            instanceId: instanceDetails.InstanceId,
+            securityGroups: securityGroups.map(sg => sg.id),
+          },
         },
       })
 
@@ -279,118 +281,150 @@ export const updateEC2InstanceAction = protectedClient
   })
   .schema(updateEC2InstanceSchema)
   .action(async ({ clientInput }) => {
-    const { instanceId, accountId, region, newSecurityGroupIds, newName } =
-      clientInput
+    const {
+      serverId,
+      instanceId,
+      accountId,
+      name,
+      description,
+      securityGroupsIds,
+    } = clientInput
 
     const payload = await getPayload({ config: configPromise })
 
+    // Get the server to update
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: clientInput.serverId,
+    })
+
+    if (!server) {
+      throw new Error(`Server with ID ${clientInput.serverId} not found`)
+    }
+
+    // Get AWS account details
     const awsAccountDetails = await payload.findByID({
       collection: 'cloudProviderAccounts',
       id: accountId,
     })
 
+    if (
+      !awsAccountDetails?.awsDetails?.accessKeyId ||
+      !awsAccountDetails.awsDetails.secretAccessKey
+    ) {
+      throw new Error('AWS account details not found')
+    }
+
+    // Initialize EC2 client
     const ec2Client = new EC2Client({
-      region,
+      region: awsRegions.at(0)?.value || 'us-east-1',
       credentials: {
-        accessKeyId: awsAccountDetails.awsDetails?.accessKeyId!,
-        secretAccessKey: awsAccountDetails.awsDetails?.secretAccessKey!,
+        accessKeyId: awsAccountDetails.awsDetails.accessKeyId,
+        secretAccessKey: awsAccountDetails.awsDetails.secretAccessKey,
       },
     })
 
-    // Update security groups - with validation like in createEC2InstanceAction
-    if (newSecurityGroupIds?.length) {
-      const { docs: securityGroups } = await payload.find({
+    // Process security groups
+    const { docs: securityGroups } = await payload.find({
+      collection: 'securityGroups',
+      pagination: false,
+      where: {
+        id: {
+          in: securityGroupsIds,
+        },
+      },
+    })
+
+    const unsyncedGroups = securityGroups.filter(
+      sg => sg.syncStatus !== 'in-sync',
+    )
+
+    // Sync unsynced security groups
+    if (unsyncedGroups.length > 0) {
+      await Promise.all(
+        unsyncedGroups.map(sg =>
+          payload.update({
+            collection: 'securityGroups',
+            id: sg.id,
+            data: {
+              syncStatus: 'start-sync',
+              cloudProvider: 'aws',
+              cloudProviderAccount: accountId || server.cloudProviderAccount,
+              lastSyncedAt: new Date().toISOString(),
+            },
+          }),
+        ),
+      )
+
+      // Re-check sync status
+      const { docs: updatedGroups } = await payload.find({
         collection: 'securityGroups',
         pagination: false,
         where: {
           id: {
-            in: newSecurityGroupIds,
+            in: unsyncedGroups.map(g => g.id),
           },
         },
       })
 
-      const unsyncedGroups = securityGroups.filter(
-        sg => sg.syncStatus !== 'in-sync',
+      const stillNotSynced = updatedGroups.filter(
+        g => g.syncStatus !== 'in-sync',
       )
 
-      if (unsyncedGroups.length > 0) {
-        await Promise.all(
-          unsyncedGroups.map(sg =>
-            payload.update({
-              collection: 'securityGroups',
-              id: sg.id,
-              data: {
-                syncStatus: 'start-sync',
-                cloudProvider: 'aws',
-                cloudProviderAccount: accountId,
-                lastSyncedAt: new Date().toISOString(),
-              },
-            }),
-          ),
-        )
-
-        // Re-check sync status once
-        const { docs: updatedGroups } = await payload.find({
-          collection: 'securityGroups',
-          pagination: false,
-          where: {
-            id: {
-              in: unsyncedGroups.map(g => g.id),
-            },
-          },
-        })
-
-        const stillNotSynced = updatedGroups.filter(
-          g => g.syncStatus !== 'in-sync',
-        )
-
-        if (stillNotSynced.length > 0) {
-          throw new Error('Some security groups failed to sync')
-        }
-
-        const { docs: refreshedGroups } = await payload.find({
-          collection: 'securityGroups',
-          pagination: false,
-          where: {
-            id: {
-              in: newSecurityGroupIds,
-            },
-          },
-        })
-
-        securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
+      if (stillNotSynced.length > 0) {
+        throw new Error('Some security groups failed to sync')
       }
 
-      const validSecurityGroupIds = securityGroups
-        .map(sg => sg.securityGroupId)
-        .filter((sgId): sgId is string => !!sgId)
+      // Get refreshed groups
+      const { docs: refreshedGroups } = await payload.find({
+        collection: 'securityGroups',
+        pagination: false,
+        where: {
+          id: {
+            in: securityGroupsIds,
+          },
+        },
+      })
 
-      console.dir({ validSecurityGroupIds }, { depth: Infinity })
-
-      // Now use the validated security group IDs
-      await ec2Client.send(
-        new ModifyInstanceAttributeCommand({
-          InstanceId: instanceId,
-          Groups: validSecurityGroupIds,
-        }),
-      )
+      securityGroups.splice(0, securityGroups.length, ...refreshedGroups)
     }
 
-    // Update Name tag
-    if (newName) {
-      await ec2Client.send(
-        new CreateTagsCommand({
-          Resources: [instanceId],
-          Tags: [
-            {
-              Key: 'Name',
-              Value: newName,
-            },
-          ],
-        }),
-      )
+    // Get actual AWS security group IDs
+    const validSecurityGroupIds = securityGroups
+      .map(sg => sg.securityGroupId)
+      .filter((sgId): sgId is string => !!sgId)
+
+    // const isSecurityGroupsUpdated = server.awsEc2Details?.securityGroups?.every(
+    //   securityGroup =>
+    //     securityGroupsIds?.includes(
+    //       (securityGroup as SecurityGroup).securityGroupId as string,
+    //     ),
+    // )
+
+    await ec2Client.send(
+      new ModifyInstanceAttributeCommand({
+        InstanceId: instanceId,
+        Groups: validSecurityGroupIds,
+      }),
+    )
+
+    const response = await payload.update({
+      collection: 'servers',
+      id: serverId,
+      data: {
+        name,
+        description,
+        awsEc2Details: {
+          ...server.awsEc2Details,
+          securityGroups: securityGroupsIds,
+        },
+      },
+    })
+
+    if (response) {
+      revalidatePath(`/servers/${server.id}`)
+      revalidatePath(`/onboarding/add-server`)
     }
 
-    revalidatePath('/servers')
     return { success: true }
   })

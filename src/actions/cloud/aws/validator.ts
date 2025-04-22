@@ -57,9 +57,10 @@ export const deleteSecurityGroupSchema = z.object({
 })
 
 export const updateEC2InstanceSchema = z.object({
+  serverId: z.string(),
   instanceId: z.string(),
   accountId: z.string(),
-  region: z.string(),
-  newSecurityGroupIds: z.array(z.string()).optional(),
-  newName: z.string().optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  securityGroupsIds: z.array(z.string()).optional(),
 })
