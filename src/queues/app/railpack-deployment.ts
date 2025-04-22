@@ -11,7 +11,7 @@ import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
-import { GitProvider } from '@/payload-types'
+import { GitProvider, Service } from '@/payload-types'
 
 interface QueueArgs {
   appName: string
@@ -29,7 +29,8 @@ interface QueueArgs {
     serviceId: string
     provider: string | GitProvider | null | undefined
     port?: string
-    environmentVariables: Record<string, unknown> | undefined
+    variables: NonNullable<Service['variables']>
+    populatedVariables: string
     serverId: string
   }
   payloadToken: string
@@ -61,7 +62,9 @@ const worker = new Worker<QueueArgs>(
       serviceDetails,
       payloadToken,
     } = job.data
-    const { serverId, serviceId } = serviceDetails
+    const { serverId, serviceId, variables, populatedVariables } =
+      serviceDetails
+    const formattedVariables = JSON.parse(populatedVariables)
 
     try {
       console.log('inside queue: ' + QUEUE_NAME)
@@ -129,7 +132,7 @@ const worker = new Worker<QueueArgs>(
       }
 
       // Step 2: Setting environment variables & add build-args
-      if (serviceDetails.environmentVariables) {
+      if (variables.length) {
         sendEvent({
           message: `Stated setting environment variables`,
           pub,
@@ -141,19 +144,12 @@ const worker = new Worker<QueueArgs>(
         const envResponse = await dokku.config.set({
           ssh,
           name: appName,
-          values: Object.entries(serviceDetails.environmentVariables).map(
-            ([key, value]) => {
-              const formattedValue =
-                value && typeof value === 'object' && 'value' in value
-                  ? value.value
-                  : value
-
-              return {
-                key,
-                value: `${formattedValue}`,
-              }
-            },
-          ),
+          values: Object.entries(formattedVariables).map(([key, value]) => {
+            return {
+              key,
+              value: `${value}`,
+            }
+          }),
           noRestart: true,
           options: {
             onStdout: async chunk => {
@@ -359,7 +355,7 @@ const worker = new Worker<QueueArgs>(
           },
         },
         ssh,
-        environmentVariables: serviceDetails.environmentVariables,
+        environmentVariables: formattedVariables,
       })
 
       console.log({ imageCreationResponse })

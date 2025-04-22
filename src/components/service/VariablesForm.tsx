@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Service } from '@/payload-types'
+import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 
 type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
 
@@ -95,7 +96,8 @@ const ReferenceVariableDropdown = ({
                   onSelect={() => {
                     setValue(
                       `variables.${index}.value`,
-                      '$' + `{{${database.name + '.DATABASE_URI'}}}`,
+                      '$' +
+                        `{{${database.databaseDetails?.type}:${database.name + '.DATABASE_URI'}}}`,
                     )
                   }}>
                   {database.databaseDetails?.type &&
@@ -112,6 +114,7 @@ const ReferenceVariableDropdown = ({
 }
 
 const VariablesForm = ({ service }: { service: Service }) => {
+  const { setDisable: disableDeployment } = useDisableDeploymentContext()
   const {
     execute: saveEnvironmentVariables,
     isPending: savingEnvironmentVariables,
@@ -149,6 +152,10 @@ const VariablesForm = ({ service }: { service: Service }) => {
     }
   }, [])
 
+  useEffect(() => {
+    disableDeployment(false)
+  }, [service.variables])
+
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
@@ -174,10 +181,15 @@ const VariablesForm = ({ service }: { service: Service }) => {
     name: 'variables',
   })
 
+  const handleSubmit = (values: z.infer<typeof updateServiceSchema>) => {
+    saveEnvironmentVariables(values)
+    disableDeployment(true)
+  }
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(values => console.log(values))}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className='w-full space-y-6'>
         <div className='space-y-2'>
           {fields.length ? (
@@ -253,11 +265,17 @@ const VariablesForm = ({ service }: { service: Service }) => {
         </div>
 
         <div className='flex w-full justify-end gap-3'>
-          <Button type='submit' variant='outline'>
+          <Button
+            type='submit'
+            variant='outline'
+            disabled={savingEnvironmentVariables}>
             Save
           </Button>
 
-          <Button type='submit' variant='secondary'>
+          <Button
+            type='submit'
+            variant='secondary'
+            disabled={savingEnvironmentVariables}>
             Save & Restart
           </Button>
         </div>

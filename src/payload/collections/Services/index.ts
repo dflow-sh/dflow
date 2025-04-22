@@ -1,3 +1,4 @@
+import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig, Field } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
@@ -330,16 +331,6 @@ export const Services: CollectionConfig = {
         { label: 'Docker', value: 'docker' },
       ],
     },
-    // Storing environment variables in JSON format
-    // there will be 2 types of variables
-    // 1. default variables MY_VARIABLE="Something"
-    // 2. reference variables 👇
-    //   DATABASE_URI: {
-    //   type: "reference",
-    //   value: "mongodb://something",
-    //   linkedService: "mongo-database", // the Dokku service name
-    //   dokkuAlias: "MONGO_DATABASE_DB_URL",  // used when running dokku config
-    // }
     {
       name: 'environmentVariables',
       type: 'json',
@@ -348,45 +339,23 @@ export const Services: CollectionConfig = {
       name: 'variables',
       type: 'array',
       fields: [
-        {
+        encryptedField({
           name: 'key',
           type: 'text',
           required: true,
-        },
-        {
+        }),
+        // Storing environment value format -> service-name converted to uppercase with underscore and _DB at ending -> PAYLOAD_MONGO_DB
+        encryptedField({
           name: 'value',
           type: 'text',
           required: true,
-        },
+        }),
       ],
     },
-    {
-      name: 'linkedServices',
-      type: 'array',
-      fields: [
-        {
-          name: 'alias',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'value',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'serviceName',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'type',
-          type: 'select',
-          options: databaseOptions,
-          required: true,
-        },
-      ],
-    },
+    encryptedField({
+      name: 'populatedVariables',
+      type: 'json',
+    }),
     // Builder settings
     {
       name: 'builder',

@@ -58,7 +58,13 @@ export const updateServiceSchema = z.object({
     .optional(),
   variables: z
     .object({
-      key: z.string().min(1, 'Key must be at-least 1 character'),
+      key: z
+        .string()
+        .min(1, 'Key must be at-least 1 character')
+        .regex(
+          /^[a-zA-Z_][a-zA-Z0-9_]*$/,
+          'Invalid key format, special-characters & spaces are restricted',
+        ),
       value: z.string().min(1, 'Value must be at-least 1 character'),
     })
     .array()

@@ -243,7 +243,7 @@ export const updateServiceAction = protectedClient
   })
   .schema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, variables, ...data } = clientInput
+    const { id, ...data } = clientInput
 
     const filteredObject = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => value && value !== undefined),
@@ -262,8 +262,9 @@ export const updateServiceAction = protectedClient
     })
 
     const environmentVariablesChange =
-      variables &&
-      JSON.stringify(previousDetails.variables) !== JSON.stringify(variables)
+      data?.variables &&
+      JSON.stringify(previousDetails.variables) !==
+        JSON.stringify(data?.variables)
 
     // If env variables are added then adding it to queue to update env
     if (
@@ -274,9 +275,11 @@ export const updateServiceAction = protectedClient
     ) {
       await addUpdateEnvironmentVariablesQueue({
         serviceDetails: {
-          variables,
+          previousVariables: previousDetails?.variables ?? [],
+          variables: response?.variables ?? [],
           name: response?.name,
           noRestart: data?.noRestart ?? true,
+          id,
         },
         sshDetails: {
           host: response?.project?.server?.ip,

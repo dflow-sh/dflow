@@ -22,6 +22,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Project, Service } from '@/payload-types'
+import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
 
 import LayoutClient from './layout.client'
 
@@ -151,9 +152,11 @@ const ServiceIdLayout = ({
 }) => {
   return (
     <Suspense fallback={<ServiceLayoutSkeleton />}>
-      <SuspendedServicePageLayout params={params}>
-        {children}
-      </SuspendedServicePageLayout>
+      <DisableDeploymentContextProvider>
+        <SuspendedServicePageLayout params={params}>
+          {children}
+        </SuspendedServicePageLayout>
+      </DisableDeploymentContextProvider>
     </Suspense>
   )
 }

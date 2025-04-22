@@ -25,7 +25,8 @@ interface QueueArgs {
     serviceId: string
     ports: PortsType
     account: DockerRegistry | null
-    environmentVariables: Record<string, unknown> | undefined
+    variables: NonNullable<Service['variables']>
+    populatedVariables: string
     serverId: string
     imageName: string
   }
@@ -56,9 +57,11 @@ const worker = new Worker<QueueArgs>(
       ports,
       account,
       imageName,
-      environmentVariables,
+      variables,
+      populatedVariables,
       deploymentId,
     } = serviceDetails
+    const formattedVariables = JSON.parse(populatedVariables)
 
     try {
       console.log('inside queue: ' + QUEUE_NAME)
@@ -127,7 +130,7 @@ const worker = new Worker<QueueArgs>(
       }
 
       // Step 2: Setting environment variables & add build-args
-      if (environmentVariables) {
+      if (variables.length) {
         sendEvent({
           message: `Stated setting environment variables`,
           pub,
@@ -139,16 +142,10 @@ const worker = new Worker<QueueArgs>(
         const envResponse = await dokku.config.set({
           ssh,
           name: appName,
-          values: Object.entries(environmentVariables).map(([key, value]) => {
-            // handling the case where value is an object for reference environment variables
-            const formattedValue =
-              value && typeof value === 'object' && 'value' in value
-                ? value.value
-                : value
-
+          values: Object.entries(formattedVariables).map(([key, value]) => {
             return {
               key,
-              value: `${formattedValue}`,
+              value: `${value}`,
             }
           }),
           noRestart: true,

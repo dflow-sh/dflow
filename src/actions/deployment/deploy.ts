@@ -24,6 +24,8 @@ export const triggerDeployment = async ({
     githubSettings,
     provider,
     environmentVariables,
+    populatedVariables,
+    variables,
     ...serviceDetails
   } = await payload.findByID({
     collection: 'services',
@@ -68,16 +70,12 @@ export const triggerDeployment = async ({
               deploymentId: deploymentResponse.id,
               serviceId: serviceDetails.id,
               provider,
-              environmentVariables:
-                typeof environmentVariables === 'object' &&
-                environmentVariables &&
-                !Array.isArray(environmentVariables)
-                  ? environmentVariables
-                  : undefined,
               serverId: project.server.id,
               port: githubSettings.port
                 ? githubSettings.port.toString()
                 : '3000',
+              populatedVariables: populatedVariables ?? '{}',
+              variables: variables ?? [],
             },
             payloadToken: `${payloadToken?.value}`,
           })
@@ -94,16 +92,12 @@ export const triggerDeployment = async ({
               deploymentId: deploymentResponse.id,
               serviceId: serviceDetails.id,
               provider,
-              environmentVariables:
-                typeof environmentVariables === 'object' &&
-                environmentVariables &&
-                !Array.isArray(environmentVariables)
-                  ? environmentVariables
-                  : undefined,
               serverId: project.server.id,
               port: githubSettings.port
                 ? githubSettings.port.toString()
                 : '3000',
+              populatedVariables: populatedVariables ?? '{}',
+              variables: variables ?? [],
             },
             payloadToken: `${payloadToken?.value}`,
           })
@@ -143,12 +137,8 @@ export const triggerDeployment = async ({
         serviceDetails: {
           deploymentId: deploymentResponse.id,
           account: typeof account === 'object' ? account : null,
-          environmentVariables:
-            typeof environmentVariables === 'object' &&
-            environmentVariables &&
-            !Array.isArray(environmentVariables)
-              ? environmentVariables
-              : undefined,
+          populatedVariables: populatedVariables ?? '{}',
+          variables: variables ?? [],
           imageName: url,
           ports,
           serverId: project.server.id,
