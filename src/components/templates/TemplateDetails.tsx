@@ -13,7 +13,7 @@ const TemplateDetails = ({ template }: { template: Template }) => {
   const { execute, isPending } = useAction(deleteTemplate, {
     onSuccess: ({ data }) => {
       if (data) {
-        toast.success(`Successfully deleted template`)
+        toast.success(`Template deleted successfully`)
       }
     },
     onError: ({ error }) => {
