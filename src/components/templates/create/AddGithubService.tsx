@@ -83,36 +83,6 @@ const AddGithubService = ({
 
   useEffect(() => {
     fetchProviders()
-
-    const defaultProvider = form.getValues('provider')
-    const provider = gitProviders?.data?.find(
-      ({ id }) => id === defaultProvider,
-    )
-    if (provider && provider.github) {
-      getRepositories({
-        page: 1,
-        limit: 10,
-        appId: `${provider.github.appId}`,
-        installationId: `${provider.github.installationId}`,
-        privateKey: provider.github.privateKey,
-      })
-    }
-    if (
-      githubSettings?.owner &&
-      githubSettings?.repository &&
-      provider &&
-      provider.github
-    ) {
-      getBranches({
-        page: 1,
-        limit: 10,
-        appId: `${provider.github.appId}`,
-        installationId: `${provider.github.installationId}`,
-        privateKey: provider.github.privateKey!,
-        owner: githubSettings.owner,
-        repository: githubSettings.repository,
-      })
-    }
   }, [])
 
   const { provider, githubSettings } = useWatch({ control: form.control })
@@ -127,6 +97,7 @@ const AddGithubService = ({
     const newNode: ServiceNode = {
       type: 'app',
       id: name,
+      name,
       environmentVariables: {},
       ...data,
     }
