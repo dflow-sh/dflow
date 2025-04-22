@@ -25,6 +25,7 @@ export const SSHKeys: CollectionConfig = {
       type: 'text',
       label: 'Name',
       required: true,
+      unique: true,
       admin: {
         description: 'Enter the name of the ssh key.',
       },
