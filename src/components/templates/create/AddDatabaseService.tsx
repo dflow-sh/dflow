@@ -67,6 +67,7 @@ const AddDatabaseService = ({
     const newNode: ServiceNode = {
       type: 'database',
       id: name,
+      name,
       environmentVariables: {},
       databaseDetails: {
         type: type,
