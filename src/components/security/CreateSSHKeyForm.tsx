@@ -13,11 +13,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import {
-  createSSHKeyAction,
-  generateSSHKeyAction,
-  updateSSHKeyAction,
-} from '@/actions/sshkeys'
+import { createSSHKeyAction, generateSSHKeyAction } from '@/actions/sshkeys'
 import { createSSHKeySchema } from '@/actions/sshkeys/validator'
 import { DialogFooter } from '@/components/ui/dialog'
 import {
@@ -74,7 +70,7 @@ const CreateSSHKeyForm = ({
   sshKey,
   setOpen,
 }: {
-  type?: 'create' | 'update'
+  type?: 'create' | 'view'
   sshKey?: SshKey
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -122,22 +118,6 @@ const CreateSSHKeyForm = ({
     },
   )
 
-  const { execute: updateSSHKey, isPending: isUpdatingSSHKey } = useAction(
-    updateSSHKeyAction,
-    {
-      onSuccess: ({ data, input }) => {
-        if (data) {
-          toast.success(`Successfully updated ${input.name} SSH key`)
-          setOpen?.(false)
-          form.reset()
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(`Failed to update SSH key: ${error.serverError}`)
-      },
-    },
-  )
-
   // Action to generate SSH keys
   const { execute: generateSSHKey, isPending: isGeneratingSSHKey } = useAction(
     generateSSHKeyAction,
@@ -156,11 +136,7 @@ const CreateSSHKeyForm = ({
   )
 
   function onSubmit(values: z.infer<typeof createSSHKeySchema>) {
-    if (type === 'update' && sshKey) {
-      updateSSHKey({ id: sshKey.id, ...values })
-    } else {
-      createSSHKey(values)
-    }
+    createSSHKey(values)
   }
 
   // Handlers for generating RSA and ED25519 keys
@@ -258,7 +234,7 @@ const CreateSSHKeyForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
-        {/* Only show generate buttons if not editing */}
+        {/* Only show generate buttons if creating */}
         {type === 'create' && (
           <div className='flex flex-col gap-4 sm:flex-row'>
             <Button
@@ -290,7 +266,7 @@ const CreateSSHKeyForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} readOnly={type === 'view'} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -304,7 +280,7 @@ const CreateSSHKeyForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} readOnly={type === 'view'} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -333,13 +309,9 @@ const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                {type === 'create' ? (
-                  <Textarea {...field} />
-                ) : (
-                  <SecretContent>
-                    <Textarea {...field} />
-                  </SecretContent>
-                )}
+                <SecretContent>
+                  <Textarea {...field} readOnly />
+                </SecretContent>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -368,13 +340,9 @@ const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                {type === 'create' ? (
-                  <Textarea {...field} />
-                ) : (
-                  <SecretContent>
-                    <Textarea {...field} />
-                  </SecretContent>
-                )}
+                <SecretContent>
+                  <Textarea {...field} readOnly />
+                </SecretContent>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -402,12 +370,14 @@ const CreateSSHKeyForm = ({
             </Button>
           </div>
 
-          <Button
-            type='submit'
-            disabled={isCreatingSSHKey || isUpdatingSSHKey}
-            className='w-full sm:w-auto'>
-            {type === 'create' ? 'Add SSH key' : 'Update SSH key'}
-          </Button>
+          {type === 'create' && (
+            <Button
+              type='submit'
+              disabled={isCreatingSSHKey}
+              className='w-full sm:w-auto'>
+              Add SSH key
+            </Button>
+          )}
         </DialogFooter>
       </form>
     </Form>

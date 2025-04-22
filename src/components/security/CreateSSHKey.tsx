@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Pencil, Plus } from 'lucide-react'
+import { Eye, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import {
@@ -22,7 +22,7 @@ const CreateSSHKey = ({
   description = 'This form allows you to add an SSH key manually or generate a new RSA or ED25519 key pair to populate the fields.',
   sshKey,
 }: {
-  type?: 'create' | 'update'
+  type?: 'create' | 'view'
   description?: string
   sshKey?: SshKey
 }) => {
@@ -34,11 +34,11 @@ const CreateSSHKey = ({
         <Button
           disabled={isDemoEnvironment}
           onClick={e => e.stopPropagation()}
-          size={type === 'update' ? 'icon' : 'default'}
-          variant={type === 'update' ? 'outline' : 'default'}>
-          {type === 'update' ? (
+          size={type === 'view' ? 'icon' : 'default'}
+          variant={type === 'view' ? 'outline' : 'default'}>
+          {type === 'view' ? (
             <>
-              <Pencil />
+              <Eye />
             </>
           ) : (
             <>
@@ -52,7 +52,7 @@ const CreateSSHKey = ({
       <DialogContent className='sm:max-w-2xl'>
         <DialogHeader>
           <DialogTitle>
-            {type === 'update' ? 'Edit SSH Key' : 'Add SSH key'}
+            {type === 'view' ? 'View SSH Key' : 'Add SSH key'}
           </DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>

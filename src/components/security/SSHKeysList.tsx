@@ -41,7 +41,7 @@ const SSHKeyItem = ({ sshKey }: { sshKey: SshKey }) => {
         <div className='flex items-center gap-3'>
           <UpdateSSHKey
             sshKey={sshKey}
-            type='update'
+            type='view'
             description='This form updates SSH key'
           />
 

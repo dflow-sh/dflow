@@ -15,7 +15,7 @@ export const SSHKeys: CollectionConfig = {
   access: {
     read: isAdmin,
     create: isAdmin,
-    update: isAdmin,
+    update: () => false,
     delete: isAdmin,
     readVersions: isAdmin,
   },
