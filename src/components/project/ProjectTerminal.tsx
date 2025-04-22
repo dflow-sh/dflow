@@ -1,6 +1,5 @@
 import Terminal from '../Terminal'
 import { Badge } from '../ui/badge'
-import { useSidebar } from '../ui/sidebar'
 import { ChevronsUp, HardDrive, SquareTerminal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -21,7 +20,6 @@ type ProjectTerminalType = {
 const ProjectTerminal = ({ server }: ProjectTerminalType) => {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<string[]>([])
-  const { state } = useSidebar()
 
   useEffect(() => {
     if (!open) {

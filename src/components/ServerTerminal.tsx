@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils'
 
 import Tabs from './Tabs'
 import TerminalComponent from './Terminal'
-import { useSidebar } from './ui/sidebar'
 
 const ServerTerminal = ({
   servers = [],
@@ -30,7 +29,6 @@ const ServerTerminal = ({
   >({})
   const [open, setOpen] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const { state } = useSidebar()
 
   // Use a ref to store event sources so they persist between renders
   const eventSourcesRef = useRef<Record<string, EventSource>>({})
