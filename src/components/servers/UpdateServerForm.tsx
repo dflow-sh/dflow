@@ -3,7 +3,6 @@
 import { Dokku } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
@@ -52,9 +51,6 @@ const UpdateServerForm = ({
         typeof server.sshKey === 'object' ? server.sshKey.id : server.sshKey,
       username: server.username,
       id: server.id,
-      securityGroupIds: server.securityGroups?.map(sg =>
-        typeof sg === 'object' ? sg.id : sg,
-      ),
     },
   })
 
@@ -131,6 +127,20 @@ const UpdateServerForm = ({
           <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}
+              name='ip'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>IP Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name='sshKey'
               render={({ field }) => (
                 <FormItem>
@@ -157,44 +167,7 @@ const UpdateServerForm = ({
                 </FormItem>
               )}
             />
-
-            {server.provider && securityGroups && securityGroups.length > 0 && (
-              <FormField
-                control={form.control}
-                name='securityGroupIds'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Security Groups</FormLabel>
-                    <MultiSelect
-                      options={securityGroups.map(({ name, id }) => ({
-                        label: name,
-                        value: id,
-                      }))}
-                      onValueChange={field.onChange}
-                      defaultValue={field.value || []}
-                      placeholder='Select security groups'
-                      className='w-full'
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
           </div>
-
-          <FormField
-            control={form.control}
-            name='ip'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>IP Address</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <div className='grid grid-cols-2 gap-4'>
             <FormField
