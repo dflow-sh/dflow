@@ -9,10 +9,12 @@ import { toast } from 'sonner'
 import { createDeploymentAction } from '@/actions/deployment'
 import { restartServiceAction, stopServerAction } from '@/actions/service'
 import { Service } from '@/payload-types'
+import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 
 const DeploymentForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
   const router = useRouter()
+  const { disable: deploymentDisabled } = useDisableDeploymentContext()
   const { deployments } = service
 
   const { execute, isPending } = useAction(createDeploymentAction, {
@@ -86,7 +88,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
 
     return (
       <Button
-        disabled={isPending || disabled}
+        disabled={isPending || disabled || deploymentDisabled}
         onClick={() => {
           if (disabled) {
             toast.warning('Please attach all git-provider details to deploy')
@@ -107,7 +109,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
       <Deploy />
 
       <Button
-        disabled={isRestartingService}
+        disabled={isRestartingService || deploymentDisabled}
         variant='secondary'
         onClick={() => {
           if (noDeployments) {
@@ -121,7 +123,7 @@ const DeploymentForm = ({ service }: { service: Service }) => {
       </Button>
 
       <Button
-        disabled={isStoppingServer}
+        disabled={isStoppingServer || deploymentDisabled}
         onClick={() => {
           if (noDeployments) {
             toast.warning('Please deploy the service before stopping')

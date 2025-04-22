@@ -15,12 +15,7 @@ export const createImage = async ({
 }: Args) => {
   const variables = Object.entries(environmentVariables ?? {})
     .map(([key, value]) => {
-      const formattedValue =
-        value && typeof value === 'object' && 'value' in value
-          ? value.value
-          : value
-
-      return `--env ${key}="${formattedValue}"`
+      return `--env ${key}="${value}"`
     })
     .join(' ')
 
