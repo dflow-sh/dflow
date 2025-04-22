@@ -263,36 +263,6 @@ export interface Server {
      */
     securityGroups?: (string | SecurityGroup)[] | null;
     /**
-     * The security groups IDs associated with this instance
-     */
-    securityGroupIds?:
-      | {
-          id?: string | null;
-        }[]
-      | null;
-    /**
-     * The block devices attached to the instance
-     */
-    blockDeviceMappings?:
-      | {
-          deviceName?: string | null;
-          volumeSize?: number | null;
-          volumeType?: string | null;
-          deleteOnTermination?: boolean | null;
-          id?: string | null;
-        }[]
-      | null;
-    /**
-     * Tags assigned to the instance
-     */
-    tags?:
-      | {
-          key?: string | null;
-          value?: string | null;
-          id?: string | null;
-        }[]
-      | null;
-    /**
      * When the instance was launched
      */
     launchTime?: string | null;
@@ -896,27 +866,6 @@ export interface ServersSelect<T extends boolean = true> {
         instanceType?: T;
         diskSize?: T;
         securityGroups?: T;
-        securityGroupIds?:
-          | T
-          | {
-              id?: T;
-            };
-        blockDeviceMappings?:
-          | T
-          | {
-              deviceName?: T;
-              volumeSize?: T;
-              volumeType?: T;
-              deleteOnTermination?: T;
-              id?: T;
-            };
-        tags?:
-          | T
-          | {
-              key?: T;
-              value?: T;
-              id?: T;
-            };
         launchTime?: T;
         state?: T;
         subnetId?: T;

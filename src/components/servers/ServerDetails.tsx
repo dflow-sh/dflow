@@ -365,7 +365,7 @@ const ServerDetails = ({
               </Button>
               <Badge
                 variant='secondary'
-                className='absolute -right-8 -top-2 z-10 px-1 py-0 text-[0.6rem]'>
+                className='absolute -right-3 -top-2 z-10 px-1 py-0 text-[0.6rem]'>
                 Coming Soon
               </Badge>
             </div>
