@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import Tabs from '@/components/Tabs'
-import { isDemoEnvironment } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 
 const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
@@ -22,11 +21,7 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <>
-      <div
-        className={cn(
-          'sticky z-40 bg-background',
-          isDemoEnvironment ? 'top-[116px]' : 'top-[68px]',
-        )}>
+      <div className={cn('sticky top-[68px] z-40 bg-background')}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
