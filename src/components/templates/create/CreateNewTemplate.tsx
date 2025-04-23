@@ -21,6 +21,7 @@ import {
   CreateTemplateSchemaType,
   createTemplateSchema,
 } from '@/actions/templates/validator'
+import { Docker } from '@/components/icons'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,6 +36,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 import AddDatabaseService from './AddDatabaseService'
+import AddDockerService from './AddDockerService'
 import AddGithubService from './AddGithubService'
 import ReorderList from './DeploymentOrder'
 
@@ -69,6 +71,7 @@ const CreateNewTemplate = () => {
   const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [showGithub, setShowGithub] = useState<boolean>(false)
+  const [showDocker, setShowDocker] = useState<boolean>(false)
   const [showDatabases, setShowDatabases] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
@@ -107,6 +110,10 @@ const CreateNewTemplate = () => {
     setShowOptions(true)
     setShowDatabases(true)
   }
+  const handleShowDockerClick = () => {
+    setShowOptions(true)
+    setShowDocker(true)
+  }
   const resetDialog = () => {
     setSearchQuery('')
     setShowDatabases(false)
@@ -125,6 +132,14 @@ const CreateNewTemplate = () => {
     },
     {
       id: 2,
+      text: 'Docker Image',
+      icon: <Docker className='h-[18px] w-[18px]' />,
+      isDisabled: false,
+      onClick: handleShowDockerClick,
+      chevronRightDisable: true,
+    },
+    {
+      id: 3,
       text: 'Database',
       icon: <Database size={18} stroke='#3fa037' />,
       isDisabled: false,
@@ -257,6 +272,12 @@ const CreateNewTemplate = () => {
               />
             ) : showOptions && showGithub ? (
               <AddGithubService
+                setOpen={setOpen}
+                nodes={nodes}
+                setNodes={setNodes}
+              />
+            ) : showOptions && showDocker ? (
+              <AddDockerService
                 setOpen={setOpen}
                 nodes={nodes}
                 setNodes={setNodes}
