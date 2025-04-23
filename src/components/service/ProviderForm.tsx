@@ -149,177 +149,143 @@ const GithubForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
-        {/* Account field */}
-        <FormField
-          control={form.control}
-          name='provider'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Account</FormLabel>
+        <div className='grid gap-4 md:grid-cols-2'>
+          {/* Account field */}
+          <FormField
+            control={form.control}
+            name='provider'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Account</FormLabel>
 
-              <Select
-                onValueChange={value => {
-                  field.onChange(value)
+                <Select
+                  onValueChange={value => {
+                    field.onChange(value)
 
-                  const provider = gitProviders.find(({ id }) => id === value)
+                    const provider = gitProviders.find(({ id }) => id === value)
 
-                  if (
-                    provider &&
-                    provider.github &&
-                    provider.github.installationId
-                  ) {
-                    const { appId, installationId, privateKey } =
-                      provider.github
-                    getRepositories({
-                      appId: `${appId}`,
-                      installationId,
-                      privateKey,
-                      limit: 100,
-                      page: 1,
-                    })
-                  } else {
-                    resetRepositoriesList()
-                  }
-
-                  // Resetting the repository, branch value whenever account is changed
-                  form.setValue('githubSettings.repository', '')
-                  form.setValue('githubSettings.branch', '')
-                }}
-                defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a account' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {gitProviders.map(({ github, id }) => {
-                    if (github) {
-                      return (
-                        <SelectItem
-                          disabled={!github.installationId}
-                          key={github.appName}
-                          value={id}>
-                          {github.appName}
-                        </SelectItem>
-                      )
-                    }
-                  })}
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Repository field */}
-        <FormField
-          control={form.control}
-          name='githubSettings.repository'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Repository</FormLabel>
-
-              <Select
-                onValueChange={value => {
-                  field.onChange(value)
-                  if (repositoriesList) {
-                    const { repositories } = repositoriesList
-
-                    const providerId = form.getValues('provider')
-
-                    const provider = gitProviders.find(
-                      ({ id }) => id === providerId,
-                    )
-
-                    const owner = repositories.find(repo => repo.name === value)
-                      ?.owner?.login
-
-                    // On changing repository fetching branches based on that
                     if (
-                      owner &&
                       provider &&
                       provider.github &&
                       provider.github.installationId
                     ) {
-                      getBranches({
-                        owner,
-                        appId: `${provider.github.appId}`,
-                        installationId: provider.github.installationId ?? '',
-                        privateKey: provider.github.privateKey,
-                        repository: value,
+                      const { appId, installationId, privateKey } =
+                        provider.github
+                      getRepositories({
+                        appId: `${appId}`,
+                        installationId,
+                        privateKey,
                         limit: 100,
                         page: 1,
                       })
                     } else {
-                      resetBranchesList()
+                      resetRepositoriesList()
                     }
 
-                    form.setValue('githubSettings.owner', owner ?? '')
-                    // resetting branch name whenever repository is changed
+                    // Resetting the repository, branch value whenever account is changed
+                    form.setValue('githubSettings.repository', '')
                     form.setValue('githubSettings.branch', '')
-                  }
-                }}
-                disabled={!provider || repositoriesLoading}
-                defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        repositoriesLoading
-                          ? 'Fetching repositories...'
-                          : 'Select a repository'
-                      }
-                    />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {repositoriesList?.repositories?.length
-                    ? repositoriesList?.repositories?.map(repository => {
-                        return (
-                          <SelectItem
-                            value={repository.name}
-                            key={repository.name}>
-                            {repository.name}
-                          </SelectItem>
-                        )
-                      })
-                    : null}
-                </SelectContent>
-              </Select>
-
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Branch field */}
-        <div className='grid grid-cols-2 gap-4'>
-          <FormField
-            control={form.control}
-            name='githubSettings.branch'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Branch</FormLabel>
-
-                <Select
-                  disabled={
-                    !provider || branchesLoading || !githubSettings?.repository
-                  }
-                  onValueChange={field.onChange}
+                  }}
                   defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Select a branch' />
+                      <SelectValue placeholder='Select a account' />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {branchesList?.branches?.length
-                      ? branchesList?.branches?.map(branch => (
-                          <SelectItem value={branch.name} key={branch.name}>
-                            {branch.name}
+                    {gitProviders.map(({ github, id }) => {
+                      if (github) {
+                        return (
+                          <SelectItem
+                            disabled={!github.installationId}
+                            key={github.appName}
+                            value={id}>
+                            {github.appName}
                           </SelectItem>
-                        ))
+                        )
+                      }
+                    })}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Repository field */}
+          <FormField
+            control={form.control}
+            name='githubSettings.repository'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Repository</FormLabel>
+
+                <Select
+                  onValueChange={value => {
+                    field.onChange(value)
+                    if (repositoriesList) {
+                      const { repositories } = repositoriesList
+
+                      const providerId = form.getValues('provider')
+
+                      const provider = gitProviders.find(
+                        ({ id }) => id === providerId,
+                      )
+
+                      const owner = repositories.find(
+                        repo => repo.name === value,
+                      )?.owner?.login
+
+                      // On changing repository fetching branches based on that
+                      if (
+                        owner &&
+                        provider &&
+                        provider.github &&
+                        provider.github.installationId
+                      ) {
+                        getBranches({
+                          owner,
+                          appId: `${provider.github.appId}`,
+                          installationId: provider.github.installationId ?? '',
+                          privateKey: provider.github.privateKey,
+                          repository: value,
+                          limit: 100,
+                          page: 1,
+                        })
+                      } else {
+                        resetBranchesList()
+                      }
+
+                      form.setValue('githubSettings.owner', owner ?? '')
+                      // resetting branch name whenever repository is changed
+                      form.setValue('githubSettings.branch', '')
+                    }
+                  }}
+                  disabled={!provider || repositoriesLoading}
+                  defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          repositoriesLoading
+                            ? 'Fetching repositories...'
+                            : 'Select a repository'
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {repositoriesList?.repositories?.length
+                      ? repositoriesList?.repositories?.map(repository => {
+                          return (
+                            <SelectItem
+                              value={repository.name}
+                              key={repository.name}>
+                              {repository.name}
+                            </SelectItem>
+                          )
+                        })
                       : null}
                   </SelectContent>
                 </Select>
@@ -328,6 +294,47 @@ const GithubForm = ({
               </FormItem>
             )}
           />
+        </div>
+
+        {/* Branch field */}
+        <div className='grid gap-4 md:grid-cols-4'>
+          <div className='md:col-span-2'>
+            <FormField
+              control={form.control}
+              name='githubSettings.branch'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Branch</FormLabel>
+
+                  <Select
+                    disabled={
+                      !provider ||
+                      branchesLoading ||
+                      !githubSettings?.repository
+                    }
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select a branch' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {branchesList?.branches?.length
+                        ? branchesList?.branches?.map(branch => (
+                            <SelectItem value={branch.name} key={branch.name}>
+                              {branch.name}
+                            </SelectItem>
+                          ))
+                        : null}
+                    </SelectContent>
+                  </Select>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormField
             control={form.control}
@@ -346,31 +353,31 @@ const GithubForm = ({
               </FormItem>
             )}
           />
-        </div>
 
-        <FormField
-          control={form.control}
-          name='githubSettings.port'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Port</FormLabel>
-              <FormControl>
-                <Input
-                  type='number'
-                  {...field}
-                  value={field.value || ''}
-                  onChange={e => {
-                    const value = e.target.value
-                      ? parseInt(e.target.value, 10)
-                      : ''
-                    field.onChange(value)
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name='githubSettings.port'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Port</FormLabel>
+                <FormControl>
+                  <Input
+                    type='number'
+                    {...field}
+                    value={field.value || ''}
+                    onChange={e => {
+                      const value = e.target.value
+                        ? parseInt(e.target.value, 10)
+                        : ''
+                      field.onChange(value)
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
