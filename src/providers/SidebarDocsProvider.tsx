@@ -4,8 +4,15 @@ import React, { createContext, useCallback, useContext, useState } from 'react'
 
 type SidebarDocsContextType = {
   isOpen: boolean
-  currentSlug: string | null
-  openWith: (slug: string) => void
+  directory: string
+  fileName: string
+  openWith: ({
+    directory,
+    fileName,
+  }: {
+    directory: string
+    fileName: string
+  }) => void
   close: () => void
 }
 
@@ -19,21 +26,27 @@ export const SidebarDocsProvider = ({
   children: React.ReactNode
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [currentSlug, setCurrentSlug] = useState<string | null>(null)
+  const [directory, setDirectory] = useState<string>('')
+  const [fileName, setFileName] = useState<string>('')
 
-  const openWith = useCallback((slug: string) => {
-    setCurrentSlug(slug)
-    setIsOpen(true)
-  }, [])
+  const openWith = useCallback(
+    ({ directory, fileName }: { directory: string; fileName: string }) => {
+      setDirectory(directory)
+      setFileName(fileName)
+      setIsOpen(true)
+    },
+    [],
+  )
 
   const close = useCallback(() => {
     setIsOpen(false)
-    setCurrentSlug(null)
+    setDirectory('')
+    setFileName('')
   }, [])
 
   return (
     <SidebarDocsContext.Provider
-      value={{ isOpen, currentSlug, openWith, close }}>
+      value={{ isOpen, directory, fileName, openWith, close }}>
       {children}
     </SidebarDocsContext.Provider>
   )
