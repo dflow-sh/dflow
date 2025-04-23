@@ -1,11 +1,21 @@
 import { MDXContent } from '@content-collections/mdx/react'
-import { allApis, allIntroductions } from 'content-collections'
+import {
+  allIntroductions,
+  allOnboardings,
+  allServers,
+  allServices,
+} from 'content-collections'
 import { Suspense, use } from 'react'
 
 import { DocsSkeleton } from '@/components/skeletons/DocsSkeleton'
 
 // Combine all collections
-const allDocs = [...allApis, ...allIntroductions]
+const allDocs = [
+  ...allIntroductions,
+  ...allServers,
+  ...allOnboardings,
+  ...allServices,
+]
 
 interface PageProps {
   params: Promise<{
@@ -27,7 +37,7 @@ const SuspendedDocPage = ({ params }: PageProps) => {
 
   return (
     <article className='prose prose-purple prose-invert md:prose-lg prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain'>
-      <h1 className='text-2xl font-semibold'>{doc.title}</h1>
+      {/* <h1 className='text-2xl font-semibold'>{doc.title}</h1> */}
       <MDXContent code={doc.mdx} />
     </article>
   )
