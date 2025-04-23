@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
-import { isDemoEnvironment } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -61,11 +60,7 @@ const LayoutClient = ({
 
   return (
     <>
-      <div
-        className={cn(
-          'sticky z-40 bg-background',
-          isDemoEnvironment ? 'top-[116px]' : 'top-[68px]',
-        )}>
+      <div className={cn('sticky top-[68px] z-40 bg-background')}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
