@@ -5,7 +5,7 @@ export const createTemplateSchema = z.object({
   description: z.string(),
   services: z.array(
     z.object({
-      type: z.enum(['app', 'database']),
+      type: z.enum(['app', 'database', 'docker']),
       name: z.string(),
       environmentVariables: z.record(z.string(), z.string()).optional(),
       databaseDetails: z
@@ -23,6 +23,21 @@ export const createTemplateSchema = z.object({
           branch: z.string(),
           buildPath: z.string(),
           port: z.number().default(3000),
+        })
+        .optional(),
+      dockerDetails: z
+        .object({
+          url: z.string(),
+          account: z.string().optional(),
+          ports: z
+            .array(
+              z.object({
+                hostPort: z.number(),
+                containerPort: z.number(),
+                scheme: z.enum(['http', 'https']),
+              }),
+            )
+            .optional(),
         })
         .optional(),
     }),

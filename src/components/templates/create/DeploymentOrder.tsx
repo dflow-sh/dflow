@@ -45,7 +45,7 @@ export function useRaisedShadow(value: MotionValue<number>) {
 export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
   return (
     <div className='w-64 space-y-1 rounded-md border bg-border p-2 backdrop-blur-md'>
-      <h2 className='text-left text-lg font-bold'>Deployment Order</h2>
+      <h2 className='text-md text-left font-bold'>Deployment Order</h2>
       <Reorder.Group
         className='scrollbar-hide max-h-[320px] space-y-1 overflow-y-scroll'
         axis='y'
