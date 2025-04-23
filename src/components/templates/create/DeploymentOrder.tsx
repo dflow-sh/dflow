@@ -2,14 +2,15 @@
 
 import { Node } from '@xyflow/react'
 import {
-  DragControls,
   MotionValue,
   Reorder,
   animate,
   useDragControls,
   useMotionValue,
 } from 'framer-motion'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
+import { cn } from '@/lib/utils'
 
 interface ReorderListProps {
   nodes: Node[]
@@ -45,9 +46,9 @@ export function useRaisedShadow(value: MotionValue<number>) {
 export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
   return (
     <div className='w-64 space-y-1 rounded-md border bg-border p-2 backdrop-blur-md'>
-      <h2 className='text-md text-left font-bold'>Deployment Order</h2>
+      <h2 className='text-md text-left font-semibold'>Deployment order</h2>
       <Reorder.Group
-        className='scrollbar-hide max-h-[320px] space-y-1 overflow-y-scroll'
+        className='max-h-[320px] space-y-1 overflow-y-auto'
         axis='y'
         values={nodes}
         onReorder={setNodes}>
@@ -67,6 +68,7 @@ const Item = ({ item }: ItemProps) => {
   const y = useMotionValue(0)
   const boxShadow = useRaisedShadow(y)
   const dragControls = useDragControls()
+  const [isDragging, setIsDragging] = useState(false)
 
   return (
     <Reorder.Item
@@ -74,31 +76,13 @@ const Item = ({ item }: ItemProps) => {
       id={item.id}
       dragListener={true} // Allow dragging
       dragControls={dragControls}
-      className='flex items-center justify-between rounded-sm bg-card px-3 py-2'>
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => setIsDragging(false)}
+      className={cn(
+        'flex items-center justify-between rounded-sm bg-card px-3 py-2',
+        isDragging ? 'cursor-grabbing bg-card/80' : 'cursor-grab',
+      )}>
       <span>{item.id}</span>
-      <ReorderIcon dragControls={dragControls} />
     </Reorder.Item>
-  )
-}
-
-interface IconProps {
-  dragControls: DragControls
-}
-
-function ReorderIcon({ dragControls }: IconProps) {
-  return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      viewBox='0 0 39 39'
-      width='16'
-      height='16'
-      style={{ cursor: 'grab' }}
-      onPointerDown={event => dragControls.start(event)}>
-      {[0, 14, 28].flatMap(y =>
-        [0, 14].map(x => (
-          <circle key={`${x}-${y}`} cx={x + 5} cy={y + 5} r='4' fill='#888' />
-        )),
-      )}
-    </svg>
   )
 }
