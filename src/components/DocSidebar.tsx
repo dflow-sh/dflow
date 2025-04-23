@@ -51,11 +51,12 @@ const DocSidebar = () => {
           </header>
 
           <div className='prose prose-gray prose-invert overflow-scroll p-4'>
-            {isDocsPending && <InternalDocsSkeleton />}
-            {doc ? (
+            {isDocsPending ? (
+              <InternalDocsSkeleton />
+            ) : doc ? (
               <MDXContent code={doc.mdx || ''} />
             ) : (
-              <p>No documentation found.</p>
+              <div className='text-center'>No documentation found</div>
             )}
           </div>
         </>
