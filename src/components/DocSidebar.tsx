@@ -35,9 +35,9 @@ const DocSidebar = () => {
   return (
     <motion.div
       initial={false}
-      animate={{ width: isOpen ? 450 : 0 }}
+      animate={{ width: isOpen ? '100%' : 0 }}
       transition={{ duration: 0.25 }}
-      className='max-h-screen overflow-y-scroll border-l bg-background pt-0'>
+      className='fixed right-0 top-0 z-[9999] h-full max-w-md overflow-y-scroll border-l bg-background pt-0 lg:static'>
       {isOpen && (
         <>
           <header className='sticky top-0 z-50 flex items-center justify-between border-b bg-background px-4 py-4'>
