@@ -619,7 +619,7 @@ export interface Template {
   description?: string | null;
   services?:
     | {
-        type: 'app' | 'database';
+        type: 'app' | 'database' | 'docker';
         /**
          * Mount path to attach volume
          */
@@ -638,6 +638,21 @@ export interface Template {
          */
         databaseDetails?: {
           type: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb';
+        };
+        dockerDetails?: {
+          /**
+           * Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest
+           */
+          url?: string | null;
+          account?: (string | null) | DockerRegistry;
+          ports?:
+            | {
+                hostPort: number;
+                containerPort: number;
+                scheme: 'http' | 'https';
+                id?: string | null;
+              }[]
+            | null;
         };
         name?: string | null;
         environmentVariables?:
@@ -1008,6 +1023,20 @@ export interface TemplatesSelect<T extends boolean = true> {
           | T
           | {
               type?: T;
+            };
+        dockerDetails?:
+          | T
+          | {
+              url?: T;
+              account?: T;
+              ports?:
+                | T
+                | {
+                    hostPort?: T;
+                    containerPort?: T;
+                    scheme?: T;
+                    id?: T;
+                  };
             };
         name?: T;
         environmentVariables?: T;

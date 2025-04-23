@@ -43,6 +43,10 @@ export const Template: CollectionConfig = {
               label: 'Database',
               value: 'database',
             },
+            {
+              label: 'Docker',
+              value: 'docker',
+            },
           ],
         },
         {
@@ -173,6 +177,74 @@ export const Template: CollectionConfig = {
                 {
                   label: 'MariaDB',
                   value: 'mariadb',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Docker Details',
+          type: 'collapsible',
+          admin: {
+            // dockerDetails will be considered if service-type is docker
+            condition: (data, siblingsData) => {
+              return siblingsData.type === 'docker'
+            },
+          },
+          fields: [
+            {
+              name: 'dockerDetails',
+              label: 'Docker Details',
+              type: 'group',
+              admin: {
+                // dockerDetails will be considered if service-type is docker
+                condition: (data, siblingsData) => {
+                  return siblingsData.type === 'docker'
+                },
+              },
+              fields: [
+                {
+                  name: 'url',
+                  type: 'text',
+                  admin: {
+                    description:
+                      'Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest',
+                  },
+                },
+                {
+                  name: 'account',
+                  type: 'relationship',
+                  relationTo: 'dockerRegistries',
+                  hasMany: false,
+                },
+                {
+                  name: 'ports',
+                  type: 'array',
+                  fields: [
+                    {
+                      name: 'hostPort',
+                      label: 'Host Port',
+                      type: 'number',
+                      required: true,
+                    },
+                    {
+                      name: 'containerPort',
+                      label: 'Container Port',
+                      type: 'number',
+                      required: true,
+                    },
+                    {
+                      name: 'scheme',
+                      label: 'Scheme',
+                      type: 'select',
+                      options: [
+                        { label: 'http', value: 'http' },
+                        { label: 'https', value: 'https' },
+                      ],
+                      required: true,
+                      defaultValue: 'http',
+                    },
+                  ],
                 },
               ],
             },
