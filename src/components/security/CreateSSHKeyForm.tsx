@@ -266,7 +266,7 @@ const CreateSSHKeyForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} readOnly={type === 'view'} />
+                <Input {...field} disabled={type === 'view'} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -280,7 +280,7 @@ const CreateSSHKeyForm = ({
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} readOnly={type === 'view'} />
+                <Textarea {...field} disabled={type === 'view'} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -309,8 +309,8 @@ const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <SecretContent>
-                  <Textarea {...field} readOnly />
+                <SecretContent defaultHide={type === 'view'}>
+                  <Textarea {...field} disabled={type === 'view'} />
                 </SecretContent>
               </FormControl>
               <FormMessage />
@@ -340,8 +340,8 @@ const CreateSSHKeyForm = ({
                 </Button>
               </div>
               <FormControl>
-                <SecretContent>
-                  <Textarea {...field} readOnly />
+                <SecretContent defaultHide={type === 'view'}>
+                  <Textarea {...field} disabled={type === 'view'} />
                 </SecretContent>
               </FormControl>
               <FormMessage />
