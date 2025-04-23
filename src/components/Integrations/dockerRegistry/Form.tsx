@@ -98,8 +98,6 @@ const DockerRegistryForm = ({
 
   const { type, username, password } = useWatch({ control: form.control })
 
-  console.log({ username, password })
-
   return (
     <Dialog
       onOpenChange={() => {
@@ -145,9 +143,15 @@ const DockerRegistryForm = ({
                   <Select
                     onValueChange={value => {
                       field.onChange(value)
-                      // on registry-type change resetting the form fields
-                      form.setValue('username', '')
-                      form.setValue('password', '')
+
+                      if (account?.type === value) {
+                        form.setValue('username', account?.username ?? '')
+                        form.setValue('password', account?.password ?? '')
+                      } else {
+                        // on registry-type change resetting the form fields
+                        form.setValue('username', '')
+                        form.setValue('password', '')
+                      }
                     }}
                     defaultValue={field.value}>
                     <FormControl>
@@ -179,27 +183,27 @@ const DockerRegistryForm = ({
 
             {/* Hiding username for digital-ocean because for it we can use password and username as same */}
             {/* check this docs https://dokku.com/docs/advanced-usage/registry-management/ */}
-            {type !== 'digitalocean' && (
-              <FormField
-                control={form.control}
-                name='username'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      {account ? (
-                        <SecretContent>
-                          <Input {...field} className='rounded-sm' />
-                        </SecretContent>
-                      ) : (
+
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem
+                  className={type === 'digitalocean' ? 'hidden' : 'block'}>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    {account ? (
+                      <SecretContent defaultHide={!!account}>
                         <Input {...field} className='rounded-sm' />
-                      )}
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                      </SecretContent>
+                    ) : (
+                      <Input {...field} className='rounded-sm' />
+                    )}
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

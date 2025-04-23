@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '../ui/button'
+import { ScrollArea } from '../ui/scroll-area'
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -8,7 +9,6 @@ import { useEffect } from 'react'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
 import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,

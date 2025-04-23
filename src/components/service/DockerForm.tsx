@@ -6,6 +6,7 @@ import { Label } from '../ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2, X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -15,12 +16,12 @@ import { updateServiceSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -39,6 +40,9 @@ const DockerForm = ({
   accounts: DockerRegistry[]
   service: Service
 }) => {
+  const [imageType, setImageType] = useState(
+    service?.dockerDetails?.account ? 'private' : 'public',
+  )
   const { dockerDetails } = service
 
   const { execute: saveDockerRegistryDetails, isPending } = useAction(
@@ -89,16 +93,53 @@ const DockerForm = ({
     <div className='space-y-4 rounded bg-muted/30 p-4'>
       <h3 className='text-lg font-semibold'>Registry Details</h3>
 
+      <div className='space-y-2'>
+        <RadioGroup
+          value={imageType}
+          onValueChange={setImageType}
+          className='flex gap-6'>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='public' id='r2' />
+            <Label htmlFor='r2'>Public</Label>
+          </div>
+
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='private' id='r3' />
+            <Label htmlFor='r3'>Private</Label>
+          </div>
+        </RadioGroup>
+
+        <p className='text-[0.8rem] text-muted-foreground'>
+          Select private option to deploy private images
+        </p>
+      </div>
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full space-y-6'>
-          <div className='grid grid-cols-2 gap-4'>
+          <div
+            className={`grid ${imageType === 'private' ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+            <FormField
+              control={form.control}
+              name='dockerDetails.url'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name='dockerDetails.account'
               render={({ field }) => (
-                <FormItem>
+                <FormItem
+                  className={imageType === 'private' ? 'block' : 'hidden'}>
                   <FormLabel>Account</FormLabel>
 
                   <div className='flex items-center gap-2'>
@@ -107,11 +148,18 @@ const DockerForm = ({
                       onValueChange={value => {
                         field.onChange(value)
                       }}
+                      disabled={!accounts.length}
                       defaultValue={field.value}>
                       <FormControl>
                         <div className='relative w-full'>
                           <SelectTrigger className='w-full'>
-                            <SelectValue placeholder='Select a account' />
+                            <SelectValue
+                              placeholder={
+                                !accounts.length
+                                  ? 'No accounts found!'
+                                  : 'Select a account'
+                              }
+                            />
                           </SelectTrigger>
 
                           {dockerFieldDetails?.account && (
@@ -136,24 +184,6 @@ const DockerForm = ({
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <FormDescription>
-                    Select a account to deploy private images
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='dockerDetails.url'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
