@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { docsAction } from '@/actions/docs'
 import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
 
+import { InternalDocsSkeleton } from './skeletons/DocsSkeleton'
 import { Button } from './ui/button'
 
 const DocSidebar = () => {
@@ -27,7 +28,7 @@ const DocSidebar = () => {
     execute: executeDocs,
     result,
     isPending: isDocsPending,
-  } = useAction(docsAction, {})
+  } = useAction(docsAction)
 
   const { data: doc } = result
 
@@ -50,6 +51,7 @@ const DocSidebar = () => {
           </header>
 
           <div className='prose prose-gray prose-invert overflow-scroll p-4'>
+            {isDocsPending && <InternalDocsSkeleton />}
             {doc ? (
               <MDXContent code={doc.mdx || ''} />
             ) : (
