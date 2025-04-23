@@ -1,15 +1,30 @@
 'use client'
 
-import { allApis, allIntroductions } from 'content-collections'
+import {
+  allIntroductions,
+  allOnboardings,
+  allServers,
+  allServices,
+} from 'content-collections'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import { isDemoEnvironment } from '@/lib/constants'
 
-type Doc = (typeof allApis)[number] | (typeof allIntroductions)[number]
-type GroupedDocs = Record<string, Doc[]>
+type Doc =
+  | (typeof allServers)[number]
+  | (typeof allIntroductions)[number]
+  | (typeof allOnboardings)[number]
+  | (typeof allServices)[number]
 
-const allDocs: Doc[] = [...allApis, ...allIntroductions]
+type GroupedDocs = Record<string, Doc[]>
+// console.log({ allOnboardings })
+const allDocs: Doc[] = [
+  ...allIntroductions,
+  ...allServers,
+  ...allOnboardings,
+  ...allServices,
+]
 
 const groupedDocs: GroupedDocs = allDocs.reduce<GroupedDocs>((acc, doc) => {
   if (!acc[doc.category]) {
@@ -34,7 +49,7 @@ const DocsSidebar = () => {
   return (
     <aside
       className={`sticky left-0 ${
-        isDemoEnvironment ? 'top-[170px]' : ''
+        isDemoEnvironment ? 'top-[170px]' : 'top-[120px]'
       } h-screen w-64 border-r p-4`}>
       <nav>
         {sortedCategories.map(({ category, docs }) => (

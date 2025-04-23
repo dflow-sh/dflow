@@ -1,3 +1,4 @@
+import SidebarToggleButton from '../SidebarToggleButton'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -38,11 +39,12 @@ export default async function Layout({
 
       <Card className='mb-20 w-full max-w-4xl'>
         <CardHeader>
-          <div className='flex items-center gap-2 text-sm font-extralight tracking-wide text-foreground'>
+          <div className='flex items-center justify-between gap-2 text-sm font-extralight tracking-wide text-foreground'>
             <div>
               STEP <span className='font-medium'>{currentStep}</span> OF{' '}
               <span className='font-medium'>5</span>
             </div>
+            <SidebarToggleButton directory='onboarding' fileName='onboarding' />
           </div>
           <div className='mt-1.5 text-3xl font-semibold tracking-wide'>
             {cardTitle}

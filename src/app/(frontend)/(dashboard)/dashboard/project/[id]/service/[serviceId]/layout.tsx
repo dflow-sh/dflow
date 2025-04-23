@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import React, { JSX, SVGProps, Suspense, use } from 'react'
 
+import SidebarToggleButton from '@/components/SidebarToggleButton'
 import {
   Docker,
   MariaDB,
@@ -83,8 +84,13 @@ const SuspendedServicePageLayout = ({
         <div>
           <div className='flex items-center gap-2'>
             {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
-
-            <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+            <h1 className='text-2xl font-semibold'>
+              {serviceDetails.name}
+            </h1>{' '}
+            <SidebarToggleButton
+              directory='services'
+              fileName='services-overview'
+            />
             {domains?.length ? (
               <>
                 <Globe size={16} />
@@ -96,7 +102,6 @@ const SuspendedServicePageLayout = ({
                 </Link>
               </>
             ) : null}
-
             {domains?.length && domains.length > 1 ? (
               <TooltipProvider>
                 <Tooltip>
