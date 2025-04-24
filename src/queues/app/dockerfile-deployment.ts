@@ -299,7 +299,10 @@ const worker = new Worker<QueueArgs>(
       const cloningResponse = await dokku.git.sync({
         ssh,
         appName: appName,
-        gitRepoUrl: `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`,
+        gitRepoUrl:
+          serviceDetails.provider && typeof serviceDetails.provider === 'object'
+            ? `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`
+            : `https://github.com/${repoOwner}/${repoName}`,
         branchName,
         options: {
           onStdout: async chunk => {

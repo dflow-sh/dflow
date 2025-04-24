@@ -237,7 +237,11 @@ const worker = new Worker<QueueArgs>(
         ssh,
         appName: appName,
         build: false,
-        gitRepoUrl: `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`,
+        // if provider is given deploying from github-app else considering as public repository
+        gitRepoUrl:
+          serviceDetails.provider && typeof serviceDetails.provider === 'object'
+            ? `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`
+            : `https://github.com/${repoOwner}/${repoName}`,
         branchName,
         options: {
           onStdout: async chunk => {
