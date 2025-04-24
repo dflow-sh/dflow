@@ -1,11 +1,11 @@
 'use client'
 
+import { ComingSoonBadge } from '../ComingSoonBadge'
 import { ArrowRight, ChevronLeft, Server } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -80,41 +80,38 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 const { label, Icon, live, slug } = provider
 
                 return (
-                  <div
-                    key={slug}
-                    className={`relative flex w-full items-start rounded-md border ${
-                      selectedOption === slug
-                        ? 'border-2 border-primary'
-                        : 'border-input'
-                    } p-4 transition-all duration-200 ${
-                      !live
-                        ? 'cursor-not-allowed opacity-60'
-                        : 'cursor-pointer hover:border-primary/50'
-                    }`}>
-                    <RadioGroupItem
-                      value={slug}
-                      id={`${id}-${slug}`}
-                      disabled={!live}
-                      className='order-1 after:absolute after:inset-0'
-                    />
-                    <div className='flex grow items-center gap-4'>
-                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                        {Icon && <Icon className='h-5 w-5' />}
-                      </div>
-                      <div>
-                        <Label
-                          htmlFor={`${id}-${slug}`}
-                          className='cursor-pointer font-medium'>
-                          {label}
-                        </Label>
-                        {!live && (
-                          <Badge variant='outline' className='mt-1'>
-                            Coming Soon
-                          </Badge>
-                        )}
+                  <ComingSoonBadge position='top-right' hideBadge={live}>
+                    <div
+                      key={slug}
+                      className={`relative flex w-full items-start rounded-md border ${
+                        selectedOption === slug
+                          ? 'border-2 border-primary'
+                          : 'border-input'
+                      } p-4 transition-all duration-200 ${
+                        !live
+                          ? 'cursor-not-allowed opacity-60'
+                          : 'cursor-pointer hover:border-primary/50'
+                      }`}>
+                      <RadioGroupItem
+                        value={slug}
+                        id={`${id}-${slug}`}
+                        disabled={!live}
+                        className='order-1 after:absolute after:inset-0'
+                      />
+                      <div className='flex grow items-center gap-4'>
+                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                          {Icon && <Icon className='h-5 w-5' />}
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor={`${id}-${slug}`}
+                            className='cursor-pointer font-medium'>
+                            {label}
+                          </Label>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </ComingSoonBadge>
                 )
               })}
             </RadioGroup>
