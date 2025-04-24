@@ -294,6 +294,7 @@ const CreateEC2InstanceForm = ({
                           disabled={isDemoEnvironment}
                           onClick={e => e.stopPropagation()}
                           size='sm'
+                          type='button'
                           variant='outline'
                           className='m-0 h-fit shrink-0 p-2'>
                           <Plus className='h-4 w-4' />
@@ -404,6 +405,7 @@ const CreateEC2InstanceForm = ({
                         onClick={e => e.stopPropagation()}
                         size='sm'
                         variant='outline'
+                        type='button'
                         className='m-0 h-fit shrink-0 p-2'>
                         <Plus className='h-4 w-4' />
                       </Button>
