@@ -13,6 +13,7 @@ import {
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  Dices,
   Plus,
   ShieldAlert,
   ShieldCheck,
@@ -24,6 +25,13 @@ import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useCallback, useEffect } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import {
+  Config,
+  NumberDictionary,
+  adjectives,
+  animals,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 import { z } from 'zod'
 
 import {
@@ -272,6 +280,23 @@ const extendedSecurityGroupSchema = createSecurityGroupSchema.extend({
 })
 
 type FormValues = z.infer<typeof extendedSecurityGroupSchema>
+
+const handleGenerateName = () => {
+  // Configure the unique name generator
+  const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
+
+  const nameConfig: Config = {
+    dictionaries: [['sg'], adjectives, animals, numberDictionary],
+    separator: '-',
+    length: 4,
+    style: 'lowerCase',
+  }
+
+  // Generate a unique name
+  const uniqueName = uniqueNamesGenerator(nameConfig)
+
+  return uniqueName
+}
 
 const SecurityGroupForm = ({
   type = 'create',
@@ -665,9 +690,27 @@ const SecurityGroupForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Security Group Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
+                    <div className='flex w-full items-center space-x-2'>
+                      <FormControl>
+                        <Input {...field} className='w-full' />
+                      </FormControl>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='icon'
+                        onClick={() => {
+                          const generatedName = handleGenerateName()
+                          form.setValue('name', generatedName)
+                        }}
+                        title='Generate unique name'>
+                        <Dices className='h-4 w-4' />
+                      </Button>
+                    </div>
+                    <FormDescription>
+                      Avoid using this security group name in your cloud
+                      account, as it may cause sync errors and server creation
+                      failure.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
