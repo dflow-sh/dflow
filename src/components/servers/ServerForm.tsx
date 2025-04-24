@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRight, ChevronLeft, Server } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
@@ -44,12 +45,25 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   const id = useId()
   const [selectedOption, setSelectedOption] = useState<string>('manual')
 
+  const pathName = usePathname()
+  const isOnboarding = pathName.includes('onboarding')
+
   const handleContinue = () => {
     setType(selectedOption)
   }
 
   return (
     <div className='space-y-8'>
+      {!isOnboarding && (
+        <div>
+          <h2 className='mb-1 text-2xl font-semibold'>
+            Choose a Deployment Option
+          </h2>
+          <p className='text-muted-foreground'>
+            Select a cloud provider or add server details manually
+          </p>
+        </div>
+      )}
       <div className='space-y-6'>
         <div>
           <h3 className='mb-4 text-lg font-medium'>Cloud Providers</h3>

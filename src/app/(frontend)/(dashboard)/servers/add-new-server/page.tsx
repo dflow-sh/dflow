@@ -15,19 +15,7 @@ const SuspendedAddNewServerPage = () => {
     ]),
   )
 
-  return (
-    <div>
-      <div className='mb-4'>
-        <h2 className='mb-1 text-2xl font-semibold'>
-          Choose a Deployment Option
-        </h2>
-        <p className='text-muted-foreground'>
-          Select a cloud provider or add server details manually
-        </p>
-      </div>
-      <ServerForm sshKeys={sshKeys} securityGroups={securityGroups} />
-    </div>
-  )
+  return <ServerForm sshKeys={sshKeys} securityGroups={securityGroups} />
 }
 
 const AddNewServerPage = async () => {
