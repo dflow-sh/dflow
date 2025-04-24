@@ -1,30 +1,18 @@
 'use client'
 
-import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, ArrowRight, Pencil, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
-import { Options, parseAsString, useQueryState } from 'nuqs'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { parseAsString, useQueryState } from 'nuqs'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { createServerAction, updateServerAction } from '@/actions/server'
 import { createServerSchema } from '@/actions/server/validator'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -33,8 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -42,143 +28,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { isDemoEnvironment } from '@/lib/constants'
-import { cloudProvidersList } from '@/lib/integrationList'
-import { SecurityGroup, SshKey } from '@/payload-types'
+import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import CreateEC2InstanceForm from './CreateEC2InstanceForm'
-
-const ServerSelectionForm = ({
-  setType,
-  type,
-}: {
-  setType: (
-    value: string | ((old: string) => string | null) | null,
-    options?: Options,
-  ) => Promise<URLSearchParams>
-  type: string
-}) => {
-  const [cloudProvider, setCloudProvider] = useState(type)
-
-  return (
-    <>
-      <div>
-        <h3 className='font-semibold'>Cloud Providers</h3>
-        <p className='mb-4 text-muted-foreground'>
-          Create a server on your preferred cloud provider
-        </p>
-
-        <RadioGroup
-          className='grid-cols-4 gap-4'
-          onValueChange={value => setCloudProvider(value)}>
-          {cloudProvidersList.map(({ label, Icon, live, slug }) => {
-            return (
-              <div
-                key={label}
-                className='has-data-[state=checked]:border-ring shadow-xs relative flex flex-col gap-4 rounded-md border border-input p-4 outline-none'>
-                <div className='flex justify-between gap-2'>
-                  <RadioGroupItem
-                    id={slug}
-                    value={slug}
-                    disabled={!live}
-                    className='order-1 after:absolute after:inset-0'
-                  />
-
-                  <Icon className='size-7' />
-                </div>
-
-                <Label htmlFor={slug}>{label}</Label>
-                {!live && (
-                  <Badge className='w-max' variant={'outline'}>
-                    Coming Soon
-                  </Badge>
-                )}
-              </div>
-            )
-          })}
-        </RadioGroup>
-
-        <Button
-          className='mt-4 w-full'
-          disabled={!cloudProvider}
-          onClick={() => setType(cloudProvider)}>
-          Continue
-          <ArrowRight />
-        </Button>
-      </div>
-
-      <div className='relative mt-4 grid place-items-center border-t'>
-        <p className='inline-block -translate-y-3 px-4'>Or</p>
-      </div>
-
-      <Button
-        variant='outline'
-        className='w-full'
-        onClick={() => {
-          setType('manual')
-        }}>
-        Attach Server Details
-      </Button>
-    </>
-  )
-}
-
-export function ServerForm({
+const AttachCustomServerForm = ({
   sshKeys,
-  securityGroups,
+  formType = 'create',
   server,
-  setOpen,
-  type: formType,
+  onSuccess,
+  onError,
 }: {
   sshKeys: SshKey[]
-  securityGroups?: SecurityGroup[]
-  type?: 'create' | 'update'
+  formType?: 'create' | 'update'
   server?: ServerType
-  setOpen?: Dispatch<SetStateAction<boolean>>
-}) {
-  const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
-
-  useEffect(() => {
-    return () => {
-      setType('')
-    }
-  }, [])
-
-  if (type === 'aws') {
-    return (
-      <CreateEC2InstanceForm
-        sshKeys={sshKeys}
-        setOpen={setOpen}
-        securityGroups={securityGroups}
-      />
-    )
-  }
-
-  if (type === 'manual') {
-    return (
-      <CreateServerForm
-        sshKeys={sshKeys}
-        server={server}
-        type={formType}
-        setOpen={setOpen}
-      />
-    )
-  }
-
-  return <ServerSelectionForm type={type} setType={setType} />
-}
-
-export const CreateServerForm = ({
-  sshKeys,
-  type = 'create',
-  server,
-  setOpen = () => {},
-}: {
-  sshKeys: SshKey[]
-  type?: 'create' | 'update'
-  server?: ServerType
-  setOpen?: Dispatch<SetStateAction<boolean>>
+  onSuccess?: (data: any) => void
+  onError?: (error: any) => void
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
 
@@ -220,16 +84,15 @@ export const CreateServerForm = ({
               isOnboarding && 'redirecting to dokku-installation page...',
           })
 
-          setOpen(false)
           form.reset()
-
-          if (isOnboarding) {
-            router.push('/onboarding/dokku-install')
-          }
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to create service: ${error.serverError}`)
+
+        onError?.(error)
       },
     },
   )
@@ -240,20 +103,23 @@ export const CreateServerForm = ({
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Successfully updated ${input.name} service`)
-          setOpen(false)
           form.reset()
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to update service: ${error.serverError}`)
+
+        onError?.(error)
       },
     },
   )
 
   function onSubmit(values: z.infer<typeof createServerSchema>) {
-    if (type === 'create') {
+    if (formType === 'create') {
       createServer(values)
-    } else if (type === 'update' && server) {
+    } else if (formType === 'update' && server) {
       // passing extra id-field during update operation
       updateServer({ ...values, id: server.id })
     }
@@ -374,78 +240,17 @@ export const CreateServerForm = ({
             />
           </div>
 
-          <DialogFooter className='mt-6'>
-            <Button variant='outline' onClick={() => setType(null)}>
-              <ArrowLeft />
-              Go back
-            </Button>
-
+          <div className='flex w-full items-center justify-end'>
             <Button
               type='submit'
               disabled={isCreatingServer || isUpdatingServer}>
-              {type === 'create' ? 'Add Server' : 'Update Server'}
+              {formType === 'create' ? 'Add Server' : 'Update Server'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </Form>
     </>
   )
 }
 
-// Using same form for create & update operations
-const CreateServer = ({
-  sshKeys,
-  securityGroups,
-  title = 'Add Server',
-  type = 'create',
-  server,
-}: {
-  sshKeys: SshKey[]
-  securityGroups?: SecurityGroup[]
-  type?: 'create' | 'update'
-  title?: string
-  server?: ServerType
-}) => {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={isDemoEnvironment}
-          size={type === 'update' ? 'icon' : 'default'}
-          variant={type === 'update' ? 'outline' : 'default'}>
-          {type === 'update' ? (
-            <>
-              <Pencil />
-            </>
-          ) : (
-            <>
-              <Plus />
-              Add Server
-            </>
-          )}
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className='w-full max-w-4xl'>
-        <DialogHeader className='mb-2'>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className='sr-only'>
-            {type === 'update' ? 'Update Server Details' : 'Attach Server'}
-          </DialogDescription>
-        </DialogHeader>
-
-        <ServerForm
-          sshKeys={sshKeys}
-          securityGroups={securityGroups}
-          server={server}
-          type={type}
-          setOpen={setOpen}
-        />
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-export default CreateServer
+export default AttachCustomServerForm

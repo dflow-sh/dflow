@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
-import { ServerForm } from '@/components/servers/CreateServerForm'
+import ServerForm from '@/components/servers/ServerForm'
 import ServerList from '@/components/servers/ServerList'
 import { ServerType } from '@/payload-types-overrides'
 
