@@ -1,16 +1,15 @@
 import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
 import SecurityGroupForm from '../security/CreateSecurityGroupForm'
 import { Button } from '../ui/button'
-import { DialogFooter } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { MultiSelect } from '../ui/multi-select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -48,15 +47,18 @@ import {
   isDemoEnvironment,
 } from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
 const CreateEC2InstanceForm = ({
   sshKeys,
   securityGroups,
-  setOpen = () => {},
+  formType = 'create',
+  server,
 }: {
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
-  setOpen?: Dispatch<SetStateAction<boolean>>
+  formType?: 'create' | 'update'
+  server?: ServerType
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [securityGroupDialogOpen, setSecurityGroupDialogOpen] = useState(false)
@@ -79,8 +81,6 @@ const CreateEC2InstanceForm = ({
             description:
               isOnboarding && 'redirecting to dokku-installation page...',
           })
-
-          setOpen(false)
 
           if (isOnboarding) {
             router.push('/onboarding/dokku-install')
@@ -408,16 +408,11 @@ const CreateEC2InstanceForm = ({
           )}
         />
 
-        <DialogFooter className='mt-6'>
-          <Button variant='outline' onClick={() => setType(null)}>
-            <ArrowLeft />
-            Go back
-          </Button>
-
+        <div className='flex w-full items-center justify-end'>
           <Button type='submit' disabled={creatingEC2Instance}>
             Create EC2 Instance
           </Button>
-        </DialogFooter>
+        </div>
       </form>
     </Form>
   )

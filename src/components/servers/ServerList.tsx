@@ -19,7 +19,7 @@ import { supportedLinuxVersions } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import UpdateServer from './CreateServerForm'
+import ServerFormDialog from './ServerFormDialog'
 
 const serverType: {
   [key: string]: (props: SVGProps<SVGSVGElement>) => JSX.Element
@@ -131,9 +131,9 @@ const ServerItem = ({
         <div className='flex items-center gap-3'>
           <ServerStatus server={server} />
 
-          <UpdateServer
+          <ServerFormDialog
             sshKeys={sshKeys}
-            type='update'
+            formType='update'
             title='Update Server'
             server={server}
           />
