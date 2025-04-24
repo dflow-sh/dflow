@@ -35,10 +35,14 @@ const AttachCustomServerForm = ({
   sshKeys,
   formType = 'create',
   server,
+  onSuccess,
+  onError,
 }: {
   sshKeys: SshKey[]
   formType?: 'create' | 'update'
   server?: ServerType
+  onSuccess?: (data: any) => void
+  onError?: (error: any) => void
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
 
@@ -81,14 +85,14 @@ const AttachCustomServerForm = ({
           })
 
           form.reset()
-
-          if (isOnboarding) {
-            router.push('/onboarding/dokku-install')
-          }
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to create service: ${error.serverError}`)
+
+        onError?.(error)
       },
     },
   )
@@ -101,9 +105,13 @@ const AttachCustomServerForm = ({
           toast.success(`Successfully updated ${input.name} service`)
           form.reset()
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to update service: ${error.serverError}`)
+
+        onError?.(error)
       },
     },
   )

@@ -45,6 +45,9 @@ const ServerFormDialog = ({
             securityGroups={securityGroups}
             server={server}
             formType={formType}
+            onSuccess={() => {
+              setOpen(false)
+            }}
           />
         )
 
@@ -54,6 +57,9 @@ const ServerFormDialog = ({
             sshKeys={sshKeys}
             server={server}
             formType={formType}
+            onSuccess={() => {
+              setOpen(false)
+            }}
           />
         )
     }

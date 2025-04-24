@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowRight, ChevronLeft, Server } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
@@ -20,6 +20,7 @@ import CreateEC2InstanceForm from './CreateEC2InstanceForm'
 interface ServerSelectionFormProps {
   setType: (type: string) => void
   type: string
+  isOnboarding: boolean
 }
 
 interface ServerFormContentProps {
@@ -29,6 +30,7 @@ interface ServerFormContentProps {
   server?: ServerType
   formType?: 'create' | 'update'
   onBack: () => void
+  isOnboarding: boolean
 }
 
 interface ServerFormProps {
@@ -41,12 +43,10 @@ interface ServerFormProps {
 const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   setType,
   type,
+  isOnboarding,
 }) => {
   const id = useId()
   const [selectedOption, setSelectedOption] = useState<string>('manual')
-
-  const pathName = usePathname()
-  const isOnboarding = pathName.includes('onboarding')
 
   const handleContinue = () => {
     setType(selectedOption)
@@ -186,7 +186,10 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   server,
   formType,
   onBack,
+  isOnboarding,
 }) => {
+  const router = useRouter()
+
   if (!type) return null
 
   const providerName =
@@ -214,12 +217,26 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               sshKeys={sshKeys}
               securityGroups={securityGroups}
               formType={formType}
+              onSuccess={() => {
+                if (isOnboarding) {
+                  router.push('/onboarding/dokku-install')
+                } else {
+                  router.push('/servers')
+                }
+              }}
             />
           ) : (
             <AttachCustomServerForm
               sshKeys={sshKeys}
               server={server}
               formType={formType}
+              onSuccess={() => {
+                if (isOnboarding) {
+                  router.push('/onboarding/dokku-install')
+                } else {
+                  router.push('/servers')
+                }
+              }}
             />
           )}
         </CardContent>
@@ -236,6 +253,9 @@ const ServerForm: React.FC<ServerFormProps> = ({
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
 
+  const pathName = usePathname()
+  const isOnboarding = pathName.includes('onboarding')
+
   useEffect(() => {
     return () => {
       setType('')
@@ -249,7 +269,11 @@ const ServerForm: React.FC<ServerFormProps> = ({
   return (
     <div className='mx-auto w-full'>
       {!type ? (
-        <ServerSelectionForm setType={setType} type={type} />
+        <ServerSelectionForm
+          setType={setType}
+          type={type}
+          isOnboarding={isOnboarding}
+        />
       ) : (
         <ServerFormContent
           type={type}
@@ -258,6 +282,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           server={server}
           formType={formType}
           onBack={handleResetType}
+          isOnboarding={isOnboarding}
         />
       )}
     </div>

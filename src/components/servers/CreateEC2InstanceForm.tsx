@@ -66,16 +66,26 @@ import {
 } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
+// Type for success and error callbacks
+type ActionCallbacks = {
+  onSuccess?: (data: any) => void
+  onError?: (error: any) => void
+}
+
 const CreateEC2InstanceForm = ({
   sshKeys = [],
   securityGroups = [],
   formType = 'create',
   server,
+  onSuccess,
+  onError,
 }: {
   sshKeys?: SshKey[]
   securityGroups?: SecurityGroup[]
   formType?: 'create' | 'update'
   server?: ServerType | Server
+  onSuccess?: (data: any) => void
+  onError?: (error: any) => void
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [securityGroupDialogOpen, setSecurityGroupDialogOpen] = useState(false)
@@ -113,13 +123,15 @@ const CreateEC2InstanceForm = ({
               isOnboarding && 'redirecting to dokku-installation page...',
           })
 
-          if (isOnboarding) {
-            router.push('/onboarding/dokku-install')
-          }
+          form.reset()
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to create EC2 instance: ${error.serverError}`)
+
+        onError?.(error)
       },
     })
 
@@ -129,10 +141,16 @@ const CreateEC2InstanceForm = ({
       onSuccess: ({ data }) => {
         if (data?.success) {
           toast.success('EC2 instance updated successfully')
+
+          form.reset()
         }
+
+        onSuccess?.(data)
       },
       onError: ({ error }) => {
         toast.error(`Failed to update EC2 instance: ${error.serverError}`)
+
+        onError?.(error)
       },
     })
 
