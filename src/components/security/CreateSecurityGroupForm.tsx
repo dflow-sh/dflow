@@ -1441,6 +1441,10 @@ const SecurityGroupForm = ({
           <DialogFooter>
             <Button
               type='submit'
+              onClick={e => {
+                e.preventDefault()
+                form.handleSubmit(onSubmit)()
+              }}
               disabled={isCreatingSecurityGroup || isUpdatingSecurityGroup}>
               {isCreatingSecurityGroup || isUpdatingSecurityGroup ? (
                 <>Saving...</>
