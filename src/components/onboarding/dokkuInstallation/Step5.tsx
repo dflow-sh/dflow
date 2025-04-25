@@ -65,11 +65,6 @@ const Step5 = ({
           id: 'server-onboarding',
         })
       },
-      onSuccess: ({ data }) => {
-        if (data?.success) {
-          redirectToNextStep()
-        }
-      },
       onSettled: () => {
         toast.dismiss('server-onboarding')
       },
@@ -97,6 +92,12 @@ const Step5 = ({
       }
     }
   }, [server, selectedServer, dokkuInstallationStep])
+
+  useEffect(() => {
+    if (updatedServer) {
+      redirectToNextStep()
+    }
+  }, [updatedServer])
 
   return (
     <LetsencryptForm

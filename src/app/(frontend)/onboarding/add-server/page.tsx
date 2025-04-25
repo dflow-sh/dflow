@@ -49,7 +49,7 @@ const SuspendedPage = async () => {
       cardDescription='Configure and manage your deployment servers. We recommend 8GB RAM for optimal performance.'
       prevStepUrl={'/onboarding/ssh-keys'}
       nextStepUrl={'/onboarding/dokku-install'}
-      disableNextStep={!hasServers}>
+      disableNextStep={hasServers}>
       {sshKeys.length === 0 && (
         <div className='mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-amber-700'>
           You haven't added any SSH keys yet. SSH keys are required to securely

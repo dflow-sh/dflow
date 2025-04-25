@@ -1,8 +1,8 @@
 import { SquareTerminal } from 'lucide-react'
 import { useQueryState } from 'nuqs'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import Terminal from '@/components/Terminal'
+import XTermTerminal from '@/components/XTermTerminal'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -12,35 +12,39 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import useXterm from '@/hooks/use-xterm'
 
-const InstallationTerminal = () => {
-  const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<string[]>([])
+const TerminalContent = () => {
   const [server] = useQueryState('server')
+  const { terminalRef, writeLog, terminalInstance } = useXterm()
 
   useEffect(() => {
-    let eventSource: EventSource | null = null
+    if (!terminalInstance) {
+      return
+    }
 
-    if (server && open) {
-      eventSource = new EventSource(`/api/server-events?serverId=${server}`)
+    const eventSource = new EventSource(`/api/server-events?serverId=${server}`)
 
-      eventSource.onmessage = event => {
-        const data = JSON.parse(event.data) ?? {}
+    eventSource.onmessage = event => {
+      const data = JSON.parse(event.data) ?? {}
 
-        if (data?.message) {
-          setMessages(prev => [...prev, data.message])
-        }
+      if (data?.message) {
+        const formattedLog = `${data?.message}`
+        writeLog({ message: formattedLog })
       }
     }
 
     return () => {
-      eventSource?.close()
-      setMessages([])
+      eventSource.close()
     }
-  }, [server, open])
+  }, [terminalInstance])
 
+  return <XTermTerminal ref={terminalRef} className='mt-8 h-80' />
+}
+
+const InstallationTerminal = () => {
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet>
       <SheetTrigger asChild>
         <Button
           size='icon'
@@ -56,7 +60,7 @@ const InstallationTerminal = () => {
           <SheetDescription>All terminal logs appear here</SheetDescription>
         </SheetHeader>
 
-        <Terminal className='mt-8' messages={messages} />
+        <TerminalContent />
       </SheetContent>
     </Sheet>
   )
