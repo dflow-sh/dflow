@@ -1,5 +1,6 @@
 'use client'
 
+import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -43,7 +44,14 @@ const PortForm = ({ service }: { service: Service }) => {
 
   return (
     <div className='rounded bg-muted/30 p-4'>
-      <h3 className='text-lg font-semibold'>External Credentials</h3>
+      <h3 className='text-lg font-semibold'>
+        External Credentials{' '}
+        <SidebarToggleButton
+          directory='services'
+          fileName='database-service'
+          sectionId='#-external-credentials'
+        />
+      </h3>
       <p className='text-pretty text-muted-foreground'>
         In order to make your database reachable over internet setting a port is
         required. make sure port is not used by other database or application

@@ -84,13 +84,7 @@ const SuspendedServicePageLayout = ({
         <div>
           <div className='flex items-center gap-2'>
             {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
-            <h1 className='text-2xl font-semibold'>
-              {serviceDetails.name}
-            </h1>{' '}
-            <SidebarToggleButton
-              directory='services'
-              fileName='services-overview'
-            />
+            <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
             {domains?.length ? (
               <>
                 <Globe size={16} />
@@ -129,6 +123,10 @@ const SuspendedServicePageLayout = ({
                 {serviceDetails?.databaseDetails?.status}
               </Badge>
             )}
+            <SidebarToggleButton
+              directory='services'
+              fileName={`${serviceDetails?.type === 'app' ? 'app-service' : serviceDetails?.type === 'database' ? 'database-service' : serviceDetails?.type === 'docker' ? 'docker-service' : ''}`}
+            />
           </div>
           <p
             className='line-clamp-1 text-muted-foreground'
