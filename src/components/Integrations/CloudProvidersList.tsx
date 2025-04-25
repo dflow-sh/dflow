@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
@@ -19,7 +21,7 @@ const EditForm = ({
   refetch,
 }: {
   account: CloudProviderAccount
-  refetch: RefetchType
+  refetch?: RefetchType
 }) => {
   if (account.type === 'aws') {
     return (
@@ -37,14 +39,14 @@ const CloudProviderCard = ({
   refetch,
 }: {
   account: CloudProviderAccount
-  refetch: RefetchType
+  refetch?: RefetchType
 }) => {
   const { execute: deleteAccount, isPending: deletingAccount } = useAction(
     deleteAWSAccountAction,
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
-          refetch({ type: 'aws' })
+          refetch?.({ type: 'aws' })
         }
       },
     },
@@ -83,7 +85,7 @@ const CloudProvidersList = ({
   refetch,
 }: {
   accounts: CloudProviderAccount[]
-  refetch: RefetchType
+  refetch?: RefetchType
 }) => {
   return accounts.length ? (
     <div className='mt-4 space-y-4'>

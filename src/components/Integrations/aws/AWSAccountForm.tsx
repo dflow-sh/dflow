@@ -42,7 +42,7 @@ const AWSAccountForm = ({
 }: {
   children: React.ReactNode
   account?: CloudProviderAccount
-  refetch: RefetchType
+  refetch?: RefetchType
 }) => {
   const dialogFooterRef = useRef<HTMLButtonElement>(null)
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
@@ -50,7 +50,7 @@ const AWSAccountForm = ({
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
-          refetch({ type: 'aws' })
+          refetch?.({ type: 'aws' })
           dialogFooterRef.current?.click()
         }
       },
