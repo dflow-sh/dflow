@@ -80,9 +80,11 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 const { label, Icon, live, slug } = provider
 
                 return (
-                  <ComingSoonBadge position='top-right' hideBadge={live}>
+                  <ComingSoonBadge
+                    position='top-right'
+                    hideBadge={live}
+                    key={slug}>
                     <div
-                      key={slug}
                       className={`relative flex w-full items-start rounded-md border ${
                         selectedOption === slug
                           ? 'border-2 border-primary'
