@@ -1,5 +1,7 @@
 import { defineCollection, defineConfig } from '@content-collections/core'
 import { compileMDX } from '@content-collections/mdx'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeSlug from 'rehype-slug'
 
 const introduction = defineCollection({
   name: 'introduction',
@@ -12,7 +14,9 @@ const introduction = defineCollection({
     categoryOrder: z.number(),
   }),
   transform: async (document, context) => {
-    const mdx = await compileMDX(context, document)
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+    })
     return {
       ...document,
       mdx,
@@ -33,7 +37,9 @@ const servers = defineCollection({
     categoryOrder: z.number(),
   }),
   transform: async (document, context) => {
-    const mdx = await compileMDX(context, document)
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+    })
     return {
       ...document,
       mdx,
@@ -54,7 +60,9 @@ const onboarding = defineCollection({
     categoryOrder: z.number(),
   }),
   transform: async (document, context) => {
-    const mdx = await compileMDX(context, document)
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+    })
     return {
       ...document,
       mdx,
@@ -75,7 +83,9 @@ const services = defineCollection({
     categoryOrder: z.number(),
   }),
   transform: async (document, context) => {
-    const mdx = await compileMDX(context, document)
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+    })
     return {
       ...document,
       mdx,
