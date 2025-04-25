@@ -1,5 +1,6 @@
 'use client'
 
+import Loader from '../Loader'
 import { Button } from '../ui/button'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
@@ -26,7 +27,7 @@ const SkipButton = () => {
       variant={'secondary'}
       onClick={() => execute()}
       disabled={isPending}>
-      skip
+      {isPending ? <Loader className='h-fit w-fit' /> : 'Skip'}
     </Button>
   )
 }
