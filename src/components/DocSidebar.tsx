@@ -4,6 +4,7 @@ import { MDXContent } from '@content-collections/mdx/react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
 import { docsAction } from '@/actions/docs'
@@ -13,8 +14,8 @@ import { InternalDocsSkeleton } from './skeletons/DocsSkeleton'
 import { Button } from './ui/button'
 
 const DocSidebar = () => {
-  const { isOpen, close, directory, fileName } = useSidebarDocs()
-
+  const { isOpen, close, directory, fileName, sectionId } = useSidebarDocs()
+  const router = useRouter()
   useEffect(() => {
     if (isOpen && directory && fileName) {
       executeDocs({
@@ -28,7 +29,16 @@ const DocSidebar = () => {
     execute: executeDocs,
     result,
     isPending: isDocsPending,
+    hasSucceeded,
   } = useAction(docsAction)
+
+  useEffect(() => {
+    if (sectionId) {
+      setTimeout(() => {
+        router.push(sectionId)
+      }, 500)
+    }
+  }, [hasSucceeded, sectionId])
 
   const { data: doc } = result
 
@@ -50,11 +60,18 @@ const DocSidebar = () => {
             </Button>
           </header>
 
-          <div className='prose prose-gray prose-invert overflow-scroll p-4'>
+          <div className='prose prose-gray prose-invert h-full overflow-y-scroll p-4'>
             {isDocsPending ? (
               <InternalDocsSkeleton />
             ) : doc ? (
-              <MDXContent code={doc.mdx || ''} />
+              <MDXContent
+                code={doc.mdx || ''}
+                components={{
+                  h2: props => <h2 {...props} className='scroll-mt-20' />,
+                  h3: props => <h3 {...props} className='scroll-mt-20' />,
+                  h4: props => <h4 {...props} className='scroll-mt-20' />,
+                }}
+              />
             ) : (
               <div className='text-center'>No documentation found</div>
             )}

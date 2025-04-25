@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServicesArchitecture from '@/components/project/ServicesArchitecture'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
@@ -37,7 +38,13 @@ const SuspendedPage = ({ params }: PageProps) => {
     <section>
       <div className='flex w-full justify-between'>
         <div>
-          <h2 className='text-2xl font-semibold'>{projectDetails.name}</h2>
+          <h2 className='flex items-center text-2xl font-semibold'>
+            {projectDetails.name}
+            <SidebarToggleButton
+              directory='services'
+              fileName='services-overview'
+            />
+          </h2>
           <p className='text-sm text-muted-foreground'>
             {projectDetails.description}
           </p>

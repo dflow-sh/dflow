@@ -6,12 +6,14 @@ type SidebarDocsContextType = {
   isOpen: boolean
   directory: string
   fileName: string
+  sectionId?: string
   openWith: ({
     directory,
     fileName,
   }: {
     directory: string
     fileName: string
+    sectionId?: string
   }) => void
   close: () => void
 }
@@ -28,11 +30,21 @@ export const SidebarDocsProvider = ({
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [directory, setDirectory] = useState<string>('')
   const [fileName, setFileName] = useState<string>('')
+  const [sectionId, setSectionId] = useState<string>('')
 
   const openWith = useCallback(
-    ({ directory, fileName }: { directory: string; fileName: string }) => {
+    ({
+      directory,
+      fileName,
+      sectionId = '',
+    }: {
+      directory: string
+      fileName: string
+      sectionId?: string
+    }) => {
       setDirectory(directory)
       setFileName(fileName)
+      setSectionId(sectionId)
       setIsOpen(true)
     },
     [],
@@ -42,11 +54,12 @@ export const SidebarDocsProvider = ({
     setIsOpen(false)
     setDirectory('')
     setFileName('')
+    setSectionId('')
   }, [])
 
   return (
     <SidebarDocsContext.Provider
-      value={{ isOpen, directory, fileName, openWith, close }}>
+      value={{ isOpen, directory, fileName, sectionId, openWith, close }}>
       {children}
     </SidebarDocsContext.Provider>
   )
