@@ -1,5 +1,6 @@
 'use client'
 
+import SidebarToggleButton from '../SidebarToggleButton'
 import Tabs from '../Tabs'
 import { Docker } from '../icons'
 import { Button } from '../ui/button'
@@ -280,7 +281,14 @@ const GithubForm = ({
               name='githubSettings.port'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Port</FormLabel>
+                  <FormLabel>
+                    Port
+                    <SidebarToggleButton
+                      directory='services'
+                      fileName='app-service'
+                      sectionId='#port--editable'
+                    />
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type='number'
@@ -312,6 +320,13 @@ const GithubForm = ({
                       <SelectSearch
                         fieldValue={field.value}
                         label='Account'
+                        info={
+                          <SidebarToggleButton
+                            directory='services'
+                            fileName='app-service'
+                            sectionId='#account--editable'
+                          />
+                        }
                         inputPlaceholder='account'
                         gitProviders={gitProviders}
                         onSelect={(value: string) => {
@@ -447,7 +462,14 @@ const GithubForm = ({
                 name='githubSettings.buildPath'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Build path</FormLabel>
+                    <FormLabel>
+                      Build path{' '}
+                      <SidebarToggleButton
+                        directory='services'
+                        fileName='app-service'
+                        sectionId='#build-path--editable'
+                      />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -466,7 +488,14 @@ const GithubForm = ({
                 name='githubSettings.port'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Port</FormLabel>
+                    <FormLabel>
+                      Port{' '}
+                      <SidebarToggleButton
+                        directory='services'
+                        fileName='app-service'
+                        sectionId='#port--editable'
+                      />
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type='number'
@@ -493,7 +522,14 @@ const GithubForm = ({
           name='builder'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Builder</FormLabel>
+              <FormLabel>
+                Builder
+                <SidebarToggleButton
+                  directory='services'
+                  fileName='app-service'
+                  sectionId='#builder--editable'
+                />
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}

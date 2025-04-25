@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils'
 
 export default function SelectSearch({
+  info,
   fieldValue,
   label,
   inputPlaceholder,
@@ -28,6 +29,7 @@ export default function SelectSearch({
   onSelect,
   disabled = false,
 }: {
+  info?: any
   fieldValue: string | undefined
   label: string
   inputPlaceholder: string
@@ -55,7 +57,10 @@ export default function SelectSearch({
 
   return (
     <div className='*:not-first:mt-2'>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id}>
+        {label}
+        {info}
+      </Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
