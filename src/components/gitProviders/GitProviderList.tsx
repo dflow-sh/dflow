@@ -3,7 +3,7 @@
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
-import { Download, Github, Trash2 } from 'lucide-react'
+import { Download, Github, GithubIcon, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -102,8 +102,8 @@ const GitProviderList = ({
     }
   }, [searchParams, router])
 
-  return gitProviders.length ? (
-    <div className='mt-4 space-y-4'>
+  return !gitProviders.length ? (
+    <div className='mb-4 space-y-4'>
       {gitProviders.map(provider => {
         if (provider.type === 'github') {
           return (
@@ -119,7 +119,14 @@ const GitProviderList = ({
         return null
       })}
     </div>
-  ) : null
+  ) : (
+    <div className='my-8 flex w-full flex-col items-center justify-center gap-y-2'>
+      <GithubIcon className='stroke-muted-foreground' size={32} />
+      <p className='text-muted-foreground'>
+        No git providers found. Please create a new one.
+      </p>
+    </div>
+  )
 }
 
 export default GitProviderList

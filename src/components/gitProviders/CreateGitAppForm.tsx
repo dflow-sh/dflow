@@ -2,6 +2,8 @@ import { Button } from '../ui/button'
 import { env } from 'env'
 import { PlusIcon } from 'lucide-react'
 
+import SkipButton from './SkipButton'
+
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
@@ -29,23 +31,26 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
   })
 
   return (
-    <form
-      method='post'
-      action='https://github.com/settings/apps/new?state=gh_init'>
-      <input
-        type='text'
-        name='manifest'
-        id='manifest'
-        className='sr-only'
-        defaultValue={value}
-      />
+    <div className='flex w-full items-center justify-end gap-3 pt-4'>
+      <form
+        method='post'
+        action='https://github.com/settings/apps/new?state=gh_init'>
+        <input
+          type='text'
+          name='manifest'
+          id='manifest'
+          className='sr-only'
+          defaultValue={value}
+        />
 
-      {/* Added github option in GitProviders collection */}
-      <Button type='submit'>
-        <PlusIcon />
-        Create Github App
-      </Button>
-    </form>
+        {/* Added github option in GitProviders collection */}
+        <Button type='submit'>
+          <PlusIcon />
+          Create Github App
+        </Button>
+      </form>
+      <SkipButton />
+    </div>
   )
 }
 

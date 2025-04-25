@@ -2,6 +2,7 @@
 
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
+import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
@@ -133,4 +134,26 @@ export const getAllAppsAction = protectedClient
     })
 
     return docs
+  })
+
+export const skipOnboardingAction = protectedClient
+  .metadata({
+    actionName: 'skipOnboardingAction',
+  })
+  .action(async ({ ctx }) => {
+    const { user } = ctx
+
+    if (user?.id) {
+      await payload.update({
+        collection: 'users',
+        id: user.id,
+        data: {
+          onboarded: true,
+        },
+      })
+    }
+
+    revalidatePath('/onboarding/install-github')
+
+    return { success: true }
   })

@@ -24,8 +24,8 @@ const SuspendedPage = async () => {
       prevStepUrl={'/onboarding/configure-domain'}
       nextStepUrl={''}
       disableNextStep={gitProvidersDocs.length !== 0}>
-      <CreateGitAppForm onboarding={true} />
       <GitProviderList gitProviders={gitProvidersDocs} onboarding />
+      <CreateGitAppForm onboarding={true} />
     </Layout>
   )
 }
