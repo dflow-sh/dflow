@@ -245,10 +245,6 @@ export const updateServiceAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
 
-    const filteredObject = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value && value !== undefined),
-    )
-
     const previousDetails = await payload.findByID({
       collection: 'services',
       id,
@@ -256,7 +252,10 @@ export const updateServiceAction = protectedClient
 
     const response = await payload.update({
       collection: 'services',
-      data: filteredObject,
+      data: {
+        ...data,
+        provider: data?.provider ?? null,
+      },
       id,
       depth: 10,
     })

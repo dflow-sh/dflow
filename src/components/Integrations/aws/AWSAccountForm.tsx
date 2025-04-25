@@ -156,6 +156,10 @@ const AWSAccountForm = ({
 
               <Button
                 type='submit'
+                onClick={e => {
+                  e.preventDefault()
+                  form.handleSubmit(onSubmit)()
+                }}
                 className='mt-6'
                 disabled={connectingAccount}>
                 Save

@@ -5,13 +5,13 @@ import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import UpdateServerForm from '@/components/servers/AttachCustomServerForm'
+import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
-import UpdateEC2InstanceForm from '@/components/servers/UpdateEC2InstanceForm'
-import UpdateServerForm from '@/components/servers/UpdateServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -86,8 +86,10 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
       case 'aws':
         return (
           <UpdateEC2InstanceForm
+            sshKeys={sshKeys}
             server={server}
             securityGroups={securityGroups}
+            formType='update'
           />
         )
 
@@ -96,7 +98,7 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
           <UpdateServerForm
             server={server}
             sshKeys={sshKeys}
-            securityGroups={securityGroups}
+            formType='update'
           />
         )
     }
@@ -107,7 +109,11 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
       <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-        <div className='md:col-span-2'>{renderUpdateForm()}</div>
+        <div className='md:col-span-2'>
+          <div className='space-y-4 rounded bg-muted/30 p-4'>
+            {renderUpdateForm()}
+          </div>
+        </div>
 
         <ProjectsAndServicesSection projects={projects} />
       </div>

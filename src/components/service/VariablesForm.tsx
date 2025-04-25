@@ -7,7 +7,7 @@ import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Braces, Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { JSX, useEffect } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -68,7 +68,7 @@ const ReferenceVariableDropdown = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className='pb-2' align='end'>
-        <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+        <DropdownMenuLabel>Reference Variables</DropdownMenuLabel>
 
         {gettingDatabases && (
           <DropdownMenuItem disabled>
@@ -79,7 +79,7 @@ const ReferenceVariableDropdown = ({
 
         {list.length && !gettingDatabases
           ? list.map(database => {
-              const { deployments } = database
+              const { deployments, name } = database
 
               const disabled =
                 typeof deployments?.docs?.find(deployment => {
@@ -89,6 +89,10 @@ const ReferenceVariableDropdown = ({
                   )
                 }) === 'undefined'
 
+              const environmentVariableValue =
+                '$' +
+                `{{${database.databaseDetails?.type}:${database.name + '.DATABASE_URI'}}}`
+
               return (
                 <DropdownMenuItem
                   key={database.id}
@@ -96,14 +100,13 @@ const ReferenceVariableDropdown = ({
                   onSelect={() => {
                     setValue(
                       `variables.${index}.value`,
-                      '$' +
-                        `{{${database.databaseDetails?.type}:${database.name + '.DATABASE_URI'}}}`,
+                      environmentVariableValue,
                     )
                   }}>
                   {database.databaseDetails?.type &&
                     databaseIcons[database.databaseDetails?.type]}
 
-                  {`${database.name} ${disabled ? '(not-deployed)' : ''}`}
+                  {`${name}.DATABASE_URI ${disabled ? '(not-deployed)' : ''}`}
                 </DropdownMenuItem>
               )
             })
@@ -114,6 +117,9 @@ const ReferenceVariableDropdown = ({
 }
 
 const VariablesForm = ({ service }: { service: Service }) => {
+  const [populatedVariables, _setPopulatedVariables] = useState(
+    service.populatedVariables,
+  )
   const { setDisable: disableDeployment } = useDisableDeploymentContext()
   const {
     execute: saveEnvironmentVariables,
@@ -153,8 +159,10 @@ const VariablesForm = ({ service }: { service: Service }) => {
   }, [])
 
   useEffect(() => {
-    disableDeployment(false)
-  }, [service.variables])
+    if (populatedVariables !== service.populatedVariables) {
+      disableDeployment(false)
+    }
+  }, [service.populatedVariables])
 
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),

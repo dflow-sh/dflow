@@ -1,7 +1,6 @@
 'use client'
 
 import { Dokku, Ubuntu } from '../icons'
-import { Badge } from '../ui/badge'
 import {
   AlertCircle,
   Check,
@@ -17,12 +16,11 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-// Server Details Component
-// Server Details Component
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
+import { withComingSoonBadge } from '@/components/ComingSoonBadge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -189,6 +187,12 @@ const DetailInfoSection = ({
   )
 }
 
+// Create a Terminal button with Coming Soon badge
+const TerminalButton = withComingSoonBadge(Button, {
+  text: 'Coming Soon',
+  position: 'top-right',
+})
+
 const ServerDetails = ({
   serverDetails,
   server,
@@ -354,21 +358,14 @@ const ServerDetails = ({
             </Drawer>
           )}
           {server.sshConnected && (
-            <div className='relative inline-flex'>
-              <Button
-                variant='outline'
-                size='sm'
-                disabled={true}
-                title='Terminal feature coming soon'>
-                <Terminal className='mr-1 h-3 w-3' />
-                <span className='text-xs'>Open Terminal</span>
-              </Button>
-              <Badge
-                variant='secondary'
-                className='absolute -right-3 -top-2 z-10 px-1 py-0 text-[0.6rem]'>
-                Coming Soon
-              </Badge>
-            </div>
+            <TerminalButton
+              variant='outline'
+              size='sm'
+              disabled={true}
+              onClick={handleOpenTerminal}>
+              <Terminal className='mr-1 h-3 w-3' />
+              <span className='text-xs'>Open Terminal</span>
+            </TerminalButton>
           )}
         </div>
       </div>

@@ -114,6 +114,7 @@ const applicationField: Field = {
     },
   },
   fields: [
+    // if git-provider is added we'll deploy app from github-app, else we'll treat as public repository
     {
       name: 'provider',
       type: 'relationship',
