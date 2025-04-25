@@ -281,12 +281,12 @@ const extendedSecurityGroupSchema = createSecurityGroupSchema.extend({
 
 type FormValues = z.infer<typeof extendedSecurityGroupSchema>
 
-const handleGenerateName = () => {
+const handleGenerateName = (): string => {
   // Configure the unique name generator
   const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
 
   const nameConfig: Config = {
-    dictionaries: [['sg'], adjectives, animals, numberDictionary],
+    dictionaries: [['dFlow'], adjectives, animals, numberDictionary],
     separator: '-',
     length: 4,
     style: 'lowerCase',
@@ -375,7 +375,7 @@ const SecurityGroupForm = ({
     )
 
     const commonData: Partial<SecurityGroup> = {
-      name: 'MySecurityGroup',
+      name: handleGenerateName(),
       description: 'Security group with common rules',
       cloudProvider: 'aws',
       cloudProviderAccount: awsAccount?.id || '',
@@ -404,6 +404,15 @@ const SecurityGroupForm = ({
           protocol: 'tcp',
           fromPort: 443,
           toPort: 443,
+          sourceType: 'anywhere-ipv4',
+          source: '0.0.0.0/0',
+        },
+        {
+          description: 'Monitoring tools port',
+          type: 'custom-tcp',
+          protocol: 'tcp',
+          fromPort: 19999,
+          toPort: 19999,
           sourceType: 'anywhere-ipv4',
           source: '0.0.0.0/0',
         },
