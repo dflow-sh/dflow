@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronsUp, HardDrive, SquareTerminal } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import {
   Sheet,
@@ -9,36 +9,21 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from '@/components/ui/sheet'
+import useXterm from '@/hooks/use-xterm'
 import { cn } from '@/lib/utils'
 
 import Tabs from './Tabs'
-import TerminalComponent from './Terminal'
+import XTermTerminal from './XTermTerminal'
 
-const ServerTerminal = ({
-  servers = [],
-}: {
-  servers: {
-    id: string
-    name: string
-  }[]
-}) => {
-  // Store messages for each server in an object with server IDs as keys
-  const [serverMessages, setServerMessages] = useState<
-    Record<string, string[]>
-  >({})
-  const [open, setOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState(0)
+const TerminalContent = ({ serverId }: { serverId: string }) => {
+  const { terminalRef, writeLog, terminalInstance } = useXterm()
 
-  // Use a ref to store event sources so they persist between renders
-  const eventSourcesRef = useRef<Record<string, EventSource>>({})
-  // Track which servers we've already connected to
-  const connectedServersRef = useRef<Set<string>>(new Set())
-
-  // Function to create an SSE connection for a specific server
-  const connectToServer = (serverId: string) => {
-    // Skip if we already have a connection for this server
-    if (connectedServersRef.current.has(serverId)) return
+  useEffect(() => {
+    if (!terminalInstance) {
+      return
+    }
 
     const eventSource = new EventSource(
       `/api/server-events?serverId=${serverId}`,
@@ -48,68 +33,27 @@ const ServerTerminal = ({
       const data = JSON.parse(event.data) ?? {}
 
       if (data?.message) {
-        setServerMessages(prev => ({
-          ...prev,
-          [serverId]: [...(prev[serverId] || []), data.message],
-        }))
+        const formattedLog = `${data?.message}`
+        writeLog({ message: formattedLog })
       }
     }
 
-    // Store the event source in our ref
-    eventSourcesRef.current[serverId] = eventSource
-    // Mark this server as connected
-    connectedServersRef.current.add(serverId)
-
-    console.log(`Connected to server: ${serverId}`)
-  }
-
-  // Clean up function to close all connections
-  const cleanupConnections = () => {
-    console.log('Cleaning up all connections...')
-
-    Object.values(eventSourcesRef.current).forEach(eventSource => {
-      console.log('Closing connection:', eventSource)
+    return () => {
       eventSource.close()
-    })
-
-    eventSourcesRef.current = {}
-    connectedServersRef.current.clear()
-    setServerMessages({})
-
-    console.log('All connections closed')
-  }
-
-  // Connect to the first server when drawer opens
-  useEffect(() => {
-    if (
-      open &&
-      servers.length > 0 &&
-      !connectedServersRef.current.has(servers[0].id)
-    ) {
-      connectToServer(servers[0].id)
     }
-  }, [open, servers])
+  }, [terminalInstance])
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === '`' && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault()
-        setOpen(current => !current)
-      }
-    }
+  return <XTermTerminal ref={terminalRef} className='mt-2 h-80' />
+}
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  // // Connect to a server when its tab becomes active
-  useEffect(() => {
-    if (open && servers.length > 0 && activeTab < servers.length) {
-      const currentServerId = servers[activeTab].id
-      connectToServer(currentServerId)
-    }
-  }, [activeTab, open, servers])
-
+const ServerTerminal = ({
+  servers = [],
+}: {
+  servers: {
+    id: string
+    name: string
+  }[]
+}) => {
   const tabs = useMemo(() => {
     return servers.map((server, index) => ({
       label: (
@@ -118,58 +62,38 @@ const ServerTerminal = ({
           {server.name}
         </span>
       ),
-      content: () => (
-        <TerminalComponent
-          className='mt-8'
-          messages={serverMessages[server.id] || []}
-        />
-      ),
+      content: () => <TerminalContent serverId={server.id} />,
     }))
-  }, [servers, serverMessages])
-
-  const handleTabChange = (index: number) => {
-    setActiveTab(index)
-  }
+  }, [servers])
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className={cn(
-          'fixed bottom-0 right-0 z-50 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
-          // state === 'expanded'
-          //   ? 'md:w-[calc(100%-var(--sidebar-width))]'
-          //   : 'md:w-[calc(100%-var(--sidebar-width-icon))]',
-        )}>
-        <div className='flex items-center gap-2 text-sm'>
-          <SquareTerminal size={16} /> Console
-        </div>
+    <Sheet>
+      <SheetTrigger asChild>
+        <button
+          className={cn(
+            'fixed bottom-0 right-0 z-50 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
+          )}>
+          <div className='flex items-center gap-2 text-sm'>
+            <SquareTerminal size={16} /> Console
+          </div>
 
-        <ChevronsUp size={20} />
-      </button>
+          <ChevronsUp size={20} />
+        </button>
+      </SheetTrigger>
 
-      <Sheet
-        open={open}
-        onOpenChange={state => {
-          setOpen(state)
-          if (!state) {
-            cleanupConnections()
-          }
-        }}>
-        <SheetContent side='bottom'>
-          <SheetHeader className='sr-only'>
-            <SheetTitle>Console</SheetTitle>
-            <SheetDescription>All console logs appear here</SheetDescription>
-          </SheetHeader>
+      <SheetContent side='bottom'>
+        <SheetHeader className='sr-only'>
+          <SheetTitle>Console</SheetTitle>
+          <SheetDescription>All console logs appear here</SheetDescription>
+        </SheetHeader>
 
-          {servers.length ? (
-            <Tabs tabs={tabs} onTabChange={handleTabChange} />
-          ) : (
-            <p className='text-center'>No Severs Found!</p>
-          )}
-        </SheetContent>
-      </Sheet>
-    </>
+        {servers.length ? (
+          <Tabs tabs={tabs} />
+        ) : (
+          <p className='text-center'>No Severs Found!</p>
+        )}
+      </SheetContent>
+    </Sheet>
   )
 }
 

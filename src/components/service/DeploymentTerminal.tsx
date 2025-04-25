@@ -1,8 +1,8 @@
 'use client'
 
-import Terminal from '../Terminal'
+import XTermTerminal from '../XTermTerminal'
 import { SquareTerminal } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import {
   Dialog,
@@ -12,7 +12,63 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import useXterm from '@/hooks/use-xterm'
 import { Deployment } from '@/payload-types'
+
+const TerminalContent = ({
+  logs,
+  serviceId,
+  serverId,
+}: {
+  serviceId: string
+  serverId: string
+  logs: unknown[]
+}) => {
+  const eventSourceRef = useRef<EventSource>(null)
+  const { terminalRef, writeLog, terminalInstance } = useXterm()
+
+  useEffect(() => {
+    if (!!logs.length) {
+      eventSourceRef.current?.close()
+      return
+    }
+
+    if (eventSourceRef.current) {
+      return
+    }
+
+    const eventSource = new EventSource(
+      `/api/server-events?serviceId=${serviceId}&serverId=${serverId}`,
+    )
+
+    eventSource.onmessage = event => {
+      const data = JSON.parse(event.data) ?? {}
+
+      if (data?.message) {
+        const formattedLog = `${data?.message}`
+        writeLog({ message: formattedLog })
+      }
+    }
+
+    eventSourceRef.current = eventSource
+
+    return () => {
+      eventSource.close()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!!logs.length && terminalInstance) {
+      if (terminalRef.current) {
+        logs.forEach(log => {
+          writeLog({ message: `${log}` })
+        })
+      }
+    }
+  }, [terminalInstance, logs, writeLog])
+
+  return <XTermTerminal ref={terminalRef} />
+}
 
 const DeploymentTerminal = ({
   children,
@@ -27,48 +83,8 @@ const DeploymentTerminal = ({
   serverId: string
   logs: unknown[]
 }) => {
-  const [messages, setMessages] = useState<string[]>([])
-  const [open, setOpen] = useState<boolean>(false)
-  const eventSourceRef = useRef<EventSource>(null)
-
-  useEffect(() => {
-    if (!!logs.length) {
-      setMessages(logs as string[])
-      eventSourceRef.current?.close()
-      return
-    }
-
-    if (!open || eventSourceRef.current) {
-      return
-    }
-
-    const eventSource = new EventSource(
-      `/api/server-events?serviceId=${serviceId}&serverId=${serverId}`,
-    )
-
-    eventSource.onmessage = event => {
-      const data = JSON.parse(event.data) ?? {}
-
-      if (data?.message) {
-        setMessages(prev => [...prev, data.message])
-      }
-    }
-
-    eventSourceRef.current = eventSource
-  }, [open, logs])
-
-  useEffect(() => {
-    // On component unmount close the event source
-    return () => {
-      if (eventSourceRef.current) {
-        setMessages([])
-        eventSourceRef.current.close()
-      }
-    }
-  }, [])
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className='max-w-5xl'>
@@ -83,10 +99,10 @@ const DeploymentTerminal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Terminal
-          messages={messages}
-          isLoading={!logs.length}
-          className='min-h-[70vh] w-full overflow-x-hidden'
+        <TerminalContent
+          serverId={serverId}
+          serviceId={serviceId}
+          logs={logs}
         />
       </DialogContent>
     </Dialog>

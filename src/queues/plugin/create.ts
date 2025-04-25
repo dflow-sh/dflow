@@ -102,11 +102,6 @@ const worker = new Worker<QueueArgs>(
           }
         })
 
-        console.dir(
-          { filteredPlugins, previousPlugins, pluginsResponse },
-          { depth: Infinity },
-        )
-
         const updatePluginResponse = await payloadWebhook({
           payloadToken: `${payloadToken}`,
           data: {

@@ -1,4 +1,6 @@
-import Terminal from '../Terminal'
+'use client'
+
+import XTermTerminal from '../XTermTerminal'
 import { Badge } from '../ui/badge'
 import { ChevronsUp, HardDrive, SquareTerminal } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -11,38 +13,45 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import useXterm from '@/hooks/use-xterm'
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 
 type ProjectTerminalType = {
   server: Server
 }
-const ProjectTerminal = ({ server }: ProjectTerminalType) => {
-  const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<string[]>([])
+
+const TerminalContent = ({ serverId }: { serverId: string }) => {
+  const { terminalRef, writeLog, terminalInstance } = useXterm()
 
   useEffect(() => {
-    if (!open) {
+    if (!terminalInstance) {
       return
     }
 
     const eventSource = new EventSource(
-      `/api/server-events?serverId=${server.id}`,
+      `/api/server-events?serverId=${serverId}`,
     )
 
     eventSource.onmessage = event => {
       const data = JSON.parse(event.data) ?? {}
 
       if (data?.message) {
-        setMessages(prev => [...prev, data.message])
+        const formattedLog = `${data?.message}`
+        writeLog({ message: formattedLog })
       }
     }
 
     return () => {
       eventSource.close()
-      setMessages([])
     }
-  }, [open])
+  }, [terminalInstance])
+
+  return <XTermTerminal ref={terminalRef} className='mt-2 h-80' />
+}
+
+const ProjectTerminal = ({ server }: ProjectTerminalType) => {
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -94,7 +103,7 @@ const ProjectTerminal = ({ server }: ProjectTerminalType) => {
           </SheetDescription>
         </SheetHeader>
 
-        <Terminal className='mt-2' messages={messages} />
+        <TerminalContent serverId={server.id} />
       </SheetContent>
     </Sheet>
   )

@@ -79,18 +79,19 @@ const PluginCard = ({
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   server: ServerType
 }) => {
-  const { execute: installPlugin, isPending: isInstallingPlugin } = useAction(
-    installPluginAction,
-    {
-      onSuccess: ({ data, input }) => {
-        if (data?.success) {
-          toast.info('Job queued', {
-            description: `Queued job to install ${input.pluginName} plugin`,
-          })
-        }
-      },
+  const {
+    execute: installPlugin,
+    isPending: isInstallingPlugin,
+    hasSucceeded: triggeredPluginInstall,
+  } = useAction(installPluginAction, {
+    onSuccess: ({ data, input }) => {
+      if (data?.success) {
+        toast.info('Job queued', {
+          description: `Queued job to install ${input.pluginName} plugin`,
+        })
+      }
     },
-  )
+  })
 
   const { execute: deletePlugin, isPending: isDeletingPlugin } = useAction(
     deletePluginAction,
@@ -190,7 +191,7 @@ const PluginCard = ({
               }
             }}>
             <Download />
-            Install
+            {triggeredPluginInstall ? 'Installing' : 'Install'}
           </Button>
         )}
 

@@ -1,7 +1,9 @@
 'use client'
 
-import Terminal from '../Terminal'
-import { useEffect, useState } from 'react'
+import XTermTerminal from '../XTermTerminal'
+import { useEffect, useRef } from 'react'
+
+import useXterm from '@/hooks/use-xterm'
 
 const LogsTab = ({
   serverId,
@@ -10,10 +12,11 @@ const LogsTab = ({
   serverId: string
   serviceId: string
 }) => {
-  const [messages, setMessages] = useState<string[]>([])
+  const eventSourceRef = useRef<EventSource>(null)
+  const { terminalRef, writeLog, terminalInstance } = useXterm()
 
   useEffect(() => {
-    if (!open) {
+    if (eventSourceRef.current || !terminalInstance) {
       return
     }
 
@@ -24,25 +27,22 @@ const LogsTab = ({
       const data = JSON.parse(event.data) ?? {}
 
       if (data?.message) {
-        setMessages(prev => [...prev, data.message])
+        const formattedLog = `${data?.message}`
+        writeLog({ message: formattedLog })
       }
     }
+
+    eventSourceRef.current = eventSource
 
     // On component unmount close the event source
     return () => {
       if (eventSource) {
-        setMessages([])
         eventSource.close()
       }
     }
-  }, [open])
+  }, [terminalInstance])
 
-  return (
-    <Terminal
-      className='h-[80vh] w-full overflow-x-hidden'
-      messages={messages}
-    />
-  )
+  return <XTermTerminal ref={terminalRef} />
 }
 
 export default LogsTab

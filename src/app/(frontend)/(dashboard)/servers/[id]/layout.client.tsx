@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
+import ProjectTerminal from '@/components/project/ProjectTerminal'
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -99,6 +100,8 @@ const LayoutClient = ({
           </div>,
           document.getElementById('serverName') ?? document.body,
         )}
+
+      <ProjectTerminal server={server} />
     </>
   )
 }
