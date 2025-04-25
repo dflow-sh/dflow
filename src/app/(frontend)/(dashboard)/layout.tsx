@@ -75,10 +75,20 @@ const DashboardLayoutInner = () => {
   )
 }
 
+const BannerLayout = ({ children }: { children: React.ReactNode }) => {
+  return isDemoEnvironment ? (
+    <div className='fixed top-0 z-50 w-full bg-background'>
+      <HeaderBanner />
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
+  )
+}
+
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
-      {isDemoEnvironment && <HeaderBanner />}
+    <BannerLayout>
       <div className='relative flex h-screen w-full overflow-hidden'>
         <div className='flex-1 overflow-y-auto'>
           <DashboardLayoutInner />
@@ -87,7 +97,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <DocSidebar />
       </div>
-    </>
+    </BannerLayout>
   )
 }
 
