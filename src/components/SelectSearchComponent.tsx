@@ -44,7 +44,7 @@ export default function SelectSearchComponent({
   servers,
   commandEmpty,
 }: {
-  label: string
+  label?: string
   buttonLabel: string
   commandInputLabel: string
   servers: ServerType[]
