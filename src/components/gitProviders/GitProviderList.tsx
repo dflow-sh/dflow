@@ -29,6 +29,10 @@ const GithubCard = ({
     },
   })
 
+  const installState = onboarding
+    ? `gh_install:${provider.id}:onboarding`
+    : `gh_install:${provider.id}`
+
   return (
     <Card key={provider.id}>
       <CardContent className='flex w-full items-center justify-between gap-3 pt-4'>
@@ -46,7 +50,7 @@ const GithubCard = ({
         <div className='flex items-center gap-4'>
           {!provider?.github?.installationId && (
             <Link
-              href={`${provider.github?.appUrl}/installations/new?state=gh_install:${provider.id}:${onboarding && 'onboarding'}`}>
+              href={`${provider.github?.appUrl}/installations/new?state=${installState}`}>
               <Download size={20} />
             </Link>
           )}
@@ -79,7 +83,7 @@ const GitProviderList = ({
   const router = useRouter()
 
   useEffect(() => {
-    if (searchParams.get('action') === 'gh_init') {
+    if (searchParams.get('onboarding') === 'true') {
       toast.success('Successfully created github app', {
         duration: 10000,
         description: `Please install the github app to deploy your app's.`,
@@ -102,7 +106,7 @@ const GitProviderList = ({
     }
   }, [searchParams, router])
 
-  return !gitProviders.length ? (
+  return gitProviders.length ? (
     <div className='mb-4 space-y-4'>
       {gitProviders.map(provider => {
         if (provider.type === 'github') {

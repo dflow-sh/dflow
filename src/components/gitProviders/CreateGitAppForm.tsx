@@ -11,6 +11,8 @@ const githubCallbackURL =
   env.NEXT_PUBLIC_WEBHOOK_URL ?? env.NEXT_PUBLIC_WEBSITE_URL
 
 const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
+  const state = 'gh_init'
+
   const value = JSON.stringify({
     redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=${onboarding}`,
     name: `dFlow-${formattedDate}`,
@@ -34,7 +36,7 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
     <div className='flex w-full items-center justify-end gap-3 pt-4'>
       <form
         method='post'
-        action='https://github.com/settings/apps/new?state=gh_init'>
+        action={`https://github.com/settings/apps/new?state=${state}`}>
         <input
           type='text'
           name='manifest'

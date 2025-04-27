@@ -26,7 +26,12 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const [action, id, installationOnboarding] = state.split(':')
+  // Split state to extract action, id, and onboarding info
+  const stateParts = state.split(':')
+  const action = stateParts[0]
+  const id = stateParts[1]
+  // Check if onboarding info is in the state parameter
+  const installationOnboarding = stateParts[2]
 
   if (action === 'gh_init') {
     const octokit = new Octokit({})
@@ -55,6 +60,11 @@ export async function GET(request: NextRequest) {
         },
       },
     })
+
+    // Check if the onboarding parameter is 'true'
+    if (onboarding === 'true') {
+      return redirect('/onboarding/install-github?onboarding=true')
+    }
   } else if (action === 'gh_install') {
     await payload.update({
       collection: 'gitProviders',
@@ -77,15 +87,12 @@ export async function GET(request: NextRequest) {
           onboarded: true,
         },
       })
-
-      if (installationOnboarding === 'onboarding') {
-        redirect('/dashboard')
-      }
     }
-  }
 
-  if (onboarding === 'true') {
-    redirect('/onboarding/install-github')
+    // Check if this installation was done during onboarding
+    if (installationOnboarding === 'onboarding') {
+      return redirect('/dashboard')
+    }
   }
 
   return redirect(`/integrations/?action=${action}&active=github`)
