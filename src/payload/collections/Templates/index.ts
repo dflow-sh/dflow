@@ -1,3 +1,4 @@
+import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
 export const Template: CollectionConfig = {
@@ -256,9 +257,21 @@ export const Template: CollectionConfig = {
           label: 'Name',
         },
         {
-          name: 'environmentVariables',
-          label: 'Environment Variables',
-          type: 'json',
+          name: 'variables',
+          type: 'array',
+          fields: [
+            encryptedField({
+              name: 'key',
+              type: 'text',
+              required: true,
+            }),
+            // Storing environment value format -> service-name converted to uppercase with underscore and _DB at ending -> PAYLOAD_MONGO_DB
+            encryptedField({
+              name: 'value',
+              type: 'text',
+              required: true,
+            }),
+          ],
         },
       ],
     },
