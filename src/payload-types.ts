@@ -655,14 +655,12 @@ export interface Template {
             | null;
         };
         name?: string | null;
-        environmentVariables?:
+        variables?:
           | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
+              key: string;
+              value: string;
+              id?: string | null;
+            }[]
           | null;
         id?: string | null;
       }[]
@@ -1039,7 +1037,13 @@ export interface TemplatesSelect<T extends boolean = true> {
                   };
             };
         name?: T;
-        environmentVariables?: T;
+        variables?:
+          | T
+          | {
+              key?: T;
+              value?: T;
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;
