@@ -50,3 +50,15 @@ export const deleteTemplate = protectedClient
       return { deleted: true }
     }
   })
+
+export const getTemplateById = protectedClient
+  .metadata({ actionName: 'getTemplateById' })
+  .schema(DeleteTemplateSchema)
+  .action(async ({ clientInput }) => {
+    const { id } = clientInput
+    const response = await payload.findByID({
+      collection: 'templates',
+      id,
+    })
+    return response
+  })
