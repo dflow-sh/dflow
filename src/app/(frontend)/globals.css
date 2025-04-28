@@ -58,20 +58,6 @@
   }
 }
 
-/* react flow */
-.react-flow__controls {
-  background: hsl(var(--muted) / 0.3) !important; /* Dark background */
-  color: white !important;
-}
-.react-flow__controls-button {
-  background-color: hsl(
-    var(--muted) / 0.3
-  ) !important; /* Tailwind bg-gray-700 */
-  color: white !important;
-  margin: 0.25rem 0;
-  border-bottom: 2px solid rgb(113, 112, 112) !important;
-}
-
 /* @layer base {
   :root {
     --background: 0 0% 100%;
@@ -161,4 +147,18 @@
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* react flow */
+.react-flow__controls {
+  background: hsl(var(--muted) / 0.3) !important; /* Dark background */
+  color: white !important;
+}
+.react-flow__controls-button {
+  background-color: hsl(
+    var(--muted) / 0.3
+  ) !important; /* Tailwind bg-gray-700 */
+  color: white !important;
+  margin: 0.25rem 0;
+  border-bottom: 2px solid rgb(113, 112, 112) !important;
 }
