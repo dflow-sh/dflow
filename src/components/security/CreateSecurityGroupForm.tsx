@@ -241,12 +241,14 @@ const CreateSecurityGroupForm = ({
   open,
   setOpen,
   cloudProviderAccounts = [],
+  isFullScreen = false,
 }: {
   type?: 'create' | 'update'
   securityGroup?: Partial<SecurityGroup>
   open?: boolean
   setOpen?: Dispatch<SetStateAction<boolean>>
   cloudProviderAccounts: CloudProviderAccount[]
+  isFullScreen?: boolean
 }) => {
   const initialInboundRules = securityGroup?.inboundRules?.map(rule => ({
     description: rule.description || '',
@@ -619,7 +621,8 @@ const CreateSecurityGroupForm = ({
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full space-y-6'>
-          <ScrollArea className='h-[60vh] pl-1 pr-4'>
+          <ScrollArea
+            className={`${isFullScreen ? 'h-[calc(100vh-220px)]' : 'h-[60vh]'} pl-1 pr-4 pt-4`}>
             <div className='space-y-4'>
               <BasicInfoSection
                 form={form}
