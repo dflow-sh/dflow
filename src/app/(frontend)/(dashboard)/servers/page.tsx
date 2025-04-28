@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
-import ServerTerminal from '@/components/ServerTerminal'
+import ServerTerminalClient from '@/components/ServerTerminalClient'
 import ServerCard from '@/components/servers/ServerCard'
 import {
   CreateServerButtonSkeleton,
@@ -13,24 +13,6 @@ import {
 } from '@/components/skeletons/ServersSkeleton'
 import { Button } from '@/components/ui/button'
 import { isDemoEnvironment } from '@/lib/constants'
-
-// const SuspendedAddServer = () => {
-//   const payload = use(getPayload({ config: configPromise }))
-
-//   const [sshKeysRes, securityGroupsRes] = use(
-//     Promise.all([
-//       payload.find({ collection: 'sshKeys', pagination: false }),
-//       payload.find({ collection: 'securityGroups', pagination: false }),
-//     ]),
-//   )
-
-//   return (
-//     <CreateServer
-//       sshKeys={sshKeysRes.docs}
-//       securityGroups={securityGroupsRes.docs}
-//     />
-//   )
-// }
 
 const SuspendedServers = () => {
   const payload = use(getPayload({ config: configPromise }))
@@ -51,7 +33,7 @@ const SuspendedServers = () => {
         <p className='text-center'>No Servers Added!</p>
       )}
 
-      <ServerTerminal servers={servers} />
+      <ServerTerminalClient servers={servers} />
     </>
   )
 }

@@ -55,14 +55,14 @@ const ServerTerminal = ({
   }[]
 }) => {
   const tabs = useMemo(() => {
-    return servers.map((server, index) => ({
+    return servers.map(server => ({
       label: (
         <span className='flex items-center gap-2 text-sm'>
           <HardDrive size={16} />
           {server.name}
         </span>
       ),
-      content: () => <TerminalContent serverId={server.id} />,
+      content: () => <TerminalContent serverId={server.id} key={server.id} />,
     }))
   }, [servers])
 

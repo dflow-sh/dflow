@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
 import { ProjectCard } from '@/components/ProjectCard'
-import ServerTerminal from '@/components/ServerTerminal'
+import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Service } from '@/payload-types'
@@ -69,7 +69,7 @@ const SuspendedDashboard = () => {
         )}
       </section>
 
-      <ServerTerminal servers={servers} />
+      <ServerTerminalClient servers={servers} />
     </>
   )
 }

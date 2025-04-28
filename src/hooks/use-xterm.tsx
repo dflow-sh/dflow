@@ -39,14 +39,14 @@ const useXterm = () => {
       allowTransparency: true,
     })
 
-    // Add FitAddon to automatically size the terminal to its container
-    const fitAddon = new FitAddon()
-    instance.loadAddon(new WebLinksAddon())
-    instance.loadAddon(fitAddon)
-
-    fitAddonRef.current = fitAddon
-
     if (terminalRef.current) {
+      // Add FitAddon to automatically size the terminal to its container
+      const fitAddon = new FitAddon()
+      instance.loadAddon(new WebLinksAddon())
+      instance.loadAddon(fitAddon)
+
+      fitAddonRef.current = fitAddon
+
       // Mount terminal
       instance.open(terminalRef.current)
       // Fit the terminal to the container

@@ -3,7 +3,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
-import ServerTerminal from '@/components/ServerTerminal'
+import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SecurityTabs from '@/components/security/SecurityTabs'
 import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
 
@@ -39,7 +39,7 @@ const SuspendedPage = () => {
         securityGroups={securityGroups}
         cloudProviderAccounts={cloudProviderAccounts}
       />
-      <ServerTerminal servers={servers} />
+      <ServerTerminalClient servers={servers} />
     </>
   )
 }

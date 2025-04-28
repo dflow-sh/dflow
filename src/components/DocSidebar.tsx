@@ -16,6 +16,7 @@ import { Button } from './ui/button'
 const DocSidebar = () => {
   const { isOpen, close, directory, fileName, sectionId } = useSidebarDocs()
   const router = useRouter()
+
   useEffect(() => {
     if (isOpen && directory && fileName) {
       executeDocs({
@@ -46,8 +47,8 @@ const DocSidebar = () => {
     <motion.div
       initial={false}
       animate={{ width: isOpen ? '100%' : 0 }}
-      transition={{ duration: 0.25 }}
-      className='fixed right-0 top-0 z-[9999] h-full max-w-md overflow-y-scroll scroll-smooth border-l bg-background pt-0 lg:static'>
+      transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
+      className={`fixed right-0 top-0 z-[9999] h-full max-w-md overflow-y-scroll scroll-smooth bg-background pt-0 lg:static ${isOpen ? 'border-l' : ''}`}>
       {isOpen && (
         <>
           <header className='sticky top-0 z-50 flex items-center justify-between border-b bg-background px-4 py-4'>
@@ -60,18 +61,11 @@ const DocSidebar = () => {
             </Button>
           </header>
 
-          <div className='prose prose-gray prose-invert h-full overflow-y-scroll p-4'>
+          <div className='prose prose-gray prose-invert h-full overflow-y-scroll p-4 prose-headings:scroll-mt-20'>
             {isDocsPending ? (
               <InternalDocsSkeleton />
             ) : doc ? (
-              <MDXContent
-                code={doc.mdx || ''}
-                components={{
-                  h2: props => <h2 {...props} className='scroll-mt-20' />,
-                  h3: props => <h3 {...props} className='scroll-mt-20' />,
-                  h4: props => <h4 {...props} className='scroll-mt-20' />,
-                }}
-              />
+              <MDXContent code={doc.mdx || ''} />
             ) : (
               <div className='text-center'>No documentation found</div>
             )}
