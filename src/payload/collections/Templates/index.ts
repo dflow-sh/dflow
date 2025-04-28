@@ -50,17 +50,17 @@ export const Template: CollectionConfig = {
             },
           ],
         },
-        {
-          type: 'text',
-          name: 'mountPath',
-          label: 'Mount Path',
-          admin: {
-            description: 'Mount path to attach volume',
-            condition: (data, siblingsData) => {
-              return siblingsData.type !== 'database'
-            },
-          },
-        },
+        // {
+        //   type: 'text',
+        //   name: 'mountPath',
+        //   label: 'Mount Path',
+        //   admin: {
+        //     description: 'Mount path to attach volume',
+        //     condition: (data, siblingsData) => {
+        //       return siblingsData.type !== 'database'
+        //     },
+        //   },
+        // },
         {
           label: 'App Details',
           type: 'collapsible',
@@ -138,6 +138,18 @@ export const Template: CollectionConfig = {
                   defaultValue: 3000,
                 },
               ],
+            },
+            {
+              name: 'builder',
+              type: 'select',
+              options: [
+                { label: 'Railpack', value: 'railpack' },
+                { label: 'Nixpacks', value: 'nixpacks' },
+                { label: 'Dockerfile', value: 'dockerfile' },
+                { label: 'Heroku build packs', value: 'herokuBuildPacks' },
+                { label: 'Build packs', value: 'buildPacks' },
+              ],
+              defaultValue: 'railpack',
             },
           ],
         },
