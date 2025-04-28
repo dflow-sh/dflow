@@ -57,7 +57,7 @@ const CustomNode = ({
             : icon[data.type]}
 
           <div className='flex-1 items-start'>
-            <CardTitle>{data.name}</CardTitle>
+            <CardTitle className='line-clamp-1'>{data.name}</CardTitle>
           </div>
         </div>
       </CardHeader>

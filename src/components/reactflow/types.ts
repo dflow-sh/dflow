@@ -1,4 +1,4 @@
-import { GitProvider } from '@/payload-types'
+import { DockerRegistry, GitProvider } from '@/payload-types'
 
 export interface DatabaseDetails {
   type?: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb' | null
@@ -33,9 +33,25 @@ export interface ServiceNode {
     buildPath: string
     port?: number | null
   }
-  environmentVariables:
-    | string
-    | Record<string, unknown>
-    | { [key: string]: unknown }
-    | unknown[]
+  dockerDetails?: {
+    /**
+     * Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest
+     */
+    url?: string | null
+    account?: (string | null) | DockerRegistry
+    ports?:
+      | {
+          hostPort: number
+          containerPort: number
+          scheme: 'http' | 'https'
+          id?: string | null
+        }[]
+      | null
+  }
+  variables?:
+    | {
+        key: string
+        value: string
+      }[]
+    | null
 }
