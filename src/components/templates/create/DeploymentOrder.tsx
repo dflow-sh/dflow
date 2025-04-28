@@ -8,13 +8,49 @@ import {
   useDragControls,
   useMotionValue,
 } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { Database, Github, GripVertical } from 'lucide-react'
+import { JSX, useEffect, useState } from 'react'
 
+import {
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '@/components/icons'
+import { ServiceNode } from '@/components/reactflow/types'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import { cn } from '@/lib/utils'
 
 interface ReorderListProps {
   nodes: Node[]
   setNodes: (nodes: Node[]) => void
+}
+
+type StatusType = NonNullable<
+  NonNullable<ServiceNode['databaseDetails']>['type']
+>
+
+const databaseIcons: {
+  [key in StatusType]: JSX.Element
+} = {
+  postgres: <PostgreSQL className='size-6' />,
+  mariadb: <MariaDB className='size-6' />,
+  mongo: <MongoDB className='size-6' />,
+  mysql: <MySQL className='size-6' />,
+  redis: <Redis className='size-6' />,
+}
+
+const icon: { [key in ServiceNode['type']]: JSX.Element } = {
+  app: <Github className='size-6' />,
+  database: <Database className='size-6 text-destructive' />,
+  docker: <Docker className='size-6' />,
 }
 
 const inactiveShadow = '0px 0px 0px rgba(0,0,0,0.8)'
@@ -45,44 +81,59 @@ export function useRaisedShadow(value: MotionValue<number>) {
 
 export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
   return (
-    <div className='w-64 space-y-1 rounded-md border bg-border p-2 backdrop-blur-md'>
-      <h2 className='text-md text-left font-semibold'>Deployment order</h2>
-      <Reorder.Group
-        className='max-h-[320px] space-y-1 overflow-y-auto'
-        axis='y'
-        values={nodes}
-        onReorder={setNodes}>
-        {nodes.map(node => (
-          <Item key={node.id} item={node} />
-        ))}
-      </Reorder.Group>
-    </div>
+    <Accordion
+      type='single'
+      defaultValue='deployment-order'
+      collapsible
+      className='w-full'>
+      <AccordionItem
+        className='w-64 space-y-1 rounded-md border bg-border/50 px-3 backdrop-blur-md'
+        value='deployment-order'>
+        <AccordionTrigger className='px-2 hover:no-underline'>
+          Deployment order
+        </AccordionTrigger>
+        <AccordionContent>
+          <Reorder.Group
+            className='max-h-[320px] space-y-1 overflow-y-auto'
+            axis='y'
+            values={nodes}
+            onReorder={setNodes}>
+            {nodes.map(node => (
+              <NodeComponent key={node.id} node={node} />
+            ))}
+          </Reorder.Group>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   )
 }
 
-interface ItemProps {
-  item: Node
-}
-
-const Item = ({ item }: ItemProps) => {
+const NodeComponent = ({ node }: { node: Node }) => {
   const y = useMotionValue(0)
-  const boxShadow = useRaisedShadow(y)
   const dragControls = useDragControls()
   const [isDragging, setIsDragging] = useState(false)
 
+  const service = node.data as unknown as ServiceNode
   return (
     <Reorder.Item
-      value={item}
-      id={item.id}
-      dragListener={true} // Allow dragging
+      value={node}
+      id={node.id}
+      dragListener={true}
       dragControls={dragControls}
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
       className={cn(
-        'flex items-center justify-between rounded-sm bg-card px-3 py-2',
-        isDragging ? 'cursor-grabbing bg-card/80' : 'cursor-grab',
+        'flex items-center justify-between rounded-sm bg-background px-3 py-2',
+        isDragging ? 'cursor-grabbing' : 'cursor-grab',
       )}>
-      <span>{item.id}</span>
+      {service?.type === 'database' && service?.databaseDetails?.type
+        ? databaseIcons[service?.databaseDetails?.type]
+        : icon[service.type]}
+      <span title={service.name} className='flex-grow truncate pl-2'>
+        {service.name}
+      </span>
+
+      <GripVertical className='flex-shrink-0' size={16} />
     </Reorder.Item>
   )
 }
