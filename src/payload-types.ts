@@ -620,10 +620,6 @@ export interface Template {
   services?:
     | {
         type: 'app' | 'database' | 'docker';
-        /**
-         * Mount path to attach volume
-         */
-        mountPath?: string | null;
         provider?: (string | null) | GitProvider;
         providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
         githubSettings?: {
@@ -633,6 +629,7 @@ export interface Template {
           buildPath: string;
           port?: number | null;
         };
+        builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
         /**
          * select database you want
          */
@@ -1005,7 +1002,6 @@ export interface TemplatesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
-        mountPath?: T;
         provider?: T;
         providerType?: T;
         githubSettings?:
@@ -1017,6 +1013,7 @@ export interface TemplatesSelect<T extends boolean = true> {
               buildPath?: T;
               port?: T;
             };
+        builder?: T;
         databaseDetails?:
           | T
           | {

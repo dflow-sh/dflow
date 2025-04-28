@@ -3,6 +3,16 @@ import { z } from 'zod'
 export const GithubServiceSchema = z.object({
   provider: z.string().optional(),
   providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
+  builder: z
+    .enum([
+      'nixpacks',
+      'dockerfile',
+      'herokuBuildPacks',
+      'buildPacks',
+      'railpack',
+    ])
+    .default('railpack')
+    .optional(),
   githubSettings: z
     .object({
       repository: z.string(),
