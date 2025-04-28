@@ -1,15 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Edge, MarkerType, Node } from '@xyflow/react'
-import {
-  Braces,
-  Database,
-  Github,
-  Plus,
-  SquarePen,
-  Trash2,
-  X,
-} from 'lucide-react'
-import { JSX, useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { Braces, Database, Github, Plus, Trash2, X } from 'lucide-react'
+import React, { JSX, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -17,7 +10,6 @@ import {
   UpdateServiceSchema,
   UpdateServiceType,
 } from '@/actions/templates/validator'
-import Tabs from '@/components/Tabs'
 import {
   Docker,
   MariaDB,
@@ -28,12 +20,6 @@ import {
 } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,8 +35,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { slugify } from '@/lib/slugify'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+
+import AddDockerService from './AddDockerService'
+import AddGithubService from './AddGithubService'
+import EditServiceName from './EditServiceName'
 
 type StatusType = NonNullable<
   NonNullable<ServiceNode['databaseDetails']>['type']
@@ -89,137 +79,70 @@ const UpdateServiceDetails = ({
   edges: Edge[]
   setEdges: Function
 }) => {
-  const [ediServiceName, setEditServiceName] = useState<boolean>(false)
-  const [serviceName, setServiceName] = useState<string>(service?.name ?? '')
-  useEffect(() => {
-    setServiceName(service?.name)
-    console.log('edges', edges)
-  }, [service])
-
-  const updateServiceName = (newServiceName: string) => {
-    const oldServiceName = service.name
-
-    const connectedEdges = edges.filter(edge => edge.target === service.id)
-
-    const connectedNodeNames = connectedEdges.map(edge => edge.source)
-    console.log('connected nodes', connectedNodeNames, connectedEdges)
-
-    setNodes((prevNodes: Node[]) =>
-      prevNodes.map(node => {
-        if (node.id === service.id) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              name: newServiceName,
-            },
-          }
-        }
-
-        if (connectedNodeNames.includes(node.id)) {
-          const updatedVariables = Array.isArray(node.data?.variables)
-            ? node.data.variables.map(
-                (variable: NonNullable<ServiceNode['variables']>[number]) => {
-                  const updatedValue = variable?.value.replace(
-                    new RegExp(`\\$\\{\\{[^:{}\\s]+:${oldServiceName}\\.`),
-                    match =>
-                      match.replace(`${oldServiceName}.`, `${newServiceName}.`),
-                  )
-                  return { ...variable, value: updatedValue }
-                },
-              )
-            : []
-
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              variables: updatedVariables,
-            },
-          }
-        }
-
-        return node
-      }),
-    )
-  }
+  const [activeTab, setActiveTab] = useState('settings')
 
   return (
     <div>
       {open && (
         <div
           className={cn(
-            'fixed right-4 top-20 z-20 h-full w-3/4 min-w-[calc(100%-30px)] gap-4 rounded-md border-l border-t border-border bg-card px-6 pb-32 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
+            'fixed right-4 top-20 z-20 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-card px-6 pb-4 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
           )}>
           <div
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false)
+              setActiveTab('settings')
+            }}
             className='focus:ring-none text-base-content absolute right-4 top-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
             <X className='h-4 w-4' />
             <span className='sr-only'>Close</span>
           </div>
+
           <div className='w-full space-y-4 pb-2 pt-6'>
             <div className='flex items-center gap-x-3'>
               {service.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
                 : icon[service.type]}
-              <div
-                onClick={() => setEditServiceName(true)}
-                className='group inline-flex cursor-pointer items-center gap-x-2 rounded px-2 py-1 hover:bg-muted-foreground/10'>
-                {service.name}
-                <SquarePen className='hidden group-hover:block' size={16} />
-              </div>
+              <EditServiceName edges={edges} service={service} />
             </div>
-            <Tabs
-              tabs={[
-                {
-                  label: 'Settings',
-                  content: () => <Settings service={service} />,
-                },
-                {
-                  label: 'Environments',
-                  content: () => (
-                    <VariablesForm
-                      service={service}
-                      nodes={nodes}
-                      setNodes={setNodes}
-                      setEdges={setEdges}
-                    />
-                  ),
-                  disabled: service.type === 'database',
-                },
-              ]}
-            />
-            <Dialog
-              modal
-              open={ediServiceName}
-              onOpenChange={setEditServiceName}>
-              <DialogContent
-                onCloseAutoFocus={() => setServiceName(service?.name)}>
-                <DialogHeader>
-                  <DialogTitle>Update service name</DialogTitle>
-                </DialogHeader>
-                <Input
-                  id='serviceName'
-                  value={serviceName}
-                  placeholder={service?.name || 'Enter service name'}
-                  onChange={e => setServiceName(slugify(e.target.value))}
-                  type='text'
-                  required
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      const trimmed = serviceName.trim()
-                      if (trimmed === '') {
-                        // Optionally show a message here
-                        return
-                      }
+          </div>
 
-                      updateServiceName(trimmed)
-                      setEditServiceName(false)
-                    }
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+          {/* Tabs section */}
+          <div className='relative flex h-full flex-col overflow-hidden'>
+            <Tabs
+              onValueChange={setActiveTab}
+              value={activeTab}
+              defaultValue='settings'
+              className='flex h-full flex-col'>
+              <div className='sticky top-0 z-10 bg-card pt-2'>
+                <TabsList className='rounded bg-primary/10'>
+                  <TabsTrigger value='settings'>Settings</TabsTrigger>
+                  {service?.type !== 'database' && (
+                    <TabsTrigger value='environment'>Environment</TabsTrigger>
+                  )}
+                </TabsList>
+                <div className='border-base-content/40 w-full border-b pt-2' />
+              </div>
+
+              <div className='flex-1 overflow-y-auto overflow-x-hidden px-1 pb-8 pt-4'>
+                <TabsContent className='w-full' value='settings'>
+                  <Settings
+                    service={service}
+                    nodes={nodes}
+                    setNodes={setNodes}
+                    setOpen={setOpen}
+                  />
+                </TabsContent>
+                <TabsContent className='w-full' value='environment'>
+                  <VariablesForm
+                    service={service}
+                    nodes={nodes}
+                    setNodes={setNodes}
+                    setEdges={setEdges}
+                  />
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
         </div>
       )}
@@ -229,14 +152,69 @@ const UpdateServiceDetails = ({
 
 export default UpdateServiceDetails
 
-const Settings = ({ service }: { service: ServiceNode }) => {
-  console.log('service node', service)
-  return service?.type === 'docker' ? (
-    <p>Docker data</p>
-  ) : service?.type === 'app' && service?.providerType === 'github' ? (
-    <p>Github type</p>
-  ) : null
-}
+const Settings = React.memo(
+  ({
+    service,
+    nodes,
+    setOpen,
+    setNodes,
+  }: {
+    service: ServiceNode
+    nodes: Node[]
+    setNodes: Function
+    setOpen: Function
+  }) => {
+    const deleteNode = (nodeId: string) => {
+      setNodes((prevNodes: Node[]) =>
+        prevNodes.filter(node => node.id !== nodeId),
+      )
+      setOpen(false)
+    }
+    return (
+      <div>
+        {service?.type === 'docker' ? (
+          <>
+            <h2 className='text-md pb-2 font-semibold text-foreground/70'>
+              Docker Details
+            </h2>
+            <AddDockerService
+              type='update'
+              nodes={nodes}
+              setNodes={setNodes}
+              service={service}
+            />
+          </>
+        ) : service?.type === 'app' && service?.providerType === 'github' ? (
+          <>
+            <h2 className='text-md pb-2 font-semibold text-foreground/70'>
+              Github Details
+            </h2>
+            <AddGithubService
+              type='update'
+              nodes={nodes}
+              setNodes={setNodes}
+              service={service}
+            />
+          </>
+        ) : null}
+        <div className='space-y-2'>
+          <h2 className='text-md font-semibold text-foreground/70'>
+            Remove Service
+          </h2>
+          <p className='text-destructive'>
+            Once this service is removed, it will be permanently deleted from
+            the template and cannot be recovered.
+          </p>
+          <Button
+            onClick={() => deleteNode(service.id)}
+            variant={'destructive'}>
+            Remove service
+          </Button>
+        </div>
+      </div>
+    )
+  },
+)
 
 const ReferenceVariableDropdown = ({
   databaseList: list = [],
@@ -398,89 +376,95 @@ const VariablesForm = ({
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className='w-full space-y-6'>
-        <div className='space-y-2'>
-          {fields.length ? (
-            <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
-              <p className='font-semibold'>Key</p>
-              <p className='font-semibold'>Value</p>
-            </div>
-          ) : null}
-
-          {fields.map((field, index) => {
-            return (
-              <div
-                key={field?.id ?? index}
-                className='grid grid-cols-[1fr_1fr_2.5rem] gap-4'>
-                <FormField
-                  control={form.control}
-                  name={`variables.${index}.key`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`variables.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className='relative'>
-                          <Input {...field} className='pr-8' />
-
-                          <ReferenceVariableDropdown
-                            index={index}
-                            //@ts-ignore
-                            databaseList={databaseList ?? []}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  variant='ghost'
-                  type='button'
-                  size='icon'
-                  onClick={() => {
-                    removeVariable(index)
-                  }}>
-                  <Trash2 className='text-destructive' />
-                </Button>
+    <motion.div
+      initial={{ x: '5%', opacity: 0.25 }}
+      animate={{ x: 0, opacity: [0.25, 1] }}
+      exit={{ x: '100%', opacity: 1 }}
+      className='w-full'>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className='w-full space-y-6'>
+          <div className='space-y-2'>
+            {fields.length ? (
+              <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+                <p className='font-semibold'>Key</p>
+                <p className='font-semibold'>Value</p>
               </div>
-            )
-          })}
+            ) : null}
 
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => {
-              appendVariable({
-                key: '',
-                value: '',
-              })
-            }}>
-            <Plus /> New Variable
-          </Button>
-        </div>
+            {fields.map((field, index) => {
+              return (
+                <div
+                  key={field?.id ?? index}
+                  className='grid grid-cols-[1fr_1fr_2.5rem] gap-4'>
+                  <FormField
+                    control={form.control}
+                    name={`variables.${index}.key`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-        <div className='flex w-full justify-end gap-3'>
-          <Button type='submit' variant='outline'>
-            Save
-          </Button>
-        </div>
-      </form>
-    </Form>
+                  <FormField
+                    control={form.control}
+                    name={`variables.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className='relative'>
+                            <Input {...field} className='pr-8' />
+
+                            <ReferenceVariableDropdown
+                              index={index}
+                              //@ts-ignore
+                              databaseList={databaseList ?? []}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    variant='ghost'
+                    type='button'
+                    size='icon'
+                    onClick={() => {
+                      removeVariable(index)
+                    }}>
+                    <Trash2 className='text-destructive' />
+                  </Button>
+                </div>
+              )
+            })}
+
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => {
+                appendVariable({
+                  key: '',
+                  value: '',
+                })
+              }}>
+              <Plus /> New Variable
+            </Button>
+          </div>
+
+          <div className='flex w-full justify-end gap-3'>
+            <Button type='submit' variant='outline'>
+              Save
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </motion.div>
   )
 }

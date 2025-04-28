@@ -6,7 +6,7 @@ import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { ChevronRight, Database, Github, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useCallback, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/actions/templates/validator'
 import { Docker } from '@/components/icons'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
+import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,12 +39,16 @@ import { Textarea } from '@/components/ui/textarea'
 import AddDatabaseService from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
 import AddGithubService from './AddGithubService'
+import ContextMenu from './ContextMenu'
 import ReorderList from './DeploymentOrder'
+import UpdateServiceDetails from './UpdateServiceDetails'
 
 const convertNodesToServices = (nodes: any[]) => {
-  return nodes.map(({ data }) => ({
-    ...data,
-  }))
+  return nodes
+    .filter(node => node && node.data)
+    .map(({ data }) => ({
+      ...data,
+    }))
 }
 
 export const getPositionForNewNode = (
@@ -66,6 +71,12 @@ export const getPositionForNewNode = (
   }
 }
 
+interface Menu {
+  service: ServiceNode
+  top: number
+  left: number
+}
+
 const CreateNewTemplate = () => {
   const [open, setOpen] = useState<boolean>(false)
   const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
@@ -79,6 +90,26 @@ const CreateNewTemplate = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const router = useRouter()
+
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false)
+  const [serviceId, setServiceId] = useState<string>('')
+  const ref = useRef(null)
+  const [menu, setMenu] = useState<Menu | null>(null)
+
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      event.preventDefault()
+
+      setMenu({
+        service: node.data as unknown as ServiceNode,
+        top: event.clientY,
+        left: event.clientX,
+      })
+    },
+    [],
+  )
+
+  const onPaneClick = useCallback(() => setMenu(null), [setMenu])
 
   const {
     register,
@@ -119,6 +150,11 @@ const CreateNewTemplate = () => {
     setShowDatabases(false)
     setShowGithub(false)
     setShowOptions(false)
+  }
+
+  const handleOnClick = ({ serviceId }: { serviceId: string }) => {
+    setServiceId(serviceId)
+    setOpenDrawer(true)
   }
 
   const mainOptions = [
@@ -179,8 +215,12 @@ const CreateNewTemplate = () => {
       nodes={nodes}
       edges={edges}
       onEdgesChange={onEdgesChange}
-      onNodesChange={onNodesChange}>
-      <section className='mx-auto w-full max-w-6xl overflow-y-hidden p-4'>
+      onNodesChange={onNodesChange}
+      onPaneClick={onPaneClick}
+      onNodeContextMenu={onNodeContextMenu}>
+      <section
+        ref={ref}
+        className='mx-auto w-full max-w-6xl overflow-y-hidden p-4'>
         <div className='flex w-full items-center justify-end gap-x-2'>
           <Button
             className='z-20'
@@ -272,15 +312,19 @@ const CreateNewTemplate = () => {
               />
             ) : showOptions && showGithub ? (
               <AddGithubService
+                type='create'
                 setOpen={setOpen}
                 nodes={nodes}
                 setNodes={setNodes}
+                handleOnClick={handleOnClick}
               />
             ) : showOptions && showDocker ? (
               <AddDockerService
+                type='create'
                 setOpen={setOpen}
                 nodes={nodes}
                 setNodes={setNodes}
+                handleOnClick={handleOnClick}
               />
             ) : null}
           </DialogContent>
@@ -315,10 +359,21 @@ const CreateNewTemplate = () => {
           </DialogContent>
         </Dialog>
         {nodes?.length > 1 && (
-          <div className='absolute right-2 top-1/2 z-20 -translate-y-1/2'>
+          <div className='absolute right-2 top-20 z-20'>
             <ReorderList nodes={nodes as any} setNodes={setNodes as any} />
           </div>
         )}
+
+        <UpdateServiceDetails
+          open={openDrawer}
+          setOpen={setOpenDrawer}
+          nodes={nodes}
+          setNodes={setNodes}
+          edges={edges}
+          setEdges={setEdges}
+          service={nodes?.find(node => node?.id === serviceId)?.data as any}
+        />
+        {menu && <ContextMenu onClick={onPaneClick} edges={edges} {...menu} />}
       </section>
     </ReactFlowConfig>
   )

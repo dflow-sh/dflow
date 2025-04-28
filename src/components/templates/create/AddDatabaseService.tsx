@@ -13,6 +13,7 @@ import { ServiceNode } from '@/components/reactflow/types'
 import { getPositionForNewNode } from './CreateNewTemplate'
 
 type DatabaseType = 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb'
+
 const AddDatabaseService = ({
   nodes,
   setNodes,
@@ -68,7 +69,7 @@ const AddDatabaseService = ({
       type: 'database',
       id: name,
       name,
-      environmentVariables: {},
+      variables: [],
       databaseDetails: {
         type: type,
       },
@@ -78,7 +79,9 @@ const AddDatabaseService = ({
       ...prev,
       {
         id: name,
-        data: { ...newNode },
+        data: {
+          ...newNode,
+        },
         position: getPositionForNewNode(nodes?.length),
         type: 'custom',
       },
