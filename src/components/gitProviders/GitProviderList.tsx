@@ -1,13 +1,20 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
-import { Download, Github, GithubIcon, Trash2 } from 'lucide-react'
+import {
+  Download,
+  Github,
+  GithubIcon,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteGitProviderAction } from '@/actions/gitProviders'
@@ -81,18 +88,11 @@ const GitProviderList = ({
 }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [showAlert, setShowAlert] = useState<boolean>(false)
 
   useEffect(() => {
     if (searchParams.get('onboarding') === 'true') {
-      toast.success('Successfully created github app', {
-        duration: 10000,
-        description: `Please install the github app to deploy your app's.`,
-      })
-
-      const params = new URLSearchParams(searchParams.toString())
-      params.delete('action')
-
-      router.replace(`?${params.toString()}`, { scroll: false })
+      setShowAlert(true)
     } else if (searchParams.get('action') === 'gh_install') {
       toast.success('Successfully installed github app', {
         duration: 10000,
@@ -108,6 +108,15 @@ const GitProviderList = ({
 
   return gitProviders.length ? (
     <div className='mb-4 space-y-4'>
+      {showAlert && (
+        <Alert variant='warning'>
+          <TriangleAlert className='h-4 w-4' />
+          <AlertTitle>Github App created!</AlertTitle>
+          <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
+            Make sure to install the app to deploy your app's.
+          </AlertDescription>
+        </Alert>
+      )}
       {gitProviders.map(provider => {
         if (provider.type === 'github') {
           return (
