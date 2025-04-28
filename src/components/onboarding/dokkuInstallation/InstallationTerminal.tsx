@@ -1,8 +1,6 @@
 import { SquareTerminal } from 'lucide-react'
-import { useQueryState } from 'nuqs'
-import { useEffect } from 'react'
+import dynamic from 'next/dynamic'
 
-import XTermTerminal from '@/components/XTermTerminal'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -12,35 +10,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import useXterm from '@/hooks/use-xterm'
 
-const TerminalContent = () => {
-  const [server] = useQueryState('server')
-  const { terminalRef, writeLog, terminalInstance } = useXterm()
-
-  useEffect(() => {
-    if (!terminalInstance) {
-      return
-    }
-
-    const eventSource = new EventSource(`/api/server-events?serverId=${server}`)
-
-    eventSource.onmessage = event => {
-      const data = JSON.parse(event.data) ?? {}
-
-      if (data?.message) {
-        const formattedLog = `${data?.message}`
-        writeLog({ message: formattedLog })
-      }
-    }
-
-    return () => {
-      eventSource.close()
-    }
-  }, [terminalInstance])
-
-  return <XTermTerminal ref={terminalRef} className='mt-8 h-80' />
-}
+const TerminalContent = dynamic(
+  () =>
+    import(
+      '@/components/onboarding/dokkuInstallation/DokkuInstallationTerminalContent'
+    ),
+  {
+    ssr: false,
+  },
+)
 
 const InstallationTerminal = () => {
   return (
