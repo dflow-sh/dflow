@@ -12,7 +12,6 @@ export const GithubServiceSchema = z.object({
       port: z.number().default(3000),
     })
     .optional(),
-  environmentVariables: z.record(z.string(), z.unknown()).optional(),
 })
 
 export type GithubServiceType = z.infer<typeof GithubServiceSchema>

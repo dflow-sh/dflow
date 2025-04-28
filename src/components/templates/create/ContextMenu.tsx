@@ -45,7 +45,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className='fixed z-20 w-56 rounded-md border bg-card shadow-md'
+      className='fixed z-10 w-56 rounded-md border bg-card shadow-md'
       style={{ top, left }}>
       <ul className='space-y-2 p-2'>
         <li>
@@ -62,7 +62,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
         <li
           className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
           onClick={() => deleteNode(service.id)}>
-          Remove Service
+          Remove service
         </li>
       </ul>
     </div>
