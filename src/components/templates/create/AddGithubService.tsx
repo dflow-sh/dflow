@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import {
   adjectives,
   animals,
@@ -42,11 +43,17 @@ import { GithubServiceSchema, GithubServiceType } from './types'
 const AddGithubService = ({
   setNodes,
   nodes,
+  type = 'create',
   setOpen,
+  handleOnClick,
+  service,
 }: {
   setNodes: Function
   nodes: Node[]
-  setOpen: Function
+  service?: ServiceNode
+  setOpen?: Function
+  type: 'create' | 'update'
+  handleOnClick?: ({ serviceId }: { serviceId: string }) => void
 }) => {
   const { fitView } = useReactFlow()
 
@@ -74,9 +81,16 @@ const AddGithubService = ({
     resolver: zodResolver(GithubServiceSchema),
     defaultValues: {
       providerType: 'github',
+      provider:
+        typeof service?.provider === 'object'
+          ? service?.provider?.id
+          : service?.provider,
       githubSettings: {
-        port: 3000,
-        buildPath: '/',
+        owner: service?.githubSettings?.owner ?? '',
+        branch: service?.githubSettings?.branch,
+        buildPath: service?.githubSettings?.buildPath ?? '/',
+        repository: service?.githubSettings?.repository,
+        port: service?.githubSettings?.port ?? 3000,
       },
     },
   })
@@ -84,37 +98,104 @@ const AddGithubService = ({
   useEffect(() => {
     fetchProviders()
   }, [])
+  useEffect(() => {
+    const defaultProvider =
+      typeof service?.provider === 'object'
+        ? service?.provider?.id
+        : service?.provider
+    const provider = gitProviders?.data?.find(
+      ({ id }) => id === defaultProvider,
+    )
+    if (provider && provider.github) {
+      getRepositories({
+        page: 1,
+        limit: 10,
+        appId: `${provider.github.appId}`,
+        installationId: `${provider.github.installationId}`,
+        privateKey: provider.github.privateKey,
+      })
+    }
+  }, [isPending])
+  useEffect(() => {
+    const defaultProvider =
+      typeof service?.provider === 'object'
+        ? service?.provider?.id
+        : service?.provider
+    const provider = gitProviders?.data?.find(
+      ({ id }) => id === defaultProvider,
+    )
+    if (
+      provider &&
+      provider.github &&
+      service?.githubSettings?.owner &&
+      service?.githubSettings.repository
+    ) {
+      getBranches({
+        page: 1,
+        limit: 10,
+        appId: `${provider.github.appId}`,
+        installationId: `${provider.github.installationId}`,
+        privateKey: provider.github.privateKey,
+        owner: service?.githubSettings?.owner,
+        repository: service?.githubSettings.repository,
+      })
+    }
+  }, [isPending, repositoriesLoading])
 
   const { provider, githubSettings } = useWatch({ control: form.control })
 
   const addGithubNode = (data: GithubServiceType) => {
-    const name = uniqueNamesGenerator({
-      dictionaries: [adjectives, colors, animals],
-      separator: '-',
-      style: 'lowerCase',
-      length: 2,
-    })
-    const newNode: ServiceNode = {
-      type: 'app',
-      id: name,
-      name,
-      environmentVariables: {},
-      ...data,
-    }
-
-    setNodes((prev: Node[]) => [
-      ...prev,
-      {
+    if (type === 'update') {
+      if (type === 'update') {
+        setNodes((prevNodes: Node[]) =>
+          prevNodes.map(node => {
+            if (node.id === service?.id) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  ...data,
+                },
+              }
+            }
+            return node
+          }),
+        )
+      }
+      toast.success('Github details updated successfully')
+    } else if (type === 'create') {
+      const name = uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+        style: 'lowerCase',
+        length: 2,
+      })
+      const newNode: ServiceNode = {
+        type: 'app',
         id: name,
-        data: { ...newNode },
-        position: getPositionForNewNode(nodes?.length),
-        type: 'custom',
-      },
-    ])
-    setOpen(false)
-    setTimeout(() => {
-      fitView({ padding: 0.2, duration: 500 })
-    }, 100)
+        name,
+        variables: [],
+        ...data,
+      }
+
+      setNodes((prev: Node[]) => [
+        ...prev,
+        {
+          id: name,
+          data: {
+            ...newNode,
+            onClick: () => handleOnClick && handleOnClick({ serviceId: name }),
+          },
+          position: getPositionForNewNode(nodes?.length),
+          type: 'custom',
+        },
+      ])
+      setOpen && setOpen(false)
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 500 })
+      }, 100)
+    }
+    console.log('nodes', nodes)
   }
 
   return (
@@ -204,6 +285,7 @@ const AddGithubService = ({
 
                 <Select
                   value={field.value}
+                  defaultValue={field.value}
                   onValueChange={value => {
                     field.onChange(value)
                     if (repositoriesList) {
@@ -290,6 +372,7 @@ const AddGithubService = ({
                       !githubSettings?.repository
                     }
                     value={field.value}
+                    defaultValue={field.value}
                     onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
@@ -362,9 +445,16 @@ const AddGithubService = ({
           />
           <DialogFooter>
             <Button
-              disabled={!githubSettings?.repository || !githubSettings?.branch}
+              variant={type === 'update' ? 'outline' : 'default'}
+              disabled={
+                !githubSettings?.repository ||
+                !githubSettings?.branch ||
+                branchesLoading ||
+                repositoriesLoading ||
+                isPending
+              }
               type='submit'>
-              Add
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>
