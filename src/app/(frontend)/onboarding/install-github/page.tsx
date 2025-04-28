@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import Loader from '@/components/Loader'
 import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
 import GitProviderList from '@/components/gitProviders/GitProviderList'
+import SkipButton from '@/components/gitProviders/SkipButton'
 
 const SuspendedPage = async () => {
   const payload = await getPayload({ config: configPromise })
@@ -25,7 +26,10 @@ const SuspendedPage = async () => {
       nextStepUrl={''}
       disableNextStep={gitProvidersDocs.length !== 0}>
       <GitProviderList gitProviders={gitProvidersDocs} onboarding />
-      <CreateGitAppForm onboarding={true} />
+      <div className='flex items-end gap-x-2'>
+        <CreateGitAppForm onboarding={true} />
+        <SkipButton />
+      </div>
     </Layout>
   )
 }

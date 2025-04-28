@@ -2,8 +2,6 @@ import { Button } from '../ui/button'
 import { env } from 'env'
 import { PlusIcon } from 'lucide-react'
 
-import SkipButton from './SkipButton'
-
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
 
@@ -51,7 +49,6 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
           Create Github App
         </Button>
       </form>
-      <SkipButton />
     </div>
   )
 }
