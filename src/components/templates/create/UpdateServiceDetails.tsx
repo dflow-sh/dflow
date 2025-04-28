@@ -127,6 +127,7 @@ const UpdateServiceDetails = ({
               <div className='flex-1 overflow-y-auto overflow-x-hidden px-1 pb-8 pt-4'>
                 <TabsContent className='w-full' value='settings'>
                   <Settings
+                    key={service?.id}
                     service={service}
                     nodes={nodes}
                     setNodes={setNodes}
@@ -135,6 +136,7 @@ const UpdateServiceDetails = ({
                 </TabsContent>
                 <TabsContent className='w-full' value='environment'>
                   <VariablesForm
+                    key={service?.id}
                     service={service}
                     nodes={nodes}
                     setNodes={setNodes}
