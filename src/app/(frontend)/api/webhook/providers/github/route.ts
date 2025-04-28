@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     // Check if this installation was done during onboarding
     if (installationOnboarding === 'onboarding') {
-      return redirect('/dashboard')
+      return redirect('/dashboard?onboarding=completed')
     }
   }
 

@@ -91,7 +91,10 @@ const GitProviderList = ({
   const [showAlert, setShowAlert] = useState<boolean>(false)
 
   useEffect(() => {
-    if (searchParams.get('onboarding') === 'true') {
+    if (
+      searchParams.get('onboarding') === 'true' ||
+      searchParams.get('action') === 'gh_init'
+    ) {
       setShowAlert(true)
     } else if (searchParams.get('action') === 'gh_install') {
       toast.success('Successfully installed github app', {
