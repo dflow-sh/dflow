@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Edge, MarkerType, Node } from '@xyflow/react'
 import { motion } from 'framer-motion'
 import { Braces, Database, Github, Plus, Trash2, X } from 'lucide-react'
-import React, { JSX, useState } from 'react'
+import { JSX, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -152,69 +152,65 @@ const UpdateServiceDetails = ({
 
 export default UpdateServiceDetails
 
-const Settings = React.memo(
-  ({
-    service,
-    nodes,
-    setOpen,
-    setNodes,
-  }: {
-    service: ServiceNode
-    nodes: Node[]
-    setNodes: Function
-    setOpen: Function
-  }) => {
-    const deleteNode = (nodeId: string) => {
-      setNodes((prevNodes: Node[]) =>
-        prevNodes.filter(node => node.id !== nodeId),
-      )
-      setOpen(false)
-    }
-    return (
-      <div>
-        {service?.type === 'docker' ? (
-          <>
-            <h2 className='text-md pb-2 font-semibold text-foreground/70'>
-              Docker Details
-            </h2>
-            <AddDockerService
-              type='update'
-              nodes={nodes}
-              setNodes={setNodes}
-              service={service}
-            />
-          </>
-        ) : service?.type === 'app' && service?.providerType === 'github' ? (
-          <>
-            <h2 className='text-md pb-2 font-semibold text-foreground/70'>
-              Github Details
-            </h2>
-            <AddGithubService
-              type='update'
-              nodes={nodes}
-              setNodes={setNodes}
-              service={service}
-            />
-          </>
-        ) : null}
-        <div className='space-y-2'>
-          <h2 className='text-md font-semibold text-foreground/70'>
-            Remove Service
-          </h2>
-          <p className='text-destructive'>
-            Once this service is removed, it will be permanently deleted from
-            the template and cannot be recovered.
-          </p>
-          <Button
-            onClick={() => deleteNode(service.id)}
-            variant={'destructive'}>
-            Remove service
-          </Button>
-        </div>
-      </div>
+const Settings = ({
+  service,
+  nodes,
+  setOpen,
+  setNodes,
+}: {
+  service: ServiceNode
+  nodes: Node[]
+  setNodes: Function
+  setOpen: Function
+}) => {
+  const deleteNode = (nodeId: string) => {
+    setNodes((prevNodes: Node[]) =>
+      prevNodes.filter(node => node.id !== nodeId),
     )
-  },
-)
+    setOpen(false)
+  }
+  return (
+    <div>
+      {service?.type === 'docker' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold text-foreground/70'>
+            Docker Details
+          </h2>
+          <AddDockerService
+            type='update'
+            nodes={nodes}
+            setNodes={setNodes}
+            service={service}
+          />
+        </>
+      ) : service?.type === 'app' && service?.providerType === 'github' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold text-foreground/70'>
+            Github Details
+          </h2>
+          <AddGithubService
+            type='update'
+            nodes={nodes}
+            setNodes={setNodes}
+            service={service}
+          />
+        </>
+      ) : null}
+      <div className='space-y-2'>
+        <h2 className='text-md font-semibold text-foreground/70'>
+          Remove Service
+        </h2>
+        <p className='text-destructive'>
+          Once this service is removed, it will be permanently deleted from the
+          template and cannot be recovered.
+        </p>
+        <Button onClick={() => deleteNode(service.id)} variant={'destructive'}>
+          Remove service
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 const ReferenceVariableDropdown = ({
   databaseList: list = [],
