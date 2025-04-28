@@ -3,7 +3,7 @@ import { Node, useReactFlow } from '@xyflow/react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import {
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
   Select,
   SelectContent,
@@ -56,6 +57,10 @@ const AddDockerService = ({
   handleOnClick?: ({ serviceId }: { serviceId: string }) => void
 }) => {
   const { fitView } = useReactFlow()
+  const [imageType, setImageType] = useState(
+    service?.dockerDetails?.account ? 'private' : 'public',
+  )
+
   const form = useForm<DockerServiceType>({
     resolver: zodResolver(DockerServiceSchema),
     defaultValues: {
@@ -152,11 +157,32 @@ const AddDockerService = ({
         <form
           onSubmit={form.handleSubmit(addDockerNode)}
           className='w-full space-y-4'>
+          <div className='pt-2s space-y-2'>
+            <RadioGroup
+              value={imageType}
+              onValueChange={setImageType}
+              className='flex gap-6'>
+              <div className='flex items-center space-x-2'>
+                <RadioGroupItem value='public' id='r2' />
+                <Label htmlFor='r2'>Public</Label>
+              </div>
+
+              <div className='flex items-center space-x-2'>
+                <RadioGroupItem value='private' id='r3' />
+                <Label htmlFor='r3'>Private</Label>
+              </div>
+            </RadioGroup>
+
+            <p className='text-[0.8rem] text-muted-foreground'>
+              Select private option to deploy private images
+            </p>
+          </div>
           <FormField
             control={form.control}
             name='dockerDetails.account'
             render={({ field }) => (
-              <FormItem>
+              <FormItem
+                className={imageType === 'private' ? 'block' : 'hidden'}>
                 <FormLabel>Account</FormLabel>
 
                 <div className='flex items-center gap-2'>
@@ -166,7 +192,7 @@ const AddDockerService = ({
                       field.onChange(value)
                     }}
                     value={field.value}
-                    disabled={isPending}>
+                    disabled={isPending || !accounts?.data?.length}>
                     <FormControl>
                       <div className='relative w-full'>
                         <SelectTrigger className='w-full'>
@@ -174,7 +200,9 @@ const AddDockerService = ({
                             placeholder={
                               isPending
                                 ? 'Fetching accounts...'
-                                : 'Select a account'
+                                : !accounts?.data?.length
+                                  ? 'No accounts found!'
+                                  : 'Select a account'
                             }
                           />
                         </SelectTrigger>
@@ -340,7 +368,10 @@ const AddDockerService = ({
             <Button
               variant={type === 'update' ? 'outline' : 'default'}
               type='submit'
-              disabled={!dockerDetails?.url}>
+              disabled={
+                !dockerDetails?.url ||
+                (imageType === 'private' && !dockerDetails?.account)
+              }>
               {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </div>
