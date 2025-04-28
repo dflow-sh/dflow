@@ -31,6 +31,8 @@ const ReactFlowConfig = ({
   edges,
   onEdgesChange,
   className,
+  onPaneClick,
+  onNodeContextMenu,
 }: {
   children?: React.ReactNode
   nodes: Node[]
@@ -38,6 +40,8 @@ const ReactFlowConfig = ({
   edges: Edge[]
   onEdgesChange: OnEdgesChange
   className?: string
+  onPaneClick?: () => void
+  onNodeContextMenu?: (event: React.MouseEvent, node: Node) => void
 }) => {
   //custom nodes
   const nodeTypes = {
@@ -50,7 +54,7 @@ const ReactFlowConfig = ({
   }
 
   return (
-    <div className={cn('h-[calc(100%-80px)] w-full', className)}>
+    <div className={cn('relative h-[calc(100%-80px)] w-full', className)}>
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}
@@ -58,8 +62,11 @@ const ReactFlowConfig = ({
         onEdgesChange={onEdgesChange}
         nodeTypes={nodeTypes}
         maxZoom={1}
+        fitView
         edgeTypes={edgeTypes}
         connectionLineComponent={FloatingConnectionLine}
+        onPaneClick={onPaneClick}
+        onNodeContextMenu={onNodeContextMenu}
         className='z-10'>
         <Background
           variant={BackgroundVariant.Cross}
