@@ -5,6 +5,7 @@ import { Plus, Trash2, X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { toast } from 'sonner'
 import {
   adjectives,
   animals,
@@ -43,14 +44,30 @@ const AddDockerService = ({
   nodes,
   setNodes,
   setOpen,
+  handleOnClick,
+  type = 'create',
+  service,
 }: {
   nodes: Node[]
   setNodes: Function
-  setOpen: Function
+  setOpen?: Function
+  type: 'create' | 'update'
+  service?: ServiceNode
+  handleOnClick?: ({ serviceId }: { serviceId: string }) => void
 }) => {
   const { fitView } = useReactFlow()
   const form = useForm<DockerServiceType>({
     resolver: zodResolver(DockerServiceSchema),
+    defaultValues: {
+      dockerDetails: {
+        account:
+          typeof service?.dockerDetails?.account === 'object'
+            ? service?.dockerDetails?.account?.id
+            : service?.dockerDetails?.account,
+        ports: service?.dockerDetails?.ports!,
+        url: service?.dockerDetails?.url!,
+      },
+    },
   })
   const {
     fields,
@@ -72,33 +89,54 @@ const AddDockerService = ({
   } = useAction(getDockerRegistries)
 
   const addDockerNode = (data: DockerServiceType) => {
-    const name = uniqueNamesGenerator({
-      dictionaries: [adjectives, colors, animals],
-      separator: '-',
-      style: 'lowerCase',
-      length: 2,
-    })
-    const newNode: ServiceNode = {
-      type: 'docker',
-      id: name,
-      name,
-      environmentVariables: {},
-      ...data,
-    }
-
-    setNodes((prev: Node[]) => [
-      ...prev,
-      {
+    if (type === 'update') {
+      setNodes((prevNodes: Node[]) =>
+        prevNodes.map(node => {
+          if (node.id === service?.id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...data,
+              },
+            }
+          }
+          return node
+        }),
+      )
+      toast.success('Docker details updated successfully')
+    } else if (type === 'create') {
+      const name = uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+        style: 'lowerCase',
+        length: 2,
+      })
+      const newNode: ServiceNode = {
+        type: 'docker',
         id: name,
-        data: { ...newNode },
-        position: getPositionForNewNode(nodes?.length),
-        type: 'custom',
-      },
-    ])
-    setOpen(false)
-    setTimeout(() => {
-      fitView({ padding: 0.2, duration: 500 })
-    }, 100)
+        name,
+        variables: [],
+        ...data,
+      }
+
+      setNodes((prev: Node[]) => [
+        ...prev,
+        {
+          id: name,
+          data: {
+            ...newNode,
+            onClick: () => handleOnClick && handleOnClick({ serviceId: name }),
+          },
+          position: getPositionForNewNode(nodes?.length),
+          type: 'custom',
+        },
+      ])
+      setOpen && setOpen(false)
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 500 })
+      }, 100)
+    }
   }
 
   useEffect(() => {
@@ -299,8 +337,11 @@ const AddDockerService = ({
           </div>
 
           <div className='flex w-full justify-end'>
-            <Button type='submit' disabled={!dockerDetails?.url}>
-              Add
+            <Button
+              variant={type === 'update' ? 'outline' : 'default'}
+              type='submit'
+              disabled={!dockerDetails?.url}>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </div>
         </form>
