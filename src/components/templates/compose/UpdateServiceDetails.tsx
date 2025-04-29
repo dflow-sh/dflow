@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Edge, MarkerType, Node } from '@xyflow/react'
 import { motion } from 'framer-motion'
 import { Braces, Database, Github, Plus, Trash2, X } from 'lucide-react'
-import { JSX, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
+import { PortForm } from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
 import AddGithubService from './AddGithubService'
 import EditServiceName from './EditServiceName'
@@ -80,13 +81,17 @@ const UpdateServiceDetails = ({
   setEdges: Function
 }) => {
   const [activeTab, setActiveTab] = useState('settings')
-
+  useEffect(() => {
+    if (service?.type === 'database' && activeTab === 'environment') {
+      setActiveTab('settings')
+    }
+  }, [service?.id])
   return (
     <div>
       {open && (
         <div
           className={cn(
-            'fixed right-4 top-20 z-20 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-card px-6 pb-4 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
+            'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-card px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
           )}>
           <div
             onClick={() => {
@@ -117,9 +122,11 @@ const UpdateServiceDetails = ({
               <div className='sticky top-0 z-10 bg-card pt-2'>
                 <TabsList className='rounded bg-primary/10'>
                   <TabsTrigger value='settings'>Settings</TabsTrigger>
-                  {service?.type !== 'database' && (
-                    <TabsTrigger value='environment'>Environment</TabsTrigger>
-                  )}
+                  <TabsTrigger
+                    disabled={service?.type == 'database'}
+                    value='environment'>
+                    Environment
+                  </TabsTrigger>
                 </TabsList>
                 <div className='border-base-content/40 w-full border-b pt-2' />
               </div>
@@ -175,9 +182,7 @@ const Settings = ({
     <div>
       {service?.type === 'docker' ? (
         <>
-          <h2 className='text-md pb-2 font-semibold text-foreground/70'>
-            Docker Details
-          </h2>
+          <h2 className='text-md pb-2 font-semibold'>Docker Details</h2>
           <AddDockerService
             type='update'
             nodes={nodes}
@@ -187,9 +192,7 @@ const Settings = ({
         </>
       ) : service?.type === 'app' && service?.providerType === 'github' ? (
         <>
-          <h2 className='text-md pb-2 font-semibold text-foreground/70'>
-            Github Details
-          </h2>
+          <h2 className='text-md pb-2 font-semibold'>Github Details</h2>
           <AddGithubService
             type='update'
             nodes={nodes}
@@ -197,18 +200,30 @@ const Settings = ({
             service={service}
           />
         </>
+      ) : service?.type === 'database' ? (
+        <>
+          <h2 className='text-md font-semibold'>Database Details</h2>
+          <PortForm key={service?.id} setNodes={setNodes} service={service} />
+        </>
       ) : null}
+
       <div className='space-y-2'>
-        <h2 className='text-md font-semibold text-foreground/70'>
-          Remove Service
-        </h2>
-        <p className='text-destructive'>
-          Once this service is removed, it will be permanently deleted from the
-          template and cannot be recovered.
-        </p>
-        <Button onClick={() => deleteNode(service.id)} variant={'destructive'}>
-          Remove service
-        </Button>
+        <h2 className='text-md font-semibold'>Remove Service</h2>
+        <motion.div
+          initial={{ x: '5%', opacity: 0.25 }}
+          animate={{ x: 0, opacity: [0.25, 1] }}
+          exit={{ x: '100%', opacity: 1 }}
+          className='w-full space-y-2'>
+          <p className='text-muted-foreground'>
+            Once this service is removed, it will be permanently deleted from
+            the template and cannot be recovered.
+          </p>
+          <Button
+            onClick={() => deleteNode(service.id)}
+            variant={'destructive'}>
+            Remove service
+          </Button>
+        </motion.div>
       </div>
     </div>
   )
@@ -274,7 +289,6 @@ const VariablesForm = ({
   nodes: Node[]
   setEdges: Function
 }) => {
-  console.log(service.name)
   const form = useForm<UpdateServiceType>({
     resolver: zodResolver(UpdateServiceSchema),
     defaultValues: {

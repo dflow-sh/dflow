@@ -1,8 +1,9 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Trash2 } from 'lucide-react'
+import { SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 import { deleteTemplate } from '@/actions/templates'
@@ -33,11 +34,11 @@ const TemplateDetails = ({ template }: { template: Template }) => {
         </div>
 
         <div className='flex items-center gap-3'>
-          {/* <UpdateSSHKey
-                    sshKey={sshKey}
-                    type='update'
-                    description='This form updates SSH key'
-                  /> */}
+          <Link href={`/templates/compose?templateId=${template?.id}`}>
+            <Button variant={'outline'}>
+              <SquarePen size={20} />
+            </Button>
+          </Link>
 
           <Button
             disabled={isPending}
