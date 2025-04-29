@@ -41,24 +41,25 @@ const DashboardLayoutInner = () => {
   if (!user.onboarded && totalUsers === 0) redirect('/onboarding')
 
   return (
-    <div className='sticky top-0 z-50 mx-auto flex w-full max-w-6xl items-center justify-between bg-background p-4'>
-      <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
-        <Link href={`/dashboard`} className='flex items-center gap-1'>
-          <Image
-            src='/images/dflow-no-bg.png'
-            alt='dFlow-logo'
-            width={32}
-            height={32}
-            className='object-contain'
-          />
-          <p className='hidden sm:block'>dFlow</p>
-        </Link>
+    <div className='sticky top-0 z-50 w-full bg-background'>
+      <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
+        <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
+          <Link href={`/dashboard`} className='flex items-center gap-1'>
+            <Image
+              src='/images/dflow-no-bg.png'
+              alt='dFlow-logo'
+              width={32}
+              height={32}
+              className='object-contain'
+            />
+            <p className='hidden sm:block'>dFlow</p>
+          </Link>
 
-        {/* Breadcrumb placeholders */}
-        <div id='projectName'></div>
-        <div id='serviceName' className='-ml-2'></div>
-        <div id='serverName' className='-ml-4'></div>
-      </div>
+          {/* Breadcrumb placeholders */}
+          <div id='projectName'></div>
+          <div id='serviceName' className='-ml-2'></div>
+          <div id='serverName' className='-ml-4'></div>
+        </div>
 
       <div className='flex items-center gap-x-4'>
         <Link
@@ -76,10 +77,10 @@ const DashboardLayoutInner = () => {
             <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
           </div>
         </Link>
-
-        <Suspense fallback={<NavUserSkeleton />}>
-          <NavUserSuspended user={user} />
-        </Suspense>
+          <Suspense fallback={<NavUserSkeleton />}>
+            <NavUserSuspended user={user} />
+          </Suspense>
+        </div>
       </div>
     </div>
   )

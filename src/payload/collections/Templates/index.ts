@@ -193,6 +193,11 @@ export const Template: CollectionConfig = {
                 },
               ],
             },
+            {
+              name: 'exposedPorts',
+              type: 'text',
+              hasMany: true,
+            },
           ],
         },
         {
@@ -267,6 +272,7 @@ export const Template: CollectionConfig = {
           type: 'text',
           name: 'name',
           label: 'Name',
+          required: true,
         },
         {
           name: 'variables',
