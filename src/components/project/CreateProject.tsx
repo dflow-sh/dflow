@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { slugify } from '@/lib/slugify'
 import { Project, Server } from '@/payload-types'
 
 const CreateProject = ({
@@ -165,6 +166,8 @@ const CreateProject = ({
                       onChange={e => {
                         e.stopPropagation()
                         e.preventDefault()
+
+                        e.target.value = slugify(e.target.value)
 
                         field.onChange(e)
                       }}
