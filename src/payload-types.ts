@@ -635,6 +635,7 @@ export interface Template {
          */
         databaseDetails?: {
           type: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb';
+          exposedPorts?: string[] | null;
         };
         dockerDetails?: {
           /**
@@ -651,7 +652,7 @@ export interface Template {
               }[]
             | null;
         };
-        name?: string | null;
+        name: string;
         variables?:
           | {
               key: string;
@@ -1018,6 +1019,7 @@ export interface TemplatesSelect<T extends boolean = true> {
           | T
           | {
               type?: T;
+              exposedPorts?: T;
             };
         dockerDetails?:
           | T
