@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
 import SecurityGroupForm from './CreateSecurityGroupForm'
@@ -39,6 +40,7 @@ const CreateSecurityGroup = ({
       <DialogTrigger asChild>
         <Button
           onClick={e => e.stopPropagation()}
+          disabled={isDemoEnvironment}
           size={type === 'update' ? 'icon' : 'default'}
           variant={type === 'update' ? 'outline' : 'default'}>
           {type === 'update' ? (
