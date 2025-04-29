@@ -34,7 +34,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import SelectSearch from '@/components/ui/select-search'
 
-import { getPositionForNewNode } from './CreateNewTemplate'
+import { getPositionForNewNode } from './ChooseService'
 import { GithubServiceSchema, GithubServiceType } from './types'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
@@ -201,18 +201,19 @@ const AddGithubService = ({
           id: name,
           data: {
             ...newNode,
-            onClick: () => handleOnClick && handleOnClick({ serviceId: name }),
+            ...(handleOnClick && {
+              onClick: () => handleOnClick({ serviceId: name }),
+            }),
           },
           position: getPositionForNewNode(nodes?.length),
           type: 'custom',
         },
       ])
-      setOpen && setOpen(false)
+      setOpen?.(false)
       setTimeout(() => {
         fitView({ padding: 0.2, duration: 500 })
       }, 100)
     }
-    console.log('nodes', nodes)
   }
   const publicRepoURL =
     githubSettings?.owner && githubSettings?.repository

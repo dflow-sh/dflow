@@ -45,9 +45,9 @@ const ContextMenu: FC<ContextMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className='fixed z-10 w-56 rounded-md border bg-card shadow-md'
+      className='back fixed z-10 w-48 rounded-md bg-card shadow-md'
       style={{ top, left }}>
-      <ul className='space-y-2 p-2'>
+      <ul className='space-y-1 p-2'>
         <li>
           <EditServiceName
             className={

@@ -1,26 +1,17 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
+import { Edge, Node, OnEdgesChange, OnNodesChange } from '@xyflow/react'
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { ChevronRight, Database, Github, Plus } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
-import { ChangeEvent, useCallback, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import {
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
+  ChangeEvent,
+  Ref,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react'
 
-import { createTemplate } from '@/actions/templates'
-import {
-  CreateTemplateSchemaType,
-  createTemplateSchema,
-} from '@/actions/templates/validator'
 import { Docker } from '@/components/icons'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { ServiceNode } from '@/components/reactflow/types'
@@ -28,13 +19,10 @@ import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 
 import AddDatabaseService from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
@@ -43,12 +31,22 @@ import ContextMenu from './ContextMenu'
 import ReorderList from './DeploymentOrder'
 import UpdateServiceDetails from './UpdateServiceDetails'
 
-const convertNodesToServices = (nodes: any[]) => {
-  return nodes
-    .filter(node => node && node.data)
-    .map(({ data }) => ({
-      ...data,
-    }))
+interface Menu {
+  service: ServiceNode
+  top: number
+  left: number
+}
+export type ChildRef = {
+  handleOnClick: (args: { serviceId: string }) => void
+}
+interface ChooseServiceType {
+  nodes: Node[]
+  edges: Edge[]
+  setNodes: Function
+  setEdges: Function
+  onNodesChange: OnNodesChange
+  onEdgesChange: OnEdgesChange
+  ref?: Ref<ChildRef>
 }
 
 export const getPositionForNewNode = (
@@ -71,25 +69,21 @@ export const getPositionForNewNode = (
   }
 }
 
-interface Menu {
-  service: ServiceNode
-  top: number
-  left: number
-}
-
-const CreateNewTemplate = () => {
+const ChooseService: React.FC<ChooseServiceType> = ({
+  edges,
+  nodes,
+  onEdgesChange,
+  onNodesChange,
+  setEdges,
+  setNodes,
+  ref: parentRef,
+}) => {
   const [open, setOpen] = useState<boolean>(false)
-  const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [showGithub, setShowGithub] = useState<boolean>(false)
   const [showDocker, setShowDocker] = useState<boolean>(false)
   const [showDatabases, setShowDatabases] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
-
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
-
-  const router = useRouter()
 
   const [openDrawer, setOpenDrawer] = useState<boolean>(false)
   const [serviceId, setServiceId] = useState<string>('')
@@ -110,25 +104,6 @@ const CreateNewTemplate = () => {
   )
 
   const onPaneClick = useCallback(() => setMenu(null), [setMenu])
-
-  const {
-    register,
-    reset,
-    formState: { errors },
-    handleSubmit,
-    setValue,
-  } = useForm<CreateTemplateSchemaType>({
-    resolver: zodResolver(createTemplateSchema),
-    defaultValues: {
-      name: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-        style: 'lowerCase',
-        length: 2,
-      }),
-      services: convertNodesToServices(nodes),
-    },
-  })
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -156,6 +131,14 @@ const CreateNewTemplate = () => {
     setServiceId(serviceId)
     setOpenDrawer(true)
   }
+
+  useImperativeHandle(
+    parentRef,
+    () => ({
+      handleOnClick,
+    }),
+    [],
+  )
 
   const mainOptions = [
     {
@@ -188,28 +171,6 @@ const CreateNewTemplate = () => {
     option.text.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
-  const { execute: createNewTemplate, isPending: isCreateNewTemplatePending } =
-    useAction(createTemplate, {
-      onSuccess: ({ data, input }) => {
-        if (data) {
-          toast.success(`Template created successfully`)
-          router.push('/templates')
-          setOpen(false)
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(`Failed to create template`)
-      },
-    })
-
-  const onSubmit = (data: CreateTemplateSchemaType) => {
-    createNewTemplate({
-      name: data?.name,
-      description: data?.description,
-      services: convertNodesToServices(nodes),
-    })
-  }
-
   return (
     <ReactFlowConfig
       nodes={nodes}
@@ -217,23 +178,17 @@ const CreateNewTemplate = () => {
       onEdgesChange={onEdgesChange}
       onNodesChange={onNodesChange}
       onPaneClick={onPaneClick}
-      onNodeContextMenu={onNodeContextMenu}>
+      onNodeContextMenu={onNodeContextMenu}
+      className=''>
       <section
         ref={ref}
-        className='mx-auto w-full max-w-6xl overflow-y-hidden p-4'>
+        className='relative mx-auto h-[calc(100vh-156px)] w-full overflow-y-hidden px-2'>
         <div className='flex w-full items-center justify-end gap-x-2'>
           <Button
             className='z-20'
             variant={'outline'}
             onClick={() => setOpen(true)}>
             <Plus size={16} /> Add New
-          </Button>
-          <Button
-            className='z-20'
-            variant={'default'}
-            disabled={nodes?.length <= 0}
-            onClick={() => setOpenCreateTemplate(true)}>
-            Create Template
           </Button>
         </div>
 
@@ -309,6 +264,7 @@ const CreateNewTemplate = () => {
                 nodes={nodes}
                 setNodes={setNodes}
                 setOpen={setOpen}
+                handleOnClick={handleOnClick}
               />
             ) : showOptions && showGithub ? (
               <AddGithubService
@@ -330,36 +286,8 @@ const CreateNewTemplate = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Template creation */}
-        <Dialog open={openCreateTemplate} onOpenChange={setOpenCreateTemplate}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Template</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className='space-y-4'>
-                <div>
-                  <Label>
-                    Name <span className='text-red-500'>*</span>
-                  </Label>
-                  <Input {...register('name')} />
-                  {errors.name?.message && <p>{errors.name?.message}</p>}
-                </div>
-                <div>
-                  <Label>Description</Label>
-                  <Textarea {...register('description')} className='min-h-44' />
-                </div>
-              </div>
-              <DialogFooter className='mt-4'>
-                <Button disabled={isCreateNewTemplatePending} type='submit'>
-                  Create
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
         {nodes?.length > 1 && (
-          <div className='absolute right-2 top-20 z-20'>
+          <div className='absolute right-2 top-16 z-20'>
             <ReorderList nodes={nodes as any} setNodes={setNodes as any} />
           </div>
         )}
@@ -378,4 +306,4 @@ const CreateNewTemplate = () => {
     </ReactFlowConfig>
   )
 }
-export default CreateNewTemplate
+export default ChooseService
