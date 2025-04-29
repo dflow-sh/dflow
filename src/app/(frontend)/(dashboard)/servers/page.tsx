@@ -44,15 +44,19 @@ const ServersPage = async () => {
       <div className='mb-5 flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Servers</div>
         <Suspense fallback={<CreateServerButtonSkeleton />}>
-          <Link href={'/servers/add-new-server'}>
-            <Button
-              disabled={isDemoEnvironment}
-              size={'default'}
-              variant={'default'}>
+          {isDemoEnvironment ? (
+            <Button disabled={true} size={'default'} variant={'default'}>
               <Plus />
               Add New Server
             </Button>
-          </Link>
+          ) : (
+            <Link href={'/servers/add-new-server'}>
+              <Button size={'default'} variant={'default'}>
+                <Plus />
+                Add New Server
+              </Button>
+            </Link>
+          )}
         </Suspense>
       </div>
       <Suspense fallback={<ServersSkeleton />}>
