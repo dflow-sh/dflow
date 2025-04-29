@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-import { getPositionForNewNode } from './CreateNewTemplate'
+import { getPositionForNewNode } from './ChooseService'
 import { DockerServiceSchema, DockerServiceType } from './types'
 
 const schema = ['http', 'https']
@@ -93,7 +93,7 @@ const AddDockerService = ({
     result: accounts,
   } = useAction(getDockerRegistries)
 
-  const addDockerNode = (data: DockerServiceType) => {
+  const handleDockerNodeSubmit = (data: DockerServiceType) => {
     if (type === 'update') {
       setNodes((prevNodes: Node[]) =>
         prevNodes.map(node => {
@@ -131,13 +131,15 @@ const AddDockerService = ({
           id: name,
           data: {
             ...newNode,
-            onClick: () => handleOnClick && handleOnClick({ serviceId: name }),
+            ...(handleOnClick && {
+              onClick: () => handleOnClick({ serviceId: name }),
+            }),
           },
           position: getPositionForNewNode(nodes?.length),
           type: 'custom',
         },
       ])
-      setOpen && setOpen(false)
+      setOpen?.(false)
       setTimeout(() => {
         fitView({ padding: 0.2, duration: 500 })
       }, 100)
@@ -155,7 +157,7 @@ const AddDockerService = ({
       className='w-full'>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(addDockerNode)}
+          onSubmit={form.handleSubmit(handleDockerNodeSubmit)}
           className='w-full space-y-4'>
           <div className='pt-2s space-y-2'>
             <RadioGroup
