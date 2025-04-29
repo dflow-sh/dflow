@@ -74,7 +74,6 @@ export const updateTemplate = protectedClient
   .schema(updateTemplateSchema)
   .action(async ({ clientInput }) => {
     const { id, name, services, description } = clientInput
-    console.dir({ clientInput }, { depth: Infinity })
 
     const response = await payload.update({
       collection: 'templates',
