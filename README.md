@@ -48,11 +48,11 @@ cd dflow
 - or run mongodb docker-image
 
 ```bash
-// pull the mongodb docker image
+# pull the mongodb docker image
 docker pull mongo
 
-// run mongodb with a attached volume & exposing port so we can connect locally
-// change the username, password by changing MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD as per your need
+# run mongodb with a attached volume & exposing port so we can connect locally
+# change the username, password by changing MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD as per your need
 docker run -d \
   -v mongo-data:/data/db \
   -p 27017:27017 \
@@ -74,11 +74,11 @@ docker run -d \
 > Note: Upstash is not recommended as we're using redis pub/sub & message queues
 
 ```bash
-// pull the redis docker image
+# pull the redis docker image
 docker pull redis
 
-// run redis with a attached volume & exposing port so we can connect locally
-// change password as per your need using the --requirepass flag
+# run redis with a attached volume & exposing port so we can connect locally
+# change password as per your need using the --requirepass flag
 docker run -d \
   -v redis-data:/data \
   -p 6379:6379 \
@@ -95,8 +95,8 @@ docker run -d \
 > don't use this format ❌ `https://mydomain.com/`
 
 ```bash
-// pass the mongodb, redis database-url's as build-arguments
-// replace NEXT_PUBLIC_WEBSITE_URL with your domain
+# pass the mongodb, redis database-url's as build-arguments
+# replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker build \
   --build-arg DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
   --build-arg REDIS_URI="redis://:password@localhost:6379" \
@@ -108,8 +108,8 @@ docker build \
 4. Run the docker-image
 
 ```bash
-// pass the mongodb, redis database-url's as environment variables
-// replace NEXT_PUBLIC_WEBSITE_URL with your domain
+# pass the mongodb, redis database-url's as environment variables
+# replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker run -d -p 3000:3000 \
   -e DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
   -e REDIS_URI="redis://:password@localhost:6379" \
