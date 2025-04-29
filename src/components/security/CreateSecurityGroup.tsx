@@ -22,11 +22,13 @@ const CreateSecurityGroup = ({
   description = 'This form allows you to add a security group to your cloud environment.',
   securityGroup,
   cloudProviderAccounts,
+  trigger,
 }: {
   type?: 'create' | 'update'
   description?: string
-  securityGroup?: SecurityGroup
+  securityGroup?: Partial<SecurityGroup>
   cloudProviderAccounts: CloudProviderAccount[]
+  trigger?: React.ReactNode
 }) => {
   const [open, setOpen] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
@@ -38,20 +40,22 @@ const CreateSecurityGroup = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          onClick={e => e.stopPropagation()}
-          disabled={isDemoEnvironment}
-          size={type === 'update' ? 'icon' : 'default'}
-          variant={type === 'update' ? 'outline' : 'default'}>
-          {type === 'update' ? (
-            <Pencil className='h-4 w-4' />
-          ) : (
-            <>
-              <Plus className='mr-2 h-4 w-4' />
-              Add Security Group
-            </>
-          )}
-        </Button>
+        {trigger ?? (
+          <Button
+            onClick={e => e.stopPropagation()}
+            disabled={isDemoEnvironment}
+            size={type === 'update' ? 'icon' : 'default'}
+            variant={type === 'update' ? 'outline' : 'default'}>
+            {type === 'update' ? (
+              <Pencil className='h-4 w-4' />
+            ) : (
+              <>
+                <Plus className='mr-2 h-4 w-4' />
+                Add Security Group
+              </>
+            )}
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent

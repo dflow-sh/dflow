@@ -1,7 +1,7 @@
 'use client'
 
 import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
-import SecurityGroupForm from '../security/CreateSecurityGroupForm'
+import CreateSecurityGroup from '../security/CreateSecurityGroup'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -26,14 +26,6 @@ import {
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -65,12 +57,6 @@ import {
   SshKey,
 } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
-
-// Type for success and error callbacks
-type ActionCallbacks = {
-  onSuccess?: (data: any) => void
-  onError?: (error: any) => void
-}
 
 const CreateEC2InstanceForm = ({
   sshKeys = [],
@@ -395,41 +381,26 @@ const CreateEC2InstanceForm = ({
                     className='w-full'
                   />
                 </div>
-                {isCreating && isOnboarding && (
-                  <Dialog
-                    open={securityGroupDialogOpen}
-                    onOpenChange={setSecurityGroupDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button
-                        disabled={isDemoEnvironment}
-                        onClick={e => e.stopPropagation()}
-                        size='sm'
-                        variant='outline'
-                        type='button'
-                        className='m-0 h-fit shrink-0 p-2'>
-                        <Plus className='h-4 w-4' />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className='sm:max-w-4xl'>
-                      <DialogHeader>
-                        <DialogTitle>Add Security Group</DialogTitle>
-                        <DialogDescription>
-                          Create a new security group for your EC2 instance
-                        </DialogDescription>
-                      </DialogHeader>
 
-                      <SecurityGroupForm
-                        type='create'
-                        setOpen={setSecurityGroupDialogOpen}
-                        cloudProviderAccounts={accountDetails?.data || []}
-                        securityGroup={{
-                          cloudProvider: 'aws',
-                          cloudProviderAccount: form.watch('accountId'),
-                        }}
-                      />
-                    </DialogContent>
-                  </Dialog>
-                )}
+                <CreateSecurityGroup
+                  type='create'
+                  cloudProviderAccounts={accountDetails?.data || []}
+                  securityGroup={{
+                    cloudProvider: 'aws',
+                    cloudProviderAccount: form.watch('accountId'),
+                  }}
+                  trigger={
+                    <Button
+                      disabled={isDemoEnvironment}
+                      onClick={e => e.stopPropagation()}
+                      size='sm'
+                      variant='outline'
+                      type='button'
+                      className='m-0 h-fit shrink-0 p-2'>
+                      <Plus className='h-4 w-4' />
+                    </Button>
+                  }
+                />
               </div>
               <FormMessage />
             </FormItem>
