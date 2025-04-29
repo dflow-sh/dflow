@@ -50,7 +50,7 @@ const SuspendedPage = ({ params }: PageProps) => {
           </p>
         </div>
         {typeof projectDetails.server === 'object' && (
-          <CreateService server={projectDetails.server} />
+          <CreateService server={projectDetails.server} project={project} />
         )}
       </div>
       {services?.docs && services.docs.length ? (
