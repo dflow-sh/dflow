@@ -3,6 +3,8 @@ import { CollectionConfig, Field } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { checkServiceName } from './hooks/checkServiceName'
+
 const databaseOptions = [
   {
     label: 'Postgres',
@@ -270,6 +272,7 @@ export const Services: CollectionConfig = {
   },
   hooks: {
     // afterDelete: [deleteDokkuService],
+    beforeChange: [checkServiceName],
   },
   access: {
     read: isAdmin,

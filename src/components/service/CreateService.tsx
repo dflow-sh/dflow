@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { slugify } from '@/lib/slugify'
-import { Server } from '@/payload-types'
+import { Project, Server } from '@/payload-types'
 
 const databaseOptions = [
   {
@@ -73,11 +73,19 @@ const databaseOptions = [
   },
 ]
 
-const CreateService = ({ server }: { server: Server }) => {
+const CreateService = ({
+  server,
+  project,
+}: {
+  server: Server
+  project: Project
+}) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const params = useParams<{ id: string }>()
   const { plugins = [] } = server
+
+  const projectName = project.name ? slugify(project.name) : ''
 
   const { execute, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
@@ -103,6 +111,18 @@ const CreateService = ({ server }: { server: Server }) => {
   })
 
   const { type } = useWatch({ control: form.control })
+
+  const handleNameChange = (inputValue: string) => {
+    const serviceSpecificName = slugify(inputValue)
+
+    const fullServiceName = projectName
+      ? `${projectName}-${serviceSpecificName}`
+      : serviceSpecificName
+
+    form.setValue('name', fullServiceName, {
+      shouldValidate: true,
+    })
+  }
 
   function onSubmit(values: z.infer<typeof createServiceSchema>) {
     execute(values)
@@ -143,16 +163,28 @@ const CreateService = ({ server }: { server: Server }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        onChange={e => {
-                          form.setValue('name', slugify(e.target.value), {
-                            shouldValidate: true,
-                          })
-                        }}
-                      />
-                    </FormControl>
+                    <div className='space-y-2'>
+                      <p className='text-sm text-gray-500'>
+                        Service will be named:{' '}
+                        <span className='font-semibold'>{projectName}-</span>
+                        <span className='italic'>[your-input]</span>
+                      </p>
+                      <FormControl>
+                        <div className='flex items-center'>
+                          {projectName && (
+                            <div className='flex h-9 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-muted-foreground'>
+                              {projectName}-
+                            </div>
+                          )}
+                          <Input
+                            {...field}
+                            value={field.value.replace(`${projectName}-`, '')}
+                            onChange={e => handleNameChange(e.target.value)}
+                            className={projectName ? 'rounded-l-none' : ''}
+                          />
+                        </div>
+                      </FormControl>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
