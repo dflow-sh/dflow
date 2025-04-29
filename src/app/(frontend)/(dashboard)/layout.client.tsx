@@ -7,7 +7,13 @@ import React from 'react'
 import Tabs from '@/components/Tabs'
 import { cn } from '@/lib/utils'
 
-const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
+const LayoutClient = ({
+  children,
+  className,
+}: {
+  children?: React.ReactNode
+  className?: string
+}) => {
   const pathName = usePathname()
 
   const tabsList = [
@@ -39,7 +45,8 @@ const LayoutClient = ({ children }: { children?: React.ReactNode }) => {
         <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-32 w-full max-w-6xl px-4 pt-4'>
+      <main
+        className={cn('mx-auto mb-32 w-full max-w-6xl px-4 pt-4', className)}>
         {children}
       </main>
     </>
