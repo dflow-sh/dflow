@@ -20,7 +20,7 @@ const page = async () => {
       <section>
         <div className='flex w-full justify-between'>
           <h3 className='text-2xl font-semibold'>Templates</h3>
-          <Link href={'/templates/create'}>
+          <Link href={'/templates/compose'}>
             <Button>Create Template</Button>
           </Link>
         </div>
