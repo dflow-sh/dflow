@@ -2,8 +2,9 @@
 
 import { Button } from '../ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Trash2 } from 'lucide-react'
+import { SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -131,6 +132,12 @@ const TemplateDetails = ({ template }: { template: Template }) => {
         </div>
 
         <div className='flex items-center gap-3'>
+          <Link href={`/templates/compose?templateId=${template?.id}`}>
+            <Button variant={'outline'}>
+              <SquarePen size={20} />
+            </Button>
+          </Link>
+
           <Button
             disabled={isPending}
             onClick={() => {
