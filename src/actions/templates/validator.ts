@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const createTemplateSchema = z.object({
   name: z.string({ message: 'Name is required' }),
-  description: z.string(),
+  description: z.string().optional(),
   services: z.array(
     z.object({
       type: z.enum(['app', 'database', 'docker']),
@@ -112,3 +112,7 @@ export const UpdateServiceSchema = z.object({
 })
 
 export type UpdateServiceType = z.infer<typeof UpdateServiceSchema>
+
+export const updateTemplateSchema = createTemplateSchema.extend({
+  id: z.string(),
+})

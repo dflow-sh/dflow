@@ -6,7 +6,11 @@ import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 
-import { DeleteTemplateSchema, createTemplateSchema } from './validator'
+import {
+  DeleteTemplateSchema,
+  createTemplateSchema,
+  updateTemplateSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -59,6 +63,31 @@ export const getTemplateById = protectedClient
     const response = await payload.findByID({
       collection: 'templates',
       id,
+    })
+    return response
+  })
+
+export const updateTemplate = protectedClient
+  .metadata({
+    actionName: 'updateTemplate',
+  })
+  .schema(updateTemplateSchema)
+  .action(async ({ clientInput }) => {
+    const { id, name, services, description } = clientInput
+    console.dir({ clientInput }, { depth: Infinity })
+
+    const response = await payload.update({
+      collection: 'templates',
+      where: {
+        id: {
+          equals: id,
+        },
+      },
+      data: {
+        name,
+        description,
+        services,
+      },
     })
     return response
   })
