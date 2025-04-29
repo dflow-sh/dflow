@@ -39,7 +39,7 @@ interface QueueArgs {
   }
 }
 
-const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
+export const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 

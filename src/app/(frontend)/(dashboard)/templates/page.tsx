@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 
 const page = async () => {
   const payload = await getPayload({ config: configPromise })
+
   const { docs: templates, totalDocs } = await payload.find({
     collection: 'templates',
     pagination: false,
@@ -23,6 +24,7 @@ const page = async () => {
             <Button>Create Template</Button>
           </Link>
         </div>
+
         {totalDocs > 0 ? (
           <div className='mt-4 w-full space-y-4'>
             {templates?.map(template => (

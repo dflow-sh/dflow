@@ -2,11 +2,23 @@ import { addDockerImageDeploymentQueue } from '../app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '../app/dockerfile-deployment'
 import { addRailpackDeployQueue } from '../app/railpack-deployment'
 import { addCreateDatabaseQueue } from '../database/create'
+import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
 import configPromise from '@payload-config'
-import { Queue, QueueEvents, Worker } from 'bullmq'
+import { Job, Queue, Worker } from 'bullmq'
+import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
+import {
+  Config,
+  NumberDictionary,
+  adjectives,
+  animals,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 
-import { queueConnection } from '@/lib/redis'
+import { dokku } from '@/lib/dokku'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendEvent } from '@/lib/sendEvent'
+import { dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
@@ -17,74 +29,75 @@ interface QueueArgs {
 
 const queueName = 'deploy-template'
 
-export const createPluginQueue = new Queue<QueueArgs>(queueName, {
+export const deployTemplateQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
-// {
-//   "id": "680f63994fc04025f089c375",
-//   "name": "hasura-template",
-//   "description": "this template has all services required to deploy hasura",
-//   "services": [
-//     {
-//       "type": "database",
-//       "githubSettings": {
-//         "buildPath": "/",
-//         "port": 3000
-//       },
-//       "builder": "railpack",
+async function waitForJobCompletion(
+  job: Job,
+  options: {
+    maxAttempts?: number
+    pollingInterval?: number
+    successStates?: string[]
+    failureStates?: string[]
+  } = {},
+) {
+  console.log('inside the loop')
+  const {
+    maxAttempts = 180, // 30 minutes with 10s interval
+    pollingInterval = 10000, // 10 seconds
+    successStates = ['completed'],
+    failureStates = ['failed', 'unknown'],
+  } = options
 
-//       "databaseDetails": {
-//         "type": "postgres"
-//       },
+  let attempts = 0
 
-//       "dockerDetails": {
-//         "ports": []
-//       },
-//       "name": "hasura-postgres",
-//       "variables": [],
-//       "id": "clear-amethyst"
-//     },
-//     {
-//       "type": "docker",
-//       "githubSettings": {
-//         "buildPath": "/",
-//         "port": 3000
-//       },
-//       "builder": "railpack",
-//       "databaseDetails": {},
-//       "dockerDetails": {
-//         "url": "hasura/graphql-engine:latest",
-//         "ports": [
-//           {
-//             "hostPort": 80,
-//             "containerPort": 8080,
-//             "scheme": "http",
-//             "id": "680f6399749680000118a75c"
-//           }
-//         ]
-//       },
-//       "name": "hasura-docker",
-//       "variables": [
-//         {
-//           "key": "HASURA_GRAPHQL_DATABASE_URL",
-//           "value": "${{postgres:hasura-postgres.DATABASE_URI}}",
-//           "id": "680f6399749680000118a75d"
-//         },
+  while (attempts < maxAttempts) {
+    try {
+      // Get the current state of the job
+      const state = await job.getState()
 
-//         {
-//           "key": "HASURA_GRAPHQL_ENABLE_CONSOLE",
-//           "value": "true",
-//           "id": "680f6399749680000118a75e"
-//         }
-//       ],
-//       "id": "objective-magenta"
-//     }
-//   ],
-//   "createdAt": "2025-04-28T11:16:41.561Z",
-//   "updatedAt": "2025-04-28T11:16:41.561Z"
-// }
+      console.log({ state })
 
+      // Check if job completed successfully
+      if (successStates.includes(state)) {
+        return { success: true }
+      }
+
+      // Check if job failed
+      if (failureStates.includes(state)) {
+        throw new Error('job execution failed')
+      }
+
+      // Wait for the polling interval before checking again
+      await new Promise(resolve => setTimeout(resolve, pollingInterval))
+      attempts++
+    } catch (error) {
+      throw new Error(
+        `Error polling job ${job.id}: ${error instanceof Error ? error.message : ''}`,
+      )
+    }
+  }
+
+  // If we've reached the maximum number of attempts, consider it a timeout
+  throw new Error(`Error execution timeout`)
+}
+
+const handleGenerateName = (): string => {
+  const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
+
+  const nameConfig: Config = {
+    dictionaries: [adjectives, animals, numberDictionary],
+    separator: '-',
+    length: 3,
+    style: 'lowerCase',
+  }
+
+  return uniqueNamesGenerator(nameConfig)
+}
+
+// todo: need to add deployment strategy which will sort the services or based on dependency
+// todo: change the waitForJobCompletion method from for-loop to performant way
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
@@ -109,11 +122,17 @@ const worker = new Worker<QueueArgs>(
         throw new Error('Please attach services to deploy the template')
       }
 
+      sendEvent({
+        message: 'Started deploying template',
+        pub,
+        serverId,
+      })
+
       // 1.1 create a project
       const projectDetails = await payload.create({
         collection: 'projects',
         data: {
-          name: templateDetails?.name,
+          name: `${templateDetails.name}`,
           server: serverId,
         },
       })
@@ -128,7 +147,7 @@ const worker = new Worker<QueueArgs>(
           const serviceResponse = await payload.create({
             collection: 'services',
             data: {
-              name: name ?? '',
+              name: `${name}`,
               type,
               databaseDetails: {
                 type: service.databaseDetails?.type,
@@ -145,7 +164,7 @@ const worker = new Worker<QueueArgs>(
           const serviceResponse = await payload.create({
             collection: 'services',
             data: {
-              name: name ?? '',
+              name: `${name}`,
               type,
               dockerDetails: service?.dockerDetails,
               project: projectDetails?.id,
@@ -161,7 +180,7 @@ const worker = new Worker<QueueArgs>(
             const serviceResponse = await payload.create({
               collection: 'services',
               data: {
-                name: name ?? '',
+                name: `${name}`,
                 type,
                 project: projectDetails?.id,
                 variables: service?.variables,
@@ -177,6 +196,12 @@ const worker = new Worker<QueueArgs>(
           }
         }
       }
+
+      sendEvent({
+        message: 'Created database entries',
+        pub,
+        serverId,
+      })
 
       // Step 2: map through deployment sequence
       // 2.1 create a deployment entry in database
@@ -196,7 +221,17 @@ const worker = new Worker<QueueArgs>(
           ...serviceDetails
         } = createdService
 
-        let queueResponseId: string | undefined = ''
+        console.log({
+          project,
+          type,
+          providerType,
+          githubSettings,
+          provider,
+          environmentVariables,
+          populatedVariables,
+          variables,
+          ...serviceDetails,
+        })
 
         const deploymentResponse = await payload.create({
           collection: 'deployments',
@@ -220,57 +255,206 @@ const worker = new Worker<QueueArgs>(
 
           if (type === 'app') {
             if (providerType === 'github' && githubSettings) {
+              let ssh: NodeSSH | null = null
               const builder = serviceDetails.builder ?? 'railpack'
 
-              if (builder === 'railpack') {
-                const { id } = await addRailpackDeployQueue({
-                  appName: serviceDetails.name,
-                  userName: githubSettings.owner,
-                  repoName: githubSettings.repository,
-                  branch: githubSettings.branch,
-                  sshDetails: sshDetails,
-                  serviceDetails: {
-                    deploymentId: deploymentResponse.id,
-                    serviceId: serviceDetails.id,
-                    provider,
-                    serverId: project.server.id,
-                    port: githubSettings.port
-                      ? githubSettings.port.toString()
-                      : '3000',
-                    populatedVariables: populatedVariables ?? '{}',
-                    variables: variables ?? [],
-                  },
-                  payloadToken,
-                })
+              try {
+                ssh = await dynamicSSH(sshDetails)
+                const appCreationResponse = await dokku.apps.create(
+                  ssh,
+                  serviceDetails?.name,
+                )
 
-                queueResponseId = id
-              } else if (builder === 'dockerfile') {
-                const { id } = await addDockerFileDeploymentQueue({
-                  appName: serviceDetails.name,
-                  userName: githubSettings.owner,
-                  repoName: githubSettings.repository,
-                  branch: githubSettings.branch,
-                  sshDetails: sshDetails,
-                  serviceDetails: {
-                    deploymentId: deploymentResponse.id,
-                    serviceId: serviceDetails.id,
-                    provider,
-                    serverId: project.server.id,
-                    port: githubSettings.port
-                      ? githubSettings.port.toString()
-                      : '3000',
-                    populatedVariables: populatedVariables ?? '{}',
-                    variables: variables ?? [],
-                  },
-                  payloadToken,
-                })
+                // app creation failed need to thronging an error
+                if (!appCreationResponse) {
+                  throw new Error(`❌ Failed to create ${serviceDetails?.name}`)
+                }
 
-                queueResponseId = id
+                let updatedServiceDetails: Service | null = null
+
+                // if variables are added updating the variables
+                if (variables?.length) {
+                  const environmentVariablesQueue =
+                    await addUpdateEnvironmentVariablesQueue({
+                      sshDetails,
+                      serverDetails: {
+                        id: project?.server?.id,
+                      },
+                      serviceDetails: {
+                        id: serviceDetails.id,
+                        name: serviceDetails.name,
+                        noRestart: true,
+                        previousVariables: [],
+                        variables: variables ?? [],
+                      },
+                    })
+
+                  environmentVariablesQueue.getState()
+
+                  await waitForJobCompletion(environmentVariablesQueue)
+
+                  // fetching the latest details of the service
+                  updatedServiceDetails = await payload.findByID({
+                    collection: 'services',
+                    id: serviceDetails.id,
+                  })
+                }
+
+                const updatedPopulatedVariables =
+                  updatedServiceDetails?.populatedVariables ||
+                  populatedVariables
+
+                const updatedVariables =
+                  updatedServiceDetails?.variables || variables
+
+                // triggering queue with latest values
+                if (builder === 'railpack') {
+                  const railpackDeployQueue = await addRailpackDeployQueue({
+                    appName: serviceDetails.name,
+                    userName: githubSettings.owner,
+                    repoName: githubSettings.repository,
+                    branch: githubSettings.branch,
+                    sshDetails: sshDetails,
+                    serviceDetails: {
+                      deploymentId: deploymentResponse.id,
+                      serviceId: serviceDetails.id,
+                      provider,
+                      serverId: project.server.id,
+                      port: githubSettings.port
+                        ? githubSettings.port.toString()
+                        : '3000',
+                      populatedVariables: updatedPopulatedVariables ?? '{}',
+                      variables: updatedVariables ?? [],
+                    },
+                    payloadToken,
+                  })
+
+                  await waitForJobCompletion(railpackDeployQueue)
+                } else if (builder === 'dockerfile') {
+                  const dockerFileDeploymentQueue =
+                    await addDockerFileDeploymentQueue({
+                      appName: serviceDetails.name,
+                      userName: githubSettings.owner,
+                      repoName: githubSettings.repository,
+                      branch: githubSettings.branch,
+                      sshDetails: sshDetails,
+                      serviceDetails: {
+                        deploymentId: deploymentResponse.id,
+                        serviceId: serviceDetails.id,
+                        provider,
+                        serverId: project.server.id,
+                        port: githubSettings.port
+                          ? githubSettings.port.toString()
+                          : '3000',
+                        populatedVariables: populatedVariables ?? '{}',
+                        variables: variables ?? [],
+                      },
+                      payloadToken,
+                    })
+
+                  await waitForJobCompletion(dockerFileDeploymentQueue)
+                }
+              } catch (error) {
+                let message = error instanceof Error ? error.message : ''
+                throw new Error(message)
+              } finally {
+                // disposing ssh even on error cases
+                if (ssh) {
+                  ssh.dispose()
+                }
               }
             }
           }
 
+          if (
+            type === 'docker' &&
+            serviceDetails.dockerDetails &&
+            serviceDetails.dockerDetails.url
+          ) {
+            console.log('inside docker')
+            let ssh: NodeSSH | null = null
+            const { account, url, ports } = serviceDetails.dockerDetails
+
+            try {
+              ssh = await dynamicSSH(sshDetails)
+
+              const appCreationResponse = await dokku.apps.create(
+                ssh,
+                serviceDetails?.name,
+              )
+
+              // app creation failed need to thronging an error
+              if (!appCreationResponse) {
+                throw new Error(
+                  `❌ Failed to create-app ${serviceDetails?.name}`,
+                )
+              }
+
+              let updatedServiceDetails: Service | null = null
+
+              if (variables?.length) {
+                const environmentVariablesQueue =
+                  await addUpdateEnvironmentVariablesQueue({
+                    sshDetails,
+                    serverDetails: {
+                      id: project?.server?.id,
+                    },
+                    serviceDetails: {
+                      id: serviceDetails.id,
+                      name: serviceDetails.name,
+                      noRestart: true,
+                      previousVariables: [],
+                      variables: variables ?? [],
+                    },
+                  })
+
+                await waitForJobCompletion(environmentVariablesQueue)
+
+                // fetching the latest details of the service
+                updatedServiceDetails = await payload.findByID({
+                  collection: 'services',
+                  id: serviceDetails.id,
+                })
+              }
+
+              const updatedPopulatedVariables =
+                updatedServiceDetails?.populatedVariables || populatedVariables
+
+              const updatedVariables =
+                updatedServiceDetails?.variables || variables
+
+              const dockerImageQueueResponse =
+                await addDockerImageDeploymentQueue({
+                  sshDetails,
+                  payloadToken,
+                  appName: serviceDetails.name,
+                  serviceDetails: {
+                    deploymentId: deploymentResponse.id,
+                    account: typeof account === 'object' ? account : null,
+                    populatedVariables: updatedPopulatedVariables ?? '{}',
+                    variables: updatedVariables ?? [],
+                    imageName: url,
+                    ports,
+                    serverId: project.server.id,
+                    serviceId: serviceDetails.id,
+                  },
+                })
+
+              await waitForJobCompletion(dockerImageQueueResponse)
+            } catch (error) {
+              let message = error instanceof Error ? error.message : ''
+              throw new Error(message)
+            } finally {
+              // disposing ssh even on error cases
+              if (ssh) {
+                ssh.dispose()
+              }
+            }
+          }
+
+          console.log('outside database', serviceDetails.databaseDetails)
           if (type === 'database' && serviceDetails.databaseDetails?.type) {
+            console.log('database hitted')
             const databaseQueueResponse = await addCreateDatabaseQueue({
               databaseName: serviceDetails.name,
               databaseType: serviceDetails.databaseDetails?.type,
@@ -283,47 +467,34 @@ const worker = new Worker<QueueArgs>(
               payloadToken,
             })
 
-            const queueEvents = new QueueEvents(queueName, {
-              connection: queueConnection,
-            })
-            const response =
-              await databaseQueueResponse.waitUntilFinished(queueEvents)
-            queueResponseId = databaseQueueResponse.id
-          }
+            console.log({ databaseQueueResponse })
 
-          if (
-            type === 'docker' &&
-            serviceDetails.dockerDetails &&
-            serviceDetails.dockerDetails.url
-          ) {
-            const { account, url, ports } = serviceDetails.dockerDetails
-
-            const dockerImageQueueResponse =
-              await addDockerImageDeploymentQueue({
-                sshDetails,
-                payloadToken,
-                appName: serviceDetails.name,
-                serviceDetails: {
-                  deploymentId: deploymentResponse.id,
-                  account: typeof account === 'object' ? account : null,
-                  populatedVariables: populatedVariables ?? '{}',
-                  variables: variables ?? [],
-                  imageName: url,
-                  ports,
-                  serverId: project.server.id,
-                  serviceId: serviceDetails.id,
-                },
-              })
-
-            queueResponseId = dockerImageQueueResponse.id
+            await waitForJobCompletion(databaseQueueResponse)
           }
         }
       }
-    } catch (error) {}
+
+      sendEvent({
+        message: '✅ Successfully deployed template',
+        pub,
+        serverId,
+      })
+    } catch (error) {
+      let message = error instanceof Error ? error.message : ''
+      throw new Error(message)
+    }
   },
   {
     connection: queueConnection,
-    // Add concurrency limit
     concurrency: 1,
   },
 )
+
+worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
+  console.log('Failed to deploy template', err)
+})
+
+export const addTemplateDeployQueue = async (data: QueueArgs) => {
+  const id = `deploy-template:${new Date().getTime()}`
+  return await deployTemplateQueue.add(id, data, { ...jobOptions, jobId: id })
+}
