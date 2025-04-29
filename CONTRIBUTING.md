@@ -16,13 +16,14 @@ full control over your data and infrastructure.
 
 1. Fork the repository
 2. clone your forked repository locally
-3. create a new branch for your feature/fix
+3. Copy `.env.example` to `.env` and fill in the required values.
+4. create a new branch for your feature/fix
    `git checkout -b {feature/fix}/your-feature-name`
-4. Make your changes.
-5. Ensure your code is working as expected.
-6. Push your branch to your forked repo:
+5. Make your changes.
+6. Ensure your code is working as expected.
+7. Push your branch to your forked repo:
    `git push origin {feature/fix}/your-feature-name`
-7. Open a Pull Request (PR) against the main branch.
+8. Open a Pull Request (PR) against the main branch.
 
 ## 📂 Project Structure
 
