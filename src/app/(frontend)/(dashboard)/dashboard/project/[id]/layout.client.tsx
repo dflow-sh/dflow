@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { toast } from 'sonner'
 
 import SelectSearch from '@/components/SelectSearch'
 import ProjectTerminal from '@/components/project/ProjectTerminal'
@@ -20,10 +22,23 @@ const ClientLayout = ({
   projects: Project[]
 }) => {
   const [mounted, setMounted] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+
+    if (searchParams.get('onboarding') === 'completed') {
+      toast.success('Successfully installed github app', {
+        duration: 10000,
+        description: `Github app has been installed successfully.`,
+      })
+
+      const params = new URLSearchParams(searchParams.toString())
+      params.delete('onboarding')
+      router.replace(`?${params.toString()}`, { scroll: false })
+    }
+  }, [searchParams, router])
 
   return (
     <>

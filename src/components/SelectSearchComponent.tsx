@@ -4,10 +4,12 @@ import {
   CheckIcon,
   ChevronDownIcon,
   HardDrive,
+  RefreshCw,
   TriangleAlert,
 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
-import { JSX, SVGProps, useEffect, useState } from 'react'
+import { JSX, SVGProps, useEffect, useState, useTransition } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -53,6 +55,8 @@ export default function SelectSearchComponent({
   const [open, setOpen] = useState<boolean>(false)
   const [server, setServer] = useQueryState('server')
   const [selectedServer, setSelectedServer] = useState(server)
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const { setDokkuInstallationStep } = useDokkuInstallationStep()
 
@@ -95,6 +99,12 @@ export default function SelectSearchComponent({
     setOpen(false)
   }
 
+  const handleRefresh = () => {
+    startTransition(() => {
+      router.refresh()
+    })
+  }
+
   return (
     <div className='*:not-first:mt-2'>
       <Label htmlFor={'server-select'} className='mb-2 ml-1.5 block'>
@@ -102,25 +112,32 @@ export default function SelectSearchComponent({
       </Label>
 
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={'server-select'}
-            variant='outline'
-            role='combobox'
-            aria-expanded={open}
-            className='w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background hover:text-white focus-visible:outline-[3px]'>
-            <span>
-              {selectedServer
-                ? servers.find(s => s.id === selectedServer)?.name
-                : `${buttonLabel}`}
-            </span>
-            <ChevronDownIcon
-              size={16}
-              className='shrink-0 text-muted-foreground/80'
-              aria-hidden='true'
+        <div className='flex items-center gap-x-2'>
+          <PopoverTrigger asChild>
+            <Button
+              id={'server-select'}
+              variant='outline'
+              role='combobox'
+              aria-expanded={open}
+              className='w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background hover:text-white focus-visible:outline-[3px]'>
+              <span>
+                {selectedServer
+                  ? servers.find(s => s.id === selectedServer)?.name
+                  : `${buttonLabel}`}
+              </span>
+              <ChevronDownIcon
+                size={16}
+                className='shrink-0 text-muted-foreground/80'
+                aria-hidden='true'
+              />
+            </Button>
+          </PopoverTrigger>
+          <Button variant={'secondary'} onClick={handleRefresh}>
+            <RefreshCw
+              className={`stroke-muted-foreground ${isPending && 'animate-spin'}`}
             />
           </Button>
-        </PopoverTrigger>
+        </div>
 
         <PopoverContent
           className='w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0'
