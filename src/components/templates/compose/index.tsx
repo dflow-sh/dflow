@@ -260,7 +260,6 @@ const CreateNewTemplate = () => {
     <div className='w-full'>
       <div className='flex w-full items-center justify-end p-2'>
         <Button
-          className='z-20'
           variant={'default'}
           disabled={nodes?.length <= 0}
           onClick={() => setOpenCreateTemplate(true)}>
