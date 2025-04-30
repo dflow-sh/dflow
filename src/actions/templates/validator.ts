@@ -63,7 +63,7 @@ export const DeleteTemplateSchema = z.object({
 })
 
 export const deployTemplateSchema = DeleteTemplateSchema.extend({
-  serverId: z.string(),
+  projectId: z.string(),
 })
 
 export const UpdateServiceSchema = z.object({

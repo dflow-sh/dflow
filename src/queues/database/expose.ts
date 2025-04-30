@@ -25,7 +25,6 @@ interface QueueArgs {
     port: number
   }
   serviceDetails: {
-    id: string
     ports: Array<string>
     previousPorts?: Array<string>
   }

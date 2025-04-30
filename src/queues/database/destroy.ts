@@ -88,9 +88,7 @@ const worker = new Worker<QueueArgs>(
 
           // if there is failure while unlinking database thronging error
           if (unlinkResponse.code !== 0) {
-            throw new Error(
-              `unlinking ${databaseName}-database from ${app} failed!`,
-            )
+            throw new Error(`unlinking ${databaseName} from ${app} failed!`)
           }
         }
       }

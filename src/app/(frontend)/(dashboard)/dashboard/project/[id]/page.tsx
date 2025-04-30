@@ -9,6 +9,7 @@ import ServicesArchitecture from '@/components/project/ServicesArchitecture'
 import CreateService from '@/components/service/CreateService'
 import { ServiceCard } from '@/components/service/ServiceCard'
 import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
+import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
 
 interface PageProps {
@@ -49,10 +50,15 @@ const SuspendedPage = ({ params }: PageProps) => {
             {projectDetails.description}
           </p>
         </div>
+
         {typeof projectDetails.server === 'object' && (
-          <CreateService server={projectDetails.server} project={project} />
+          <div className='flex items-center gap-3'>
+            <DeployTemplate />
+            <CreateService server={projectDetails.server} project={project} />
+          </div>
         )}
       </div>
+
       {services?.docs && services.docs.length ? (
         <div className='mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
           {services.docs.map((service, index) => {
