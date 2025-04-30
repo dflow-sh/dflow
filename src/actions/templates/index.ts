@@ -12,6 +12,7 @@ import {
   DeleteTemplateSchema,
   createTemplateSchema,
   deployTemplateSchema,
+  updateTemplateSchema,
 } from './validator'
 
 const payload = await getPayload({ config: configPromise })
@@ -69,6 +70,7 @@ export const getTemplateById = protectedClient
     return response
   })
 
+
 export const deployTemplateAction = protectedClient
   .metadata({
     actionName: 'deployTemplateAction',
@@ -88,4 +90,28 @@ export const deployTemplateAction = protectedClient
     if (response.id) {
       return { success: true }
     }
+  })
+
+export const updateTemplate = protectedClient
+  .metadata({
+    actionName: 'updateTemplate',
+  })
+  .schema(updateTemplateSchema)
+  .action(async ({ clientInput }) => {
+    const { id, name, services, description } = clientInput
+
+    const response = await payload.update({
+      collection: 'templates',
+      where: {
+        id: {
+          equals: id,
+        },
+      },
+      data: {
+        name,
+        description,
+        services,
+      },
+    })
+    return response
   })
