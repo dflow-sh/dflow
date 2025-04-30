@@ -86,6 +86,8 @@ const LayoutClient = ({
       </main>
 
       {mounted &&
+        typeof window !== 'undefined' &&
+        document.getElementById('serverName') &&
         createPortal(
           <div className='flex items-center gap-1 text-sm font-normal'>
             <svg
