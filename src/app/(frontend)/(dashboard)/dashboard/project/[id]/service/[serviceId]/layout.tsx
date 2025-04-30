@@ -85,6 +85,26 @@ const SuspendedServicePageLayout = ({
           <div className='flex items-center gap-2'>
             {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
             <h1 className='text-2xl font-semibold'>{serviceDetails.name}</h1>
+
+            {serviceDetails?.databaseDetails?.status && (
+              <Badge className='h-max w-max gap-1' variant={'outline'}>
+                {serviceDetails?.databaseDetails?.status}
+              </Badge>
+            )}
+
+            <SidebarToggleButton
+              directory='services'
+              fileName={`${serviceDetails?.type === 'app' ? 'app-service' : serviceDetails?.type === 'database' ? 'database-service' : serviceDetails?.type === 'docker' ? 'docker-service' : ''}`}
+            />
+          </div>
+
+          <p
+            className='line-clamp-1 text-muted-foreground'
+            title={serviceDetails.description || undefined}>
+            {serviceDetails.description}
+          </p>
+
+          <div className='flex items-center gap-2 text-muted-foreground'>
             {domains?.length ? (
               <>
                 <Globe size={16} />
@@ -96,6 +116,7 @@ const SuspendedServicePageLayout = ({
                 </Link>
               </>
             ) : null}
+
             {domains?.length && domains.length > 1 ? (
               <TooltipProvider>
                 <Tooltip>
@@ -118,21 +139,7 @@ const SuspendedServicePageLayout = ({
                 </Tooltip>
               </TooltipProvider>
             ) : null}
-            {serviceDetails?.databaseDetails?.status && (
-              <Badge className='h-max w-max gap-1' variant={'outline'}>
-                {serviceDetails?.databaseDetails?.status}
-              </Badge>
-            )}
-            <SidebarToggleButton
-              directory='services'
-              fileName={`${serviceDetails?.type === 'app' ? 'app-service' : serviceDetails?.type === 'database' ? 'database-service' : serviceDetails?.type === 'docker' ? 'docker-service' : ''}`}
-            />
           </div>
-          <p
-            className='line-clamp-1 text-muted-foreground'
-            title={serviceDetails.description || undefined}>
-            {serviceDetails.description}
-          </p>
         </div>
 
         <DeploymentForm service={{ project, ...serviceDetails }} />

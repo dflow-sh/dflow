@@ -140,63 +140,11 @@ const worker = new Worker<QueueArgs>(
           channelId: serviceDetails.deploymentId,
         })
 
-        const envResponse = await dokku.config.set({
-          ssh,
-          name: appName,
-          values: Object.entries(formattedVariables).map(([key, value]) => {
-            return {
-              key,
-              value: `${value}`,
-            }
-          }),
-          noRestart: true,
-          options: {
-            onStdout: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-            onStderr: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-          },
-        })
-
-        if (envResponse) {
-          sendEvent({
-            message: `✅ Successfully set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `❌ Failed to set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        }
-
         const option = Object.entries(formattedVariables)
           .map(([key, value]) => {
             return `--build-arg ${key}="${value}"`
           })
           .join(' ')
-
-        console.log('updated build-params', { option })
 
         sendEvent({
           message: `Stated adding environment variables as build arguments`,
@@ -233,8 +181,6 @@ const worker = new Worker<QueueArgs>(
             },
           },
         })
-
-        console.log({ buildArgsResponse })
 
         if (buildArgsResponse.code === 0) {
           sendEvent({

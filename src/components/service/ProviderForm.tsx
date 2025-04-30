@@ -315,7 +315,7 @@ const GithubForm = ({
                 control={form.control}
                 name='provider'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='mt-[-0.5rem]'>
                     <FormControl>
                       <SelectSearch
                         fieldValue={field.value}
@@ -429,7 +429,7 @@ const GithubForm = ({
             </div>
 
             <div className='grid gap-4 md:grid-cols-4'>
-              <div className='md:col-span-2'>
+              <div className='mt-2 md:col-span-2'>
                 {/* Branch field */}
                 <FormField
                   control={form.control}

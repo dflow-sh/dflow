@@ -14,7 +14,6 @@ interface PageProps {
 
 const ProjectIdLayout = async ({ children, params }: PageProps) => {
   const { id } = await params
-
   const payload = await getPayload({ config: configPromise })
 
   try {

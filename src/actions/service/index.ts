@@ -532,7 +532,6 @@ export const exposeDatabasePortAction = protectedClient
             sshDetails,
 
             serviceDetails: {
-              id,
               ports,
               previousPorts: serviceDetails.databaseDetails?.exposedPorts ?? [],
             },

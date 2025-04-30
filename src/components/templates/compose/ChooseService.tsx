@@ -1,8 +1,8 @@
 'use client'
 
 import { Edge, Node, OnEdgesChange, OnNodesChange } from '@xyflow/react'
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion'
 import { ChevronRight, Database, Github, Plus } from 'lucide-react'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import {
   ChangeEvent,
   Ref,

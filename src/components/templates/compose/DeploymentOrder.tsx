@@ -1,14 +1,14 @@
 'use client'
 
 import { Node } from '@xyflow/react'
+import { Database, Github, GripVertical } from 'lucide-react'
 import {
   MotionValue,
   Reorder,
   animate,
   useDragControls,
   useMotionValue,
-} from 'framer-motion'
-import { Database, Github, GripVertical } from 'lucide-react'
+} from 'motion/react'
 import { JSX, useEffect, useState } from 'react'
 
 import {

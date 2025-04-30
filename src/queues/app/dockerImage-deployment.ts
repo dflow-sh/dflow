@@ -129,68 +129,7 @@ const worker = new Worker<QueueArgs>(
         }
       }
 
-      // Step 2: Setting environment variables & add build-args
-      if (variables.length) {
-        sendEvent({
-          message: `Stated setting environment variables`,
-          pub,
-          serverId,
-          serviceId,
-          channelId: deploymentId,
-        })
-
-        const envResponse = await dokku.config.set({
-          ssh,
-          name: appName,
-          values: Object.entries(formattedVariables).map(([key, value]) => {
-            return {
-              key,
-              value: `${value}`,
-            }
-          }),
-          noRestart: true,
-          options: {
-            onStdout: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: deploymentId,
-              })
-            },
-            onStderr: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: deploymentId,
-              })
-            },
-          },
-        })
-
-        if (envResponse) {
-          sendEvent({
-            message: `✅ Successfully set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `❌ Failed to set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: deploymentId,
-          })
-        }
-      }
-
-      // Step 3: Add permissions if account has added
+      // Step 2: Add permissions if account has added
       if (account) {
         const { username, type, password } = account
         const accountResponse = await dokku.docker.registry.login({
@@ -234,7 +173,7 @@ const worker = new Worker<QueueArgs>(
         }
       }
 
-      // Step 4: Docker image deployment
+      // Step 3: Docker image deployment
       sendEvent({
         message: `Stated pulling image`,
         pub,
@@ -285,7 +224,7 @@ const worker = new Worker<QueueArgs>(
       const httpEnabled = ports && ports.find(port => port.hostPort === 80)
 
       if (httpEnabled) {
-        // Step 5: Check for Let's Encrypt status & generate SSL
+        // Step 4: Check for Let's Encrypt status & generate SSL
         const letsencryptStatus = await dokku.letsencrypt.status({
           appName,
           ssh,

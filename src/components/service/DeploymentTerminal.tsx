@@ -33,7 +33,7 @@ const TerminalContent = ({
       return
     }
 
-    if (eventSourceRef.current) {
+    if (!terminalInstance) {
       return
     }
 
@@ -55,7 +55,7 @@ const TerminalContent = ({
     return () => {
       eventSource.close()
     }
-  }, [])
+  }, [terminalInstance])
 
   useEffect(() => {
     if (!!logs.length && terminalInstance) {

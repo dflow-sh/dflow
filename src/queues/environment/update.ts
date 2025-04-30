@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
+import { REFERENCE_VARIABLE_REGEX } from '@/lib/constants'
 import { pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { Service } from '@/payload-types'
@@ -39,11 +40,10 @@ interface QueueArgs {
   }
 }
 
-const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
+export const updateEnvironmentVariablesQueue = new Queue<QueueArgs>(queueName, {
   connection: queueConnection,
 })
 
-const regex = /\${{\s*(\w+):([\w-]+)\.([\w_]+)\s*}}/
 const supportedDatabases = ['postgres', 'mongo', 'mysql', 'redis', 'mariadb']
 
 const worker = new Worker<QueueArgs>(
@@ -122,7 +122,9 @@ const worker = new Worker<QueueArgs>(
       for (let index = 0; index < variables.length; index++) {
         const variable = variables[index]
 
-        const isReferenceVariable = regex.test(variable.value)
+        const isReferenceVariable = REFERENCE_VARIABLE_REGEX.test(
+          variable.value,
+        )
 
         if (isReferenceVariable) {
           referenceVariables.push(variable)
@@ -151,9 +153,7 @@ const worker = new Worker<QueueArgs>(
           referenceVariable,
           referenceKeyPairs,
         ] of groupedReferenceVariables) {
-          const match = referenceVariable.match(regex)
-
-          console.log({ match, referenceVariable, referenceKeyPairs })
+          const match = referenceVariable.match(REFERENCE_VARIABLE_REGEX)
 
           if (match) {
             const [_variable, databaseType, databaseName, key] = match
@@ -243,7 +243,6 @@ const worker = new Worker<QueueArgs>(
           }
         }
       }
-
       const envResponse = await dokku.config.set({
         ssh,
         name: serviceDetails.name,

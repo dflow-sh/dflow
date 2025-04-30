@@ -21,6 +21,7 @@ const TemplateDetails = ({ template }: { template: Template }) => {
       toast.error(`Failed to delete template: ${error.serverError}`)
     },
   })
+
   return (
     <Card>
       <CardContent className='flex h-24 w-full items-center justify-between gap-3 pt-4'>

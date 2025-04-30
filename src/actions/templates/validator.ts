@@ -62,6 +62,10 @@ export const DeleteTemplateSchema = z.object({
   id: z.string(),
 })
 
+export const deployTemplateSchema = DeleteTemplateSchema.extend({
+  projectId: z.string(),
+})
+
 export const UpdateServiceSchema = z.object({
   name: z.string(),
   variables: z

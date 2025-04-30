@@ -8,6 +8,7 @@ import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServicesArchitecture from '@/components/project/ServicesArchitecture'
 import CreateService from '@/components/service/CreateService'
 import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
+import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
 
 interface PageProps {
@@ -48,8 +49,12 @@ const SuspendedPage = ({ params }: PageProps) => {
             {projectDetails.description}
           </p>
         </div>
+
         {typeof projectDetails.server === 'object' && (
-          <CreateService server={projectDetails.server} project={project} />
+          <div className='flex items-center gap-3'>
+            <DeployTemplate />
+            <CreateService server={projectDetails.server} project={project} />
+          </div>
         )}
       </div>
       {services?.docs?.length! > 0 ? (
