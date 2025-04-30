@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
-import { motion } from 'framer-motion'
 import { Plus, Trash2, X } from 'lucide-react'
+import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { useFieldArray, useForm, useWatch } from 'react-hook-form'

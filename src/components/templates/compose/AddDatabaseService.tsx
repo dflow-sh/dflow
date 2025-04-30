@@ -1,6 +1,6 @@
 import { Node, useReactFlow } from '@xyflow/react'
 import { Tag, TagInput } from 'emblor'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import {

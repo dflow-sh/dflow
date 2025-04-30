@@ -140,56 +140,6 @@ const worker = new Worker<QueueArgs>(
           serviceId,
           channelId: serviceDetails.deploymentId,
         })
-
-        const envResponse = await dokku.config.set({
-          ssh,
-          name: appName,
-          values: Object.entries(formattedVariables).map(([key, value]) => {
-            return {
-              key,
-              value: `${value}`,
-            }
-          }),
-          noRestart: true,
-          options: {
-            onStdout: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-            onStderr: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-          },
-        })
-
-        if (envResponse) {
-          sendEvent({
-            message: `✅ Successfully set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `❌ Failed to set environment variables`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        }
       }
 
       // Step 3: Cloning the repo

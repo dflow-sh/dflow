@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Edge, MarkerType, Node } from '@xyflow/react'
-import { motion } from 'framer-motion'
 import { Braces, Database, Github, Plus, Trash2, X } from 'lucide-react'
+import { motion } from 'motion/react'
 import { JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
