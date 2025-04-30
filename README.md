@@ -40,7 +40,7 @@ cd dflow
 
 3. create a mongodb instance
 
-- create mongdb instance on
+- create mongodb instance on
   [Atlas](https://www.mongodb.com/products/platform/atlas-database),
   [Railway](https://railway.com/dashboard) or
   [ContentQL](https://contentql.io/dashboard/create-new-project) and copy the
