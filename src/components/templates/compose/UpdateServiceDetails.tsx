@@ -119,7 +119,7 @@ const UpdateServiceDetails = ({
               value={activeTab}
               defaultValue='settings'
               className='flex h-full flex-col'>
-              <div className='sticky top-0 z-10 bg-[#171e33] bg-card pt-2'>
+              <div className='sticky top-0 z-10 bg-[#171e33] pt-2'>
                 <TabsList className='rounded bg-primary/10'>
                   <TabsTrigger value='settings'>Settings</TabsTrigger>
                   <TabsTrigger
