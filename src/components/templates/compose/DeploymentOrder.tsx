@@ -87,7 +87,7 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
       collapsible
       className='w-full'>
       <AccordionItem
-        className='w-64 space-y-1 rounded-md border bg-border/50 px-3 backdrop-blur-md'
+        className='w-64 space-y-1 rounded-md border bg-[#171e33] px-3 backdrop-blur-md'
         value='deployment-order'>
         <AccordionTrigger className='px-2 hover:no-underline'>
           Deployment order

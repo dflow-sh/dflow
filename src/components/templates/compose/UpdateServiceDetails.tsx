@@ -91,7 +91,7 @@ const UpdateServiceDetails = ({
       {open && (
         <div
           className={cn(
-            'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-card px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
+            'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-[#171d33] px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:-right-1 md:min-w-[64%] lg:min-w-[66%] xl:min-w-[66%]',
           )}>
           <div
             onClick={() => {
@@ -119,7 +119,7 @@ const UpdateServiceDetails = ({
               value={activeTab}
               defaultValue='settings'
               className='flex h-full flex-col'>
-              <div className='sticky top-0 z-10 bg-card pt-2'>
+              <div className='sticky top-0 z-10 bg-[#171e33] bg-card pt-2'>
                 <TabsList className='rounded bg-primary/10'>
                   <TabsTrigger value='settings'>Settings</TabsTrigger>
                   <TabsTrigger
