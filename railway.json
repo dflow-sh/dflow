@@ -1,6 +1,0 @@
-{
-  "$schema": "https://railway.com/railway.schema.json",
-  "build": {
-    "dockerfilePath": "Dockerfile.prod"
-  }
-}
