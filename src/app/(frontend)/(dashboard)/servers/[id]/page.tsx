@@ -1,5 +1,6 @@
 import configPromise from '@payload-config'
 import { TriangleAlert } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
@@ -12,7 +13,6 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
-import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
 import {
@@ -28,6 +28,13 @@ import { loadServerPageTabs } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
 
 import LayoutClient from './layout.client'
+
+const Monitoring = dynamic(
+  () => import('@/components/servers/monitoring/Monitoring'),
+  {
+    ssr: false,
+  },
+)
 
 interface PageProps {
   params: Promise<{
