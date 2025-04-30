@@ -1,5 +1,7 @@
 'use client'
 
+import { convertToGraph } from '../reactflow/utils/convertServicesToGraph'
+import { useRouter } from '@bprogress/next'
 import {
   Edge,
   MarkerType,
@@ -11,50 +13,6 @@ import { useEffect, useRef } from 'react'
 
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Service } from '@/payload-types'
-
-function convertToGraph(data: Service[]) {
-  const nodes = data.map(item => ({
-    id: item.id,
-    name: item.name,
-    type: item.type,
-    createdAt: item.createdAt,
-    databaseDetails: item.databaseDetails,
-    environmentVariables: item.environmentVariables ?? {},
-  }))
-
-  const allServiceNames = new Set(data.map(item => item.name))
-  const edgeSet = new Set<string>()
-  const edges: Edge[] = []
-
-  data.forEach(service => {
-    const sourceName = service.name
-    const envVars = service.environmentVariables ?? {}
-
-    Object.values(envVars).forEach(env => {
-      if (
-        typeof env === 'object' &&
-        'linkedService' in env &&
-        typeof env.linkedService === 'string'
-      ) {
-        const targetName = env.linkedService
-        if (allServiceNames.has(targetName) && targetName !== sourceName) {
-          const [from, to] = [sourceName, targetName].sort()
-          const edgeId = `${from}-${to}`
-          if (!edgeSet.has(edgeId)) {
-            edges.push({
-              id: edgeId,
-              source: from,
-              target: to,
-            })
-            edgeSet.add(edgeId)
-          }
-        }
-      }
-    })
-  })
-
-  return { nodes, edges }
-}
 
 const calculateNodePositions = (
   services: Service[],
@@ -86,11 +44,20 @@ const calculateNodePositions = (
   return positions
 }
 
-const ServicesArchitecture = ({ services }: { services: Service[] }) => {
+const ServicesArchitecture = ({
+  services,
+  projectId,
+}: {
+  services: Service[]
+  projectId: string
+}) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
-
+  const router = useRouter()
+  const handleRedirectToService = (id: string) => {
+    router.push(`/dashboard/project/${projectId}/service/${id}`)
+  }
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -100,11 +67,11 @@ const ServicesArchitecture = ({ services }: { services: Service[] }) => {
 
     const initialPositions = calculateNodePositions(services, width, height)
     const { edges: edgesData, nodes: nodesData } = convertToGraph(services)
-
+    console.log({ edgesData, nodesData })
     const initialNodes = nodesData?.map((node, index) => ({
       id: node.id,
       position: initialPositions[index],
-      data: { ...node },
+      data: { ...node, onClick: () => handleRedirectToService(node.id) },
       type: 'custom',
     }))
 
@@ -122,17 +89,16 @@ const ServicesArchitecture = ({ services }: { services: Service[] }) => {
   }, [services])
 
   return (
-    <div className='mb-12 mt-10'>
-      <h2 className='mb-4 text-2xl font-semibold'>Architecture</h2>
-      <div className='h-[600px] w-full rounded-xl border' ref={containerRef}>
-        <ReactFlowConfig
-          edges={edges}
-          nodes={nodes}
-          onEdgesChange={onEdgesChange}
-          onNodesChange={onNodesChange}
-          className='h-full w-full'
-        />
-      </div>
+    <div
+      className='mt-4 h-[calc(100vh-156px)] w-full rounded-xl border'
+      ref={containerRef}>
+      <ReactFlowConfig
+        edges={edges}
+        nodes={nodes}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+        className='h-full w-full'
+      />
     </div>
   )
 }

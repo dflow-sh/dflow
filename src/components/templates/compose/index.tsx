@@ -29,7 +29,8 @@ import {
   CreateTemplateSchemaType,
   createTemplateSchema,
 } from '@/actions/templates/validator'
-import { ServiceNode } from '@/components/reactflow/types'
+import ReactFlowConfig from '@/components/reactflow/reactflow.config'
+import { convertToGraph } from '@/components/reactflow/utils/convertServicesToGraph'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -40,8 +41,8 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { Template } from '@/payload-types'
 
 import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
 
@@ -53,77 +54,6 @@ const convertNodesToServices = (nodes: any[]) => {
       const { onClick, ...cleanedData } = data
       return cleanedData
     })
-}
-
-function convertToGraph(services: Template['services']) {
-  if (!services || services.length === 0) return { nodes: [], edges: [] }
-
-  const nodes: ServiceNode[] = services.map(item => {
-    const node: ServiceNode = {
-      id: item.id!,
-      name: item.name,
-      type: item.type,
-      variables: item.variables ?? undefined,
-    }
-
-    switch (item.type) {
-      case 'database':
-        node.databaseDetails = item.databaseDetails ?? undefined
-        break
-
-      case 'app':
-        node.githubSettings = item.githubSettings ?? undefined
-        node.builder = item.builder ?? undefined
-        node.provider =
-          typeof item.provider === 'string' ? item.provider : undefined
-        node.providerType = item.providerType ?? undefined
-        break
-
-      case 'docker':
-        node.dockerDetails = item.dockerDetails ?? undefined
-        break
-    }
-
-    return node
-  })
-
-  // Map service name to ID for quick lookup
-  const nameToIdMap = new Map(services.map(s => [s.name, s.id]))
-  const edgeSet = new Set<string>()
-  const edges: Edge[] = []
-
-  const serviceNameRegex = /\${{[^:{}\s]+:([\w-]+)\.[^{}\s]+}}/
-
-  services.forEach(service => {
-    const sourceId = service.id!
-    const sourceName = service.name
-    const envVars = service.variables ?? []
-
-    envVars.forEach((env: any) => {
-      if (typeof env.value === 'string') {
-        const match = env.value.match(serviceNameRegex)
-        if (match) {
-          const targetName = match[1]
-          const targetId = nameToIdMap.get(targetName)
-
-          if (targetId && targetId !== sourceId) {
-            const edgeId = `e-${sourceId}-${targetId}`
-
-            if (!edgeSet.has(edgeId)) {
-              edges.push({
-                id: edgeId,
-                source: sourceId,
-                target: targetId,
-              })
-              edgeSet.add(edgeId)
-            }
-          }
-        }
-      }
-    })
-  })
-
-  return { nodes, edges }
 }
 
 const CreateNewTemplate = () => {
@@ -256,6 +186,22 @@ const CreateNewTemplate = () => {
     setEdges(initialEdges)
   }, [template?.data?.services])
 
+  if (isGetTemplateByIdPending) {
+    return (
+      <ReactFlowConfig
+        edges={[]}
+        nodes={[]}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+        className='h-[calc(100vh-120px)] w-full'>
+        <div
+          className={'flex h-full w-full items-center justify-center gap-x-4'}>
+          <Skeleton className='h-28 w-48 bg-[#171d33]' />
+          <Skeleton className='h-28 w-48 bg-[#171d33]' />
+        </div>
+      </ReactFlowConfig>
+    )
+  }
   return (
     <div className='w-full'>
       <div className='flex w-full items-center justify-end p-2'>

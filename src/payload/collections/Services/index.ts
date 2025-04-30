@@ -281,15 +281,7 @@ export const Services: CollectionConfig = {
     delete: isAdmin,
     readVersions: isAdmin,
   },
-  defaultPopulate: {
-    name: true,
-    description: true,
-    updatedAt: true,
-    createdAt: true,
-    type: true,
-    databaseDetails: true,
-    environmentVariables: true,
-  },
+
   fields: [
     {
       name: 'project',

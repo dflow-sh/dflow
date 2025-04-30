@@ -7,7 +7,6 @@ import { Suspense, use } from 'react'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServicesArchitecture from '@/components/project/ServicesArchitecture'
 import CreateService from '@/components/service/CreateService'
-import { ServiceCard } from '@/components/service/ServiceCard'
 import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
@@ -58,22 +57,11 @@ const SuspendedPage = ({ params }: PageProps) => {
           </div>
         )}
       </div>
-
-      {services?.docs && services.docs.length ? (
-        <div className='mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-          {services.docs.map((service, index) => {
-            if (typeof service === 'object') {
-              return (
-                <ServiceCard
-                  key={index}
-                  service={service as Service}
-                  projectId={projectDetails.id}
-                />
-              )
-            }
-            return null
-          })}
-        </div>
+      {services?.docs?.length! > 0 ? (
+        <ServicesArchitecture
+          projectId={projectDetails.id}
+          services={services?.docs as Service[]}
+        />
       ) : (
         <section className='grid min-h-[calc(100vh-40vh)] w-full place-items-center'>
           <div className='relative mx-auto w-full max-w-lg rounded-lg border border-slate-800 bg-gradient-to-tr from-slate-800 to-slate-900 px-8 pb-6 pt-8 text-center'>
@@ -85,10 +73,6 @@ const SuspendedPage = ({ params }: PageProps) => {
             </p>
           </div>
         </section>
-      )}
-
-      {services?.docs?.length! > 0 && (
-        <ServicesArchitecture services={services?.docs as Service[]} />
       )}
     </section>
   )

@@ -5,7 +5,7 @@ export interface DatabaseDetails {
   username?: string | null
   password?: string | null
   host?: string | null
-  port?: number | null
+  port?: string | null
   database?: string | null
   url?: string | null
   exposedPorts?: string[] | null

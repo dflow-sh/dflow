@@ -653,6 +653,7 @@ export interface Template {
             | null;
         };
         name: string;
+        description?: string | null;
         variables?:
           | {
               key: string;
@@ -1036,6 +1037,7 @@ export interface TemplatesSelect<T extends boolean = true> {
                   };
             };
         name?: T;
+        description?: T;
         variables?:
           | T
           | {

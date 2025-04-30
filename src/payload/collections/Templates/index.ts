@@ -1,6 +1,8 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const Template: CollectionConfig = {
   slug: 'templates',
   labels: {
@@ -11,10 +13,10 @@ export const Template: CollectionConfig = {
     useAsTitle: 'name',
   },
   access: {
-    read: () => true,
-    update: () => true,
-    delete: () => true,
-    create: () => true,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
 
   fields: [
@@ -273,6 +275,11 @@ export const Template: CollectionConfig = {
           name: 'name',
           label: 'Name',
           required: true,
+        },
+        {
+          type: 'textarea',
+          name: 'description',
+          label: 'Description',
         },
         {
           name: 'variables',
