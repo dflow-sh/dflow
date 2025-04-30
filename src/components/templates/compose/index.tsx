@@ -29,6 +29,7 @@ import {
   CreateTemplateSchemaType,
   createTemplateSchema,
 } from '@/actions/templates/validator'
+import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { convertToGraph } from '@/components/reactflow/utils/convertServicesToGraph'
 import { Button } from '@/components/ui/button'
 import {
@@ -40,6 +41,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
 import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
@@ -184,6 +186,22 @@ const CreateNewTemplate = () => {
     setEdges(initialEdges)
   }, [template?.data?.services])
 
+  if (isGetTemplateByIdPending) {
+    return (
+      <ReactFlowConfig
+        edges={[]}
+        nodes={[]}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
+        className='h-[calc(100vh-120px)] w-full'>
+        <div
+          className={'flex h-full w-full items-center justify-center gap-x-4'}>
+          <Skeleton className='h-28 w-48 bg-[#171d33]' />
+          <Skeleton className='h-28 w-48 bg-[#171d33]' />
+        </div>
+      </ReactFlowConfig>
+    )
+  }
   return (
     <div className='w-full'>
       <div className='flex w-full items-center justify-end p-2'>
