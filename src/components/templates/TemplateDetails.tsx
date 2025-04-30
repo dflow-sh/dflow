@@ -2,7 +2,7 @@
 
 import { Button } from '../ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Rocket, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -13,15 +13,7 @@ import { getServersAction } from '@/actions/server'
 import { deleteTemplate, deployTemplateAction } from '@/actions/templates'
 import { deployTemplateSchema } from '@/actions/templates/validator'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -139,25 +131,6 @@ const TemplateDetails = ({ template }: { template: Template }) => {
         </div>
 
         <div className='flex items-center gap-3'>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant='secondary'>
-                <Rocket />
-                Deploy
-              </Button>
-            </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
-              <DialogHeader>
-                <DialogTitle>{`Deploy ${template.name} template`}</DialogTitle>
-                <DialogDescription>
-                  Select a server to deploy template
-                </DialogDescription>
-              </DialogHeader>
-
-              <TemplateDeploymentForm templateId={template.id} />
-            </DialogContent>
-          </Dialog>
-
           <Button
             disabled={isPending}
             onClick={() => {

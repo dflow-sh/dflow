@@ -109,18 +109,34 @@ const worker = new Worker<QueueArgs>(
         id: templateId,
       })
 
-      // 1 store services data in database
-      // 2 follow the sequence create a deployment entry in database
-      // 3 trigger the respective queue to details
-      // 4 use waitUntilFinished boolean and go to next-step
-      // 5 if anything failed add retry mechanism
-
-      // Step 1: create entries in database
       const services = templateDetails?.services ?? []
 
+      // Step 1: create entries in database
       if (!services.length) {
         throw new Error('Please attach services to deploy the template')
       }
+
+      // 0.25 change the naming of services
+      // generate a random-name for project
+      // create a object mapping for old-service name with new-service name
+      // const serviceNames = { old-name: new-name }
+      // change the replace the env with new-name using regex
+      const projectName = handleGenerateName()
+      const serviceNames = {} as Record<string, string>
+
+      services.forEach(service => {
+        const serviceName = handleGenerateName()
+
+        if (service?.name) {
+          serviceNames[service?.name] = `${projectName}-${serviceName}`
+        }
+      })
+
+      const updatedServices = services.map(service => {
+        const serviceName = serviceNames[`${service?.name}`]
+      })
+
+      // 0.5: create a deployment strategy
 
       sendEvent({
         message: 'Started deploying template',
@@ -452,9 +468,8 @@ const worker = new Worker<QueueArgs>(
             }
           }
 
-          console.log('outside database', serviceDetails.databaseDetails)
           if (type === 'database' && serviceDetails.databaseDetails?.type) {
-            console.log('database hitted')
+            // add ports exposing process
             const databaseQueueResponse = await addCreateDatabaseQueue({
               databaseName: serviceDetails.name,
               databaseType: serviceDetails.databaseDetails?.type,
