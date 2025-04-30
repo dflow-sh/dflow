@@ -2,13 +2,16 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
+import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
+import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
 import {
   DeleteTemplateSchema,
   createTemplateSchema,
+  deployTemplateSchema,
   updateTemplateSchema,
 } from './validator'
 
@@ -65,6 +68,28 @@ export const getTemplateById = protectedClient
       id,
     })
     return response
+  })
+
+
+export const deployTemplateAction = protectedClient
+  .metadata({
+    actionName: 'deployTemplateAction',
+  })
+  .schema(deployTemplateSchema)
+  .action(async ({ clientInput }) => {
+    const { id, serverId } = clientInput
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
+
+    const response = await addTemplateDeployQueue({
+      templateId: id,
+      serverId: serverId,
+      payloadToken: `${payloadToken?.value}`,
+    })
+
+    if (response.id) {
+      return { success: true }
+    }
   })
 
 export const updateTemplate = protectedClient

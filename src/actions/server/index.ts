@@ -235,3 +235,19 @@ export const completeServerOnboardingAction = protectedClient
 
     return { success: false }
   })
+
+export const getServersAction = protectedClient
+  .metadata({
+    actionName: 'getServersAction',
+  })
+  .action(async () => {
+    const { docs } = await payload.find({
+      collection: 'servers',
+      select: {
+        name: true,
+      },
+      pagination: false,
+    })
+
+    return docs
+  })
