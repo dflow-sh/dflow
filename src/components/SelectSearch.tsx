@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Project, Server, Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
 export default function SelectSearch({
   services,
@@ -28,7 +28,7 @@ export default function SelectSearch({
   servers,
 }: {
   services?: Service[]
-  projects?: Project[]
+  projects?: { id: string; name: string }[]
   placeholder: string
   projectId?: string
   servers?: Server[]
@@ -80,6 +80,7 @@ export default function SelectSearch({
                     </CommandItem>
                   </Link>
                 ))}
+
                 {services?.map(service => (
                   <Link
                     href={`/dashboard/project/${projectId}/service/${service.id}`}
@@ -100,6 +101,7 @@ export default function SelectSearch({
                     </CommandItem>
                   </Link>
                 ))}
+
                 {servers?.map(server => (
                   <Link href={`/servers/${server.id}`} key={server.id}>
                     <CommandItem

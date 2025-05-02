@@ -24,7 +24,7 @@ const ClientLayout = ({
   project: Project
   children: React.ReactNode
   server: Server | string
-  projects: Project[]
+  projects: { id: string; name: string }[]
 }) => {
   const [mounted, setMounted] = useState(false)
 
@@ -51,6 +51,7 @@ const ClientLayout = ({
               </svg>{' '}
               {project.name}
             </Link>
+
             <SelectSearch projects={projects} placeholder='project' />
           </div>,
           document.getElementById('projectName') ?? document.body,
