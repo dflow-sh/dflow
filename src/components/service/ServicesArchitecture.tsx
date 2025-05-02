@@ -5,13 +5,37 @@ import ChooseService from '../templates/compose/ChooseService'
 import { Button } from '../ui/button'
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
 import { motion } from 'motion/react'
+import { useAction } from 'next-safe-action/hooks'
+import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
+
+import { deployTemplateFromArchitectureAction } from '@/actions/templates'
 
 const ServicesArchitecture = () => {
+  const params = useParams<{ id: string }>()
+
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const services = convertNodesToServices(nodes)
+
+  const { execute, isPending } = useAction(
+    deployTemplateFromArchitectureAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success('Added to queue', {
+            description: 'Added deploying architecture to queue',
+          })
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to deploy architecture: ${error.serverError}`)
+      },
+    },
+  )
+
   return (
-    <div className='relative w-full'>
+    <div className='relative mt-4 w-full rounded-md border'>
       <ChooseService
         nodes={nodes}
         edges={edges}
@@ -30,11 +54,18 @@ const ServicesArchitecture = () => {
                 Deploy {nodes?.length}{' '}
                 {nodes?.length === 1 ? 'service' : 'services'}
               </p>
-              <div className='inline-flex items-center gap-x-2'>
-                <Button size={'sm'}>
-                  Deploy {nodes?.length === 1 ? 'service' : 'services'}
-                </Button>
-              </div>
+
+              <Button
+                onClick={() => {
+                  execute({
+                    projectId: params.id,
+                    services,
+                  })
+                }}
+                size={'sm'}
+                disabled={isPending}>
+                Deploy {nodes?.length === 1 ? 'service' : 'services'}
+              </Button>
             </div>
           </motion.div>
         )}

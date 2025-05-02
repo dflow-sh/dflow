@@ -20,6 +20,7 @@ import { addTemplateDeployQueue } from '@/queues/template/deploy'
 import {
   DeleteTemplateSchema,
   createTemplateSchema,
+  deployTemplateFromArchitectureSchema,
   deployTemplateSchema,
   updateTemplateSchema,
 } from './validator'
@@ -172,8 +173,7 @@ export const deployTemplateAction = protectedClient
             type,
             databaseDetails: {
               type: service.databaseDetails?.type,
-              // todo: add exposed ports
-              exposedPorts: [],
+              exposedPorts: service.databaseDetails?.exposedPorts ?? [],
             },
             project: projectDetails?.id,
           },
@@ -263,4 +263,135 @@ export const getAllTemplatesAction = protectedClient
     })
 
     return docs
+  })
+
+export const deployTemplateFromArchitectureAction = protectedClient
+  .metadata({
+    actionName: 'deployTemplateFromArchitectureAction',
+  })
+  .schema(deployTemplateFromArchitectureSchema)
+  .action(async ({ clientInput }) => {
+    const { projectId, services = [] } = clientInput
+
+    const cookieStore = await cookies()
+    const payloadToken = cookieStore.get('payload-token')
+
+    const projectDetails = await payload.findByID({
+      collection: 'projects',
+      id: projectId,
+    })
+
+    if (!services.length) {
+      throw new Error('Please attach services to deploy the template')
+    }
+
+    const serviceNames = {} as Record<string, string>
+
+    services.forEach(service => {
+      if (service?.name) {
+        serviceNames[service?.name] = `${projectDetails.name}-${service.name}`
+      }
+    })
+
+    // Step 1: update service names & reference variables name to unique
+    const updatedServices = services.map(service => {
+      const serviceName = serviceNames[`${service?.name}`]
+      let variables = [] as Array<{
+        key: string
+        value: string
+        id?: string | null
+      }>
+
+      service?.variables?.forEach(variable => {
+        const match = variable.value.match(REFERENCE_VARIABLE_REGEX)
+
+        if (match) {
+          const [_referenceVariable, type, serviceName, value] = match
+          const newServiceName = serviceNames[serviceName]
+
+          if (newServiceName) {
+            variables.push({
+              ...variable,
+              value: `$` + `{{${type}:${newServiceName}.${value}}}`,
+            })
+          } else {
+            variables?.push(variable)
+          }
+        } else {
+          variables?.push(variable)
+        }
+      })
+
+      return { ...service, name: serviceName, variables }
+    })
+
+    let createdServices: Service[] = []
+
+    // Step 2: map through services and create services in database
+    for await (const service of updatedServices) {
+      const { type, name } = service
+
+      if (type === 'database' && service?.databaseDetails) {
+        const serviceResponse = await payload.create({
+          collection: 'services',
+          data: {
+            name: `${name}`,
+            type,
+            databaseDetails: {
+              type: service.databaseDetails?.type,
+              exposedPorts: service.databaseDetails?.exposedPorts ?? [],
+            },
+            project: projectDetails?.id,
+          },
+          depth: 10,
+        })
+
+        createdServices.push(serviceResponse)
+      } else if (type === 'docker' && service?.dockerDetails) {
+        const serviceResponse = await payload.create({
+          collection: 'services',
+          data: {
+            name: `${name}`,
+            type,
+            dockerDetails: service?.dockerDetails,
+            project: projectDetails?.id,
+            variables: service?.variables,
+          },
+          depth: 10,
+        })
+
+        createdServices.push(serviceResponse)
+      } else if (type === 'app') {
+        // todo: handle all git-providers cases
+        if (service?.providerType === 'github' && service?.githubSettings) {
+          const serviceResponse = await payload.create({
+            collection: 'services',
+            data: {
+              name: `${name}`,
+              type,
+              project: projectDetails?.id,
+              variables: service?.variables,
+              githubSettings: service?.githubSettings,
+              providerType: service?.providerType,
+              provider: service?.provider,
+              builder: service?.builder,
+            },
+            depth: 10,
+          })
+
+          createdServices.push(serviceResponse)
+        }
+      }
+    }
+
+    // Step 3: trigger template-deploy queue with services
+    const response = await addTemplateDeployQueue({
+      payloadToken: `${payloadToken?.value}`,
+      services: createdServices,
+    })
+
+    if (response.id) {
+      revalidatePath(`/dashboard/project/${projectDetails.id}`)
+      return { success: true }
+    }
   })

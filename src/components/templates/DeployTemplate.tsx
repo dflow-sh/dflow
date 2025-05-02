@@ -149,7 +149,7 @@ const DeployTemplate = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant='outline'>
-          <Rocket /> Deploy Template
+          <Rocket /> Deploy from Template
         </Button>
       </DialogTrigger>
       <DialogContent>
