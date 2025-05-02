@@ -7,7 +7,7 @@ import { Suspense, use } from 'react'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import GeneralTab from '@/components/service/GeneralTab'
-import LogsTab from '@/components/service/LogsTab'
+import LogsTabClient from '@/components/service/LogsTabClient'
 import VariablesForm from '@/components/service/VariablesForm'
 import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
@@ -69,7 +69,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     case 'logs':
       return (
-        <LogsTab
+        <LogsTabClient
           serviceId={service.id}
           serverId={typeof serverId === 'object' ? serverId.id : serverId}
         />
