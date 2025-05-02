@@ -5,7 +5,7 @@ import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 import { useEffect } from 'react'
 
-import { posthogHost, posthogKey } from '@/lib/constants'
+import { posthogKey } from '@/lib/constants'
 
 export default function PosthogProvider({
   children,
@@ -22,7 +22,7 @@ export default function PosthogProvider({
     }
 
     posthog.init(posthogKey, {
-      api_host: posthogHost,
+      api_host: `${env.NEXT_PUBLIC_WEBSITE_URL}/ingest`,
       capture_pageview: false, // Disable automatic pageview capture, as we capture manually
     })
   }, [])
