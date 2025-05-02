@@ -10,7 +10,6 @@ const ServicesArchitecture = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const services = convertNodesToServices(nodes)
-  console.log('service', services)
   return (
     <div className='relative w-full'>
       <ChooseService
@@ -32,7 +31,9 @@ const ServicesArchitecture = () => {
                 {nodes?.length === 1 ? 'service' : 'services'}
               </p>
               <div className='inline-flex items-center gap-x-2'>
-                <Button size={'sm'}>Deploy</Button>
+                <Button size={'sm'}>
+                  Deploy {nodes?.length === 1 ? 'service' : 'services'}
+                </Button>
               </div>
             </div>
           </motion.div>
