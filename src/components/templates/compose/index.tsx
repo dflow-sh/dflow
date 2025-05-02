@@ -30,7 +30,8 @@ import {
   createTemplateSchema,
 } from '@/actions/templates/validator'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { convertToGraph } from '@/components/reactflow/utils/convertServicesToGraph'
+import { convertNodesToServices } from '@/components/reactflow/utils/convertNodesToServices'
+import { convertToGraph } from '@/components/reactflow/utils/convertServicesToNodes'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -46,21 +47,11 @@ import { Textarea } from '@/components/ui/textarea'
 
 import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
 
-const convertNodesToServices = (nodes: any[]) => {
-  console.log('nodes to be filter', nodes)
-  return nodes
-    .filter(node => node && node.data)
-    .map(({ data }) => {
-      const { onClick, ...cleanedData } = data
-      return cleanedData
-    })
-}
-
 const CreateNewTemplate = () => {
   const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
-
+  const services = convertNodesToServices(nodes)
   const childRef = useRef<ChildRef>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -81,7 +72,7 @@ const CreateNewTemplate = () => {
         style: 'lowerCase',
         length: 2,
       }),
-      services: convertNodesToServices(nodes),
+      services: services,
     },
   })
 
@@ -131,13 +122,13 @@ const CreateNewTemplate = () => {
         id: templateId,
         name: data.name,
         description: data.description,
-        services: convertNodesToServices(nodes),
+        services,
       })
     } else {
       createNewTemplate({
         name: data?.name,
         description: data?.description,
-        services: convertNodesToServices(nodes),
+        services,
       })
     }
   }
