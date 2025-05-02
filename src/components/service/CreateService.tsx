@@ -169,13 +169,15 @@ const CreateService = ({
                         <span className='font-semibold'>{projectName}-</span>
                         <span className='italic'>[your-input]</span>
                       </p>
+
                       <FormControl>
-                        <div className='flex items-center'>
+                        <div className='grid grid-cols-[auto_1fr]'>
                           {projectName && (
-                            <div className='flex h-9 items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-muted-foreground'>
-                              {projectName}-
+                            <div className='flex h-full items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-muted-foreground'>
+                              {`${projectName}-`}
                             </div>
                           )}
+
                           <Input
                             {...field}
                             value={field.value.replace(`${projectName}-`, '')}
