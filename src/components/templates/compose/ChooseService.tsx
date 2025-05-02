@@ -46,6 +46,7 @@ interface ChooseServiceType {
   setEdges: Function
   onNodesChange: OnNodesChange
   onEdgesChange: OnEdgesChange
+  children?: React.ReactNode
   ref?: Ref<ChildRef>
 }
 
@@ -77,6 +78,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   setEdges,
   setNodes,
   ref: parentRef,
+  children,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [showOptions, setShowOptions] = useState<boolean>(false)
@@ -302,6 +304,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
           service={nodes?.find(node => node?.id === serviceId)?.data as any}
         />
         {menu && <ContextMenu onClick={onPaneClick} edges={edges} {...menu} />}
+        {children}
       </section>
     </ReactFlowConfig>
   )
