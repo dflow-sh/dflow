@@ -27,6 +27,8 @@ import { netdata } from '@/lib/netdata'
 import { loadServerPageTabs } from '@/lib/searchParams'
 import { ServerType } from '@/payload-types-overrides'
 
+import LayoutClient from './layout.client'
+
 interface PageProps {
   params: Promise<{
     id: string
@@ -216,10 +218,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   }
 
   return (
-    <>
+    <LayoutClient server={server} servers={servers.docs}>
       {server.onboarded ? renderTab() : <ServerOnboarding server={server} />}
-      {/* <LayoutClient server={server} servers={servers.docs}></LayoutClient> */}
-    </>
+    </LayoutClient>
   )
 }
 

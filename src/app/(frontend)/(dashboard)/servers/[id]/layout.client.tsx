@@ -1,16 +1,23 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
+import dynamic from 'next/dynamic'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
-import ProjectTerminal from '@/components/project/ProjectTerminal'
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
+
+const ProjectTerminal = dynamic(
+  () => import('@/components/project/ProjectTerminal'),
+  {
+    ssr: false,
+  },
+)
 
 const tabsList = [
   { label: 'General', slug: 'general', disabled: false },

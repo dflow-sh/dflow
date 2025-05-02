@@ -19,6 +19,7 @@ export const env = createEnv({
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
     NEXT_PUBLIC_WEBHOOK_URL: z.string().url().optional(),
     NEXT_PUBLIC_ENVIRONMENT: z.enum(['DEMO']).optional(),
+    NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED: z.literal('1').optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -28,5 +29,7 @@ export const env = createEnv({
     DATABASE_URI: process.env.DATABASE_URI,
     REDIS_URI: process.env.REDIS_URI,
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
+    NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED:
+      process.env.NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED,
   },
 })

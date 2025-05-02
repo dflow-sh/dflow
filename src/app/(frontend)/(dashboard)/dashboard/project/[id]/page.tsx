@@ -1,4 +1,4 @@
-import LayoutClient from '../../../layout.client'
+import TabsLayout from '../../../layout.client'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -12,6 +12,8 @@ import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
 
+import ProjectClientLayout from './layout.client'
+
 interface PageProps {
   params: Promise<{
     id: string
@@ -20,12 +22,22 @@ interface PageProps {
 
 const SuspendedPage = ({ params }: PageProps) => {
   const { id } = use(params)
-
   const payload = use(getPayload({ config: configPromise }))
+
   const project = use(
     payload.findByID({
       collection: 'projects',
       id,
+    }),
+  )
+
+  const { docs: projects } = use(
+    payload.find({
+      collection: 'projects',
+      pagination: false,
+      select: {
+        name: true,
+      },
     }),
   )
 
@@ -36,20 +48,24 @@ const SuspendedPage = ({ params }: PageProps) => {
   const { services, ...projectDetails } = project
 
   return (
-    <section>
-      <div className='flex w-full justify-between'>
-        <div>
-          <h2 className='flex items-center text-2xl font-semibold'>
-            {projectDetails.name}
-            <SidebarToggleButton
-              directory='services'
-              fileName='services-overview'
-            />
-          </h2>
-          <p className='text-sm text-muted-foreground'>
-            {projectDetails.description}
-          </p>
-        </div>
+    <ProjectClientLayout
+      project={project}
+      server={project.server}
+      projects={projects}>
+      <section>
+        <div className='flex w-full justify-between'>
+          <div>
+            <h2 className='flex items-center text-2xl font-semibold'>
+              {projectDetails.name}
+              <SidebarToggleButton
+                directory='services'
+                fileName='services-overview'
+              />
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              {projectDetails.description}
+            </p>
+          </div>
 
         {typeof projectDetails.server === 'object' && (
           <div className='flex items-center gap-3'>
@@ -71,16 +87,17 @@ const SuspendedPage = ({ params }: PageProps) => {
         <ServicesArchitecture />
       )}
     </section>
+    </ProjectClientLayout>
   )
 }
 
 const ProjectIdPage = async ({ params }: PageProps) => {
   return (
-    <LayoutClient>
+    <TabsLayout>
       <Suspense fallback={<ProjectSkeleton />}>
         <SuspendedPage params={params} />
       </Suspense>
-    </LayoutClient>
+    </TabsLayout>
   )
 }
 
