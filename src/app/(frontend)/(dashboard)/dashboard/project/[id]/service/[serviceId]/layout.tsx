@@ -13,7 +13,6 @@ import {
   PostgreSQL,
   Redis,
 } from '@/components/icons'
-import ProjectTerminal from '@/components/project/ProjectTerminal'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Badge } from '@/components/ui/badge'
@@ -77,12 +76,8 @@ const SuspendedServicePageLayout = ({
   const domains = serviceDetails.domains
   const services =
     typeof project === 'object' && project.services?.docs
-      ? project.services?.docs.filter(service => typeof service === 'object')
+      ? project.services?.docs?.filter(service => typeof service === 'object')
       : []
-  const server =
-    typeof project === 'object' && typeof project?.server === 'object'
-      ? project?.server
-      : null
 
   return (
     <LayoutClient
@@ -156,8 +151,6 @@ const SuspendedServicePageLayout = ({
       </div>
 
       {children}
-
-      {server && <ProjectTerminal server={server} />}
     </LayoutClient>
   )
 }
