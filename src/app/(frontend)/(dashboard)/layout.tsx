@@ -61,23 +61,22 @@ const DashboardLayoutInner = () => {
           <div id='serverName' className='-ml-4'></div>
         </div>
 
-
-      <div className='flex items-center gap-x-4'>
-        <Link
-          className={cn(
-            buttonVariants({
-              variant: 'secondary',
-              size: 'sm',
-            }),
-            'group hidden md:inline-flex',
-          )}
-          target='_blank'
-          href='https://github.com/akhil-naidu/dflow'>
-          <div className='flex items-center'>
-            <Github className='size-4' />
-            <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
-          </div>
-        </Link>
+        <div className='flex items-center gap-x-4'>
+          <Link
+            className={cn(
+              buttonVariants({
+                variant: 'ghost',
+                size: 'sm',
+              }),
+              'group hidden md:inline-flex',
+            )}
+            target='_blank'
+            href='https://github.com/akhil-naidu/dflow'>
+            <div className='flex items-center'>
+              <Github className='size-4' />
+              <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
+            </div>
+          </Link>
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended user={user} />
           </Suspense>

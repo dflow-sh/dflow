@@ -3,6 +3,8 @@ import React from 'react'
 import { Toaster } from 'sonner'
 
 import NProgressProvider from '@/providers/NProgressProvider'
+import SuspendedPostHogPageView from '@/providers/PosthogPageView'
+import PosthogProvider from '@/providers/PosthogProvider'
 
 import './globals.css'
 
@@ -27,9 +29,11 @@ export const metadata = {
   },
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
-
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang='en' suppressHydrationWarning>
       <head>
@@ -44,7 +48,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       </head>
       <body className={`${geistSans.className} ${geistMono.variable}`}>
         <NProgressProvider>
-          {children}
+          <PosthogProvider>
+            <SuspendedPostHogPageView />
+            {children}
+          </PosthogProvider>
           <Toaster richColors theme='dark' duration={3000} closeButton />
         </NProgressProvider>
       </body>

@@ -13,6 +13,7 @@ import {
   PostgreSQL,
   Redis,
 } from '@/components/icons'
+import ProjectTerminal from '@/components/project/ProjectTerminal'
 import DeploymentForm from '@/components/service/DeploymentForm'
 import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Badge } from '@/components/ui/badge'
@@ -22,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Project, Service } from '@/payload-types'
+import { Service } from '@/payload-types'
 import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
 
 import LayoutClient from './layout.client'
@@ -54,7 +55,7 @@ const SuspendedServicePageLayout = ({
     serviceId: string
   }>
 }) => {
-  const { id, serviceId } = use(params)
+  const { serviceId } = use(params)
 
   const payload = use(getPayload({ config: configPromise }))
 
@@ -62,6 +63,7 @@ const SuspendedServicePageLayout = ({
     payload.findByID({
       collection: 'services',
       id: serviceId,
+      depth: 10,
     }),
   )
 
@@ -73,12 +75,20 @@ const SuspendedServicePageLayout = ({
         : iconMapping[serviceDetails.type as Exclude<StatusType, 'database'>]
 
   const domains = serviceDetails.domains
+  const services =
+    typeof project === 'object' && project.services?.docs
+      ? project.services?.docs.filter(service => typeof service === 'object')
+      : []
+  const server =
+    typeof project === 'object' && typeof project?.server === 'object'
+      ? project?.server
+      : null
 
   return (
     <LayoutClient
       type={serviceDetails.type}
       project={project}
-      services={((project as Project)?.services?.docs as Service[]) || []}
+      services={services}
       serviceName={serviceDetails.name}>
       <div className='mb-6 md:flex md:justify-between md:gap-x-2'>
         <div>
@@ -146,6 +156,8 @@ const SuspendedServicePageLayout = ({
       </div>
 
       {children}
+
+      {server && <ProjectTerminal server={server} />}
     </LayoutClient>
   )
 }
