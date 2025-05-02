@@ -1,6 +1,6 @@
 'use client'
 
-import { convertToGraph } from '../reactflow/utils/convertServicesToGraph'
+import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -44,7 +44,7 @@ const calculateNodePositions = (
   return positions
 }
 
-const ServicesArchitecture = ({
+const ServiceList = ({
   services,
   projectId,
 }: {
@@ -90,7 +90,7 @@ const ServicesArchitecture = ({
 
   return (
     <div
-      className='mt-4 h-[calc(100vh-156px)] w-full rounded-xl border'
+      className='mx-auto mt-4 h-[calc(100vh-190px)] w-full max-w-6xl rounded-xl border'
       ref={containerRef}>
       <ReactFlowConfig
         edges={edges}
@@ -103,4 +103,4 @@ const ServicesArchitecture = ({
   )
 }
 
-export default ServicesArchitecture
+export default ServiceList
