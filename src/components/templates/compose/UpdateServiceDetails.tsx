@@ -108,7 +108,12 @@ const UpdateServiceDetails = ({
               {service.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
                 : icon[service.type]}
-              <EditServiceName edges={edges} service={service} />
+              <EditServiceName
+                key={service?.id}
+                edges={edges}
+                service={service}
+                nodes={nodes}
+              />
             </div>
           </div>
 
