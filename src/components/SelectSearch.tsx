@@ -27,6 +27,7 @@ export default function SelectSearch({
   projectId = '',
   servers,
   serverId = '',
+  serviceId = '',
 }: {
   services?: Service[]
   projects?: { id: string; name: string }[]
@@ -34,10 +35,13 @@ export default function SelectSearch({
   projectId?: string
   servers?: Server[]
   serverId?: string
+  serviceId?: string
 }) {
   const id = useId()
   const [open, setOpen] = useState<boolean>(false)
-  const [value, setValue] = useState<string>(projectId || serverId || '')
+  const [value, setValue] = useState<string>(
+    projectId || serverId || serviceId || '',
+  )
 
   return (
     <div className='*:not-first:mt-2'>

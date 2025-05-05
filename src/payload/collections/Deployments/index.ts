@@ -15,8 +15,9 @@ export const Deployments: CollectionConfig = {
     delete: isAdmin,
     readVersions: isAdmin,
   },
-  hooks: {
-    // afterChange: [triggerDokkuDeployment],
+  defaultPopulate: {
+    name: true,
+    status: true,
   },
   fields: [
     {

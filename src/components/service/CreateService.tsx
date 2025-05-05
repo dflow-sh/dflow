@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { slugify } from '@/lib/slugify'
-import { Project, Server } from '@/payload-types'
+import { Server } from '@/payload-types'
 
 const databaseOptions = [
   {
@@ -78,7 +78,7 @@ const CreateService = ({
   project,
 }: {
   server: Server
-  project: Project
+  project: { name: string }
 }) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
