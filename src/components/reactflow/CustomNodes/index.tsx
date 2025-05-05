@@ -39,7 +39,9 @@ const CustomNode = ({
   }
 
   return (
-    <Card onClick={data?.onClick} className='h-full min-h-36 backdrop-blur-md'>
+    <Card
+      onClick={data?.onClick}
+      className='h-full min-h-36 cursor-pointer backdrop-blur-md'>
       <Handle
         type='source'
         style={{
