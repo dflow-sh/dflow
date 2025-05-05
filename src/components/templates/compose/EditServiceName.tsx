@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edge, Node, useReactFlow } from '@xyflow/react'
+import { Edge, Node } from '@xyflow/react'
 import { SquarePen } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -31,18 +31,17 @@ import { EditServiceNameType, editServiceNameSchema } from './types'
 const EditServiceName = ({
   service,
   edges,
-  onClose,
   className,
   nodes,
+  setNodes,
 }: {
   service: ServiceNode
   edges: Edge[]
   nodes: Node[]
-  onClose?: () => void
   className?: string
+  setNodes: Function
 }) => {
   const [ediServiceName, setEditServiceName] = useState<boolean>(false)
-  const { setNodes } = useReactFlow()
   const handleEditClick = useCallback(() => {
     setEditServiceName(true)
   }, [])
@@ -72,8 +71,6 @@ const EditServiceName = ({
       })
     }
   }, [ediServiceName, service, form])
-
-  const serviceName = form.watch('name')
 
   const updateServiceName = (data: EditServiceNameType) => {
     const oldServiceName = service.name
