@@ -177,7 +177,6 @@ const CreateProject = ({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name='description'

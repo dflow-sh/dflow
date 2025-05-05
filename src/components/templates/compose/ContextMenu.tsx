@@ -4,8 +4,6 @@ import { type FC, useEffect, useRef } from 'react'
 
 import type { ServiceNode } from '@/components/reactflow/types'
 
-import EditServiceName from './EditServiceName'
-
 interface ContextMenuProps {
   top: number
   left: number
@@ -48,7 +46,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
       className='back fixed z-10 w-48 rounded-md bg-card shadow-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
-        <li>
+        {/* <li>
           <EditServiceName
             className={
               'w-full justify-between rounded bg-transparent hover:bg-primary/10 hover:text-primary'
@@ -58,7 +56,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
             onClose={onClick}
           />
         </li>
-        <hr />
+        <hr /> */}
         <li
           className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
           onClick={() => deleteNode(service.id)}>

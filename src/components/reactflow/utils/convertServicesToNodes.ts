@@ -11,6 +11,7 @@ export function convertToGraph(services: Service[] | Template['services']) {
       id: item.id!,
       name: item.name,
       type: item.type,
+      description: item.description,
       variables: item.variables ?? undefined,
     }
 
