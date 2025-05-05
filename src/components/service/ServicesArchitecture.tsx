@@ -63,7 +63,8 @@ const ServicesArchitecture = () => {
                   })
                 }}
                 size={'sm'}
-                disabled={isPending}>
+                disabled={isPending}
+                isLoading={isPending}>
                 Deploy {nodes?.length === 1 ? 'service' : 'services'}
               </Button>
             </div>

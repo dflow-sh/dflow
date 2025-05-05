@@ -240,6 +240,7 @@ const CreateProject = ({
             <DialogFooter>
               <Button
                 type='submit'
+                isLoading={isCreatingProject || isUpdatingProject}
                 disabled={isCreatingProject || isUpdatingProject}>
                 {type === 'create' ? 'Create Project' : 'Update Project'}
               </Button>
