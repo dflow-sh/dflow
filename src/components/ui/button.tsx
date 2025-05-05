@@ -56,16 +56,35 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const Comp = asChild ? Slot : 'button'
-    return (
-      // <Comp
-      //   className={cn(buttonVariants({ variant, size, className }))}
-      //   ref={ref}
-      //   {...props}
-      // />
 
+    // When using asChild, we need to ensure we only have one child
+    if (asChild) {
+      // For asChild, wrap everything in a single element
+      return (
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}>
+          <span className='relative inline-flex w-full items-center justify-center'>
+            <span className={isLoading ? 'invisible' : 'visible'}>
+              {children}
+            </span>
+            {isLoading && (
+              <div className='absolute inset-0 flex items-center justify-center text-foreground'>
+                <Loader className='animate-spin [&_svg]:size-5' />
+              </div>
+            )}
+          </span>
+        </Comp>
+      )
+    }
+
+    // For regular buttons, we can have multiple children
+    return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        aria-busy={isLoading}
         {...props}>
         <span
           className={`${isLoading ? 'invisible' : 'visible'} inline-flex w-full items-center justify-center gap-1`}>
@@ -81,6 +100,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     )
   },
 )
+
 Button.displayName = 'Button'
 
 export { Button, buttonVariants }

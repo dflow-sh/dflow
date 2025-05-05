@@ -166,13 +166,13 @@ const ServiceIdLayout = ({
   }>
 }) => {
   return (
-    <Suspense fallback={<ServiceLayoutSkeleton />}>
-      <DisableDeploymentContextProvider>
+    <DisableDeploymentContextProvider>
+      <Suspense fallback={<ServiceLayoutSkeleton />}>
         <SuspendedServicePageLayout params={params}>
           {children}
         </SuspendedServicePageLayout>
-      </DisableDeploymentContextProvider>
-    </Suspense>
+      </Suspense>
+    </DisableDeploymentContextProvider>
   )
 }
 

@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
@@ -63,9 +63,7 @@ const ClientLayout = ({
           document.getElementById('projectName') ?? document.body,
         )}
 
-      <Suspense>
-        {typeof server === 'object' && <ProjectTerminal server={server} />}
-      </Suspense>
+      {typeof server === 'object' && <ProjectTerminal server={server} />}
     </>
   )
 }
