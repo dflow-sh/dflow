@@ -8,7 +8,7 @@ import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateService from '@/components/service/CreateService'
 import ServiceList from '@/components/service/ServiceList'
 import ServicesArchitecture from '@/components/service/ServicesArchitecture'
-import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
+import ServicesSkeleton from '@/components/skeletons/ServicesSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
 
@@ -67,26 +67,29 @@ const SuspendedPage = ({ params }: PageProps) => {
             </p>
           </div>
 
-        {typeof projectDetails.server === 'object' && (
-          <div className='flex items-center gap-3'>
-            <DeployTemplate />
+          {typeof projectDetails.server === 'object' && (
+            <div className='flex items-center gap-3'>
+              <DeployTemplate />
 
-            {services?.docs?.length! > 0 && (
-              <CreateService server={projectDetails.server} project={project} />
-            )}
-          </div>
+              {services?.docs?.length! > 0 && (
+                <CreateService
+                  server={projectDetails.server}
+                  project={project}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
+        {services?.docs?.length! > 0 ? (
+          <ServiceList
+            projectId={projectDetails.id}
+            services={services?.docs as Service[]}
+          />
+        ) : (
+          <ServicesArchitecture />
         )}
-      </div>
-
-      {services?.docs?.length! > 0 ? (
-        <ServiceList
-          projectId={projectDetails.id}
-          services={services?.docs as Service[]}
-        />
-      ) : (
-        <ServicesArchitecture />
-      )}
-    </section>
+      </section>
     </ProjectClientLayout>
   )
 }
@@ -94,7 +97,7 @@ const SuspendedPage = ({ params }: PageProps) => {
 const ProjectIdPage = async ({ params }: PageProps) => {
   return (
     <TabsLayout>
-      <Suspense fallback={<ProjectSkeleton />}>
+      <Suspense fallback={<ServicesSkeleton />}>
         <SuspendedPage params={params} />
       </Suspense>
     </TabsLayout>
