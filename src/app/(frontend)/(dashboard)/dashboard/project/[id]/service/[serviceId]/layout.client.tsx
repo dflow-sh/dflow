@@ -1,6 +1,7 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
+import { useParams } from 'next/navigation'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
@@ -8,21 +9,20 @@ import { createPortal } from 'react-dom'
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
 import { cn } from '@/lib/utils'
-import { Project, Service } from '@/payload-types'
+import { Service } from '@/payload-types'
 
 const LayoutClient = ({
   children,
-  project,
   services,
   type,
   serviceName,
 }: {
   children: React.ReactNode
   type: 'database' | 'app' | 'docker'
-  project: Project | string
   serviceName: string
   services: Service[]
 }) => {
+  const params = useParams<{ serviceId: string }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
   const [tab, setTab] = useQueryState(
@@ -116,7 +116,7 @@ const LayoutClient = ({
               <SelectSearch
                 placeholder='service'
                 services={services}
-                projectId={(project as Project).id}
+                serviceId={params.serviceId}
               />
             </div>,
             document.getElementById('serviceName') ?? document.body,

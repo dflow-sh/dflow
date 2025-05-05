@@ -55,7 +55,6 @@ const SuspendedServicePageLayout = ({
   }>
 }) => {
   const { serviceId } = use(params)
-
   const payload = use(getPayload({ config: configPromise }))
 
   const { project, ...serviceDetails } = use(
@@ -82,7 +81,6 @@ const SuspendedServicePageLayout = ({
   return (
     <LayoutClient
       type={serviceDetails.type}
-      project={project}
       services={services}
       serviceName={serviceDetails.name}>
       <div className='mb-6 md:flex md:justify-between md:gap-x-2'>

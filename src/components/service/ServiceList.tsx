@@ -58,6 +58,7 @@ const ServiceList = ({
   const handleRedirectToService = (id: string) => {
     router.push(`/dashboard/project/${projectId}/service/${id}`)
   }
+
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -67,7 +68,9 @@ const ServiceList = ({
 
     const initialPositions = calculateNodePositions(services, width, height)
     const { edges: edgesData, nodes: nodesData } = convertToGraph(services)
+
     console.log({ edgesData, nodesData })
+
     const initialNodes = nodesData?.map((node, index) => ({
       id: node.id,
       position: initialPositions[index],
