@@ -105,7 +105,11 @@ const LayoutClient = ({
               <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
             </svg>{' '}
             {server.name}
-            <SelectSearch placeholder={'server'} servers={servers} />
+            <SelectSearch
+              placeholder={'server'}
+              servers={servers}
+              serverId={server.id}
+            />
           </div>,
           document.getElementById('serverName') ?? document.body,
         )}

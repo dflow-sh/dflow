@@ -62,7 +62,6 @@ const SuspendedServicePageLayout = ({
     payload.findByID({
       collection: 'services',
       id: serviceId,
-      depth: 10,
     }),
   )
 
@@ -74,6 +73,7 @@ const SuspendedServicePageLayout = ({
         : iconMapping[serviceDetails.type as Exclude<StatusType, 'database'>]
 
   const domains = serviceDetails.domains
+
   const services =
     typeof project === 'object' && project.services?.docs
       ? project.services?.docs?.filter(service => typeof service === 'object')

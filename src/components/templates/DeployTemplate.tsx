@@ -133,7 +133,10 @@ const TemplateDeploymentForm = ({
         <DialogFooter>
           <DialogClose ref={dialogRef} className='sr-only' />
 
-          <Button type='submit' disabled={deployingTemplate}>
+          <Button
+            type='submit'
+            disabled={deployingTemplate}
+            isLoading={deployingTemplate}>
             Deploy
           </Button>
         </DialogFooter>
@@ -154,7 +157,7 @@ const DeployTemplate = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Deploy a Template</DialogTitle>
+          <DialogTitle>Deploy from Template</DialogTitle>
           <DialogDescription aria-describedby={undefined} />
         </DialogHeader>
 

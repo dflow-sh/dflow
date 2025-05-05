@@ -12,8 +12,6 @@ import ServicesSkeleton from '@/components/skeletons/ServicesSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
 import { Service } from '@/payload-types'
 
-import ProjectClientLayout from './layout.client'
-
 interface PageProps {
   params: Promise<{
     id: string
@@ -31,16 +29,6 @@ const SuspendedPage = ({ params }: PageProps) => {
     }),
   )
 
-  const { docs: projects } = use(
-    payload.find({
-      collection: 'projects',
-      pagination: false,
-      select: {
-        name: true,
-      },
-    }),
-  )
-
   if (!project) {
     notFound()
   }
@@ -48,49 +36,41 @@ const SuspendedPage = ({ params }: PageProps) => {
   const { services, ...projectDetails } = project
 
   return (
-    <ProjectClientLayout
-      project={project}
-      server={project.server}
-      projects={projects}>
-      <section>
-        <div className='flex w-full justify-between'>
-          <div>
-            <h2 className='flex items-center text-2xl font-semibold'>
-              {projectDetails.name}
-              <SidebarToggleButton
-                directory='services'
-                fileName='services-overview'
-              />
-            </h2>
-            <p className='text-sm text-muted-foreground'>
-              {projectDetails.description}
-            </p>
-          </div>
-
-          {typeof projectDetails.server === 'object' && (
-            <div className='flex items-center gap-3'>
-              <DeployTemplate />
-
-              {services?.docs?.length! > 0 && (
-                <CreateService
-                  server={projectDetails.server}
-                  project={project}
-                />
-              )}
-            </div>
-          )}
+    <section>
+      <div className='flex w-full justify-between'>
+        <div>
+          <h2 className='flex items-center text-2xl font-semibold'>
+            {projectDetails.name}
+            <SidebarToggleButton
+              directory='services'
+              fileName='services-overview'
+            />
+          </h2>
+          <p className='text-sm text-muted-foreground'>
+            {projectDetails.description}
+          </p>
         </div>
 
-        {services?.docs?.length! > 0 ? (
-          <ServiceList
-            projectId={projectDetails.id}
-            services={services?.docs as Service[]}
-          />
-        ) : (
-          <ServicesArchitecture />
+        {typeof projectDetails.server === 'object' && (
+          <div className='flex items-center gap-3'>
+            <DeployTemplate />
+
+            {services?.docs?.length! > 0 && (
+              <CreateService server={projectDetails.server} project={project} />
+            )}
+          </div>
         )}
-      </section>
-    </ProjectClientLayout>
+      </div>
+
+      {services?.docs?.length! > 0 ? (
+        <ServiceList
+          projectId={projectDetails.id}
+          services={services?.docs as Service[]}
+        />
+      ) : (
+        <ServicesArchitecture />
+      )}
+    </section>
   )
 }
 
