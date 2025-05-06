@@ -192,6 +192,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
           Delete service
         </li>
       </ul>
+
       <AlertDialog open={open}>
         <AlertDialogContent>
           <AlertDialogHeader>

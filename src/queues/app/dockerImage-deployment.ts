@@ -51,21 +51,23 @@ const worker = new Worker<QueueArgs>(
     const payload = await getPayload({ config: configPromise })
     let ssh: NodeSSH | null = null
     const { appName, sshDetails, serviceDetails, payloadToken } = job.data
-    const {
-      serverId,
-      serviceId,
-      ports,
-      account,
-      imageName,
-      variables,
-      populatedVariables,
-      deploymentId,
-    } = serviceDetails
-    const formattedVariables = JSON.parse(populatedVariables)
+    const { serverId, serviceId, ports, account, imageName, deploymentId } =
+      serviceDetails
 
     try {
       console.log('inside queue: ' + QUEUE_NAME)
       console.log('from queue', job.id)
+
+      // updating the deployment status to building
+      await payload.update({
+        collection: 'deployments',
+        id: serviceDetails.deploymentId,
+        data: {
+          status: 'building',
+        },
+      })
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
       ssh = await dynamicSSH(sshDetails)
 
       // Step 1: Setting dokku ports

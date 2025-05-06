@@ -18,6 +18,9 @@ const SuspendedDashboard = () => {
       payload.find({
         collection: 'servers',
         pagination: false,
+        select: {
+          name: true,
+        },
       }),
       payload.find({
         collection: 'projects',

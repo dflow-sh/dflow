@@ -3,6 +3,7 @@ import { Handle, Position } from '@xyflow/react'
 import { formatDistanceToNow } from 'date-fns'
 import {
   CircleCheckBig,
+  CircleDashed,
   CircleX,
   Clock,
   Database,
@@ -60,6 +61,31 @@ const CustomNode = ({
   data: ServiceNode & { onClick?: () => void }
 }) => {
   const deployment = data?.deployments?.[0]
+  const createdAt = data?.createdAt
+
+  const DeploymentBadge = () => {
+    if (deployment) {
+      return (
+        <Badge
+          variant={statusMapping[deployment.status].status}
+          className='gap-1 capitalize [&_svg]:size-4'>
+          {statusMapping[deployment.status].icon}
+          {deployment.status}
+        </Badge>
+      )
+    }
+
+    if (createdAt && !deployment) {
+      return (
+        <Badge variant='secondary' className='gap-1 capitalize [&_svg]:size-4'>
+          <CircleDashed />
+          No deployment
+        </Badge>
+      )
+    }
+
+    return null
+  }
 
   return (
     <Card
@@ -83,20 +109,15 @@ const CustomNode = ({
             : icon[data.type]}
 
           <div className='flex-1 items-start'>
-            <CardTitle className='line-clamp-1'>{data.name}</CardTitle>
+            <CardTitle className='line-clamp-1' title={data.name}>
+              {data.name}
+            </CardTitle>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className='pb-3'>
-        {deployment && (
-          <Badge
-            variant={statusMapping[deployment.status].status}
-            className='gap-1 capitalize [&_svg]:size-4'>
-            {statusMapping[deployment.status].icon}
-            {deployment.status}
-          </Badge>
-        )}
+        <DeploymentBadge />
       </CardContent>
 
       {data?.createdAt && (

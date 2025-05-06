@@ -1,7 +1,5 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -9,6 +7,8 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { Button } from '../ui/button'
+import { Textarea } from '../ui/textarea'
 
 import { createProjectAction, updateProjectAction } from '@/actions/project'
 import { createProjectSchema } from '@/actions/project/validator'
@@ -38,7 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { slugify } from '@/lib/slugify'
-import { Project, Server } from '@/payload-types'
+import { Project } from '@/payload-types'
 
 const CreateProject = ({
   servers,
@@ -49,7 +49,7 @@ const CreateProject = ({
   manualOpen = false,
   setManualOpen = () => {},
 }: {
-  servers: Server[]
+  servers: { id: string; name: string }[]
   type?: 'create' | 'update'
   title?: string
   description?: string

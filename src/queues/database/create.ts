@@ -1,7 +1,9 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
+import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
@@ -130,6 +132,7 @@ export const createDatabaseQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
+    const payload = await getPayload({ config: configPromise })
     const {
       databaseName,
       databaseType,
@@ -144,6 +147,16 @@ const worker = new Worker<QueueArgs>(
       console.log(
         `starting createDatabase queue for ${databaseType} database called ${databaseName}`,
       )
+
+      // updating the deployment status to building
+      await payload.update({
+        collection: 'deployments',
+        id: serviceDetails.deploymentId,
+        data: {
+          status: 'building',
+        },
+      })
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
       ssh = await dynamicSSH(sshDetails)
 

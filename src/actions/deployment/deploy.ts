@@ -39,7 +39,7 @@ export const triggerDeployment = async ({
     collection: 'deployments',
     data: {
       service: serviceId,
-      status: 'building',
+      status: 'queued',
     },
   })
 

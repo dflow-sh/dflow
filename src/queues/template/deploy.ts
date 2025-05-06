@@ -118,7 +118,7 @@ const worker = new Worker<QueueArgs>(
           collection: 'deployments',
           data: {
             service: serviceDetails.id,
-            status: 'building',
+            status: 'queued',
           },
         })
 
