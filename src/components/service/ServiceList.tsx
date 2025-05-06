@@ -4,7 +4,6 @@ import { ServiceNode } from '../reactflow/types'
 import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -210,16 +209,17 @@ const ContextMenu: FC<ContextMenuProps> = ({
               Cancel
             </AlertDialogCancel>
 
-            <AlertDialogAction
+            <Button
               variant='destructive'
               disabled={isPending}
+              isLoading={isPending}
               onClick={() => {
                 execute({
                   id: service.id,
                 })
               }}>
               Delete
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

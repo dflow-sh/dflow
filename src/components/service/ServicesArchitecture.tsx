@@ -64,6 +64,7 @@ const ServicesArchitecture = () => {
 
                 <Button
                   variant={'outline'}
+                  disabled={isDeploying}
                   onClick={() => {
                     setNodes([])
                     setEdges([])

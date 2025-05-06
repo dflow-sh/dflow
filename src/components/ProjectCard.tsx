@@ -10,7 +10,6 @@ import { toast } from 'sonner'
 import { deleteProjectAction } from '@/actions/project'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -53,21 +52,17 @@ export function DeleteProjectAlert({
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const { id, name } = project
-  const { execute } = useAction(deleteProjectAction, {
-    onExecute: () => {
-      setOpen(false)
-      toast.loading('Please wait deleting project...', { id })
-    },
+  const { name } = project
+  const { execute, isPending } = useAction(deleteProjectAction, {
     onSuccess: ({ data }) => {
       if (data?.deleted) {
-        toast.success('Successfully deleted project', { id })
+        setOpen(false)
+        toast.success('Successfully deleted project')
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to delete project: ${error.serverError}`, {
-        id,
-      })
+      setOpen(false)
+      toast.error(`Failed to delete project: ${error.serverError}`)
     },
   })
 
@@ -81,19 +76,23 @@ export function DeleteProjectAlert({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
+          <AlertDialogCancel
+            disabled={isPending}
+            onClick={() => setOpen(false)}>
             Cancel
           </AlertDialogCancel>
 
-          <AlertDialogAction
+          <Button
             variant='destructive'
+            disabled={isPending}
+            isLoading={isPending}
             onClick={() => {
               execute({
                 id: project.id,
               })
             }}>
             Delete
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

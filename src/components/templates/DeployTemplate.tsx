@@ -5,7 +5,7 @@ import { Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -80,6 +80,8 @@ const TemplateDeploymentForm = ({
     },
   })
 
+  const { id } = useWatch({ control: form.control })
+
   useEffect(() => {
     if (templates === undefined) {
       execute()
@@ -100,7 +102,7 @@ const TemplateDeploymentForm = ({
             <FormItem>
               <FormLabel>Template</FormLabel>
               <Select
-                disabled={isPending}
+                disabled={isPending || deployingTemplate}
                 onValueChange={field.onChange}
                 defaultValue={field.value}>
                 <FormControl>
@@ -136,7 +138,7 @@ const TemplateDeploymentForm = ({
 
           <Button
             type='submit'
-            disabled={deployingTemplate}
+            disabled={deployingTemplate || !id}
             isLoading={deployingTemplate}>
             Deploy
           </Button>

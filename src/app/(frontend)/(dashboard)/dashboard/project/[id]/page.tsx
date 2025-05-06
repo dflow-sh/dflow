@@ -33,7 +33,7 @@ const SuspendedPage = ({ params }: PageProps) => {
         },
         joins: {
           deployments: {
-            limit: 10,
+            limit: 1,
           },
         },
         depth: 10,
