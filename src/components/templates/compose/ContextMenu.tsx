@@ -25,7 +25,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   const menuRef = useRef<HTMLDivElement>(null)
   const { setNodes } = useReactFlow()
 
-  function useSafeArchitectureContext() {
+  const architectureContext = function useSafeArchitectureContext() {
     try {
       return useArchitectureContext()
     } catch (e) {
@@ -72,7 +72,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
         <Button
           variant='destructive'
           className='w-full'
-          disabled={useSafeArchitectureContext()?.isDeploying}
+          disabled={architectureContext()?.isDeploying}
           onClick={() => deleteNode(service.id)}>
           <Trash2 />
           Remove service

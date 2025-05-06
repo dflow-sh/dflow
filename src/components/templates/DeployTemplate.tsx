@@ -148,7 +148,7 @@ const TemplateDeploymentForm = ({
 
 const DeployTemplate = () => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
-  function useSafeArchitectureContext() {
+  const architectureContext = function useSafeArchitectureContext() {
     try {
       return useArchitectureContext()
     } catch (e) {
@@ -159,9 +159,7 @@ const DeployTemplate = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant='outline'
-          disabled={useSafeArchitectureContext()?.isDeploying}>
+        <Button variant='outline' disabled={architectureContext()?.isDeploying}>
           <Rocket /> Deploy from Template
         </Button>
       </DialogTrigger>

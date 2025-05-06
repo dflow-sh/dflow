@@ -93,7 +93,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const ref = useRef(null)
   const [menu, setMenu] = useState<Menu | null>(null)
 
-  function useSafeArchitectureContext() {
+  const architectureContext = function useSafeArchitectureContext() {
     try {
       return useArchitectureContext()
     } catch (e) {
@@ -198,7 +198,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
           <Button
             className='z-20'
             variant={'outline'}
-            disabled={useSafeArchitectureContext()?.isDeploying}
+            disabled={architectureContext()?.isDeploying}
             onClick={() => setOpen(true)}>
             <Plus size={16} /> Add New
           </Button>

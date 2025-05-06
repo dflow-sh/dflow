@@ -64,7 +64,7 @@ const CustomNode = ({
   const deployment = data?.deployments?.[0]
   const createdAt = data?.createdAt
 
-  function useSafeArchitectureContext() {
+  const architectureContext = function useSafeArchitectureContext() {
     try {
       return useArchitectureContext()
     } catch (e) {
@@ -99,7 +99,7 @@ const CustomNode = ({
   return (
     <Card
       onClick={() => {
-        if (useSafeArchitectureContext()?.isDeploying) {
+        if (architectureContext()?.isDeploying) {
           return
         }
 
