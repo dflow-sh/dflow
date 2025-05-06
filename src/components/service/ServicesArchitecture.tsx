@@ -4,6 +4,7 @@ import { convertNodesToServices } from '../reactflow/utils/convertNodesToService
 import ChooseService from '../templates/compose/ChooseService'
 import { Button } from '../ui/button'
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
+import { Rocket } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
@@ -50,10 +51,18 @@ const ServicesArchitecture = () => {
             transition={{ duration: 0.2 }}
             className='absolute left-0 top-2 z-10 w-full max-w-[26rem] -translate-x-1/2 transform rounded-md border border-border/50 bg-primary/5 p-2 shadow-lg backdrop-blur-md md:left-1/3'>
             <div className='flex items-center justify-between'>
-              <p className='text-cq-primary text-sm font-bold'>
-                Deploy {nodes?.length}{' '}
-                {nodes?.length === 1 ? 'service' : 'services'}
-              </p>
+              <div>
+                <p className='text-cq-primary text-sm font-semibold'>
+                  Deploy {nodes?.length}{' '}
+                  {nodes?.length === 1 ? 'service' : 'services'}
+                </p>
+
+                {isPending && (
+                  <p className='text-sm text-muted-foreground'>
+                    This process might take time, please wait...
+                  </p>
+                )}
+              </div>
 
               <Button
                 onClick={() => {
@@ -62,10 +71,10 @@ const ServicesArchitecture = () => {
                     services,
                   })
                 }}
-                size={'sm'}
+                size='icon'
                 disabled={isPending}
                 isLoading={isPending}>
-                Deploy {nodes?.length === 1 ? 'service' : 'services'}
+                <Rocket size={16} />
               </Button>
             </div>
           </motion.div>

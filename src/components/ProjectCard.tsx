@@ -106,7 +106,7 @@ export function ProjectCard({
   services,
 }: {
   project: Project
-  servers: Server[]
+  servers: { name: string; id: string }[]
   services: Service[]
 }) {
   const [manualOpen, setManualOpen] = useState(false)

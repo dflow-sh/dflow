@@ -69,6 +69,17 @@ const worker = new Worker<QueueArgs>(
     try {
       console.log('inside queue: ' + QUEUE_NAME)
       console.log('from queue', job.id)
+
+      // updating the deployment status to building
+      await payload.update({
+        collection: 'deployments',
+        id: serviceDetails.deploymentId,
+        data: {
+          status: 'building',
+        },
+      })
+      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
       ssh = await dynamicSSH(sshDetails)
 
       // Step 1: Setting dokku port

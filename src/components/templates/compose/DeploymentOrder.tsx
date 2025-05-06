@@ -87,7 +87,7 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
       collapsible
       className='w-full'>
       <AccordionItem
-        className='w-64 space-y-1 rounded-md border bg-[#171e33] px-3 backdrop-blur-md'
+        className='w-72 space-y-1 rounded-md border bg-[#171e33] px-3 backdrop-blur-md'
         value='deployment-order'>
         <AccordionTrigger className='px-2 hover:no-underline'>
           Deployment order
@@ -98,8 +98,8 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
             axis='y'
             values={nodes}
             onReorder={setNodes}>
-            {nodes.map(node => (
-              <NodeComponent key={node.id} node={node} />
+            {nodes.map((node, index) => (
+              <NodeComponent key={node.id} node={node} index={++index} />
             ))}
           </Reorder.Group>
         </AccordionContent>
@@ -108,7 +108,7 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
   )
 }
 
-const NodeComponent = ({ node }: { node: Node }) => {
+const NodeComponent = ({ node, index }: { node: Node; index: number }) => {
   const y = useMotionValue(0)
   const dragControls = useDragControls()
   const [isDragging, setIsDragging] = useState(false)
@@ -123,13 +123,18 @@ const NodeComponent = ({ node }: { node: Node }) => {
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
       className={cn(
-        'flex items-center justify-between rounded-sm bg-background px-3 py-2',
+        'relative flex items-center justify-between gap-2 rounded-sm bg-background px-3 py-2',
         isDragging ? 'cursor-grabbing' : 'cursor-grab',
       )}>
+      <div className='mr-1 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-sm'>
+        {index}
+      </div>
+
       {service?.type === 'database' && service?.databaseDetails?.type
         ? databaseIcons[service?.databaseDetails?.type]
         : icon[service.type]}
-      <span title={service.name} className='flex-grow truncate pl-2'>
+
+      <span title={service.name} className='flex-grow truncate'>
         {service.name}
       </span>
 

@@ -71,9 +71,9 @@ const SuspendedPage = ({ params }: PageProps) => {
           <div className='flex items-center gap-3'>
             <DeployTemplate />
 
-            {services?.length && (
+            {services?.length ? (
               <CreateService server={project.server} project={project} />
-            )}
+            ) : null}
           </div>
         )}
       </div>
