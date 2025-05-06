@@ -7,11 +7,29 @@ export function convertToGraph(services: Service[] | Template['services']) {
   if (!services || services.length === 0) return { nodes: [], edges: [] }
 
   const nodes: ServiceNode[] = services.map(item => {
+    const deployments =
+      'deployments' in item && item.deployments?.docs
+        ? item.deployments?.docs.filter(
+            deployment => typeof deployment === 'object',
+          )
+        : []
+    const createdAt = 'createdAt' in item ? item.createdAt : ''
+
     const node: ServiceNode = {
       id: item.id!,
       name: item.name,
       type: item.type,
+      description: item.description,
       variables: item.variables ?? undefined,
+      ...(createdAt ? { createdAt } : {}),
+      ...(deployments.length
+        ? {
+            deployments: deployments.map(deployment => ({
+              id: deployment.id,
+              status: deployment.status!,
+            })),
+          }
+        : {}),
     }
 
     switch (item.type) {

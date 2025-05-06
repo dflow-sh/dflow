@@ -1,7 +1,14 @@
 import { ServiceNode } from '../types'
 import { Handle, Position } from '@xyflow/react'
 import { formatDistanceToNow } from 'date-fns'
-import { Clock, Database, Github } from 'lucide-react'
+import {
+  CircleCheckBig,
+  CircleX,
+  Clock,
+  Database,
+  Github,
+  Hammer,
+} from 'lucide-react'
 import { JSX } from 'react'
 
 import {
@@ -12,34 +19,52 @@ import {
   PostgreSQL,
   Redis,
 } from '@/components/icons'
-import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Service } from '@/payload-types'
+
+const icon: { [key in ServiceNode['type']]: JSX.Element } = {
+  app: <Github className='size-6' />,
+  database: <Database className='size-6 text-destructive' />,
+  docker: <Docker className='size-6' />,
+}
+
+type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
+
+const databaseIcons: {
+  [key in StatusType]: JSX.Element
+} = {
+  postgres: <PostgreSQL className='size-6' />,
+  mariadb: <MariaDB className='size-6' />,
+  mongo: <MongoDB className='size-6' />,
+  mysql: <MySQL className='size-6' />,
+  redis: <Redis className='size-6' />,
+}
+
+const statusMapping = {
+  building: { status: 'info', icon: <Hammer /> },
+  queued: { status: 'warning', icon: <Clock /> },
+  success: { status: 'success', icon: <CircleCheckBig /> },
+  failed: { status: 'destructive', icon: <CircleX /> },
+} as const
 
 const CustomNode = ({
   data,
 }: {
   data: ServiceNode & { onClick?: () => void }
 }) => {
-  const icon: { [key in ServiceNode['type']]: JSX.Element } = {
-    app: <Github className='size-6' />,
-    database: <Database className='size-6 text-destructive' />,
-    docker: <Docker className='size-6' />,
-  }
-
-  type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
-
-  const databaseIcons: {
-    [key in StatusType]: JSX.Element
-  } = {
-    postgres: <PostgreSQL className='size-6' />,
-    mariadb: <MariaDB className='size-6' />,
-    mongo: <MongoDB className='size-6' />,
-    mysql: <MySQL className='size-6' />,
-    redis: <Redis className='size-6' />,
-  }
+  const deployment = data?.deployments?.[0]
 
   return (
-    <Card onClick={data?.onClick} className='h-full min-h-36 backdrop-blur-md'>
+    <Card
+      onClick={data?.onClick}
+      className='h-full min-h-36 cursor-pointer backdrop-blur-md'>
       <Handle
         type='source'
         style={{
@@ -50,6 +75,7 @@ const CustomNode = ({
         }}
         position={Position.Left}
       />
+
       <CardHeader className='w-64 flex-row justify-between'>
         <div className='flex items-center gap-x-3'>
           {data.type === 'database' && data.databaseDetails?.type
@@ -62,6 +88,17 @@ const CustomNode = ({
         </div>
       </CardHeader>
 
+      <CardContent className='pb-3'>
+        {deployment && (
+          <Badge
+            variant={statusMapping[deployment.status].status}
+            className='gap-1 capitalize [&_svg]:size-4'>
+            {statusMapping[deployment.status].icon}
+            {deployment.status}
+          </Badge>
+        )}
+      </CardContent>
+
       {data?.createdAt && (
         <CardFooter>
           <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
@@ -72,6 +109,7 @@ const CustomNode = ({
           </time>
         </CardFooter>
       )}
+
       <Handle
         type='target'
         style={{

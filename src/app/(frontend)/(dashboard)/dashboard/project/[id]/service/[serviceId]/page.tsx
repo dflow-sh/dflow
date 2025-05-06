@@ -21,21 +21,26 @@ interface PageProps {
 }
 
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
-  const { id: projectId, serviceId } = use(params)
+  const { serviceId } = use(params)
   const { tab } = use(loadServicePageTabs(searchParams))
 
   const payload = use(getPayload({ config: configPromise }))
 
-  const service = use(
-    payload.findByID({
-      collection: 'services',
-      id: serviceId,
-      joins: {
-        deployments: {
-          limit: 1000,
+  const [service, { docs: deployments }] = use(
+    Promise.all([
+      payload.findByID({
+        collection: 'services',
+        id: serviceId,
+      }),
+      payload.find({
+        collection: 'deployments',
+        where: {
+          service: {
+            equals: serviceId,
+          },
         },
-      },
-    }),
+      }),
+    ]),
   )
 
   if (!service?.id) {
@@ -45,7 +50,6 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverId =
     typeof service.project === 'object' ? service.project.server : ''
 
-  const deployments = service.deployments?.docs ?? []
   const domains = service.domains ?? []
 
   switch (tab) {

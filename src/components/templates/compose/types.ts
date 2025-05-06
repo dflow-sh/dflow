@@ -44,3 +44,18 @@ export const DockerServiceSchema = z.object({
     .optional(),
 })
 export type DockerServiceType = z.infer<typeof DockerServiceSchema>
+
+export const editServiceNameSchema = (existingNames: string[]) =>
+  z.object({
+    name: z
+      .string()
+      .min(1, 'Name is required')
+      .refine(name => !existingNames.includes(name), {
+        message: 'Name already exists',
+      }),
+    description: z.string().optional().nullable(),
+  })
+
+export type EditServiceNameType = z.infer<
+  ReturnType<typeof editServiceNameSchema>
+>

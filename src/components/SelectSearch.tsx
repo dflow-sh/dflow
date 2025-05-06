@@ -24,18 +24,24 @@ export default function SelectSearch({
   services,
   projects,
   placeholder,
-  projectId,
+  projectId = '',
   servers,
+  serverId = '',
+  serviceId = '',
 }: {
   services?: Service[]
   projects?: { id: string; name: string }[]
   placeholder: string
   projectId?: string
   servers?: Server[]
+  serverId?: string
+  serviceId?: string
 }) {
   const id = useId()
   const [open, setOpen] = useState<boolean>(false)
-  const [value, setValue] = useState<string>('')
+  const [value, setValue] = useState<string>(
+    projectId || serverId || serviceId || '',
+  )
 
   return (
     <div className='*:not-first:mt-2'>
@@ -74,7 +80,8 @@ export default function SelectSearch({
                         setOpen(false)
                       }}>
                       {project.name}
-                      {value === project.name && (
+
+                      {value === project.id && (
                         <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>
@@ -95,7 +102,8 @@ export default function SelectSearch({
                         setOpen(false)
                       }}>
                       {service.name}
-                      {value === service.name && (
+
+                      {value === service.id && (
                         <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>
@@ -114,7 +122,7 @@ export default function SelectSearch({
                         setOpen(false)
                       }}>
                       {server.name}
-                      {value === server.name && (
+                      {value === server.id && (
                         <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>

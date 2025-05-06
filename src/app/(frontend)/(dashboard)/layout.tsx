@@ -57,8 +57,8 @@ const DashboardLayoutInner = () => {
 
           {/* Breadcrumb placeholders */}
           <div id='projectName'></div>
-          <div id='serviceName' className='-ml-2'></div>
-          <div id='serverName' className='-ml-4'></div>
+          <div id='serviceName' className='-ml-2' />
+          <div id='serverName' className='-ml-4' />
         </div>
 
         <div className='flex items-center gap-x-4'>
@@ -77,6 +77,7 @@ const DashboardLayoutInner = () => {
               <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
             </div>
           </Link>
+
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended user={user} />
           </Suspense>

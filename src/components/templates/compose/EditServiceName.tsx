@@ -1,36 +1,78 @@
-import { Edge, Node, useReactFlow } from '@xyflow/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Edge, Node } from '@xyflow/react'
 import { SquarePen } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 import { ServiceNode } from '@/components/reactflow/types'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { slugify } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
+
+import { EditServiceNameType, editServiceNameSchema } from './types'
 
 const EditServiceName = ({
   service,
   edges,
-  onClose,
   className,
+  nodes,
+  setNodes,
 }: {
   service: ServiceNode
   edges: Edge[]
-  onClose?: () => void
+  nodes: Node[]
   className?: string
+  setNodes: Function
 }) => {
   const [ediServiceName, setEditServiceName] = useState<boolean>(false)
-  const [serviceName, setServiceName] = useState<string>(service?.name ?? '')
-  const { setNodes } = useReactFlow()
   const handleEditClick = useCallback(() => {
     setEditServiceName(true)
   }, [])
-  const updateServiceName = (newServiceName: string) => {
+
+  const existingNames = useMemo(() => {
+    return (
+      nodes
+        ?.filter(node => node.id !== service.id)
+        .map(node => node.data?.name)
+        .filter(Boolean) || []
+    )
+  }, [service.id, nodes])
+
+  const form = useForm<EditServiceNameType>({
+    resolver: zodResolver(editServiceNameSchema(existingNames as string[])),
+    defaultValues: {
+      name: service?.name,
+      description: service?.description,
+    },
+  })
+
+  useEffect(() => {
+    if (ediServiceName) {
+      form.reset({
+        name: service?.name,
+        description: service?.description,
+      })
+    }
+  }, [ediServiceName, service, form])
+
+  const updateServiceName = (data: EditServiceNameType) => {
     const oldServiceName = service.name
 
     const connectedEdges = edges.filter(edge => edge.target === service.id)
@@ -44,7 +86,8 @@ const EditServiceName = ({
             ...node,
             data: {
               ...node.data,
-              name: newServiceName,
+              name: data.name,
+              description: data.description,
             },
           }
         }
@@ -56,7 +99,7 @@ const EditServiceName = ({
                   const updatedValue = variable?.value.replace(
                     new RegExp(`\\$\\{\\{[^:{}\\s]+:${oldServiceName}\\.`),
                     match =>
-                      match.replace(`${oldServiceName}.`, `${newServiceName}.`),
+                      match.replace(`${oldServiceName}.`, `${data.name}.`),
                   )
                   return { ...variable, value: updatedValue }
                 },
@@ -75,6 +118,9 @@ const EditServiceName = ({
         return node
       }),
     )
+
+    form.reset()
+    setEditServiceName(false)
   }
   return (
     <div>
@@ -93,27 +139,64 @@ const EditServiceName = ({
 
       {/* Edit Service Name Dialog */}
       <Dialog modal open={ediServiceName} onOpenChange={setEditServiceName}>
-        <DialogContent onCloseAutoFocus={() => setServiceName(service?.name)}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Update service name</DialogTitle>
+            <DialogTitle>Edit Service</DialogTitle>
           </DialogHeader>
-          <Input
-            id='serviceName'
-            value={serviceName}
-            placeholder={service?.name || 'Enter service name'}
-            onChange={e => setServiceName(slugify(e.target.value))}
-            type='text'
-            required
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                const trimmed = serviceName.trim()
-                if (trimmed === '') return
-                updateServiceName(trimmed)
-                setEditServiceName(false)
-                onClose && onClose()
-              }
-            }}
-          />
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(updateServiceName)}
+              className='space-y-6'>
+              <FormField
+                control={form.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        onChange={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+
+                          e.target.value = slugify(e.target.value)
+
+                          field.onChange(e)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='description'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        value={field.value || ''}
+                        onChange={e => {
+                          e.stopPropagation()
+                          e.preventDefault()
+
+                          field.onChange(e)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type='submit'>Update</Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

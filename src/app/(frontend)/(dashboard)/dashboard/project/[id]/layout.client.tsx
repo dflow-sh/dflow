@@ -2,11 +2,12 @@
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
-import { Project, Server } from '@/payload-types'
+import { Server } from '@/payload-types'
 
 const ProjectTerminal = dynamic(
   () => import('@/components/project/ProjectTerminal'),
@@ -21,11 +22,12 @@ const ClientLayout = ({
   server,
   projects,
 }: {
-  project: Project
+  project: { id: string; name: string }
   children: React.ReactNode
   server: Server | string
   projects: { id: string; name: string }[]
 }) => {
+  const params = useParams<{ id: string }>()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -52,7 +54,11 @@ const ClientLayout = ({
               {project.name}
             </Link>
 
-            <SelectSearch projects={projects} placeholder='project' />
+            <SelectSearch
+              projects={projects}
+              projectId={params.id}
+              placeholder='project'
+            />
           </div>,
           document.getElementById('projectName') ?? document.body,
         )}

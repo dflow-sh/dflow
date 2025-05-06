@@ -69,23 +69,26 @@ export default function SelectSearch({
             role='combobox'
             aria-expanded={open}
             disabled={disabled}
-            className='mt-2 w-full justify-between border-input bg-transparent px-3 font-normal outline-none outline-offset-0 hover:bg-transparent hover:text-white focus-visible:outline-[3px]'>
-            <span
-              className={cn(
-                'truncate',
-                !fieldValue && 'text-muted-foreground',
-              )}>
-              {fieldValue
-                ? getSelectedItemName()
-                : inputPlaceholder.includes('fetching')
-                  ? inputPlaceholder
-                  : `Select ${inputPlaceholder}`}
-            </span>
-            <ChevronDownIcon
-              size={16}
-              className='shrink-0 text-muted-foreground/80'
-              aria-hidden='true'
-            />
+            className='mt-2 w-full bg-transparent hover:bg-transparent hover:text-foreground'>
+            <div className='flex w-full items-center justify-between'>
+              <span
+                className={cn(
+                  'truncate',
+                  !fieldValue && 'text-muted-foreground',
+                )}>
+                {fieldValue
+                  ? getSelectedItemName()
+                  : inputPlaceholder.includes('fetching')
+                    ? inputPlaceholder
+                    : `Select ${inputPlaceholder}`}
+              </span>
+
+              <ChevronDownIcon
+                size={16}
+                className='shrink-0 text-muted-foreground/80'
+                aria-hidden='true'
+              />
+            </div>
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -110,9 +113,9 @@ export default function SelectSearch({
                         }}>
                         {item.github.appName}
                         {fieldValue === item.id && (
-                          <span className='ml-auto text-muted-foreground'>
+                          <span className='ml-auto'>
                             {item.github.installationId && (
-                              <CheckIcon size={16} className='stroke-primary' />
+                              <CheckIcon size={16} />
                             )}
                           </span>
                         )}
@@ -131,10 +134,7 @@ export default function SelectSearch({
                       }}>
                       {item.name}
                       {fieldValue === item.id && (
-                        <CheckIcon
-                          size={16}
-                          className='ml-auto stroke-primary'
-                        />
+                        <CheckIcon size={16} className='ml-auto' />
                       )}
                     </CommandItem>
                   )

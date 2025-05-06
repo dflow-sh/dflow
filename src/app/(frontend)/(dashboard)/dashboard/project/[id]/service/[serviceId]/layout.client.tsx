@@ -1,8 +1,7 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
-import dynamic from 'next/dynamic'
-import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
@@ -10,28 +9,20 @@ import { createPortal } from 'react-dom'
 import SelectSearch from '@/components/SelectSearch'
 import Tabs from '@/components/Tabs'
 import { cn } from '@/lib/utils'
-import { Project, Service } from '@/payload-types'
-
-const ProjectTerminal = dynamic(
-  () => import('@/components/project/ProjectTerminal'),
-  {
-    ssr: false,
-  },
-)
+import { Service } from '@/payload-types'
 
 const LayoutClient = ({
   children,
-  project,
   services,
   type,
   serviceName,
 }: {
   children: React.ReactNode
   type: 'database' | 'app' | 'docker'
-  project: Project | string
   serviceName: string
   services: Service[]
 }) => {
+  const params = useParams<{ serviceId: string }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
   const [tab, setTab] = useQueryState(
@@ -58,11 +49,6 @@ const LayoutClient = ({
       stop()
     }
   }, [isPending])
-
-  const server =
-    typeof project === 'object' && typeof project?.server === 'object'
-      ? project?.server
-      : null
 
   const tabsList = useMemo(() => {
     return type === 'database'
@@ -117,24 +103,6 @@ const LayoutClient = ({
         <>
           {createPortal(
             <div className='flex items-center gap-1 text-sm font-normal'>
-              <Link
-                href={`/dashboard/project/${typeof project === 'object' ? project.id : project}`}
-                className='flex'>
-                <svg
-                  fill='currentColor'
-                  viewBox='0 0 20 20'
-                  className='h-5 w-5 flex-shrink-0 stroke-border'
-                  aria-hidden='true'>
-                  <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
-                </svg>{' '}
-                {typeof project === 'object' ? project?.name : ''}
-              </Link>
-            </div>,
-            document.getElementById('projectName') ?? document.body,
-          )}
-
-          {createPortal(
-            <div className='flex items-center gap-1 text-sm font-normal'>
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
@@ -146,15 +114,13 @@ const LayoutClient = ({
               <SelectSearch
                 placeholder='service'
                 services={services}
-                projectId={(project as Project).id}
+                serviceId={params.serviceId}
               />
             </div>,
             document.getElementById('serviceName') ?? document.body,
           )}
         </>
       )}
-
-      {server && <ProjectTerminal server={server} />}
     </>
   )
 }

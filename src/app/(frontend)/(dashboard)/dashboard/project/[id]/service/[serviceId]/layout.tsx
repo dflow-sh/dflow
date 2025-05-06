@@ -55,14 +55,12 @@ const SuspendedServicePageLayout = ({
   }>
 }) => {
   const { serviceId } = use(params)
-
   const payload = use(getPayload({ config: configPromise }))
 
   const { project, ...serviceDetails } = use(
     payload.findByID({
       collection: 'services',
       id: serviceId,
-      depth: 10,
     }),
   )
 
@@ -74,6 +72,7 @@ const SuspendedServicePageLayout = ({
         : iconMapping[serviceDetails.type as Exclude<StatusType, 'database'>]
 
   const domains = serviceDetails.domains
+
   const services =
     typeof project === 'object' && project.services?.docs
       ? project.services?.docs?.filter(service => typeof service === 'object')
@@ -82,7 +81,6 @@ const SuspendedServicePageLayout = ({
   return (
     <LayoutClient
       type={serviceDetails.type}
-      project={project}
       services={services}
       serviceName={serviceDetails.name}>
       <div className='mb-6 md:flex md:justify-between md:gap-x-2'>
@@ -166,13 +164,13 @@ const ServiceIdLayout = ({
   }>
 }) => {
   return (
-    <Suspense fallback={<ServiceLayoutSkeleton />}>
-      <DisableDeploymentContextProvider>
+    <DisableDeploymentContextProvider>
+      <Suspense fallback={<ServiceLayoutSkeleton />}>
         <SuspendedServicePageLayout params={params}>
           {children}
         </SuspendedServicePageLayout>
-      </DisableDeploymentContextProvider>
-    </Suspense>
+      </Suspense>
+    </DisableDeploymentContextProvider>
   )
 }
 

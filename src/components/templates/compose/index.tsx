@@ -185,10 +185,29 @@ const CreateNewTemplate = () => {
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
         className='h-[calc(100vh-120px)] w-full'>
-        <div
-          className={'flex h-full w-full items-center justify-center gap-x-4'}>
-          <Skeleton className='h-28 w-48 bg-[#171d33]' />
-          <Skeleton className='h-28 w-48 bg-[#171d33]' />
+        <div className='flex h-full w-full flex-col items-center justify-center gap-4 md:flex-row'>
+          {/* Generate 6 skeleton card placeholders */}
+          {Array(2)
+            .fill(0)
+            .map((_, index) => (
+              <div
+                key={index}
+                className='h-36 w-full rounded-xl border bg-[#171d33] text-card-foreground shadow md:w-72'>
+                <div className='flex w-full flex-row justify-between space-y-1.5 p-6'>
+                  <div className='flex items-center gap-x-3'>
+                    <Skeleton className='size-6 rounded-full' />
+                    <div className='flex-1 items-start'>
+                      <Skeleton className='mb-2 h-5 w-32' />
+                      <Skeleton className='h-4 w-24' />
+                    </div>
+                  </div>
+                  <Skeleton className='h-9 w-9 flex-shrink-0 rounded-md' />
+                </div>
+                <div className='flex items-center p-6 pt-0'>
+                  <Skeleton className='h-4 w-36' />
+                </div>
+              </div>
+            ))}
         </div>
       </ReactFlowConfig>
     )
@@ -216,7 +235,9 @@ const CreateNewTemplate = () => {
       <Dialog open={openCreateTemplate} onOpenChange={setOpenCreateTemplate}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Template</DialogTitle>
+            <DialogTitle>
+              {templateId && template?.data ? 'Update' : 'Create'} Template
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className='space-y-4'>

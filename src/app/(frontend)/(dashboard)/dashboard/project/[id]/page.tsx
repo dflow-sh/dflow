@@ -8,11 +8,8 @@ import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateService from '@/components/service/CreateService'
 import ServiceList from '@/components/service/ServiceList'
 import ServicesArchitecture from '@/components/service/ServicesArchitecture'
-import { ProjectSkeleton } from '@/components/skeletons/ProjectSkeleton'
+import ServicesSkeleton from '@/components/skeletons/ServicesSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
-import { Service } from '@/payload-types'
-
-import ProjectClientLayout from './layout.client'
 
 interface PageProps {
   params: Promise<{
@@ -24,77 +21,76 @@ const SuspendedPage = ({ params }: PageProps) => {
   const { id } = use(params)
   const payload = use(getPayload({ config: configPromise }))
 
-  const project = use(
-    payload.findByID({
-      collection: 'projects',
-      id,
-    }),
-  )
-
-  const { docs: projects } = use(
-    payload.find({
-      collection: 'projects',
-      pagination: false,
-      select: {
-        name: true,
-      },
-    }),
+  const [{ docs: services }, project] = use(
+    Promise.all([
+      payload.find({
+        collection: 'services',
+        where: {
+          project: {
+            equals: id,
+          },
+        },
+        joins: {
+          deployments: {
+            limit: 10,
+          },
+        },
+        depth: 10,
+      }),
+      payload.findByID({
+        collection: 'projects',
+        id,
+        select: {
+          name: true,
+          description: true,
+          server: true,
+        },
+      }),
+    ]),
   )
 
   if (!project) {
     notFound()
   }
 
-  const { services, ...projectDetails } = project
-
   return (
-    <ProjectClientLayout
-      project={project}
-      server={project.server}
-      projects={projects}>
-      <section>
-        <div className='flex w-full justify-between'>
-          <div>
-            <h2 className='flex items-center text-2xl font-semibold'>
-              {projectDetails.name}
-              <SidebarToggleButton
-                directory='services'
-                fileName='services-overview'
-              />
-            </h2>
-            <p className='text-sm text-muted-foreground'>
-              {projectDetails.description}
-            </p>
-          </div>
+    <section>
+      <div className='flex w-full justify-between'>
+        <div>
+          <h2 className='flex items-center text-2xl font-semibold'>
+            {project.name}
+            <SidebarToggleButton
+              directory='services'
+              fileName='services-overview'
+            />
+          </h2>
+          <p className='text-sm text-muted-foreground'>{project.description}</p>
+        </div>
 
-        {typeof projectDetails.server === 'object' && (
+        {typeof project.server === 'object' && (
           <div className='flex items-center gap-3'>
             <DeployTemplate />
 
-            {services?.docs?.length! > 0 && (
-              <CreateService server={projectDetails.server} project={project} />
+            {services?.length && (
+              <CreateService server={project.server} project={project} />
             )}
           </div>
         )}
       </div>
 
-      {services?.docs?.length! > 0 ? (
-        <ServiceList
-          projectId={projectDetails.id}
-          services={services?.docs as Service[]}
-        />
+      {services.length ? (
+        <ServiceList projectId={id} services={services} />
       ) : (
         <ServicesArchitecture />
       )}
     </section>
-    </ProjectClientLayout>
   )
 }
 
 const ProjectIdPage = async ({ params }: PageProps) => {
   return (
     <TabsLayout>
-      <Suspense fallback={<ProjectSkeleton />}>
+      <Suspense fallback={<ServicesSkeleton />}>
         <SuspendedPage params={params} />
       </Suspense>
     </TabsLayout>
