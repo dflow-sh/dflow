@@ -27,7 +27,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   let version: string | undefined
   let netdataVersion: string | null = null
-  let sshConnected = true
+  let sshConnected = false
   let linuxDistributionVersion
   let linuxDistributionType
   let railpack: string | undefined
@@ -41,6 +41,10 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           privateKey: sshKey.privateKey,
           username: doc.username,
         })
+
+        if (ssh.isConnected()) {
+          sshConnected = true
+        }
 
         netdataVersion = await netdata.core.getVersion({ ssh })
 
@@ -69,10 +73,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         ssh.dispose()
       } catch (error) {
         console.log({ error })
-        sshConnected = false
       }
-    } else {
-      sshConnected = false
     }
   }
 
