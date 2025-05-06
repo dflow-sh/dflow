@@ -10,6 +10,7 @@ import ServiceList from '@/components/service/ServiceList'
 import ServicesArchitecture from '@/components/service/ServicesArchitecture'
 import ServicesSkeleton from '@/components/skeletons/ServicesSkeleton'
 import DeployTemplate from '@/components/templates/DeployTemplate'
+import { ArchitectureContextProvider } from '@/providers/ArchitectureProvider'
 
 interface PageProps {
   params: Promise<{
@@ -54,36 +55,40 @@ const SuspendedPage = ({ params }: PageProps) => {
   }
 
   return (
-    <section>
-      <div className='flex w-full justify-between'>
-        <div>
-          <h2 className='flex items-center text-2xl font-semibold'>
-            {project.name}
-            <SidebarToggleButton
-              directory='services'
-              fileName='services-overview'
-            />
-          </h2>
-          <p className='text-sm text-muted-foreground'>{project.description}</p>
+    <ArchitectureContextProvider>
+      <section>
+        <div className='flex w-full justify-between'>
+          <div>
+            <h2 className='flex items-center text-2xl font-semibold'>
+              {project.name}
+              <SidebarToggleButton
+                directory='services'
+                fileName='services-overview'
+              />
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              {project.description}
+            </p>
+          </div>
+
+          {typeof project.server === 'object' && (
+            <div className='flex items-center gap-3'>
+              <DeployTemplate />
+
+              {services?.length ? (
+                <CreateService server={project.server} project={project} />
+              ) : null}
+            </div>
+          )}
         </div>
 
-        {typeof project.server === 'object' && (
-          <div className='flex items-center gap-3'>
-            <DeployTemplate />
-
-            {services?.length ? (
-              <CreateService server={project.server} project={project} />
-            ) : null}
-          </div>
+        {services.length ? (
+          <ServiceList projectId={id} services={services} />
+        ) : (
+          <ServicesArchitecture />
         )}
-      </div>
-
-      {services.length ? (
-        <ServiceList projectId={id} services={services} />
-      ) : (
-        <ServicesArchitecture />
-      )}
-    </section>
+      </section>
+    </ArchitectureContextProvider>
   )
 }
 

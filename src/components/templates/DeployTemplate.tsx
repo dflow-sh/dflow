@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Template } from '@/payload-types'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const TemplateDeploymentForm = ({
   execute,
@@ -147,14 +148,24 @@ const TemplateDeploymentForm = ({
 
 const DeployTemplate = () => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
+  function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='outline'>
+        <Button
+          variant='outline'
+          disabled={useSafeArchitectureContext()?.isDeploying}>
           <Rocket /> Deploy from Template
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Deploy from Template</DialogTitle>

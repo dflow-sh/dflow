@@ -6,11 +6,9 @@ import { Button } from '../ui/button'
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
 import { Rocket } from 'lucide-react'
 import { motion } from 'motion/react'
-import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
-import { toast } from 'sonner'
 
-import { deployTemplateFromArchitectureAction } from '@/actions/templates'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const ServicesArchitecture = () => {
   const params = useParams<{ id: string }>()
@@ -19,21 +17,7 @@ const ServicesArchitecture = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const services = convertNodesToServices(nodes)
 
-  const { execute, isPending } = useAction(
-    deployTemplateFromArchitectureAction,
-    {
-      onSuccess: ({ data }) => {
-        if (data?.success) {
-          toast.success('Added to queue', {
-            description: 'Added deploying architecture to queue',
-          })
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(`Failed to deploy architecture: ${error.serverError}`)
-      },
-    },
-  )
+  const { deploy, isDeploying } = useArchitectureContext()
 
   return (
     <div className='relative mt-4 w-full rounded-md border'>
@@ -57,25 +41,36 @@ const ServicesArchitecture = () => {
                   {nodes?.length === 1 ? 'service' : 'services'}
                 </p>
 
-                {isPending && (
+                {isDeploying && (
                   <p className='text-sm text-muted-foreground'>
                     This process might take time, please wait...
                   </p>
                 )}
               </div>
 
-              <Button
-                onClick={() => {
-                  execute({
-                    projectId: params.id,
-                    services,
-                  })
-                }}
-                size='icon'
-                disabled={isPending}
-                isLoading={isPending}>
-                <Rocket size={16} />
-              </Button>
+              <div className='flex items-center space-x-2'>
+                <Button
+                  onClick={() => {
+                    deploy({
+                      projectId: params.id,
+                      services,
+                    })
+                  }}
+                  size='icon'
+                  disabled={isDeploying}
+                  isLoading={isDeploying}>
+                  <Rocket size={16} />
+                </Button>
+
+                <Button
+                  variant={'outline'}
+                  onClick={() => {
+                    setNodes([])
+                    setEdges([])
+                  }}>
+                  Discard
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
