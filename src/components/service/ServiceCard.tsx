@@ -97,15 +97,18 @@ export function DeleteServiceAlert({
             Cancel
           </AlertDialogCancel>
 
-          <AlertDialogAction
-            variant='destructive'
-            disabled={isPending}
-            onClick={() => {
-              execute({
-                id: service.id,
-              })
-            }}>
-            Delete
+          <AlertDialogAction asChild>
+            <Button
+              variant='destructive'
+              disabled={isPending}
+              isLoading={isPending}
+              onClick={() => {
+                execute({
+                  id: service.id,
+                })
+              }}>
+              Delete
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

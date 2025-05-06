@@ -225,7 +225,7 @@ export const deployTemplateAction = protectedClient
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectDetails.id}`)
+      revalidatePath(`/dashboard/project/${projectId}`)
       return { success: true }
     }
   })
@@ -391,7 +391,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectDetails.id}`)
+      revalidatePath(`/dashboard/project/${projectId}`)
       return { success: true }
     }
   })
