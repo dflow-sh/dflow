@@ -105,8 +105,6 @@ export const deleteProjectAction = protectedClient
       service => typeof service === 'object',
     )
 
-    console.dir({ services, server }, { depth: Infinity })
-
     if (
       servicesList &&
       typeof server === 'object' &&
@@ -152,8 +150,6 @@ export const deleteProjectAction = protectedClient
           queueId = databaseQueueResponse.id
         }
 
-        console.log('service with queue-id', { service, queueId })
-
         // If deleting of service is added to queue, deleting the payload entry
         if (queueId) {
           await payload.delete({
@@ -167,7 +163,6 @@ export const deleteProjectAction = protectedClient
     const deleteProjectResponse = await payload.delete({
       collection: 'projects',
       id,
-      depth: 10,
     })
 
     if (deleteProjectResponse.id) {
