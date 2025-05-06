@@ -29,6 +29,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Service } from '@/payload-types'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Github className='size-6' />,
@@ -63,6 +64,14 @@ const CustomNode = ({
   const deployment = data?.deployments?.[0]
   const createdAt = data?.createdAt
 
+  function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
+
   const DeploymentBadge = () => {
     if (deployment) {
       return (
@@ -89,7 +98,13 @@ const CustomNode = ({
 
   return (
     <Card
-      onClick={data?.onClick}
+      onClick={() => {
+        if (useSafeArchitectureContext()?.isDeploying) {
+          return
+        }
+
+        data?.onClick?.()
+      }}
       className='h-full min-h-36 cursor-pointer backdrop-blur-md'>
       <Handle
         type='source'

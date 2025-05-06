@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog'
+import { Button } from '../ui/button'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -21,6 +22,7 @@ import {
   useNodesState,
   useReactFlow,
 } from '@xyflow/react'
+import { Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -186,11 +188,13 @@ const ContextMenu: FC<ContextMenuProps> = ({
       className='fixed z-10 w-48 rounded-md border border-border bg-card shadow-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
-        <li
-          className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
+        <Button
+          variant='destructive'
+          className='w-full'
           onClick={() => setOpen(true)}>
+          <Trash2 />
           Delete service
-        </li>
+        </Button>
       </ul>
 
       <AlertDialog open={open}>
