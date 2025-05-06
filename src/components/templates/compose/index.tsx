@@ -235,7 +235,9 @@ const CreateNewTemplate = () => {
       <Dialog open={openCreateTemplate} onOpenChange={setOpenCreateTemplate}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Template</DialogTitle>
+            <DialogTitle>
+              {templateId && template?.data ? 'Update' : 'Create'} Template
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className='space-y-4'>

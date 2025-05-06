@@ -273,8 +273,7 @@ const ReferenceVariableDropdown = ({
                   }}>
                   {database.databaseDetails?.type &&
                     databaseIcons[database.databaseDetails?.type]}
-
-                  {database.name}
+                  {database.name}.DATABASE_URI
                 </DropdownMenuItem>
               )
             })

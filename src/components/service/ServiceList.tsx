@@ -1,6 +1,17 @@
 'use client'
 
+import { ServiceNode } from '../reactflow/types'
 import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -8,9 +19,13 @@ import {
   Node,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from '@xyflow/react'
-import { useEffect, useRef } from 'react'
+import { useAction } from 'next-safe-action/hooks'
+import { FC, useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
+import { deleteServiceAction } from '@/actions/service'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Service } from '@/payload-types'
 
@@ -43,6 +58,11 @@ const calculateNodePositions = (
 
   return positions
 }
+interface Menu {
+  service: ServiceNode
+  top: number
+  left: number
+}
 
 const ServiceList = ({
   services,
@@ -54,7 +74,22 @@ const ServiceList = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+  const [menu, setMenu] = useState<Menu | null>(null)
   const router = useRouter()
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      event.preventDefault()
+
+      setMenu({
+        service: node.data as unknown as ServiceNode,
+        top: event.clientY,
+        left: event.clientX,
+      })
+    },
+    [],
+  )
+
+  const onPaneClick = useCallback(() => setMenu(null), [setMenu])
   const handleRedirectToService = (id: string) => {
     router.push(`/dashboard/project/${projectId}/service/${id}`)
   }
@@ -98,12 +133,91 @@ const ServiceList = ({
       <ReactFlowConfig
         edges={edges}
         nodes={nodes}
+        onPaneClick={onPaneClick}
+        onNodeContextMenu={onNodeContextMenu}
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
-        className='h-full w-full'
-      />
+        className='h-full w-full'>
+        {menu && <ContextMenu onClick={onPaneClick} edges={edges} {...menu} />}
+      </ReactFlowConfig>
     </div>
   )
 }
 
 export default ServiceList
+
+interface ContextMenuProps {
+  top: number
+  left: number
+  service: ServiceNode
+  edges: Edge[]
+  onClick: () => void
+}
+
+const ContextMenu: FC<ContextMenuProps> = ({
+  top,
+  left,
+  service,
+  onClick,
+  edges,
+}) => {
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+  const { setNodes } = useReactFlow()
+
+  const { execute, isPending } = useAction(deleteServiceAction, {
+    onSuccess: ({ data }) => {
+      if (data?.deleted) {
+        toast.info('Added to queue', {
+          description: 'Added deleting service to queue',
+        })
+
+        onClick() // Close the context menu
+        setOpen(false)
+      }
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to delete service ${error.serverError}`)
+    },
+  })
+  return (
+    <div
+      ref={menuRef}
+      className='fixed z-10 w-48 rounded-md border border-border bg-card shadow-md'
+      style={{ top, left }}>
+      <ul className='space-y-1 p-2'>
+        <li
+          className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
+          onClick={() => setOpen(true)}>
+          Delete service
+        </li>
+      </ul>
+      <AlertDialog open={open}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Service</AlertDialogTitle>
+            <AlertDialogDescription>
+              {`Are you sure you want to delete the ${service.name}? This action is permanent and cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              variant='destructive'
+              disabled={isPending}
+              onClick={() => {
+                execute({
+                  id: service.id,
+                })
+              }}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
