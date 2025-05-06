@@ -55,6 +55,12 @@ const worker = new Worker<QueueArgs>(
       // unlinking all apps connected to database
       if (linkedAppsList.length) {
         for await (const app of linkedAppsList) {
+          // Add validation for app name
+          if (!app.trim()) {
+            console.warn(`Skipping invalid app name: "${app}"`)
+            continue
+          }
+
           const unlinkResponse = await dokku.database.unlink({
             ssh,
             databaseName,
