@@ -4,6 +4,7 @@ import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import GeneralTab from '@/components/service/GeneralTab'
@@ -43,6 +44,17 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     ]),
   )
 
+  const { docs: backupsDocs } = use(
+    payload.find({
+      collection: 'backups',
+      where: {
+        service: {
+          equals: serviceId,
+        },
+      }),
+    ]),
+  )
+
   if (!service?.id) {
     notFound()
   }
@@ -51,6 +63,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     typeof service.project === 'object' ? service.project.server : ''
 
   const domains = service.domains ?? []
+  const databaseDetails = service.databaseDetails ?? {}
 
   switch (tab) {
     case 'general':
@@ -76,6 +89,14 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         <LogsTabClient
           serviceId={service.id}
           serverId={typeof serverId === 'object' ? serverId.id : serverId}
+        />
+      )
+    case 'backup':
+      return (
+        <Backup
+          databaseDetails={databaseDetails}
+          serviceId={serviceId}
+          backups={backupsDocs}
         />
       )
 

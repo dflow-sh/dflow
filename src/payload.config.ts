@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Backups } from './payload/collections/Backups'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
 import { DockerRegistries } from './payload/collections/DockerRegistries'
@@ -44,6 +45,7 @@ export default buildConfig({
     Template,
     SecurityGroups,
     DockerRegistries,
+    Backups,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

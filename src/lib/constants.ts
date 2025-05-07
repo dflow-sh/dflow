@@ -78,3 +78,26 @@ export const numberRegex = /^\d+$/
 export const REFERENCE_VARIABLE_REGEX = /\${{\s*(\w+):([\w-]+)\.([\w_]+)\s*}}/
 export const posthogHost = 'https://us.i.posthog.com'
 export const posthogKey = 'phc_CkZ9XejPwdsrmxUl0Pmp0n3fRUioTekrpBS1lnzuGOn'
+
+export const databaseOptions = [
+  {
+    label: 'Postgres',
+    value: 'postgres',
+  },
+  {
+    label: 'MongoDB',
+    value: 'mongo',
+  },
+  {
+    label: 'MySQL',
+    value: 'mysql',
+  },
+  {
+    label: 'Redis',
+    value: 'redis',
+  },
+  {
+    label: 'MariaDB',
+    value: 'mariadb',
+  },
+]
