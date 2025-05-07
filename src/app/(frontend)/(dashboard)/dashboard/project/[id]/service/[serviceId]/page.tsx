@@ -51,8 +51,8 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         service: {
           equals: serviceId,
         },
-      },
-    }),
+      }),
+    ]),
   )
 
   if (!service?.id) {
