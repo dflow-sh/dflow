@@ -16,7 +16,10 @@ const extractValue = ({ key, data }: { key: string; data: string }) => {
 export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   doc,
   context,
+  req,
 }) => {
+  const { payload } = req
+
   // Sending a variable for populating server details
   if (!context.populateServerDetails) {
     return doc
@@ -44,6 +47,21 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
         if (ssh.isConnected()) {
           sshConnected = true
+
+          try {
+            await payload.update({
+              collection: 'servers',
+              id: doc.id,
+              data: {
+                connection: {
+                  status: 'success',
+                  lastChecked: new Date().toString(),
+                },
+              },
+            })
+          } catch (error) {
+            console.log({ error })
+          }
         }
 
         netdataVersion = await netdata.core.getVersion({ ssh })
