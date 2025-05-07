@@ -1,5 +1,6 @@
 'use client'
 
+import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -136,7 +137,14 @@ const AttachCustomServerForm = ({
             name='name'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>
+                  Name
+                  <SidebarToggleButton
+                    directory='servers'
+                    fileName='attach-server'
+                    sectionId='#name'
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input {...field} className='rounded-sm' />
                 </FormControl>
@@ -150,7 +158,14 @@ const AttachCustomServerForm = ({
             name='description'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>
+                  Description
+                  <SidebarToggleButton
+                    directory='servers'
+                    fileName='attach-server'
+                    sectionId='#description-optional'
+                  />
+                </FormLabel>
                 <FormControl>
                   <Textarea {...field} />
                 </FormControl>
@@ -164,7 +179,14 @@ const AttachCustomServerForm = ({
             name='sshKey'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>SSH key</FormLabel>
+                <FormLabel>
+                  SSH key
+                  <SidebarToggleButton
+                    directory='servers'
+                    fileName='attach-server'
+                    sectionId='#ssh-key'
+                  />
+                </FormLabel>
 
                 <Select
                   onValueChange={field.onChange}
@@ -193,7 +215,14 @@ const AttachCustomServerForm = ({
             name='ip'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>IP Address</FormLabel>
+                <FormLabel>
+                  IP Address
+                  <SidebarToggleButton
+                    directory='servers'
+                    fileName='attach-server'
+                    sectionId='#ip-address'
+                  />
+                </FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -208,7 +237,14 @@ const AttachCustomServerForm = ({
               name='port'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Port</FormLabel>
+                  <FormLabel>
+                    Port
+                    <SidebarToggleButton
+                      directory='servers'
+                      fileName='attach-server'
+                      sectionId='#port'
+                    />
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type='number'
@@ -230,7 +266,14 @@ const AttachCustomServerForm = ({
               name='username'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>
+                    Username
+                    <SidebarToggleButton
+                      directory='servers'
+                      fileName='attach-server'
+                      sectionId='#username'
+                    />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

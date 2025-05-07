@@ -1,5 +1,6 @@
 'use client'
 
+import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -125,7 +126,14 @@ const DockerForm = ({
               name='dockerDetails.url'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>URL</FormLabel>
+                  <FormLabel>
+                    URL
+                    <SidebarToggleButton
+                      directory='services'
+                      fileName='docker-service'
+                      sectionId='#url'
+                    />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -191,7 +199,14 @@ const DockerForm = ({
           </div>
 
           <div className='space-y-2'>
-            <Label className='block'>Ports</Label>
+            <Label className='block'>
+              Ports
+              <SidebarToggleButton
+                directory='services'
+                fileName='docker-service'
+                sectionId='#ports'
+              />
+            </Label>
 
             {fields.length ? (
               <div className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
