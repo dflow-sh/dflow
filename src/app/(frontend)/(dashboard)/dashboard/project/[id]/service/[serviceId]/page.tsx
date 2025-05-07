@@ -27,7 +27,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   const payload = use(getPayload({ config: configPromise }))
 
-  const [service, { docs: deployments }] = use(
+  const [service, { docs: deployments }, { docs: backupsDocs }] = use(
     Promise.all([
       payload.findByID({
         collection: 'services',
@@ -41,18 +41,15 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
           },
         },
       }),
-    ]),
-  )
-
-  const { docs: backupsDocs } = use(
-    payload.find({
-      collection: 'backups',
-      where: {
-        service: {
-          equals: serviceId,
+      payload.find({
+        collection: 'backups',
+        where: {
+          service: {
+            equals: serviceId,
+          },
         },
-      },
-    }),
+      }),
+    ]),
   )
 
   if (!service?.id) {
