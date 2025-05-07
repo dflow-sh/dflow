@@ -7,10 +7,10 @@ export const Backups: CollectionConfig = {
     plural: 'Backups',
   },
   access: {
-    create: () => false,
-    read: () => false,
-    update: () => false,
-    delete: () => false,
+    // create: () => false,
+    // read: () => false,
+    // update: () => false,
+    // delete: () => false,
   },
   hooks: {},
   fields: [
@@ -48,10 +48,6 @@ export const Backups: CollectionConfig = {
       type: 'select',
       options: [
         {
-          label: 'Queued',
-          value: 'queued',
-        },
-        {
           label: 'In Progress',
           value: 'in-progress',
         },
@@ -65,11 +61,7 @@ export const Backups: CollectionConfig = {
         },
       ],
       required: true,
-      defaultValue: 'queued',
-    },
-    {
-      name: 'logs',
-      type: 'json',
+      defaultValue: 'in-progress',
     },
   ],
 }

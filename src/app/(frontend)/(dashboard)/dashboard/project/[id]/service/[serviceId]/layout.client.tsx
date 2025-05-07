@@ -33,6 +33,7 @@ const LayoutClient = ({
       'logs',
       'domains',
       'deployments',
+      'backup',
     ]).withDefault('general'),
   )
 
@@ -56,6 +57,7 @@ const LayoutClient = ({
           { label: 'General', slug: 'general', disabled: false },
           { label: 'Logs', slug: 'logs', disabled: false },
           { label: 'Deployments', slug: 'deployments', disabled: false },
+          { label: 'Backup', slug: 'backup', disabled: false },
         ] as const)
       : ([
           { label: 'General', slug: 'general', disabled: false },

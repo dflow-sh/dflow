@@ -76,6 +76,7 @@ export interface Config {
     templates: Template;
     securityGroups: SecurityGroup;
     dockerRegistries: DockerRegistry;
+    backups: Backup;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -100,6 +101,7 @@ export interface Config {
     templates: TemplatesSelect<false> | TemplatesSelect<true>;
     securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
     dockerRegistries: DockerRegistriesSelect<false> | DockerRegistriesSelect<true>;
+    backups: BackupsSelect<false> | BackupsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -669,6 +671,22 @@ export interface Template {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "backups".
+ */
+export interface Backup {
+  id: string;
+  /**
+   * Adding the service for which backup is related to
+   */
+  service: string | Service;
+  type?: ('external' | 'internal') | null;
+  backupName?: string | null;
+  status: 'in-progress' | 'failed' | 'success';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -717,6 +735,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'dockerRegistries';
         value: string | DockerRegistry;
+      } | null)
+    | ({
+        relationTo: 'backups';
+        value: string | Backup;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1107,6 +1129,18 @@ export interface DockerRegistriesSelect<T extends boolean = true> {
   type?: T;
   username?: T;
   password?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "backups_select".
+ */
+export interface BackupsSelect<T extends boolean = true> {
+  service?: T;
+  type?: T;
+  backupName?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
