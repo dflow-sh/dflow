@@ -1,15 +1,16 @@
 'use server'
 
 import configPromise from '@payload-config'
+import dns from 'dns/promises'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
-import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
+  checkDNSConfigSchema,
   completeServerOnboardingSchema,
   createServerSchema,
   deleteServerSchema,
@@ -158,26 +159,26 @@ export const updateServerDomainAction = protectedClient
     const privateKey =
       typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
 
-    const queueResponse = await addManageServerDomainQueue({
-      serverDetails: {
-        global: {
-          domain,
-          action: operation,
-        },
-        id,
-      },
-      sshDetails: {
-        host: response.ip,
-        port: response.port,
-        username: response.username,
-        privateKey,
-      },
-    })
+    // const queueResponse = await addManageServerDomainQueue({
+    //   serverDetails: {
+    //     global: {
+    //       domain,
+    //       action: operation,
+    //     },
+    //     id,
+    //   },
+    //   sshDetails: {
+    //     host: response.ip,
+    //     port: response.port,
+    //     username: response.username,
+    //     privateKey,
+    //   },
+    // })
 
-    if (queueResponse.id) {
-      revalidatePath(`/servers/${id}`)
-      return { success: true }
-    }
+    // if (queueResponse.id) {
+    revalidatePath(`/servers/${id}`)
+    return { success: true }
+    // }
   })
 
 export const installRailpackAction = protectedClient
@@ -250,4 +251,17 @@ export const getServersAction = protectedClient
     })
 
     return docs
+  })
+
+export const checkDNSConfigAction = protectedClient
+  .metadata({
+    actionName: 'checkDNSConfigAction',
+  })
+  .schema(checkDNSConfigSchema)
+  .action(async ({ clientInput }) => {
+    const { domain, ip } = clientInput
+
+    const addresses = await dns.resolve4(domain)
+
+    return addresses.includes(ip)
   })

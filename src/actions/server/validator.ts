@@ -35,3 +35,8 @@ export const updateServerDomainSchema = z.object({
 export const completeServerOnboardingSchema = z.object({
   serverId: z.string().min(1, 'Server ID is required'),
 })
+
+export const checkDNSConfigSchema = z.object({
+  domain: z.string().min(1, 'Domain is required'),
+  ip: z.string().ip({ message: 'Invalid IP address' }),
+})

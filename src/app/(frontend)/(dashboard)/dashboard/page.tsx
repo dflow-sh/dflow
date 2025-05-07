@@ -1,8 +1,8 @@
+import LayoutClient from '../layout.client'
 import configPromise from '@payload-config'
 import { AlertCircle, Folder } from 'lucide-react'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
-import LayoutClient from '../layout.client'
 
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
