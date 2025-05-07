@@ -47,21 +47,6 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
         if (ssh.isConnected()) {
           sshConnected = true
-
-          try {
-            await payload.update({
-              collection: 'servers',
-              id: doc.id,
-              data: {
-                connection: {
-                  status: 'success',
-                  lastChecked: new Date().toString(),
-                },
-              },
-            })
-          } catch (error) {
-            console.log({ error })
-          }
         }
 
         netdataVersion = await netdata.core.getVersion({ ssh })
@@ -93,6 +78,21 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         console.log({ error })
       }
     }
+  }
+
+  try {
+    await payload.update({
+      collection: 'servers',
+      id: doc.id,
+      data: {
+        connection: {
+          status: sshConnected ? 'success' : 'failed',
+          lastChecked: new Date().toString(),
+        },
+      },
+    })
+  } catch (error) {
+    console.log({ error })
   }
 
   return {
