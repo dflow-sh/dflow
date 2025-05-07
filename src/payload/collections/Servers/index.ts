@@ -335,5 +335,46 @@ export const Servers: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'connection',
+      label: 'Connection',
+      type: 'group',
+      admin: {
+        description: 'Connection details for the server',
+        position: 'sidebar',
+      },
+      fields: [
+        {
+          name: 'status',
+          label: 'Status',
+          type: 'select',
+          options: [
+            {
+              label: 'Success',
+              value: 'success',
+            },
+            {
+              label: 'Failed',
+              value: 'failed',
+            },
+            {
+              label: 'Pending',
+              value: 'pending',
+            },
+          ],
+          defaultValue: 'disconnected',
+        },
+        {
+          name: 'lastChecked',
+          label: 'Last Checked',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
+        },
+      ],
+    },
   ],
 }

@@ -20,6 +20,7 @@ import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
 import { serverEvents } from './payload/endpoints/server-events'
+import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -71,4 +72,21 @@ export default buildConfig({
       handler: serverEvents,
     },
   ],
+  jobs: {
+    tasks: [checkServersConnectionsTask],
+    access: {
+      run: () => true,
+    },
+    autoRun: [
+      {
+        cron: '*/5 * * * * *',
+        limit: 10,
+        queue: 'servers-ssh-connection-checks',
+      },
+    ],
+
+    shouldAutoRun: async () => {
+      return true
+    },
+  },
 })
