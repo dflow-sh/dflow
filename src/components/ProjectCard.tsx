@@ -45,7 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Project, Server, Service, SshKey } from '@/payload-types'
+import { Project, Server, Service } from '@/payload-types'
 
 import UpdateProject from './project/CreateProject'
 import { Badge } from './ui/badge'
@@ -114,13 +114,14 @@ export function ProjectCard({
 }: {
   project: Project
   servers: {
-    name: string
     id: string
-    sshConnected: boolean
-    ip: string
-    port: number
-    username: string
-    sshKey: SshKey
+    name: string
+    connection?:
+      | {
+          status?: ('success' | 'failed' | 'pending') | null
+          lastChecked?: string | null
+        }
+      | undefined
   }[]
   services: Service[]
 }) {
@@ -130,9 +131,9 @@ export function ProjectCard({
   const serverName = (project.server as Server)?.name
   const serverId = (project.server as Server)?.id
   const serverExists = servers.some(server => server.id === serverId)
-  const isServerConnected = servers.find(
-    server => server.id === serverId,
-  )?.sshConnected
+  const isServerConnected =
+    servers.find(server => server.id === serverId)?.connection?.status ===
+    'success'
 
   const isDisabled = !serverExists || !isServerConnected
 
@@ -265,19 +266,9 @@ export function ProjectCard({
 
   return (
     <>
-      {isDisabled ? (
-        <div
-          className='group h-full cursor-not-allowed'
-          onClick={e => e.preventDefault()}>
-          {cardContent}
-        </div>
-      ) : (
-        <Link
-          href={`/dashboard/project/${project.id}`}
-          className='group h-full'>
-          {cardContent}
-        </Link>
-      )}
+      <Link href={`/dashboard/project/${project.id}`} className='group h-full'>
+        {cardContent}
+      </Link>
 
       <UpdateProject
         servers={servers}
