@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { env } from 'env'
 import path from 'path'
@@ -16,6 +17,7 @@ import SecurityGroups from './payload/collections/SecurityGroups'
 import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
+import { Tenants } from './payload/collections/Tenants'
 import { Users } from './payload/collections/Users'
 import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
@@ -43,6 +45,7 @@ export default buildConfig({
     Template,
     SecurityGroups,
     DockerRegistries,
+    Tenants,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -53,7 +56,21 @@ export default buildConfig({
     url: env.DATABASE_URI,
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    multiTenantPlugin({
+      collections: {
+        projects: {},
+        // services: {},
+        // servers: {},
+        // sshKeys: {},
+      },
+      userHasAccessToAllTenants: user => Boolean(user?.role?.includes('admin')),
+      enabled: true,
+      tenantsArrayField: {
+        includeDefaultField: false,
+      },
+    }),
+  ],
   endpoints: [
     {
       method: 'post',

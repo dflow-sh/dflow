@@ -54,6 +54,7 @@ export type SupportedTimezones =
   | 'Asia/Singapore'
   | 'Asia/Tokyo'
   | 'Asia/Seoul'
+  | 'Australia/Brisbane'
   | 'Australia/Sydney'
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
@@ -64,6 +65,7 @@ export interface Config {
   auth: {
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
     users: User;
     projects: Project;
@@ -76,6 +78,7 @@ export interface Config {
     templates: Template;
     securityGroups: SecurityGroup;
     dockerRegistries: DockerRegistry;
+    tenants: Tenant;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -100,6 +103,7 @@ export interface Config {
     templates: TemplatesSelect<false> | TemplatesSelect<true>;
     securityGroups: SecurityGroupsSelect<false> | SecurityGroupsSelect<true>;
     dockerRegistries: DockerRegistriesSelect<false> | DockerRegistriesSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -142,8 +146,16 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  username?: string | null;
   onboarded?: boolean | null;
   role?: ('admin' | 'user' | 'demo')[] | null;
+  tenants?:
+    | {
+        tenant: string | Tenant;
+        roles: ('tenant-admin' | 'tenant-user')[];
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -157,10 +169,23 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
+  subdomain: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects".
  */
 export interface Project {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the project.
    */
@@ -174,9 +199,10 @@ export interface Project {
    */
   server: string | Server;
   services?: {
-    docs?: (string | Service)[] | null;
-    hasNextPage?: boolean | null;
-  } | null;
+    docs?: (string | Service)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -545,9 +571,10 @@ export interface Service {
       }[]
     | null;
   deployments?: {
-    docs?: (string | Deployment)[] | null;
-    hasNextPage?: boolean | null;
-  } | null;
+    docs?: (string | Deployment)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -717,6 +744,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'dockerRegistries';
         value: string | DockerRegistry;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: string | Tenant;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -765,8 +796,16 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  username?: T;
   onboarded?: T;
   role?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        roles?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -782,6 +821,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   server?: T;
@@ -1107,6 +1147,17 @@ export interface DockerRegistriesSelect<T extends boolean = true> {
   type?: T;
   username?: T;
   password?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  subdomain?: T;
   updatedAt?: T;
   createdAt?: T;
 }
