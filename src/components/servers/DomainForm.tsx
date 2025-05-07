@@ -2,8 +2,8 @@
 
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -24,7 +24,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -67,7 +66,7 @@ export const DomainFormWithoutDialog = ({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
       domain: `${server.ip}.nip.io`,
-      defaultDomain: true,
+      defaultDomain: false,
     },
   })
 
@@ -95,6 +94,8 @@ export const DomainFormWithoutDialog = ({
     })
   }
 
+  const parts = input?.domain?.split('.')
+
   return (
     <>
       <Form {...form}>
@@ -115,7 +116,7 @@ export const DomainFormWithoutDialog = ({
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name='defaultDomain'
             render={({ field }) => (
@@ -136,7 +137,7 @@ export const DomainFormWithoutDialog = ({
                 </FormControl>
               </FormItem>
             )}
-          />
+          /> */}
 
           <DialogFooter>
             <Button type='submit' disabled={isPending}>
@@ -168,7 +169,7 @@ export const DomainFormWithoutDialog = ({
             <TableBody>
               <TableRow>
                 <TableCell className='font-medium'>A</TableCell>
-                <TableCell>{`*.${input?.domain?.split('.')?.at(-2)}`}</TableCell>
+                <TableCell>{`*.${parts?.splice(0, parts?.length - 2).join('.')}`}</TableCell>
                 <TableCell>{server.ip}</TableCell>
                 <TableCell className='text-right'>auto</TableCell>
               </TableRow>
@@ -196,7 +197,7 @@ const DomainForm = ({ server }: { server: ServerType | Server }) => {
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button disabled={isDemoEnvironment} onClick={e => e.stopPropagation()}>
-          Add Domain
+          <Plus /> Add Domain
         </Button>
       </DialogTrigger>
 
