@@ -642,6 +642,7 @@ export interface Deployment {
  */
 export interface Template {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   description?: string | null;
   services?:
@@ -1038,6 +1039,7 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
  * via the `definition` "templates_select".
  */
 export interface TemplatesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   services?:

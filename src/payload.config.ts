@@ -60,6 +60,7 @@ export default buildConfig({
     multiTenantPlugin({
       collections: {
         projects: {},
+        templates: {},
         // services: {},
         // servers: {},
         // sshKeys: {},
