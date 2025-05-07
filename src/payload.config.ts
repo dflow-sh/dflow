@@ -81,12 +81,12 @@ export default buildConfig({
     },
     autoRun: [
       {
-        cron: '*/5 * * * * *',
+        cron: '0/5 * * * *',
         limit: 10,
         queue: 'servers-ssh-connection-checks',
       },
     ],
-
+    deleteJobOnComplete: false,
     shouldAutoRun: async () => {
       return true
     },
