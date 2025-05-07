@@ -70,7 +70,15 @@ const IndividualBackup = ({
       <div className='flex items-center gap-2'>
         <DatabaseBackup size={16} className='stroke-muted-foreground' />
         <div className='text-sm font-medium'>{formattedDate}</div>
-        <Badge className='' variant={'default'}>
+        <Badge
+          className=''
+          variant={
+            backup.status === 'failed'
+              ? 'destructive'
+              : backup.status === 'in-progress'
+                ? 'warning'
+                : ('success' as 'success' | 'destructive' | 'warning')
+          }>
           {backup.status}
         </Badge>
       </div>
