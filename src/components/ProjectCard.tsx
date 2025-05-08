@@ -141,7 +141,7 @@ export function ProjectCard({
     <Card
       className={`h-full min-h-36 transition-all duration-200 ${
         isDisabled
-          ? 'border-red-500/40 bg-red-500/5 hover:border-red-500/60 hover:bg-red-500/10'
+          ? 'border-l-4 border-l-red-500 hover:border-l-red-600'
           : 'hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm'
       }`}>
       <CardHeader className='w-full flex-row items-center justify-between'>
@@ -266,7 +266,9 @@ export function ProjectCard({
 
   return (
     <>
-      <Link href={`/dashboard/project/${project.id}`} className='group h-full'>
+      <Link
+        href={`/dashboard/project/${project.id}`}
+        className='group block h-full'>
         {cardContent}
       </Link>
 
