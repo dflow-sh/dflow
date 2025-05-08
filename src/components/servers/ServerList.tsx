@@ -31,7 +31,7 @@ const ServerStatus = ({ server }: { server: ServerType }) => {
   const { os } = server
   const ServerTypeIcon = serverType[os.type ?? ''] ?? Linux
 
-  if (!server.portIsOpen || !server.connection?.status === 'success') {
+  if (!server.portIsOpen || !Boolean(server.connection?.status === 'success')) {
     return (
       <TooltipProvider>
         <Tooltip>

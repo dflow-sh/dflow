@@ -59,5 +59,5 @@ export interface ServiceNode {
     id: string
     status: Deployment['status']
   }[]
-  disableNode: boolean
+  disableNode?: boolean
 }
