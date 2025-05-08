@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 
 import { deleteServiceAction } from '@/actions/service'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
 const calculateNodePositions = (
   services: Service[],
@@ -67,10 +67,15 @@ interface Menu {
 
 const ServiceList = ({
   services,
-  projectId,
+  project,
 }: {
   services: Service[]
-  projectId: string
+  project: {
+    id: string
+    name: string
+    description?: string | null | undefined
+    server: string | Server
+  }
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
@@ -92,7 +97,7 @@ const ServiceList = ({
 
   const onPaneClick = useCallback(() => setMenu(null), [setMenu])
   const handleRedirectToService = (id: string) => {
-    router.push(`/dashboard/project/${projectId}/service/${id}`)
+    router.push(`/dashboard/project/${project.id}/service/${id}`)
   }
 
   useEffect(() => {
@@ -105,12 +110,26 @@ const ServiceList = ({
     const initialPositions = calculateNodePositions(services, width, height)
     const { edges: edgesData, nodes: nodesData } = convertToGraph(services)
 
-    console.log({ edgesData, nodesData })
+    console.log({
+      edgesData: Boolean(
+        project.server &&
+          typeof project.server === 'object' &&
+          project.server.connection?.status !== 'success',
+      ),
+    })
 
     const initialNodes = nodesData?.map((node, index) => ({
       id: node.id,
       position: initialPositions[index],
-      data: { ...node, onClick: () => handleRedirectToService(node.id) },
+      data: {
+        ...node,
+        disableNode: Boolean(
+          project.server &&
+            typeof project.server === 'object' &&
+            project.server.connection?.status !== 'success',
+        ),
+        onClick: () => handleRedirectToService(node.id),
+      },
       type: 'custom',
     }))
 

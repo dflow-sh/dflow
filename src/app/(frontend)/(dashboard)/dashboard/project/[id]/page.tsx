@@ -124,7 +124,7 @@ const SuspendedPage = ({ params }: PageProps) => {
         )}
 
         {services.length ? (
-          <ServiceList projectId={id} services={services} />
+          <ServiceList project={project} services={services} />
         ) : (
           <ServicesArchitecture />
         )}
