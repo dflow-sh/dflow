@@ -23,6 +23,7 @@ import { deployImage } from './git/deployImage'
 import { sync } from './git/sync'
 import { unlock } from './git/unlock'
 import { auth as DatabaseAuth } from './plugin/database/backup/auth'
+import { deleteBackup } from './plugin/database/backup/internal/delete'
 import { exportDB } from './plugin/database/backup/internal/export'
 import { importDB } from './plugin/database/backup/internal/import'
 import { create as createDatabase } from './plugin/database/create'
@@ -94,6 +95,7 @@ export const dokku = {
     internal: {
       export: exportDB,
       import: importDB,
+      delete: deleteBackup,
     },
   },
   ports: {
