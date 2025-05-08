@@ -9,7 +9,7 @@ import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Service, SshKey } from '@/payload-types'
+import { Service } from '@/payload-types'
 
 const SuspendedDashboard = () => {
   const payload = use(getPayload({ config: configPromise }))
@@ -21,13 +21,7 @@ const SuspendedDashboard = () => {
         pagination: false,
         select: {
           name: true,
-          ip: true,
-          port: true,
-          username: true,
-          sshKey: true,
-        },
-        context: {
-          populateServerDetails: true,
+          connection: true,
         },
       }),
       payload.find({
@@ -38,13 +32,14 @@ const SuspendedDashboard = () => {
   )
 
   const servers = serversRes.docs as {
-    name: string
     id: string
-    sshConnected: boolean
-    ip: string
-    port: number
-    username: string
-    sshKey: SshKey
+    name: string
+    connection?:
+      | {
+          status?: ('success' | 'failed' | 'pending') | null
+          lastChecked?: string | null
+        }
+      | undefined
   }[]
   const projects = projectsRes.docs
 
@@ -52,7 +47,9 @@ const SuspendedDashboard = () => {
   const hasServers = servers.length > 0
 
   // Check if there are any connected servers
-  const hasConnectedServers = servers.some(server => server.sshConnected)
+  const hasConnectedServers = servers.some(
+    server => server.connection?.status === 'success',
+  )
 
   return (
     <>

@@ -318,7 +318,7 @@ export interface Server {
    * Connection details for the server
    */
   connection?: {
-    status?: ('success' | 'failed' | 'pending') | null;
+    status?: ('success' | 'failed' | 'not-checked-yet') | null;
     lastChecked?: string | null;
   };
   updatedAt: string;

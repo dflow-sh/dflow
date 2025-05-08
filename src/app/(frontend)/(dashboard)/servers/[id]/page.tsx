@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import { TriangleAlert } from 'lucide-react'
+import { ScreenShareOff, TriangleAlert } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
@@ -34,6 +34,21 @@ interface PageProps {
     id: string
   }>
   searchParams: Promise<SearchParams>
+}
+
+const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
+  if (server.connection?.status === 'success') return null
+
+  return (
+    <Alert variant='destructive'>
+      <ScreenShareOff className='h-4 w-4' />
+      <AlertTitle>SSH connection failed</AlertTitle>
+      <AlertDescription>
+        Failed to establish connection to server, please check the server
+        details
+      </AlertDescription>
+    </Alert>
+  )
 }
 
 const GeneralTab = ({ server }: { server: ServerType }) => {
@@ -106,6 +121,7 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='flex flex-col space-y-5'>
+      <SSHConnectionAlert server={server} />
       <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
@@ -121,7 +137,13 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
   )
 }
 
-const MonitoringTab = ({ server }: { server: ServerType }) => {
+const MonitoringTab = ({
+  server,
+  isSshConnected,
+}: {
+  server: ServerType
+  isSshConnected: boolean
+}) => {
   if (
     !server ||
     typeof server !== 'object' ||
@@ -130,11 +152,64 @@ const MonitoringTab = ({ server }: { server: ServerType }) => {
     return <RetryPrompt />
   }
 
-  if (!server.netdataVersion) {
-    return <NetdataInstallPrompt server={server} />
-  }
+  return (
+    <>
+      <SSHConnectionAlert server={server} />
+      <div className='mt-2'>
+        {!server.netdataVersion ? (
+          <NetdataInstallPrompt
+            server={server}
+            disableInstallButton={!isSshConnected}
+          />
+        ) : (
+          <Monitoring server={server} />
+        )}
+      </div>
+    </>
+  )
+}
 
-  return <Monitoring server={server} />
+const PluginsTab = ({ server }: { server: ServerType }) => {
+  const dokkuInstalled =
+    server.connection?.status === 'success' &&
+    supportedLinuxVersions.includes(server.os.version ?? '') &&
+    server.version
+
+  return (
+    <div className='mt-2'>
+      <SSHConnectionAlert server={server} />
+      {dokkuInstalled ? (
+        <PluginsList server={server} />
+      ) : (
+        <Alert variant='info'>
+          <TriangleAlert className='h-4 w-4' />
+          <AlertTitle>Dokku not found!</AlertTitle>
+          <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
+            <p>
+              Either dokku is not installed on your server, or your OS
+              doesn&apos;t support it. Refer to{' '}
+              <a
+                className='underline'
+                href='https://dokku.com/docs/getting-started/installation/'>
+                the docs
+              </a>
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
+  )
+}
+
+const DomainsTab = ({ server }: { server: ServerType }) => {
+  return (
+    <>
+      <SSHConnectionAlert server={server} />
+      <div className='mt-2'>
+        <DomainList server={server} />
+      </div>
+    </>
+  )
 }
 
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
@@ -155,11 +230,6 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   if (!server?.id) return notFound()
 
-  const dokkuInstalled =
-    server.sshConnected &&
-    supportedLinuxVersions.includes(server.os.version ?? '') &&
-    server.version
-
   const renderTab = () => {
     switch (tab) {
       case 'general':
@@ -172,39 +242,24 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       case 'plugins':
         return (
           <Suspense fallback={<PluginsTabSkeleton />}>
-            {dokkuInstalled ? (
-              <PluginsList server={server} />
-            ) : (
-              <Alert variant='info'>
-                <TriangleAlert className='h-4 w-4' />
-                <AlertTitle>Dokku not found!</AlertTitle>
-                <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
-                  <p>
-                    Either dokku is not installed on your server, or your OS
-                    doesn&apos;t support it. Refer to{' '}
-                    <a
-                      className='underline'
-                      href='https://dokku.com/docs/getting-started/installation/'>
-                      the docs
-                    </a>
-                  </p>
-                </AlertDescription>
-              </Alert>
-            )}
+            <PluginsTab server={server} />
           </Suspense>
         )
 
       case 'domains':
         return (
           <Suspense fallback={<DomainsTabSkeleton />}>
-            <DomainList server={server} />
+            <DomainsTab server={server} />
           </Suspense>
         )
 
       case 'monitoring':
         return (
           <Suspense fallback={<MonitoringTabSkeleton />}>
-            <MonitoringTab server={server} />
+            <MonitoringTab
+              server={server}
+              isSshConnected={server.connection?.status === 'success'}
+            />
           </Suspense>
         )
 

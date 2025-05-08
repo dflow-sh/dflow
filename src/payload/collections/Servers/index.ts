@@ -364,11 +364,11 @@ export const Servers: CollectionConfig = {
               value: 'failed',
             },
             {
-              label: 'Pending',
-              value: 'pending',
+              label: 'Not Checked Yet',
+              value: 'not-checked-yet',
             },
           ],
-          defaultValue: 'disconnected',
+          defaultValue: 'not-checked-yet',
         },
         {
           name: 'lastChecked',

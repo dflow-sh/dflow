@@ -10,7 +10,6 @@ import {
   HardDrive,
   Info,
   MemoryStick,
-  ScreenShareOff,
   Server,
   Terminal,
   X,
@@ -284,22 +283,12 @@ const ServerDetails = ({
   }
 
   // Check if terminal is available
-  const isTerminalAvailable = server.sshConnected
+  const isTerminalAvailable = server.connection?.status === 'success'
   // && server.terminalInstalled
 
   return (
     <div className='space-y-4'>
-      {/* Alerts */}
-      {!server.sshConnected && (
-        <Alert variant='destructive' className='mb-4'>
-          <ScreenShareOff className='h-4 w-4' />
-          <AlertTitle>SSH connection failed</AlertTitle>
-          <AlertDescription>
-            Failed to establish connection to server, please check the server
-            details
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* OS Version Alert - Keep this one as it's specific to this component */}
       {server.os?.version &&
         !supportedLinuxVersions.includes(server.os.version) && (
           <Alert variant='destructive' className='mb-4'>
@@ -357,7 +346,7 @@ const ServerDetails = ({
               </DrawerContent>
             </Drawer>
           )}
-          {server.sshConnected && (
+          {server.connection?.status === 'success' && (
             <TerminalButton
               variant='outline'
               size='sm'
