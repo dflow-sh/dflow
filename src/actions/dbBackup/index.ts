@@ -5,8 +5,13 @@ import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 import { addInternalBackupQueue } from '@/queues/database/backup/internalBackup'
+import { deleteInternalBackupQueue } from '@/queues/database/backup/internalBackupDelete'
 
-import { internalDBBackupSchema, internalRestoreSchema } from './validator'
+import {
+  internalDBBackupSchema,
+  internalDbDeleteScheme,
+  internalRestoreSchema,
+} from './validator'
 
 const payload = await getPayload({ config: configPromise })
 
@@ -123,6 +128,55 @@ export const internalRestoreAction = protectedClient
         },
         serviceId,
         backupId,
+      })
+      queueResponseId = id
+    }
+
+    return {
+      success: true,
+      queueResponseId: queueResponseId,
+    }
+  })
+
+export const internalDbDeleteAction = protectedClient
+  .metadata({
+    actionName: 'internalDbDeleteAction',
+  })
+  .schema(internalDbDeleteScheme)
+  .action(async ({ clientInput }) => {
+    const { backupId, serviceId, databaseType } = clientInput
+
+    const { project, ...serviceDetails } = await payload.findByID({
+      collection: 'services',
+      depth: 10,
+      id: serviceId,
+    })
+
+    let queueResponseId: string | undefined = ''
+
+    if (
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
+
+      const { id } = await deleteInternalBackupQueue({
+        backupId,
+        serviceId,
+        sshDetails: {
+          ...sshDetails,
+        },
+        databaseName: serviceDetails?.name,
+        databaseType,
+        serverDetails: {
+          id: project?.server?.id,
+        },
       })
       queueResponseId = id
     }

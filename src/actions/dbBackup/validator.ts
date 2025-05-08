@@ -8,3 +8,10 @@ export const internalRestoreSchema = z.object({
   serviceId: z.string(),
   backupId: z.string(),
 })
+
+export const internalDbDeleteScheme = z.object({
+  serviceId: z.string(),
+  backupId: z.string(),
+  databaseType: z.string(),
+  databaseName: z.string(),
+})
