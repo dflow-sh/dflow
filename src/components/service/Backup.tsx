@@ -13,8 +13,9 @@ import {
   ChevronDown,
   Cloud,
   DatabaseBackup,
-  Download,
+  History,
   Server,
+  Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
@@ -83,7 +84,6 @@ const IndividualBackup = ({
         </Badge>
       </div>
       <div className='flex items-center gap-2'>
-        <span className='text-xs text-muted-foreground'></span>
         <Button
           variant='ghost'
           size='icon'
@@ -91,7 +91,17 @@ const IndividualBackup = ({
           onClick={() =>
             internalRestoreExecution({ backupId: backup.id, serviceId })
           }>
-          <Download size={16} />
+          <History size={16} />
+        </Button>
+        <Button
+          variant='ghost'
+          size='icon'
+          onClick={() => {
+            toast.error('This feature is not available yet', {
+              description: 'You cannot delete backups yet',
+            })
+          }}>
+          <Trash2 size={16} />
         </Button>
       </div>
     </div>
