@@ -2,7 +2,6 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
@@ -11,23 +10,21 @@ import { protectedClient, publicClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
-import { addLinkDatabaseQueueQueue } from '@/queues/app/link-database'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
-import { addUnlinkDatabaseQueueQueue } from '@/queues/app/unlink-database'
 import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
 import { addRestartDatabaseQueue } from '@/queues/database/restart'
 import { addStopDatabaseQueue } from '@/queues/database/stop'
 import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
+import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regenerate'
 
 import {
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
-  linkDatabaseSchema,
-  unlinkDatabaseSchema,
+  regenerateSSLSchema,
   updateServiceDomainSchema,
   updateServiceEnvironmentsSchema,
   updateServiceSchema,
@@ -308,9 +305,6 @@ export const restartServiceAction = protectedClient
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
-
     const { id } = clientInput
     const {
       project,
@@ -345,7 +339,6 @@ export const restartServiceAction = protectedClient
           databaseName: serviceDetails.name,
           databaseType: serviceDetails.databaseDetails?.type,
           sshDetails,
-          payloadToken: payloadToken?.value,
           serviceDetails: {
             id: serviceDetails.id,
           },
@@ -384,9 +377,6 @@ export const stopServerAction = protectedClient
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
-
     const { id } = clientInput
     const {
       project,
@@ -421,7 +411,6 @@ export const stopServerAction = protectedClient
           databaseName: serviceDetails.name,
           databaseType: serviceDetails.databaseDetails?.type,
           sshDetails,
-          payloadToken: payloadToken?.value,
           serviceDetails: {
             id: serviceDetails.id,
           },
@@ -666,128 +655,50 @@ export const updateServiceDomainAction = protectedClient
     }
   })
 
-export const linkDatabaseAction = protectedClient
+export const regenerateSSLAction = protectedClient
   .metadata({
-    actionName: 'linkDatabaseAction',
+    actionName: 'regenerateSSLAction',
   })
-  .schema(linkDatabaseSchema)
+  .schema(regenerateSSLSchema)
   .action(async ({ clientInput }) => {
-    const { databaseServiceId, serviceId, environmentVariableName } =
-      clientInput
+    const { id, email } = clientInput
 
-    const databaseService = await payload.findByID({
+    const {
+      project,
+      type,
+      providerType,
+      githubSettings,
+      provider,
+      ...serviceDetails
+    } = await payload.findByID({
       collection: 'services',
-      id: databaseServiceId,
-    })
-
-    const service = await payload.findByID({
-      collection: 'services',
-      id: serviceId,
       depth: 10,
+      id,
     })
 
-    const serverDetails =
-      typeof service.project === 'object' &&
-      typeof service.project.server === 'object'
-        ? service.project.server
-        : null
+    if (
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      const sshDetails = {
+        privateKey: project?.server?.sshKey?.privateKey,
+        host: project?.server?.ip,
+        username: project?.server?.username,
+        port: project?.server?.port,
+      }
 
-    const sshKey =
-      serverDetails && typeof serverDetails.sshKey === 'object'
-        ? serverDetails.sshKey
-        : null
-
-    // add linking database to queue
-    if (databaseService.databaseDetails && serverDetails && sshKey) {
-      addLinkDatabaseQueueQueue({
-        databaseDetails: {
-          name: databaseService.name,
-          type: databaseService.databaseDetails.type!,
-        },
+      const response = await addLetsencryptRegenerateQueueQueue({
+        sshDetails,
+        serverDetails: { id: project?.server?.id },
         serviceDetails: {
-          name: service.name,
-          environmentVariableName,
-          id: service.id,
-        },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: sshKey.privateKey,
-          username: serverDetails.username,
-        },
-        serverDetails: {
-          id: serverDetails.id,
+          name: serviceDetails.name,
+          email,
         },
       })
+
+      if (response.id) {
+        return { success: true }
+      }
     }
-
-    return { success: true }
-  })
-
-export const unlinkDatabaseAction = protectedClient
-  .metadata({
-    actionName: 'unlinkDatabaseAction',
-  })
-  .schema(unlinkDatabaseSchema)
-  .action(async ({ clientInput }) => {
-    const { databaseServiceName, serviceId, environmentVariableName } =
-      clientInput
-
-    const { docs } = await payload.find({
-      collection: 'services',
-      where: {
-        name: {
-          equals: databaseServiceName,
-        },
-        type: {
-          equals: 'database',
-        },
-      },
-      pagination: false,
-    })
-
-    const service = await payload.findByID({
-      collection: 'services',
-      id: serviceId,
-      depth: 10,
-    })
-
-    const serverDetails =
-      typeof service.project === 'object' &&
-      typeof service.project.server === 'object'
-        ? service.project.server
-        : null
-
-    const sshKey =
-      serverDetails && typeof serverDetails.sshKey === 'object'
-        ? serverDetails.sshKey
-        : null
-
-    const databaseService = docs?.[0]
-
-    // add linking database to queue
-    if (databaseService.databaseDetails && serverDetails && sshKey) {
-      addUnlinkDatabaseQueueQueue({
-        databaseDetails: {
-          name: databaseService.name,
-          type: databaseService.databaseDetails.type!,
-        },
-        serviceDetails: {
-          name: service.name,
-          environmentVariableName,
-          id: service.id,
-        },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: sshKey.privateKey,
-          username: serverDetails.username,
-        },
-        serverDetails: {
-          id: serverDetails.id,
-        },
-      })
-    }
-
-    return { success: true }
   })

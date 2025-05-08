@@ -11,13 +11,12 @@ import {
   DialogTrigger,
 } from '../ui/dialog'
 import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -26,7 +25,6 @@ import { updateServiceDomainSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -49,15 +47,13 @@ const DomainForm = () => {
     defaultValues: {
       id: params.serviceId,
       domain: {
-        certificateType: 'none',
+        certificateType: 'letsencrypt',
         autoRegenerateSSL: false,
         hostname: '',
       },
       operation: 'add',
     },
   })
-
-  const { domain } = useWatch({ control: form.control })
 
   const { execute, isPending } = useAction(updateServiceDomainAction, {
     onSuccess: ({ data }) => {
@@ -141,39 +137,11 @@ const DomainForm = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value='letsencrypt'>Letsencrypt</SelectItem>
-
                         <SelectItem value='none'>None</SelectItem>
                       </SelectContent>
                     </Select>
 
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='operation'
-                render={({ field }) => (
-                  <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
-                    <div className='space-y-0.5'>
-                      <FormLabel className='text-base'>
-                        Default domain
-                      </FormLabel>
-                      <FormDescription>
-                        This domain will be set as default domain, previously
-                        added domains will be removed!
-                      </FormDescription>
-                    </div>
-
-                    <FormControl>
-                      <Switch
-                        checked={field.value === 'set'}
-                        onCheckedChange={checked => {
-                          form.setValue('operation', checked ? 'set' : 'add')
-                        }}
-                      />
-                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -203,7 +171,7 @@ const DomainForm = () => {
 
               <DialogFooter>
                 <Button disabled={isPending} type='submit'>
-                  Create
+                  Add
                 </Button>
               </DialogFooter>
             </form>

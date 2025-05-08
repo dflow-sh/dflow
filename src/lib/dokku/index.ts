@@ -40,8 +40,9 @@ import { unexpose as unexposeDatabasePort } from './plugin/database/unexpose'
 import { unlink } from './plugin/database/unlink'
 import { install as dokkuPluginInstall } from './plugin/install'
 import { installed } from './plugin/installed'
+import { addEmail } from './plugin/letsEncrypt/addEmail'
+import { addGlobalEmail } from './plugin/letsEncrypt/addGlobalEmail'
 import { addCron } from './plugin/letsEncrypt/cron'
-import { letsencryptEmail } from './plugin/letsEncrypt/email'
 import { enable } from './plugin/letsEncrypt/enable'
 import { status as letsencryptStatus } from './plugin/letsEncrypt/status'
 import { list } from './plugin/list'
@@ -118,7 +119,8 @@ export const dokku = {
     list: listDomains,
   },
   letsencrypt: {
-    email: letsencryptEmail,
+    addGlobalEmail: addGlobalEmail,
+    addEmail,
     cron: addCron,
     enable,
     status: letsencryptStatus,

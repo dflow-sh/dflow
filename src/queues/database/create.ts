@@ -7,7 +7,6 @@ import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 
@@ -32,7 +31,6 @@ interface QueueArgs {
     deploymentId: string
     serverId: string
   }
-  payloadToken: string | undefined
 }
 
 function parseDatabaseInfo({
@@ -133,13 +131,7 @@ const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
     const payload = await getPayload({ config: configPromise })
-    const {
-      databaseName,
-      databaseType,
-      sshDetails,
-      payloadToken,
-      serviceDetails,
-    } = job.data
+    const { databaseName, databaseType, sshDetails, serviceDetails } = job.data
     const { id: serviceId, serverId, deploymentId } = serviceDetails
     let ssh: NodeSSH | null = null
 
@@ -207,12 +199,11 @@ const worker = new Worker<QueueArgs>(
         dbType: databaseType,
       })
 
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
+      await payload.update({
+        collection: 'services',
+        id: serviceId,
         data: {
-          type: 'database.update',
-          data: {
-            serviceId,
+          databaseDetails: {
             ...formattedData,
           },
         },
@@ -220,17 +211,12 @@ const worker = new Worker<QueueArgs>(
 
       const logs = await pub.lrange(deploymentId, 0, -1)
 
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
+      await payload.update({
+        collection: 'deployments',
+        id: serviceDetails.deploymentId,
         data: {
-          type: 'deployment.update',
-          data: {
-            deployment: {
-              id: deploymentId,
-              status: 'success',
-              logs,
-            },
-          },
+          status: 'success',
+          logs,
         },
       })
     } catch (error) {
@@ -246,17 +232,12 @@ const worker = new Worker<QueueArgs>(
 
       const logs = await pub.lrange(deploymentId, 0, -1)
 
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
+      await payload.update({
+        collection: 'deployments',
+        id: serviceDetails.deploymentId,
         data: {
-          type: 'deployment.update',
-          data: {
-            deployment: {
-              id: deploymentId,
-              status: 'failed',
-              logs,
-            },
-          },
+          status: 'failed',
+          logs,
         },
       })
 

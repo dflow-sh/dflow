@@ -7,7 +7,6 @@ import { NodeSSH } from 'node-ssh'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
@@ -33,7 +32,6 @@ interface QueueArgs {
     populatedVariables: string
     serverId: string
   }
-  payloadToken: string
 }
 
 const QUEUE_NAME = 'deploy-app-railpack'
@@ -60,7 +58,6 @@ const worker = new Worker<QueueArgs>(
       branch,
       sshDetails,
       serviceDetails,
-      payloadToken,
     } = job.data
     const { serverId, serviceId, variables, populatedVariables } =
       serviceDetails
@@ -323,8 +320,6 @@ const worker = new Worker<QueueArgs>(
         environmentVariables: formattedVariables,
       })
 
-      console.log({ imageCreationResponse })
-
       if (imageCreationResponse.code === 0) {
         sendEvent({
           message: `✅ Successfully created docker-image`,
@@ -460,22 +455,15 @@ const worker = new Worker<QueueArgs>(
 
       // Step 8: updating the domain details
       const domainsResponse = await dokku.domains.report(ssh, appName)
-      const defaultDomain = domainsResponse
 
-      if (defaultDomain.length) {
-        await payloadWebhook({
-          payloadToken,
+      if (domainsResponse.length) {
+        await payload.update({
+          collection: 'services',
+          id: serviceId,
           data: {
-            type: 'domain.update',
-            data: {
-              serviceId: serviceDetails.serviceId,
-              domain: {
-                domain: defaultDomain,
-                operation: 'add',
-                autoRegenerateSSL: false,
-                certificateType: 'letsencrypt',
-              },
-            },
+            domains: domainsResponse?.map(domain => ({
+              domain,
+            })),
           },
         })
 

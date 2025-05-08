@@ -18,7 +18,6 @@ import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Users } from './payload/collections/Users'
-import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
 import { serverEvents } from './payload/endpoints/server-events'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
@@ -58,11 +57,6 @@ export default buildConfig({
   sharp,
   plugins: [],
   endpoints: [
-    {
-      method: 'post',
-      path: '/databaseUpdate',
-      handler: databaseUpdate,
-    },
     {
       method: 'get',
       path: '/logs',
