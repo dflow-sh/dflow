@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '../ui/button'
-import { Switch } from '../ui/switch'
 import { ArrowUpRight, Globe, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
@@ -12,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Service } from '@/payload-types'
 
 import DomainForm from './DomainForm'
+import RegenerateSSLForm from './RegenerateSSLForm'
 
 const DomainCard = ({
   domain,
@@ -48,24 +48,6 @@ const DomainCard = ({
         </div>
 
         <div className='space-x-4'>
-          <Switch
-            defaultChecked={domain.default}
-            disabled={domain.default}
-            onCheckedChange={checked => {
-              if (checked) {
-                execute({
-                  operation: 'set',
-                  domain: {
-                    hostname: domain.domain,
-                    autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
-                    certificateType: domain.certificateType ?? 'none',
-                  },
-                  id: serviceId,
-                })
-              }
-            }}
-          />
-
           <Button
             size='icon'
             onClick={() => {
@@ -96,7 +78,10 @@ const DomainList = ({
 }) => {
   return (
     <section className='space-y-6'>
-      <DomainForm />
+      <div className='flex items-center gap-3'>
+        <DomainForm />
+        <RegenerateSSLForm />
+      </div>
 
       <div className='space-y-4'>
         {domains.length ? (

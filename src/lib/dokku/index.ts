@@ -11,6 +11,8 @@ import { options } from './docker/options'
 import { login } from './docker/registry/login'
 import { add } from './domains/add'
 import { addGlobal } from './domains/addGlobal'
+import { list as listDomains } from './domains/list'
+import { listGlobal as listGlobalDomains } from './domains/listGlobal'
 import { remove } from './domains/remove'
 import { removeGlobal } from './domains/removeGlobal'
 import { report } from './domains/report'
@@ -112,6 +114,8 @@ export const dokku = {
     addGlobal,
     removeGlobal,
     setGlobal,
+    listGlobal: listGlobalDomains,
+    list: listDomains,
   },
   letsencrypt: {
     email: letsencryptEmail,
