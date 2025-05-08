@@ -42,6 +42,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { slugify } from '@/lib/slugify'
 import { Server } from '@/payload-types'
 
@@ -76,9 +82,13 @@ const databaseOptions = [
 const CreateService = ({
   server,
   project,
+  disableCreateButton = false,
+  disableReason = 'Cannot create service at this time',
 }: {
   server: Server
   project: { name: string }
+  disableCreateButton?: boolean
+  disableReason?: string
 }) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
@@ -128,6 +138,15 @@ const CreateService = ({
     execute(values)
   }
 
+  const createButton = (
+    <Button
+      disabled={disableCreateButton}
+      className='disabled:cursor-not-allowed'>
+      <Plus className='mr-2' />
+      Create Service
+    </Button>
+  )
+
   return (
     <>
       <Dialog
@@ -138,12 +157,20 @@ const CreateService = ({
             form.reset()
           }
         }}>
-        <DialogTrigger asChild>
-          <Button>
-            <Plus />
-            Create Service
-          </Button>
-        </DialogTrigger>
+        {disableCreateButton ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>{createButton}</div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{disableReason}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          <DialogTrigger asChild>{createButton}</DialogTrigger>
+        )}
 
         <DialogContent>
           <DialogHeader>

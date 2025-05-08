@@ -40,6 +40,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Template } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
@@ -148,7 +154,13 @@ const TemplateDeploymentForm = ({
   )
 }
 
-const DeployTemplate = () => {
+const DeployTemplate = ({
+  disableDeployButton = false,
+  disableReason = 'This action is currently unavailable',
+}: {
+  disableDeployButton?: boolean
+  disableReason?: string
+}) => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
   const architectureContext = function useSafeArchitectureContext() {
     try {
@@ -158,13 +170,31 @@ const DeployTemplate = () => {
     }
   }
 
+  const isDeploying = architectureContext()?.isDeploying
+  const isButtonDisabled = disableDeployButton || isDeploying
+
+  const deployButton = (
+    <Button variant='outline' disabled={isButtonDisabled}>
+      <Rocket className='mr-2' /> Deploy from Template
+    </Button>
+  )
+
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant='outline' disabled={architectureContext()?.isDeploying}>
-          <Rocket /> Deploy from Template
-        </Button>
-      </DialogTrigger>
+      {isButtonDisabled ? (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>{deployButton}</div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isDeploying ? 'Deployment in progress' : disableReason}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <DialogTrigger asChild>{deployButton}</DialogTrigger>
+      )}
 
       <DialogContent>
         <DialogHeader>
