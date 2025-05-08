@@ -1,4 +1,4 @@
-import LayoutClient from '../layout.client'
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { Puzzle } from 'lucide-react'
 import Link from 'next/link'
@@ -6,13 +6,25 @@ import { getPayload } from 'payload'
 
 import TemplateDetails from '@/components/templates/TemplateDetails'
 import { Button } from '@/components/ui/button'
+import { getTenant } from '@/lib/get-tenant'
+
+interface PageProps {
+  params: Promise<{ organisation: string }>
+}
 
 const page = async () => {
   const payload = await getPayload({ config: configPromise })
+  const { userTenant } = await getTenant()
 
   const { docs: templates, totalDocs } = await payload.find({
     collection: 'templates',
     pagination: false,
+    sort: '-createdAt',
+    where: {
+      'tenant.slug': {
+        equals: userTenant?.tenant.slug,
+      },
+    },
   })
 
   return (
@@ -20,7 +32,7 @@ const page = async () => {
       <section>
         <div className='flex w-full justify-between'>
           <h3 className='text-2xl font-semibold'>Templates</h3>
-          <Link href={'/templates/compose'}>
+          <Link href={`/${userTenant?.tenant?.slug}/templates/compose`}>
             <Button>Create Template</Button>
           </Link>
         </div>

@@ -44,9 +44,9 @@ export const createTemplate = protectedClient
     actionName: 'createTemplate',
   })
   .schema(createTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { userTenant } = ctx
     const { name, description, services } = clientInput
-    console.log('in server', services)
 
     const response = await payload.create({
       collection: 'templates',
@@ -54,6 +54,7 @@ export const createTemplate = protectedClient
         name,
         description,
         services,
+        tenant: userTenant.tenant,
       },
     })
     return response
@@ -65,8 +66,9 @@ export const deleteTemplate = protectedClient
     actionName: 'deleteTemplate',
   })
   .schema(DeleteTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { userTenant } = ctx
 
     const response = await payload.delete({
       collection: 'templates',
@@ -74,7 +76,7 @@ export const deleteTemplate = protectedClient
     })
 
     if (response) {
-      revalidatePath('/templates')
+      revalidatePath(`${userTenant.tenant.slug}/templates`)
       return { deleted: true }
     }
   })
@@ -82,13 +84,27 @@ export const deleteTemplate = protectedClient
 export const getTemplateById = protectedClient
   .metadata({ actionName: 'getTemplateById' })
   .schema(DeleteTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const response = await payload.findByID({
+    const { userTenant } = ctx
+    const response = await payload.find({
       collection: 'templates',
-      id,
+      where: {
+        and: [
+          {
+            id: {
+              equals: id,
+            },
+          },
+          {
+            'tenant.slug': {
+              equals: userTenant.tenant.slug,
+            },
+          },
+        ],
+      },
     })
-    return response
+    return response?.docs[0]
   })
 
 export const deployTemplateAction = protectedClient

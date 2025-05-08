@@ -185,7 +185,6 @@ export interface Tenant {
  */
 export interface Project {
   id: string;
-  tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the project.
    */
@@ -357,6 +356,7 @@ export interface SshKey {
  */
 export interface CloudProviderAccount {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
   awsDetails?: {
@@ -584,6 +584,7 @@ export interface Service {
  */
 export interface GitProvider {
   id: string;
+  tenant?: (string | null) | Tenant;
   type: 'github' | 'gitlab' | 'bitbucket';
   github?: {
     appName: string;
@@ -606,6 +607,7 @@ export interface GitProvider {
  */
 export interface DockerRegistry {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   type: 'docker' | 'github' | 'digitalocean' | 'quay';
   username: string;
@@ -822,7 +824,6 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
-  tenant?: T;
   name?: T;
   description?: T;
   server?: T;
@@ -970,6 +971,7 @@ export interface SshKeysSelect<T extends boolean = true> {
  * via the `definition` "gitProviders_select".
  */
 export interface GitProvidersSelect<T extends boolean = true> {
+  tenant?: T;
   type?: T;
   github?:
     | T
@@ -1004,6 +1006,7 @@ export interface DeploymentsSelect<T extends boolean = true> {
  * via the `definition` "cloudProviderAccounts_select".
  */
 export interface CloudProviderAccountsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   type?: T;
   awsDetails?:
@@ -1145,6 +1148,7 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
  * via the `definition` "dockerRegistries_select".
  */
 export interface DockerRegistriesSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   type?: T;
   username?: T;

@@ -236,10 +236,10 @@ export const connectAWSAccountAction = protectedClient
     actionName: 'connectAWSAccountAction',
   })
   .schema(connectAWSAccountSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { accessKeyId, secretAccessKey, name, id } = clientInput
     const payload = await getPayload({ config: configPromise })
-
+    const { userTenant } = ctx
     let response: CloudProviderAccount
 
     if (id) {
@@ -264,6 +264,7 @@ export const connectAWSAccountAction = protectedClient
             accessKeyId,
             secretAccessKey,
           },
+          tenant: userTenant.tenant,
           name,
         },
       })
