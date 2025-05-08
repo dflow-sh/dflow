@@ -59,11 +59,15 @@ export default buildConfig({
   plugins: [
     multiTenantPlugin({
       collections: {
-        projects: {},
         templates: {},
-        // services: {},
+        gitProviders: {},
         // servers: {},
+        // services: {},
         // sshKeys: {},
+        dockerRegistries: {},
+        cloudProviderAccounts: {},
+        // securityGroups: {},
+        // projects: {}
       },
       userHasAccessToAllTenants: user => Boolean(user?.role?.includes('admin')),
       enabled: true,
