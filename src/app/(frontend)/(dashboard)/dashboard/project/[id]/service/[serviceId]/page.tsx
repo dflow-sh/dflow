@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
@@ -56,8 +56,20 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     notFound()
   }
 
-  const serverId =
+  const server =
     typeof service.project === 'object' ? service.project.server : ''
+  const serverObject = typeof server === 'object' ? server : null
+
+  if (
+    serverObject &&
+    serverObject.connection &&
+    serverObject.connection.status !== 'success'
+  ) {
+    const projectId =
+      typeof service.project === 'object' ? service.project.id : service.project
+
+    redirect(`/dashboard/project/${projectId}`)
+  }
 
   const domains = service.domains ?? []
   const databaseDetails = service.databaseDetails ?? {}
@@ -74,7 +86,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         <DeploymentList
           deployments={deployments}
           serviceId={service.id}
-          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+          serverId={typeof server === 'object' ? server.id : server}
         />
       )
 
@@ -85,7 +97,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return (
         <LogsTabClient
           serviceId={service.id}
-          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+          serverId={typeof server === 'object' ? server.id : server}
         />
       )
     case 'backup':
