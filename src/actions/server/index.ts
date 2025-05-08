@@ -8,6 +8,7 @@ import { getPayload } from 'payload'
 import { protectedClient } from '@/lib/safe-action'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
+import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
   checkDNSConfigSchema,
@@ -159,26 +160,27 @@ export const updateServerDomainAction = protectedClient
     const privateKey =
       typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
 
-    // const queueResponse = await addManageServerDomainQueue({
-    //   serverDetails: {
-    //     global: {
-    //       domain,
-    //       action: operation,
-    //     },
-    //     id,
-    //   },
-    //   sshDetails: {
-    //     host: response.ip,
-    //     port: response.port,
-    //     username: response.username,
-    //     privateKey,
-    //   },
-    // })
+    // for delete action remove domain from dokku
+    if (operation === 'remove') {
+      await addManageServerDomainQueue({
+        serverDetails: {
+          global: {
+            domain,
+            action: operation,
+          },
+          id,
+        },
+        sshDetails: {
+          host: response.ip,
+          port: response.port,
+          username: response.username,
+          privateKey,
+        },
+      })
+    }
 
-    // if (queueResponse.id) {
     revalidatePath(`/servers/${id}`)
     return { success: true }
-    // }
   })
 
 export const installRailpackAction = protectedClient
@@ -264,4 +266,42 @@ export const checkDNSConfigAction = protectedClient
     const addresses = await dns.resolve4(domain)
 
     return addresses.includes(ip)
+  })
+
+export const syncServerDomainAction = protectedClient
+  .metadata({
+    actionName: 'syncServerDomainAction',
+  })
+  .schema(updateServerDomainSchema)
+  .action(async ({ clientInput }) => {
+    const { id, domain, operation } = clientInput
+
+    const response = await payload.findByID({
+      id,
+      collection: 'servers',
+      depth: 10,
+    })
+
+    const privateKey =
+      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
+
+    const queueResponse = await addManageServerDomainQueue({
+      serverDetails: {
+        global: {
+          domain,
+          action: operation,
+        },
+        id,
+      },
+      sshDetails: {
+        host: response.ip,
+        port: response.port,
+        username: response.username,
+        privateKey,
+      },
+    })
+
+    if (queueResponse.id) {
+      return { success: true }
+    }
   })

@@ -238,6 +238,7 @@ export interface Server {
     | {
         domain: string;
         default: boolean;
+        synced: boolean;
         id?: string | null;
       }[]
     | null;
@@ -1017,6 +1018,7 @@ export interface ServersSelect<T extends boolean = true> {
     | {
         domain?: T;
         default?: T;
+        synced?: T;
         id?: T;
       };
   onboarded?: T;

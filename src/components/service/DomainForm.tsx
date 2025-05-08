@@ -13,6 +13,7 @@ import {
 import { Input } from '../ui/input'
 import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -89,7 +90,10 @@ const DomainForm = () => {
           }
         }}>
         <DialogTrigger asChild>
-          <Button>Add Domain</Button>
+          <Button>
+            <Plus />
+            Add Domain
+          </Button>
         </DialogTrigger>
 
         <DialogContent>

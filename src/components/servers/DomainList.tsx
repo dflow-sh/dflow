@@ -7,7 +7,7 @@ import {
   CircleX,
   Globe,
   Info,
-  RefreshCw,
+  Loader,
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 
 import {
   checkDNSConfigAction,
+  syncServerDomainAction,
   updateServerDomainAction,
 } from '@/actions/server'
 import { Card, CardContent } from '@/components/ui/card'
@@ -69,13 +70,32 @@ const DomainItem = ({
     result,
   } = useAction(checkDNSConfigAction)
 
+  const {
+    execute: syncDomain,
+    isPending: syncingDomain,
+    hasSucceeded: triggeredDomainSync,
+  } = useAction(syncServerDomainAction)
+
   useEffect(() => {
     checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
   }, [])
 
+  useEffect(() => {
+    if (result?.serverError && !checkingDNSConfig) {
+      setTimeout(() => {
+        checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+      }, 3000)
+    }
+  }, [result?.serverError, checkingDNSConfig])
+
   const StatusBadge = () => {
     if (checkingDNSConfig) {
-      return null
+      return (
+        <Badge variant='info' className='gap-1 [&_svg]:size-4'>
+          <Loader className='animate-spin' />
+          Verifying DNS
+        </Badge>
+      )
     }
 
     if (result?.data) {
@@ -96,6 +116,8 @@ const DomainItem = ({
       )
     }
   }
+
+  console.log({ domain })
 
   return (
     <>
@@ -144,31 +166,29 @@ const DomainItem = ({
           </div>
 
           <div className='flex items-center gap-4 self-end'>
-            {/* <Switch
-              defaultChecked={domain.default}
-              disabled={domain.default || isDemoEnvironment}
-              onCheckedChange={checked => {
-                if (checked) {
-                  execute({
-                    operation: 'set',
-                    domain: domain.domain,
-                    id: server.id,
-                  })
-                }
-              }}
-            /> */}
             <StatusBadge />
 
             <Button
               variant='outline'
-              disabled={checkingDNSConfig}
+              disabled={
+                !!result?.serverError ||
+                checkingDNSConfig ||
+                syncingDomain ||
+                domain.synced
+              }
+              isLoading={syncingDomain}
               onClick={() => {
-                checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+                syncDomain({
+                  domain: domain.domain,
+                  id: server.id,
+                  operation: 'add',
+                })
               }}>
-              <RefreshCw
-                className={`${checkingDNSConfig ? 'animate-spin delay-200' : ''}`}
-              />
-              {checkingDNSConfig ? 'Refreshing Status...' : 'Refresh Status'}
+              {domain.synced
+                ? 'Synced Domain'
+                : triggeredDomainSync
+                  ? 'Syncing Domain'
+                  : 'Sync Domain'}
             </Button>
 
             <Button

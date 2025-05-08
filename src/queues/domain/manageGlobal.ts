@@ -1,7 +1,9 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
+import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
@@ -40,6 +42,8 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const { sshDetails, serverDetails } = job.data
     const { global } = job.data.serverDetails
+    const payload = await getPayload({ config: configPromise })
+
     let ssh: NodeSSH | null = null
 
     try {
@@ -127,13 +131,46 @@ const worker = new Worker<QueueArgs>(
         if (executionResponse.code === 0) {
           sendEvent({
             pub,
-            message: `✅ Successfully ${global.action}ed global domain ${global.domain}`,
+            message: `✅ Successfully ${global.action}ed global domain ${global.domain}, updating details...`,
             serverId: serverDetails.id,
           })
+
+          // 1. for add operation checking the global domains list
+          // 2. updating server domains status based on the global domains list
+          // 3. sending refresh event to the client
+          if (global.action === 'add') {
+            const domains = await dokku.domains.listGlobal({ ssh })
+            const server = await payload.findByID({
+              collection: 'servers',
+              id: serverDetails.id,
+            })
+
+            const newDomains = (server.domains ?? []).map(domain => ({
+              domain: domain.domain,
+              synced: domains.includes(domain.domain),
+              default: false,
+            }))
+
+            if (server) {
+              await payload.update({
+                collection: 'servers',
+                id: serverDetails.id,
+                data: {
+                  domains: newDomains,
+                },
+              })
+
+              await pub.publish(
+                'refresh-channel',
+                JSON.stringify({ refresh: true }),
+              )
+            }
+          }
         }
       }
     } catch (error) {
       let message = error instanceof Error ? error.message : ''
+
       throw new Error(
         `❌ failed to ${serverDetails?.global.action} for domain ${serverDetails?.global?.domain}: ${message}`,
       )

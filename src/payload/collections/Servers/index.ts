@@ -133,6 +133,12 @@ export const Servers: CollectionConfig = {
           type: 'checkbox',
           required: true,
         },
+        {
+          name: 'synced',
+          type: 'checkbox',
+          required: true,
+          defaultValue: false,
+        },
       ],
     },
     {
