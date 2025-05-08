@@ -94,7 +94,7 @@ export default function SelectSearch({
                     key={service.id}>
                     <CommandItem
                       key={service.id}
-                      value={service.name}
+                      value={service.id}
                       onSelect={currentValue => {
                         setValue(() => {
                           return currentValue === value ? '' : currentValue

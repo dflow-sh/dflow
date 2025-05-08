@@ -2,7 +2,6 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
@@ -29,8 +28,6 @@ export const installPluginAction = protectedClient
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput }) => {
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
@@ -72,7 +69,6 @@ export const installPluginAction = protectedClient
         previousPlugins,
       },
       sshDetails,
-      payloadToken: payloadToken?.value,
     })
 
     if (queueResponse.id) {
@@ -175,8 +171,6 @@ export const togglePluginStatusAction = protectedClient
   .schema(togglePluginStatusSchema)
   .action(async ({ clientInput }) => {
     const { pluginName, serverId, enabled } = clientInput
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
     const {
@@ -209,7 +203,6 @@ export const togglePluginStatusAction = protectedClient
 
     const queueResponse = await addTogglePluginQueue({
       sshDetails,
-      payloadToken: payloadToken?.value,
       pluginDetails: {
         enabled,
         name: pluginName,
@@ -232,8 +225,6 @@ export const deletePluginAction = protectedClient
   .schema(installPluginSchema)
   .action(async ({ clientInput }) => {
     const { serverId, pluginName } = clientInput
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
     const {
@@ -273,7 +264,6 @@ export const deletePluginAction = protectedClient
         previousPlugins,
       },
       sshDetails,
-      payloadToken: payloadToken?.value,
     })
 
     console.log({ queueResponse })
@@ -288,8 +278,6 @@ export const configureLetsencryptPluginAction = protectedClient
   .schema(configureLetsencryptPluginSchema)
   .action(async ({ clientInput }) => {
     const { email, autoGenerateSSL = false, serverId } = clientInput
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
 
     // Fetching server details instead of passing from client
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -314,7 +302,6 @@ export const configureLetsencryptPluginAction = protectedClient
     }
 
     const queueResponse = await addLetsencryptPluginConfigureQueue({
-      payloadToken: payloadToken?.value,
       serverDetails: {
         id: serverId,
       },

@@ -1,9 +1,10 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
+import { getPayload } from 'payload'
 
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
@@ -22,7 +23,6 @@ interface QueueArgs {
     id: string
     previousPlugins: Server['plugins']
   }
-  payloadToken: string | undefined
 }
 
 const queueName = 'delete-plugin'
@@ -34,9 +34,10 @@ export const deletePluginQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
+    const { sshDetails, pluginDetails, serverDetails } = job.data
     const { previousPlugins = [] } = serverDetails
     let ssh: NodeSSH | null = null
+    const payload = await getPayload({ config: configPromise })
 
     try {
       ssh = await dynamicSSH(sshDetails)
@@ -88,14 +89,11 @@ const worker = new Worker<QueueArgs>(
               version: plugin.version,
             }))
 
-        const updatePluginResponse = await payloadWebhook({
-          payloadToken: `${payloadToken}`,
+        await payload.update({
+          collection: 'servers',
+          id: serverDetails.id,
           data: {
-            type: 'plugin.update',
-            data: {
-              serverId: serverDetails.id,
-              plugins: filteredPlugins,
-            },
+            plugins: filteredPlugins,
           },
         })
 

@@ -1,9 +1,10 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
+import { getPayload } from 'payload'
 
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 
@@ -21,7 +22,6 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
-  payloadToken: string | undefined
 }
 
 const queueName = 'letsencrypt-configure'
@@ -33,14 +33,15 @@ export const letsencryptPluginConfigureQueue = new Queue<QueueArgs>(queueName, {
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { sshDetails, pluginDetails, serverDetails, payloadToken } = job.data
+    const { sshDetails, pluginDetails, serverDetails } = job.data
     const { email, autoGenerateSSL } = pluginDetails
     let ssh: NodeSSH | null = null
+    const payload = await getPayload({ config: configPromise })
 
     try {
       ssh = await dynamicSSH(sshDetails)
 
-      const letsencryptEmailResponse = await dokku.letsencrypt.email(
+      const letsencryptEmailResponse = await dokku.letsencrypt.addGlobalEmail(
         ssh,
         email,
         {
@@ -135,14 +136,11 @@ const worker = new Worker<QueueArgs>(
           }
         })
 
-        await payloadWebhook({
-          payloadToken: `${payloadToken}`,
+        await payload.update({
+          collection: 'servers',
+          id: serverDetails.id,
           data: {
-            type: 'plugin.update',
-            data: {
-              serverId: serverDetails.id,
-              plugins: pluginsWithConfig,
-            },
+            plugins: pluginsWithConfig,
           },
         })
 

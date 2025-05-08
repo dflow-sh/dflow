@@ -22,7 +22,7 @@ const LayoutClient = ({
   serviceName: string
   services: Service[]
 }) => {
-  const params = useParams<{ serviceId: string }>()
+  const params = useParams<{ serviceId: string; id: string }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
   const [tab, setTab] = useQueryState(
@@ -117,6 +117,7 @@ const LayoutClient = ({
                 placeholder='service'
                 services={services}
                 serviceId={params.serviceId}
+                projectId={params.id}
               />
             </div>,
             document.getElementById('serviceName') ?? document.body,

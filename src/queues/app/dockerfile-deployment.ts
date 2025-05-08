@@ -7,7 +7,6 @@ import { NodeSSH } from 'node-ssh'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { GitProvider, Service } from '@/payload-types'
@@ -32,7 +31,6 @@ interface QueueArgs {
     populatedVariables: string
     serverId: string
   }
-  payloadToken: string
 }
 
 const QUEUE_NAME = 'deploy-app-dockerfile'
@@ -59,7 +57,6 @@ const worker = new Worker<QueueArgs>(
       branch,
       sshDetails,
       serviceDetails,
-      payloadToken,
     } = job.data
     const { serverId, serviceId, variables, populatedVariables } =
       serviceDetails
@@ -380,22 +377,15 @@ const worker = new Worker<QueueArgs>(
 
       // todo: for now taking to first domain name
       const domainsResponse = await dokku.domains.report(ssh, appName)
-      const defaultDomain = domainsResponse
 
-      if (defaultDomain.length) {
-        await payloadWebhook({
-          payloadToken,
+      if (domainsResponse.length) {
+        await payload.update({
+          collection: 'services',
+          id: serviceId,
           data: {
-            type: 'domain.update',
-            data: {
-              serviceId: serviceDetails.serviceId,
-              domain: {
-                domain: defaultDomain,
-                operation: 'add',
-                autoRegenerateSSL: false,
-                certificateType: 'letsencrypt',
-              },
-            },
+            domains: domainsResponse?.map(domain => ({
+              domain,
+            })),
           },
         })
 
