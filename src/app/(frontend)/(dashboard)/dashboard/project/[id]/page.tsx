@@ -1,4 +1,4 @@
-import TabsLayout from '../../../../layout.client'
+import TabsLayout from '../../../layout.client'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'

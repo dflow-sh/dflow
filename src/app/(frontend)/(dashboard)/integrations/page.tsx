@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { Suspense, lazy } from 'react'
 
 import DockerRegistryDrawer from '@/components/Integrations/DockerRegistryDrawer'
