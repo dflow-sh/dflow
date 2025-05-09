@@ -116,8 +116,6 @@ export const deployTemplateAction = protectedClient
     const {
       userTenant: { tenant },
     } = ctx
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
 
     const projectDetails = await payload.findByID({
       collection: 'projects',

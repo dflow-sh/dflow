@@ -79,20 +79,16 @@ const ServersPage = async ({ params }: PageProps) => {
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Servers</div>
-        <Suspense fallback={<CreateServerButtonSkeleton />}>
-          {isDemoEnvironment ? (
-            <Button disabled={true} size={'default'} variant={'default'}>
-              <Plus />
-              Add New Server
-            </Button>
-          ) : (
-            <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
-              <Button size={'default'} variant={'default'}>
-                <Plus />
+        <div className='flex gap-2'>
+          <RefreshButton /> {/* Use the client component here */}
+          <Suspense fallback={<CreateServerButtonSkeleton />}>
+            {isDemoEnvironment ? (
+              <Button disabled={true} size={'default'} variant={'default'}>
+                <Plus className='mr-2 h-4 w-4' />
                 Add New Server
               </Button>
             ) : (
-              <Link href={'/servers/add-new-server'}>
+              <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
                 <Button size={'default'} variant={'default'}>
                   <Plus className='mr-2 h-4 w-4' />
                   Add New Server

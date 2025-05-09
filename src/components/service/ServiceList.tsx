@@ -68,7 +68,7 @@ interface Menu {
 const ServiceList = ({
   services,
   project,
-  organisationSlug
+  organisationSlug,
 }: {
   services: Service[]
   organisationSlug: string
@@ -100,7 +100,7 @@ const ServiceList = ({
   const onPaneClick = useCallback(() => setMenu(null), [setMenu])
   const handleRedirectToService = (id: string) => {
     router.push(
-      `/${organisationSlug}/dashboard/project/${projectId}/service/${id}`,
+      `/${organisationSlug}/dashboard/project/${project.id}/service/${id}`,
     )
   }
 

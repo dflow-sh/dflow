@@ -138,16 +138,17 @@ const SuspendedPage = ({ params }: PageProps) => {
           </Alert>
         )}
 
-      {services.length ? (
-        <ServiceList
-          organisationSlug={organisation}
-          projectId={id}
-          services={services}
-        />
-      ) : (
-        <ServicesArchitecture />
-      )}
-    </section>
+        {services.length ? (
+          <ServiceList
+            organisationSlug={organisation}
+            project={project}
+            services={services}
+          />
+        ) : (
+          <ServicesArchitecture />
+        )}
+      </section>
+    </ArchitectureContextProvider>
   )
 }
 

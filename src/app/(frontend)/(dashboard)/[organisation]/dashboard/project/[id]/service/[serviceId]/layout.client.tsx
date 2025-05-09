@@ -22,7 +22,11 @@ const LayoutClient = ({
   serviceName: string
   services: Service[]
 }) => {
-  const params = useParams<{ serviceId: string; organisation: string }>()
+  const params = useParams<{
+    serviceId: string
+    organisation: string
+    id: string
+  }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
   const [tab, setTab] = useQueryState(
