@@ -90,14 +90,6 @@ export const updateServiceDomainSchema = z.object({
   id: z.string(),
 })
 
-export const linkDatabaseSchema = z.object({
-  databaseServiceId: z.string(),
-  serviceId: z.string(),
-  environmentVariableName: z.string(),
-})
-
-export const unlinkDatabaseSchema = z.object({
-  databaseServiceName: z.string(),
-  serviceId: z.string(),
-  environmentVariableName: z.string(),
+export const regenerateSSLSchema = deleteServiceSchema.extend({
+  email: z.string().email().optional(),
 })

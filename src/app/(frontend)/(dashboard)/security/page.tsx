@@ -58,6 +58,10 @@ const SuspendedPage = ({ organisationSlug }: { organisationSlug: string }) => {
         // },
         select: {
           name: true,
+          sshKey: true,
+          awsEc2Details: {
+            securityGroups: true,
+          },
         },
       }),
     ]),
@@ -71,6 +75,7 @@ const SuspendedPage = ({ organisationSlug }: { organisationSlug: string }) => {
         keys={keys}
         securityGroups={securityGroups}
         cloudProviderAccounts={cloudProviderAccounts}
+        servers={servers}
       />
       <ServerTerminalClient servers={servers} />
     </>

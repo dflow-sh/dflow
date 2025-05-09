@@ -1,11 +1,12 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import configPromise from '@payload-config'
 import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
+import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { parseDatabaseInfo } from '@/lib/utils'
@@ -29,7 +30,6 @@ interface QueueArgs {
   serviceDetails: {
     id: string
   }
-  payloadToken: string | undefined
   serverDetails: {
     id: string
   }
@@ -46,11 +46,11 @@ const worker = new Worker<QueueArgs>(
       databaseName,
       databaseType,
       sshDetails,
-      payloadToken,
       serviceDetails,
       serverDetails,
     } = job.data
     let ssh: NodeSSH | null = null
+    const payload = await getPayload({ config: configPromise })
 
     console.log(
       `starting restartDatabase queue for ${databaseType} database called ${databaseName}`,
@@ -104,12 +104,11 @@ const worker = new Worker<QueueArgs>(
         dbType: databaseType,
       })
 
-      await payloadWebhook({
-        payloadToken: `${payloadToken}`,
+      await payload.update({
+        collection: 'services',
+        id: serviceDetails.id,
         data: {
-          type: 'database.update',
-          data: {
-            serviceId: serviceDetails.id,
+          databaseDetails: {
             ...formattedData,
           },
         },

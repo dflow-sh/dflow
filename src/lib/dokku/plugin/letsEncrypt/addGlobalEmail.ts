@@ -1,20 +1,20 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-export const letsencryptEmail = async (
+export const addGlobalEmail = async (
   ssh: NodeSSH,
   email: string,
   options?: SSHExecCommandOptions,
 ) => {
   // TODO validate plugin url to allow only url finishing with .git
-  const resultLetsencryptEmail = await ssh.execCommand(
+  const resultAddGlobalEmail = await ssh.execCommand(
     `dokku letsencrypt:set --global email ${email}`,
     options,
   )
 
-  if (resultLetsencryptEmail.code === 1) {
-    console.error(resultLetsencryptEmail)
-    throw new Error(resultLetsencryptEmail.stderr)
+  if (resultAddGlobalEmail.code === 1) {
+    console.error(resultAddGlobalEmail)
+    throw new Error(resultAddGlobalEmail.stderr)
   }
 
-  return resultLetsencryptEmail
+  return resultAddGlobalEmail
 }

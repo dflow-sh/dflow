@@ -1,9 +1,10 @@
 import configPromise from '@payload-config'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { getPayload } from 'payload'
 import { Suspense, use } from 'react'
 
+import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainList from '@/components/service/DomainList'
 import GeneralTab from '@/components/service/GeneralTab'
@@ -26,7 +27,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   const payload = use(getPayload({ config: configPromise }))
 
-  const [service, { docs: deployments }] = use(
+  const [service, { docs: deployments }, { docs: backupsDocs }] = use(
     Promise.all([
       payload.findByID({
         collection: 'services',
@@ -40,6 +41,14 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
           },
         },
       }),
+      payload.find({
+        collection: 'backups',
+        where: {
+          service: {
+            equals: serviceId,
+          },
+        },
+      }),
     ]),
   )
 
@@ -47,10 +56,23 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     notFound()
   }
 
-  const serverId =
+  const server =
     typeof service.project === 'object' ? service.project.server : ''
+  const serverObject = typeof server === 'object' ? server : null
+
+  if (
+    serverObject &&
+    serverObject.connection &&
+    serverObject.connection.status !== 'success'
+  ) {
+    const projectId =
+      typeof service.project === 'object' ? service.project.id : service.project
+
+    redirect(`/dashboard/project/${projectId}`)
+  }
 
   const domains = service.domains ?? []
+  const databaseDetails = service.databaseDetails ?? {}
 
   switch (tab) {
     case 'general':
@@ -64,7 +86,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         <DeploymentList
           deployments={deployments}
           serviceId={service.id}
-          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+          serverId={typeof server === 'object' ? server.id : server}
         />
       )
 
@@ -75,7 +97,15 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return (
         <LogsTabClient
           serviceId={service.id}
-          serverId={typeof serverId === 'object' ? serverId.id : serverId}
+          serverId={typeof server === 'object' ? server.id : server}
+        />
+      )
+    case 'backup':
+      return (
+        <Backup
+          databaseDetails={databaseDetails}
+          serviceId={serviceId}
+          backups={backupsDocs}
         />
       )
 

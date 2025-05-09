@@ -17,7 +17,12 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
+import {
+  CloudProviderAccount,
+  SecurityGroup,
+  Server,
+  SshKey,
+} from '@/payload-types'
 
 interface Props {
   sshKeysCount: number
@@ -25,6 +30,7 @@ interface Props {
   keys: SshKey[]
   securityGroups: SecurityGroup[]
   cloudProviderAccounts: CloudProviderAccount[]
+  servers: Partial<Server>[]
 }
 
 const SecurityTabs = ({
@@ -33,6 +39,7 @@ const SecurityTabs = ({
   keys,
   securityGroups,
   cloudProviderAccounts,
+  servers,
 }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -89,7 +96,7 @@ const SecurityTabs = ({
           </CardHeader>
           <CardContent>
             {keys.length ? (
-              <SSHKeysList keys={keys} />
+              <SSHKeysList keys={keys} servers={servers} />
             ) : (
               <div className='flex flex-col items-center justify-center py-12 text-center'>
                 <KeyRound className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
@@ -122,6 +129,7 @@ const SecurityTabs = ({
               <SecurityGroupsList
                 securityGroups={securityGroups}
                 cloudProviderAccounts={cloudProviderAccounts}
+                servers={servers}
               />
             ) : (
               <div className='flex flex-col items-center justify-center py-12 text-center'>

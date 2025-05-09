@@ -58,7 +58,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
 
       if (
         server.portIsOpen &&
-        server.sshConnected &&
+        server.connection?.status === 'success' &&
         supportedLinuxVersions.includes(server.os.version ?? '')
       ) {
         installDokku({ serverId: selectedServer })

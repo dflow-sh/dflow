@@ -2,6 +2,7 @@ import { ServiceNode } from '../types'
 import { Handle, Position } from '@xyflow/react'
 import { formatDistanceToNow } from 'date-fns'
 import {
+  AlertCircle,
   CircleCheckBig,
   CircleDashed,
   CircleX,
@@ -29,10 +30,11 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Service } from '@/payload-types'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Github className='size-6' />,
-  database: <Database className='size-6 text-destructive' />,
+  database: <Database className='size-6' />,
   docker: <Docker className='size-6' />,
 }
 
@@ -58,10 +60,19 @@ const statusMapping = {
 const CustomNode = ({
   data,
 }: {
-  data: ServiceNode & { onClick?: () => void }
+  data: ServiceNode & { onClick?: () => void; disableNode?: boolean }
 }) => {
   const deployment = data?.deployments?.[0]
   const createdAt = data?.createdAt
+  const isDisabled = !!data.disableNode
+
+  const architectureContext = function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
 
   const DeploymentBadge = () => {
     if (deployment) {
@@ -89,8 +100,18 @@ const CustomNode = ({
 
   return (
     <Card
-      onClick={data?.onClick}
-      className='h-full min-h-36 cursor-pointer backdrop-blur-md'>
+      onClick={() => {
+        if (architectureContext()?.isDeploying || isDisabled) {
+          return
+        }
+
+        data?.onClick?.()
+      }}
+      className={`h-full min-h-36 cursor-pointer backdrop-blur-md ${
+        isDisabled
+          ? 'cursor-not-allowed'
+          : 'cursor-pointer hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
+      }`}>
       <Handle
         type='source'
         style={{
@@ -102,7 +123,7 @@ const CustomNode = ({
         position={Position.Left}
       />
 
-      <CardHeader className='w-64 flex-row justify-between'>
+      <CardHeader className='w-64 flex-row justify-between pb-2'>
         <div className='flex items-center gap-x-3'>
           {data.type === 'database' && data.databaseDetails?.type
             ? databaseIcons[data?.databaseDetails?.type]
@@ -117,6 +138,12 @@ const CustomNode = ({
       </CardHeader>
 
       <CardContent className='pb-3'>
+        {isDisabled && (
+          <div className='mb-1 flex items-center gap-2 rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground'>
+            <AlertCircle size={16} />
+            <span>Node disabled</span>
+          </div>
+        )}
         <DeploymentBadge />
       </CardContent>
 

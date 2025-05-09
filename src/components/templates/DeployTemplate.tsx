@@ -5,7 +5,7 @@ import { Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -40,7 +40,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { Template } from '@/payload-types'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const TemplateDeploymentForm = ({
   execute,
@@ -79,6 +86,8 @@ const TemplateDeploymentForm = ({
     },
   })
 
+  const { id } = useWatch({ control: form.control })
+
   useEffect(() => {
     if (templates === undefined) {
       execute()
@@ -99,7 +108,7 @@ const TemplateDeploymentForm = ({
             <FormItem>
               <FormLabel>Template</FormLabel>
               <Select
-                disabled={isPending}
+                disabled={isPending || deployingTemplate}
                 onValueChange={field.onChange}
                 defaultValue={field.value}>
                 <FormControl>
@@ -135,7 +144,7 @@ const TemplateDeploymentForm = ({
 
           <Button
             type='submit'
-            disabled={deployingTemplate}
+            disabled={deployingTemplate || !id}
             isLoading={deployingTemplate}>
             Deploy
           </Button>
@@ -145,16 +154,48 @@ const TemplateDeploymentForm = ({
   )
 }
 
-const DeployTemplate = () => {
+const DeployTemplate = ({
+  disableDeployButton = false,
+  disableReason = 'This action is currently unavailable',
+}: {
+  disableDeployButton?: boolean
+  disableReason?: string
+}) => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
+  const architectureContext = function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
+
+  const isDeploying = architectureContext()?.isDeploying
+  const isButtonDisabled = disableDeployButton || isDeploying
+
+  const deployButton = (
+    <Button variant='outline' disabled={isButtonDisabled}>
+      <Rocket className='mr-2' /> Deploy from Template
+    </Button>
+  )
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant='outline'>
-          <Rocket /> Deploy from Template
-        </Button>
-      </DialogTrigger>
+      {isButtonDisabled ? (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>{deployButton}</div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isDeploying ? 'Deployment in progress' : disableReason}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <DialogTrigger asChild>{deployButton}</DialogTrigger>
+      )}
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Deploy from Template</DialogTitle>

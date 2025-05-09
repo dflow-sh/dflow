@@ -2,7 +2,6 @@
 
 import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import {
   Config,
@@ -242,7 +241,6 @@ export const deployTemplateAction = protectedClient
 
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
-      payloadToken: `${payloadToken?.value}`,
       services: createdServices,
     })
 
@@ -303,9 +301,6 @@ export const deployTemplateFromArchitectureAction = protectedClient
       userTenant: { tenant },
     } = ctx
     const { projectId, services = [] } = clientInput
-
-    const cookieStore = await cookies()
-    const payloadToken = cookieStore.get('payload-token')
 
     const projectDetails = await payload.findByID({
       collection: 'projects',
@@ -420,7 +415,6 @@ export const deployTemplateFromArchitectureAction = protectedClient
 
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
-      payloadToken: `${payloadToken?.value}`,
       services: createdServices,
     })
 

@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 import AddDatabaseService from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
@@ -91,6 +92,14 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const [serviceId, setServiceId] = useState<string>('')
   const ref = useRef(null)
   const [menu, setMenu] = useState<Menu | null>(null)
+
+  const architectureContext = function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
 
   const onNodeContextMenu = useCallback(
     (event: React.MouseEvent, node: Node) => {
@@ -189,6 +198,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
           <Button
             className='z-20'
             variant={'outline'}
+            disabled={architectureContext()?.isDeploying}
             onClick={() => setOpen(true)}>
             <Plus size={16} /> Add New
           </Button>

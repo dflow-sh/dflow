@@ -7,6 +7,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { Backups } from './payload/collections/Backups'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
 import { DockerRegistries } from './payload/collections/DockerRegistries'
@@ -19,9 +20,9 @@ import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Users } from './payload/collections/Users'
-import { databaseUpdate } from './payload/endpoints/databaseUpdate/index'
 import { logs } from './payload/endpoints/logs'
 import { serverEvents } from './payload/endpoints/server-events'
+import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -46,6 +47,7 @@ export default buildConfig({
     SecurityGroups,
     DockerRegistries,
     Tenants,
+    Backups,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -78,11 +80,6 @@ export default buildConfig({
   ],
   endpoints: [
     {
-      method: 'post',
-      path: '/databaseUpdate',
-      handler: databaseUpdate,
-    },
-    {
       method: 'get',
       path: '/logs',
       handler: logs,
@@ -93,4 +90,21 @@ export default buildConfig({
       handler: serverEvents,
     },
   ],
+  jobs: {
+    tasks: [checkServersConnectionsTask],
+    access: {
+      run: () => true,
+    },
+    autoRun: [
+      {
+        cron: '0/5 * * * *',
+        limit: 10,
+        queue: 'servers-ssh-connection-checks',
+      },
+    ],
+    deleteJobOnComplete: false,
+    shouldAutoRun: async () => {
+      return true
+    },
+  },
 })

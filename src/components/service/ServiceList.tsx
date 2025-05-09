@@ -4,7 +4,6 @@ import { ServiceNode } from '../reactflow/types'
 import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -12,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog'
+import { Button } from '../ui/button'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -21,13 +21,14 @@ import {
   useNodesState,
   useReactFlow,
 } from '@xyflow/react'
+import { Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteServiceAction } from '@/actions/service'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
 const calculateNodePositions = (
   services: Service[],
@@ -66,12 +67,17 @@ interface Menu {
 
 const ServiceList = ({
   services,
-  projectId,
-  organisationSlug,
+  project,
+  organisationSlug
 }: {
   services: Service[]
-  projectId: string
   organisationSlug: string
+  project: {
+    id: string
+    name: string
+    description?: string | null | undefined
+    server: string | Server
+  }
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
@@ -108,12 +114,26 @@ const ServiceList = ({
     const initialPositions = calculateNodePositions(services, width, height)
     const { edges: edgesData, nodes: nodesData } = convertToGraph(services)
 
-    console.log({ edgesData, nodesData })
+    console.log({
+      edgesData: Boolean(
+        project.server &&
+          typeof project.server === 'object' &&
+          project.server.connection?.status !== 'success',
+      ),
+    })
 
     const initialNodes = nodesData?.map((node, index) => ({
       id: node.id,
       position: initialPositions[index],
-      data: { ...node, onClick: () => handleRedirectToService(node.id) },
+      data: {
+        ...node,
+        disableNode: Boolean(
+          project.server &&
+            typeof project.server === 'object' &&
+            project.server.connection?.status !== 'success',
+        ),
+        onClick: () => handleRedirectToService(node.id),
+      },
       type: 'custom',
     }))
 
@@ -190,11 +210,13 @@ const ContextMenu: FC<ContextMenuProps> = ({
       className='fixed z-10 w-48 rounded-md border border-border bg-card shadow-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
-        <li
-          className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
+        <Button
+          variant='destructive'
+          className='w-full'
           onClick={() => setOpen(true)}>
+          <Trash2 />
           Delete service
-        </li>
+        </Button>
       </ul>
 
       <AlertDialog open={open}>
@@ -210,16 +232,17 @@ const ContextMenu: FC<ContextMenuProps> = ({
               Cancel
             </AlertDialogCancel>
 
-            <AlertDialogAction
+            <Button
               variant='destructive'
               disabled={isPending}
+              isLoading={isPending}
               onClick={() => {
                 execute({
                   id: service.id,
                 })
               }}>
               Delete
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

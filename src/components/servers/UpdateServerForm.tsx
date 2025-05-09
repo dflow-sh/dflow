@@ -86,7 +86,7 @@ const UpdateServerForm = ({
   }
 
   const dokkuNotInstalled =
-    server.sshConnected &&
+    server.connection?.status === 'success' &&
     supportedLinuxVersions.includes(server.os.version ?? '') &&
     !server.version
 

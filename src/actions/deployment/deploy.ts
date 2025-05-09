@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
@@ -14,9 +13,6 @@ export const triggerDeployment = async ({
 }: {
   serviceId: string
 }) => {
-  const cookieStore = await cookies()
-  const payloadToken = cookieStore.get('payload-token')
-
   const {
     project,
     type,
@@ -77,7 +73,6 @@ export const triggerDeployment = async ({
               populatedVariables: populatedVariables ?? '{}',
               variables: variables ?? [],
             },
-            payloadToken: `${payloadToken?.value}`,
           })
 
           queueResponseId = id
@@ -99,7 +94,6 @@ export const triggerDeployment = async ({
               populatedVariables: populatedVariables ?? '{}',
               variables: variables ?? [],
             },
-            payloadToken: `${payloadToken?.value}`,
           })
 
           queueResponseId = id
@@ -117,7 +111,6 @@ export const triggerDeployment = async ({
           deploymentId: deploymentResponse.id,
           serverId: project.server.id,
         },
-        payloadToken: payloadToken?.value,
       })
 
       queueResponseId = databaseQueueResponse.id
@@ -132,7 +125,6 @@ export const triggerDeployment = async ({
 
       const dockerImageQueueResponse = await addDockerImageDeploymentQueue({
         sshDetails,
-        payloadToken: `${payloadToken?.value}`,
         appName: serviceDetails.name,
         serviceDetails: {
           deploymentId: deploymentResponse.id,

@@ -1,8 +1,11 @@
 import type { Edge } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
+import { Trash2 } from 'lucide-react'
 import { type FC, useEffect, useRef } from 'react'
 
 import type { ServiceNode } from '@/components/reactflow/types'
+import { Button } from '@/components/ui/button'
+import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 interface ContextMenuProps {
   top: number
@@ -21,6 +24,14 @@ const ContextMenu: FC<ContextMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null)
   const { setNodes } = useReactFlow()
+
+  const architectureContext = function useSafeArchitectureContext() {
+    try {
+      return useArchitectureContext()
+    } catch (e) {
+      return null
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -57,11 +68,15 @@ const ContextMenu: FC<ContextMenuProps> = ({
           />
         </li>
         <hr /> */}
-        <li
-          className='w-full cursor-pointer rounded px-2 py-1 text-destructive hover:bg-primary/10 hover:text-primary'
+
+        <Button
+          variant='destructive'
+          className='w-full'
+          disabled={architectureContext()?.isDeploying}
           onClick={() => deleteNode(service.id)}>
+          <Trash2 />
           Remove service
-        </li>
+        </Button>
       </ul>
     </div>
   )

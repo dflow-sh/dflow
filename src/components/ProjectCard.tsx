@@ -1,7 +1,15 @@
 'use client'
 
 import { format, formatDistanceToNow } from 'date-fns'
-import { Clock, Ellipsis, HardDrive, Pencil, Trash2 } from 'lucide-react'
+import {
+  AlertCircle,
+  Clock,
+  Ellipsis,
+  HardDrive,
+  Pencil,
+  Trash2,
+  WifiOff,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -10,7 +18,6 @@ import { toast } from 'sonner'
 import { deleteProjectAction } from '@/actions/project'
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -38,6 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { Project, Server, Service } from '@/payload-types'
 
 import UpdateProject from './project/CreateProject'
@@ -53,21 +61,17 @@ export function DeleteProjectAlert({
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const { id, name } = project
-  const { execute } = useAction(deleteProjectAction, {
-    onExecute: () => {
-      setOpen(false)
-      toast.loading('Please wait deleting project...', { id })
-    },
+  const { name } = project
+  const { execute, isPending } = useAction(deleteProjectAction, {
     onSuccess: ({ data }) => {
       if (data?.deleted) {
-        toast.success('Successfully deleted project', { id })
+        setOpen(false)
+        toast.success('Successfully deleted project')
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to delete project: ${error.serverError}`, {
-        id,
-      })
+      setOpen(false)
+      toast.error(`Failed to delete project: ${error.serverError}`)
     },
   })
 
@@ -81,19 +85,23 @@ export function DeleteProjectAlert({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
+          <AlertDialogCancel
+            disabled={isPending}
+            onClick={() => setOpen(false)}>
             Cancel
           </AlertDialogCancel>
 
-          <AlertDialogAction
+          <Button
             variant='destructive'
+            disabled={isPending}
+            isLoading={isPending}
             onClick={() => {
               execute({
                 id: project.id,
               })
             }}>
             Delete
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -107,20 +115,28 @@ export function ProjectCard({
   organisationSlug,
 }: {
   project: Project
-  servers: { name: string; id: string }[]
+  servers: {
+    id: string
+    name: string
+    connection?:
+      | {
+          status?: ('success' | 'failed' | 'pending') | null
+          lastChecked?: string | null
+        }
+      | undefined
+  }[]
   services: Service[]
   organisationSlug: string
 }) {
   const [manualOpen, setManualOpen] = useState(false)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
 
-  const serverName = (project.server as Server).name
-
-  // const appServices = services?.filter(service => service.type === 'app')
-  // const databaseServices = services?.filter(
-  //   service => service.type === 'database',
-  // )
-  // const dockerServices = services?.filter(service => service.type === 'docker')
+  const serverName = (project.server as Server)?.name
+  const serverId = (project.server as Server)?.id
+  const serverExists = servers.some(server => server.id === serverId)
+  const isServerConnected =
+    servers.find(server => server.id === serverId)?.connection?.status ===
+    'success'
 
   return (
     <>
@@ -135,130 +151,140 @@ export function ProjectCard({
                 {project.description}
               </CardDescription>
             </div>
+  const isDisabled = !serverExists || !isServerConnected
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='!mt-0'
-                  onClick={e => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}>
-                  <Ellipsis />
-                </Button>
-              </DropdownMenuTrigger>
+  const cardContent = (
+    <Card
+      className={cn(
+        'h-full min-h-36 transition-all duration-200',
+        isDisabled && 'border-l-4 border-l-red-500 hover:border-l-red-600',
+      )}>
+      <CardHeader className='w-full flex-row items-center justify-between'>
+        <div>
+          <CardTitle>{project.name}</CardTitle>
+          <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
+            {project.description}
+          </CardDescription>
+        </div>
 
-              <DropdownMenuContent align='end'>
-                <DropdownMenuItem
-                  className='w-full cursor-pointer'
-                  onClick={e => {
-                    e.stopPropagation()
-                    setManualOpen(true)
-                  }}>
-                  <Pencil />
-                  Edit
-                </DropdownMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='!mt-0'
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}>
+              <Ellipsis />
+            </Button>
+          </DropdownMenuTrigger>
 
-                <DropdownMenuItem
-                  className='cursor-pointer'
-                  onClick={e => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setDeleteAlertOpen(true)
-                  }}>
-                  <Trash2 />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardHeader>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem
+              className='w-full cursor-pointer'
+              onClick={e => {
+                e.stopPropagation()
+                setManualOpen(true)
+              }}>
+              <Pencil />
+              Edit
+            </DropdownMenuItem>
 
-          <CardContent className='flex justify-end pb-2'>
-            <Badge variant={'secondary'}>
-              <div className='flex items-center gap-x-2'>
-                <HardDrive size={16} />
-                <span className='text-sm font-medium'>{serverName}</span>
-              </div>
-            </Badge>
-          </CardContent>
+            <DropdownMenuItem
+              className='cursor-pointer'
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+                setDeleteAlertOpen(true)
+              }}>
+              <Trash2 />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
 
-          <CardFooter className='justify-between'>
-            {/* <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild> */}
-            <div>{services.length} services</div>
-            {/* </TooltipTrigger>
-
-                <TooltipContent side='bottom'>
-                  <div className='space-y-1'>
-                    {appServices.length > 0 && (
-                      <div>
-                        <span className='flex items-center gap-x-2 text-sm font-medium'>
-                          <Github size={16} />
-                          <div className='mt-1 flex flex-wrap gap-2'>
-                            {appServices.map(service => (
-                              <Badge variant={'secondary'}>
-                                {service.name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </span>
-                      </div>
-                    )}
-
-                    {databaseServices.length > 0 && (
-                      <div>
-                        <span className='flex items-center gap-x-2 text-sm font-medium'>
-                          <Database size={16} />
-                          <div className='mt-1 flex flex-wrap gap-2'>
-                            {databaseServices.map(service => (
-                              <Badge variant={'secondary'}>
-                                {service.name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </span>
-                      </div>
-                    )}
-
-                    {dockerServices.length > 0 && (
-                      <div>
-                        <span className='flex items-center gap-x-2 text-sm font-medium'>
-                          <Docker className='h-5 w-5' />
-                          <div className='mt-1 flex flex-wrap gap-2'>
-                            {dockerServices.map(service => (
-                              <Badge variant={'secondary'}>
-                                {service.name}
-                              </Badge>
-                            ))}
-                          </div>
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider> */}
+      <CardContent className='flex flex-col gap-2'>
+        {!serverExists && (
+          <div className='mb-1 flex items-center gap-2 text-sm text-red-500'>
+            <AlertCircle size={16} />
+            <span>Server not found</span>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
-                    <Clock size={14} />
-                    {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
-                  </time>
+                <TooltipTrigger>
+                  <AlertCircle
+                    size={14}
+                    className='cursor-help text-muted-foreground'
+                  />
                 </TooltipTrigger>
-
-                <TooltipContent side='bottom'>
-                  <p>
-                    {format(new Date(project.createdAt), 'LLL d, yyyy h:mm a')}
-                  </p>
+                <TooltipContent>
+                  <p>Server does not exist. Action required.</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </CardFooter>
-        </Card>
+          </div>
+        )}
+
+        {serverExists && !isServerConnected && (
+          <div className='mb-1 flex items-center gap-2 text-sm text-red-500'>
+            <WifiOff size={16} />
+            <span>SSH not connected</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <AlertCircle
+                    size={14}
+                    className='cursor-help text-muted-foreground'
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Fix SSH connection to continue.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
+
+        <div className='flex justify-end'>
+          <Badge variant={serverExists ? 'secondary' : 'destructive'}>
+            <div className='flex items-center gap-x-2'>
+              <HardDrive size={16} />
+              <span className='text-sm font-medium'>
+                {serverName || 'Unknown server'}
+              </span>
+            </div>
+          </Badge>
+        </div>
+      </CardContent>
+
+      <CardFooter className='justify-between'>
+        <div>{services.length} services</div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+                <Clock size={14} />
+                {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
+              </time>
+            </TooltipTrigger>
+
+            <TooltipContent side='bottom'>
+              <p>{format(new Date(project.createdAt), 'LLL d, yyyy h:mm a')}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </CardFooter>
+    </Card>
+  )
+
+  return (
+    <>
+      <Link
+        href={`/dashboard/project/${project.id}`}
+        className='group block h-full'>
+        {cardContent}
       </Link>
 
       <UpdateProject

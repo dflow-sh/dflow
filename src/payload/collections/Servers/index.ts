@@ -133,6 +133,12 @@ export const Servers: CollectionConfig = {
           type: 'checkbox',
           required: true,
         },
+        {
+          name: 'synced',
+          type: 'checkbox',
+          required: true,
+          defaultValue: false,
+        },
       ],
     },
     {
@@ -331,6 +337,47 @@ export const Servers: CollectionConfig = {
           admin: {
             description:
               'The architecture of the instance (e.g., x86_64, arm64)',
+          },
+        },
+      ],
+    },
+    {
+      name: 'connection',
+      label: 'Connection',
+      type: 'group',
+      admin: {
+        description: 'Connection details for the server',
+        position: 'sidebar',
+      },
+      fields: [
+        {
+          name: 'status',
+          label: 'Status',
+          type: 'select',
+          options: [
+            {
+              label: 'Success',
+              value: 'success',
+            },
+            {
+              label: 'Failed',
+              value: 'failed',
+            },
+            {
+              label: 'Not Checked Yet',
+              value: 'not-checked-yet',
+            },
+          ],
+          defaultValue: 'not-checked-yet',
+        },
+        {
+          name: 'lastChecked',
+          label: 'Last Checked',
+          type: 'date',
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
           },
         },
       ],

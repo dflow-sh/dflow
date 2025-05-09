@@ -1,12 +1,24 @@
 'use client'
 
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Switch } from '../ui/switch'
-import { Globe, Info, Trash2 } from 'lucide-react'
+import {
+  CircleCheckBig,
+  CircleX,
+  Globe,
+  Info,
+  Loader,
+  Trash2,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { updateServerDomainAction } from '@/actions/server'
+import {
+  checkDNSConfigAction,
+  syncServerDomainAction,
+  updateServerDomainAction,
+} from '@/actions/server'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
@@ -51,6 +63,61 @@ const DomainItem = ({
       }
     },
   })
+
+  const {
+    execute: checkDNSConfig,
+    isPending: checkingDNSConfig,
+    result,
+  } = useAction(checkDNSConfigAction)
+
+  const {
+    execute: syncDomain,
+    isPending: syncingDomain,
+    hasSucceeded: triggeredDomainSync,
+  } = useAction(syncServerDomainAction)
+
+  useEffect(() => {
+    checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+  }, [])
+
+  useEffect(() => {
+    if (result?.serverError && !checkingDNSConfig) {
+      setTimeout(() => {
+        checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+      }, 3000)
+    }
+  }, [result?.serverError, checkingDNSConfig])
+
+  const StatusBadge = () => {
+    if (checkingDNSConfig) {
+      return (
+        <Badge variant='info' className='gap-1 [&_svg]:size-4'>
+          <Loader className='animate-spin' />
+          Verifying DNS
+        </Badge>
+      )
+    }
+
+    if (result?.data) {
+      return (
+        <Badge variant='success' className='gap-1 [&_svg]:size-4'>
+          <CircleCheckBig />
+          Verification Success
+        </Badge>
+      )
+    }
+
+    if (result?.serverError) {
+      return (
+        <Badge variant='destructive' className='gap-1 [&_svg]:size-4'>
+          <CircleX />
+          Verification Failed
+        </Badge>
+      )
+    }
+  }
+
+  console.log({ domain })
 
   return (
     <>
@@ -99,19 +166,30 @@ const DomainItem = ({
           </div>
 
           <div className='flex items-center gap-4 self-end'>
-            <Switch
-              defaultChecked={domain.default}
-              disabled={domain.default || isDemoEnvironment}
-              onCheckedChange={checked => {
-                if (checked) {
-                  execute({
-                    operation: 'set',
-                    domain: domain.domain,
-                    id: server.id,
-                  })
-                }
-              }}
-            />
+            <StatusBadge />
+
+            <Button
+              variant='outline'
+              disabled={
+                !!result?.serverError ||
+                checkingDNSConfig ||
+                syncingDomain ||
+                domain.synced
+              }
+              isLoading={syncingDomain}
+              onClick={() => {
+                syncDomain({
+                  domain: domain.domain,
+                  id: server.id,
+                  operation: 'add',
+                })
+              }}>
+              {domain.synced
+                ? 'Synced Domain'
+                : triggeredDomainSync
+                  ? 'Syncing Domain'
+                  : 'Sync Domain'}
+            </Button>
 
             <Button
               size='icon'

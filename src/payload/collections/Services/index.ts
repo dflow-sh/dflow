@@ -1,32 +1,10 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig, Field } from 'payload'
 
+import { databaseOptions } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 import { checkServiceName } from './hooks/checkServiceName'
-
-const databaseOptions = [
-  {
-    label: 'Postgres',
-    value: 'postgres',
-  },
-  {
-    label: 'MongoDB',
-    value: 'mongo',
-  },
-  {
-    label: 'MySQL',
-    value: 'mysql',
-  },
-  {
-    label: 'Redis',
-    value: 'redis',
-  },
-  {
-    label: 'MariaDB',
-    value: 'mariadb',
-  },
-]
 
 const databaseField: Field = {
   label: 'Database Details',

@@ -15,7 +15,6 @@ import { dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
-  payloadToken: string
   services: Service[]
 }
 
@@ -80,7 +79,7 @@ async function waitForJobCompletion(
 const worker = new Worker<QueueArgs>(
   queueName,
   async job => {
-    const { payloadToken, services } = job.data
+    const { services } = job.data
     const payload = await getPayload({ config: configPromise })
 
     try {
@@ -207,7 +206,6 @@ const worker = new Worker<QueueArgs>(
                       populatedVariables: updatedPopulatedVariables ?? '{}',
                       variables: updatedVariables ?? [],
                     },
-                    payloadToken,
                   })
 
                   await waitForJobCompletion(railpackDeployQueue)
@@ -230,7 +228,6 @@ const worker = new Worker<QueueArgs>(
                         populatedVariables: populatedVariables ?? '{}',
                         variables: variables ?? [],
                       },
-                      payloadToken,
                     })
 
                   await waitForJobCompletion(dockerFileDeploymentQueue)
@@ -307,7 +304,6 @@ const worker = new Worker<QueueArgs>(
               const dockerImageQueueResponse =
                 await addDockerImageDeploymentQueue({
                   sshDetails,
-                  payloadToken,
                   appName: serviceDetails.name,
                   serviceDetails: {
                     deploymentId: deploymentResponse.id,
@@ -345,7 +341,6 @@ const worker = new Worker<QueueArgs>(
                 deploymentId: deploymentResponse.id,
                 serverId: project.server.id,
               },
-              payloadToken,
             })
 
             await waitForJobCompletion(databaseQueueResponse)

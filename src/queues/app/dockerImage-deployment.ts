@@ -5,7 +5,6 @@ import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { payloadWebhook } from '@/lib/payloadWebhook'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { DockerRegistry, Service } from '@/payload-types'
@@ -30,7 +29,6 @@ interface QueueArgs {
     serverId: string
     imageName: string
   }
-  payloadToken: string
 }
 
 const QUEUE_NAME = 'deploy-app-dockerImage'
@@ -50,7 +48,7 @@ const worker = new Worker<QueueArgs>(
   async job => {
     const payload = await getPayload({ config: configPromise })
     let ssh: NodeSSH | null = null
-    const { appName, sshDetails, serviceDetails, payloadToken } = job.data
+    const { appName, sshDetails, serviceDetails } = job.data
     const { serverId, serviceId, ports, account, imageName, deploymentId } =
       serviceDetails
 
@@ -314,22 +312,15 @@ const worker = new Worker<QueueArgs>(
 
       // todo: for now taking to first domain name
       const domainsResponse = await dokku.domains.report(ssh, appName)
-      const defaultDomain = domainsResponse
 
-      if (defaultDomain.length) {
-        await payloadWebhook({
-          payloadToken,
+      if (domainsResponse.length) {
+        await payload.update({
+          collection: 'services',
+          id: serviceId,
           data: {
-            type: 'domain.update',
-            data: {
-              serviceId: serviceDetails.serviceId,
-              domain: {
-                domain: defaultDomain,
-                operation: 'add',
-                autoRegenerateSSL: false,
-                certificateType: 'letsencrypt',
-              },
-            },
+            domains: domainsResponse?.map(domain => ({
+              domain,
+            })),
           },
         })
 

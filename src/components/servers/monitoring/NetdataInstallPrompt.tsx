@@ -10,7 +10,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
-const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
+const NetdataInstallPrompt = ({
+  server,
+  disableInstallButton,
+}: {
+  server: ServerType
+  disableInstallButton: boolean
+}) => {
   const router = useRouter()
 
   const { execute: installNetdata, isPending: isInstallingNetdata } = useAction(
@@ -39,7 +45,9 @@ const NetdataInstallPrompt = ({ server }: { server: ServerType }) => {
         <AlertTitle>Netdata is not installed!</AlertTitle>
         <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
           <p>Netdata is required for monitoring. Install it to proceed.</p>
-          <Button disabled={isInstallingNetdata} onClick={handleInstall}>
+          <Button
+            disabled={isInstallingNetdata || disableInstallButton}
+            onClick={handleInstall}>
             {isInstallingNetdata
               ? 'Starting Installation...'
               : 'Install Monitoring Tools'}
