@@ -48,6 +48,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { isDemoEnvironment } from '@/lib/constants'
+import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 
 export function DeleteServerAlert({
@@ -121,11 +122,12 @@ const ServerCard = ({ server }: { server: Server }) => {
     <>
       <Link href={`/servers/${server.id}`} className='block h-full'>
         <Card
-          className={`h-full min-h-36 transition-all duration-200 ${
+          className={cn(
+            'h-full min-h-36 border-l-4 transition-all duration-200',
             isConnected
-              ? 'border-l-4 border-l-green-500 hover:border-l-green-600'
-              : 'border-l-4 border-l-red-500 hover:border-l-red-600'
-          }`}>
+              ? 'border-l-green-500 hover:border-l-green-600'
+              : 'border-l-red-500 hover:border-l-red-600',
+          )}>
           <CardHeader className='w-full flex-row items-start justify-between'>
             <div>
               <CardTitle className='flex items-center gap-2'>
