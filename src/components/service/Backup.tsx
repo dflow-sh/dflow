@@ -20,7 +20,11 @@ import {
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { internalBackupAction, internalRestoreAction } from '@/actions/dbBackup'
+import {
+  internalBackupAction,
+  internalDbDeleteAction,
+  internalRestoreAction,
+} from '@/actions/dbBackup'
 import { Backup as BackupType, Service } from '@/payload-types'
 
 const IndividualBackup = ({
@@ -51,6 +55,31 @@ const IndividualBackup = ({
       toast.error('Restore Failed', {
         id: 'restore-backup',
         description: 'There was an error restoring the backup',
+      })
+    },
+  })
+
+  const {
+    execute: internalDeleteExecution,
+    isPending: isInternalDeletePending,
+  } = useAction(internalDbDeleteAction, {
+    onExecute: () => {
+      toast.loading('Deleting backup...', {
+        id: 'delete-backup',
+      })
+    },
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success('Added to queue', {
+          id: 'delete-backup',
+          description: 'Added backup deletion to queue',
+        })
+      }
+    },
+    onError: () => {
+      toast.error('Delete Failed', {
+        id: 'delete-backup',
+        description: 'There was an error deleting the backup',
       })
     },
   })
@@ -97,8 +126,11 @@ const IndividualBackup = ({
           variant='ghost'
           size='icon'
           onClick={() => {
-            toast.error('This feature is not available yet', {
-              description: 'You cannot delete backups yet',
+            internalDeleteExecution({
+              backupId: backup.id,
+              serviceId,
+              databaseName: '',
+              databaseType: '',
             })
           }}>
           <Trash2 size={16} />

@@ -173,7 +173,7 @@ export const internalDbDeleteAction = protectedClient
           ...sshDetails,
         },
         databaseName: serviceDetails?.name,
-        databaseType,
+        databaseType: databaseType || '',
         serverDetails: {
           id: project?.server?.id,
         },
