@@ -27,19 +27,9 @@ const DashboardLayoutInner = () => {
   const headersList = use(headers())
   const cookieStore = use(cookies())
   const organisationSlug = cookieStore.get('organisation')?.value
-  const [{ totalDocs: totalUsers }, { user }] = use(
-    Promise.all([
-      payload.count({
-        collection: 'users',
-
-        where: { onboarded: { equals: true } },
-      }),
-      payload.auth({ headers: headersList }),
-    ]),
-  )
+  const { user } = use(payload.auth({ headers: headersList }))
 
   if (!user) redirect('/sign-in')
-  if (!user.onboarded && totalUsers === 0) redirect('/onboarding')
 
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
