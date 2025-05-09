@@ -15,6 +15,15 @@ const SuspendedPage = async () => {
     pagination: false,
   })
 
+  const { docs: servers } = await payload.find({
+    collection: 'servers',
+    pagination: false,
+    select: {
+      name: true,
+      sshKey: true,
+    },
+  })
+
   return (
     <Layout
       currentStep={1}
@@ -27,7 +36,7 @@ const SuspendedPage = async () => {
       {sshKeys.length ? (
         <div className='mt-8 space-y-4'>
           <h3 className='text-xl font-semibold'>SSH Keys</h3>
-          <SSHKeysList keys={sshKeys} />
+          <SSHKeysList keys={sshKeys} servers={servers} />
         </div>
       ) : null}
     </Layout>
