@@ -85,6 +85,7 @@ const SuspendedPage = async () => {
             <SecurityGroupsList
               cloudProviderAccounts={cloudProviderAccounts}
               securityGroups={securityGroups}
+              servers={servers}
             />
           </section>
         )}
