@@ -1,5 +1,8 @@
 'use client'
 
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -7,8 +10,6 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
 
 import { createProjectAction, updateProjectAction } from '@/actions/project'
 import { createProjectSchema } from '@/actions/project/validator'
@@ -49,7 +50,16 @@ const CreateProject = ({
   manualOpen = false,
   setManualOpen = () => {},
 }: {
-  servers: { id: string; name: string }[]
+  servers: {
+    id: string
+    name: string
+    connection?:
+      | {
+          status?: ('success' | 'failed' | 'pending') | null
+          lastChecked?: string | null
+        }
+      | undefined
+  }[]
   type?: 'create' | 'update'
   title?: string
   description?: string
@@ -220,12 +230,28 @@ const CreateProject = ({
                         e.preventDefault()
                         e.stopPropagation()
                       }}>
-                      {servers.map(({ name, id }) => {
+                      {servers.map(({ name, id, connection }) => {
+                        const isConnected = connection?.status === 'success'
                         return (
-                          <SelectItem key={id} value={id}>
-                            <span className='flex items-center gap-1'>
-                              {name}
-                            </span>
+                          <SelectItem
+                            key={id}
+                            value={id}
+                            disabled={!isConnected}
+                            className={
+                              !isConnected
+                                ? 'cursor-not-allowed opacity-50'
+                                : ''
+                            }>
+                            <div className='flex w-full items-center justify-between'>
+                              <span>{name}</span>
+                              {!isConnected && (
+                                <Badge
+                                  variant={'destructive'}
+                                  className='ml-2 text-xs'>
+                                  Connection error
+                                </Badge>
+                              )}
+                            </div>
                           </SelectItem>
                         )
                       })}
