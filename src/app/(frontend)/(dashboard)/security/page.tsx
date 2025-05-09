@@ -25,6 +25,7 @@ const SuspendedPage = () => {
         pagination: false,
         select: {
           name: true,
+          sshKey: true,
         },
       }),
     ]),
@@ -38,6 +39,7 @@ const SuspendedPage = () => {
         keys={keys}
         securityGroups={securityGroups}
         cloudProviderAccounts={cloudProviderAccounts}
+        servers={servers}
       />
       <ServerTerminalClient servers={servers} />
     </>
