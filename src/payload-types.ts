@@ -185,6 +185,7 @@ export interface Tenant {
  */
 export interface Project {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the project.
    */
@@ -211,6 +212,7 @@ export interface Project {
  */
 export interface Server {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the service.
    */
@@ -337,6 +339,7 @@ export interface Server {
  */
 export interface SshKey {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the ssh key.
    */
@@ -391,6 +394,7 @@ export interface CloudProviderAccount {
  */
 export interface SecurityGroup {
   id: string;
+  tenant?: (string | null) | Tenant;
   name: string;
   description: string;
   cloudProvider?: ('aws' | 'azure' | 'gcp' | 'digitalocean') | null;
@@ -495,6 +499,7 @@ export interface SecurityGroup {
  */
 export interface Service {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Select the project associated with this service.
    */
@@ -824,6 +829,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   server?: T;
@@ -836,6 +842,7 @@ export interface ProjectsSelect<T extends boolean = true> {
  * via the `definition` "services_select".
  */
 export interface ServicesSelect<T extends boolean = true> {
+  tenant?: T;
   project?: T;
   name?: T;
   description?: T;
@@ -906,6 +913,7 @@ export interface ServicesSelect<T extends boolean = true> {
  * via the `definition` "servers_select".
  */
 export interface ServersSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   sshKey?: T;
@@ -959,6 +967,7 @@ export interface ServersSelect<T extends boolean = true> {
  * via the `definition` "sshKeys_select".
  */
 export interface SshKeysSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   publicKey?: T;
@@ -1100,6 +1109,7 @@ export interface TemplatesSelect<T extends boolean = true> {
  * via the `definition` "securityGroups_select".
  */
 export interface SecurityGroupsSelect<T extends boolean = true> {
+  tenant?: T;
   name?: T;
   description?: T;
   cloudProvider?: T;

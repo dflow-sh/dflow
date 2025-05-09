@@ -61,13 +61,13 @@ export default buildConfig({
       collections: {
         templates: {},
         gitProviders: {},
-        // servers: {},
-        // services: {},
-        // sshKeys: {},
+        servers: {},
+        services: {},
+        sshKeys: {},
         dockerRegistries: {},
         cloudProviderAccounts: {},
-        // securityGroups: {},
-        // projects: {}
+        securityGroups: {},
+        projects: {},
       },
       userHasAccessToAllTenants: user => Boolean(user?.role?.includes('admin')),
       enabled: true,
