@@ -12,10 +12,14 @@ type UserTenant = {
   tenant: Tenant
   roles: ('tenant-admin' | 'tenant-user')[]
 }
-export async function getTenant() {
+export async function getTenant({
+  organisation,
+}: { organisation?: string } = {}) {
   const headersList = await headers()
   const cookieStore = await cookies()
-  const slug = cookieStore.get('organisation')?.value
+  const slug = organisation
+    ? organisation
+    : cookieStore.get('organisation')?.value
 
   if (!slug) throw new Error('Organisation slug not found in cookie')
 
