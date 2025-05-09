@@ -45,6 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { Project, Server, Service } from '@/payload-types'
 
 import UpdateProject from './project/CreateProject'
@@ -139,11 +140,10 @@ export function ProjectCard({
 
   const cardContent = (
     <Card
-      className={`h-full min-h-36 transition-all duration-200 ${
-        isDisabled
-          ? 'border-l-4 border-l-red-500 hover:border-l-red-600'
-          : 'hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm'
-      }`}>
+      className={cn(
+        'h-full min-h-36 transition-all duration-200',
+        isDisabled && 'border-l-4 border-l-red-500 hover:border-l-red-600',
+      )}>
       <CardHeader className='w-full flex-row items-center justify-between'>
         <div>
           <CardTitle>{project.name}</CardTitle>
