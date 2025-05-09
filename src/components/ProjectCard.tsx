@@ -138,19 +138,6 @@ export function ProjectCard({
     servers.find(server => server.id === serverId)?.connection?.status ===
     'success'
 
-  return (
-    <>
-      <Link
-        href={`/${organisationSlug}/dashboard/project/${project.id}`}
-        className='h-full'>
-        <Card className='h-full min-h-36'>
-          <CardHeader className='w-full flex-row items-center justify-between'>
-            <div>
-              <CardTitle>{project.name}</CardTitle>
-              <CardDescription className='mt-1 line-clamp-1 w-3/4 text-wrap'>
-                {project.description}
-              </CardDescription>
-            </div>
   const isDisabled = !serverExists || !isServerConnected
 
   const cardContent = (
@@ -282,7 +269,7 @@ export function ProjectCard({
   return (
     <>
       <Link
-        href={`/dashboard/project/${project.id}`}
+        href={`/${organisationSlug}/dashboard/project/${project.id}`}
         className='group block h-full'>
         {cardContent}
       </Link>
