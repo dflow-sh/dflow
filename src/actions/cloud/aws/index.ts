@@ -29,7 +29,7 @@ export const createEC2InstanceAction = protectedClient
     actionName: 'createEC2InstanceAction',
   })
   .schema(createEC2InstanceSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const {
       name,
       accountId,
@@ -41,7 +41,9 @@ export const createEC2InstanceAction = protectedClient
       region,
       securityGroupIds,
     } = clientInput
-
+    const {
+      userTenant: { tenant },
+    } = ctx
     const payload = await getPayload({ config: configPromise })
 
     const awsAccountDetails = await payload.findByID({
@@ -221,6 +223,7 @@ export const createEC2InstanceAction = protectedClient
             keyName: instanceDetails.KeyName,
             architecture: instanceDetails.Architecture,
           },
+          tenant,
         },
       })
 

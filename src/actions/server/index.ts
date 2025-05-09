@@ -27,9 +27,11 @@ export const createServerAction = protectedClient
     actionName: 'createServerAction',
   })
   .schema(createServerSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { name, description, ip, port, username, sshKey } = clientInput
-
+    const {
+      userTenant: { tenant },
+    } = ctx
     const response = await payload.create({
       collection: 'servers',
       data: {
@@ -40,11 +42,12 @@ export const createServerAction = protectedClient
         username,
         sshKey,
         provider: 'other',
+        tenant,
       },
     })
 
     if (response) {
-      revalidatePath('/servers')
+      revalidatePath(`/${tenant.slug}/servers`)
     }
 
     return response

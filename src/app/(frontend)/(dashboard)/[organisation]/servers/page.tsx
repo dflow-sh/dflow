@@ -1,4 +1,4 @@
-import LayoutClient from '../layout.client'
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
@@ -14,11 +14,28 @@ import {
 import { Button } from '@/components/ui/button'
 import { isDemoEnvironment } from '@/lib/constants'
 
-const SuspendedServers = () => {
+interface PageProps {
+  params: Promise<{
+    organisation: string
+  }>
+}
+const SuspendedServers = ({
+  organisationSlug,
+}: {
+  organisationSlug: string
+}) => {
   const payload = use(getPayload({ config: configPromise }))
 
   const { docs: servers } = use(
-    payload.find({ collection: 'servers', pagination: false }),
+    payload.find({
+      collection: 'servers',
+      where: {
+        'tenant.slug': {
+          equals: organisationSlug,
+        },
+      },
+      pagination: false,
+    }),
   )
 
   return (
@@ -26,7 +43,11 @@ const SuspendedServers = () => {
       {servers.length ? (
         <div className='grid gap-4 md:grid-cols-3'>
           {servers.map(server => (
-            <ServerCard server={server} key={server.id} />
+            <ServerCard
+              organisationSlug={organisationSlug}
+              server={server}
+              key={server.id}
+            />
           ))}
         </div>
       ) : (
@@ -38,7 +59,8 @@ const SuspendedServers = () => {
   )
 }
 
-const ServersPage = async () => {
+const ServersPage = async ({ params }: PageProps) => {
+  const syncParams = await params
   return (
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
@@ -50,7 +72,7 @@ const ServersPage = async () => {
               Add New Server
             </Button>
           ) : (
-            <Link href={'/servers/add-new-server'}>
+            <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
               <Button size={'default'} variant={'default'}>
                 <Plus />
                 Add New Server
@@ -60,7 +82,7 @@ const ServersPage = async () => {
         </Suspense>
       </div>
       <Suspense fallback={<ServersSkeleton />}>
-        <SuspendedServers />
+        <SuspendedServers organisationSlug={syncParams.organisation} />
       </Suspense>
     </LayoutClient>
   )

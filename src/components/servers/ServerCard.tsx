@@ -91,12 +91,20 @@ export function DeleteServerAlert({
   )
 }
 
-const ServerCard = ({ server }: { server: Server }) => {
+const ServerCard = ({
+  server,
+  organisationSlug,
+}: {
+  server: Server
+  organisationSlug: string
+}) => {
   const [open, setOpen] = useState(false)
 
   return (
     <>
-      <Link href={`/servers/${server.id}`} className='h-full'>
+      <Link
+        href={`/${organisationSlug}/servers/${server.id}`}
+        className='h-full'>
         <Card className='h-full min-h-36'>
           <CardHeader className='w-full flex-row items-start justify-between'>
             <div>
