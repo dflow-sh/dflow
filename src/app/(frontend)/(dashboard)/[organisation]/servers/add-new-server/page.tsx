@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../../../layout.client'
 import configPromise from '@payload-config'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'

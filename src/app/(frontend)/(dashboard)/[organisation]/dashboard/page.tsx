@@ -1,4 +1,4 @@
-import LayoutClient from '../layout.client'
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { AlertCircle, Folder } from 'lucide-react'
 import { getPayload } from 'payload'

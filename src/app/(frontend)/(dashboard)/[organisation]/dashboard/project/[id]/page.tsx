@@ -1,4 +1,4 @@
-import TabsLayout from '../../../layout.client'
+import TabsLayout from '../../../../layout.client'
 import configPromise from '@payload-config'
 import { ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
