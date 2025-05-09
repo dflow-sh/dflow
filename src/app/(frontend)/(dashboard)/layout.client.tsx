@@ -19,10 +19,10 @@ const LayoutClient = ({
 
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
-    { label: 'Servers', slug: '/servers' },
-    { label: 'Security', slug: '/security' },
-    { label: 'Integrations', slug: `/${params.organisation}/integrations` },
-    { label: 'Templates', slug: `/${params.organisation}/templates` },
+    { label: 'Servers', slug: `/servers` },
+    { label: 'Security', slug: `/security` },
+    { label: 'Integrations', slug: `/integrations` },
+    { label: 'Templates', slug: `/templates` },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
@@ -34,7 +34,9 @@ const LayoutClient = ({
           style={{ scrollbarWidth: 'none' }}>
           <Tabs
             tabs={tabsList.map(({ label, slug }) => ({
-              label: <Link href={slug}>{label}</Link>,
+              label: (
+                <Link href={`/${params.organisation}${slug}`}>{label}</Link>
+              ),
               asChild: true,
             }))}
             defaultActiveTab={tabsList.findIndex(({ slug }) =>

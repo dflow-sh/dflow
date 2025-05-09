@@ -112,8 +112,11 @@ export const deployTemplateAction = protectedClient
     actionName: 'deployTemplateAction',
   })
   .schema(deployTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, projectId } = clientInput
+    const {
+      userTenant: { tenant },
+    } = ctx
     const cookieStore = await cookies()
     const payloadToken = cookieStore.get('payload-token')
 
@@ -192,6 +195,7 @@ export const deployTemplateAction = protectedClient
               exposedPorts: service.databaseDetails?.exposedPorts ?? [],
             },
             project: projectDetails?.id,
+            tenant,
           },
           depth: 10,
         })
@@ -206,6 +210,7 @@ export const deployTemplateAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            tenant,
           },
           depth: 10,
         })
@@ -225,6 +230,7 @@ export const deployTemplateAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              tenant,
             },
             depth: 10,
           })
@@ -241,7 +247,7 @@ export const deployTemplateAction = protectedClient
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectDetails.id}`)
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
       return { success: true }
     }
   })
@@ -272,9 +278,15 @@ export const updateTemplate = protectedClient
 
 export const getAllTemplatesAction = protectedClient
   .metadata({ actionName: 'getAllTemplatesAction' })
-  .action(async () => {
+  .action(async ({ ctx }) => {
+    const { userTenant } = ctx
     const { docs } = await payload.find({
       collection: 'templates',
+      where: {
+        'tenant.slug': {
+          equals: userTenant.tenant.slug,
+        },
+      },
       pagination: false,
     })
 
@@ -286,7 +298,10 @@ export const deployTemplateFromArchitectureAction = protectedClient
     actionName: 'deployTemplateFromArchitectureAction',
   })
   .schema(deployTemplateFromArchitectureSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      userTenant: { tenant },
+    } = ctx
     const { projectId, services = [] } = clientInput
 
     const cookieStore = await cookies()
@@ -358,6 +373,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
               exposedPorts: service.databaseDetails?.exposedPorts ?? [],
             },
             project: projectDetails?.id,
+            tenant,
           },
           depth: 10,
         })
@@ -372,6 +388,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            tenant,
           },
           depth: 10,
         })
@@ -391,6 +408,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              tenant,
             },
             depth: 10,
           })
@@ -407,7 +425,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectDetails.id}`)
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
       return { success: true }
     }
   })

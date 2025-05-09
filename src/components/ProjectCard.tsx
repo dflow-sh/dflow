@@ -104,10 +104,12 @@ export function ProjectCard({
   project,
   servers,
   services,
+  organisationSlug,
 }: {
   project: Project
   servers: { name: string; id: string }[]
   services: Service[]
+  organisationSlug: string
 }) {
   const [manualOpen, setManualOpen] = useState(false)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
@@ -122,7 +124,9 @@ export function ProjectCard({
 
   return (
     <>
-      <Link href={`/dashboard/project/${project.id}`} className='h-full'>
+      <Link
+        href={`/${organisationSlug}/dashboard/project/${project.id}`}
+        className='h-full'>
         <Card className='h-full min-h-36'>
           <CardHeader className='w-full flex-row items-center justify-between'>
             <div>

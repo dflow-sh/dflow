@@ -1,4 +1,4 @@
-import LayoutClient from '../layout.client'
+import LayoutClient from '../../layout.client'
 import configPromise from '@payload-config'
 import { Folder } from 'lucide-react'
 import { getPayload } from 'payload'
@@ -10,7 +10,16 @@ import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Service } from '@/payload-types'
 
-const SuspendedDashboard = () => {
+interface PageProps {
+  params: Promise<{
+    organisation: string
+  }>
+}
+const SuspendedDashboard = ({
+  organisationSlug,
+}: {
+  organisationSlug: string
+}) => {
   const payload = use(getPayload({ config: configPromise }))
 
   const [serversRes, projectsRes] = use(
@@ -18,12 +27,22 @@ const SuspendedDashboard = () => {
       payload.find({
         collection: 'servers',
         pagination: false,
+        where: {
+          'tenant.slug': {
+            equals: organisationSlug,
+          },
+        },
         select: {
           name: true,
         },
       }),
       payload.find({
         collection: 'projects',
+        where: {
+          'tenant.slug': {
+            equals: organisationSlug,
+          },
+        },
         pagination: false,
       }),
     ]),
@@ -50,6 +69,7 @@ const SuspendedDashboard = () => {
               const services = (project?.services?.docs ?? []) as Service[]
               return (
                 <ProjectCard
+                  organisationSlug={organisationSlug}
                   key={index}
                   project={project}
                   servers={servers}
@@ -77,11 +97,12 @@ const SuspendedDashboard = () => {
   )
 }
 
-const DashboardPage = () => {
+const DashboardPage = async ({ params }: PageProps) => {
+  const syncParams = await params
   return (
     <LayoutClient>
       <Suspense fallback={<DashboardSkeleton />}>
-        <SuspendedDashboard />
+        <SuspendedDashboard organisationSlug={syncParams.organisation} />
       </Suspense>
     </LayoutClient>
   )

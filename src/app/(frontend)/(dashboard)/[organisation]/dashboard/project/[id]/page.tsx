@@ -1,4 +1,4 @@
-import TabsLayout from '../../../layout.client'
+import TabsLayout from '../../../../layout.client'
 import configPromise from '@payload-config'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -14,21 +14,31 @@ import DeployTemplate from '@/components/templates/DeployTemplate'
 interface PageProps {
   params: Promise<{
     id: string
+    organisation: string
   }>
 }
 
 const SuspendedPage = ({ params }: PageProps) => {
-  const { id } = use(params)
+  const { id, organisation } = use(params)
   const payload = use(getPayload({ config: configPromise }))
 
-  const [{ docs: services }, project] = use(
+  const [{ docs: services }, { docs: Projects }] = use(
     Promise.all([
       payload.find({
         collection: 'services',
         where: {
-          project: {
-            equals: id,
-          },
+          and: [
+            {
+              project: {
+                equals: id,
+              },
+            },
+            {
+              'tenant.slug': {
+                equals: organisation,
+              },
+            },
+          ],
         },
         joins: {
           deployments: {
@@ -37,9 +47,13 @@ const SuspendedPage = ({ params }: PageProps) => {
         },
         depth: 10,
       }),
-      payload.findByID({
+      payload.find({
         collection: 'projects',
-        id,
+        where: {
+          'tenant.slug': {
+            equals: organisation,
+          },
+        },
         select: {
           name: true,
           description: true,
@@ -49,6 +63,7 @@ const SuspendedPage = ({ params }: PageProps) => {
     ]),
   )
 
+  const project = Projects.at(0)
   if (!project) {
     notFound()
   }
@@ -79,7 +94,11 @@ const SuspendedPage = ({ params }: PageProps) => {
       </div>
 
       {services.length ? (
-        <ServiceList projectId={id} services={services} />
+        <ServiceList
+          organisationSlug={organisation}
+          projectId={id}
+          services={services}
+        />
       ) : (
         <ServicesArchitecture />
       )}

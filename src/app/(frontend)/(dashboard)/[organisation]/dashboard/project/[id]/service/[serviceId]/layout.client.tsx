@@ -22,7 +22,7 @@ const LayoutClient = ({
   serviceName: string
   services: Service[]
 }) => {
-  const params = useParams<{ serviceId: string }>()
+  const params = useParams<{ serviceId: string; organisation: string }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
   const [tab, setTab] = useQueryState(
@@ -112,6 +112,7 @@ const LayoutClient = ({
               </svg>{' '}
               {serviceName}
               <SelectSearch
+                organisationSlug={params.organisation}
                 placeholder='service'
                 services={services}
                 serviceId={params.serviceId}
