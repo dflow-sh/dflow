@@ -882,6 +882,8 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenants';
         value: string | Tenant;
+      } | null)
+    | ({
         relationTo: 'backups';
         value: string | Backup;
       } | null)
@@ -1313,6 +1315,11 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   subdomain?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "backups_select".
  */
 export interface BackupsSelect<T extends boolean = true> {
