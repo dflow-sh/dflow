@@ -36,6 +36,7 @@ const SuspendedServers = ({
         },
       },
       pagination: false,
+      context: { populateServerDetails: true },
     }),
   )
 
@@ -75,12 +76,13 @@ const SuspendedServers = ({
 
 const ServersPage = async ({ params }: PageProps) => {
   const syncParams = await params
+
   return (
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
         <div className='text-2xl font-semibold'>Servers</div>
         <div className='flex gap-2'>
-          <RefreshButton /> {/* Use the client component here */}
+          <RefreshButton />
           <Suspense fallback={<CreateServerButtonSkeleton />}>
             {isDemoEnvironment ? (
               <Button disabled={true} size={'default'} variant={'default'}>
