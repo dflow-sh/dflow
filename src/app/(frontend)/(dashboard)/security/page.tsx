@@ -26,6 +26,9 @@ const SuspendedPage = () => {
         select: {
           name: true,
           sshKey: true,
+          awsEc2Details: {
+            securityGroups: true,
+          },
         },
       }),
     ]),
