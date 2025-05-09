@@ -48,7 +48,7 @@ export const signInAction = publicClient
     }
 
     if (user) {
-      redirect('/dashboard')
+      redirect(`/${user.username}/dashboard`)
     }
   })
 
