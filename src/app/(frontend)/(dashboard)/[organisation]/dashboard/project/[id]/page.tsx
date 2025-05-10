@@ -57,6 +57,9 @@ const SuspendedPage = ({ params }: PageProps) => {
           'tenant.slug': {
             equals: organisation,
           },
+          id: {
+            equals: id,
+          },
         },
         select: {
           name: true,
@@ -68,6 +71,7 @@ const SuspendedPage = ({ params }: PageProps) => {
   )
 
   const project = Projects.at(0)
+
   if (!project) {
     notFound()
   }

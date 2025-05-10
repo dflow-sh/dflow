@@ -1,16 +1,14 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
-import { Job, Queue, Worker } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
+import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
-
-const queueName = 'create-database'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
@@ -123,141 +121,149 @@ function parseDatabaseInfo({
   return data
 }
 
-export const createDatabaseQueue = new Queue<QueueArgs>(queueName, {
-  connection: queueConnection,
-})
-
-const worker = new Worker<QueueArgs>(
-  queueName,
-  async job => {
-    const payload = await getPayload({ config: configPromise })
-    const { databaseName, databaseType, sshDetails, serviceDetails } = job.data
-    const { id: serviceId, serverId, deploymentId } = serviceDetails
-    let ssh: NodeSSH | null = null
-
-    try {
-      console.log(
-        `starting createDatabase queue for ${databaseType} database called ${databaseName}`,
-      )
-
-      // updating the deployment status to building
-      await payload.update({
-        collection: 'deployments',
-        id: serviceDetails.deploymentId,
-        data: {
-          status: 'building',
-        },
-      })
-      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-
-      ssh = await dynamicSSH(sshDetails)
-
-      const res = await dokku.database.create(ssh, databaseName, databaseType, {
-        onStdout: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        },
-        onStderr: async chunk => {
-          sendEvent({
-            message: chunk.toString(),
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-
-          console.info({
-            createDatabaseLogs: {
-              message: chunk.toString(),
-              type: 'stdout',
-            },
-          })
-        },
-      })
-
-      sendEvent({
-        message: `✅ Successfully created ${databaseName}-database, updated details...`,
-        pub,
-        serverId,
-        serviceId,
-      })
-
-      sendEvent({
-        message: `Syncing details...`,
-        pub,
-        serverId,
-        serviceId,
-      })
-
-      const formattedData = parseDatabaseInfo({
-        stdout: res.stdout,
-        dbType: databaseType,
-      })
-
-      await payload.update({
-        collection: 'services',
-        id: serviceId,
-        data: {
-          databaseDetails: {
-            ...formattedData,
-          },
-        },
-      })
-
-      const logs = await pub.lrange(deploymentId, 0, -1)
-
-      await payload.update({
-        collection: 'deployments',
-        id: serviceDetails.deploymentId,
-        data: {
-          status: 'success',
-          logs,
-        },
-      })
-    } catch (error) {
-      let message = error instanceof Error ? error.message : ''
-
-      sendEvent({
-        message,
-        pub,
-        serverId,
-        serviceId,
-        channelId: serviceDetails.deploymentId,
-      })
-
-      const logs = await pub.lrange(deploymentId, 0, -1)
-
-      await payload.update({
-        collection: 'deployments',
-        id: serviceDetails.deploymentId,
-        data: {
-          status: 'failed',
-          logs,
-        },
-      })
-
-      throw new Error(`❌ Failed creating ${databaseName}-database: ${message}`)
-    } finally {
-      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-
-      if (ssh) {
-        ssh.dispose()
-      }
-    }
-  },
-  { connection: queueConnection },
-)
-
-worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to deploy database', err)
-})
-
 export const addCreateDatabaseQueue = async (data: QueueArgs) => {
+  const QUEUE_NAME = `server-${data?.serviceDetails?.serverId}-create-database`
+
+  const createDatabaseQueue = getQueue({
+    name: QUEUE_NAME,
+    connection: queueConnection,
+  })
+
+  getWorker({
+    name: QUEUE_NAME,
+    connection: queueConnection,
+    processor: async job => {
+      const payload = await getPayload({ config: configPromise })
+      const { databaseName, databaseType, sshDetails, serviceDetails } =
+        job.data
+      const { id: serviceId, serverId, deploymentId } = serviceDetails
+      let ssh: NodeSSH | null = null
+
+      try {
+        console.log(
+          `starting createDatabase queue for ${databaseType} database called ${databaseName}`,
+        )
+
+        // updating the deployment status to building
+        await payload.update({
+          collection: 'deployments',
+          id: serviceDetails.deploymentId,
+          data: {
+            status: 'building',
+          },
+        })
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
+        ssh = await dynamicSSH(sshDetails)
+
+        const res = await dokku.database.create(
+          ssh,
+          databaseName,
+          databaseType,
+          {
+            onStdout: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            },
+            onStderr: async chunk => {
+              sendEvent({
+                message: chunk.toString(),
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+
+              console.info({
+                createDatabaseLogs: {
+                  message: chunk.toString(),
+                  type: 'stdout',
+                },
+              })
+            },
+          },
+        )
+
+        sendEvent({
+          message: `✅ Successfully created ${databaseName}-database, updated details...`,
+          pub,
+          serverId,
+          serviceId,
+        })
+
+        sendEvent({
+          message: `Syncing details...`,
+          pub,
+          serverId,
+          serviceId,
+        })
+
+        const formattedData = parseDatabaseInfo({
+          stdout: res.stdout,
+          dbType: databaseType,
+        })
+
+        await payload.update({
+          collection: 'services',
+          id: serviceId,
+          data: {
+            databaseDetails: {
+              ...formattedData,
+            },
+          },
+        })
+
+        const logs = await pub.lrange(deploymentId, 0, -1)
+
+        await payload.update({
+          collection: 'deployments',
+          id: serviceDetails.deploymentId,
+          data: {
+            status: 'success',
+            logs,
+          },
+        })
+      } catch (error) {
+        let message = error instanceof Error ? error.message : ''
+
+        sendEvent({
+          message,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+
+        const logs = await pub.lrange(deploymentId, 0, -1)
+
+        await payload.update({
+          collection: 'deployments',
+          id: serviceDetails.deploymentId,
+          data: {
+            status: 'failed',
+            logs,
+          },
+        })
+
+        throw new Error(
+          `❌ Failed creating ${databaseName}-database: ${message}`,
+        )
+      } finally {
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
+        if (ssh) {
+          ssh.dispose()
+        }
+      }
+    },
+  })
+
   const id = `create-database-${data.databaseName}-${data.databaseType}:${new Date().getTime()}`
+
   return await createDatabaseQueue.add(id, data, { ...jobOptions, jobId: id })
 }

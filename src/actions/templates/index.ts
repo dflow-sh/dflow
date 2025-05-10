@@ -240,6 +240,12 @@ export const deployTemplateAction = protectedClient
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
       services: createdServices,
+      serverDetails: {
+        id:
+          typeof projectDetails?.server === 'object'
+            ? projectDetails?.server?.id
+            : projectDetails?.server,
+      },
     })
 
     if (response.id) {
@@ -414,6 +420,12 @@ export const deployTemplateFromArchitectureAction = protectedClient
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
       services: createdServices,
+      serverDetails: {
+        id:
+          typeof projectDetails?.server === 'object'
+            ? projectDetails?.server?.id
+            : projectDetails?.server,
+      },
     })
 
     if (response.id) {
