@@ -37,7 +37,7 @@ export function NavUser({ user }: { user: User }) {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className='max-w-96 rounded-lg'
+            className='w-64 rounded-lg'
             side='bottom'
             align='end'>
             <DropdownMenuLabel>
@@ -54,21 +54,25 @@ export function NavUser({ user }: { user: User }) {
                 Team
               </DropdownMenuLabel>
               {user?.tenants?.map(tenant => (
-                <DropdownMenuItem key={tenant.id}>
+                <DropdownMenuItem className='group' key={tenant.id}>
                   <Link
                     href={`/${(tenant?.tenant as Tenant)?.slug}/dashboard`}
                     className='flex h-full w-full items-center justify-between gap-2 text-sm'>
                     <div className='inline-flex items-center gap-x-2'>
                       <Avatar className='h-6 w-6 rounded-lg'>
-                        <AvatarFallback className='rounded-lg uppercase'>
+                        <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
                           {(tenant?.tenant as Tenant)?.name.slice(0, 1)}
                         </AvatarFallback>
                       </Avatar>
-                      <p className='line-clamp-1 break-all'>
-                        {(tenant?.tenant as Tenant)?.name}{' '}
-                        {user.username === (tenant?.tenant as Tenant)?.slug &&
-                          '(you)'}
-                      </p>
+                      <div className='inline-flex items-center gap-x-1'>
+                        <p className='line-clamp-1 break-all'>
+                          {(tenant?.tenant as Tenant)?.name}{' '}
+                        </p>
+                        <span className='text-muted-foreground group-hover:text-accent-foreground'>
+                          {user.username === (tenant?.tenant as Tenant)?.slug &&
+                            '(you)'}
+                        </span>
+                      </div>
                     </div>
                     {params.organisation ===
                       (tenant?.tenant as Tenant)?.slug && (
