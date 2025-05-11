@@ -1,8 +1,7 @@
 import LayoutClient from '../../layout.client'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import { Suspense, use } from 'react'
+import { Suspense } from 'react'
 
+import { getSecurityDetails } from '@/actions/pages/security'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SecurityTabs from '@/components/security/SecurityTabs'
 import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
@@ -12,60 +11,14 @@ interface PageProps {
     organisation: string
   }>
 }
-const SuspendedPage = ({ organisationSlug }: { organisationSlug: string }) => {
-  const payload = use(getPayload({ config: configPromise }))
-  const [
-    { docs: keys, totalDocs: sshKeysCount },
-    { docs: securityGroups, totalDocs: securityGroupsCount },
-    { docs: cloudProviderAccounts },
-    { docs: servers },
-  ] = use(
-    Promise.all([
-      payload.find({
-        collection: 'sshKeys',
-        where: {
-          'tenant.slug': {
-            equals: organisationSlug,
-          },
-        },
-        pagination: false,
-      }),
-      payload.find({
-        collection: 'securityGroups',
-        where: {
-          'tenant.slug': {
-            equals: organisationSlug,
-          },
-        },
-        pagination: false,
-      }),
-      payload.find({
-        collection: 'cloudProviderAccounts',
-        where: {
-          'tenant.slug': {
-            equals: organisationSlug,
-          },
-        },
-        pagination: false,
-      }),
-      payload.find({
-        collection: 'servers',
-        pagination: false,
-        // where: {
-        //   'tenant.slug': {
-        //     equals: organisationSlug,
-        //   },
-        // },
-        select: {
-          name: true,
-          sshKey: true,
-          awsEc2Details: {
-            securityGroups: true,
-          },
-        },
-      }),
-    ]),
-  )
+const SuspendedPage = async () => {
+  const result = await getSecurityDetails()
+  const keys = result?.data?.keys ?? []
+  const sshKeysCount = result?.data?.sshKeysCount ?? 0
+  const securityGroups = result?.data?.securityGroups ?? []
+  const securityGroupsCount = result?.data?.securityGroupsCount ?? 0
+  const servers = result?.data?.servers ?? []
+  const cloudProviderAccounts = result?.data?.cloudProviderAccounts ?? []
 
   return (
     <>
@@ -82,8 +35,7 @@ const SuspendedPage = ({ organisationSlug }: { organisationSlug: string }) => {
   )
 }
 
-const SecurityPage = async ({ params }: PageProps) => {
-  const syncParams = await params
+const SecurityPage = async () => {
   return (
     <LayoutClient>
       <div className='mb-8'>
@@ -94,7 +46,7 @@ const SecurityPage = async ({ params }: PageProps) => {
         </p>
       </div>
       <Suspense fallback={<SecuritySkeleton />}>
-        <SuspendedPage organisationSlug={syncParams?.organisation} />
+        <SuspendedPage />
       </Suspense>
     </LayoutClient>
   )
