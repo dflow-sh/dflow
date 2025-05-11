@@ -1,17 +1,16 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
-import { Job, Queue, Worker } from 'bullmq'
+import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
+import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { parseDatabaseInfo } from '@/lib/utils'
-
-const queueName = 'restart-database'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
@@ -35,113 +34,114 @@ interface QueueArgs {
   }
 }
 
-const restartDatabaseQueue = new Queue<QueueArgs>(queueName, {
-  connection: queueConnection,
-})
+export const addRestartDatabaseQueue = async (data: QueueArgs) => {
+  const QUEUE_NAME = `server-${data.serverDetails.id}-restart-database`
 
-const worker = new Worker<QueueArgs>(
-  queueName,
-  async job => {
-    const {
-      databaseName,
-      databaseType,
-      sshDetails,
-      serviceDetails,
-      serverDetails,
-    } = job.data
-    let ssh: NodeSSH | null = null
-    const payload = await getPayload({ config: configPromise })
+  const restartDatabaseQueue = getQueue({
+    name: QUEUE_NAME,
+    connection: queueConnection,
+  })
 
-    console.log(
-      `starting restartDatabase queue for ${databaseType} database called ${databaseName}`,
-    )
-
-    try {
-      ssh = await dynamicSSH(sshDetails)
-      const res = await dokku.database.restart(
-        ssh,
+  const worker = getWorker<QueueArgs>({
+    name: QUEUE_NAME,
+    processor: async job => {
+      const {
         databaseName,
         databaseType,
-        {
-          onStdout: async chunk => {
-            sendEvent({
-              pub,
-              message: chunk.toString(),
-              serverId: serverDetails.id,
-            })
-          },
-          onStderr: async chunk => {
-            sendEvent({
-              pub,
-              message: chunk.toString(),
-              serverId: serverDetails.id,
-            })
+        sshDetails,
+        serviceDetails,
+        serverDetails,
+      } = job.data
+      let ssh: NodeSSH | null = null
+      const payload = await getPayload({ config: configPromise })
 
-            console.info({
-              createDatabaseLogs: {
+      console.log(
+        `starting restartDatabase queue for ${databaseType} database called ${databaseName}`,
+      )
+
+      try {
+        ssh = await dynamicSSH(sshDetails)
+        const res = await dokku.database.restart(
+          ssh,
+          databaseName,
+          databaseType,
+          {
+            onStdout: async chunk => {
+              sendEvent({
+                pub,
                 message: chunk.toString(),
-                type: 'stdout',
-              },
-            })
+                serverId: serverDetails.id,
+              })
+            },
+            onStderr: async chunk => {
+              sendEvent({
+                pub,
+                message: chunk.toString(),
+                serverId: serverDetails.id,
+              })
+
+              console.info({
+                createDatabaseLogs: {
+                  message: chunk.toString(),
+                  type: 'stdout',
+                },
+              })
+            },
           },
-        },
-      )
+        )
 
-      sendEvent({
-        pub,
-        message: `✅ Successfully restarted ${databaseName}-database`,
-        serverId: serverDetails.id,
-      })
+        sendEvent({
+          pub,
+          message: `✅ Successfully restarted ${databaseName}-database`,
+          serverId: serverDetails.id,
+        })
 
-      sendEvent({
-        pub,
-        message: `Syncing details...`,
-        serverId: serverDetails.id,
-      })
+        sendEvent({
+          pub,
+          message: `Syncing details...`,
+          serverId: serverDetails.id,
+        })
 
-      const formattedData = parseDatabaseInfo({
-        stdout: res.stdout,
-        dbType: databaseType,
-      })
+        const formattedData = parseDatabaseInfo({
+          stdout: res.stdout,
+          dbType: databaseType,
+        })
 
-      await payload.update({
-        collection: 'services',
-        id: serviceDetails.id,
-        data: {
-          databaseDetails: {
-            ...formattedData,
+        await payload.update({
+          collection: 'services',
+          id: serviceDetails.id,
+          data: {
+            databaseDetails: {
+              ...formattedData,
+            },
           },
-        },
-      })
+        })
 
-      await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-    } catch (error) {
-      let message = error instanceof Error ? error.message : ''
-      throw new Error(
-        `❌ Failed restarting ${databaseName}-database: ${message}`,
-      )
-    } finally {
-      if (ssh) {
-        ssh.dispose()
+        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+      } catch (error) {
+        let message = error instanceof Error ? error.message : ''
+        throw new Error(
+          `❌ Failed restarting ${databaseName}-database: ${message}`,
+        )
+      } finally {
+        if (ssh) {
+          ssh.dispose()
+        }
       }
+    },
+    connection: queueConnection,
+  })
+
+  worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
+    if (job?.data) {
+      sendEvent({
+        pub,
+        message: err.message,
+        serverId: job.data.serverDetails.id,
+      })
     }
-  },
-  { connection: queueConnection },
-)
+  })
 
-worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed to restart database', err)
-
-  if (job?.data) {
-    sendEvent({
-      pub,
-      message: err.message,
-      serverId: job.data.serverDetails.id,
-    })
-  }
-})
-
-export const addRestartDatabaseQueue = async (data: QueueArgs) => {
   const id = `restart-${data.databaseName}:${new Date().getTime()}`
 
   return await restartDatabaseQueue.add(id, data, {

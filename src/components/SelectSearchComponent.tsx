@@ -75,10 +75,12 @@ export default function SelectSearchComponent({
       const foundServer = servers.find(
         serverDetails => serverDetails.id === server,
       )
+
       if (foundServer && isServerEligible(foundServer)) {
         setServer(server, {
           shallow: false,
         })
+
         setDokkuInstallationStep(2)
       }
     }
@@ -119,12 +121,13 @@ export default function SelectSearchComponent({
               variant='outline'
               role='combobox'
               aria-expanded={open}
-              className='w-full justify-between border-input bg-background px-3 font-normal outline-none outline-offset-0 hover:bg-background hover:text-white focus-visible:outline-[3px]'>
+              className='w-full'>
               <span>
                 {selectedServer
                   ? servers.find(s => s.id === selectedServer)?.name
                   : `${buttonLabel}`}
               </span>
+
               <ChevronDownIcon
                 size={16}
                 className='shrink-0 text-muted-foreground/80'
@@ -132,6 +135,7 @@ export default function SelectSearchComponent({
               />
             </Button>
           </PopoverTrigger>
+
           <Button variant={'secondary'} onClick={handleRefresh}>
             <RefreshCw
               className={`stroke-muted-foreground ${isPending && 'animate-spin'}`}

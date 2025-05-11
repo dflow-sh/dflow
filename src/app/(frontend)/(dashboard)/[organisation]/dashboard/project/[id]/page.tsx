@@ -29,6 +29,7 @@ const SuspendedPage = async ({
   const { id, organisation } = params
   const result = await getProjectDetails({ id })
   const project = result?.data?.Projects?.at(0)
+  
   if (!project) {
     notFound()
   }
