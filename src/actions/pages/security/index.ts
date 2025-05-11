@@ -1,3 +1,5 @@
+'use server'
+
 import { protectedClient } from '@/lib/safe-action'
 
 export const getSecurityDetails = protectedClient
