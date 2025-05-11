@@ -1,6 +1,7 @@
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
+
+import { getProjectBreadcrumbs } from '@/actions/pages/project'
+import { Project, Server } from '@/payload-types'
 
 import ClientLayout from './layout.client'
 
@@ -13,35 +14,17 @@ interface Props {
 
 const layout = async ({ children, params }: Props) => {
   const { id } = await params
-  const payload = await getPayload({ config: configPromise })
+  const result = await getProjectBreadcrumbs({ id })
 
-  const [project, projects] = await Promise.all([
-    payload.findByID({
-      collection: 'projects',
-      id,
-      depth: 10,
-      select: {
-        server: true,
-        name: true,
-      },
-    }),
-    payload.find({
-      collection: 'projects',
-      pagination: false,
-      select: {
-        name: true,
-      },
-    }),
-  ])
-
+  const project = result?.data?.project?.docs?.at(0)
   return (
     <ClientLayout
       project={{
-        id: project.id,
-        name: project.name,
+        id: project?.id!,
+        name: project?.name!,
       }}
-      projects={projects.docs}
-      server={project.server}>
+      projects={result?.data?.projects?.docs as Project[]}
+      server={project?.server as Server}>
       {children}
     </ClientLayout>
   )

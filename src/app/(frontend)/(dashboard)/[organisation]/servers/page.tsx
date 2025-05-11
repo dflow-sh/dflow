@@ -1,10 +1,9 @@
 import LayoutClient from '../../layout.client'
-import configPromise from '@payload-config'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
-import { getPayload } from 'payload'
-import { Suspense, use } from 'react'
+import { Suspense } from 'react'
 
+import { getServersDetails } from '@/actions/pages/server'
 import RefreshButton from '@/components/RefreshButton'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import ServerCard from '@/components/servers/ServerCard'
@@ -20,26 +19,13 @@ interface PageProps {
     organisation: string
   }>
 }
-const SuspendedServers = ({
+const SuspendedServers = async ({
   organisationSlug,
 }: {
   organisationSlug: string
 }) => {
-  const payload = use(getPayload({ config: configPromise }))
-
-  const { docs: servers } = use(
-    payload.find({
-      collection: 'servers',
-      where: {
-        'tenant.slug': {
-          equals: organisationSlug,
-        },
-      },
-      pagination: false,
-      context: { populateServerDetails: true },
-    }),
-  )
-
+  const result = await getServersDetails()
+  const servers = result?.data?.servers ?? []
   return (
     <>
       {servers.length ? (
@@ -59,7 +45,7 @@ const SuspendedServers = ({
             Get started by adding your first server.
           </p>
           {!isDemoEnvironment && (
-            <Link href='/servers/add-new-server'>
+            <Link href={`/${organisationSlug}/servers/add-new-server`}>
               <Button size='sm'>
                 <Plus className='mr-2 h-4 w-4' />
                 Add Your First Server

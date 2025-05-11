@@ -91,8 +91,11 @@ export const deleteProjectAction = protectedClient
     actionName: 'deleteProjectAction',
   })
   .schema(deleteProjectSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const {
+      userTenant: { tenant },
+    } = ctx
 
     console.log("I'm inside a project deletion")
 
@@ -173,7 +176,7 @@ export const deleteProjectAction = protectedClient
     })
 
     if (deleteProjectResponse.id) {
-      revalidatePath('/dashboard')
+      revalidatePath(`/${tenant.slug}/dashboard`)
       return { deleted: true }
     }
   })

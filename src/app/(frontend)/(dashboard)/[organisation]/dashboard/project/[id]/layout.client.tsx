@@ -42,7 +42,7 @@ const ClientLayout = ({
         createPortal(
           <div className='flex items-center gap-1 text-sm font-normal'>
             <Link
-              href={`/dashboard/project/${typeof project === 'object' ? project.id : project}`}
+              href={`/${params.organisation}/dashboard/project/${typeof project === 'object' ? project.id : project}`}
               className='flex'>
               <svg
                 fill='currentColor'

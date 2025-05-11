@@ -1,11 +1,10 @@
 import TabsLayout from '../../../../layout.client'
-import configPromise from '@payload-config'
 import { ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import { Suspense, use } from 'react'
+import { Suspense } from 'react'
 
+import { getProjectDetails } from '@/actions/pages/project'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateService from '@/components/service/CreateService'
 import ServiceList from '@/components/service/ServiceList'
@@ -22,61 +21,18 @@ interface PageProps {
   }>
 }
 
-const SuspendedPage = ({ params }: PageProps) => {
-  const { id, organisation } = use(params)
-  const payload = use(getPayload({ config: configPromise }))
-
-  const [{ docs: services }, { docs: Projects }] = use(
-    Promise.all([
-      payload.find({
-        collection: 'services',
-        where: {
-          and: [
-            {
-              project: {
-                equals: id,
-              },
-            },
-            {
-              'tenant.slug': {
-                equals: organisation,
-              },
-            },
-          ],
-        },
-        joins: {
-          deployments: {
-            limit: 1,
-          },
-        },
-        depth: 10,
-      }),
-      payload.find({
-        collection: 'projects',
-        where: {
-          'tenant.slug': {
-            equals: organisation,
-          },
-          id: {
-            equals: id,
-          },
-        },
-        select: {
-          name: true,
-          description: true,
-          server: true,
-        },
-      }),
-    ]),
-  )
-
-  const project = Projects.at(0)
-
+const SuspendedPage = async ({
+  params,
+}: {
+  params: { id: string; organisation: string }
+}) => {
+  const { id, organisation } = params
+  const result = await getProjectDetails({ id })
+  const project = result?.data?.Projects?.at(0)
+  
   if (!project) {
     notFound()
   }
-
-  // Check if server is connected
   const isServerConnected = Boolean(
     project.server &&
       typeof project.server === 'object' &&
@@ -109,7 +65,7 @@ const SuspendedPage = ({ params }: PageProps) => {
                 }
               />
 
-              {services?.length ? (
+              {result?.data?.services?.length ? (
                 <CreateService
                   server={project.server}
                   project={project}
@@ -142,11 +98,11 @@ const SuspendedPage = ({ params }: PageProps) => {
           </Alert>
         )}
 
-        {services.length ? (
+        {result?.data?.services.length ? (
           <ServiceList
             organisationSlug={organisation}
             project={project}
-            services={services}
+            services={result?.data?.services}
           />
         ) : (
           <ServicesArchitecture />
@@ -157,10 +113,11 @@ const SuspendedPage = ({ params }: PageProps) => {
 }
 
 const ProjectIdPage = async ({ params }: PageProps) => {
+  const syncParams = await params
   return (
     <TabsLayout>
       <Suspense fallback={<ServicesSkeleton />}>
-        <SuspendedPage params={params} />
+        <SuspendedPage params={syncParams} />
       </Suspense>
     </TabsLayout>
   )

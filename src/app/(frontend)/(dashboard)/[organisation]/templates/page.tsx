@@ -1,9 +1,8 @@
 import LayoutClient from '../../layout.client'
-import configPromise from '@payload-config'
 import { Puzzle } from 'lucide-react'
 import Link from 'next/link'
-import { getPayload } from 'payload'
 
+import { getTemplates } from '@/actions/pages/Template'
 import TemplateDetails from '@/components/templates/TemplateDetails'
 import { Button } from '@/components/ui/button'
 
@@ -13,18 +12,7 @@ interface PageProps {
 
 const page = async ({ params }: PageProps) => {
   const syncParams = await params
-  const payload = await getPayload({ config: configPromise })
-
-  const { docs: templates, totalDocs } = await payload.find({
-    collection: 'templates',
-    pagination: false,
-    sort: '-createdAt',
-    where: {
-      'tenant.slug': {
-        equals: syncParams.organisation,
-      },
-    },
-  })
+  const templates = await getTemplates()
 
   return (
     <LayoutClient>
@@ -36,9 +24,9 @@ const page = async ({ params }: PageProps) => {
           </Link>
         </div>
 
-        {totalDocs > 0 ? (
+        {templates?.data?.length! > 0 ? (
           <div className='mt-4 w-full space-y-4'>
-            {templates?.map(template => (
+            {templates?.data?.map(template => (
               <TemplateDetails key={template.id} template={template} />
             ))}
           </div>
