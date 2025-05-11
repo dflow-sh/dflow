@@ -38,6 +38,7 @@ export const protectedClient = publicClient.use(async ({ next, ctx }) => {
       ...ctx,
       user,
       userTenant,
+      payload,
     },
   })
 })

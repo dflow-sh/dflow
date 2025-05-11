@@ -1,4 +1,3 @@
-import SetOrganisationCookie from '@/components/SetOrganisationCookie'
 import { getTenant } from '@/lib/get-tenant'
 
 const OrganisationLayout = async ({
@@ -12,10 +11,10 @@ const OrganisationLayout = async ({
 
   //this is to validate the organisation slug and set the cookie
   // if the slug is not valid, it will throw an error and redirect to 403 page
-  await getTenant({ organisation })
+  await getTenant()
   return (
     <>
-      <SetOrganisationCookie organisationSlug={organisation as string} />
+      {/* <SetOrganisationCookie organisationSlug={organisation as string} /> */}
       {children}
     </>
   )

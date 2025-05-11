@@ -1,9 +1,8 @@
 import LayoutClient from '../../layout.client'
-import configPromise from '@payload-config'
 import { AlertCircle, Folder } from 'lucide-react'
-import { getPayload } from 'payload'
-import { Suspense, use } from 'react'
+import { Suspense } from 'react'
 
+import { getProjectsAndServers } from '@/actions/pages/dashboard'
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
@@ -16,41 +15,14 @@ interface PageProps {
     organisation: string
   }>
 }
-const SuspendedDashboard = ({
+const SuspendedDashboard = async ({
   organisationSlug,
 }: {
   organisationSlug: string
 }) => {
-  const payload = use(getPayload({ config: configPromise }))
+  const result = await getProjectsAndServers()
 
-  const [serversRes, projectsRes] = use(
-    Promise.all([
-      payload.find({
-        collection: 'servers',
-        pagination: false,
-        where: {
-          'tenant.slug': {
-            equals: organisationSlug,
-          },
-        },
-        select: {
-          name: true,
-          connection: true,
-        },
-      }),
-      payload.find({
-        collection: 'projects',
-        where: {
-          'tenant.slug': {
-            equals: organisationSlug,
-          },
-        },
-        pagination: false,
-      }),
-    ]),
-  )
-
-  const servers = serversRes.docs as {
+  const servers = result?.data?.serversRes.docs as {
     id: string
     name: string
     connection?:
@@ -60,7 +32,7 @@ const SuspendedDashboard = ({
         }
       | undefined
   }[]
-  const projects = projectsRes.docs
+  const projects = result?.data?.projectsRes.docs
 
   // Check if there are any servers available
   const hasServers = servers.length > 0
@@ -106,9 +78,9 @@ const SuspendedDashboard = ({
         )}
 
         {/* Projects display */}
-        {projects.length ? (
+        {projects?.length ? (
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-            {projects.map((project, index) => {
+            {projects?.map((project, index) => {
               const services = (project?.services?.docs ?? []) as Service[]
 
               return (
