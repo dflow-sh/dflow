@@ -27,12 +27,25 @@ export const CloudProviderAccounts: CollectionConfig = {
       type: 'select',
       label: 'Type',
       options: [
+        { label: 'dFlow', value: 'dFlow' },
         { label: 'AWS', value: 'aws' },
         { label: 'Azure', value: 'azure' },
         { label: 'Google Cloud Platform', value: 'gcp' },
         { label: 'Digital Ocean', value: 'digitalocean' },
       ],
       required: true,
+    },
+
+    // dFlow
+    {
+      name: 'dFlowDetails',
+      type: 'group',
+      fields: [
+        encryptedField({ name: 'accessToken', type: 'text', required: true }),
+      ],
+      admin: {
+        condition: data => data.type === 'dFlow',
+      },
     },
 
     // AWS

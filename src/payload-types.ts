@@ -379,7 +379,10 @@ export interface CloudProviderAccount {
   id: string;
   tenant?: (string | null) | Tenant;
   name: string;
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  type: 'dFlow' | 'aws' | 'azure' | 'gcp' | 'digitalocean';
+  dFlowDetails?: {
+    accessToken: string;
+  };
   awsDetails?: {
     accessKeyId: string;
     secretAccessKey: string;
@@ -1159,6 +1162,11 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   type?: T;
+  dFlowDetails?:
+    | T
+    | {
+        accessToken?: T;
+      };
   awsDetails?:
     | T
     | {
