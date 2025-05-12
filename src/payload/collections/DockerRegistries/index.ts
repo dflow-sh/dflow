@@ -1,10 +1,18 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const DockerRegistries: CollectionConfig = {
   slug: 'dockerRegistries',
   admin: {
     useAsTitle: 'name',
+  },
+  access: {
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     {
