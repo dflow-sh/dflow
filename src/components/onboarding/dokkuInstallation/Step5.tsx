@@ -14,17 +14,6 @@ import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
-let _context: ReturnType<typeof useServerOnboarding> | null = null
-
-function useSafeServerOnboarding() {
-  try {
-    _context = useServerOnboarding()
-  } catch {
-    _context = null
-  }
-  return _context
-}
-
 const Step5 = ({
   server,
   isServerOnboarding = false,
@@ -34,7 +23,7 @@ const Step5 = ({
 }) => {
   const [selectedServer] = useQueryState('server')
   const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const serverOnboardingContext = useSafeServerOnboarding()
+  const serverOnboardingContext = useServerOnboarding()
 
   const router = useRouter()
   const plugins = server?.plugins ?? []
