@@ -121,18 +121,20 @@ export default function SelectSearchComponent({
               variant='outline'
               role='combobox'
               aria-expanded={open}
-              className='w-full'>
-              <span>
-                {selectedServer
-                  ? servers.find(s => s.id === selectedServer)?.name
-                  : `${buttonLabel}`}
-              </span>
+              className='w-full bg-transparent hover:bg-transparent hover:text-foreground'>
+              <div className='flex w-full items-center justify-between'>
+                <span>
+                  {selectedServer
+                    ? servers.find(s => s.id === selectedServer)?.name
+                    : `${buttonLabel}`}
+                </span>
 
-              <ChevronDownIcon
-                size={16}
-                className='shrink-0 text-muted-foreground/80'
-                aria-hidden='true'
-              />
+                <ChevronDownIcon
+                  size={16}
+                  className='shrink-0 text-muted-foreground/80'
+                  aria-hidden='true'
+                />
+              </div>
             </Button>
           </PopoverTrigger>
 

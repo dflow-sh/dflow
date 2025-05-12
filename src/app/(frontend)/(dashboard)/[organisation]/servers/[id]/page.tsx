@@ -182,11 +182,12 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const { id, organisation } = use(params)
   const { tab } = use(loadServerPageTabs(searchParams))
-
   const result = use(getServerBreadcrumbs({ id }))
 
   if (!result?.data?.server?.id) return notFound()
+
   const { server, servers } = result?.data
+
   const renderTab = () => {
     switch (tab) {
       case 'general':

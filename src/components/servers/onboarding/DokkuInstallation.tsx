@@ -1,7 +1,7 @@
 'use client'
 
 import { Hammer, HardDrive, Lock, Plug2 } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import TimeLineComponent, {
   TimeLineComponentType,
@@ -20,13 +20,6 @@ import ServerOnboardingLayout from './ServerOnboardingLayout'
 const DokkuInstallation = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
-
-  // component unmount resetting the form state
-  useEffect(() => {
-    return () => {
-      setDokkuInstallationStep(2)
-    }
-  }, [])
 
   const list = useMemo<TimeLineComponentType[]>(() => {
     return [
