@@ -1,10 +1,18 @@
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
   admin: {
     useAsTitle: 'name',
     group: 'Users & Tenants',
+  },
+  access: {
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     {

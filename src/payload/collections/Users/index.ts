@@ -46,8 +46,14 @@ export const Users: CollectionConfig = {
     beforeChange: [beforeCreateHandleOnboarding],
   },
   access: {
-    admin: ({ req }) => {
-      return !Boolean(isDemoEnvironment)
+    admin: async ({ req }) => {
+      const { user } = req
+
+      if (user?.role?.includes('admin') && !Boolean(isDemoEnvironment)) {
+        return true
+      }
+
+      return false
     },
     read: isAdmin,
     create: isAdmin,
