@@ -2,12 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { connectAWSAccountAction } from '@/actions/cloud/aws'
-import { connectAWSAccountSchema } from '@/actions/cloud/aws/validator'
+import { connectDFlowAccountAction } from '@/actions/cloud/dFlow'
+import { connectDFlowAccountSchema } from '@/actions/cloud/dFlow/validator'
 import SecretContent from '@/components/ui/blur-reveal'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,10 +32,10 @@ import { Input } from '@/components/ui/input'
 import { CloudProviderAccount } from '@/payload-types'
 
 type RefetchType = (input: {
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean'
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
 }) => void
 
-const AWSAccountForm = ({
+const DFlowForm = ({
   children,
   account,
   refetch,
@@ -46,33 +46,28 @@ const AWSAccountForm = ({
 }) => {
   const dialogFooterRef = useRef<HTMLButtonElement>(null)
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
-    connectAWSAccountAction,
+    connectDFlowAccountAction,
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
-          refetch?.({ type: 'aws' })
+          refetch?.({ type: 'dFlow' })
           dialogFooterRef.current?.click()
         }
       },
     },
   )
 
-  const form = useForm<z.infer<typeof connectAWSAccountSchema>>({
-    resolver: zodResolver(connectAWSAccountSchema),
+  const form = useForm<z.infer<typeof connectDFlowAccountSchema>>({
+    resolver: zodResolver(connectDFlowAccountSchema),
     defaultValues: account
-      ? {
-          name: account.name,
-          accessKeyId: account?.awsDetails?.accessKeyId ?? '',
-          secretAccessKey: account?.awsDetails?.secretAccessKey ?? '',
-        }
+      ? account
       : {
+          accessToken: '',
           name: '',
-          accessKeyId: '',
-          secretAccessKey: '',
         },
   })
 
-  function onSubmit(values: z.infer<typeof connectAWSAccountSchema>) {
+  function onSubmit(values: z.infer<typeof connectDFlowAccountSchema>) {
     connectAccount({ ...values, id: account?.id })
   }
 
@@ -86,10 +81,10 @@ const AWSAccountForm = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {account ? 'Edit AWS Account details' : 'Connect AWS Account'}
+            {account ? 'Edit dFlow Account' : 'Connect dFlow Account'}
           </DialogTitle>
           <DialogDescription>
-            Connect your AWS account to manage your EC2 instances.
+            Connect your dFlow account to deploy servers & access cloud features
           </DialogDescription>
         </DialogHeader>
 
@@ -113,38 +108,14 @@ const AWSAccountForm = ({
 
             <FormField
               control={form.control}
-              name='accessKeyId'
+              name='accessToken'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Access Key ID</FormLabel>
+                  <FormLabel>Access Token</FormLabel>
                   <FormControl>
-                    {account ? (
-                      <SecretContent>
-                        <Input {...field} className='rounded-sm' />
-                      </SecretContent>
-                    ) : (
+                    <SecretContent defaultHide={!!account}>
                       <Input {...field} className='rounded-sm' />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='secretAccessKey'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Secret Access Key</FormLabel>
-                  <FormControl>
-                    {account ? (
-                      <SecretContent>
-                        <Input {...field} className='rounded-sm' />
-                      </SecretContent>
-                    ) : (
-                      <Input {...field} className='rounded-sm' />
-                    )}
+                    </SecretContent>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,10 +127,6 @@ const AWSAccountForm = ({
 
               <Button
                 type='submit'
-                onClick={e => {
-                  e.preventDefault()
-                  form.handleSubmit(onSubmit)()
-                }}
                 className='mt-6'
                 isLoading={connectingAccount}
                 disabled={connectingAccount}>
@@ -173,4 +140,4 @@ const AWSAccountForm = ({
   )
 }
 
-export default AWSAccountForm
+export default DFlowForm

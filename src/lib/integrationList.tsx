@@ -6,16 +6,16 @@ import {
   DigitalOcean,
   Docker,
   GoogleCloudPlatform,
+  dFlow,
 } from '@/components/icons'
 
 export const integrationsList = [
   {
-    label: 'Github',
-    icon: GithubIcon,
-    description:
-      'Start deploying your applications by installing Github app on your account',
+    label: 'dFlow Cloud',
+    icon: dFlow,
+    description: 'Manage your dFlow account & servers',
+    slug: 'dflow-cloud',
     live: true,
-    slug: 'github',
   },
   {
     label: 'Amazon Web Services',
@@ -23,6 +23,14 @@ export const integrationsList = [
     description: 'Manage your AWS account EC2 instances',
     live: true,
     slug: 'aws',
+  },
+  {
+    label: 'Github',
+    icon: GithubIcon,
+    description:
+      'Start deploying your applications by installing Github app on your account',
+    live: true,
+    slug: 'github',
   },
   {
     label: 'Docker Registry',
