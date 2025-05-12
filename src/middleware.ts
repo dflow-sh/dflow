@@ -19,6 +19,7 @@ export function middleware(request: NextRequest) {
       'api',
       '_static',
       '_vercel',
+      'images',
     ].includes(organisation)
   ) {
     response.cookies.set('organisation', organisation, {
