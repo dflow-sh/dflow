@@ -5,13 +5,13 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
-import { getUserAction } from '@/actions/auth'
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { buttonVariants } from '@/components/ui/button'
 import { isDemoEnvironment } from '@/lib/constants'
+import { getCurrentUser } from '@/lib/getCurrentUser'
 import { cn } from '@/lib/utils'
 import { User } from '@/payload-types'
 import Provider from '@/providers/Provider'
@@ -23,8 +23,7 @@ const NavUserSuspended = ({ user }: { user: User }) => {
 const DashboardLayoutInner = async () => {
   const cookieStore = await cookies()
   const organisationSlug = cookieStore.get('organisation')?.value
-  const userDetails = await getUserAction()
-  const user = userDetails?.data
+  const user = await getCurrentUser()
 
   if (!user) redirect('/sign-in')
 
