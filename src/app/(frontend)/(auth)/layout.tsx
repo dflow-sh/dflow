@@ -1,16 +1,15 @@
-import configPromise from '@payload-config'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 import { Suspense } from 'react'
 
 import Loader from '@/components/Loader'
+import { getCurrentUser } from '@/lib/getCurrentUser'
 
 const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
   const headersList = await headers()
-  const payload = await getPayload({ config: configPromise })
+  // const payload = await getPayload({ config: configPromise })
 
-  const { user } = await payload.auth({ headers: headersList })
+  const user = await getCurrentUser(headersList)
 
   // Redirecting user to sign-in if user is not signed in
   if (user) {

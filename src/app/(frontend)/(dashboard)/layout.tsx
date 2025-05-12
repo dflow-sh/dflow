@@ -1,11 +1,9 @@
-import configPromise from '@payload-config'
 import { Github } from 'lucide-react'
 import { cookies, headers } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-import React, { Suspense, use } from 'react'
+import React, { Suspense } from 'react'
 
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
@@ -13,21 +11,22 @@ import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { buttonVariants } from '@/components/ui/button'
 import { isDemoEnvironment } from '@/lib/constants'
+import { getCurrentUser } from '@/lib/getCurrentUser'
 import { cn } from '@/lib/utils'
 import { User } from '@/payload-types'
 import Provider from '@/providers/Provider'
 
-const payload = await getPayload({ config: configPromise })
+// const payload = await getPayload({ config: configPromise })
 
 const NavUserSuspended = ({ user }: { user: User }) => {
   return <NavUser user={user} />
 }
 
-const DashboardLayoutInner = () => {
-  const headersList = use(headers())
-  const cookieStore = use(cookies())
+const DashboardLayoutInner = async () => {
+  const headersList = await headers()
+  const cookieStore = await cookies()
   const organisationSlug = cookieStore.get('organisation')?.value
-  const { user } = use(payload.auth({ headers: headersList }))
+  const user = await getCurrentUser(headersList)
 
   if (!user) redirect('/sign-in')
 
