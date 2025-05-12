@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { protectedClient, publicClient } from '@/lib/safe-action'
 
 import {
   forgotPasswordSchema,
@@ -14,10 +14,6 @@ import {
   signUpSchema,
 } from './validator'
 
-const payload = await getPayload({
-  config: configPromise,
-})
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient
   .metadata({
@@ -25,6 +21,10 @@ export const signInAction = publicClient
   })
   .schema(signInSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { email, password } = clientInput
 
     const { user, token } = await payload.login({
@@ -58,6 +58,10 @@ export const signUpAction = publicClient
   })
   .schema(signUpSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { email, password, username } = clientInput
 
     // Check if username already exists
@@ -145,7 +149,12 @@ export const forgotPasswordAction = publicClient
   })
   .schema(forgotPasswordSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { email } = clientInput
+
     const response = await payload.forgotPassword({
       collection: 'users',
       data: {
@@ -160,7 +169,12 @@ export const resetPasswordAction = publicClient
   .metadata({ actionName: 'resetPasswordAction' })
   .schema(resetPasswordSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { password, token } = clientInput
+
     const response = await payload.resetPassword({
       collection: 'users',
       data: {
@@ -179,4 +193,10 @@ export const logoutAction = publicClient
     const cookieStore = await cookies()
     cookieStore.delete('payload-token')
     redirect('/sign-in')
+  })
+
+export const getUserAction = protectedClient
+  .metadata({ actionName: 'getUserAction' })
+  .action(async ({ ctx }) => {
+    return ctx.user
   })

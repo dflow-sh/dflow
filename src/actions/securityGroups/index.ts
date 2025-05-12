@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { protectedClient } from '@/lib/safe-action'
@@ -13,8 +11,6 @@ import {
   updateSecurityGroupSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const createSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'createSecurityGroupAction',
@@ -23,7 +19,9 @@ export const createSecurityGroupAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
+
     const {
       name,
       description,
@@ -64,7 +62,9 @@ export const updateSecurityGroupAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
+
     const {
       id,
       name,
@@ -111,6 +111,7 @@ export const deleteSecurityGroupAction = protectedClient
     const { id } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const deleteSecurityGroup = await payload.delete({
@@ -139,6 +140,7 @@ export const syncSecurityGroupAction = protectedClient
     const { id } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const updatedSecurityGroup = await payload.update({
@@ -163,8 +165,9 @@ export const getSecurityGroupsAction = protectedClient
     actionName: 'getSecurityGroupsAction',
   })
   .schema(getSecurityGroupsSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { cloudProviderAccountId } = clientInput
+    const { payload } = ctx
 
     const { docs: securityGroups } = await payload.find({
       collection: 'securityGroups',

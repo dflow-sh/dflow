@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 import {
   Config,
   adjectives,
@@ -24,8 +22,6 @@ import {
   updateTemplateSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 const handleGenerateName = (): string => {
   const nameConfig: Config = {
     dictionaries: [adjectives, animals, colors],
@@ -44,7 +40,7 @@ export const createTemplate = protectedClient
   })
   .schema(createTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
     const { name, description, services } = clientInput
 
     const response = await payload.create({
@@ -67,7 +63,7 @@ export const deleteTemplate = protectedClient
   .schema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
 
     const response = await payload.delete({
       collection: 'templates',
@@ -85,7 +81,8 @@ export const getTemplateById = protectedClient
   .schema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
+
     const response = await payload.find({
       collection: 'templates',
       where: {
@@ -115,6 +112,7 @@ export const deployTemplateAction = protectedClient
     const { id, projectId } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const projectDetails = await payload.findByID({
@@ -259,8 +257,9 @@ export const updateTemplate = protectedClient
     actionName: 'updateTemplate',
   })
   .schema(updateTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, name, services, description } = clientInput
+    const { payload } = ctx
 
     const response = await payload.update({
       collection: 'templates',
@@ -281,7 +280,8 @@ export const updateTemplate = protectedClient
 export const getAllTemplatesAction = protectedClient
   .metadata({ actionName: 'getAllTemplatesAction' })
   .action(async ({ ctx }) => {
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
+
     const { docs } = await payload.find({
       collection: 'templates',
       where: {
@@ -303,6 +303,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
     const { projectId, services = [] } = clientInput
 

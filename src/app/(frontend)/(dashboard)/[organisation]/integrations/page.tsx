@@ -1,21 +1,32 @@
-import LayoutClient from '../../layout.client'
-import { Suspense, lazy } from 'react'
+'use client'
 
-import DockerRegistryDrawer from '@/components/Integrations/DockerRegistryDrawer'
+import LayoutClient from '../../layout.client'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+
+import IntegrationsList from '@/components/Integrations/IntegrationsList'
 import { IntegrationsSkeleton } from '@/components/skeletons/IntegrationsSkeleton'
 
-const GitHubDrawer = lazy(
+const GitHubDrawer = dynamic(
   () => import('@/components/Integrations/GithubDrawer'),
+  {
+    ssr: false,
+  },
 )
-const AWSDrawer = lazy(() => import('@/components/Integrations/AWSDrawer'))
-const IntegrationsList = lazy(
-  () => import('@/components/Integrations/IntegrationsList'),
+const AWSDrawer = dynamic(() => import('@/components/Integrations/AWSDrawer'), {
+  ssr: false,
+})
+
+const DockerRegistryDrawer = dynamic(
+  () => import('@/components/Integrations/DockerRegistryDrawer'),
+  { ssr: false },
 )
 
 const SuspendedIntegrationsPage = () => {
   return (
     <>
       <IntegrationsList />
+
       <GitHubDrawer />
       <AWSDrawer />
       <DockerRegistryDrawer />

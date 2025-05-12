@@ -37,7 +37,6 @@ const SuspendedDocPage = ({ params }: PageProps) => {
 
   return (
     <article className='prose prose-purple prose-invert md:prose-lg prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain'>
-      {/* <h1 className='text-2xl font-semibold'>{doc.title}</h1> */}
       <MDXContent code={doc.mdx} />
     </article>
   )

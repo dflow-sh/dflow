@@ -1,9 +1,7 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
-import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
@@ -30,8 +28,6 @@ import {
   updateServiceSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServiceAction = protectedClient
   .metadata({
@@ -43,6 +39,7 @@ export const createServiceAction = protectedClient
     const { name, description, projectId, type, databaseType } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const { server } = await payload.findByID({
@@ -149,6 +146,7 @@ export const deleteServiceAction = protectedClient
     const { id } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const {
@@ -253,6 +251,7 @@ export const updateServiceAction = protectedClient
     const { id, ...data } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const previousDetails = await payload.findByID({
@@ -321,6 +320,8 @@ export const restartServiceAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
+
     const {
       project,
       type,
@@ -393,6 +394,8 @@ export const stopServerAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
+
     const {
       project,
       type,
@@ -463,8 +466,9 @@ export const exposeDatabasePortAction = protectedClient
     actionName: 'exposeDatabasePortAction',
   })
   .schema(exposeDatabasePortSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, ports } = clientInput
+    const { payload } = ctx
 
     const {
       project,
@@ -567,6 +571,7 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     const { id, environmentVariables, projectId } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const updatedService = await payload.update({
@@ -594,6 +599,7 @@ export const updateServiceDomainAction = protectedClient
     const { id, domain, operation } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     // Fetching service-details for showing previous details
@@ -683,8 +689,9 @@ export const regenerateSSLAction = protectedClient
     actionName: 'regenerateSSLAction',
   })
   .schema(regenerateSSLSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, email } = clientInput
+    const { payload } = ctx
 
     const {
       project,

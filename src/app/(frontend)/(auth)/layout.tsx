@@ -1,15 +1,12 @@
-import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
+import { getUserAction } from '@/actions/auth'
 import Loader from '@/components/Loader'
-import { getCurrentUser } from '@/lib/getCurrentUser'
 
 const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
-  const headersList = await headers()
-  // const payload = await getPayload({ config: configPromise })
-
-  const user = await getCurrentUser(headersList)
+  const userDetails = await getUserAction()
+  const user = userDetails?.data
 
   // Redirecting user to sign-in if user is not signed in
   if (user) {

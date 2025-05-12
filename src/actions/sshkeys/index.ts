@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 import * as ssh2 from 'ssh2'
 
 import { protectedClient } from '@/lib/safe-action'
@@ -14,8 +12,6 @@ import {
   updateSSHKeySchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createSSHKeyAction = protectedClient
   .metadata({
@@ -26,6 +22,7 @@ export const createSSHKeyAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
     const { name, description, privateKey, publicKey } = clientInput
 
@@ -50,8 +47,9 @@ export const createSSHKeyAction = protectedClient
 export const updateSSHKeyAction = protectedClient
   .metadata({ actionName: 'updateSSHKeyAction' })
   .schema(updateSSHKeySchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
+    const { payload } = ctx
 
     const response = await payload.update({
       id,
@@ -76,6 +74,7 @@ export const deleteSSHKeyAction = protectedClient
     const { id } = clientInput
     const {
       userTenant: { tenant },
+      payload,
     } = ctx
 
     const response = await payload.delete({

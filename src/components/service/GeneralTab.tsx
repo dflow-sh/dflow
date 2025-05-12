@@ -1,8 +1,7 @@
 import Loader from '../Loader'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 
-// import BuildTypeForm from './BuildTypeForm'
+import { getDockerRegistries } from '@/actions/dockerRegistry'
+import { getAllAppsAction } from '@/actions/gitProviders'
 import { Service } from '@/payload-types'
 
 import DatabaseForm from './DatabaseForm'
@@ -10,12 +9,8 @@ import DockerForm from './DockerForm'
 import ProviderForm from './ProviderForm'
 
 const AppComponent = async ({ service }: { service: Service }) => {
-  const payload = await getPayload({ config: configPromise })
-
-  const { docs: gitProviders } = await payload.find({
-    collection: 'gitProviders',
-    pagination: false,
-  })
+  const gitProvidersData = await getAllAppsAction()
+  const gitProviders = gitProvidersData?.data ?? []
 
   return <ProviderForm service={service} gitProviders={gitProviders} />
 }
@@ -29,12 +24,8 @@ const DatabaseComponent = ({ service }: { service: Service }) => {
 }
 
 const DockerComponent = async ({ service }: { service: Service }) => {
-  const payload = await getPayload({ config: configPromise })
-
-  const { docs: accounts } = await payload.find({
-    collection: 'dockerRegistries',
-    pagination: false,
-  })
+  const dockerRegistriesData = await getDockerRegistries()
+  const accounts = dockerRegistriesData?.data ?? []
 
   return <DockerForm service={service} accounts={accounts} />
 }

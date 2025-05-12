@@ -2,15 +2,17 @@ import configPromise from '@payload-config'
 import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
 import { Octokit } from 'octokit'
-import { getPayload } from 'payload'
 
 import { getTenant } from '@/lib/get-tenant'
 
 export async function GET(request: NextRequest) {
+  const { getPayload } = await import('payload')
+  const payload = await getPayload({ config: configPromise })
+
+  const { userTenant } = await getTenant()
+
   const searchParams = request.nextUrl.searchParams
   const headers = request.headers
-  const { userTenant } = await getTenant()
-  const payload = await getPayload({ config: configPromise })
 
   const code = searchParams.get('code') ?? ''
   const installation_id = searchParams.get('installation_id') ?? ''

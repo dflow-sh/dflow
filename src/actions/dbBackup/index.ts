@@ -1,8 +1,5 @@
 'use server'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { protectedClient } from '@/lib/safe-action'
 import { addInternalBackupQueue } from '@/queues/database/backup/internalBackup'
 import { deleteInternalBackupQueue } from '@/queues/database/backup/internalBackupDelete'
@@ -13,14 +10,13 @@ import {
   internalRestoreSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const internalBackupAction = protectedClient
   .metadata({
     actionName: 'internalBackupAction',
   })
   .schema(internalDBBackupSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { serviceId } = clientInput
 
     const { createdAt: backupCreatedTime, id: backupId } = await payload.create(
@@ -93,8 +89,9 @@ export const internalRestoreAction = protectedClient
     actionName: 'internalRestoreAction',
   })
   .schema(internalRestoreSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serviceId, backupId } = clientInput
+    const { payload } = ctx
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
@@ -143,7 +140,8 @@ export const internalDbDeleteAction = protectedClient
     actionName: 'internalDbDeleteAction',
   })
   .schema(internalDbDeleteScheme)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { backupId, serviceId, databaseType } = clientInput
 
     const { project, ...serviceDetails } = await payload.findByID({

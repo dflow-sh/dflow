@@ -20,15 +20,17 @@ export const publicClient = createSafeActionClient({
   },
 })
 
-const payload = await getPayload({
-  config: configPromise,
-})
-
 export const protectedClient = publicClient.use(async ({ next, ctx }) => {
+  const payload = await getPayload({
+    config: configPromise,
+  })
+
   const { user, userTenant, isInTenant } = await getTenant() // Assuming getTenant() returns tenant data
+
   if (!user) {
     throw new Error('User not authenticated')
   }
+
   if (!isInTenant) {
     throw new Error('User is not part of the specified tenant')
   }

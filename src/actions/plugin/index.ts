@@ -1,9 +1,7 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
-import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
@@ -20,14 +18,13 @@ import {
   togglePluginStatusSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const installPluginAction = protectedClient
   .metadata({
     actionName: 'installPluginAction',
   })
   .schema(installPluginSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
@@ -81,7 +78,8 @@ export const syncPluginAction = protectedClient
     actionName: 'syncPluginAction',
   })
   .schema(syncPluginSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { serverId } = clientInput
 
     // Fetching server details instead of passing from client
@@ -169,7 +167,8 @@ export const togglePluginStatusAction = protectedClient
     actionName: 'togglePluginStatusAction',
   })
   .schema(togglePluginStatusSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { pluginName, serverId, enabled } = clientInput
 
     // Fetching server details instead of passing from client
@@ -223,7 +222,8 @@ export const deletePluginAction = protectedClient
     actionName: 'uninstallPluginAction',
   })
   .schema(installPluginSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { serverId, pluginName } = clientInput
 
     // Fetching server details instead of passing from client
@@ -276,7 +276,8 @@ export const configureLetsencryptPluginAction = protectedClient
     actionName: 'configureLetsencryptPluginAction',
   })
   .schema(configureLetsencryptPluginSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
     const { email, autoGenerateSSL = false, serverId } = clientInput
 
     // Fetching server details instead of passing from client

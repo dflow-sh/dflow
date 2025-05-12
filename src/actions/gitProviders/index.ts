@@ -1,10 +1,8 @@
 'use server'
 
 import { createAppAuth } from '@octokit/auth-app'
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
-import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 
@@ -14,8 +12,6 @@ import {
   getRepositorySchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const deleteGitProviderAction = protectedClient
   .metadata({
     actionName: 'deleteGitProviderAction',
@@ -23,7 +19,7 @@ export const deleteGitProviderAction = protectedClient
   .schema(deleteGitProviderSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
     const response = await payload.delete({
       collection: 'gitProviders',
       where: {
@@ -131,7 +127,7 @@ export const getAllAppsAction = protectedClient
     actionName: 'getAllAppsAction',
   })
   .action(async ({ ctx }) => {
-    const { userTenant } = ctx
+    const { userTenant, payload } = ctx
     const { docs } = await payload.find({
       collection: 'gitProviders',
       pagination: false,
@@ -150,7 +146,7 @@ export const skipOnboardingAction = protectedClient
     actionName: 'skipOnboardingAction',
   })
   .action(async ({ ctx }) => {
-    const { user } = ctx
+    const { user, payload } = ctx
 
     if (user?.id) {
       await payload.update({

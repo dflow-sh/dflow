@@ -1,32 +1,30 @@
 import { Github } from 'lucide-react'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
+import { getUserAction } from '@/actions/auth'
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { buttonVariants } from '@/components/ui/button'
 import { isDemoEnvironment } from '@/lib/constants'
-import { getCurrentUser } from '@/lib/getCurrentUser'
 import { cn } from '@/lib/utils'
 import { User } from '@/payload-types'
 import Provider from '@/providers/Provider'
-
-// const payload = await getPayload({ config: configPromise })
 
 const NavUserSuspended = ({ user }: { user: User }) => {
   return <NavUser user={user} />
 }
 
 const DashboardLayoutInner = async () => {
-  const headersList = await headers()
   const cookieStore = await cookies()
   const organisationSlug = cookieStore.get('organisation')?.value
-  const user = await getCurrentUser(headersList)
+  const userDetails = await getUserAction()
+  const user = userDetails?.data
 
   if (!user) redirect('/sign-in')
 

@@ -6,13 +6,9 @@ import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SecurityTabs from '@/components/security/SecurityTabs'
 import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
 
-interface PageProps {
-  params: Promise<{
-    organisation: string
-  }>
-}
 const SuspendedPage = async () => {
   const result = await getSecurityDetails()
+
   const keys = result?.data?.keys ?? []
   const sshKeysCount = result?.data?.sshKeysCount ?? 0
   const securityGroups = result?.data?.securityGroups ?? []
@@ -30,6 +26,7 @@ const SuspendedPage = async () => {
         cloudProviderAccounts={cloudProviderAccounts}
         servers={servers}
       />
+
       <ServerTerminalClient servers={servers} />
     </>
   )
@@ -45,6 +42,7 @@ const SecurityPage = async () => {
           infrastructure.
         </p>
       </div>
+
       <Suspense fallback={<SecuritySkeleton />}>
         <SuspendedPage />
       </Suspense>
