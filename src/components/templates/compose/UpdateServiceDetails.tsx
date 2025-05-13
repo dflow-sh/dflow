@@ -1,6 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Edge, MarkerType, Node } from '@xyflow/react'
-import { Braces, Database, Github, Plus, Trash2, X } from 'lucide-react'
+import {
+  Braces,
+  Database,
+  Github,
+  Globe,
+  KeyRound,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { motion } from 'motion/react'
 import { JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
@@ -237,12 +246,16 @@ const Settings = ({
 
 const ReferenceVariableDropdown = ({
   databaseList: list = [],
+  serviceName = '',
   index,
 }: {
+  serviceName: string
   databaseList: ServiceNode[]
   index: number
 }) => {
   const { setValue } = useFormContext()
+  const publicDomain = `{{ ${serviceName}:DFLOW_PUBLIC_DOMAIN }}`
+  const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
   return (
     <DropdownMenu>
@@ -257,24 +270,59 @@ const ReferenceVariableDropdown = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className='pb-2' align='end'>
-        <DropdownMenuLabel>Link Database</DropdownMenuLabel>
+        <DropdownMenuLabel>Reference Variables</DropdownMenuLabel>
+
+        <DropdownMenuItem
+          onSelect={() => {
+            setValue(`variables.${index}.value`, publicDomain)
+          }}>
+          <Globe className='size-6 text-green-600' />
+          {publicDomain}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onSelect={() => {
+            setValue(`variables.${index}.value`, secretKey)
+          }}>
+          <KeyRound className='size-6 text-blue-500' />
+          {secretKey}
+        </DropdownMenuItem>
 
         {list.length
           ? list.map(database => {
+              const environmentVariableValue = `${database.name}:${database.databaseDetails?.type?.toUpperCase()}`
+
               return (
-                <DropdownMenuItem
-                  key={database.id}
-                  onSelect={() => {
-                    setValue(
-                      `variables.${index}.value`,
-                      '$' +
-                        `{{${database.databaseDetails?.type}:${database.name + '.DATABASE_URI'}}}`,
-                    )
-                  }}>
-                  {database.databaseDetails?.type &&
-                    databaseIcons[database.databaseDetails?.type]}
-                  {database.name}.DATABASE_URI
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    key={database.id}
+                    onSelect={() => {
+                      setValue(
+                        `variables.${index}.value`,
+                        `{{ ${environmentVariableValue}_URI }}`,
+                      )
+                    }}>
+                    {database.databaseDetails?.type &&
+                      databaseIcons[database.databaseDetails?.type]}
+
+                    {`{{ ${environmentVariableValue}_URI }}`}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    key={database.id + 1}
+                    disabled
+                    onSelect={() => {
+                      setValue(
+                        `variables.${index}.value`,
+                        `{{ ${environmentVariableValue}_PUBLIC_URI }}`,
+                      )
+                    }}>
+                    {database.databaseDetails?.type &&
+                      databaseIcons[database.databaseDetails?.type]}
+
+                    {`{{ ${environmentVariableValue}_PUBLIC_URI }}`}
+                  </DropdownMenuItem>
+                </>
               )
             })
           : null}
@@ -441,6 +489,7 @@ const VariablesForm = ({
                               index={index}
                               //@ts-ignore
                               databaseList={databaseList ?? []}
+                              serviceName={service.name}
                             />
                           </div>
                         </FormControl>

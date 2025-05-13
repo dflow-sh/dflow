@@ -1,13 +1,14 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
+import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
+import nunjucks from 'nunjucks'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
-import { REFERENCE_VARIABLE_REGEX } from '@/lib/constants'
 import { pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { Service } from '@/payload-types'
@@ -38,7 +39,42 @@ interface QueueArgs {
   }
 }
 
-const supportedDatabases = ['postgres', 'mongo', 'mysql', 'redis', 'mariadb']
+const TEMPLATE_EXPR = /\{\{\s*(.*?)\s*\}\}/g
+const knownVariables = [
+  'DFLOW_PUBLIC_DOMAIN',
+  'MONGO_URI',
+  'POSTGRES_URI',
+  'REDIS_URI',
+  'MARIADB_URI',
+  'MYSQL_URI',
+] as const
+
+type KnownVariable = (typeof knownVariables)[number]
+
+function isKnownVariable(name: string): name is KnownVariable {
+  return (knownVariables as readonly string[]).includes(name)
+}
+
+function classifyVariableType(value: string) {
+  const matches = [...value.matchAll(TEMPLATE_EXPR)]
+
+  if (matches.length === 0) return 'static'
+  if (matches.length > 1 || !value.trim().startsWith('{{')) return 'combo'
+
+  const expr = matches[0][1].trim()
+
+  // function call like secret(...)
+  if (/^secret\(\s*\d+,\s*['"][^'"]+['"]\s*\)$/.test(expr)) return 'function'
+
+  // reference var: only dot notation (service.MONGO_URI)
+  if (/^[a-zA-Z_][\w-]*\.[a-zA-Z_][\w]*$/.test(expr)) return 'reference'
+
+  return 'unknown'
+}
+
+type FormattedVariablesType = NonNullable<Service['variables']>[number] & {
+  generatedValue: string
+}
 
 export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
   const QUEUE_NAME = `server-${data.serverDetails.id}-update-environment-variables`
@@ -63,11 +99,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
 
       try {
         ssh = await dynamicSSH(sshDetails)
-
-        const staticVariables: VariablesType = []
-        const referenceVariables: VariablesType = []
-        const populatedVariables: VariablesType = []
-
         // step 1: if variables are removed need to clear environment variables in dokku
         if (!variables.length && previousVariables.length) {
           const envResponse = await dokku.config.unset({
@@ -123,209 +154,299 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
           return
         }
 
-        // step 2: separation of static and reference variables
-        for (let index = 0; index < variables.length; index++) {
-          const variable = variables[index]
+        console.dir({ variables }, { depth: Infinity })
 
-          const isReferenceVariable = REFERENCE_VARIABLE_REGEX.test(
-            variable.value,
-          )
+        // we'll store all the populated values inside this array
+        const formattedVariables: FormattedVariablesType[] = []
 
-          if (isReferenceVariable) {
-            referenceVariables.push(variable)
-          } else {
-            staticVariables.push(variable)
-          }
-        }
+        // initialing nunjucks for replacing functions
+        const env = new nunjucks.Environment()
 
-        // step 3: group the reference variables
-        const groupedReferenceVariables = Object.entries(
-          referenceVariables.reduce(
-            (acc, variable) => {
-              const key = variable.value
-              if (!acc[key]) {
-                acc[key] = []
-              }
-              acc[key].push(variable)
-              return acc
-            },
-            {} as Record<string, VariablesType>,
-          ),
-        )
+        // added secret generation function: {{ secret(32, "abcABC123") }}
+        env.addGlobal('secret', (length: string, charset: string) => {
+          const chars =
+            charset ||
+            'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+          const values = crypto.randomBytes(+length)
 
-        if (groupedReferenceVariables.length) {
-          for await (const [
-            referenceVariable,
-            referenceKeyPairs,
-          ] of groupedReferenceVariables) {
-            const match = referenceVariable.match(REFERENCE_VARIABLE_REGEX)
-
-            if (match) {
-              const [_variable, databaseType, databaseName, key] = match
-              let databaseList: string[] = []
-              const formattedDatabaseName = `${databaseName}-db`
-              const envAlias = formattedDatabaseName
-                .replace(/-([a-z])/g, (_, char) => '_' + char.toUpperCase())
-                .toUpperCase()
-
-              // step-3 -> directly check the database is linked or not
-              try {
-                // in-case of wrong variable syntax thronging error
-                if (!supportedDatabases.includes(databaseType)) {
-                  throw new Error('invalid variable syntax')
-                }
-
-                const databaseLinksResponse = await dokku.database.listLinks({
-                  ssh,
-                  databaseName,
-                  databaseType,
-                })
-
-                console.log({ databaseLinksResponse })
-
-                databaseList = databaseLinksResponse
-              } catch (error) {
-                console.log({ error })
-
-                // skipping variables update
-                continue
-              }
-
-              // db found linked -> directly use the variable -> `$(dokku config:get ${serviceDetails.name} DATABASE_NAME_DB_URL)`
-              if (databaseList.includes(serviceDetails.name)) {
-                referenceKeyPairs.forEach(keyPair =>
-                  populatedVariables.push({
-                    key: keyPair.key,
-                    value: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
-                  }),
-                )
-              }
-              // db found unlinked -> link-database && use this syntax `$(dokku config:get ${serviceDetails.name} DATABASE_NAME_DB_URL)`
-              else {
-                const databaseLinkResponse = await dokku.database.link({
-                  ssh,
-                  databaseName,
-                  databaseType,
-                  appName: serviceDetails.name,
-                  alias: envAlias,
-                  noRestart: true,
-                  options: {
-                    onStdout: async chunk => {
-                      sendEvent({
-                        message: chunk.toString(),
-                        pub,
-                        serverId: serverDetails.id,
-                      })
-                    },
-                    onStderr: async chunk => {
-                      sendEvent({
-                        message: chunk.toString(),
-                        pub,
-                        serverId: serverDetails.id,
-                      })
-                    },
-                  },
-                })
-
-                if (databaseLinkResponse.code === 0) {
-                  referenceKeyPairs.forEach(keyPair =>
-                    populatedVariables.push({
-                      key: keyPair.key,
-                      value: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
-                    }),
-                  )
-                } else {
-                  sendEvent({
-                    message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
-                    pub,
-                    serverId: serverDetails.id,
-                  })
-
-                  // incase of failure not updating environment variables
-                  continue
-                }
-              }
-            }
-          }
-        }
-        const envResponse = await dokku.config.set({
-          ssh,
-          name: serviceDetails.name,
-          values: [...staticVariables, ...populatedVariables].map(
-            ({ key, value }) => {
-              return {
-                key,
-                value,
-              }
-            },
-          ),
-          noRestart: serviceDetails.noRestart,
-          options: {
-            onStdout: async chunk => {
-              console.info(chunk.toString())
-              sendEvent({
-                pub,
-                message: chunk.toString(),
-                serverId: serverDetails.id,
-              })
-            },
-            onStderr: async chunk => {
-              console.info(chunk.toString())
-              sendEvent({
-                pub,
-                message: chunk.toString(),
-                serverId: serverDetails.id,
-              })
-            },
-          },
+          return Array.from(values)
+            .map(v => chars.charAt(v % chars.length))
+            .join('')
         })
 
-        if (envResponse) {
-          sendEvent({
-            pub,
-            message: `✅ Successfully updated environment variables for ${serviceDetails.name}`,
-            serverId: serverDetails.id,
-          })
+        // step 2: go through variables list, categorize and populate values accordingly
+        for await (const variable of variables) {
+          const { key, value } = variable
+          // step 2.1: categorize environment variables
+          const type = classifyVariableType(value)
 
-          // after update of env, storing all variables in a json field
-          // so we can use them in build args without an computation requirement
-          const environmentVariables = await dokku.config.listVars(
-            ssh,
-            serviceDetails.name,
-          )
+          console.dir({ type, key, value }, { depth: Infinity })
 
-          const formattedEnvironmentVariables = environmentVariables.reduce(
-            (acc, curr) => {
-              acc[curr.key] = curr.value
-              return acc
-            },
-            {} as Record<string, string>,
-          )
+          // step 2.2: generate values for variables
+          switch (type) {
+            // for static variables directly storing values
+            case 'static':
+              formattedVariables.push({ key, value, generatedValue: value })
+              break
+            // for functions using nunjucks to generate values
+            case 'function':
+              const generatedValue = env.renderString(value, {})
+              console.dir({ key, generatedValue }, { depth: Infinity })
+              formattedVariables.push({ key, value, generatedValue })
+              break
+            // for reference variables check these cases
+            // check for variable value should be MONGO_URI, POSTGRES_URI, REDIS_URI, MARIA_URI, MYSQL_URI, DFLOW_PUBLIC_DOMAIN
+            // for any other variable value use $(dokku config:get serviceName variableName)
+            case 'reference':
+              const extractedVariable = value
+                .match(TEMPLATE_EXPR)?.[0]
+                ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+                ?.trim()
 
-          await payload.update({
-            collection: 'services',
-            id: serviceDetails.id,
-            data: {
-              populatedVariables: JSON.stringify(formattedEnvironmentVariables),
-            },
-          })
+              if (extractedVariable) {
+                const refMatch = extractedVariable.match(
+                  /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+                )
 
-          sendEvent({
-            pub,
-            message: `Syncing details...`,
-            serverId: serverDetails.id,
-          })
+                if (refMatch) {
+                  const [, serviceName, variableName] = refMatch
+                  // if variable is in knownVariable list, populating it's value
+                  if (isKnownVariable(variableName)) {
+                    // for DFLOW_PUBLIC_DOMAIN variable checking domains of that service and updating the
+                    if (variableName === 'DFLOW_PUBLIC_DOMAIN') {
+                      try {
+                        const domains = await dokku.domains.list({
+                          ssh,
+                          appName: serviceName,
+                        })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
-        } else {
-          sendEvent({
-            pub,
-            message: `❌ Failed update environment variables for ${serviceDetails.name}`,
-            serverId: serverDetails.id,
-          })
+                        const domain = domains?.[0] ?? ''
+
+                        formattedVariables.push({
+                          key,
+                          value,
+                          generatedValue: domain,
+                        })
+                      } catch (error) {
+                        formattedVariables.push({
+                          key,
+                          value,
+                          generatedValue: '',
+                        })
+
+                        // todo: add sendEvent showing error to user!
+                      }
+                    }
+
+                    // handle database variable linking 'MONGO_URI', 'POSTGRES_URI', 'REDIS_URI', 'MARIADB_URI', 'MYSQL_URI'
+                    // aliasing serviceName to databaseName ex: DATABASE_URI={{ my-mongo-db:MONGO_URI }}
+                    if (
+                      variableName === 'MARIADB_URI' ||
+                      variableName === 'MONGO_URI' ||
+                      variableName === 'MYSQL_URI' ||
+                      variableName === 'POSTGRES_URI' ||
+                      variableName === 'REDIS_URI'
+                    ) {
+                      const databaseName = serviceName
+                      const databaseType = variableName
+                        ?.split('_')[0]
+                        .toLowerCase()
+
+                      let databaseLinkResponse: string[] = []
+
+                      const formattedDatabaseVariableName = `${databaseName}-db`
+                      const envAlias = formattedDatabaseVariableName
+                        .replace(
+                          /-([a-z])/g,
+                          (_, char) => '_' + char.toUpperCase(),
+                        )
+                        .toUpperCase()
+
+                      console.log({ databaseType, databaseName, envAlias })
+
+                      // getting all database linked apps-list
+                      try {
+                        databaseLinkResponse = await dokku.database.listLinks({
+                          ssh,
+                          databaseName,
+                          databaseType,
+                        })
+                      } catch (error) {
+                        console.log(
+                          `${databaseName} is not linked to any services!`,
+                          error,
+                        )
+                      }
+
+                      // checking if database is linked, if yes using `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
+                      if (databaseLinkResponse.includes(serviceDetails.name)) {
+                        formattedVariables.push({
+                          key,
+                          value,
+                          generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
+                        })
+                      }
+                      // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
+                      else {
+                        const databaseLinkResponse = await dokku.database.link({
+                          ssh,
+                          databaseName,
+                          databaseType,
+                          appName: serviceDetails.name,
+                          alias: envAlias,
+                          noRestart: true,
+                          options: {
+                            onStdout: async chunk => {
+                              sendEvent({
+                                message: chunk.toString(),
+                                pub,
+                                serverId: serverDetails.id,
+                              })
+                            },
+                            onStderr: async chunk => {
+                              sendEvent({
+                                message: chunk.toString(),
+                                pub,
+                                serverId: serverDetails.id,
+                              })
+                            },
+                          },
+                        })
+
+                        if (databaseLinkResponse.code === 0) {
+                          formattedVariables.push({
+                            key,
+                            value,
+                            generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
+                          })
+                        } else {
+                          sendEvent({
+                            message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
+                            pub,
+                            serverId: serverDetails.id,
+                          })
+
+                          formattedVariables.push({
+                            key,
+                            value,
+                            generatedValue: '',
+                          })
+                        }
+                      }
+                    }
+                  }
+                  // if variable is not in knownVariable list assuming it as variable from another app!
+                  else {
+                    formattedVariables.push({
+                      key,
+                      value,
+                      generatedValue: `$(dokku config:get ${serviceName} ${variableName})`,
+                    })
+                  }
+                }
+              }
+              break
+            case 'combo':
+              // todo: add combination of environment variables
+              break
+            case 'unknown':
+              // invalid variable format sending warning to user & pushing env with empty value
+              formattedVariables.push({ key, value, generatedValue: '' })
+
+              sendEvent({
+                pub,
+                message: `❌ invalid variable syntax ${key} : ${value}`,
+                serverId: serverDetails.id,
+              })
+              break
+          }
+        }
+
+        console.dir({ formattedVariables }, { depth: Infinity })
+
+        if (formattedVariables.length) {
+          try {
+            const envResponse = await dokku.config.set({
+              ssh,
+              name: serviceDetails.name,
+              values: formattedVariables.map(({ key, generatedValue }) => {
+                return {
+                  key,
+                  value: generatedValue,
+                }
+              }),
+              noRestart: serviceDetails.noRestart,
+              options: {
+                onStdout: async chunk => {
+                  console.info(chunk.toString())
+                  sendEvent({
+                    pub,
+                    message: chunk.toString(),
+                    serverId: serverDetails.id,
+                  })
+                },
+                onStderr: async chunk => {
+                  console.info(chunk.toString())
+                  sendEvent({
+                    pub,
+                    message: chunk.toString(),
+                    serverId: serverDetails.id,
+                  })
+                },
+              },
+            })
+
+            if (envResponse) {
+              sendEvent({
+                pub,
+                message: `✅ Successfully updated environment variables for ${serviceDetails.name}`,
+                serverId: serverDetails.id,
+              })
+
+              // after update of env, storing all variables in a json field
+              // so we can use them in build args without an computation requirement
+              const environmentVariables = await dokku.config.listVars(
+                ssh,
+                serviceDetails.name,
+              )
+
+              const formattedEnvironmentVariables = environmentVariables.reduce(
+                (acc, curr) => {
+                  acc[curr.key] = curr.value
+                  return acc
+                },
+                {} as Record<string, string>,
+              )
+
+              await payload.update({
+                collection: 'services',
+                id: serviceDetails.id,
+                data: {
+                  populatedVariables: JSON.stringify(
+                    formattedEnvironmentVariables,
+                  ),
+                },
+              })
+
+              sendEvent({
+                pub,
+                message: `Syncing details...`,
+                serverId: serverDetails.id,
+              })
+
+              await pub.publish(
+                'refresh-channel',
+                JSON.stringify({ refresh: true }),
+              )
+            }
+          } catch (error) {
+            const message = error instanceof Error ? error.message : ''
+            sendEvent({
+              pub,
+              message: `❌ Failed update environment variables for ${serviceDetails.name}: ${message}`,
+              serverId: serverDetails.id,
+            })
+          }
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''
