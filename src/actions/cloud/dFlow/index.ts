@@ -159,29 +159,32 @@ export const createSshKeysAndVpsAction = protectedClient
     const { data: createdVpsOrderRes } = await axios.post(
       `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
       {
-        image: {
-          imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-          priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-        },
-        product: {
-          productId: 'V92',
-          priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-        },
-        displayName: vps.name,
-        region: {
-          code: 'EU',
-          priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-        },
-        card: '',
-        defaultUser: 'root',
-        rootPassword: 141086,
-        period: {
-          months: 1,
-          priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-        },
-        sshKeys: [createdSecret.details.secretId],
         plan: '6821988ea2def4c82c86cf4f',
-        addOns: {},
+        userData: {
+          image: {
+            imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
+            priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
+          },
+          product: {
+            productId: 'V92',
+            priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
+          },
+          displayName: vps.name,
+          region: {
+            code: 'EU',
+            priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
+          },
+          card: '',
+          defaultUser: 'root',
+          rootPassword: 141086,
+          period: {
+            months: 1,
+            priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
+          },
+          sshKeys: [createdSecret.details.secretId], // ctb secret id
+          plan: '6821988ea2def4c82c86cf4f',
+          addOns: {},
+        },
       },
       {
         headers: {
