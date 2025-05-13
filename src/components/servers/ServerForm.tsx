@@ -1,11 +1,14 @@
 'use client'
 
+import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
-import { ArrowRight, ChevronLeft, Server } from 'lucide-react'
+import { ArrowRight, ChevronLeft, Cloud, Server } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
+import { getDFlowPlansAction } from '@/actions/cloud/dFlow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -15,12 +18,20 @@ import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import AttachCustomServerForm from './AttachCustomServerForm'
+import { ConnectDFlowCloudButton } from './ConnectDFlowCloudButton'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
+import VpsForm from './VpsForm'
 
 interface ServerSelectionFormProps {
   setType: (type: string) => void
   type: string
+  setOption: (plan: string) => void
+  option: string
   isOnboarding: boolean
+  vpsPlans: VpsPlan[]
+  dFlowAccountDetails?: {
+    accessToken: string
+  }
 }
 
 interface ServerFormContentProps {
@@ -31,6 +42,7 @@ interface ServerFormContentProps {
   formType?: 'create' | 'update'
   onBack: () => void
   isOnboarding: boolean
+  vpsPlan?: VpsPlan
 }
 
 interface ServerFormProps {
@@ -38,18 +50,28 @@ interface ServerFormProps {
   securityGroups?: SecurityGroup[]
   server?: ServerType
   formType?: 'create' | 'update'
+  vpsPlans?: VpsPlan[]
+  dFlowAccountDetails?: {
+    accessToken: string
+  }
 }
 
 const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   setType,
+  setOption,
+  option,
   type,
   isOnboarding,
+  vpsPlans,
+  dFlowAccountDetails,
 }) => {
   const id = useId()
+  const [selectedType, setSelectedType] = useState<string>('manual')
   const [selectedOption, setSelectedOption] = useState<string>('manual')
 
   const handleContinue = () => {
-    setType(selectedOption)
+    setType(selectedType)
+    setOption(selectedOption)
   }
 
   return (
@@ -64,6 +86,62 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       )}
 
       <div className='space-y-6'>
+        {/* dFlow Cloud Section */}
+        <Card className='border shadow-sm'>
+          <CardHeader className='pb-0'>
+            <CardTitle className='text-lg font-medium'>dFlow Cloud</CardTitle>
+          </CardHeader>
+          <CardContent className='p-6'>
+            {!dFlowAccountDetails?.accessToken ? (
+              <div className='flex justify-center'>
+                <ConnectDFlowCloudButton />
+              </div>
+            ) : (
+              <RadioGroup
+                className='grid grid-cols-1 gap-6 md:grid-cols-2'
+                value={selectedOption}
+                onValueChange={(value: string) => {
+                  setSelectedType('dFlow')
+                  setSelectedOption(value)
+                }}>
+                {vpsPlans?.map(plan => (
+                  <div
+                    key={plan.slug}
+                    className={`relative flex w-full items-start rounded-md border ${
+                      selectedOption === plan.slug
+                        ? 'border-2 border-primary'
+                        : 'border-input'
+                    } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                    <RadioGroupItem
+                      value={String(plan.slug)}
+                      id={`${id}-${plan.slug}`}
+                      className='order-1 after:absolute after:inset-0'
+                    />
+                    <div className='flex grow items-center gap-4'>
+                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                        <Cloud className='h-5 w-5' />
+                      </div>
+                      <div className='space-y-1'>
+                        <Label
+                          htmlFor={`${id}-${plan.slug}`}
+                          className='cursor-pointer font-medium'>
+                          {plan.name}
+                        </Label>
+                        <p className='text-sm text-muted-foreground'>
+                          {/* {plan.specs} */}
+                        </p>
+                        <p className='text-sm font-medium text-primary'>
+                          {/* {plan.pricing} */}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Cloud Providers Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
@@ -75,7 +153,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             <RadioGroup
               className='grid grid-cols-1 gap-6 md:grid-cols-2'
               value={selectedOption}
-              onValueChange={setSelectedOption}>
+              onValueChange={(value: string) => {
+                setSelectedType('cloud')
+                setSelectedOption(value)
+              }}>
               {cloudProvidersList.map(provider => {
                 const { label, Icon, live, slug } = provider
 
@@ -131,7 +212,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             <RadioGroup
               className='grid grid-cols-1'
               value={selectedOption}
-              onValueChange={setSelectedOption}>
+              onValueChange={(value: string) => {
+                setSelectedType('manual')
+                setSelectedOption(value)
+              }}>
               <div
                 className={`relative flex w-full items-start rounded-md border ${
                   selectedOption === 'manual'
@@ -170,7 +254,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           onClick={handleContinue}>
           {selectedOption === 'manual'
             ? 'Continue with Manual Setup'
-            : `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`}
+            : selectedOption.startsWith('contabo')
+              ? `Continue with ${vpsPlans.find(p => p.slug === selectedOption)?.name}`
+              : `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`}
           <ArrowRight className='ml-2 h-4 w-4' />
         </Button>
       </div>
@@ -186,6 +272,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   formType,
   onBack,
   isOnboarding,
+  vpsPlan,
 }) => {
   const router = useRouter()
 
@@ -193,10 +280,15 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
 
   if (!type) return null
 
-  const providerName =
-    type === 'manual'
-      ? 'Manual Server Configuration'
-      : `Configure ${cloudProvidersList.find(p => p.slug === type)?.label} Server`
+  let providerName = ''
+
+  if (type === 'manual') {
+    providerName = 'Manual Server Configuration'
+  } else if (type === 'dFlow') {
+    providerName = `Configure dFlow Cloud ${vpsPlan?.name} Server`
+  } else {
+    providerName = `Configure ${cloudProvidersList.find(p => p.slug === type)?.label} Server`
+  }
 
   return (
     <div className='space-y-6'>
@@ -226,6 +318,8 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
                 }
               }}
             />
+          ) : type === 'dFlow' ? (
+            <VpsForm vpsPlan={vpsPlan as VpsPlan} />
           ) : (
             <AttachCustomServerForm
               sshKeys={sshKeys}
@@ -251,20 +345,43 @@ const ServerForm: React.FC<ServerFormProps> = ({
   securityGroups,
   server,
   formType,
+  dFlowAccountDetails,
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
+  const [option, setOption] = useQueryState(
+    'option',
+    parseAsString.withDefault(''),
+  )
+  const [vpsPlans, setVpsPlans] = useState<VpsPlan[]>([])
 
   const pathName = usePathname()
   const isOnboarding = pathName.includes('onboarding')
 
+  const { execute: vpsPlansExecute, isPending: vpsPlansPending } = useAction(
+    getDFlowPlansAction,
+    {
+      onSuccess: ({ data }) => {
+        setVpsPlans(data || [])
+      },
+    },
+  )
+
+  useEffect(() => {
+    if (dFlowAccountDetails?.accessToken) {
+      vpsPlansExecute({ accessToken: dFlowAccountDetails.accessToken })
+    }
+  }, [dFlowAccountDetails?.accessToken])
+
   useEffect(() => {
     return () => {
       setType('')
+      setOption('')
     }
   }, [])
 
   const handleResetType = () => {
     setType('')
+    setOption('')
   }
 
   return (
@@ -273,7 +390,11 @@ const ServerForm: React.FC<ServerFormProps> = ({
         <ServerSelectionForm
           setType={setType}
           type={type}
+          setOption={setOption}
+          option={option}
           isOnboarding={isOnboarding}
+          vpsPlans={vpsPlans}
+          dFlowAccountDetails={dFlowAccountDetails}
         />
       ) : (
         <ServerFormContent
@@ -284,6 +405,9 @@ const ServerForm: React.FC<ServerFormProps> = ({
           formType={formType}
           onBack={handleResetType}
           isOnboarding={isOnboarding}
+          vpsPlan={
+            type === 'dFlow' ? vpsPlans.find(p => p.slug === option) : undefined
+          }
         />
       )}
     </div>
