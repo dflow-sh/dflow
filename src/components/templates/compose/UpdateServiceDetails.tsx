@@ -254,7 +254,7 @@ const ReferenceVariableDropdown = ({
   index: number
 }) => {
   const { setValue } = useFormContext()
-  const publicDomain = `{{ ${serviceName}:DFLOW_PUBLIC_DOMAIN }}`
+  const publicDomain = `{{ ${serviceName}.DFLOW_PUBLIC_DOMAIN }}`
   const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
   return (
@@ -290,7 +290,7 @@ const ReferenceVariableDropdown = ({
 
         {list.length
           ? list.map(database => {
-              const environmentVariableValue = `${database.name}:${database.databaseDetails?.type?.toUpperCase()}`
+              const environmentVariableValue = `${database.name}.${database.databaseDetails?.type?.toUpperCase()}`
 
               return (
                 <>

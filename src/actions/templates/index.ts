@@ -9,7 +9,7 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { REFERENCE_VARIABLE_REGEX } from '@/lib/constants'
+import { TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 import { Service } from '@/payload-types'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
@@ -144,6 +144,7 @@ export const deployTemplateAction = protectedClient
     // Step 1: update service names & reference variables name to unique
     const updatedServices = services.map(service => {
       const serviceName = serviceNames[`${service?.name}`]
+
       let variables = [] as Array<{
         key: string
         value: string
@@ -151,17 +152,28 @@ export const deployTemplateAction = protectedClient
       }>
 
       service?.variables?.forEach(variable => {
-        const match = variable.value.match(REFERENCE_VARIABLE_REGEX)
+        const extractedVariable = variable.value
+          .match(TEMPLATE_EXPR)?.[0]
+          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+          ?.trim()
 
-        if (match) {
-          const [_referenceVariable, type, serviceName, value] = match
-          const newServiceName = serviceNames[serviceName]
+        if (extractedVariable) {
+          const refMatch = extractedVariable.match(
+            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+          )
 
-          if (newServiceName) {
-            variables.push({
-              ...variable,
-              value: `$` + `{{${type}:${newServiceName}.${value}}}`,
-            })
+          if (refMatch) {
+            const [, serviceName, variableName] = refMatch
+            const newServiceName = serviceNames[serviceName]
+
+            if (newServiceName) {
+              variables.push({
+                ...variable,
+                value: `{{ ${newServiceName}.${variableName} }}`,
+              })
+            } else {
+              variables?.push(variable)
+            }
           } else {
             variables?.push(variable)
           }
@@ -333,18 +345,31 @@ export const deployTemplateFromArchitectureAction = protectedClient
         id?: string | null
       }>
 
+      // todo: check if variable is of reference type
+      // change the service name if exists
       service?.variables?.forEach(variable => {
-        const match = variable.value.match(REFERENCE_VARIABLE_REGEX)
+        const extractedVariable = variable.value
+          .match(TEMPLATE_EXPR)?.[0]
+          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+          ?.trim()
 
-        if (match) {
-          const [_referenceVariable, type, serviceName, value] = match
-          const newServiceName = serviceNames[serviceName]
+        if (extractedVariable) {
+          const refMatch = extractedVariable.match(
+            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+          )
 
-          if (newServiceName) {
-            variables.push({
-              ...variable,
-              value: `$` + `{{${type}:${newServiceName}.${value}}}`,
-            })
+          if (refMatch) {
+            const [, serviceName, variableName] = refMatch
+            const newServiceName = serviceNames[serviceName]
+
+            if (newServiceName) {
+              variables.push({
+                ...variable,
+                value: `{{ ${newServiceName}.${variableName} }}`,
+              })
+            } else {
+              variables?.push(variable)
+            }
           } else {
             variables?.push(variable)
           }

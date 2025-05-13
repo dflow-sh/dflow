@@ -9,6 +9,7 @@ import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { TEMPLATE_EXPR } from '@/lib/constants'
 import { pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { Service } from '@/payload-types'
@@ -39,7 +40,6 @@ interface QueueArgs {
   }
 }
 
-const TEMPLATE_EXPR = /\{\{\s*(.*?)\s*\}\}/g
 const knownVariables = [
   'DFLOW_PUBLIC_DOMAIN',
   'MONGO_URI',
