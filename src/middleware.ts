@@ -19,6 +19,8 @@ export function middleware(request: NextRequest) {
       'api',
       '_static',
       '_vercel',
+      'images',
+      'admin',
     ].includes(organisation)
   ) {
     response.cookies.set('organisation', organisation, {
@@ -31,6 +33,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api/|_next/|_static/|_vercel/|\\.well-known/|[\\w-]+\\.\\w+).*)',
+    '/((?!api/|admin/|_next/|_static/|_vercel/|\\.well-known/|[\\w-]+\\.\\w+).*)',
   ],
 }

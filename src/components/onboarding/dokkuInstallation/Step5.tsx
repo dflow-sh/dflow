@@ -23,13 +23,8 @@ const Step5 = ({
 }) => {
   const [selectedServer] = useQueryState('server')
   const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const serverOnboardingContext = function useSafeServerOnboarding() {
-    try {
-      return useServerOnboarding()
-    } catch (e) {
-      return null
-    }
-  }
+  const serverOnboardingContext = useServerOnboarding()
+
   const router = useRouter()
   const plugins = server?.plugins ?? []
   const letsencryptPluginDetails = plugins.find(
@@ -49,7 +44,7 @@ const Step5 = ({
       duration: 3000,
       onAutoClose: () => {
         if (isServerOnboarding) {
-          serverOnboardingContext()?.nextStep()
+          serverOnboardingContext?.nextStep()
         } else {
           router.push(`/onboarding/configure-domain?server=${selectedServer}`)
         }
@@ -80,7 +75,8 @@ const Step5 = ({
         pluginDetails.configuration.email
 
       if (!!letsencryptConfiguration && !!selectedServer) {
-        if (!server?.onboarded) {
+        // if server is not onboarded and we're not in server-onboarding page skipping updating server onboarding status
+        if (!server?.onboarded && !isServerOnboarding) {
           updateServer({
             serverId: server.id,
           })

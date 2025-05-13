@@ -25,7 +25,7 @@ export const ServerOnboardingProvider = ({
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(current => current + 1)
     }
   }
 

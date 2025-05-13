@@ -92,6 +92,9 @@ export const getServerBreadcrumbs = protectedClient
               'tenant.slug': {
                 equals: tenant.slug,
               },
+              id: {
+                equals: id,
+              },
             },
           ],
         },

@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload'
 
+import { isAdmin } from '@/payload/access/isAdmin'
+
 export const Backups: CollectionConfig = {
   slug: 'backups',
   labels: {
@@ -7,10 +9,10 @@ export const Backups: CollectionConfig = {
     plural: 'Backups',
   },
   access: {
-    // create: () => false,
-    // read: () => false,
-    // update: () => false,
-    // delete: () => false,
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   hooks: {},
   fields: [

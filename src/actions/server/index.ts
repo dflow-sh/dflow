@@ -230,7 +230,7 @@ export const completeServerOnboardingAction = protectedClient
   .schema(completeServerOnboardingSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const response = await payload.update({
       id: serverId,
@@ -241,7 +241,7 @@ export const completeServerOnboardingAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(`/servers/${serverId}`)
+      revalidatePath(`${userTenant.tenant}/servers/${serverId}`)
       return { success: true, server: response }
     }
 
