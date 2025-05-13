@@ -2,6 +2,8 @@ import LayoutClient from '../../../layout.client'
 import { redirect } from 'next/navigation'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import { getDFlowPlansAction } from '@/actions/cloud/dFlow'
+import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { getAddServerDetails } from '@/actions/pages/server'
 import ServerForm from '@/components/servers/ServerForm'
 import { isDemoEnvironment } from '@/lib/constants'
@@ -9,6 +11,8 @@ import { isDemoEnvironment } from '@/lib/constants'
 const SuspendedAddNewServerPage = async () => {
   const result = await getAddServerDetails()
   const dFlowAccount = await getCloudProvidersAccountsAction({ type: 'dFlow' })
+  const vpsPlans = await getDFlowPlansAction()
+
   const sshKeys = result?.data?.sshKeys ?? []
   const securityGroups = result?.data?.securityGroups ?? []
 
@@ -17,6 +21,7 @@ const SuspendedAddNewServerPage = async () => {
       sshKeys={sshKeys}
       securityGroups={securityGroups}
       dFlowAccountDetails={dFlowAccount?.data?.at(0)?.dFlowDetails}
+      vpsPlans={vpsPlans?.data as VpsPlan[]}
     />
   )
 }

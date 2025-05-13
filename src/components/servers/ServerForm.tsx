@@ -3,12 +3,11 @@
 import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import { ArrowRight, ChevronLeft, Cloud, Server } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
-import { getDFlowPlansAction } from '@/actions/cloud/dFlow'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -74,6 +73,15 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     setOption(selectedOption)
   }
 
+  const formatSpecs = (plan: any) => {
+    return `${plan.cpu.cores}C ${plan.cpu.type} • ${plan.ram.size}${plan.ram.unit} RAM • ${plan.storageOptions?.[0]?.size}${plan.storageOptions?.[0]?.unit} ${plan.storageOptions?.[0]?.type}`
+  }
+
+  // Helper function to format pricing
+  const formatPrice = (plan: any) => {
+    return plan.pricing?.[0] ? `$${plan.pricing[0].price.toFixed(2)}/month` : ''
+  }
+
   return (
     <div className='space-y-8'>
       {!isOnboarding && (
@@ -122,16 +130,24 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         <Cloud className='h-5 w-5' />
                       </div>
                       <div className='space-y-1'>
-                        <Label
-                          htmlFor={`${id}-${plan.slug}`}
-                          className='cursor-pointer font-medium'>
-                          {plan.name}
-                        </Label>
+                        <div className='flex items-center gap-2'>
+                          <Label
+                            htmlFor={`${id}-${plan.slug}`}
+                            className='cursor-pointer font-medium'>
+                            {plan.name}
+                          </Label>
+                          {plan.slug === 'cloud-vps-10' && (
+                            <Badge variant='success' className='text-xs'>
+                              Free
+                            </Badge>
+                          )}
+                        </div>
                         <p className='text-sm text-muted-foreground'>
-                          {/* {plan.specs} */}
+                          {formatSpecs(plan)}
                         </p>
-                        <p className='text-sm font-medium text-primary'>
-                          {/* {plan.pricing} */}
+                        <p
+                          className={`text-sm font-medium text-primary ${plan.slug === 'cloud-vps-10' ? 'line-through' : ''}`}>
+                          {formatPrice(plan)}
                         </p>
                       </div>
                     </div>
@@ -252,9 +268,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           size='lg'
           disabled={!selectedOption}
           onClick={handleContinue}>
-          {selectedOption === 'manual'
+          {selectedType === 'manual'
             ? 'Continue with Manual Setup'
-            : selectedOption.startsWith('contabo')
+            : selectedType === 'dFlow'
               ? `Continue with ${vpsPlans.find(p => p.slug === selectedOption)?.name}`
               : `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`}
           <ArrowRight className='ml-2 h-4 w-4' />
@@ -346,31 +362,16 @@ const ServerForm: React.FC<ServerFormProps> = ({
   server,
   formType,
   dFlowAccountDetails,
+  vpsPlans,
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [option, setOption] = useQueryState(
     'option',
     parseAsString.withDefault(''),
   )
-  const [vpsPlans, setVpsPlans] = useState<VpsPlan[]>([])
 
   const pathName = usePathname()
   const isOnboarding = pathName.includes('onboarding')
-
-  const { execute: vpsPlansExecute, isPending: vpsPlansPending } = useAction(
-    getDFlowPlansAction,
-    {
-      onSuccess: ({ data }) => {
-        setVpsPlans(data || [])
-      },
-    },
-  )
-
-  useEffect(() => {
-    if (dFlowAccountDetails?.accessToken) {
-      vpsPlansExecute({ accessToken: dFlowAccountDetails.accessToken })
-    }
-  }, [dFlowAccountDetails?.accessToken])
 
   useEffect(() => {
     return () => {
@@ -393,7 +394,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           setOption={setOption}
           option={option}
           isOnboarding={isOnboarding}
-          vpsPlans={vpsPlans}
+          vpsPlans={vpsPlans as VpsPlan[]}
           dFlowAccountDetails={dFlowAccountDetails}
         />
       ) : (
@@ -406,7 +407,9 @@ const ServerForm: React.FC<ServerFormProps> = ({
           onBack={handleResetType}
           isOnboarding={isOnboarding}
           vpsPlan={
-            type === 'dFlow' ? vpsPlans.find(p => p.slug === option) : undefined
+            type === 'dFlow'
+              ? vpsPlans?.find(p => p.slug === option)
+              : undefined
           }
         />
       )}

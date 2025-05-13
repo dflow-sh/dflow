@@ -1,7 +1,14 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckCircle } from 'lucide-react'
+import {
+  Camera,
+  CheckCircle,
+  CircuitBoard,
+  Cpu,
+  HardDrive,
+  Network,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
@@ -19,7 +26,17 @@ import { z } from 'zod'
 import { createSshKeysAndVpsAction } from '@/actions/cloud/dFlow'
 import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { generateSSHKeyAction } from '@/actions/sshkeys'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
@@ -31,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 
 const loginSchema = z.object({
   rootPassword: z.number().default(141086),
@@ -87,9 +105,9 @@ const VpsForm: React.FC<{
     {
       onSuccess: ({ data }) => {
         if (data) {
-          setValue('login.sshKey.name', handleGenerateName())
-          setValue('login.sshKey.publicKey', data.publicKey)
-          setValue('login.sshKey.privateKey', data.privateKey)
+          form.setValue('login.sshKey.name', handleGenerateName())
+          form.setValue('login.sshKey.publicKey', data.publicKey)
+          form.setValue('login.sshKey.privateKey', data.privateKey)
           toast.success('SSH key pair generated successfully')
         }
       },
@@ -121,16 +139,7 @@ const VpsForm: React.FC<{
     },
   })
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-    getValues,
-    reset,
-  } = useForm<VpsFormData>({
+  const form = useForm<VpsFormData>({
     resolver: zodResolver(vpsSchema),
     defaultValues: {
       login: {
@@ -153,15 +162,15 @@ const VpsForm: React.FC<{
       )
       const displayName = handleGenerateName()
 
-      setValue('displayName', displayName)
-      setValue('pricing', {
+      form.setValue('displayName', displayName)
+      form.setValue('pricing', {
         id: selectedPricing?.id || vpsPlan?.pricing?.at(0)?.id || '',
         priceId:
           selectedPricing?.stripePriceId ||
           vpsPlan?.pricing?.at(0)?.stripePriceId ||
           '',
       })
-      setValue('region', {
+      form.setValue('region', {
         name:
           freeRegion?.regionCode ||
           vpsPlan?.regionOptions?.at(0)?.regionCode ||
@@ -171,7 +180,7 @@ const VpsForm: React.FC<{
           vpsPlan?.regionOptions?.at(0)?.stripePriceId ||
           '',
       })
-      setValue('storageType', {
+      form.setValue('storageType', {
         productId: freeStorageType
           ? freeStorageType?.productId!
           : vpsPlan?.storageOptions?.at(0)?.productId!,
@@ -179,12 +188,12 @@ const VpsForm: React.FC<{
           ? freeStorageType?.stripePriceId
           : vpsPlan?.storageOptions?.at(0)?.stripePriceId!,
       })
-      setValue('image', {
+      form.setValue('image', {
         imageId: vpsPlan?.images?.at(0)?.id || '',
         versionId: vpsPlan?.images?.at(0)?.versions?.at(0)?.imageId || '',
         priceId: vpsPlan?.images?.at(0)?.versions?.at(0)?.stripePriceId || '',
       })
-      setValue('backup', {
+      form.setValue('backup', {
         id: freeBackup?.id || vpsPlan?.backupOptions?.at(0)?.id || '',
         priceId:
           freeBackup?.stripePriceId ||
@@ -192,13 +201,13 @@ const VpsForm: React.FC<{
           '',
       })
     }
-  }, [])
+  }, [vpsPlan])
 
-  const selectedTerm = watch('pricing')
-  const selectedImageId = watch('image.imageId')
-  const selectedImageVersionId = watch('image.versionId')
+  const selectedTerm = form.watch('pricing')
+  const selectedImageId = form.watch('image.imageId')
+  const selectedImageVersionId = form.watch('image.versionId')
   const selectedPricing = vpsPlan?.pricing?.find(
-    p => p.id === watch('pricing.id'),
+    p => p.id === form.watch('pricing.id'),
   )
 
   const selectedImage = vpsPlan?.images?.find(
@@ -229,499 +238,526 @@ const VpsForm: React.FC<{
   }
 
   return (
-    <section className='flex flex-col'>
-      <div>
-        <span className='bg-gradient-to-r from-slate-200/60 via-slate-200 to-slate-200/60 bg-clip-text text-lg font-bold text-transparent md:text-2xl'>
-          VPS Configuration
-        </span>
+    <section>
+      <div className='flex items-center justify-between'>
+        <div>
+          <div className='text-2xl font-bold text-foreground'>
+            {vpsPlan?.name}
+          </div>
+          <div className='text-muted-foreground'>
+            Configure your server instance
+          </div>
+        </div>
+        <Badge className='bg-primary text-primary-foreground'>
+          1 Month Free
+        </Badge>
       </div>
-
-      <div className='mt-5'>
-        <h4 className='text-cq-text text-lg font-medium'>{vpsPlan?.name}</h4>
-
-        {/* VPS Specs */}
-        <div className='mt-4'>
-          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-            <div className='bg-cq-foreground rounded-lg p-4 shadow-lg'>
-              <strong className='text-cq-text text-lg'>CPU</strong>
-              <p className='text-cq-text-secondary mt-2 text-sm'>{`${vpsPlan?.cpu.cores} ${vpsPlan?.cpu.type === 'virtual' ? 'vCPU' : 'CPU'} Cores`}</p>
-            </div>
-
-            <div className='bg-cq-foreground rounded-lg p-4 shadow-lg'>
-              <strong className='text-cq-text text-lg'>RAM</strong>
-              <p className='text-cq-text-secondary mt-2 text-sm'>{`${vpsPlan?.ram.size} ${vpsPlan?.ram.unit} RAM`}</p>
-            </div>
-
-            <div className='bg-cq-foreground rounded-lg p-4 shadow-lg'>
-              <strong className='text-cq-text text-lg'>Storage</strong>
-              <p className='text-cq-text-secondary mt-2 text-sm'>
-                {
-                  vpsPlan?.storageOptions
-                    ?.filter(s => s.price.type === 'free')
-                    .map(s => `${s.size} ${s.type}`)
-                    .join(' or ') as string
-                }
+      <div>
+        {/* Specs Overview */}
+        <div className='mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
+          <Card>
+            <CardContent className='flex h-full flex-col p-4'>
+              <div className='mb-2 flex items-center space-x-2'>
+                <Cpu className='h-5 w-5 text-primary' />
+                <h3 className='font-semibold text-foreground'>CPU</h3>
+              </div>
+              <p className='text-muted-foreground'>
+                {`${vpsPlan?.cpu.cores} ${vpsPlan?.cpu.type === 'virtual' ? 'vCPU' : 'CPU'} Cores`}
               </p>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className='bg-cq-foreground rounded-lg p-4 shadow-lg'>
-              <strong className='text-cq-text text-lg'>Snapshot</strong>
-              <p className='text-cq-text-secondary mt-2 text-sm'>{`${vpsPlan?.snapshots} ${vpsPlan?.snapshots === 1 ? 'Snapshot' : 'Snapshots'}`}</p>
-            </div>
+          <Card>
+            <CardContent className='flex h-full flex-col p-4'>
+              <div className='mb-2 flex items-center space-x-2'>
+                <CircuitBoard className='h-5 w-5 text-primary' />
+                <h3 className='font-semibold text-foreground'>RAM</h3>
+              </div>
+              <p className='text-muted-foreground'>
+                {`${vpsPlan?.ram.size} ${vpsPlan?.ram.unit} RAM`}
+              </p>
+            </CardContent>
+          </Card>
 
-            <div className='bg-cq-foreground col-span-1 rounded-lg p-4 shadow-lg sm:col-span-2 lg:col-span-4'>
-              <strong className='text-cq-text text-lg'>Traffic</strong>
-              <p className='text-cq-text-secondary mt-2 text-sm'>
-                <span className='font-semibold'>{`${vpsPlan?.bandwidth.traffic} ${vpsPlan?.bandwidth.trafficUnit} Traffic`}</span>
+          <Card>
+            <CardContent className='flex h-full flex-col p-4'>
+              <div className='mb-2 flex items-center space-x-2'>
+                <HardDrive className='h-5 w-5 text-primary' />
+                <h3 className='font-semibold text-foreground'>Storage</h3>
+              </div>
+              <p className='text-muted-foreground'>
+                {vpsPlan?.storageOptions
+                  ?.filter(s => s.price.type === 'free')
+                  .map(s => `${s.size} ${s.type}`)
+                  .join(' or ')}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className='flex h-full flex-col p-4'>
+              <div className='mb-2 flex items-center space-x-2'>
+                <Camera className='h-5 w-5 text-primary' />
+                <h3 className='font-semibold text-foreground'>Snapshot</h3>
+              </div>
+              <p className='text-muted-foreground'>
+                {`${vpsPlan?.snapshots} ${vpsPlan?.snapshots === 1 ? 'Snapshot' : 'Snapshots'}`}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className='mb-6'>
+          <CardContent className='flex items-center p-4'>
+            <Network className='mr-2 h-5 w-5 text-primary' />
+            <div>
+              <h3 className='font-semibold text-foreground'>Traffic</h3>
+              <p className='text-muted-foreground'>
+                <span className='font-medium'>{`${vpsPlan?.bandwidth.traffic} ${vpsPlan?.bandwidth.trafficUnit} Traffic`}</span>
                 <span className='text-sm'>{` (${vpsPlan?.bandwidth.incomingUnlimited ? 'Unlimited Incoming' : ''} )`}</span>
               </p>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className='mt-6 flex flex-col gap-y-5'>
-          {/* Display Name */}
-          <div>
-            <label
-              className='mb-1 block text-sm font-medium text-slate-300'
-              htmlFor='displayName'>
-              Display Name <span className='text-cq-danger'>*</span>
-            </label>
-            <Input
-              {...register('displayName')}
-              id='displayName'
-              className='w-full'
-              type='text'
-              disabled={true}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            {/* Display Name */}
+            <FormField
+              control={form.control}
+              name='displayName'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Display Name <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      className='w-full bg-background'
+                      type='text'
+                      disabled={true}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {errors?.displayName && (
-              <p className='text-cq-danger mt-1 text-xs'>
-                {errors?.displayName.message}
-              </p>
-            )}
-          </div>
 
-          {/* Select Term Length (Read-only) */}
-          <div>
-            <div className='mb-1 flex items-center justify-between'>
-              <label
-                className='block text-sm font-medium text-slate-300'
-                htmlFor='termLength'>
-                Term Length <span className='text-cq-danger'>*</span>
-              </label>
-            </div>
-
-            <RadioGroup
-              value={selectedTerm?.id}
-              disabled={true}
-              className='flex w-full'>
-              {vpsPlan?.pricing?.map(plan => {
-                return (
-                  <div
-                    key={plan.id}
-                    className={`relative flex flex-1 items-center transition-transform duration-300 ${
-                      plan.period === 1 ? 'scale-100' : 'scale-95'
-                    }`}>
-                    <RadioGroupItem
-                      value={plan.id as string}
-                      id={`pricing-${plan.id}`}
-                      className='hidden h-4 w-4'
-                      disabled
-                    />
-                    {plan.period === 1 && (
-                      <CheckCircle
-                        className='stroke-cq-success absolute right-4 top-3'
-                        size={20}
-                      />
-                    )}
-                    <label
-                      htmlFor={`pricing-${plan.id}`}
-                      className={`bg-cq-foreground w-full cursor-not-allowed rounded-lg p-4 shadow-lg transition-all duration-300 ease-in-out ${
-                        plan.period === 1
-                          ? 'border-cq-primary border-2'
-                          : 'border-2 border-transparent'
-                      }`}>
-                      <div className='text-cq-text text-lg'>{`${plan.period} ${plan.period === 1 ? 'Month' : 'Months'}`}</div>
-                      <div className='text-cq-text-secondary'>
-                        {Boolean(plan.offerPrice) ? (
-                          <div>
-                            <span className='line-through'>{`${formatValue(plan.price)} / month`}</span>
-                            <span>{` ${formatValue(plan.offerPrice as number)} / month`}</span>
-                          </div>
-                        ) : (
-                          <div className='text-cq-text-secondary'>{`${formatValue(plan.price)} / month`}</div>
-                        )}
-                      </div>
-                    </label>
-                  </div>
-                )
-              })}
-            </RadioGroup>
-          </div>
-
-          {/* Select Region (Read-only) */}
-          <div>
-            <label
-              className='mb-1 block text-sm font-medium text-slate-300'
-              htmlFor='region'>
-              Region <span className='text-cq-danger'>*</span>
-            </label>
-
-            <Select disabled value='EU'>
-              <SelectTrigger>
-                <SelectValue>
-                  {vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
-                    ?.region || 'Europe'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Region is pre-selected</SelectLabel>
-                  <SelectItem value='EU'>Europe</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Select Storage Type (Read-only) */}
-          <div>
-            <label
-              className='mb-1 block text-sm font-medium text-slate-300'
-              htmlFor='storageType'>
-              Storage Type <span className='text-cq-danger'>*</span>
-            </label>
-
-            <Select disabled value='V92'>
-              <SelectTrigger>
-                <SelectValue>
-                  {vpsPlan?.storageOptions?.find(s => s.productId === 'V92')
-                    ?.size || '40'}{' '}
-                  GB SSD
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Storage type is pre-selected</SelectLabel>
-                  <SelectItem value='V92'>40 GB SSD</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Select Image (Read-only) */}
-          <div>
-            <div className='mb-1 flex items-center justify-between'>
-              <label className='block text-sm font-medium text-slate-300'>
-                Image <span className='text-cq-danger'>*</span>
-              </label>
-            </div>
-
-            <RadioGroup
-              value={selectedImageId}
-              disabled={true}
-              className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-              {vpsPlan?.images?.map(image => {
-                const selectedVersion = image.versions?.find(
-                  version => version.imageId === selectedImageVersionId,
-                )
-
-                return (
-                  <div
-                    key={image.id}
-                    className={`relative flex flex-1 items-stretch ${
-                      selectedImageId === image.id ? 'scale-100' : 'scale-95'
-                    }`}>
-                    {selectedImageId === image.id && (
-                      <CheckCircle
-                        className='stroke-cq-success absolute right-4 top-3'
-                        size={20}
-                      />
-                    )}
-                    <RadioGroupItem
-                      value={image.id as string}
-                      id={`image-${image.id}`}
-                      className='hidden h-4 w-4'
-                      disabled
-                    />
-                    <label
-                      htmlFor={`image-${image.id}`}
-                      className={`bg-cq-foreground flex w-full cursor-not-allowed flex-col justify-center rounded-lg p-4 shadow-lg transition-all duration-300 ease-in-out ${
-                        selectedImageId === image.id
-                          ? 'border-cq-primary border-2'
-                          : 'border-2 border-transparent'
-                      } h-full`}>
-                      <div className='text-cq-text text-lg'>{image.label}</div>
-                      <div className='text-cq-text-secondary'>
-                        {selectedVersion?.label || 'Latest'}
-                      </div>
-                      <div className='text-cq-text-secondary'>
-                        {selectedVersion?.price.type === 'included'
-                          ? 'Included'
-                          : formatValue(
-                              selectedVersion?.price.amount as number,
-                            )}
-                      </div>
-                    </label>
-                  </div>
-                )
-              })}
-            </RadioGroup>
-          </div>
-
-          {/* Server Login Details */}
-          <div>
-            <label className='mb-1 block text-sm font-medium text-slate-300'>
-              Server Login Details <span className='text-cq-danger'>*</span>
-            </label>
-
-            <div className='mt-2'>
-              <div>
-                <label
-                  className='mb-1 block text-sm font-medium text-slate-300'
-                  htmlFor='defaultUser'>
-                  Username <span className='text-cq-danger'>*</span>
-                </label>
-                <Input
-                  id='defaultUser'
-                  className='w-full'
-                  type='text'
-                  value='root'
-                  disabled
-                />
-              </div>
-              <div className='mt-1'>
-                <label
-                  className='mb-1 block text-sm font-medium text-slate-300'
-                  htmlFor='rootPassword'>
-                  Password <span className='text-cq-danger'>*</span>
-                </label>
-                <Input
-                  id='rootPassword'
-                  className='w-full'
-                  type='text'
-                  value='141086'
-                  disabled
-                />
-              </div>
-
-              {/* {vpsPlan?.loginDetails.useSSHKeys && (
-                <div className='mt-1'>
-                  <label
-                    className='mb-1 block text-sm font-medium text-slate-300'
-                    htmlFor='sshKeys'>
-                    SSH Keys
-                  </label>
-
-                  <FormField
-                    control={control}
-                    name='login.sshKey'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>SSH Key</FormLabel>
-                        {isCreating ? (
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder='Select a SSH key' />
-                              </SelectTrigger>
-                            </FormControl>
-
-                            <SelectContent>
-                              {sshKeys.map(({ name, id }) => (
-                                <SelectItem key={id} value={id}>
-                                  {name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <>
-                            <Input
-                              value={
-                                typeof server?.sshKey === 'string'
-                                  ? server?.sshKey
-                                  : server?.sshKey?.name || 'N/A'
-                              }
-                              disabled
-                              className='bg-muted'
-                            />
-                            <p className='mt-1 text-xs text-muted-foreground'>
-                              SSH keys cannot be updated after instance creation
-                            </p>
-                          </>
-                        )}
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )} */}
-            </div>
-          </div>
-
-          {/* Backup Options (Read-only) */}
-          {Boolean(vpsPlan?.backupOptions) && (
-            <div className='mt-4'>
-              <label className='mb-1 block text-sm font-medium text-slate-300'>
-                Data Protection with Auto Backup{' '}
-                <span className='text-cq-danger'>*</span>
-              </label>
-
-              <RadioGroup
-                value={watch('backup.id')}
-                disabled={true}
-                className='flex'>
-                {vpsPlan?.backupOptions?.map(backupOption => {
-                  const isSelected = backupOption.price.type === 'included'
-
-                  return (
+            {/* Term Length */}
+            <Card>
+              <CardHeader className='pb-2'>
+                <FormLabel>
+                  Term Length <span className='text-destructive'>*</span>
+                </FormLabel>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup
+                  value={selectedTerm?.id}
+                  disabled={true}
+                  className='flex w-full flex-col gap-4 sm:flex-row'>
+                  {vpsPlan?.pricing?.map(plan => (
                     <div
-                      key={backupOption.id}
-                      className={`relative flex flex-1 items-stretch ${
-                        isSelected ? 'scale-100' : 'scale-95'
+                      key={plan.id}
+                      className={`relative flex-1 transition-transform duration-300 ${
+                        plan.period === 1 ? 'scale-100' : 'scale-95'
                       }`}>
-                      {isSelected && (
-                        <CheckCircle
-                          className='stroke-cq-success absolute right-4 top-3'
-                          size={20}
-                        />
-                      )}
                       <RadioGroupItem
-                        value={backupOption.id as string}
-                        id={`backup-${backupOption.id}`}
+                        value={plan.id as string}
+                        id={`pricing-${plan.id}`}
                         className='hidden h-4 w-4'
                         disabled
                       />
+                      {plan.period === 1 && (
+                        <CheckCircle
+                          className='absolute right-4 top-3 text-primary'
+                          size={20}
+                        />
+                      )}
                       <label
-                        htmlFor={`backup-${backupOption.id}`}
-                        className={`bg-cq-foreground w-full cursor-not-allowed rounded-lg border-2 p-4 shadow-lg transition-all duration-300 ease-in-out ${
-                          isSelected
-                            ? 'border-cq-primary border-2'
-                            : 'border-2 border-transparent'
-                        } h-full`}>
-                        <div className='mb-2'>
-                          <span className='text-cq-text text-lg font-semibold'>
-                            {backupOption.label}
-                          </span>
-                        </div>
-                        <div className='text-cq-text-secondary text-sm'>
-                          <strong>Mode:</strong> {backupOption.mode}
-                        </div>
-                        <div className='text-cq-text-secondary text-sm'>
-                          <strong>Frequency:</strong> {backupOption.frequency}
-                        </div>
-                        <div className='text-cq-text-secondary text-sm'>
-                          <strong>Recovery:</strong> {backupOption.recovery}
-                        </div>
-                        <div className='text-cq-text-secondary text-sm'>
-                          <strong>Backup Retention:</strong>{' '}
-                          {backupOption.retention || 'x'}
-                        </div>
-                        <div className='text-cq-primary mt-2 font-bold'>
-                          {backupOption.price.type === 'paid'
-                            ? `${formatValue(backupOption.price.amount as number)} / month`
-                            : 'Free'}
-                        </div>
-                        <div className='mt-2 text-sm text-gray-400'>
-                          {backupOption.description}
+                        htmlFor={`pricing-${plan.id}`}
+                        className={`block w-full cursor-not-allowed rounded-lg p-4 transition-all duration-300 ease-in-out ${
+                          plan.period === 1
+                            ? 'border-2 border-primary bg-secondary/10'
+                            : 'border-2 border-transparent bg-secondary/5'
+                        }`}>
+                        <div className='text-lg text-foreground'>{`${plan.period} ${plan.period === 1 ? 'Month' : 'Months'}`}</div>
+                        <div className='text-muted-foreground'>
+                          {Boolean(plan.offerPrice) ? (
+                            <div>
+                              <span className='line-through'>{`${formatValue(plan.price)} / month`}</span>
+                              <span>{` ${formatValue(plan.offerPrice as number)} / month`}</span>
+                            </div>
+                          ) : (
+                            <div>{`${formatValue(plan.price)} / month`}</div>
+                          )}
                         </div>
                       </label>
                     </div>
-                  )
-                })}
-              </RadioGroup>
-            </div>
-          )}
+                  ))}
+                </RadioGroup>
+              </CardContent>
+            </Card>
 
-          {/* Price Summary Section - Simplified */}
-          <div className='bg-cq-foreground mt-6 rounded-lg p-5 shadow-lg'>
-            <h3 className='text-cq-text mb-4 text-lg font-semibold'>
-              Price Summary
-            </h3>
-
-            <div className='space-y-3'>
-              {/* Base Plan */}
-              <div className='flex justify-between'>
-                <span className='text-cq-text-secondary'>
-                  {vpsPlan?.name} (1 Month)
-                </span>
-                <span className='text-cq-text'>
-                  {vpsPlan?.pricing?.find(p => p.period === 1)?.offerPrice
-                    ? formatValue(
-                        vpsPlan?.pricing?.find(p => p.period === 1)
-                          ?.offerPrice as number,
-                      )
-                    : formatValue(
-                        vpsPlan?.pricing?.find(p => p.period === 1)
-                          ?.price as number,
-                      )}
-                </span>
-              </div>
-
-              {/* Region Cost */}
-              <div className='flex justify-between'>
-                <span className='text-cq-text-secondary'>
-                  Region:{' '}
-                  {vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
-                    ?.region || 'Europe'}
-                </span>
-                <span className='text-cq-text'>
-                  {vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
-                    ?.price.type === 'free'
-                    ? 'Free'
-                    : formatValue(
-                        vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
-                          ?.price.amount as number,
-                      )}
-                </span>
-              </div>
-
-              {/* Divider */}
-              <div className='border-cq-text-secondary my-2 border-t'></div>
-
-              {/* Total for selected period */}
-              <div className='flex justify-between font-bold'>
-                <span className='text-cq-text'>Total (1 month)</span>
-                <span className='text-cq-primary text-lg'>
-                  {formatValue(
-                    (vpsPlan?.pricing?.find(p => p.period === 1)?.offerPrice ||
-                      vpsPlan?.pricing?.find(p => p.period === 1)?.price ||
-                      0) +
-                      (vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
-                        ?.price.type === 'paid'
-                        ? (vpsPlan?.regionOptions?.find(
+            {/* Select Region */}
+            <FormField
+              control={form.control}
+              name='region.name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Region <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select disabled value='EU'>
+                      <SelectTrigger className='bg-background'>
+                        <SelectValue>
+                          {vpsPlan?.regionOptions?.find(
                             r => r.regionCode === 'EU',
-                          )?.price.amount as number)
-                        : 0),
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
+                          )?.region || 'Europe'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Region is pre-selected</SelectLabel>
+                          <SelectItem value='EU'>Europe</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Submit & Cancel Button */}
-          <div className='mt-5 flex w-full items-center justify-end space-x-4'>
-            <Button
-              type='button'
-              onClick={handleCancel}
-              variant={'outline'}
-              size={'default'}
-              disabled={isCreatingVpsOrder}>
-              Cancel
-            </Button>
-            <Button
-              type='submit'
-              size={'default'}
-              disabled={isCreatingVpsOrder}
-              isLoading={isCreatingVpsOrder}>
-              Place Order
-            </Button>
-          </div>
-        </form>
+            {/* Select Storage Type */}
+            <FormField
+              control={form.control}
+              name='storageType.productId'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Storage Type <span className='text-destructive'>*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Select disabled value='V92'>
+                      <SelectTrigger className='bg-background'>
+                        <SelectValue>
+                          {vpsPlan?.storageOptions?.find(
+                            s => s.productId === 'V92',
+                          )?.size || '40'}{' '}
+                          GB SSD
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>
+                            Storage type is pre-selected
+                          </SelectLabel>
+                          <SelectItem value='V92'>40 GB SSD</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Select Image */}
+            <Card>
+              <CardHeader className='pb-2'>
+                <FormLabel>
+                  Image <span className='text-destructive'>*</span>
+                </FormLabel>
+              </CardHeader>
+              <CardContent>
+                <RadioGroup
+                  value={selectedImageId}
+                  disabled={true}
+                  className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+                  {vpsPlan?.images?.map(image => {
+                    const selectedVersion = image.versions?.find(
+                      version => version.imageId === selectedImageVersionId,
+                    )
+
+                    return (
+                      <div
+                        key={image.id}
+                        className={`relative transition-transform duration-300 ${
+                          selectedImageId === image.id
+                            ? 'scale-100'
+                            : 'scale-95'
+                        }`}>
+                        {selectedImageId === image.id && (
+                          <CheckCircle
+                            className='absolute right-4 top-3 text-primary'
+                            size={20}
+                          />
+                        )}
+                        <RadioGroupItem
+                          value={image.id as string}
+                          id={`image-${image.id}`}
+                          className='hidden h-4 w-4'
+                          disabled
+                        />
+                        <label
+                          htmlFor={`image-${image.id}`}
+                          className={`flex h-full w-full cursor-not-allowed flex-col rounded-lg p-4 transition-all duration-300 ease-in-out ${
+                            selectedImageId === image.id
+                              ? 'border-2 border-primary bg-secondary/10'
+                              : 'border-2 border-transparent bg-secondary/5'
+                          }`}>
+                          <div className='text-lg text-foreground'>
+                            {image.label}
+                          </div>
+                          <div className='text-muted-foreground'>
+                            {selectedVersion?.label || 'Latest'}
+                          </div>
+                          <div className='mt-2 text-primary'>
+                            {selectedVersion?.price.type === 'included'
+                              ? 'Included'
+                              : formatValue(
+                                  selectedVersion?.price.amount as number,
+                                )}
+                          </div>
+                        </label>
+                      </div>
+                    )
+                  })}
+                </RadioGroup>
+              </CardContent>
+            </Card>
+
+            {/* Server Login Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className='text-lg'>
+                  Server Login Details{' '}
+                  <span className='text-destructive'>*</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <FormField
+                  control={form.control}
+                  name='login.rootPassword'
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>
+                        Username <span className='text-destructive'>*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          id='defaultUser'
+                          className='w-full bg-background'
+                          type='text'
+                          value='root'
+                          disabled
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name='login.rootPassword'
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>
+                        Password <span className='text-destructive'>*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          id='rootPassword'
+                          className='w-full bg-background'
+                          type='text'
+                          value='141086'
+                          disabled
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Backup Options */}
+            {Boolean(vpsPlan?.backupOptions) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className='text-lg'>
+                    Data Protection with Auto Backup{' '}
+                    <span className='text-destructive'>*</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup
+                    value={form.watch('backup.id')}
+                    disabled={true}
+                    className='flex flex-col gap-4 sm:flex-row'>
+                    {vpsPlan?.backupOptions?.map(backupOption => {
+                      const isSelected = backupOption.price.type === 'included'
+
+                      return (
+                        <div
+                          key={backupOption.id}
+                          className={`relative flex-1 transition-transform duration-300 ${
+                            isSelected ? 'scale-100' : 'scale-95'
+                          }`}>
+                          {isSelected && (
+                            <CheckCircle
+                              className='absolute right-4 top-3 text-primary'
+                              size={20}
+                            />
+                          )}
+                          <RadioGroupItem
+                            value={backupOption.id as string}
+                            id={`backup-${backupOption.id}`}
+                            className='hidden h-4 w-4'
+                            disabled
+                          />
+                          <label
+                            htmlFor={`backup-${backupOption.id}`}
+                            className={`block h-full w-full cursor-not-allowed rounded-lg transition-all duration-300 ease-in-out ${
+                              isSelected
+                                ? 'border-2 border-primary bg-secondary/10'
+                                : 'border-2 border-transparent bg-secondary/5'
+                            } p-4`}>
+                            <div className='mb-2'>
+                              <span className='text-lg font-semibold text-foreground'>
+                                {backupOption.label}
+                              </span>
+                            </div>
+                            <div className='space-y-1 text-sm text-muted-foreground'>
+                              <div>
+                                <strong>Mode:</strong> {backupOption.mode}
+                              </div>
+                              <div>
+                                <strong>Frequency:</strong>{' '}
+                                {backupOption.frequency}
+                              </div>
+                              <div>
+                                <strong>Recovery:</strong>{' '}
+                                {backupOption.recovery}
+                              </div>
+                              <div>
+                                <strong>Backup Retention:</strong>{' '}
+                                {backupOption.retention || 'x'}
+                              </div>
+                            </div>
+                            <div className='mt-2 font-bold text-primary'>
+                              {backupOption.price.type === 'paid'
+                                ? `${formatValue(backupOption.price.amount as number)} / month`
+                                : 'Free'}
+                            </div>
+                            <div className='mt-2 text-sm text-muted-foreground'>
+                              {backupOption.description}
+                            </div>
+                          </label>
+                        </div>
+                      )
+                    })}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Price Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Price Summary</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>
+                    {vpsPlan?.name} (1 Month)
+                  </span>
+                  <span className='text-foreground'>
+                    {vpsPlan?.pricing?.find(p => p.period === 1)?.offerPrice
+                      ? formatValue(
+                          vpsPlan?.pricing?.find(p => p.period === 1)
+                            ?.offerPrice as number,
+                        )
+                      : formatValue(
+                          vpsPlan?.pricing?.find(p => p.period === 1)
+                            ?.price as number,
+                        )}
+                  </span>
+                </div>
+
+                <div className='flex justify-between'>
+                  <span className='text-muted-foreground'>
+                    Region:{' '}
+                    {vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
+                      ?.region || 'Europe'}
+                  </span>
+                  <span className='text-foreground'>
+                    {vpsPlan?.regionOptions?.find(r => r.regionCode === 'EU')
+                      ?.price.type === 'free'
+                      ? 'Free'
+                      : formatValue(
+                          vpsPlan?.regionOptions?.find(
+                            r => r.regionCode === 'EU',
+                          )?.price.amount as number,
+                        )}
+                  </span>
+                </div>
+
+                <Separator className='my-2' />
+
+                <div className='flex justify-between'>
+                  <span className='font-bold text-foreground'>
+                    Total (1 month)
+                  </span>
+                  <span className='text-lg text-primary line-through'>
+                    {formatValue(
+                      (vpsPlan?.pricing?.find(p => p.period === 1)
+                        ?.offerPrice ||
+                        vpsPlan?.pricing?.find(p => p.period === 1)?.price ||
+                        0) +
+                        (vpsPlan?.regionOptions?.find(
+                          r => r.regionCode === 'EU',
+                        )?.price.type === 'paid'
+                          ? (vpsPlan?.regionOptions?.find(
+                              r => r.regionCode === 'EU',
+                            )?.price.amount as number)
+                          : 0),
+                    )}
+                  </span>
+                </div>
+
+                <Card className='border-[#2b4623] bg-[#1a2b14] text-[#4ade80]'>
+                  <CardContent className='p-4'>
+                    <p className='font-medium'>
+                      dFlow Cloud is providing 20 free credits which will be
+                      used for 1 month free server!
+                    </p>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+
+            {/* Submit & Cancel Button */}
+            <div className='flex justify-end space-x-4'>
+              <Button
+                type='button'
+                onClick={handleCancel}
+                variant='outline'
+                disabled={isCreatingVpsOrder}>
+                Cancel
+              </Button>
+              <Button
+                type='submit'
+                disabled={isCreatingVpsOrder}
+                className='bg-primary text-primary-foreground hover:bg-primary/90'>
+                {isCreatingVpsOrder ? 'Creating...' : 'Place Order'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </section>
   )

@@ -12,7 +12,6 @@ import {
   createSshKeyActionSchema,
   createSshKeysAndVpsActionSchema,
   createVpsOrderActionSchema,
-  getDFlowPlansActionSchema,
 } from './validator'
 
 export const connectDFlowAccountAction = protectedClient
@@ -59,13 +58,10 @@ export const getDFlowPlansAction = protectedClient
   .metadata({
     actionName: 'getDFlowPlansAction',
   })
-  .schema(getDFlowPlansActionSchema)
   .action(async ({ clientInput }) => {
-    const { accessToken } = clientInput
-
     const vpsPlansRes = await axios.get(`${env.DFLOW_CLOUD_URL}/api/vpsPlans`, {
       headers: {
-        Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${accessToken}`,
+        Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${env.DFLOW_CLOUD_API_KEY}`,
       },
     })
 
@@ -142,60 +138,59 @@ export const createSshKeysAndVpsAction = protectedClient
     })
     const token = dFlowAccount[0].dFlowDetails?.accessToken
 
-    let createdSecretRes
-    try {
-      createdSecretRes = await axios.post(
-        `${env.DFLOW_CLOUD_URL}/api/secrets`,
-        {
-          name: sshKeys[0].name,
-          type: 'ssh',
-          publicKey: sshKeys[0].publicSshKey,
+    const { data: createdSecretRes } = await axios.post(
+      `${env.DFLOW_CLOUD_URL}/api/secrets`,
+      {
+        name: sshKeys[0].name,
+        type: 'ssh',
+        publicKey: sshKeys[0].publicSshKey,
+      },
+      {
+        headers: {
+          Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
         },
-        {
-          headers: {
-            Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-          },
+      },
+    )
+
+    const { doc: createdSecret } = createdSecretRes
+
+    console.dir({ createdSecret }, { depth: Infinity })
+
+    const { data: createdVpsOrderRes } = await axios.post(
+      `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
+      {
+        image: {
+          imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
+          priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
         },
-      )
+        product: {
+          productId: 'V92',
+          priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
+        },
+        displayName: vps.name,
+        region: {
+          code: 'EU',
+          priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
+        },
+        card: '',
+        defaultUser: 'root',
+        rootPassword: 141086,
+        period: {
+          months: 1,
+          priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
+        },
+        sshKeys: [createdSecret.details.secretId],
+        plan: '6821988ea2def4c82c86cf4f',
+        addOns: {},
+      },
+      {
+        headers: {
+          Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+        },
+      },
+    )
 
-      console.dir({ createdSecretRes }, { depth: Infinity })
-    } catch (error) {
-      console.log({ error })
-    }
-
-    // const { data: createdVpsOrderRes } = await axios.post(
-    //   `${env.DFLOW_CLOUD_URL}/api/vspOrders`,
-    //   {
-    //     image: {
-    //       imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-    //       priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-    //     },
-    //     product: {
-    //       productId: 'V92',
-    //       priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-    //     },
-    //     displayName: vps.name,
-    //     region: {
-    //       code: 'EU',
-    //       priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-    //     },
-    //     card: '',
-    //     defaultUser: 'root',
-    //     rootPassword: 141086,
-    //     period: {
-    //       months: 1,
-    //       priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-    //     },
-    //     sshKeys: vps.sshKeys,
-    //     plan: '6821988ea2def4c82c86cf4f',
-    //     addOns: {},
-    //   },
-    //   {
-    //     headers: {
-    //       Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-    //     },
-    //   },
-    // )
+    console.dir({ createdVpsOrderRes }, { depth: Infinity })
 
     return { success: true }
   })
