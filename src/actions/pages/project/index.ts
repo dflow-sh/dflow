@@ -10,7 +10,7 @@ export const getProjectDetails = protectedClient
   })
   .schema(getProjectDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
+    const { id: ProjectId } = clientInput
     const {
       payload,
       userTenant: { tenant },
@@ -23,7 +23,7 @@ export const getProjectDetails = protectedClient
           and: [
             {
               project: {
-                equals: id,
+                equals: ProjectId,
               },
             },
             {
@@ -45,6 +45,9 @@ export const getProjectDetails = protectedClient
         where: {
           'tenant.slug': {
             equals: tenant.slug,
+          },
+          id: {
+            equals: ProjectId,
           },
         },
         select: {
