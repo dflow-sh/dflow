@@ -25,6 +25,7 @@ export const createSshKeysAndVpsActionSchema = z.object({
     z.object({
       name: z.string(),
       publicSshKey: z.string(),
+      privateSshKey: z.string(),
     }),
   ),
   vps: z.object({

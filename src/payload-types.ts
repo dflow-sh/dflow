@@ -270,7 +270,7 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
-  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'other';
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'contentql' | 'other';
   cloudProviderAccount?: (string | null) | CloudProviderAccount;
   /**
    * AWS EC2 instance details
@@ -340,6 +340,31 @@ export interface Server {
      * The architecture of the instance (e.g., x86_64, arm64)
      */
     architecture?: string | null;
+  };
+  /**
+   * ContentQL Vps details
+   */
+  contentqlVpsDetails?: {
+    id?: string | null;
+    instanceId?: number | null;
+    status?:
+      | (
+          | 'provisioning'
+          | 'uninstalled'
+          | 'running'
+          | 'stopped'
+          | 'error'
+          | 'installing'
+          | 'unknown'
+          | 'manual_provisioning'
+          | 'product_not_available'
+          | 'verification_required'
+          | 'rescue'
+          | 'pending_payment'
+          | 'other'
+          | 'reset_password'
+        )
+      | null;
   };
   /**
    * Connection details for the server
@@ -1096,6 +1121,13 @@ export interface ServersSelect<T extends boolean = true> {
         publicIpAddress?: T;
         keyName?: T;
         architecture?: T;
+      };
+  contentqlVpsDetails?:
+    | T
+    | {
+        id?: T;
+        instanceId?: T;
+        status?: T;
       };
   connection?:
     | T

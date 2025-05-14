@@ -169,6 +169,10 @@ export const Servers: CollectionConfig = {
           value: 'azure',
         },
         {
+          label: 'ContentQL',
+          value: 'contentql',
+        },
+        {
           label: 'Other',
           value: 'other',
         },
@@ -338,6 +342,47 @@ export const Servers: CollectionConfig = {
             description:
               'The architecture of the instance (e.g., x86_64, arm64)',
           },
+        },
+      ],
+    },
+    {
+      name: 'contentqlVpsDetails',
+      type: 'group',
+      admin: {
+        condition: data => data.provider === 'contentql',
+        description: 'ContentQL Vps details',
+        position: 'sidebar',
+      },
+      fields: [
+        {
+          name: 'id',
+          type: 'text',
+          label: 'Id',
+        },
+        {
+          name: 'instanceId',
+          type: 'number',
+          label: 'Instance Id',
+        },
+        {
+          name: 'status',
+          type: 'select',
+          options: [
+            { label: 'Provisioning', value: 'provisioning' },
+            { label: 'Uninstalled', value: 'uninstalled' },
+            { label: 'Running', value: 'running' },
+            { label: 'Stopped', value: 'stopped' },
+            { label: 'Error', value: 'error' },
+            { label: 'Installing', value: 'installing' },
+            { label: 'Unknown', value: 'unknown' },
+            { label: 'Manual Provisioning', value: 'manual_provisioning' },
+            { label: 'Product Not Available', value: 'product_not_available' },
+            { label: 'Verification Required', value: 'verification_required' },
+            { label: 'Rescue', value: 'rescue' },
+            { label: 'Pending Payment', value: 'pending_payment' },
+            { label: 'Other', value: 'other' },
+            { label: 'Reset Password', value: 'reset_password' },
+          ],
         },
       ],
     },

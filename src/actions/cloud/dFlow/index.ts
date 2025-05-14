@@ -5,6 +5,7 @@ import { env } from 'env'
 
 import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
+import { addCreateVpsQueue } from '@/queues/dFlow/addCreateVpsQueue'
 
 import { VpsPlan } from './types'
 import {
@@ -118,6 +119,8 @@ export const createSshKeysAndVpsAction = protectedClient
     const { sshKeys, vps } = clientInput
     const { userTenant, payload } = ctx
 
+    console.log('inside Action....')
+
     const { docs: dFlowAccount } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
@@ -136,66 +139,34 @@ export const createSshKeysAndVpsAction = protectedClient
         ],
       },
     })
+
+    if (!dFlowAccount || dFlowAccount.length === 0) {
+      throw new Error('No dFlow account found for this tenant')
+    }
+
     const token = dFlowAccount[0].dFlowDetails?.accessToken
 
-    const { data: createdSecretRes } = await axios.post(
-      `${env.DFLOW_CLOUD_URL}/api/secrets`,
-      {
-        name: sshKeys[0].name,
-        type: 'ssh',
-        publicKey: sshKeys[0].publicSshKey,
+    if (!token) {
+      throw new Error('Invalid dFlow account: No access token found')
+    }
+
+    console.log('triggering queue...')
+    await addCreateVpsQueue({
+      sshKeys,
+      vps,
+      accountDetails: {
+        id: dFlowAccount[0].id,
+        accessToken: token,
       },
-      {
-        headers: {
-          Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-        },
-      },
-    )
+      tenant: userTenant.tenant,
+    })
+    console.log('queue done...')
 
-    const { doc: createdSecret } = createdSecretRes
-
-    console.dir({ createdSecret }, { depth: Infinity })
-
-    const { data: createdVpsOrderRes } = await axios.post(
-      `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
-      {
-        plan: '6821988ea2def4c82c86cf4f',
-        userData: {
-          image: {
-            imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-            priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-          },
-          product: {
-            productId: 'V92',
-            priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-          },
-          displayName: vps.name,
-          region: {
-            code: 'EU',
-            priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-          },
-          card: '',
-          defaultUser: 'root',
-          rootPassword: 141086,
-          period: {
-            months: 1,
-            priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-          },
-          sshKeys: [createdSecret.details.secretId], // ctb secret id
-          plan: '6821988ea2def4c82c86cf4f',
-          addOns: {},
-        },
-      },
-      {
-        headers: {
-          Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-        },
-      },
-    )
-
-    console.dir({ createdVpsOrderRes }, { depth: Infinity })
-
-    return { success: true }
+    return {
+      success: true,
+      message:
+        'VPS creation process started. You will receive updates on the progress.',
+    }
   })
 
 export const createSshKeyAction = protectedClient

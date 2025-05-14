@@ -301,7 +301,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   if (type === 'manual') {
     providerName = 'Manual Server Configuration'
   } else if (type === 'dFlow') {
-    providerName = `Configure dFlow Cloud ${vpsPlan?.name} Server`
+    providerName = `Configure ContentQL Cloud Server`
   } else {
     providerName = `Configure ${cloudProvidersList.find(p => p.slug === type)?.label} Server`
   }
