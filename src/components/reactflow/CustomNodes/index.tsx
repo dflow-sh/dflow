@@ -131,7 +131,7 @@ const CustomNode = ({
 
           <div className='flex-1 items-start'>
             <CardTitle className='line-clamp-1' title={data.name}>
-              {data.name}
+              {data.displayName ? data.displayName : data.name}
             </CardTitle>
           </div>
         </div>

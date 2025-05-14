@@ -28,11 +28,22 @@ const SuspendedPage = async ({
 }) => {
   const { id, organisation } = params
   const result = await getProjectDetails({ id })
-  const project = result?.data?.Projects?.at(0)
-  
+  const data = result?.data
+  const project = data?.Projects?.[0]
+
   if (!project) {
     notFound()
   }
+
+  const { services } = data
+
+  const formattedServices = services?.length
+    ? services.map(service => {
+        const serviceName = service.name.replace(`${project.name}-`, '')
+        return { ...service, displayName: serviceName }
+      })
+    : []
+
   const isServerConnected = Boolean(
     project.server &&
       typeof project.server === 'object' &&
@@ -98,11 +109,11 @@ const SuspendedPage = async ({
           </Alert>
         )}
 
-        {result?.data?.services.length ? (
+        {formattedServices.length ? (
           <ServiceList
             organisationSlug={organisation}
             project={project}
-            services={result?.data?.services}
+            services={formattedServices}
           />
         ) : (
           <ServicesArchitecture />
