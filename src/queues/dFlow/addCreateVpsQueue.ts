@@ -9,8 +9,6 @@ import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { Tenant } from '@/payload-types'
 
-import { createdVpsOrderRes } from './data'
-
 interface CreateVpsQueueArgs {
   sshKeys: {
     name: string
@@ -42,38 +40,26 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       const { sshKeys, vps, accountDetails } = job.data
       const token = accountDetails.accessToken
 
-      console.log('queue triggered...')
+      const payload = await getPayload({ config: configPromise })
+
+      console.log('worker triggered...')
 
       try {
-        const payload = await getPayload({ config: configPromise })
-        sendEvent({
-          pub,
-          message: `Starting VPS creation process...`,
-          serverId: data.tenant.slug,
-        })
+        const { data: createdSecretRes } = await axios.post(
+          `${env.DFLOW_CLOUD_URL}/api/secrets`,
+          {
+            name: sshKeys[0].name,
+            type: 'ssh',
+            publicKey: sshKeys[0].publicSshKey,
+          },
+          {
+            headers: {
+              Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+            },
+          },
+        )
 
-        // Create SSH Key
-        sendEvent({
-          pub,
-          message: `Creating SSH key: ${sshKeys[0].name}...`,
-          serverId: data.tenant.slug,
-        })
-
-        // const { data: createdSecretRes } = await axios.post(
-        //   `${env.DFLOW_CLOUD_URL}/api/secrets`,
-        //   {
-        //     name: sshKeys[0].name,
-        //     type: 'ssh',
-        //     publicKey: sshKeys[0].publicSshKey,
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-        //     },
-        //   },
-        // )
-
-        // const { doc: createdSecret } = createdSecretRes
+        const { doc: createdSecret } = createdSecretRes
 
         const createdSshKey = await payload.create({
           collection: 'sshKeys',
@@ -81,73 +67,76 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             name: sshKeys[0].name,
             privateKey: sshKeys[0].privateSshKey,
             publicKey: sshKeys[0].publicSshKey,
+            tenant: data.tenant,
           },
         })
 
-        sendEvent({
-          pub,
-          message: `✅ Successfully created SSH key: ${sshKeys[0].name}`,
-          serverId: data.tenant.slug,
-        })
+        // sendEvent({
+        //   pub,
+        //   message: `✅ Successfully created SSH key: ${sshKeys[0].name}`,
+        //   serverId: data.tenant.slug,
+        // })
 
         // Create VPS order
-        sendEvent({
-          pub,
-          message: `Creating VPS: ${vps.name}...`,
-          serverId: data.tenant.slug,
-        })
+        // sendEvent({
+        //   pub,
+        //   message: `Creating VPS: ${vps.name}...`,
+        //   serverId: data.tenant.slug,
+        // })
 
-        // const { data: createdVpsOrderRes } = await axios.post(
-        //   `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
-        //   {
-        //     plan: '6821988ea2def4c82c86cf4f',
-        //     userData: {
-        //       image: {
-        //         imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-        //         priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-        //       },
-        //       product: {
-        //         productId: 'V92',
-        //         priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-        //       },
-        //       displayName: vps.name,
-        //       region: {
-        //         code: 'EU',
-        //         priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-        //       },
-        //       card: '',
-        //       defaultUser: 'root',
-        //       rootPassword: 141086,
-        //       period: {
-        //         months: 1,
-        //         priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-        //       },
-        //       sshKeys: [createdSecret.details.secretId],
-        //       plan: '6821988ea2def4c82c86cf4f',
-        //       addOns: {},
-        //     },
-        //   },
-        //   {
-        //     headers: {
-        //       Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-        //     },
-        //   },
-        // )
+        const { data: createdVpsOrderRes } = await axios.post(
+          `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
+          {
+            plan: '6821988ea2def4c82c86cf4f',
+            userData: {
+              image: {
+                imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
+                priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
+              },
+              product: {
+                productId: 'V92',
+                priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
+              },
+              displayName: vps.name,
+              region: {
+                code: 'EU',
+                priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
+              },
+              card: '',
+              defaultUser: 'root',
+              rootPassword: 141086,
+              period: {
+                months: 1,
+                priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
+              },
+              sshKeys: [createdSecret.details.secretId],
+              plan: '6821988ea2def4c82c86cf4f',
+              addOns: {},
+            },
+          },
+          {
+            headers: {
+              Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+            },
+          },
+        )
 
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        sendEvent({
-          pub,
-          message: `✅ VPS order created successfully. Order ID: ${createdVpsOrder.id}`,
-          serverId: data.tenant.slug,
-        })
+        console.log(createdVpsOrder)
+
+        // sendEvent({
+        //   pub,
+        //   message: `✅ VPS order created successfully. Order ID: ${createdVpsOrder.id}`,
+        //   serverId: data.tenant.slug,
+        // })
 
         const createdServer = await payload.create({
           collection: 'servers',
           data: {
             name: vps.name,
             description: '',
-            ip: '',
+            ip: '11.11.11.11',
             port: 22,
             username: 'root',
             sshKey: createdSshKey.id,
@@ -161,6 +150,8 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         })
 
+        console.log('created server', createdServer)
+
         // Add to global VPS status monitoring
         await addInstanceToStatusMonitoring(
           createdVpsOrder.instanceId,
@@ -170,18 +161,19 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         initializeVpsStatusChecker()
 
-        sendEvent({
-          pub,
-          message: `VPS creation process initiated. Monitoring status...`,
-          serverId: data.tenant.slug,
-        })
+        // sendEvent({
+        //   pub,
+        //   message: `VPS creation process initiated. Monitoring status...`,
+        //   serverId: data.tenant.slug,
+        // })
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
         return { success: true, orderId: createdVpsOrder.id }
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error'
-        throw new Error(`❌ Failed to create VPS: ${message}`)
+        // const message = error instanceof Error ? error.message : 'Unknown error'
+        // throw new Error(`❌ Failed to create VPS: ${message}`)
+        console.log('error', error)
       }
     },
     connection: queueConnection,

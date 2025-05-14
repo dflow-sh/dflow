@@ -131,11 +131,11 @@ const VpsForm: React.FC<{
   } = useAction(createSshKeysAndVpsAction, {
     onSuccess: () => {
       toast.success('Server instance created successfully')
-      const params = new URLSearchParams(searchParams.toString())
-      params.set('tab', 'my-vps')
-      params.delete('selectedVps')
+      // const params = new URLSearchParams(searchParams.toString())
+      // params.set('tab', 'my-vps')
+      // params.delete('selectedVps')
 
-      router.push(`?${params.toString()}`, { scroll: false })
+      // router.push(`?${params.toString()}`, { scroll: false })
     },
     onError: () => {
       toast.error('Failed to create server instance, try again')
