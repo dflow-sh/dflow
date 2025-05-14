@@ -1,11 +1,17 @@
-import { ServiceNode } from '../types'
 import { Edge } from '@xyflow/react'
+import { ServiceNode } from '../types'
 
 import { Service, Template } from '@/payload-types'
 
-export function convertToGraph(services: Service[] | Template['services']) {
-  if (!services || services.length === 0) return { nodes: [], edges: [] }
-
+interface ServiceWithDisplayName extends Service {
+  displayName: string
+}
+export function convertToGraph(
+  services: Service[] | Template['services'] | ServiceWithDisplayName[],
+) {
+  if (!services || services.length === 0) {
+    return { nodes: [], edges: [] }
+  }
   const nodes: ServiceNode[] = services.map(item => {
     const deployments =
       'deployments' in item && item.deployments?.docs
@@ -19,6 +25,7 @@ export function convertToGraph(services: Service[] | Template['services']) {
       id: item.id!,
       name: item.name,
       type: item.type,
+      displayName: 'displayName' in item ? item.displayName : undefined,
       description: item.description,
       variables: item.variables ?? undefined,
       ...(createdAt ? { createdAt } : {}),
@@ -36,7 +43,6 @@ export function convertToGraph(services: Service[] | Template['services']) {
       case 'database':
         node.databaseDetails = item.databaseDetails ?? undefined
         break
-
       case 'app':
         node.githubSettings = item.githubSettings ?? undefined
         node.builder = item.builder ?? undefined
@@ -44,25 +50,23 @@ export function convertToGraph(services: Service[] | Template['services']) {
           typeof item.provider === 'string' ? item.provider : undefined
         node.providerType = item.providerType ?? undefined
         break
-
       case 'docker':
         node.dockerDetails = item.dockerDetails ?? undefined
         break
     }
 
+    console.log('Created node:', node)
     return node
   })
 
-  // Map service name to ID for quick lookup
   const nameToIdMap = new Map(services.map(s => [s.name, s.id]))
   const edgeSet = new Set<string>()
   const edges: Edge[] = []
 
-  const serviceNameRegex = /\${{[^:{}\s]+:([\w-]+)\.[^{}\s]+}}/
+  const serviceNameRegex = /\{\{\s*([a-zA-Z0-9-_]+)\.([A-Z0-9_]+)\s*\}\}/
 
   services.forEach(service => {
     const sourceId = service.id!
-    const sourceName = service.name
     const envVars = service.variables ?? []
 
     envVars.forEach((env: any) => {
@@ -89,5 +93,6 @@ export function convertToGraph(services: Service[] | Template['services']) {
     })
   })
 
+  console.log(`Final graph: ${nodes.length} nodes, ${edges.length} edges`)
   return { nodes, edges }
 }

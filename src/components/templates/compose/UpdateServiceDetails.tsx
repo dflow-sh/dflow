@@ -376,7 +376,9 @@ const VariablesForm = ({
 
     const referencedTargets = data?.variables
       ?.map(variable => {
-        const match = variable.value.match(/\${{[^:{}\s]+:([\w-]+)\.[^{}\s]+}}/)
+        const match = variable.value.match(
+          /\{\{\s*([a-zA-Z0-9-_]+)\.([A-Z0-9_]+)\s*\}\}/,
+        )
         return match?.[1] // Get referenced service name
       })
       .filter(Boolean)

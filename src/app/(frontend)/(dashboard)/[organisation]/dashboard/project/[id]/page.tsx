@@ -40,7 +40,7 @@ const SuspendedPage = async ({
   const formattedServices = services?.length
     ? services.map(service => {
         const serviceName = service.name.replace(`${project.name}-`, '')
-        return { ...service, name: serviceName }
+        return { ...service, displayName: serviceName }
       })
     : []
 

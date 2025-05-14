@@ -30,8 +30,12 @@ import { deleteServiceAction } from '@/actions/service'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Server, Service } from '@/payload-types'
 
+interface ServiceWithDisplayName extends Service {
+  displayName: string
+}
+
 const calculateNodePositions = (
-  services: Service[],
+  services: ServiceWithDisplayName[],
   containerWidth: number,
   containerHeight: number,
 ) => {
@@ -70,7 +74,7 @@ const ServiceList = ({
   project,
   organisationSlug,
 }: {
-  services: Service[]
+  services: ServiceWithDisplayName[]
   organisationSlug: string
   project: {
     id: string
