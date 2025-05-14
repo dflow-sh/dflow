@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
 import { getDFlowPlansAction } from '@/actions/cloud/dFlow'
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { getAddServerDetails } from '@/actions/pages/server'
 import ServerForm from '@/components/servers/ServerForm'
 import { isDemoEnvironment } from '@/lib/constants'
@@ -21,7 +20,7 @@ const SuspendedAddNewServerPage = async () => {
       sshKeys={sshKeys}
       securityGroups={securityGroups}
       dFlowAccountDetails={dFlowAccount?.data?.at(0)?.dFlowDetails}
-      vpsPlans={vpsPlans?.data as VpsPlan[]}
+      vpsPlans={vpsPlans?.data ?? []}
     />
   )
 }

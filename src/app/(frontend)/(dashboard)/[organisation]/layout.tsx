@@ -1,4 +1,5 @@
 import { getTenant } from '@/lib/get-tenant'
+import RefreshProvider from '@/providers/RefreshProvider'
 
 const OrganisationLayout = async ({
   children,
@@ -14,7 +15,7 @@ const OrganisationLayout = async ({
   return (
     <>
       {/* <SetOrganisationCookie organisationSlug={organisation as string} /> */}
-      {children}
+      <RefreshProvider>{children}</RefreshProvider>
     </>
   )
 }

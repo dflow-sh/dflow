@@ -5,7 +5,6 @@ import { env } from 'env'
 
 import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
-import { addCreateVpsQueue } from '@/queues/dFlow/addCreateVpsQueue'
 
 import { VpsPlan } from './types'
 import {
@@ -59,7 +58,7 @@ export const getDFlowPlansAction = protectedClient
   .metadata({
     actionName: 'getDFlowPlansAction',
   })
-  .action(async ({ clientInput }) => {
+  .action(async () => {
     const vpsPlansRes = await axios.get(`${env.DFLOW_CLOUD_URL}/api/vpsPlans`, {
       headers: {
         Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${env.DFLOW_CLOUD_API_KEY}`,
@@ -118,6 +117,9 @@ export const createSshKeysAndVpsAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { sshKeys, vps } = clientInput
     const { userTenant, payload } = ctx
+    const { addCreateVpsQueue } = await import(
+      '@/queues/dFlow/addCreateVpsQueue'
+    )
 
     console.log('inside Action....')
 

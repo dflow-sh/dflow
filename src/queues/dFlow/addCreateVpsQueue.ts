@@ -1,12 +1,10 @@
 import configPromise from '@payload-config'
 import axios from 'axios'
-import { Job } from 'bullmq'
 import { env } from 'env'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
 import { Tenant } from '@/payload-types'
 
 interface CreateVpsQueueArgs {
@@ -34,7 +32,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
     connection: queueConnection,
   })
 
-  const worker = getWorker<CreateVpsQueueArgs>({
+  getWorker<CreateVpsQueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
       const { sshKeys, vps, accountDetails } = job.data
@@ -45,6 +43,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       console.log('worker triggered...')
 
       try {
+        // step 1: creating secret in contentql
         const { data: createdSecretRes } = await axios.post(
           `${env.DFLOW_CLOUD_URL}/api/secrets`,
           {
@@ -59,8 +58,11 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         )
 
+        console.dir({ createdSecretRes }, { depth: Infinity })
+
         const { doc: createdSecret } = createdSecretRes
 
+        // step 2: creating same sshKey in dflow
         const createdSshKey = await payload.create({
           collection: 'sshKeys',
           data: {
@@ -71,19 +73,9 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         })
 
-        // sendEvent({
-        //   pub,
-        //   message: `✅ Successfully created SSH key: ${sshKeys[0].name}`,
-        //   serverId: data.tenant.slug,
-        // })
+        console.dir({ createdSshKey }, { depth: Infinity })
 
-        // Create VPS order
-        // sendEvent({
-        //   pub,
-        //   message: `Creating VPS: ${vps.name}...`,
-        //   serverId: data.tenant.slug,
-        // })
-
+        // step 3: create VPS in contentql
         const { data: createdVpsOrderRes } = await axios.post(
           `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
           {
@@ -121,22 +113,17 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         )
 
+        console.dir({ createdVpsOrderRes }, { depth: Infinity })
+
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        console.log(createdVpsOrder)
-
-        // sendEvent({
-        //   pub,
-        //   message: `✅ VPS order created successfully. Order ID: ${createdVpsOrder.id}`,
-        //   serverId: data.tenant.slug,
-        // })
-
+        // step 4: instantly creating a server in dFlow
         const createdServer = await payload.create({
           collection: 'servers',
           data: {
             name: vps.name,
             description: '',
-            ip: '11.11.11.11',
+            ip: '0.0.0.0',
             port: 22,
             username: 'root',
             sshKey: createdSshKey.id,
@@ -150,24 +137,111 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         })
 
-        console.log('created server', createdServer)
+        console.dir({ createdServer }, { depth: Infinity })
 
-        // Add to global VPS status monitoring
-        await addInstanceToStatusMonitoring(
-          createdVpsOrder.instanceId,
-          token,
-          createdServer.id,
+        // step 5: wait for public-ip address for 5mins
+        if (createdServer) {
+          const instanceId = createdVpsOrder.instanceId
+          const serverId = createdServer.id
+          const currentStatus = createdServer?.contentqlVpsDetails?.status
+          const currentIP = createdServer?.ip
+
+          const pollForPublicIP = async () => {
+            for (let i = 0; i < 10; i++) {
+              try {
+                const { data: instanceStatusRes } = await axios.get(
+                  `${env.DFLOW_CLOUD_URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
+                  {
+                    headers: {
+                      Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+                    },
+                  },
+                )
+
+                const orders = instanceStatusRes?.docs || []
+
+                if (orders.length === 0) {
+                  console.log(`No orders found for instance ${instanceId}`)
+                  continue
+                }
+
+                const order = orders[0]
+
+                const newStatus = order.instanceResponse.status
+                const newIp = order.instanceResponse?.ipConfig?.v4?.ip
+
+                console.log({ currentStatus, newStatus, newIp })
+
+                // Only update if status changed or if IP is now available
+                if (currentStatus !== newStatus || (newIp && !currentIP)) {
+                  // If the order is running and has an IP, update with IP
+                  if (newStatus === 'running' && newIp) {
+                    await payload.update({
+                      collection: 'servers',
+                      id: serverId,
+                      data: {
+                        ip: newIp,
+                        contentqlVpsDetails: {
+                          status: newStatus,
+                        },
+                      },
+                    })
+
+                    await pub.publish(
+                      'refresh-channel',
+                      JSON.stringify({ refresh: true }),
+                    )
+                  }
+                  // Otherwise just update the status
+                  else {
+                    await payload.update({
+                      collection: 'servers',
+                      id: serverId,
+                      data: {
+                        contentqlVpsDetails: {
+                          status: newStatus,
+                        },
+                      },
+                    })
+
+                    // Only notify on status changes
+                    console.log(`VPS status changed to: ${newStatus}`, {
+                      currentStatus,
+                      newStatus,
+                    })
+
+                    // Check for failed state or error conditions (looks like there was a missing condition in original code)
+                    if (order.status === 'failed' || order.status === 'error') {
+                      console.log(
+                        `VPS creation ${order.status}: ${order.message || 'No details available'}`,
+                      )
+                    }
+                  }
+                }
+              } catch (error) {
+                const message =
+                  error instanceof Error ? error.message : 'Unknown error'
+                console.error(`Error checking instance ${instanceId}:`, message)
+              }
+
+              await new Promise(r => setTimeout(r, 30000))
+            }
+
+            throw new Error('Public IP not assigned yet after waiting')
+          }
+
+          await pollForPublicIP()
+        }
+
+        // todo: create a common method for refresh events!
+        // sending path, tenant to redirect on client side
+        await pub.publish(
+          'refresh-channel',
+          JSON.stringify({
+            path: `/${data.tenant.slug}/servers`,
+            tenant: data.tenant.slug,
+          }),
         )
-
-        initializeVpsStatusChecker()
-
-        // sendEvent({
-        //   pub,
-        //   message: `VPS creation process initiated. Monitoring status...`,
-        //   serverId: data.tenant.slug,
-        // })
-
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
         return { success: true, orderId: createdVpsOrder.id }
       } catch (error) {
@@ -179,16 +253,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
     connection: queueConnection,
   })
 
-  worker.on('failed', async (job: Job<CreateVpsQueueArgs> | undefined, err) => {
-    if (job?.data) {
-      sendEvent({
-        pub,
-        message: err.message,
-        serverId: job.data.tenant.slug,
-      })
-    }
-  })
-
   const id = `create-vps:${new Date().getTime()}`
 
   return await createVpsQueue.add(id, data, {
@@ -196,200 +260,3 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
     ...jobOptions,
   })
 }
-
-// Store instances being monitored
-const monitoredInstances = new Map<
-  number,
-  {
-    token: string
-    serverId: string
-  }
->()
-
-// Function to add an instance to the status monitoring
-export const addInstanceToStatusMonitoring = async (
-  instanceId: number,
-  token: string,
-  serverId: string,
-) => {
-  if (!instanceId) return false
-
-  monitoredInstances.set(instanceId, { token, serverId })
-  return true
-}
-
-// Function to remove an instance from monitoring
-export const removeInstanceFromMonitoring = (instanceId: number) => {
-  return monitoredInstances.delete(instanceId)
-}
-
-// Function to check instance status
-export const checkInstanceStatus = async () => {
-  const payload = await getPayload({ config: configPromise })
-  const checkedInstances = new Set<number>()
-
-  // First, check any already monitored instances
-  for (const [
-    instanceId,
-    { token, serverId },
-  ] of monitoredInstances.entries()) {
-    try {
-      const { data: instanceStatusRes } = await axios.get(
-        `${env.DFLOW_CLOUD_URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
-        {
-          headers: {
-            Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
-          },
-        },
-      )
-
-      const orders = instanceStatusRes?.docs || []
-      if (orders.length === 0) {
-        console.log(`No orders found for instance ${instanceId}`)
-        continue
-      }
-
-      const order = orders[0]
-
-      // Mark as checked
-      checkedInstances.add(instanceId)
-
-      // Send status update
-      sendEvent({
-        pub,
-        message: `VPS Instance Status: ${order.instanceResponse.status}`,
-        serverId,
-      })
-
-      // Get current server details to compare with new status
-      const currentServer = await payload.findByID({
-        collection: 'servers',
-        id: serverId,
-      })
-
-      const currentStatus = currentServer?.contentqlVpsDetails?.status
-      const newStatus = order.instanceResponse.status
-      const newIp = order.instanceResponse?.ipConfig?.v4?.ip
-
-      console.log({ currentStatus, newStatus, newIp })
-
-      // Only update if status changed or if IP is now available
-      if (currentStatus !== newStatus || (newIp && !currentServer.ip)) {
-        // If the order is running and has an IP, update with IP
-        if (newStatus === 'running' && newIp) {
-          await payload.update({
-            collection: 'servers',
-            id: serverId,
-            data: {
-              ip: newIp,
-              contentqlVpsDetails: {
-                status: newStatus,
-              },
-            },
-          })
-
-          sendEvent({
-            pub,
-            message: `✅ VPS is now active with IP: ${newIp}`,
-            serverId,
-          })
-
-          // Remove from monitoring once provisioned and IP is assigned
-          monitoredInstances.delete(instanceId)
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
-        }
-        // Otherwise just update the status
-        else {
-          await payload.update({
-            collection: 'servers',
-            id: serverId,
-            data: {
-              contentqlVpsDetails: {
-                status: newStatus,
-              },
-            },
-          })
-
-          // Only notify on status changes
-          if (currentStatus !== newStatus) {
-            sendEvent({
-              pub,
-              message: `VPS status changed to: ${newStatus}`,
-              serverId,
-            })
-          }
-
-          // Check for failed state or error conditions (looks like there was a missing condition in original code)
-          if (order.status === 'failed' || order.status === 'error') {
-            sendEvent({
-              pub,
-              message: `VPS creation ${order.status}: ${order.message || 'No details available'}`,
-              serverId,
-            })
-
-            // Remove from monitoring once failed
-            monitoredInstances.delete(instanceId)
-          }
-        }
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      console.error(`Error checking instance ${instanceId}:`, message)
-
-      // Don't remove from monitoring on temporary errors
-      sendEvent({
-        pub,
-        message: `⚠️ Error checking VPS status: ${message}`,
-        serverId,
-      })
-    }
-  }
-
-  // Check if we should stop the monitoring interval
-  if (monitoredInstances.size === 0 && vpsMonitoringIntervalId) {
-    clearInterval(vpsMonitoringIntervalId)
-    vpsMonitoringIntervalId = null
-    console.log(
-      '✅ All VPS instances provisioned or failed. Stopping status monitoring.',
-    )
-  }
-}
-
-// Initialize the VPS status checker
-export const initializeVpsStatusChecker = () => {
-  console.log('⌛ Initializing VPS status checker - checking every 30 seconds')
-
-  // Immediately check the first time
-  checkInstanceStatus().catch(err => {
-    console.error('Error in initial VPS status check:', err)
-  })
-
-  // Set up interval to check status every 30 seconds
-  vpsMonitoringIntervalId = setInterval(() => {
-    checkInstanceStatus().catch(err => {
-      console.error('Error in periodic VPS status check:', err)
-    })
-  }, 30000) // 30 seconds
-
-  // Function to manually check status (for testing)
-  const manualCheck = async () => {
-    await checkInstanceStatus()
-  }
-
-  return {
-    intervalId: vpsMonitoringIntervalId,
-    monitoredInstances,
-    manualCheck,
-    stopMonitoring: () => {
-      if (vpsMonitoringIntervalId) {
-        clearInterval(vpsMonitoringIntervalId)
-        vpsMonitoringIntervalId = null
-        console.log('Stopped VPS status monitoring')
-      }
-    },
-  }
-} // Global variable to store the monitoring interval
-let vpsMonitoringIntervalId: NodeJS.Timeout | null = null

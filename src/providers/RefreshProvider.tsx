@@ -1,11 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useTransition } from 'react'
 import { toast } from 'sonner'
 
 const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
   const [isPending, startTransition] = useTransition()
+  const { organisation } = useParams<{ organisation: '' }>()
   const router = useRouter()
 
   // Initializing a SSE for listening changes to update UI
@@ -18,6 +19,11 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
         startTransition(() => {
           router.refresh()
         })
+      }
+
+      // redirecting user to respective page on page-event
+      if (data?.path && organisation === data?.organisation) {
+        router.push(data?.path)
       }
     }
 
