@@ -9,8 +9,8 @@ export default function NotFound() {
       <h2 className='text-6xl font-semibold text-primary'>404</h2>
       <p>Sorry, the page you requested cannot be found.</p>
 
-      <Button asChild className='mt-4'>
-        <Link href='/'>
+      <Button asChild className='mt-4 w-max'>
+        <Link href='/' className='flex items-center gap-1'>
           <ArrowLeft />
           Return Home
         </Link>

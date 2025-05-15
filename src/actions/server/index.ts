@@ -1,9 +1,7 @@
 'use server'
 
-import configPromise from '@payload-config'
 import dns from 'dns/promises'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
@@ -20,8 +18,6 @@ import {
   updateServerSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServerAction = protectedClient
   .metadata({
@@ -29,8 +25,12 @@ export const createServerAction = protectedClient
     actionName: 'createServerAction',
   })
   .schema(createServerSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { name, description, ip, port, username, sshKey } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const response = await payload.create({
       collection: 'servers',
@@ -42,11 +42,12 @@ export const createServerAction = protectedClient
         username,
         sshKey,
         provider: 'other',
+        tenant,
       },
     })
 
     if (response) {
-      revalidatePath('/servers')
+      revalidatePath(`/${tenant.slug}/servers`)
     }
 
     return response
@@ -57,8 +58,9 @@ export const updateServerAction = protectedClient
     actionName: 'updateServerAction',
   })
   .schema(updateServerSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
+    const { payload } = ctx
 
     const response = await payload.update({
       id,
@@ -80,8 +82,9 @@ export const deleteServerAction = protectedClient
     actionName: 'deleteServerAction',
   })
   .schema(deleteServerSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
 
     const response = await payload.delete({
       collection: 'servers',
@@ -99,8 +102,10 @@ export const installDokkuAction = protectedClient
     actionName: 'installDokkuAction',
   })
   .schema(installDokkuSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -132,8 +137,9 @@ export const updateServerDomainAction = protectedClient
     actionName: 'updateServerDomainAction',
   })
   .schema(updateServerDomainSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
+    const { payload } = ctx
 
     // Fetching server-details for showing previous details
     const { domains: serverPreviousDomains } = await payload.findByID({
@@ -188,8 +194,10 @@ export const installRailpackAction = protectedClient
     actionName: 'installRailpackAction',
   })
   .schema(installDokkuSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -220,8 +228,9 @@ export const completeServerOnboardingAction = protectedClient
     actionName: 'completeServerOnboardingAction',
   })
   .schema(completeServerOnboardingSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload, userTenant } = ctx
 
     const response = await payload.update({
       id: serverId,
@@ -232,7 +241,7 @@ export const completeServerOnboardingAction = protectedClient
     })
 
     if (response) {
-      revalidatePath(`/servers/${serverId}`)
+      revalidatePath(`${userTenant.tenant}/servers/${serverId}`)
       return { success: true, server: response }
     }
 
@@ -243,7 +252,9 @@ export const getServersAction = protectedClient
   .metadata({
     actionName: 'getServersAction',
   })
-  .action(async () => {
+  .action(async ({ ctx }) => {
+    const { payload } = ctx
+
     const { docs } = await payload.find({
       collection: 'servers',
       select: {
@@ -273,8 +284,9 @@ export const syncServerDomainAction = protectedClient
     actionName: 'syncServerDomainAction',
   })
   .schema(updateServerDomainSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
+    const { payload } = ctx
 
     const response = await payload.findByID({
       id,

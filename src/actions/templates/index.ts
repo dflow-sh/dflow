@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 import {
   Config,
   adjectives,
@@ -11,7 +9,7 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { REFERENCE_VARIABLE_REGEX } from '@/lib/constants'
+import { TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 import { Service } from '@/payload-types'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
@@ -23,8 +21,6 @@ import {
   deployTemplateSchema,
   updateTemplateSchema,
 } from './validator'
-
-const payload = await getPayload({ config: configPromise })
 
 const handleGenerateName = (): string => {
   const nameConfig: Config = {
@@ -43,9 +39,9 @@ export const createTemplate = protectedClient
     actionName: 'createTemplate',
   })
   .schema(createTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const { userTenant, payload } = ctx
     const { name, description, services } = clientInput
-    console.log('in server', services)
 
     const response = await payload.create({
       collection: 'templates',
@@ -53,6 +49,7 @@ export const createTemplate = protectedClient
         name,
         description,
         services,
+        tenant: userTenant.tenant,
       },
     })
     return response
@@ -64,8 +61,9 @@ export const deleteTemplate = protectedClient
     actionName: 'deleteTemplate',
   })
   .schema(DeleteTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { userTenant, payload } = ctx
 
     const response = await payload.delete({
       collection: 'templates',
@@ -73,7 +71,7 @@ export const deleteTemplate = protectedClient
     })
 
     if (response) {
-      revalidatePath('/templates')
+      revalidatePath(`${userTenant.tenant.slug}/templates`)
       return { deleted: true }
     }
   })
@@ -81,13 +79,28 @@ export const deleteTemplate = protectedClient
 export const getTemplateById = protectedClient
   .metadata({ actionName: 'getTemplateById' })
   .schema(DeleteTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const response = await payload.findByID({
+    const { userTenant, payload } = ctx
+
+    const response = await payload.find({
       collection: 'templates',
-      id,
+      where: {
+        and: [
+          {
+            id: {
+              equals: id,
+            },
+          },
+          {
+            'tenant.slug': {
+              equals: userTenant.tenant.slug,
+            },
+          },
+        ],
+      },
     })
-    return response
+    return response?.docs[0]
   })
 
 export const deployTemplateAction = protectedClient
@@ -95,8 +108,12 @@ export const deployTemplateAction = protectedClient
     actionName: 'deployTemplateAction',
   })
   .schema(deployTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, projectId } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const projectDetails = await payload.findByID({
       collection: 'projects',
@@ -127,6 +144,7 @@ export const deployTemplateAction = protectedClient
     // Step 1: update service names & reference variables name to unique
     const updatedServices = services.map(service => {
       const serviceName = serviceNames[`${service?.name}`]
+
       let variables = [] as Array<{
         key: string
         value: string
@@ -134,17 +152,28 @@ export const deployTemplateAction = protectedClient
       }>
 
       service?.variables?.forEach(variable => {
-        const match = variable.value.match(REFERENCE_VARIABLE_REGEX)
+        const extractedVariable = variable.value
+          .match(TEMPLATE_EXPR)?.[0]
+          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+          ?.trim()
 
-        if (match) {
-          const [_referenceVariable, type, serviceName, value] = match
-          const newServiceName = serviceNames[serviceName]
+        if (extractedVariable) {
+          const refMatch = extractedVariable.match(
+            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+          )
 
-          if (newServiceName) {
-            variables.push({
-              ...variable,
-              value: `$` + `{{${type}:${newServiceName}.${value}}}`,
-            })
+          if (refMatch) {
+            const [, serviceName, variableName] = refMatch
+            const newServiceName = serviceNames[serviceName]
+
+            if (newServiceName) {
+              variables.push({
+                ...variable,
+                value: `{{ ${newServiceName}.${variableName} }}`,
+              })
+            } else {
+              variables?.push(variable)
+            }
           } else {
             variables?.push(variable)
           }
@@ -173,6 +202,7 @@ export const deployTemplateAction = protectedClient
               exposedPorts: service.databaseDetails?.exposedPorts ?? [],
             },
             project: projectDetails?.id,
+            tenant,
           },
           depth: 10,
         })
@@ -187,6 +217,7 @@ export const deployTemplateAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            tenant,
           },
           depth: 10,
         })
@@ -206,6 +237,7 @@ export const deployTemplateAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              tenant,
             },
             depth: 10,
           })
@@ -218,10 +250,16 @@ export const deployTemplateAction = protectedClient
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
       services: createdServices,
+      serverDetails: {
+        id:
+          typeof projectDetails?.server === 'object'
+            ? projectDetails?.server?.id
+            : projectDetails?.server,
+      },
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectId}`)
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
       return { success: true }
     }
   })
@@ -231,8 +269,9 @@ export const updateTemplate = protectedClient
     actionName: 'updateTemplate',
   })
   .schema(updateTemplateSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, name, services, description } = clientInput
+    const { payload } = ctx
 
     const response = await payload.update({
       collection: 'templates',
@@ -252,9 +291,16 @@ export const updateTemplate = protectedClient
 
 export const getAllTemplatesAction = protectedClient
   .metadata({ actionName: 'getAllTemplatesAction' })
-  .action(async () => {
+  .action(async ({ ctx }) => {
+    const { userTenant, payload } = ctx
+
     const { docs } = await payload.find({
       collection: 'templates',
+      where: {
+        'tenant.slug': {
+          equals: userTenant.tenant.slug,
+        },
+      },
       pagination: false,
     })
 
@@ -266,7 +312,11 @@ export const deployTemplateFromArchitectureAction = protectedClient
     actionName: 'deployTemplateFromArchitectureAction',
   })
   .schema(deployTemplateFromArchitectureSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
     const { projectId, services = [] } = clientInput
 
     const projectDetails = await payload.findByID({
@@ -295,18 +345,31 @@ export const deployTemplateFromArchitectureAction = protectedClient
         id?: string | null
       }>
 
+      // todo: check if variable is of reference type
+      // change the service name if exists
       service?.variables?.forEach(variable => {
-        const match = variable.value.match(REFERENCE_VARIABLE_REGEX)
+        const extractedVariable = variable.value
+          .match(TEMPLATE_EXPR)?.[0]
+          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+          ?.trim()
 
-        if (match) {
-          const [_referenceVariable, type, serviceName, value] = match
-          const newServiceName = serviceNames[serviceName]
+        if (extractedVariable) {
+          const refMatch = extractedVariable.match(
+            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+          )
 
-          if (newServiceName) {
-            variables.push({
-              ...variable,
-              value: `$` + `{{${type}:${newServiceName}.${value}}}`,
-            })
+          if (refMatch) {
+            const [, serviceName, variableName] = refMatch
+            const newServiceName = serviceNames[serviceName]
+
+            if (newServiceName) {
+              variables.push({
+                ...variable,
+                value: `{{ ${newServiceName}.${variableName} }}`,
+              })
+            } else {
+              variables?.push(variable)
+            }
           } else {
             variables?.push(variable)
           }
@@ -335,6 +398,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
               exposedPorts: service.databaseDetails?.exposedPorts ?? [],
             },
             project: projectDetails?.id,
+            tenant,
           },
           depth: 10,
         })
@@ -349,6 +413,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
             dockerDetails: service?.dockerDetails,
             project: projectDetails?.id,
             variables: service?.variables,
+            tenant,
           },
           depth: 10,
         })
@@ -368,6 +433,7 @@ export const deployTemplateFromArchitectureAction = protectedClient
               providerType: service?.providerType,
               provider: service?.provider,
               builder: service?.builder,
+              tenant,
             },
             depth: 10,
           })
@@ -380,10 +446,16 @@ export const deployTemplateFromArchitectureAction = protectedClient
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
       services: createdServices,
+      serverDetails: {
+        id:
+          typeof projectDetails?.server === 'object'
+            ? projectDetails?.server?.id
+            : projectDetails?.server,
+      },
     })
 
     if (response.id) {
-      revalidatePath(`/dashboard/project/${projectId}`)
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
       return { success: true }
     }
   })

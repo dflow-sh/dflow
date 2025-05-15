@@ -1,12 +1,10 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
-import { getPayload } from 'payload'
 
 import { dokku } from '@/lib/dokku'
-import { protectedClient, publicClient } from '@/lib/safe-action'
+import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
@@ -30,17 +28,19 @@ import {
   updateServiceSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
-export const createServiceAction = publicClient
+export const createServiceAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'createServiceAction',
   })
   .schema(createServiceSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { name, description, projectId, type, databaseType } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const { server } = await payload.findByID({
       collection: 'projects',
@@ -76,14 +76,15 @@ export const createServiceAction = publicClient
                 databaseDetails: {
                   type: databaseType,
                 },
+                tenant,
               },
             })
 
             if (response?.id) {
-              revalidatePath(`/dashboard/project/${projectId}`)
+              revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
               return {
                 success: true,
-                redirectUrl: `/dashboard/project/${projectId}/service/${response.id}`,
+                redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${response.id}`,
               }
             }
           }
@@ -105,15 +106,16 @@ export const createServiceAction = publicClient
               databaseDetails: {
                 type: databaseType,
               },
+              tenant,
             },
           })
 
           if (databaseResponse.id) {
-            revalidatePath(`/dashboard/project/${projectId}`)
+            revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
 
             return {
               success: true,
-              redirectUrl: `/dashboard/project/${projectId}/service/${databaseResponse.id}`,
+              redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${databaseResponse.id}`,
             }
           }
         }
@@ -134,14 +136,18 @@ export const createServiceAction = publicClient
     }
   })
 
-export const deleteServiceAction = publicClient
+export const deleteServiceAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
     actionName: 'deleteServiceAction',
   })
   .schema(deleteServiceSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const {
       project,
@@ -224,8 +230,10 @@ export const deleteServiceAction = publicClient
               : response.project
 
           // Revalidate the parent project page and the service page
-          revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
-          revalidatePath(`/dashboard/project/${projectId}`)
+          revalidatePath(
+            `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
+          )
+          revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
           return { deleted: true }
         }
       } else {
@@ -241,6 +249,10 @@ export const updateServiceAction = protectedClient
   .schema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const previousDetails = await payload.findByID({
       collection: 'services',
@@ -294,7 +306,9 @@ export const updateServiceAction = protectedClient
         typeof response?.project === 'object'
           ? response?.project?.id
           : response?.project
-      revalidatePath(`/dashboard/project/${projectId}/service/${response?.id}`)
+      revalidatePath(
+        `/${tenant.slug}/dashboard/project/${projectId}/service/${response?.id}`,
+      )
       return { success: true }
     }
   })
@@ -306,6 +320,8 @@ export const restartServiceAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
+
     const {
       project,
       type,
@@ -378,6 +394,8 @@ export const stopServerAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
+
     const {
       project,
       type,
@@ -448,8 +466,9 @@ export const exposeDatabasePortAction = protectedClient
     actionName: 'exposeDatabasePortAction',
   })
   .schema(exposeDatabasePortSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, ports } = clientInput
+    const { payload } = ctx
 
     const {
       project,
@@ -548,8 +567,12 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     actionName: 'updateServiceEnvironmentVariablesAction',
   })
   .schema(updateServiceEnvironmentsSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, environmentVariables, projectId } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const updatedService = await payload.update({
       collection: 'services',
@@ -560,7 +583,9 @@ export const updateServiceEnvironmentVariablesAction = protectedClient
     })
 
     if (updatedService.id) {
-      revalidatePath(`/dashboard/project/${projectId}/service/${id}`)
+      revalidatePath(
+        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
+      )
       return { success: true }
     }
   })
@@ -570,8 +595,12 @@ export const updateServiceDomainAction = protectedClient
     actionName: 'updateServiceDomainAction',
   })
   .schema(updateServiceDomainSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     // Fetching service-details for showing previous details
     const { domains: servicePreviousDomains } = await payload.findByID({
@@ -648,7 +677,7 @@ export const updateServiceDomainAction = protectedClient
 
       if (queueResponse.id) {
         revalidatePath(
-          `/dashboard/project/${updatedServiceDomainResponse.project.id}/service/${id}`,
+          `/${tenant.slug}/dashboard/project/${updatedServiceDomainResponse.project.id}/service/${id}`,
         )
         return { success: true }
       }
@@ -660,8 +689,9 @@ export const regenerateSSLAction = protectedClient
     actionName: 'regenerateSSLAction',
   })
   .schema(regenerateSSLSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, email } = clientInput
+    const { payload } = ctx
 
     const {
       project,

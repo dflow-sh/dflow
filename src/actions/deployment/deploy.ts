@@ -1,3 +1,5 @@
+'use server'
+
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -6,13 +8,13 @@ import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment
 import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
 
-const payload = await getPayload({ config: configPromise })
-
 export const triggerDeployment = async ({
   serviceId,
 }: {
   serviceId: string
 }) => {
+  const payload = await getPayload({ config: configPromise })
+
   const {
     project,
     type,

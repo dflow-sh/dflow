@@ -1,16 +1,15 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
-import { Job, Queue, Worker } from 'bullmq'
+import { Job } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
+import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
-
-const queueName = 'manage-server-domain'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
@@ -33,167 +32,170 @@ interface QueueArgs {
   }
 }
 
-const manageServerDomainQueue = new Queue<QueueArgs>(queueName, {
-  connection: queueConnection,
-})
+export const addManageServerDomainQueue = async (data: QueueArgs) => {
+  const QUEUE_NAME = `server-${data.serverDetails.id}-manage-server-domain`
 
-const worker = new Worker<QueueArgs>(
-  queueName,
-  async job => {
-    const { sshDetails, serverDetails } = job.data
-    const { global } = job.data.serverDetails
-    const payload = await getPayload({ config: configPromise })
+  const manageServerDomainQueue = getQueue({
+    name: QUEUE_NAME,
+    connection: queueConnection,
+  })
 
-    let ssh: NodeSSH | null = null
+  const worker = getWorker<QueueArgs>({
+    name: QUEUE_NAME,
+    processor: async job => {
+      const { sshDetails, serverDetails } = job.data
+      const { global } = job.data.serverDetails
+      const payload = await getPayload({ config: configPromise })
 
-    try {
-      ssh = await dynamicSSH(sshDetails)
+      let ssh: NodeSSH | null = null
 
-      let executionResponse: SSHExecCommandResponse = {
-        code: -1,
-        signal: null,
-        stdout: '',
-        stderr: '',
-      }
+      try {
+        ssh = await dynamicSSH(sshDetails)
 
-      if (global) {
-        switch (global.action) {
-          case 'add':
-            executionResponse = await dokku.domains.addGlobal(
-              ssh,
-              global.domain,
-              {
-                onStdout: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-                onStderr: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-              },
-            )
-            break
-          case 'remove':
-            executionResponse = await dokku.domains.removeGlobal(
-              ssh,
-              global.domain,
-              {
-                onStdout: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-                onStderr: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-              },
-            )
-            break
-          case 'set':
-            executionResponse = await dokku.domains.setGlobal(
-              ssh,
-              global.domain,
-              {
-                onStdout: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-                onStderr: async chunk => {
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
-                },
-              },
-            )
-            break
-          default:
-            break
+        let executionResponse: SSHExecCommandResponse = {
+          code: -1,
+          signal: null,
+          stdout: '',
+          stderr: '',
         }
 
-        if (executionResponse.code === 0) {
-          sendEvent({
-            pub,
-            message: `✅ Successfully ${global.action}ed global domain ${global.domain}, updating details...`,
-            serverId: serverDetails.id,
-          })
+        if (global) {
+          switch (global.action) {
+            case 'add':
+              executionResponse = await dokku.domains.addGlobal(
+                ssh,
+                global.domain,
+                {
+                  onStdout: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                  onStderr: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                },
+              )
+              break
+            case 'remove':
+              executionResponse = await dokku.domains.removeGlobal(
+                ssh,
+                global.domain,
+                {
+                  onStdout: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                  onStderr: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                },
+              )
+              break
+            case 'set':
+              executionResponse = await dokku.domains.setGlobal(
+                ssh,
+                global.domain,
+                {
+                  onStdout: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                  onStderr: async chunk => {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  },
+                },
+              )
+              break
+            default:
+              break
+          }
 
-          // 1. for add operation checking the global domains list
-          // 2. updating server domains status based on the global domains list
-          // 3. sending refresh event to the client
-          if (global.action === 'add') {
-            const domains = await dokku.domains.listGlobal({ ssh })
-            const server = await payload.findByID({
-              collection: 'servers',
-              id: serverDetails.id,
+          if (executionResponse.code === 0) {
+            sendEvent({
+              pub,
+              message: `✅ Successfully ${global.action}ed global domain ${global.domain}, updating details...`,
+              serverId: serverDetails.id,
             })
 
-            const newDomains = (server.domains ?? []).map(domain => ({
-              domain: domain.domain,
-              synced: domains.includes(domain.domain),
-              default: false,
-            }))
-
-            if (server) {
-              await payload.update({
+            // 1. for add operation checking the global domains list
+            // 2. updating server domains status based on the global domains list
+            // 3. sending refresh event to the client
+            if (global.action === 'add') {
+              const domains = await dokku.domains.listGlobal({ ssh })
+              const server = await payload.findByID({
                 collection: 'servers',
                 id: serverDetails.id,
-                data: {
-                  domains: newDomains,
-                },
               })
 
-              await pub.publish(
-                'refresh-channel',
-                JSON.stringify({ refresh: true }),
-              )
+              const newDomains = (server.domains ?? []).map(domain => ({
+                domain: domain.domain,
+                synced: domains.includes(domain.domain),
+                default: false,
+              }))
+
+              if (server) {
+                await payload.update({
+                  collection: 'servers',
+                  id: serverDetails.id,
+                  data: {
+                    domains: newDomains,
+                  },
+                })
+
+                await pub.publish(
+                  'refresh-channel',
+                  JSON.stringify({ refresh: true }),
+                )
+              }
             }
           }
         }
+      } catch (error) {
+        let message = error instanceof Error ? error.message : ''
+
+        throw new Error(
+          `❌ failed to ${serverDetails?.global.action} for domain ${serverDetails?.global?.domain}: ${message}`,
+        )
+      } finally {
+        ssh?.dispose()
       }
-    } catch (error) {
-      let message = error instanceof Error ? error.message : ''
+    },
+    connection: queueConnection,
+  })
 
-      throw new Error(
-        `❌ failed to ${serverDetails?.global.action} for domain ${serverDetails?.global?.domain}: ${message}`,
-      )
-    } finally {
-      ssh?.dispose()
+  worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
+    console.log('Failed during global-domain operation', err)
+
+    if (job?.data) {
+      sendEvent({
+        pub,
+        message: err.message,
+        serverId: job.data.serverDetails.id,
+      })
     }
-  },
-  { connection: queueConnection },
-)
+  })
 
-worker.on('failed', async (job: Job<QueueArgs> | undefined, err) => {
-  console.log('Failed during global-domain operation', err)
-
-  if (job?.data) {
-    sendEvent({
-      pub,
-      message: err.message,
-      serverId: job.data.serverDetails.id,
-    })
-  }
-})
-
-export const addManageServerDomainQueue = async (data: QueueArgs) => {
   const id = `manage-global-domain-${data.serverDetails.global?.domain}-:${new Date().getTime()}`
 
   return await manageServerDomainQueue.add(id, data, {

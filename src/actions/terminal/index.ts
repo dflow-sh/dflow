@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 import { addRestartAppQueue } from '@/queues/app/restart'
@@ -20,8 +18,6 @@ import {
   uninstallTerminalSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 const TERMINAL_APP_NAME = 'wetty-terminal'
 
 export const installTerminalAction = protectedClient
@@ -29,8 +25,9 @@ export const installTerminalAction = protectedClient
     actionName: 'installTerminalAction',
   })
   .schema(installTerminalSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
 
     // Fetch server details from the database
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -83,8 +80,10 @@ export const uninstallTerminalAction = protectedClient
     actionName: 'uninstallTerminalAction',
   })
   .schema(uninstallTerminalSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -126,8 +125,10 @@ export const startTerminalAction = protectedClient
     actionName: 'startTerminalAction',
   })
   .schema(startTerminalSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -167,8 +168,10 @@ export const stopTerminalAction = protectedClient
     actionName: 'stopTerminalAction',
   })
   .schema(stopTerminalSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -208,8 +211,10 @@ export const restartTerminalAction = protectedClient
     actionName: 'restartTerminalAction',
   })
   .schema(restartTerminalSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
+    const { payload } = ctx
+
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,

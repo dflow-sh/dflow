@@ -5,7 +5,7 @@ import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Braces, Plus, Trash2 } from 'lucide-react'
+import { Braces, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
@@ -48,12 +48,16 @@ const ReferenceVariableDropdown = ({
   gettingDatabases,
   databaseList: list = [],
   index,
+  serviceName,
 }: {
   databaseList: Service[]
   gettingDatabases: boolean
   index: number
+  serviceName: string
 }) => {
   const { setValue } = useFormContext()
+  const publicDomain = `{{ ${serviceName}.DFLOW_PUBLIC_DOMAIN }}`
+  const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
   return (
     <DropdownMenu>
@@ -69,6 +73,21 @@ const ReferenceVariableDropdown = ({
 
       <DropdownMenuContent className='pb-2' align='end'>
         <DropdownMenuLabel>Reference Variables</DropdownMenuLabel>
+        <DropdownMenuItem
+          onSelect={() => {
+            setValue(`variables.${index}.value`, publicDomain)
+          }}>
+          <Globe className='size-6 text-green-600' />
+          {publicDomain}
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onSelect={() => {
+            setValue(`variables.${index}.value`, secretKey)
+          }}>
+          <KeyRound className='size-6 text-blue-500' />
+          {secretKey}
+        </DropdownMenuItem>
 
         {gettingDatabases && (
           <DropdownMenuItem disabled>
@@ -79,7 +98,7 @@ const ReferenceVariableDropdown = ({
 
         {list.length && !gettingDatabases
           ? list.map(database => {
-              const { deployments, name } = database
+              const { deployments } = database
 
               const disabled =
                 typeof deployments?.docs?.find(deployment => {
@@ -89,25 +108,40 @@ const ReferenceVariableDropdown = ({
                   )
                 }) === 'undefined'
 
-              const environmentVariableValue =
-                '$' +
-                `{{${database.databaseDetails?.type}:${database.name + '.DATABASE_URI'}}}`
+              const environmentVariableValue = `${database.name}.${database.databaseDetails?.type?.toUpperCase()}`
 
               return (
-                <DropdownMenuItem
-                  key={database.id}
-                  disabled={disabled}
-                  onSelect={() => {
-                    setValue(
-                      `variables.${index}.value`,
-                      environmentVariableValue,
-                    )
-                  }}>
-                  {database.databaseDetails?.type &&
-                    databaseIcons[database.databaseDetails?.type]}
+                <>
+                  <DropdownMenuItem
+                    key={database.id}
+                    disabled={disabled}
+                    onSelect={() => {
+                      setValue(
+                        `variables.${index}.value`,
+                        `{{ ${environmentVariableValue}_URI }}`,
+                      )
+                    }}>
+                    {database.databaseDetails?.type &&
+                      databaseIcons[database.databaseDetails?.type]}
 
-                  {`${name}.DATABASE_URI ${disabled ? '(not-deployed)' : ''}`}
-                </DropdownMenuItem>
+                    {`{{ ${environmentVariableValue}_URI }} ${disabled ? '(not-deployed)' : ''}`}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    key={database.id + 1}
+                    disabled
+                    onSelect={() => {
+                      setValue(
+                        `variables.${index}.value`,
+                        `{{ ${environmentVariableValue}_PUBLIC_URI }}`,
+                      )
+                    }}>
+                    {database.databaseDetails?.type &&
+                      databaseIcons[database.databaseDetails?.type]}
+
+                    {`{{ ${environmentVariableValue}_PUBLIC_URI }} ${disabled ? '(not-deployed)' : ''}`}
+                  </DropdownMenuItem>
+                </>
               )
             })
           : null}
@@ -238,6 +272,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
                             index={index}
                             databaseList={databaseList?.data ?? []}
                             gettingDatabases={gettingDatabases}
+                            serviceName={service.name}
                           />
                         </div>
                       </FormControl>

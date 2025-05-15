@@ -1,18 +1,21 @@
 import { Webhooks } from '@octokit/webhooks'
 import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 
 import { triggerDeployment } from '@/actions/deployment/deploy'
 
 export async function POST(request: Request) {
   const headers = request.headers
-  const body = await request.json()
-  const payload = await getPayload({ config: configPromise })
   const signature = headers.get('x-hub-signature-256')
   const event = headers.get('x-github-event')
+
+  const body = await request.json()
+
   const installationId = body.installation?.id
   const branchName = body?.ref?.replace('refs/heads/', '')
   const repositoryName = body?.repository?.name
+
+  const { getPayload } = await import('payload')
+  const payload = await getPayload({ config: configPromise })
 
   if (!installationId) {
     return Response.json(

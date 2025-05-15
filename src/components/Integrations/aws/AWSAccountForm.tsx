@@ -161,6 +161,7 @@ const AWSAccountForm = ({
                   form.handleSubmit(onSubmit)()
                 }}
                 className='mt-6'
+                isLoading={connectingAccount}
                 disabled={connectingAccount}>
                 Save
               </Button>

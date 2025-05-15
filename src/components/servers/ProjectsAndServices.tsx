@@ -10,6 +10,7 @@ import {
   LayersIcon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { JSX, useState } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,6 +35,7 @@ const databaseIcons: {
   redis: <Redis className='size-4' />,
 }
 const ProjectsCard = ({ projects }: { projects: Project[] }) => {
+  const params = useParams()
   const [openProjectId, setOpenProjectId] = useState<string | null>(null)
 
   const toggleProject = (projectId: string) => {
@@ -91,7 +93,8 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
                         )}
                       </div>
                       <div className='flex-grow'>
-                        <Link href={`/dashboard/project/${project.id}`}>
+                        <Link
+                          href={`/${params.organisation}/dashboard/project/${project.id}`}>
                           <span className='text-sm font-medium hover:text-primary'>
                             {project.name}
                           </span>
@@ -117,7 +120,7 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
                         return (
                           <Link
                             key={service.id}
-                            href={`/dashboard/project/${project.id}/service/${service.id}`}
+                            href={`/${params.organisation}/dashboard/project/${project.id}/service/${service.id}`}
                             className='group block'>
                             <div className='flex items-center rounded-md border p-2 text-sm'>
                               <div className='mr-3'>

@@ -112,6 +112,7 @@ export function ProjectCard({
   project,
   servers,
   services,
+  organisationSlug,
 }: {
   project: Project
   servers: {
@@ -125,6 +126,7 @@ export function ProjectCard({
       | undefined
   }[]
   services: Service[]
+  organisationSlug: string
 }) {
   const [manualOpen, setManualOpen] = useState(false)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
@@ -267,7 +269,7 @@ export function ProjectCard({
   return (
     <>
       <Link
-        href={`/dashboard/project/${project.id}`}
+        href={`/${organisationSlug}/dashboard/project/${project.id}`}
         className='group block h-full'>
         {cardContent}
       </Link>

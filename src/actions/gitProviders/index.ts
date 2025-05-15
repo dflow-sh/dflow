@@ -1,10 +1,8 @@
 'use server'
 
 import { createAppAuth } from '@octokit/auth-app'
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
-import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 
@@ -14,19 +12,30 @@ import {
   getRepositorySchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const deleteGitProviderAction = protectedClient
   .metadata({
     actionName: 'deleteGitProviderAction',
   })
   .schema(deleteGitProviderSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-
+    const { userTenant, payload } = ctx
     const response = await payload.delete({
       collection: 'gitProviders',
-      id,
+      where: {
+        and: [
+          {
+            id: {
+              equals: id,
+            },
+          },
+          {
+            'tenant.slug': {
+              equals: userTenant.tenant?.slug,
+            },
+          },
+        ],
+      },
     })
 
     if (response) {
@@ -117,20 +126,16 @@ export const getAllAppsAction = protectedClient
   .metadata({
     actionName: 'getAllAppsAction',
   })
-  .action(async () => {
+  .action(async ({ ctx }) => {
+    const { userTenant, payload } = ctx
     const { docs } = await payload.find({
       collection: 'gitProviders',
       pagination: false,
-      // select: {
-      //   github: {
-      //     appName: true,
-      //     installationId: true,
-      //     appUrl: true,
-      //   },
-      //   createdAt: true,
-      //   type: true,
-      //   updatedAt: true,
-      // },
+      where: {
+        'tenant.slug': {
+          equals: userTenant.tenant.slug,
+        },
+      },
     })
 
     return docs
@@ -141,7 +146,7 @@ export const skipOnboardingAction = protectedClient
     actionName: 'skipOnboardingAction',
   })
   .action(async ({ ctx }) => {
-    const { user } = ctx
+    const { user, payload } = ctx
 
     if (user?.id) {
       await payload.update({

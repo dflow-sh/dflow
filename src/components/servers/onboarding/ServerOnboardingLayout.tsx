@@ -2,7 +2,7 @@
 
 import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { toast } from 'sonner'
 
@@ -30,6 +30,7 @@ const ServerOnboardingLayout = ({
     useServerOnboarding()
   const [_selectedServer, setSelectedServer] = useQueryState('server')
   const router = useRouter()
+  const { organisation } = useParams<{ organisation: string }>()
 
   const isLastStep = currentStep === totalSteps
 
@@ -50,7 +51,9 @@ const ServerOnboardingLayout = ({
     pluginsInstalled.configuration.email
 
   // Check if domain is configured
-  const isDomainConfigured = !!(server.domains ?? []).length
+  const isDomainConfigured = (server.domains ?? []).some(
+    domain => domain.synced,
+  )
 
   // Only enable completion when all required steps are complete
   const isFullyComplete =
@@ -69,7 +72,7 @@ const ServerOnboardingLayout = ({
           id: 'complete-server',
         })
         // Navigate to the server dashboard
-        router.push(`/servers/${server.id}`)
+        router.push(`/${organisation}/servers/${server.id}`)
       } else {
         toast.error('Failed to complete server setup', {
           id: 'complete-server',

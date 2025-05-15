@@ -96,7 +96,7 @@ const DockerRegistryForm = ({
     connectAccount({ ...values, id: account?.id })
   }
 
-  const { type, username, password } = useWatch({ control: form.control })
+  const { type } = useWatch({ control: form.control })
 
   return (
     <Dialog
@@ -249,6 +249,7 @@ const DockerRegistryForm = ({
               <Button
                 type='submit'
                 className='mt-6'
+                isLoading={connectingAccount}
                 disabled={connectingAccount}>
                 Save
               </Button>

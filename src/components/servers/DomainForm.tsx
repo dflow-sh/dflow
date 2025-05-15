@@ -75,8 +75,8 @@ export const DomainFormWithoutDialog = ({
       if (data?.success) {
         setOpen?.(false)
         form.reset()
-        toast.info('Added to queue', {
-          description: `Added domain ${input.domain} to server ${server.name}`,
+        toast.info('Added domain to server', {
+          description: `Please sync domain`,
         })
 
         if (pathName.includes('onboarding')) {
@@ -116,31 +116,8 @@ export const DomainFormWithoutDialog = ({
             )}
           />
 
-          {/* <FormField
-            control={form.control}
-            name='defaultDomain'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
-                <div className='space-y-0.5'>
-                  <FormLabel className='text-base'>Default domain</FormLabel>
-                  <FormDescription>
-                    App&apos;s created from now on this server will be assigned
-                    this domain
-                  </FormDescription>
-                </div>
-
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          /> */}
-
           <DialogFooter>
-            <Button type='submit' disabled={isPending}>
+            <Button type='submit' isLoading={isPending} disabled={isPending}>
               Add
             </Button>
           </DialogFooter>

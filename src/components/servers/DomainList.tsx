@@ -74,7 +74,15 @@ const DomainItem = ({
     execute: syncDomain,
     isPending: syncingDomain,
     hasSucceeded: triggeredDomainSync,
-  } = useAction(syncServerDomainAction)
+  } = useAction(syncServerDomainAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.info('Added to queue', {
+          description: 'Added syncing domain to queue',
+        })
+      }
+    },
+  })
 
   useEffect(() => {
     checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
@@ -174,7 +182,8 @@ const DomainItem = ({
                 !!result?.serverError ||
                 checkingDNSConfig ||
                 syncingDomain ||
-                domain.synced
+                domain.synced ||
+                triggeredDomainSync
               }
               isLoading={syncingDomain}
               onClick={() => {

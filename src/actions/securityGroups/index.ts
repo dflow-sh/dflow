@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { protectedClient } from '@/lib/safe-action'
@@ -13,14 +11,17 @@ import {
   updateSecurityGroupSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 export const createSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'createSecurityGroupAction',
   })
   .schema(createSecurityGroupSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
     const {
       name,
       description,
@@ -42,11 +43,12 @@ export const createSecurityGroupAction = protectedClient
         outboundRules,
         tags,
         syncStatus: 'pending',
+        tenant,
       },
     })
 
     if (securityGroup) {
-      revalidatePath('/security')
+      revalidatePath(`${tenant.slug}/security`)
     }
 
     return securityGroup
@@ -57,7 +59,12 @@ export const updateSecurityGroupAction = protectedClient
     actionName: 'updateSecurityGroupAction',
   })
   .schema(updateSecurityGroupSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
     const {
       id,
       name,
@@ -85,7 +92,7 @@ export const updateSecurityGroupAction = protectedClient
     })
 
     if (updatedSecurityGroup) {
-      revalidatePath('/security')
+      revalidatePath(`/${tenant.slug}/security`)
     }
 
     return updatedSecurityGroup
@@ -100,8 +107,12 @@ export const deleteSecurityGroupAction = protectedClient
       id: z.string().min(1, 'ID is required'),
     }),
   )
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const deleteSecurityGroup = await payload.delete({
       collection: 'securityGroups',
@@ -109,7 +120,7 @@ export const deleteSecurityGroupAction = protectedClient
     })
 
     if (deleteSecurityGroup) {
-      revalidatePath('/security')
+      revalidatePath(`/${tenant.slug}/security`)
       return { deleted: true }
     }
 
@@ -125,8 +136,12 @@ export const syncSecurityGroupAction = protectedClient
       id: z.string().min(1, 'ID is required'),
     }),
   )
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const updatedSecurityGroup = await payload.update({
       collection: 'securityGroups',
@@ -138,7 +153,7 @@ export const syncSecurityGroupAction = protectedClient
     })
 
     if (updatedSecurityGroup) {
-      revalidatePath('/security')
+      revalidatePath(`/${tenant.slug}/security`)
       return { synced: true }
     }
 
@@ -150,8 +165,9 @@ export const getSecurityGroupsAction = protectedClient
     actionName: 'getSecurityGroupsAction',
   })
   .schema(getSecurityGroupsSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { cloudProviderAccountId } = clientInput
+    const { payload } = ctx
 
     const { docs: securityGroups } = await payload.find({
       collection: 'securityGroups',

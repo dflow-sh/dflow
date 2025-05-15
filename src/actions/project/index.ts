@@ -1,8 +1,6 @@
 'use server'
 
-import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
-import { getPayload } from 'payload'
 
 import { protectedClient } from '@/lib/safe-action'
 import { ServerType } from '@/payload-types-overrides'
@@ -15,8 +13,6 @@ import {
   updateProjectSchema,
 } from './validator'
 
-const payload = await getPayload({ config: configPromise })
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createProjectAction = protectedClient
   .metadata({
@@ -24,10 +20,15 @@ export const createProjectAction = protectedClient
     actionName: 'createProjectAction',
   })
   .schema(createProjectSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { name, description, serverId } = clientInput
 
     // Fetching the server details before creating the project
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
     const { version } = (await payload.findByID({
       collection: 'servers',
       id: serverId,
@@ -46,11 +47,12 @@ export const createProjectAction = protectedClient
         name,
         description,
         server: serverId,
+        tenant,
       },
     })
 
     if (response) {
-      revalidatePath('/dashboard')
+      revalidatePath(`/${tenant.slug}/dashboard`)
     }
 
     return response
@@ -62,8 +64,12 @@ export const updateProjectAction = protectedClient
     actionName: 'updateProjectAction',
   })
   .schema(updateProjectSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     const response = await payload.update({
       collection: 'projects',
@@ -72,7 +78,7 @@ export const updateProjectAction = protectedClient
     })
 
     if (response) {
-      revalidatePath('/dashboard')
+      revalidatePath(`/${tenant.slug}/dashboard`)
     }
 
     return response
@@ -84,8 +90,12 @@ export const deleteProjectAction = protectedClient
     actionName: 'deleteProjectAction',
   })
   .schema(deleteProjectSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
 
     console.log("I'm inside a project deletion")
 
@@ -166,7 +176,7 @@ export const deleteProjectAction = protectedClient
     })
 
     if (deleteProjectResponse.id) {
-      revalidatePath('/dashboard')
+      revalidatePath(`/${tenant.slug}/dashboard`)
       return { deleted: true }
     }
   })
@@ -176,8 +186,10 @@ export const getProjectDatabasesAction = protectedClient
     actionName: 'getProjectDatabasesAction',
   })
   .schema(deleteProjectSchema)
-  .action(async ({ clientInput }) => {
+  .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
+    const { payload } = ctx
+
     const { docs } = await payload.find({
       collection: 'services',
       where: {

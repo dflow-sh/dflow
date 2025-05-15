@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { publicClient } from '@/lib/safe-action'
+import { protectedClient, publicClient } from '@/lib/safe-action'
 
 import {
   forgotPasswordSchema,
@@ -14,10 +14,6 @@ import {
   signUpSchema,
 } from './validator'
 
-const payload = await getPayload({
-  config: configPromise,
-})
-
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient
   .metadata({
@@ -25,6 +21,10 @@ export const signInAction = publicClient
   })
   .schema(signInSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { email, password } = clientInput
 
     const { user, token } = await payload.login({
@@ -48,7 +48,7 @@ export const signInAction = publicClient
     }
 
     if (user) {
-      redirect('/dashboard')
+      redirect(`/${user.username}/dashboard`)
     }
   })
 
@@ -58,16 +58,57 @@ export const signUpAction = publicClient
   })
   .schema(signUpSchema)
   .action(async ({ clientInput }) => {
-    const { email, password } = clientInput
-    const response = await payload.create({
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
+    const { email, password, username } = clientInput
+
+    // Check if username already exists
+    const usernameExists = await payload.find({
       collection: 'users',
-      data: {
-        email,
-        password,
-        onboarded: false,
+      where: {
+        username: {
+          equals: username,
+        },
       },
     })
 
+    if (usernameExists.totalDocs > 0) {
+      throw new Error('Username already exists')
+    }
+
+    const emailExists = await payload.find({
+      collection: 'users',
+      where: {
+        email: {
+          equals: email,
+        },
+      },
+    })
+
+    if (emailExists.totalDocs > 0) {
+      throw new Error('Email already exists')
+    }
+
+    const tenant = await payload.create({
+      collection: 'tenants',
+      data: {
+        name: username,
+        slug: username,
+        subdomain: username,
+      },
+    })
+    const response = await payload.create({
+      collection: 'users',
+      data: {
+        username,
+        email,
+        password,
+        onboarded: false,
+        tenants: [{ tenant: tenant.id, roles: ['tenant-admin'] }],
+      },
+    })
     return response
   })
 
@@ -108,7 +149,12 @@ export const forgotPasswordAction = publicClient
   })
   .schema(forgotPasswordSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { email } = clientInput
+
     const response = await payload.forgotPassword({
       collection: 'users',
       data: {
@@ -123,7 +169,12 @@ export const resetPasswordAction = publicClient
   .metadata({ actionName: 'resetPasswordAction' })
   .schema(resetPasswordSchema)
   .action(async ({ clientInput }) => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
     const { password, token } = clientInput
+
     const response = await payload.resetPassword({
       collection: 'users',
       data: {
@@ -142,4 +193,10 @@ export const logoutAction = publicClient
     const cookieStore = await cookies()
     cookieStore.delete('payload-token')
     redirect('/sign-in')
+  })
+
+export const getUserAction = protectedClient
+  .metadata({ actionName: 'getUserAction' })
+  .action(async ({ ctx }) => {
+    return ctx.user
   })

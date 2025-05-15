@@ -76,6 +76,8 @@ export const instanceTypes = [
 export const isDemoEnvironment = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 export const numberRegex = /^\d+$/
 export const REFERENCE_VARIABLE_REGEX = /\${{\s*(\w+):([\w-]+)\.([\w_]+)\s*}}/
+export const TEMPLATE_EXPR = /\{\{\s*(.*?)\s*\}\}/g
+
 export const posthogHost = 'https://us.i.posthog.com'
 export const posthogKey = 'phc_CkZ9XejPwdsrmxUl0Pmp0n3fRUioTekrpBS1lnzuGOn'
 

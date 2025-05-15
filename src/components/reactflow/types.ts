@@ -14,6 +14,7 @@ export interface DatabaseDetails {
 export interface ServiceNode {
   id: string
   name: string
+  displayName?: string
   description?: string | null
   type: 'database' | 'app' | 'docker'
   createdAt?: string

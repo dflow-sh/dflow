@@ -14,11 +14,14 @@ export const env = createEnv({
   server: {
     DATABASE_URI: z.string().min(1),
     REDIS_URI: z.string().min(1),
+    DFLOW_CLOUD_URL: z.string().optional(),
+    DFLOW_CLOUD_AUTH_SLUG: z.string().optional(),
+    DFLOW_CLOUD_API_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
     NEXT_PUBLIC_WEBHOOK_URL: z.string().url().optional(),
-    NEXT_PUBLIC_ENVIRONMENT: z.enum(['DEMO']).optional(),
+    NEXT_PUBLIC_ENVIRONMENT: z.enum(['DEMO', 'PROD']).optional(),
     NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED: z.literal('1').optional(),
   },
   runtimeEnv: {
@@ -31,5 +34,8 @@ export const env = createEnv({
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
     NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED:
       process.env.NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED,
+    DFLOW_CLOUD_URL: process.env.DFLOW_CLOUD_URL,
+    DFLOW_CLOUD_AUTH_SLUG: process.env.DFLOW_CLOUD_AUTH_SLUG,
+    DFLOW_CLOUD_API_KEY: process.env.DFLOW_CLOUD_API_KEY,
   },
 })
