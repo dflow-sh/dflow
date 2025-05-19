@@ -1,9 +1,6 @@
 import isPortReachable from 'is-port-reachable'
 import { CollectionAfterReadHook } from 'payload'
 
-import { supportedLinuxVersions } from '@/lib/constants'
-import { dokku } from '@/lib/dokku'
-import { netdata } from '@/lib/netdata'
 import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { Server } from '@/payload-types'
@@ -28,11 +25,11 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
   const portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
 
-  let version: string | undefined
-  let netdataVersion: string | null = null
+  let dokku: string | undefined
+  let netdata: string | undefined
   let sshConnected = false
-  let linuxDistributionVersion
-  let linuxDistributionType
+  let linuxVersion
+  let linuxType
   let railpack: string | undefined
 
   if (sshKey && sshKey?.privateKey) {
@@ -49,29 +46,19 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           sshConnected = true
         }
 
-        netdataVersion = await netdata.core.getVersion({ ssh })
+        const {
+          dokkuVersion,
+          linuxDistributionType,
+          linuxDistributionVersion,
+          netdataVersion,
+          railpackVersion,
+        } = await server.info({ ssh })
 
-        const distroResponse = await dokku.distro.info(ssh)
-
-        linuxDistributionVersion = extractValue({
-          key: 'Release',
-          data: distroResponse,
-        })
-
-        linuxDistributionType = extractValue({
-          key: 'Distributor ID',
-          data: distroResponse,
-        })
-
-        if (
-          linuxDistributionVersion &&
-          supportedLinuxVersions.includes(linuxDistributionVersion)
-        ) {
-          version = await dokku.version.info(ssh)
-        }
-
-        const railpackResponse = await server.railpack.info({ ssh })
-        railpack = railpackResponse
+        dokku = dokkuVersion
+        netdata = netdataVersion
+        linuxVersion = linuxDistributionVersion
+        linuxType = linuxDistributionType
+        railpack = railpackVersion
 
         ssh.dispose()
       } catch (error) {
@@ -97,13 +84,13 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   return {
     ...doc,
-    version: version ?? null, // version of dokku
-    netdataVersion,
+    version: dokku, // version of dokku
+    netdata,
     portIsOpen, // boolean indicating whether the server is running
     sshConnected, // boolean indicating whether ssh is connected
     os: {
-      type: linuxDistributionType ?? null,
-      version: linuxDistributionVersion ?? null,
+      type: linuxType,
+      version: linuxVersion,
     },
     railpack,
   }

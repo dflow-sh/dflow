@@ -26,6 +26,7 @@ const SuspendedServers = async ({
 }) => {
   const result = await getServersDetails()
   const servers = result?.data?.servers ?? []
+
   return (
     <>
       {servers.length ? (
@@ -69,6 +70,7 @@ const ServersPage = async ({ params }: PageProps) => {
         <div className='text-2xl font-semibold'>Servers</div>
         <div className='flex gap-2'>
           <RefreshButton />
+
           <Suspense fallback={<CreateServerButtonSkeleton />}>
             {isDemoEnvironment ? (
               <Button disabled={true} size={'default'} variant={'default'}>
@@ -86,6 +88,7 @@ const ServersPage = async ({ params }: PageProps) => {
           </Suspense>
         </div>
       </div>
+
       <Suspense fallback={<ServersSkeleton />}>
         <SuspendedServers organisationSlug={syncParams.organisation} />
       </Suspense>
