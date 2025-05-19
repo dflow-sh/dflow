@@ -92,7 +92,7 @@ const CreateService = ({
 }) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ id: string; organisation: string }>()
   const { plugins = [] } = server
 
   const projectName = project.name ? slugify(project.name) : ''
@@ -287,7 +287,7 @@ const CreateService = ({
                               enable appropriate plugin on{' '}
                               <Link
                                 className='text-primary underline'
-                                href={`/servers/${server.id}?tab=plugins`}>
+                                href={`/${params.organisation}/servers/${server.id}?tab=plugins`}>
                                 server
                               </Link>
                             </SelectLabel>

@@ -1,10 +1,13 @@
 'use client'
 
+import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import { Badge } from '../ui/badge'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Rocket } from 'lucide-react'
+import { Database, Github, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { Fragment, JSX, useEffect, useRef } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -37,6 +40,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
@@ -46,20 +50,40 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Template } from '@/payload-types'
+import { Server, Service, Template } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+
+const icon: { [key in Service['type']]: JSX.Element } = {
+  app: <Github className='size-5 text-foreground' />,
+  database: <Database className='size-5 text-destructive' />,
+  docker: <Docker className='size-5' />,
+}
+
+type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
+
+const databaseIcons: {
+  [key in StatusType]: JSX.Element
+} = {
+  postgres: <PostgreSQL className='size-5' />,
+  mariadb: <MariaDB className='size-5' />,
+  mongo: <MongoDB className='size-5' />,
+  mysql: <MySQL className='size-5' />,
+  redis: <Redis className='size-5' />,
+}
 
 const TemplateDeploymentForm = ({
   execute,
   isPending,
   templates,
+  server: { plugins, name: serverName, id: serverId },
 }: {
   execute: () => void
   isPending: boolean
   templates?: Template[]
+  server: Server
 }) => {
   const dialogRef = useRef<HTMLButtonElement>(null)
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ id: string; organisation: string }>()
 
   const { execute: deployTemplate, isPending: deployingTemplate } = useAction(
     deployTemplateAction,
@@ -112,7 +136,7 @@ const TemplateDeploymentForm = ({
                 onValueChange={field.onChange}
                 defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className='h-max text-left'>
                     <SelectValue
                       placeholder={
                         isPending
@@ -124,14 +148,88 @@ const TemplateDeploymentForm = ({
                 </FormControl>
 
                 <SelectContent>
-                  {templates?.map(({ id, name, services = [] }) => (
-                    <SelectItem
-                      key={id}
-                      value={id}
-                      disabled={!services?.length}>
-                      {`${name} (${services?.length} services)`}
-                    </SelectItem>
-                  ))}
+                  {/* todo: add disabled state for database services if plugin is not installed */}
+                  {templates?.map(({ id, name, services = [] }) => {
+                    const databasesList = services?.filter(
+                      service => service.type === 'database',
+                    )
+
+                    const disabledDatabasesList = databasesList?.filter(
+                      database => {
+                        const databaseType = database?.databaseDetails?.type
+
+                        const pluginDetails = plugins?.find(
+                          plugin => plugin.name === databaseType,
+                        )
+
+                        return (
+                          !pluginDetails ||
+                          (pluginDetails &&
+                            pluginDetails?.status === 'disabled')
+                        )
+                      },
+                    )
+
+                    const disabledDatabasesListNames = disabledDatabasesList
+                      ?.map(database => database?.databaseDetails?.type)
+                      ?.filter((value, index, self) => {
+                        return self.indexOf(value) === index
+                      })
+
+                    return (
+                      <Fragment key={id}>
+                        <SelectItem
+                          value={id}
+                          disabled={
+                            !services?.length || !!disabledDatabasesList?.length
+                          }>
+                          {name}
+
+                          <div className='mt-1 flex flex-wrap items-center gap-1'>
+                            {services?.map(service => {
+                              const serviceName =
+                                service.databaseDetails?.type ?? service?.type
+
+                              return (
+                                <Badge
+                                  variant={'outline'}
+                                  key={service.id}
+                                  className='gap-1 capitalize'>
+                                  {service.type === 'database' &&
+                                  service.databaseDetails?.type
+                                    ? databaseIcons[
+                                        service.databaseDetails?.type
+                                      ]
+                                    : icon[service.type]}
+
+                                  {serviceName}
+                                </Badge>
+                              )
+                            })}
+                          </div>
+                        </SelectItem>
+
+                        {disabledDatabasesListNames?.length ? (
+                          <span className='px-2 text-xs'>
+                            {`Enable ${disabledDatabasesListNames?.join(',')} plugin for `}
+                            <Button
+                              variant='link'
+                              className='w-min px-0'
+                              size={'sm'}
+                              asChild>
+                              <Link
+                                href={`/${params.organisation}/servers/${serverId}?tab=plugins`}>
+                                {serverName}
+                              </Link>
+                            </Button>
+                            {` server to deploy template`}
+                          </span>
+                        ) : null}
+
+                        <SelectSeparator />
+                      </Fragment>
+                    )
+                  })}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -157,9 +255,11 @@ const TemplateDeploymentForm = ({
 const DeployTemplate = ({
   disableDeployButton = false,
   disableReason = 'This action is currently unavailable',
+  server,
 }: {
   disableDeployButton?: boolean
   disableReason?: string
+  server: Server
 }) => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
   const architectureContext = function useSafeArchitectureContext() {
@@ -206,6 +306,7 @@ const DeployTemplate = ({
           execute={execute}
           templates={result.data}
           isPending={isPending}
+          server={server}
         />
       </DialogContent>
     </Dialog>

@@ -70,6 +70,7 @@ const SuspendedPage = async ({
           {typeof project.server === 'object' && (
             <div className='flex items-center gap-3'>
               <DeployTemplate
+                server={project.server}
                 disableDeployButton={!isServerConnected}
                 disableReason={
                   'Cannot deploy template: Server is not connected'
