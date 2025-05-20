@@ -112,47 +112,49 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                   setSelectedType('dFlow')
                   setSelectedOption(value)
                 }}>
-                {vpsPlans?.map(plan => (
-                  <div
-                    key={plan.slug}
-                    className={`relative flex w-full items-start rounded-md border ${
-                      selectedOption === plan.slug
-                        ? 'border-2 border-primary'
-                        : 'border-input'
-                    } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
-                    <RadioGroupItem
-                      value={String(plan.slug)}
-                      id={`${id}-${plan.slug}`}
-                      className='order-1 after:absolute after:inset-0'
-                    />
-                    <div className='flex grow items-center gap-4'>
-                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                        <Cloud className='h-5 w-5' />
-                      </div>
-                      <div className='space-y-1'>
-                        <div className='flex items-center gap-2'>
-                          <Label
-                            htmlFor={`${id}-${plan.slug}`}
-                            className='cursor-pointer font-medium'>
-                            {plan.name}
-                          </Label>
-                          {plan.slug === 'cloud-vps-10' && (
-                            <Badge variant='success' className='text-xs'>
-                              Free
-                            </Badge>
-                          )}
+                {vpsPlans
+                  ?.filter(plan => plan.slug === 'cloud-vps-10')
+                  ?.map(plan => (
+                    <div
+                      key={plan.slug}
+                      className={`relative flex w-full items-start rounded-md border ${
+                        selectedOption === plan.slug
+                          ? 'border-2 border-primary'
+                          : 'border-input'
+                      } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                      <RadioGroupItem
+                        value={String(plan.slug)}
+                        id={`${id}-${plan.slug}`}
+                        className='order-1 after:absolute after:inset-0'
+                      />
+                      <div className='flex grow items-center gap-4'>
+                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                          <Cloud className='h-5 w-5' />
                         </div>
-                        <p className='text-sm text-muted-foreground'>
-                          {formatSpecs(plan)}
-                        </p>
-                        <p
-                          className={`text-sm font-medium text-primary ${plan.slug === 'cloud-vps-10' ? 'line-through' : ''}`}>
-                          {formatPrice(plan)}
-                        </p>
+                        <div className='space-y-1'>
+                          <div className='flex items-center gap-2'>
+                            <Label
+                              htmlFor={`${id}-${plan.slug}`}
+                              className='cursor-pointer font-medium'>
+                              {plan.name}
+                            </Label>
+                            {plan.slug === 'cloud-vps-10' && (
+                              <Badge variant='success' className='text-xs'>
+                                Free
+                              </Badge>
+                            )}
+                          </div>
+                          <p className='text-sm text-muted-foreground'>
+                            {formatSpecs(plan)}
+                          </p>
+                          <p
+                            className={`text-sm font-medium text-primary ${plan.slug === 'cloud-vps-10' ? 'line-through' : ''}`}>
+                            {formatPrice(plan)}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </RadioGroup>
             )}
           </CardContent>
