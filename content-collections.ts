@@ -95,6 +95,29 @@ const services = defineCollection({
   },
 })
 
+const security = defineCollection({
+  name: 'security',
+  directory: 'src/docs/security',
+  include: '**/*.md',
+  schema: z => ({
+    title: z.string(),
+    category: z.string(),
+    order: z.number(),
+    categoryOrder: z.number(),
+  }),
+  transform: async (document, context) => {
+    const mdx = await compileMDX(context, document, {
+      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+    })
+    return {
+      ...document,
+      mdx,
+      slug: document.title.toLowerCase().replace(/ /g, '-'),
+      categorySlug: document.category.toLowerCase().replace(/ /g, '-'),
+    }
+  },
+})
+
 export default defineConfig({
-  collections: [introduction, servers, onboarding, services],
+  collections: [introduction, servers, onboarding, services, security],
 })

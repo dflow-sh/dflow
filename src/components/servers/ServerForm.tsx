@@ -2,6 +2,7 @@
 
 import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
+import SidebarToggleButton from '../SidebarToggleButton'
 import { ArrowRight, ChevronLeft, Cloud, Server } from 'lucide-react'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -163,8 +164,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         {/* Cloud Providers Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
-            <CardTitle className='text-lg font-medium'>
+            <CardTitle className='flex items-center text-lg font-medium'>
               Cloud Providers
+              <SidebarToggleButton directory='servers' fileName='add-server' />
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6'>
@@ -222,8 +224,12 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         {/* Manual Configuration Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
-            <CardTitle className='text-lg font-medium'>
+            <CardTitle className='flex items-center text-lg font-medium'>
               Manual Configuration
+              <SidebarToggleButton
+                directory='servers'
+                fileName='attach-server'
+              />
             </CardTitle>
           </CardHeader>
           <CardContent className='p-6'>

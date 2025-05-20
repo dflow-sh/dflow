@@ -19,26 +19,28 @@ Configure core service settings for your Docker container.
 
 ### Registry Details
 
-- **Public / Private**:  
+- #### Public / Private:
+
   Choose whether your image is hosted on a public or private registry.
 
   > Select the **Private** option to deploy private images. Authentication and
   > access will be handled accordingly.
 
-- **URL**:  
+- #### URL:
+
   Provide the image URL including name and tag.  
   Example: `hasura/graphql-engine:latest`
 
-- **Ports**:
+- #### Ports:
 
   - **Host Port**: The external port used to access your app.  
     Example: `80`
   - **Container Port**: The internal port your container listens on.  
     Example: `8080`
 
-- **Schema**:  
-  Define whether the application should be accessed via HTTP or HTTPS.  
-  Example: `http`
+  - **Schema**:  
+    Define whether the application should be accessed via HTTP or HTTPS.  
+    Example: `http`
 
 ### Editable Fields
 

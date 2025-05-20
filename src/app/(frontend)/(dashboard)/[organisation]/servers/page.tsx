@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 import { getServersDetails } from '@/actions/pages/server'
 import RefreshButton from '@/components/RefreshButton'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
+import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServerCard from '@/components/servers/ServerCard'
 import {
   CreateServerButtonSkeleton,
@@ -67,7 +68,10 @@ const ServersPage = async ({ params }: PageProps) => {
   return (
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
-        <div className='text-2xl font-semibold'>Servers</div>
+        <div className='flex items-center text-2xl font-semibold'>
+          Servers
+          <SidebarToggleButton directory='servers' fileName='server-overview' />
+        </div>
         <div className='flex gap-2'>
           <RefreshButton />
 

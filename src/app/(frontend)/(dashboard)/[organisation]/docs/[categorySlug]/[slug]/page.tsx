@@ -2,6 +2,7 @@ import { MDXContent } from '@content-collections/mdx/react'
 import {
   allIntroductions,
   allOnboardings,
+  allSecurities,
   allServers,
   allServices,
 } from 'content-collections'
@@ -15,6 +16,7 @@ const allDocs = [
   ...allServers,
   ...allOnboardings,
   ...allServices,
+  ...allSecurities,
 ]
 
 interface PageProps {
