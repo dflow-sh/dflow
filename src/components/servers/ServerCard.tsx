@@ -118,6 +118,7 @@ const ServerCard = ({
   const [open, setOpen] = useState(false)
   const connectionStatus = server.connection?.status || 'unknown'
   const isConnected = connectionStatus === 'success'
+  const isOnboarded = server.onboarded === true
   const lastChecked = server.connection?.lastChecked
     ? formatDistanceToNow(new Date(server.connection.lastChecked), {
         addSuffix: true,
@@ -126,27 +127,30 @@ const ServerCard = ({
 
   return (
     <>
-      <Link href={`/${organisationSlug}/servers/${server.id}`} className='block h-full'>
+      <Link
+        href={`/${organisationSlug}/servers/${server.id}`}
+        className='block h-full'>
         <Card
           className={cn(
             'h-full min-h-36 border-l-4 transition-all duration-200',
-            isConnected
-              ? 'border-l-green-500 hover:border-l-green-600'
-              : 'border-l-red-500 hover:border-l-red-600',
+            !isOnboarded
+              ? 'border-l-amber-500 hover:border-l-amber-600'
+              : isConnected
+                ? 'border-l-green-500 hover:border-l-green-600'
+                : 'border-l-red-500 hover:border-l-red-600',
           )}>
           <CardHeader className='w-full flex-row items-start justify-between'>
             <div>
               <CardTitle className='flex items-center gap-2'>
                 <HardDrive />
                 {server.name}
-                <Badge
-                  className={
-                    isConnected
-                      ? 'bg-green-500/10 text-green-500'
-                      : 'bg-red-500/10 text-red-500'
-                  }>
-                  {isConnected ? 'Connected' : 'Disconnected'}
-                </Badge>
+                {isOnboarded ? (
+                  <Badge variant={isConnected ? 'success' : 'destructive'}>
+                    {isConnected ? 'Connected' : 'Disconnected'}
+                  </Badge>
+                ) : (
+                  <Badge variant='warning'>Onboarding Pending</Badge>
+                )}
               </CardTitle>
               <CardDescription className='line-clamp-1'>
                 {server.description}
@@ -176,7 +180,7 @@ const ServerCard = ({
                     e.stopPropagation()
                     setOpen(true)
                   }}>
-                  <Trash2 />
+                  <Trash2 className='mr-2' />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -184,27 +188,26 @@ const ServerCard = ({
           </CardHeader>
 
           <CardContent>
-            <p className='truncate'>{server.ip}</p>
+            <div className='flex w-full items-center justify-between'>
+              <p className='truncate'>{server.ip}</p>
 
-            {!isConnected && (
-              <div className='mt-2 flex items-center gap-2 text-sm text-red-500'>
-                <WifiOff size={16} />
-                <span>Connection error</span>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <AlertCircle size={14} className='cursor-help' />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Check server configuration or network status.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            )}
-
-            {/* Add empty div to maintain consistent card height when connected */}
-            {isConnected && <div className='h-8'></div>}
+              {!isConnected && isOnboarded && (
+                <div className='flex items-center gap-2 text-sm text-red-500'>
+                  <WifiOff size={16} />
+                  <span>Connection error</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <AlertCircle size={14} className='cursor-help' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Check server configuration or network status.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+            </div>
           </CardContent>
 
           {server.connection && (

@@ -24,6 +24,7 @@ export const getProjectsAndServers = protectedClient
         select: {
           name: true,
           connection: true,
+          onboarded: true,
         },
       }),
       payload.find({

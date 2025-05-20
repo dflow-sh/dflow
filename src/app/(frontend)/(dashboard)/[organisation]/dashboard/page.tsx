@@ -25,9 +25,10 @@ const SuspendedDashboard = async ({
   const servers = result?.data?.serversRes.docs as {
     id: string
     name: string
+    onboarded?: boolean | null | undefined
     connection?:
       | {
-          status?: ('success' | 'failed' | 'pending') | null
+          status?: ('success' | 'failed' | 'not-checked-yet') | null
           lastChecked?: string | null
         }
       | undefined

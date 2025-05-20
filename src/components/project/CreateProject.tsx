@@ -53,9 +53,10 @@ const CreateProject = ({
   servers: {
     id: string
     name: string
+    onboarded?: boolean | null | undefined
     connection?:
       | {
-          status?: ('success' | 'failed' | 'pending') | null
+          status?: ('success' | 'failed' | 'not-checked-yet') | null
           lastChecked?: string | null
         }
       | undefined
@@ -230,27 +231,36 @@ const CreateProject = ({
                         e.preventDefault()
                         e.stopPropagation()
                       }}>
-                      {servers.map(({ name, id, connection }) => {
+                      {servers.map(({ name, id, connection, onboarded }) => {
                         const isConnected = connection?.status === 'success'
+                        const isOnboarded = onboarded === true
+                        const isAvailable = isConnected && isOnboarded
+
                         return (
                           <SelectItem
                             key={id}
                             value={id}
-                            disabled={!isConnected}
+                            disabled={!isAvailable}
                             className={
-                              !isConnected
+                              !isAvailable
                                 ? 'cursor-not-allowed opacity-50'
                                 : ''
                             }>
                             <div className='flex w-full items-center justify-between'>
                               <span>{name}</span>
-                              {!isConnected && (
+                              {!isOnboarded ? (
                                 <Badge
-                                  variant={'destructive'}
+                                  variant='warning'
+                                  className='ml-2 text-xs'>
+                                  Setup Required
+                                </Badge>
+                              ) : !isConnected ? (
+                                <Badge
+                                  variant='destructive'
                                   className='ml-2 text-xs'>
                                   Connection error
                                 </Badge>
-                              )}
+                              ) : null}
                             </div>
                           </SelectItem>
                         )
