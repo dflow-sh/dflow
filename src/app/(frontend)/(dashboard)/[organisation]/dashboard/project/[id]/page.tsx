@@ -62,6 +62,7 @@ const SuspendedPage = async ({
                 fileName='services-overview'
               />
             </h2>
+
             <p className='text-sm text-muted-foreground'>
               {project.description}
             </p>
@@ -116,9 +117,9 @@ const SuspendedPage = async ({
             project={project}
             services={formattedServices}
           />
-        ) : (
-          <ServicesArchitecture />
-        )}
+        ) : typeof project.server === 'object' ? (
+          <ServicesArchitecture server={project.server} />
+        ) : null}
       </section>
     </ArchitectureContextProvider>
   )

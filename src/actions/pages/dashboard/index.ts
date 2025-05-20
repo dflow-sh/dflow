@@ -17,9 +17,18 @@ export const getProjectsAndServers = protectedClient
         collection: 'servers',
         pagination: false,
         where: {
-          'tenant.slug': {
-            equals: tenant.slug,
-          },
+          and: [
+            {
+              'tenant.slug': {
+                equals: tenant.slug,
+              },
+            },
+            {
+              onboarded: {
+                equals: true,
+              },
+            },
+          ],
         },
         select: {
           name: true,

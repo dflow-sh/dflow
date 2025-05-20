@@ -194,7 +194,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
       <section
         ref={ref}
         className='relative mx-auto h-[calc(100vh-156px)] w-full overflow-y-hidden px-2'>
-        <div className='flex w-full items-center justify-end gap-x-2'>
+        <div className='mt-2 flex w-full items-center justify-end gap-x-2'>
           <Button
             className='z-20'
             variant={'outline'}
@@ -299,7 +299,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         </Dialog>
 
         {nodes?.length > 1 && (
-          <div className='absolute right-2 top-16 z-20'>
+          <div className='absolute right-2 top-24 z-20'>
             <ReorderList nodes={nodes as any} setNodes={setNodes as any} />
           </div>
         )}

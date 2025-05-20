@@ -5,7 +5,6 @@ import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
-import { server } from '@/lib/server'
 import { dynamicSSH } from '@/lib/ssh'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addRestartAppQueue } from '@/queues/app/restart'
@@ -467,7 +466,7 @@ export const exposeDatabasePortAction = protectedClient
   })
   .schema(exposeDatabasePortSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, ports } = clientInput
+    const { id, action } = clientInput
     const { payload } = ctx
 
     const {
@@ -497,53 +496,18 @@ export const exposeDatabasePortAction = protectedClient
       }
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
-        let ssh: NodeSSH | null = null
+        const { exposedPorts } = serviceDetails?.databaseDetails
 
         try {
-          ssh = await dynamicSSH(sshDetails)
-
-          const portsResponse = await server.ports.available({
-            ssh,
-            ports,
-          })
-
-          // If port response failed throw exception
-          if (!portsResponse) {
-            throw new Error('port-status unavailable, please try again!')
-          }
-
-          const unavailablePorts = portsResponse.filter(
-            ({ available }) => !available,
-          )
-
-          // If any port is in use throwing an error
-          if (unavailablePorts.length) {
-            throw new Error(
-              `${unavailablePorts.map(({ port }) => port).join(', ')} are already in use!`,
-            )
-          }
-
-          // Updating the exposed ports in payload
-          await payload.update({
-            collection: 'services',
-            data: {
-              databaseDetails: {
-                exposedPorts: ports,
-              },
-            },
-            id,
-          })
-
           const queueResponse = await addExposeDatabasePortQueue({
             databaseName: serviceDetails.name,
             databaseType: serviceDetails.databaseDetails?.type,
             sshDetails,
-
             serviceDetails: {
-              ports,
-              previousPorts: serviceDetails.databaseDetails?.exposedPorts ?? [],
+              previousPorts: exposedPorts ?? [],
+              id: serviceDetails.id,
+              action,
             },
-
             serverDetails: {
               id: project.server.id,
             },
@@ -555,8 +519,6 @@ export const exposeDatabasePortAction = protectedClient
         } catch (error) {
           let message = error instanceof Error ? error.message : ''
           throw new Error(message)
-        } finally {
-          ssh?.dispose()
         }
       }
     }

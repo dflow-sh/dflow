@@ -1,44 +1,36 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-// Using this command to get port status
-// sudo netstat -tulnp | grep -e ":3000" -e ":3306" -e ":5432" -e ":8080"
-
 export const available = async ({
   ssh,
-  ports,
   options,
+  length = 1,
 }: {
   ssh: NodeSSH
-  ports: Array<string>
   options?: SSHExecCommandOptions
+  length: number
 }) => {
-  console.log(
-    `sudo netstat -tulnp | grep ` +
-      ports.map(port => `-e ":${port}" `).join(' '),
-  )
+  const ports = Array.from(Array(length).keys())
+  const resultAvailablePorts = await ssh.execCommand(
+    `get_random_free_port() {
+  while true; do
+    port=$((RANDOM % 55512 + 10000)) # range: 10000–65535
 
-  const resultPortsAvailability = await ssh.execCommand(
-    `sudo netstat -tulnp | grep ` +
-      ports.map(port => `-e ":${port}" `).join(' '),
+    # Check if the port is already in use
+    if ! netstat -lnt | awk '{print $4}' | grep -q ":$port\$"; then
+      echo "$port"
+      return
+    fi
+  done
+}
+
+echo "${ports.map(() => `$(get_random_free_port)`).join(' ')}"
+`,
     options,
   )
 
-  if (resultPortsAvailability.code === 0) {
-    return ports.map(port => ({
-      port,
-      available: !resultPortsAvailability.stdout.includes(port),
-    }))
-  }
-
-  // if code is 1 & there is no stderr, considering port as available
-  if (
-    resultPortsAvailability.code === 1 &&
-    resultPortsAvailability.stdout.trim() === '' &&
-    resultPortsAvailability.stderr.trim() === ''
-  ) {
-    return ports.map(port => ({
-      port,
-      available: true,
-    }))
+  if (resultAvailablePorts.code === 0) {
+    return resultAvailablePorts.stdout.trim().split(/\s+/)
+  } else {
+    throw new Error(resultAvailablePorts.stderr || 'Failed to get ports')
   }
 }

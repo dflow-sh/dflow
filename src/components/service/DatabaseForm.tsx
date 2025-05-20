@@ -1,36 +1,41 @@
 'use client'
 
-import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { Tag, TagInput } from 'emblor'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { exposeDatabasePortAction } from '@/actions/service'
-import { numberRegex } from '@/lib/constants'
-import { Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
-const PortForm = ({ service }: { service: Service }) => {
-  const [tags, setTags] = useState<Tag[]>(
-    service.databaseDetails?.exposedPorts
-      ? service.databaseDetails?.exposedPorts.map(port => ({
-          id: port,
-          text: port,
-        }))
-      : [],
+const DatabaseForm = ({
+  service,
+  server,
+}: {
+  service: Service
+  server: Server | string
+}) => {
+  const { databaseDetails } = service
+  const isPublic = !!databaseDetails?.exposedPorts?.length
+  const connectionUrl = databaseDetails?.connectionUrl ?? ''
+  const host = databaseDetails?.host ?? ''
+  const port = databaseDetails?.port ?? ''
+  const exposedPort = databaseDetails?.exposedPorts?.[0] ?? ''
+  const deployments = service.deployments?.docs ?? []
+  const hasDeployed = deployments?.some(
+    deployment =>
+      typeof deployment === 'object' && deployment.status === 'success',
   )
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
 
-  const { execute: exposePort, isPending: isExposingPort } = useAction(
+  const { execute, isPending, hasSucceeded, reset, input } = useAction(
     exposeDatabasePortAction,
     {
       onSuccess: ({ data, input }) => {
         if (data?.success) {
           toast.info('Added to queue', {
-            description: `Added exposing of ${input.ports.join(', ')} ports to queue`,
+            description: `Added ${input.action === 'expose' ? 'database exposure' : 'un-exposing database'} to queue`,
           })
         }
       },
@@ -42,71 +47,23 @@ const PortForm = ({ service }: { service: Service }) => {
     },
   )
 
-  return (
-    <div className='rounded bg-muted/30 p-4'>
-      <h3 className='text-lg font-semibold'>
-        External Credentials{' '}
-        <SidebarToggleButton
-          directory='services'
-          fileName='database-service'
-          sectionId='#-external-credentials'
-        />
-      </h3>
-      <p className='text-pretty text-muted-foreground'>
-        In order to make your database reachable over internet setting a port is
-        required. make sure port is not used by other database or application
-      </p>
+  useEffect(() => {
+    if (hasSucceeded) {
+      const ports = databaseDetails?.exposedPorts
+      const action = input?.action
 
-      <div className='mt-4 space-y-6'>
-        <TagInput
-          placeholder='Enter ports'
-          type='number'
-          placeholderWhenFull='Max ports reached'
-          tags={tags}
-          setTags={newTags => {
-            if (Array.isArray(newTags)) {
-              setTags(newTags.filter(tag => numberRegex.test(tag.text)))
-            }
-          }}
-          maxTags={service.databaseDetails?.type === 'mongo' ? 4 : 1}
-          activeTagIndex={activeTagIndex}
-          setActiveTagIndex={setActiveTagIndex}
-        />
+      if (action === 'expose' && !!ports?.length) {
+        reset()
+      } else if (action === 'unexpose' && !ports?.length) {
+        reset()
+      }
+    }
+  }, [hasSucceeded, service, input])
 
-        <div className='flex w-full justify-end'>
-          <Button
-            type='submit'
-            variant='outline'
-            disabled={!tags.length || isExposingPort}
-            onClick={() => {
-              if (
-                service.databaseDetails?.type === 'mongo' &&
-                tags.length < 4
-              ) {
-                return toast.error('Mongo database requires 4 ports', {
-                  description: 'example ports: 27017, 27018, 27019, 27020',
-                })
-              }
-
-              if (!tags.length) {
-                return toast.error('Ports are required')
-              }
-
-              exposePort({
-                id: service.id,
-                ports: tags.map(({ text }) => text),
-              })
-            }}>
-            Save
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const DatabaseForm = ({ service }: { service: Service }) => {
-  const { databaseDetails } = service
+  const publicUrl =
+    isPublic && typeof server === 'object'
+      ? connectionUrl.replace(host, server.ip).replace(port, exposedPort)
+      : ''
 
   return (
     <>
@@ -114,7 +71,7 @@ const DatabaseForm = ({ service }: { service: Service }) => {
         <h3 className='text-lg font-semibold'>Internal Credentials</h3>
 
         <form className='w-full space-y-6'>
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid gap-4 sm:grid-cols-2'>
             <div className='space-y-2'>
               <Label>Username</Label>
               <Input disabled value={databaseDetails?.username ?? '-'} />
@@ -126,7 +83,7 @@ const DatabaseForm = ({ service }: { service: Service }) => {
             </div>
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid gap-4 sm:grid-cols-2'>
             <div className='space-y-2'>
               <Label>Port</Label>
               <Input disabled value={databaseDetails?.port ?? '-'} />
@@ -138,14 +95,43 @@ const DatabaseForm = ({ service }: { service: Service }) => {
             </div>
           </div>
 
-          <div className='space-y-2'>
-            <Label>Internal connection url</Label>
-            <Input disabled value={databaseDetails?.connectionUrl ?? '-'} />
+          <div className='grid gap-4 sm:grid-cols-2'>
+            <div className='space-y-2'>
+              <Label>Internal connection url</Label>
+              <Input disabled value={databaseDetails?.connectionUrl ?? '-'} />
+            </div>
+
+            <div className='space-y-2'>
+              <Label>Public connection url</Label>
+
+              <div className='flex gap-2'>
+                <Input disabled value={isPublic ? publicUrl : '-'} />
+
+                {hasDeployed && (
+                  <Button
+                    variant='outline'
+                    disabled={isPending || hasSucceeded}
+                    isLoading={isPending}
+                    onClick={() => {
+                      execute({
+                        action: isPublic ? 'unexpose' : 'expose',
+                        id: service.id,
+                      })
+                    }}>
+                    {isPublic
+                      ? input?.action === 'unexpose'
+                        ? 'Un-exposing'
+                        : 'Unexpose'
+                      : input?.action === 'expose'
+                        ? 'Exposing'
+                        : 'Expose'}
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </form>
       </div>
-
-      <PortForm service={service} />
     </>
   )
 }

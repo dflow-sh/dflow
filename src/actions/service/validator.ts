@@ -72,7 +72,7 @@ export const updateServiceSchema = z.object({
 })
 
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({
-  ports: z.array(z.string()),
+  action: z.enum(['expose', 'unexpose']),
 })
 
 export const updateServiceEnvironmentsSchema = deleteServiceSchema.extend({

@@ -51,7 +51,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
   switch (tab) {
     case 'general':
-      return <GeneralTab service={service} />
+      return <GeneralTab service={service} server={server} />
 
     case 'environment':
       return <VariablesForm service={service} />
@@ -85,7 +85,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       )
 
     default:
-      return <GeneralTab service={service} />
+      return <GeneralTab service={service} server={server} />
   }
 }
 
