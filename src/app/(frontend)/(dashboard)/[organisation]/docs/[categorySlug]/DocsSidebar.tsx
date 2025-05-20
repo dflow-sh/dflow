@@ -3,6 +3,7 @@
 import {
   allIntroductions,
   allOnboardings,
+  allSecurities,
   allServers,
   allServices,
 } from 'content-collections'
@@ -16,6 +17,7 @@ type Doc =
   | (typeof allIntroductions)[number]
   | (typeof allOnboardings)[number]
   | (typeof allServices)[number]
+  | (typeof allSecurities)[number]
 
 type GroupedDocs = Record<string, Doc[]>
 // console.log({ allOnboardings })
@@ -24,6 +26,7 @@ const allDocs: Doc[] = [
   ...allServers,
   ...allOnboardings,
   ...allServices,
+  ...allSecurities,
 ]
 
 const groupedDocs: GroupedDocs = allDocs.reduce<GroupedDocs>((acc, doc) => {
