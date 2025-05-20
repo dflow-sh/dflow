@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SshKey } from '@/payload-types'
+import { Server, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 const AttachCustomServerForm = ({
@@ -41,7 +41,14 @@ const AttachCustomServerForm = ({
   sshKeys: SshKey[]
   formType?: 'create' | 'update'
   server?: ServerType
-  onSuccess?: (data: any) => void
+  onSuccess?: (
+    data:
+      | {
+          success: boolean
+          server: Server
+        }
+      | undefined,
+  ) => void
   onError?: (error: any) => void
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
@@ -78,7 +85,7 @@ const AttachCustomServerForm = ({
     createServerAction,
     {
       onSuccess: ({ data, input }) => {
-        if (data) {
+        if (data?.success) {
           toast.success(`Successfully created ${input.name} server`, {
             description:
               isOnboarding && 'redirecting to dokku-installation page...',
@@ -101,7 +108,7 @@ const AttachCustomServerForm = ({
     updateServerAction,
     {
       onSuccess: ({ data, input }) => {
-        if (data) {
+        if (data?.success) {
           toast.success(`Successfully updated ${input.name} service`)
           form.reset()
         }

@@ -229,7 +229,7 @@ export const createEC2InstanceAction = protectedClient
 
       if (serverResponse.id) {
         revalidatePath('/servers')
-        return { success: true }
+        return { success: true, server: serverResponse }
       }
     }
   })
@@ -444,5 +444,5 @@ export const updateEC2InstanceAction = protectedClient
       revalidatePath(`/onboarding/add-server`)
     }
 
-    return { success: true }
+    return { success: true, server: response }
   })

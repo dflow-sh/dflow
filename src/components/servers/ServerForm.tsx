@@ -328,11 +328,11 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               sshKeys={sshKeys}
               securityGroups={securityGroups}
               formType={formType}
-              onSuccess={() => {
+              onSuccess={data => {
                 if (isOnboarding) {
                   router.push('/onboarding/dokku-install')
                 } else {
-                  router.push(`/${organisation}/servers`)
+                  router.push(`/${organisation}/servers/${data?.server.id}`)
                 }
               }}
             />
@@ -343,11 +343,11 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               sshKeys={sshKeys}
               server={server}
               formType={formType}
-              onSuccess={() => {
+              onSuccess={data => {
                 if (isOnboarding) {
                   router.push('/onboarding/dokku-install')
                 } else {
-                  router.push(`/${organisation}/servers`)
+                  router.push(`/${organisation}/servers/${data?.server.id}`)
                 }
               }}
             />

@@ -50,7 +50,7 @@ export const createServerAction = protectedClient
       revalidatePath(`/${tenant.slug}/servers`)
     }
 
-    return response
+    return { success: true, server: response }
   })
 
 export const updateServerAction = protectedClient
@@ -73,7 +73,7 @@ export const updateServerAction = protectedClient
       revalidatePath(`/onboarding/add-server`)
     }
 
-    return response
+    return { success: true, server: response }
   })
 
 export const deleteServerAction = protectedClient

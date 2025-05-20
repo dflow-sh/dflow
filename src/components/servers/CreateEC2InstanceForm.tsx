@@ -70,7 +70,14 @@ const CreateEC2InstanceForm = ({
   securityGroups?: SecurityGroup[]
   formType?: 'create' | 'update'
   server?: ServerType | Server
-  onSuccess?: (data: any) => void
+  onSuccess?: (
+    data:
+      | {
+          success: boolean
+          server: Server
+        }
+      | undefined,
+  ) => void
   onError?: (error: any) => void
 }) => {
   const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
