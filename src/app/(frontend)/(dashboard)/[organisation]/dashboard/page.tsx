@@ -60,8 +60,8 @@ const SuspendedDashboard = async ({
             <AlertCircle className='h-4 w-4' />
             <AlertTitle>No Servers Available</AlertTitle>
             <AlertDescription>
-              No servers have been configured. You need to add at least one
-              server before creating projects.
+              Please add a server to get started. Once a server is added,
+              complete the onboarding process to begin creating projects.
             </AlertDescription>
           </Alert>
         )}
@@ -101,11 +101,8 @@ const SuspendedDashboard = async ({
                 No Projects Found
               </h4>
               <p className='text-cq-text-secondary text-pretty pt-1'>
-                You don't have any projects yet. Start by creating a new project
-                {!hasServers && ' (add a server first)'}
-                {hasServers &&
-                  !hasConnectedServers &&
-                  ' (connect to a server first)'}
+                You don't have any projects yet. Please add a server and
+                complete the onboarding process to begin creating projects.
               </p>
             </div>
           </section>
