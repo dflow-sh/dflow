@@ -1,6 +1,7 @@
 'use client'
 
 import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
+import SidebarToggleButton from '../SidebarToggleButton'
 import CreateSecurityGroup from '../security/CreateSecurityGroup'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
@@ -225,7 +226,14 @@ const CreateEC2InstanceForm = ({
           name='name'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>
+                Name
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='add-server-aws'
+                  sectionId='#name'
+                />
+              </FormLabel>{' '}
               <FormControl>
                 <Input {...field} className='rounded-sm' />
               </FormControl>
@@ -239,7 +247,14 @@ const CreateEC2InstanceForm = ({
           name='description'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>
+                Description
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='add-server-aws'
+                  sectionId='#description-optional'
+                />
+              </FormLabel>{' '}
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -254,7 +269,14 @@ const CreateEC2InstanceForm = ({
           name='accountId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>AWS Account</FormLabel>
+              <FormLabel>
+                AWS Account
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='add-server-aws'
+                  sectionId='#aws-account'
+                />
+              </FormLabel>{' '}
               <div className='flex items-center space-x-2'>
                 {isCreating ? (
                   <>
@@ -321,7 +343,14 @@ const CreateEC2InstanceForm = ({
           name='sshKeyId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>SSH Key</FormLabel>
+              <FormLabel>
+                SSH Key
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='add-server-aws'
+                  sectionId='#ssh-key'
+                />
+              </FormLabel>{' '}
               {isCreating ? (
                 <Select
                   onValueChange={field.onChange}
@@ -367,7 +396,14 @@ const CreateEC2InstanceForm = ({
           name='securityGroupIds'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Security Groups</FormLabel>
+              <FormLabel>
+                Security Groups
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='add-server-aws'
+                  sectionId='#security-groups'
+                />
+              </FormLabel>{' '}
               <div className='flex items-center space-x-2'>
                 <div className='flex-1'>
                   <MultiSelect
@@ -422,8 +458,14 @@ const CreateEC2InstanceForm = ({
               name='ami'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amazon Machine Image (AMI)</FormLabel>
-
+                  <FormLabel>
+                    Amazon Machine Image (AMI)
+                    <SidebarToggleButton
+                      directory='servers'
+                      fileName='add-server-aws'
+                      sectionId='#amazon-machine-image-ami'
+                    />
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}>
@@ -452,8 +494,14 @@ const CreateEC2InstanceForm = ({
                 name='instanceType'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instance Type</FormLabel>
-
+                    <FormLabel>
+                      Instance Type
+                      <SidebarToggleButton
+                        directory='servers'
+                        fileName='add-server-aws'
+                        sectionId='#instance-type'
+                      />
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}>
@@ -481,7 +529,14 @@ const CreateEC2InstanceForm = ({
                 name='diskSize'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Disk Size (GiB)</FormLabel>
+                    <FormLabel>
+                      Disk Size (GiB)
+                      <SidebarToggleButton
+                        directory='servers'
+                        fileName='add-server-aws'
+                        sectionId='#disk-size-gib'
+                      />
+                    </FormLabel>{' '}
                     <FormControl>
                       <Input
                         {...field}
@@ -505,8 +560,14 @@ const CreateEC2InstanceForm = ({
               name='region'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Region</FormLabel>
-
+                  <FormLabel>
+                    Region
+                    <SidebarToggleButton
+                      directory='servers'
+                      fileName='add-server-aws'
+                      sectionId='#server'
+                    />
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}>
