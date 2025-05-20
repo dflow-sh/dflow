@@ -137,6 +137,8 @@ const DeploymentDialog = memo(
   },
 )
 
+DeploymentDialog.displayName = 'DeploymentDialog'
+
 const ServicesArchitecture = ({ server }: { server: Server }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])

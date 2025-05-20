@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { available } from '@/lib/server/ports/available'
+import { status } from '@/lib/server/ports/status'
 
 /**
  * Checks Netdata port status
@@ -19,7 +19,7 @@ export const checkPortStatus = async ({
   const ports = ['19999']
 
   // Use the available function from the imports to check port status
-  const portCheck = await available({ ssh, ports, options })
+  const portCheck = await status({ ssh, ports, options })
 
   // Check if the service is running
   const serviceStatus = await ssh.execCommand(

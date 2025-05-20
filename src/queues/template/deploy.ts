@@ -361,7 +361,8 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     id: project.server.id,
                   },
                   serviceDetails: {
-                    ports: exposedPorts ?? [],
+                    action: 'expose',
+                    id: serviceDetails.id,
                   },
                 })
 
