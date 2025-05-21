@@ -7,7 +7,7 @@ import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Braces, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { JSX, useEffect, useState } from 'react'
+import { Fragment, JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -98,7 +98,8 @@ const ReferenceVariableDropdown = ({
 
         {list.length && !gettingDatabases
           ? list.map(database => {
-              const { deployments } = database
+              const { deployments, databaseDetails } = database
+              const exposedPorts = databaseDetails?.exposedPorts ?? []
 
               const disabled =
                 typeof deployments?.docs?.find(deployment => {
@@ -111,9 +112,8 @@ const ReferenceVariableDropdown = ({
               const environmentVariableValue = `${database.name}.${database.databaseDetails?.type?.toUpperCase()}`
 
               return (
-                <>
+                <Fragment key={database.id}>
                   <DropdownMenuItem
-                    key={database.id}
                     disabled={disabled}
                     onSelect={() => {
                       setValue(
@@ -128,8 +128,7 @@ const ReferenceVariableDropdown = ({
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    key={database.id + 1}
-                    disabled
+                    disabled={!exposedPorts.length}
                     onSelect={() => {
                       setValue(
                         `variables.${index}.value`,
@@ -141,7 +140,7 @@ const ReferenceVariableDropdown = ({
 
                     {`{{ ${environmentVariableValue}_PUBLIC_URI }} ${disabled ? '(not-deployed)' : ''}`}
                   </DropdownMenuItem>
-                </>
+                </Fragment>
               )
             })
           : null}

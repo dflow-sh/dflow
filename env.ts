@@ -38,4 +38,5 @@ export const env = createEnv({
     DFLOW_CLOUD_AUTH_SLUG: process.env.DFLOW_CLOUD_AUTH_SLUG,
     DFLOW_CLOUD_API_KEY: process.env.DFLOW_CLOUD_API_KEY,
   },
+  emptyStringAsUndefined: true,
 })

@@ -1,6 +1,8 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import { addExposeDatabasePortQueue } from '../database/expose'
 import configPromise from '@payload-config'
+import { Job } from 'bullmq'
 import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
 import nunjucks from 'nunjucks'
@@ -38,6 +40,10 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
+  tenantDetails: {
+    slug: string
+  }
+  exposeDatabase?: boolean
 }
 
 const knownVariables = [
@@ -47,12 +53,65 @@ const knownVariables = [
   'REDIS_URI',
   'MARIADB_URI',
   'MYSQL_URI',
+  'MONGO_PUBLIC_URI',
+  'POSTGRES_PUBLIC_URI',
+  'REDIS_PUBLIC_URI',
+  'MARIADB_PUBLIC_URI',
+  'MYSQL_PUBLIC_URI',
 ] as const
 
 type KnownVariable = (typeof knownVariables)[number]
 
 function isKnownVariable(name: string): name is KnownVariable {
   return (knownVariables as readonly string[]).includes(name)
+}
+
+async function waitForJobCompletion(
+  job: Job,
+  options: {
+    maxAttempts?: number
+    pollingInterval?: number
+    successStates?: string[]
+    failureStates?: string[]
+  } = {},
+) {
+  const {
+    maxAttempts = 180, // 30 minutes with 10s interval
+    pollingInterval = 10000, // 10 seconds
+    successStates = ['completed'],
+    failureStates = ['failed', 'unknown'],
+  } = options
+
+  let attempts = 0
+
+  while (attempts < maxAttempts) {
+    try {
+      // Get the current state of the job
+      const state = await job.getState()
+      console.log({ state })
+
+      // Check if job completed successfully
+      if (successStates.includes(state)) {
+        return { success: true }
+      }
+
+      // Check if job failed
+      if (failureStates.includes(state)) {
+        throw new Error('job execution failed')
+      }
+
+      // Wait for the polling interval before checking again
+      await new Promise(resolve => setTimeout(resolve, pollingInterval))
+      attempts++
+    } catch (error) {
+      throw new Error(
+        `Error polling job ${job.id}: ${error instanceof Error ? error.message : ''}`,
+      )
+    }
+  }
+
+  // If we've reached the maximum number of attempts, consider it a timeout
+  throw new Error(`Error execution timeout`)
 }
 
 function classifyVariableType(value: string) {
@@ -89,7 +148,13 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
     connection: queueConnection,
     processor: async job => {
       const payload = await getPayload({ config: configPromise })
-      const { sshDetails, serviceDetails, serverDetails } = job.data
+      const {
+        sshDetails,
+        serviceDetails,
+        serverDetails,
+        tenantDetails,
+        exposeDatabase = false,
+      } = job.data
       const { variables, previousVariables } = serviceDetails
       let ssh: NodeSSH | null = null
 
@@ -238,21 +303,24 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                       }
                     }
 
-                    // handle database variable linking 'MONGO_URI', 'POSTGRES_URI', 'REDIS_URI', 'MARIADB_URI', 'MYSQL_URI'
+                    // handle database variable linking 'MONGO_URI', 'POSTGRES_URI', 'REDIS_URI', 'MARIADB_URI', 'MYSQL_URI', 'MONGO_PUBLIC_URI', 'POSTGRES_PUBLIC_URI', 'REDIS_PUBLIC_URI', 'MARIADB_PUBLIC_URI', 'MYSQL_PUBLIC_URI'
                     // aliasing serviceName to databaseName ex: DATABASE_URI={{ my-mongo-db:MONGO_URI }}
                     if (
                       variableName === 'MARIADB_URI' ||
                       variableName === 'MONGO_URI' ||
                       variableName === 'MYSQL_URI' ||
                       variableName === 'POSTGRES_URI' ||
-                      variableName === 'REDIS_URI'
+                      variableName === 'REDIS_URI' ||
+                      variableName === 'MONGO_PUBLIC_URI' ||
+                      variableName === 'MARIADB_PUBLIC_URI' ||
+                      variableName === 'MYSQL_PUBLIC_URI' ||
+                      variableName === 'POSTGRES_PUBLIC_URI' ||
+                      variableName === 'REDIS_PUBLIC_URI'
                     ) {
                       const databaseName = serviceName
                       const databaseType = variableName
                         ?.split('_')[0]
                         .toLowerCase()
-
-                      let databaseLinkResponse: string[] = []
 
                       const formattedDatabaseVariableName = `${databaseName}-db`
                       const envAlias = formattedDatabaseVariableName
@@ -262,66 +330,52 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                         )
                         .toUpperCase()
 
-                      console.log({ databaseType, databaseName, envAlias })
+                      console.log({
+                        databaseType,
+                        databaseName,
+                        envAlias,
+                        variableName,
+                        condition: variableName.includes('PUBLIC'),
+                        tenantDetails,
+                      })
 
-                      // getting all database linked apps-list
-                      try {
-                        databaseLinkResponse = await dokku.database.listLinks({
-                          ssh,
-                          databaseName,
-                          databaseType,
-                        })
-                      } catch (error) {
-                        console.log(
-                          `${databaseName} is not linked to any services!`,
-                          error,
-                        )
-                      }
-
-                      // checking if database is linked, if yes using `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
-                      if (databaseLinkResponse.includes(serviceDetails.name)) {
-                        formattedVariables.push({
-                          key,
-                          value,
-                          generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
-                        })
-                      }
-                      // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
-                      else {
-                        const databaseLinkResponse = await dokku.database.link({
-                          ssh,
-                          databaseName,
-                          databaseType,
-                          appName: serviceDetails.name,
-                          alias: envAlias,
-                          noRestart: true,
-                          options: {
-                            onStdout: async chunk => {
-                              sendEvent({
-                                message: chunk.toString(),
-                                pub,
-                                serverId: serverDetails.id,
-                              })
-                            },
-                            onStderr: async chunk => {
-                              sendEvent({
-                                message: chunk.toString(),
-                                pub,
-                                serverId: serverDetails.id,
-                              })
+                      // 1. Public database connection -> MONGO_PUBLIC_URI
+                      if (variableName.includes('PUBLIC')) {
+                        // check for database deployments & exposed ports
+                        const { docs } = await payload.find({
+                          collection: 'services',
+                          where: {
+                            and: [
+                              {
+                                name: {
+                                  equals: databaseName,
+                                },
+                              },
+                              {
+                                'tenant.slug': {
+                                  equals: tenantDetails.slug,
+                                },
+                              },
+                            ],
+                          },
+                          joins: {
+                            deployments: {
+                              limit: 1000,
                             },
                           },
                         })
 
-                        if (databaseLinkResponse.code === 0) {
-                          formattedVariables.push({
-                            key,
-                            value,
-                            generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
-                          })
-                        } else {
+                        const databaseExposureDetails = docs?.[0]
+
+                        console.dir(
+                          { databaseExposureDetails },
+                          { depth: Infinity },
+                        )
+
+                        // database found check
+                        if (!databaseExposureDetails) {
                           sendEvent({
-                            message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
+                            message: `can't link ${databaseName} not found!`,
                             pub,
                             serverId: serverDetails.id,
                           })
@@ -331,6 +385,226 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                             value,
                             generatedValue: '',
                           })
+                        }
+
+                        // database deployed check
+                        const deployments =
+                          databaseExposureDetails?.deployments?.docs ?? []
+
+                        const deploymentSucceed = deployments.some(
+                          deployment =>
+                            typeof deployment === 'object' &&
+                            deployment.status === 'success',
+                        )
+
+                        if (!deploymentSucceed) {
+                          sendEvent({
+                            message: `please deploy ${databaseName} database to link variable`,
+                            pub,
+                            serverId: serverDetails.id,
+                          })
+
+                          formattedVariables.push({
+                            key,
+                            value,
+                            generatedValue: '',
+                          })
+                        }
+
+                        // checking for exposed ports
+                        const hasExposedPorts =
+                          databaseExposureDetails?.databaseDetails
+                            ?.exposedPorts ?? []
+
+                        // directly populating the url based on the sever-details, exposed-ports
+                        if (hasExposedPorts.length) {
+                          const { databaseDetails } = databaseExposureDetails
+                          const connectionUrl =
+                            databaseDetails?.connectionUrl ?? ''
+                          const host = databaseDetails?.host ?? ''
+                          const port = databaseDetails?.port ?? ''
+                          const exposedPort =
+                            databaseDetails?.exposedPorts?.[0] ?? ''
+
+                          formattedVariables.push({
+                            key,
+                            value,
+                            generatedValue: connectionUrl
+                              .replace(host, sshDetails.host)
+                              .replace(port, exposedPort),
+                          })
+                        } else {
+                          // exposed based on a boolean expose and populate values
+                          if (exposeDatabase) {
+                            const databaseExposeResponse =
+                              await addExposeDatabasePortQueue({
+                                sshDetails,
+                                databaseName: databaseExposureDetails.name,
+                                databaseType:
+                                  databaseExposureDetails?.databaseDetails
+                                    ?.type!,
+                                serviceDetails: {
+                                  action: 'expose',
+                                  id: databaseExposureDetails.id,
+                                },
+                                serverDetails,
+                              })
+
+                            try {
+                              const exposeResponse = await waitForJobCompletion(
+                                databaseExposeResponse,
+                              )
+
+                              console.log({ exposeResponse })
+
+                              if (exposeResponse.success) {
+                                // fetching latest details after exposing database
+                                const { docs } = await payload.find({
+                                  collection: 'services',
+                                  where: {
+                                    and: [
+                                      {
+                                        name: {
+                                          equals: databaseName,
+                                        },
+                                      },
+                                      {
+                                        'tenant.slug': {
+                                          equals: tenantDetails.slug,
+                                        },
+                                      },
+                                    ],
+                                  },
+                                })
+
+                                const updatedDatabaseDetails = docs?.[0]
+
+                                console.dir(
+                                  { updatedDatabaseDetails },
+                                  { depth: Infinity },
+                                )
+
+                                if (updatedDatabaseDetails) {
+                                  const { databaseDetails } =
+                                    updatedDatabaseDetails
+                                  const hasExposedPorts =
+                                    databaseDetails?.exposedPorts ?? []
+
+                                  if (hasExposedPorts.length) {
+                                    const connectionUrl =
+                                      databaseDetails?.connectionUrl ?? ''
+                                    const host = databaseDetails?.host ?? ''
+                                    const port = databaseDetails?.port ?? ''
+                                    const exposedPort =
+                                      databaseDetails?.exposedPorts?.[0] ?? ''
+
+                                    formattedVariables.push({
+                                      key,
+                                      value,
+                                      generatedValue: connectionUrl
+                                        .replace(host, sshDetails.host)
+                                        .replace(port, exposedPort),
+                                    })
+                                  }
+                                }
+                              }
+                            } catch (error) {
+                              const message =
+                                error instanceof Error ? error.message : ''
+
+                              sendEvent({
+                                message: `❌ Failed to expose ${databaseName}: ${message}`,
+                                pub,
+                                serverId: serverDetails.id,
+                              })
+
+                              formattedVariables.push({
+                                key,
+                                value,
+                                generatedValue: '',
+                              })
+                            }
+                          }
+                        }
+                      }
+                      // 2. Private database connection -> MONGO_URI
+                      else {
+                        let databaseLinkResponse: string[] = []
+
+                        // getting all database linked apps-list
+                        try {
+                          databaseLinkResponse = await dokku.database.listLinks(
+                            {
+                              ssh,
+                              databaseName,
+                              databaseType,
+                            },
+                          )
+                        } catch (error) {
+                          console.log(
+                            `${databaseName} is not linked to any services!`,
+                            error,
+                          )
+                        }
+
+                        // checking if database is linked
+                        if (
+                          databaseLinkResponse.includes(serviceDetails.name)
+                        ) {
+                          // using `$(dokku config:get serviceName SERVICE_NAME_DB_URL)` as we're linking database to service in this syntax SERVICE_NAME_DB_URL
+                          formattedVariables.push({
+                            key,
+                            value,
+                            generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
+                          })
+                        }
+                        // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
+                        else {
+                          const databaseLinkResponse =
+                            await dokku.database.link({
+                              ssh,
+                              databaseName,
+                              databaseType,
+                              appName: serviceDetails.name,
+                              alias: envAlias,
+                              noRestart: true,
+                              options: {
+                                onStdout: async chunk => {
+                                  sendEvent({
+                                    message: chunk.toString(),
+                                    pub,
+                                    serverId: serverDetails.id,
+                                  })
+                                },
+                                onStderr: async chunk => {
+                                  sendEvent({
+                                    message: chunk.toString(),
+                                    pub,
+                                    serverId: serverDetails.id,
+                                  })
+                                },
+                              },
+                            })
+
+                          if (databaseLinkResponse.code === 0) {
+                            formattedVariables.push({
+                              key,
+                              value,
+                              generatedValue: `$(dokku config:get ${serviceDetails.name} ${envAlias}_URL)`,
+                            })
+                          } else {
+                            sendEvent({
+                              message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
+                              pub,
+                              serverId: serverDetails.id,
+                            })
+
+                            formattedVariables.push({
+                              key,
+                              value,
+                              generatedValue: '',
+                            })
+                          }
                         }
                       }
                     }

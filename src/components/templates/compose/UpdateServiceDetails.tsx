@@ -11,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { JSX, useEffect, useState } from 'react'
+import { Fragment, JSX, useEffect, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -293,9 +293,8 @@ const ReferenceVariableDropdown = ({
               const environmentVariableValue = `${database.name}.${database.databaseDetails?.type?.toUpperCase()}`
 
               return (
-                <>
+                <Fragment key={database.id}>
                   <DropdownMenuItem
-                    key={database.id}
                     onSelect={() => {
                       setValue(
                         `variables.${index}.value`,
@@ -309,8 +308,6 @@ const ReferenceVariableDropdown = ({
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    key={database.id + 1}
-                    disabled
                     onSelect={() => {
                       setValue(
                         `variables.${index}.value`,
@@ -322,7 +319,7 @@ const ReferenceVariableDropdown = ({
 
                     {`{{ ${environmentVariableValue}_PUBLIC_URI }}`}
                   </DropdownMenuItem>
-                </>
+                </Fragment>
               )
             })
           : null}

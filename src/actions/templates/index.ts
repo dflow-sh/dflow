@@ -256,6 +256,9 @@ export const deployTemplateAction = protectedClient
             ? projectDetails?.server?.id
             : projectDetails?.server,
       },
+      tenantDetails: {
+        slug: tenant.slug,
+      },
     })
 
     if (response.id) {
@@ -451,6 +454,9 @@ export const deployTemplateFromArchitectureAction = protectedClient
           typeof projectDetails?.server === 'object'
             ? projectDetails?.server?.id
             : projectDetails?.server,
+      },
+      tenantDetails: {
+        slug: tenant.slug,
       },
     })
 

@@ -297,6 +297,9 @@ export const updateServiceAction = protectedClient
         serverDetails: {
           id: response.project.server.id,
         },
+        tenantDetails: {
+          slug: tenant.slug,
+        },
       })
     }
 

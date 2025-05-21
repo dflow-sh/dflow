@@ -11,7 +11,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
-import { jobOptions, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
@@ -19,6 +19,9 @@ interface QueueArgs {
   services: Service[]
   serverDetails: {
     id: string
+  }
+  tenantDetails: {
+    slug: string
   }
 }
 
@@ -83,7 +86,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { services } = job.data
+      const { services, tenantDetails } = job.data
       const payload = await getPayload({ config: configPromise })
 
       try {
@@ -124,6 +127,12 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
               status: 'queued',
             },
           })
+
+          // sending refresh event after deployment entry got created
+          await pub.publish(
+            'refresh-channel',
+            JSON.stringify({ refresh: true }),
+          )
 
           if (
             typeof project === 'object' &&
@@ -173,9 +182,9 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                           previousVariables: [],
                           variables: variables ?? [],
                         },
+                        tenantDetails,
+                        exposeDatabase: true,
                       })
-
-                    environmentVariablesQueue.getState()
 
                     await waitForJobCompletion(environmentVariablesQueue)
 
@@ -185,6 +194,11 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       id: serviceDetails.id,
                     })
                   }
+
+                  console.dir(
+                    { updatedServiceDetails, variables },
+                    { depth: Infinity },
+                  )
 
                   const updatedPopulatedVariables =
                     updatedServiceDetails?.populatedVariables ||
@@ -231,8 +245,8 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                           port: githubSettings.port
                             ? githubSettings.port.toString()
                             : '3000',
-                          populatedVariables: populatedVariables ?? '{}',
-                          variables: variables ?? [],
+                          populatedVariables: updatedPopulatedVariables ?? '{}',
+                          variables: updatedVariables ?? [],
                         },
                       })
 
@@ -290,6 +304,8 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                         previousVariables: [],
                         variables: variables ?? [],
                       },
+                      tenantDetails,
+                      exposeDatabase: true,
                     })
 
                   await waitForJobCompletion(environmentVariablesQueue)
