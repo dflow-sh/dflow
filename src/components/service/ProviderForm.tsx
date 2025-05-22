@@ -1,7 +1,6 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import Tabs from '../Tabs'
 import { Docker } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -31,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GitProvider, Service } from '@/payload-types'
 
 const options = [
@@ -100,6 +100,8 @@ const GithubForm = ({
     isPending: repositoriesLoading,
     reset: resetRepositoriesList,
   } = useAction(getRepositoriesAction)
+
+  console.log({ repositoriesList })
 
   const {
     execute: getBranches,
@@ -327,7 +329,7 @@ const GithubForm = ({
                             sectionId='#account--editable'
                           />
                         }
-                        inputPlaceholder='account'
+                        inputPlaceholder={'account'}
                         gitProviders={gitProviders}
                         onSelect={(value: string) => {
                           field.onChange(value)
@@ -375,7 +377,11 @@ const GithubForm = ({
                       <SelectSearch
                         fieldValue={field.value}
                         label='Repository'
-                        inputPlaceholder='repository'
+                        inputPlaceholder={
+                          repositoriesLoading
+                            ? 'fetching repositories...'
+                            : 'repository'
+                        }
                         gitProviders={repositoryOptions}
                         disabled={!provider || repositoriesLoading}
                         onSelect={(value: any) => {
@@ -440,7 +446,9 @@ const GithubForm = ({
                         <SelectSearch
                           fieldValue={field.value}
                           label='Branch'
-                          inputPlaceholder='branch'
+                          inputPlaceholder={
+                            branchesLoading ? 'fetching branches...' : 'branch'
+                          }
                           gitProviders={branchOptions}
                           disabled={
                             !provider ||
@@ -602,24 +610,21 @@ const ProviderForm = ({
         <p className='text-muted-foreground'>Select the source of your code</p>
       </div>
 
-      <Tabs
-        tabs={[
-          {
-            label: 'Github',
-            content: () => (
-              <GithubForm gitProviders={gitProviders} service={service} />
-            ),
-          },
-          {
-            label: 'Gitlab',
-            disabled: true,
-          },
-          {
-            label: 'Bitbucket',
-            disabled: true,
-          },
-        ]}
-      />
+      <Tabs defaultValue='github'>
+        <TabsList className='mb-4 grid w-max grid-cols-3'>
+          <TabsTrigger value='github'>Github</TabsTrigger>
+          <TabsTrigger value='gitlab' disabled>
+            Gitlab
+          </TabsTrigger>
+          <TabsTrigger value='bitbucket' disabled>
+            Bitbucket
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value='github'>
+          <GithubForm gitProviders={gitProviders} service={service} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
