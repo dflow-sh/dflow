@@ -19,20 +19,23 @@ const NetdataInstallPrompt = ({
 }) => {
   const router = useRouter()
 
-  const { execute: installNetdata, isPending: isInstallingNetdata } = useAction(
-    installNetdataAction,
-    {
-      onSuccess: (data: any) => {
-        toast.success(data.message || 'Monitoring Tools installation started')
-        router.refresh()
-      },
-      onError: (error: any) => {
-        toast.error(
-          `Failed to start Monitoring Tools installation: ${error.message}`,
-        )
-      },
+  const {
+    execute: installNetdata,
+    isPending: isInstallingNetdata,
+    hasSucceeded: triggeredInstallation,
+  } = useAction(installNetdataAction, {
+    onSuccess: ({ data }) => {
+      toast.info('Added to queue', {
+        description: data?.message || 'Monitoring Tools installation started',
+      })
+      router.refresh()
     },
-  )
+    onError: (error: any) => {
+      toast.error(
+        `Failed to start Monitoring Tools installation: ${error.message}`,
+      )
+    },
+  })
 
   const handleInstall = () => {
     installNetdata({ serverId: server.id })
@@ -46,10 +49,15 @@ const NetdataInstallPrompt = ({
         <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
           <p>Netdata is required for monitoring. Install it to proceed.</p>
           <Button
-            disabled={isInstallingNetdata || disableInstallButton}
+            disabled={
+              isInstallingNetdata ||
+              disableInstallButton ||
+              triggeredInstallation
+            }
+            isLoading={isInstallingNetdata}
             onClick={handleInstall}>
-            {isInstallingNetdata
-              ? 'Starting Installation...'
+            {triggeredInstallation
+              ? 'Installing Monitoring Tools...'
               : 'Install Monitoring Tools'}
           </Button>
         </AlertDescription>

@@ -136,18 +136,22 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   }, [refreshData, resetInterval])
 
   // Action handlers
-  const { execute: queueUninstallNetdata, isPending: isUninstallingNetdata } =
-    useAction(uninstallNetdataAction, {
-      onSuccess: () => {
-        toast.success('Uninstall Monitoring Tools job added to queue')
-        router.refresh()
-      },
-      onError: (error: any) => {
-        toast.error(
-          `Failed to queue Monitoring Tools uninstall: ${error.message || 'Unknown error'}`,
-        )
-      },
-    })
+  const {
+    execute: queueUninstallNetdata,
+    isPending: isUninstallingNetdata,
+    hasSucceeded: uninstallTriggered,
+  } = useAction(uninstallNetdataAction, {
+    onSuccess: () => {
+      toast.info('Added to queue', {
+        description: 'added uninstall Monitoring Tools to queue',
+      })
+    },
+    onError: (error: any) => {
+      toast.error(
+        `Failed to queue Monitoring Tools uninstall: ${error.message || 'Unknown error'}`,
+      )
+    },
+  })
 
   const handleUninstall = () => {
     queueUninstallNetdata({ serverId: server.id })
@@ -180,15 +184,13 @@ const Monitoring = ({ server }: { server: ServerType }) => {
           </Button>
 
           <Button
-            disabled={isUninstallingNetdata}
+            disabled={isUninstallingNetdata || uninstallTriggered}
+            isLoading={isUninstallingNetdata}
             onClick={handleUninstall}
             variant='destructive'>
-            {isUninstallingNetdata ? (
-              <Loader2 className='h-4 w-4 animate-spin' />
-            ) : (
-              <Trash2 className='h-4 w-4' />
-            )}
-            {isUninstallingNetdata ? 'Queuing Uninstall...' : 'Uninstall'}
+            <Trash2 className='h-4 w-4' />
+
+            {uninstallTriggered ? 'Uninstalling...' : 'Uninstall'}
           </Button>
         </div>
 
@@ -215,7 +217,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleUninstall}
-                disabled={isUninstallingNetdata}
+                disabled={isUninstallingNetdata || uninstallTriggered}
                 className='text-destructive'>
                 {isUninstallingNetdata ? (
                   <Loader2 className='h-4 w-4 animate-spin' />

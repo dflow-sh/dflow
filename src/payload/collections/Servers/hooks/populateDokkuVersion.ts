@@ -85,7 +85,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   return {
     ...doc,
     version: dokku, // version of dokku
-    netdata,
+    netdataVersion: netdata,
     portIsOpen, // boolean indicating whether the server is running
     sshConnected, // boolean indicating whether ssh is connected
     os: {
