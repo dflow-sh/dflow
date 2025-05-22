@@ -17,9 +17,6 @@ export const env = createEnv({
     DFLOW_CLOUD_URL: z.string().optional(),
     DFLOW_CLOUD_AUTH_SLUG: z.string().optional(),
     DFLOW_CLOUD_API_KEY: z.string().optional(),
-    DISCORD_CLIENT_ID: z.string().optional(),
-    DISCORD_CLIENT_SECRET: z.string().optional(),
-    DISCORD_REDIRECT_URI: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -40,9 +37,6 @@ export const env = createEnv({
     DFLOW_CLOUD_URL: process.env.DFLOW_CLOUD_URL,
     DFLOW_CLOUD_AUTH_SLUG: process.env.DFLOW_CLOUD_AUTH_SLUG,
     DFLOW_CLOUD_API_KEY: process.env.DFLOW_CLOUD_API_KEY,
-    DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
-    DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
-    DISCORD_REDIRECT_URI: process.env.DISCORD_REDIRECT_URI,
   },
   emptyStringAsUndefined: true,
 })

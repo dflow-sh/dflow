@@ -41,7 +41,6 @@ export const Users: CollectionConfig = {
   },
   auth: {
     tokenExpiration: 60 * 60 * 24 * 7,
-    useAPIKey: true,
   },
   hooks: {
     beforeChange: [beforeCreateHandleOnboarding],
@@ -90,41 +89,6 @@ export const Users: CollectionConfig = {
         ...(defaultTenantArrayField?.admin || {}),
         position: 'sidebar',
       },
-    },
-    {
-      name: 'discord',
-      type: 'group',
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-      },
-      fields: [
-        {
-          name: 'discordId',
-          type: 'text',
-          label: 'Discord ID',
-        },
-        {
-          name: 'discordUsername',
-          type: 'text',
-          label: 'Discord Username',
-        },
-        {
-          name: 'discordGlobalName',
-          type: 'text',
-          label: 'Discord Global Name',
-        },
-        {
-          name: 'discordDiscriminator',
-          type: 'text',
-          label: 'Discord Discriminator',
-        },
-        {
-          name: 'discordAvatarUrl',
-          type: 'text',
-          label: 'Discord Avatar Url',
-        },
-      ],
     },
   ],
 }

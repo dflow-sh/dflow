@@ -166,13 +166,6 @@ export interface User {
         id?: string | null;
       }[]
     | null;
-  discord?: {
-    discordId?: string | null;
-    discordUsername?: string | null;
-    discordGlobalName?: string | null;
-    discordDiscriminator?: string | null;
-    discordAvatarUrl?: string | null;
-  };
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -985,15 +978,6 @@ export interface UsersSelect<T extends boolean = true> {
         tenant?: T;
         roles?: T;
         id?: T;
-      };
-  discord?:
-    | T
-    | {
-        discordId?: T;
-        discordUsername?: T;
-        discordGlobalName?: T;
-        discordDiscriminator?: T;
-        discordAvatarUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;
