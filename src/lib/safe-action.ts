@@ -1,9 +1,18 @@
 import configPromise from '@payload-config'
 import { createSafeActionClient } from 'next-safe-action'
+import { headers } from 'next/headers'
+import { forbidden } from 'next/navigation'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
+import { Tenant } from '@/payload-types'
+
 import { getTenant } from './get-tenant'
+
+type UserTenant = {
+  tenant: Tenant
+  roles: ('tenant-admin' | 'tenant-user')[]
+}
 
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
@@ -21,26 +30,54 @@ export const publicClient = createSafeActionClient({
 })
 
 export const protectedClient = publicClient.use(async ({ next, ctx }) => {
+  const headersList = await headers()
   const payload = await getPayload({
     config: configPromise,
   })
 
-  const { user, userTenant, isInTenant } = await getTenant() // Assuming getTenant() returns tenant data
+  // 1. checking for user
+  const { user } = await payload.auth({ headers: headersList })
 
   if (!user) {
-    throw new Error('User not authenticated')
+    throw Error('Unauthenticated')
   }
 
-  if (!isInTenant) {
-    throw new Error('User is not part of the specified tenant')
+  // 2. checking for tenant slug
+  const tenantSlug = await getTenant()
+
+  if (!tenantSlug) {
+    forbidden()
+  }
+
+  // 3. validating the tenant slug
+  const { docs } = await payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: tenantSlug } },
+  })
+
+  const tenant = docs[0]
+
+  if (!tenant) {
+    forbidden()
+  }
+
+  const matchedTenantEntry = user?.tenants?.find(entry => {
+    const tenantId =
+      typeof entry.tenant === 'string' ? entry.tenant : entry.tenant.id
+    return tenantId === tenant.id
+  })
+
+  if (!Boolean(matchedTenantEntry)) {
+    forbidden()
   }
 
   return next({
     ctx: {
       ...ctx,
-      user,
-      userTenant,
       payload,
+      user,
+      userTenant: matchedTenantEntry as UserTenant,
+      isInTenant: Boolean(matchedTenantEntry),
     },
   })
 })

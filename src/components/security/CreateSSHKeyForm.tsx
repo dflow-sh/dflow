@@ -24,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { slugify } from '@/lib/slugify'
 import { SshKey } from '@/payload-types'
 
 // Helper function to determine key type from content
@@ -231,6 +232,13 @@ const CreateSSHKeyForm = ({
     )
   }
 
+  const handleNameChange = (inputValue: string) => {
+    const formattedName = slugify(inputValue)
+    form.setValue('name', formattedName, {
+      shouldValidate: true,
+    })
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
@@ -266,7 +274,11 @@ const CreateSSHKeyForm = ({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} disabled={type === 'view'} />
+                <Input
+                  {...field}
+                  disabled={type === 'view'}
+                  onChange={e => handleNameChange(e.target.value)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

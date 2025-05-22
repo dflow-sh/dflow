@@ -4,7 +4,7 @@ import type { CollectionConfig } from 'payload'
 import { isDemoEnvironment } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { beforeCreateHandleOnboarding } from './hooks/beforeCreateHandleOnboarding'
+import { handleUserRoles } from './hooks/handleUserRoles'
 
 const defaultTenantArrayField = tenantsArrayField({
   tenantsArrayFieldName: 'tenants',
@@ -33,6 +33,7 @@ const defaultTenantArrayField = tenantsArrayField({
     },
   ],
 })
+
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
@@ -43,7 +44,7 @@ export const Users: CollectionConfig = {
     tokenExpiration: 60 * 60 * 24 * 7,
   },
   hooks: {
-    beforeChange: [beforeCreateHandleOnboarding],
+    beforeChange: [handleUserRoles],
   },
   access: {
     admin: async ({ req }) => {

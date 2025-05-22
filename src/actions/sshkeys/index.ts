@@ -23,6 +23,7 @@ export const createSSHKeyAction = protectedClient
     const {
       userTenant: { tenant },
       payload,
+      user,
     } = ctx
     const { name, description, privateKey, publicKey } = clientInput
 
@@ -35,6 +36,7 @@ export const createSSHKeyAction = protectedClient
         publicKey,
         tenant,
       },
+      user,
     })
 
     if (response) {
@@ -49,12 +51,13 @@ export const updateSSHKeyAction = protectedClient
   .schema(updateSSHKeySchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
-    const { payload } = ctx
+    const { payload, user } = ctx
 
     const response = await payload.update({
       id,
       data,
       collection: 'sshKeys',
+      user,
     })
 
     if (response) {

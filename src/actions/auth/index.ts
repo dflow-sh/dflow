@@ -43,12 +43,15 @@ export const signInAction = publicClient
       path: '/',
     })
 
-    if (!user.onboarded) {
-      redirect('/onboarding')
-    }
-
     if (user) {
-      redirect(`/${user.username}/dashboard`)
+      // finding user tenants and redirecting user to first tenant, last resort redirecting with there user-name
+      const tenants = user?.tenants ?? []
+      const tenantSlug =
+        typeof tenants?.[0]?.tenant === 'object'
+          ? tenants?.[0]?.tenant?.slug
+          : ''
+
+      redirect(`/${tenantSlug || user.username}/dashboard`)
     }
   })
 

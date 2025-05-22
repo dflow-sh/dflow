@@ -6,7 +6,6 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -52,11 +51,7 @@ const AttachCustomServerForm = ({
   ) => void
   onError?: (error: any) => void
 }) => {
-  const [_type, setType] = useQueryState('type', parseAsString.withDefault(''))
-
-  const pathName = usePathname()
-  const router = useRouter()
-  const isOnboarding = pathName.includes('onboarding')
+  const [_type] = useQueryState('type', parseAsString.withDefault(''))
 
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
@@ -88,8 +83,7 @@ const AttachCustomServerForm = ({
       onSuccess: ({ data, input }) => {
         if (data?.success) {
           toast.success(`Successfully created ${input.name} server`, {
-            description:
-              isOnboarding && 'redirecting to dokku-installation page...',
+            description: `Redirecting to server-details page`,
           })
 
           form.reset()

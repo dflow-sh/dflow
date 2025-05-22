@@ -30,6 +30,7 @@ export const createServerAction = protectedClient
     const {
       userTenant: { tenant },
       payload,
+      user,
     } = ctx
 
     const response = await payload.create({
@@ -44,6 +45,7 @@ export const createServerAction = protectedClient
         provider: 'other',
         tenant,
       },
+      user,
     })
 
     if (response) {
@@ -60,12 +62,13 @@ export const updateServerAction = protectedClient
   .schema(updateServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
-    const { payload } = ctx
+    const { payload, user } = ctx
 
     const response = await payload.update({
       id,
       data,
       collection: 'servers',
+      user,
     })
 
     if (response) {

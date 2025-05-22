@@ -22,18 +22,8 @@ const SuspendedDashboard = async ({
 }) => {
   const result = await getProjectsAndServers()
 
-  const servers = result?.data?.serversRes.docs as {
-    id: string
-    name: string
-    onboarded?: boolean | null | undefined
-    connection?:
-      | {
-          status?: ('success' | 'failed' | 'not-checked-yet') | null
-          lastChecked?: string | null
-        }
-      | undefined
-  }[]
-  const projects = result?.data?.projectsRes.docs
+  const servers = result?.data?.serversRes.docs ?? []
+  const projects = result?.data?.projectsRes.docs ?? []
 
   // Check if there are any servers available
   const hasServers = servers.length > 0

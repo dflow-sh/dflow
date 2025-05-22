@@ -131,85 +131,80 @@ const SSHKeyItem = ({
               Delete SSH Key
             </DialogTitle>
             <DialogDescription className='pt-2'>
-              <div className='space-y-4'>
-                <p>
-                  Are you sure you want to delete the SSH key{' '}
-                  <span className='font-medium'>{sshKey.name}</span>?
-                </p>
-
-                {isConnectedToServers && (
-                  <>
-                    <div className='rounded-md border bg-warning/10 p-3'>
-                      <div className='flex gap-2'>
-                        <AlertCircle className='h-5 w-5 text-warning' />
-                        <div>
-                          <p className='font-medium text-warning'>
-                            Warning: Connected Servers
-                          </p>
-                          <p className='text-sm'>
-                            This SSH key is currently applied to the following
-                            servers:
-                          </p>
-                        </div>
-                      </div>
-                      <ul className='mt-2 space-y-2'>
-                        {connectedServers.map((server, index) => (
-                          <li
-                            key={index}
-                            className='flex items-center justify-between border-t border-border pt-2'>
-                            <div className='flex items-center gap-2'>
-                              <LinkIcon className='h-4 w-4 text-muted-foreground' />
-                              <span>
-                                {server.name || `Server ${index + 1}`}
-                              </span>
-                            </div>
-                            <div className='flex gap-2'>
-                              <Link href={`/servers/${server.id}`}>
-                                <Button
-                                  size='sm'
-                                  variant='outline'
-                                  className='h-8'>
-                                  View Server
-                                  <ExternalLink className='ml-1 h-4 w-4' />
-                                </Button>
-                              </Link>
-                              <Link href={`/servers/${server.id}/danger`}>
-                                <Button
-                                  size='sm'
-                                  variant='secondary'
-                                  className='h-8'>
-                                  Detach Key
-                                  <ExternalLink className='ml-1 h-4 w-4' />
-                                </Button>
-                              </Link>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className='rounded-md border bg-destructive/10 p-3'>
-                      <p className='text-sm text-destructive'>
-                        <strong>Caution:</strong> Deleting this SSH key may
-                        prevent access to your servers. Make sure you have
-                        alternative SSH keys in place or understand the impact
-                        this will have on your server connectivity.
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                {!isConnectedToServers && (
-                  <div className='rounded-md border bg-muted p-3'>
-                    <p className='text-sm'>
-                      This SSH key is not connected to any servers. It can be
-                      safely deleted.
-                    </p>
-                  </div>
-                )}
-              </div>
+              Are you sure you want to delete the SSH key{' '}
+              <span className='font-medium'>{sshKey.name}</span>?
             </DialogDescription>
           </DialogHeader>
+
+          <div className='space-y-4'>
+            {isConnectedToServers && (
+              <>
+                <div className='rounded-md border bg-warning/10 p-3'>
+                  <div className='flex gap-2'>
+                    <AlertCircle className='h-5 w-5 text-warning' />
+                    <div>
+                      <p className='font-medium text-warning'>
+                        Warning: Connected Servers
+                      </p>
+                      <p className='text-sm'>
+                        This SSH key is currently applied to the following
+                        servers:
+                      </p>
+                    </div>
+                  </div>
+
+                  <ul className='mt-2 space-y-2'>
+                    {connectedServers.map((server, index) => (
+                      <li
+                        key={index}
+                        className='flex items-center justify-between border-t border-border pt-2'>
+                        <div className='flex items-center gap-2'>
+                          <LinkIcon className='h-4 w-4 text-muted-foreground' />
+                          <span>{server.name || `Server ${index + 1}`}</span>
+                        </div>
+                        <div className='flex gap-2'>
+                          <Link href={`/servers/${server.id}`}>
+                            <Button size='sm' variant='outline' className='h-8'>
+                              View Server
+                              <ExternalLink className='ml-1 h-4 w-4' />
+                            </Button>
+                          </Link>
+                          <Link href={`/servers/${server.id}/danger`}>
+                            <Button
+                              size='sm'
+                              variant='secondary'
+                              className='h-8'>
+                              Detach Key
+                              <ExternalLink className='ml-1 h-4 w-4' />
+                            </Button>
+                          </Link>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className='rounded-md border bg-destructive/10 p-3'>
+                  <p className='text-sm text-destructive'>
+                    <strong>Caution:</strong> Deleting this SSH key may prevent
+                    access to your servers. Make sure you have alternative SSH
+                    keys in place or understand the impact this will have on
+                    your server connectivity.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {!isConnectedToServers && (
+              <div className='rounded-md border bg-muted p-3'>
+                <p className='text-sm'>
+                  This SSH key is not connected to any servers. It can be safely
+                  deleted.
+                </p>
+              </div>
+            )}
+          </div>
+
           <DialogFooter className='mt-6 space-x-2'>
             <Button
               variant='outline'

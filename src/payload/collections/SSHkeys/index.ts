@@ -3,6 +3,8 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { ensureUniqueName } from './hooks/ensureUniqueName'
+
 export const SSHKeys: CollectionConfig = {
   slug: 'sshKeys',
   labels: {
@@ -25,9 +27,11 @@ export const SSHKeys: CollectionConfig = {
       type: 'text',
       label: 'Name',
       required: true,
-      unique: true,
       admin: {
         description: 'Enter the name of the ssh key.',
+      },
+      hooks: {
+        beforeValidate: [ensureUniqueName],
       },
     },
     {

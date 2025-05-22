@@ -9,7 +9,13 @@ export async function GET(request: NextRequest) {
   const { getPayload } = await import('payload')
   const payload = await getPayload({ config: configPromise })
 
-  const { userTenant } = await getTenant()
+  const tenantSlug = await getTenant()
+  const { docs: tenantDocs } = await payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: tenantSlug } },
+  })
+
+  const tenant = tenantDocs?.[0]
 
   const searchParams = request.nextUrl.searchParams
   const headers = request.headers
@@ -62,7 +68,7 @@ export async function GET(request: NextRequest) {
           webhookSecret: data.webhook_secret ?? '',
           privateKey: data.pem,
         },
-        tenant: userTenant.tenant,
+        tenant: tenant?.id,
       },
     })
 
@@ -100,7 +106,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return redirect(
-    `/${userTenant.tenant?.slug}/integrations/?action=${action}&active=github`,
-  )
+  return redirect(`/${tenantSlug}/integrations/?action=${action}&active=github`)
 }

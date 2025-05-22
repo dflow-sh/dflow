@@ -2,6 +2,7 @@ import { CollectionConfig, Field } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { ensureUniqueIP } from './hooks/ensureUniqueIP'
 import { populateDokkuVersion } from './hooks/populateDokkuVersion'
 
 const pluginFields: Field[] = [
@@ -92,7 +93,9 @@ export const Servers: CollectionConfig = {
         description: 'Enter the IP address of the server.',
         placeholder: 'e.g: 0:0:0:0',
       },
-      unique: true,
+      hooks: {
+        beforeValidate: [ensureUniqueIP],
+      },
     },
     {
       name: 'port',
