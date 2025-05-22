@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
+import ConnectDiscordButton from '@/components/ConnectDiscordButton'
 import DocSidebar from '@/components/DocSidebar'
 import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
@@ -66,6 +67,8 @@ const DashboardLayoutInner = async () => {
               <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
             </div>
           </Link>
+
+          <ConnectDiscordButton user={user} />
 
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended user={user} />
