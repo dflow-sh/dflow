@@ -5,6 +5,7 @@ import {
   allSecurities,
   allServers,
   allServices,
+  allTemplates,
 } from 'content-collections'
 import { Suspense, use } from 'react'
 
@@ -17,6 +18,7 @@ const allDocs = [
   ...allOnboardings,
   ...allServices,
   ...allSecurities,
+  ...allTemplates,
 ]
 
 interface PageProps {

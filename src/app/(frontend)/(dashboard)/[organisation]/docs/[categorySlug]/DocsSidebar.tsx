@@ -6,6 +6,7 @@ import {
   allSecurities,
   allServers,
   allServices,
+  allTemplates,
 } from 'content-collections'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
@@ -18,6 +19,7 @@ type Doc =
   | (typeof allOnboardings)[number]
   | (typeof allServices)[number]
   | (typeof allSecurities)[number]
+  | (typeof allTemplates)[number]
 
 type GroupedDocs = Record<string, Doc[]>
 // console.log({ allOnboardings })
@@ -27,6 +29,7 @@ const allDocs: Doc[] = [
   ...allOnboardings,
   ...allServices,
   ...allSecurities,
+  ...allTemplates,
 ]
 
 const groupedDocs: GroupedDocs = allDocs.reduce<GroupedDocs>((acc, doc) => {
