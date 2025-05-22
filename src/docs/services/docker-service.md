@@ -87,6 +87,10 @@ You can:
 
 > Restart or redeploy is required for changes to take effect.
 
+> For detailed instructions on setting environment variables, including
+> reference variables and secret generation, please refer to the
+> [Environment Variables](./environment-variables) documentation.
+
 ---
 
 ## 📜 Logs Tab

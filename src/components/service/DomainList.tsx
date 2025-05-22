@@ -1,5 +1,6 @@
 'use client'
 
+import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { ArrowUpRight, Globe, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -81,6 +82,11 @@ const DomainList = ({
       <div className='flex items-center gap-3'>
         <DomainForm />
         <RegenerateSSLForm />
+        <SidebarToggleButton
+          directory='servers'
+          fileName='domains'
+          sectionId='#-service-level-domains'
+        />
       </div>
 
       <div className='space-y-4'>

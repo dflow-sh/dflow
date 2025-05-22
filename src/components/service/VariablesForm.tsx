@@ -1,6 +1,7 @@
 'use client'
 
 import Loader from '../Loader'
+import SidebarToggleButton from '../SidebarToggleButton'
 import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -236,7 +237,13 @@ const VariablesForm = ({ service }: { service: Service }) => {
           {fields.length ? (
             <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
               <p className='font-semibold'>Key</p>
-              <p className='font-semibold'>Value</p>
+              <p className='font-semibold'>
+                Value{' '}
+                <SidebarToggleButton
+                  directory='services'
+                  fileName='environment-variables'
+                />
+              </p>
             </div>
           ) : null}
 
