@@ -3,6 +3,16 @@
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { Checkbox } from '../ui/check-box'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +28,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -149,6 +160,7 @@ const Backup = ({
   serviceId: string
   backups: BackupType[]
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
   const { execute: internalDBBackupExecution, isPending: isInternalDBPending } =
     useAction(internalBackupAction, {
       onExecute: () => {
@@ -176,55 +188,112 @@ const Backup = ({
     <>
       <div className='flex items-center justify-between'>
         <h2 className='text-2xl font-semibold'>Backups</h2>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              disabled={
-                databaseDetails?.status !== 'running' || isInternalDBPending
-              }
-              className='flex items-center gap-2'>
-              Create Backup
-              <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
+        <div className='flex items-center gap-2'>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant={'outline'}>Create backup schedule</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Configure backup schedule</DialogTitle>
+                <DialogDescription>
+                  Enable database backups for your production environment.
+                </DialogDescription>
+              </DialogHeader>
 
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem
-              className='cursor-pointer hover:text-background'
-              onClick={() =>
-                internalDBBackupExecution({
-                  serviceId,
-                })
-              }>
-              <div
-                className='flex size-8 items-center justify-center'
-                aria-hidden='true'>
-                <Server size={16} className='opacity-60' />
-              </div>
-              <div>
-                <div className='text-sm font-medium'>Internal Backup</div>
-                <div className='text-xs opacity-60'>
-                  Creates backup within the server
+              <div className='space-y-4'>
+                <div className='text-sm text-muted-foreground'>
+                  Available schedules
                 </div>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled>
-              <div
-                className='flex size-8 items-center justify-center'
-                aria-hidden='true'>
-                <Cloud size={16} className='opacity-60' />
-              </div>
-              <ComingSoonBadge position='top-right'>
-                <div>
-                  <div className='text-sm font-medium'>External Backup</div>
-                  <div className='text-xs opacity-60'>
-                    Creates backup in cloud storage (AWS S3, GCP, etc.)
+                <div className='flex items-center gap-x-4 space-x-2 rounded-md border p-2'>
+                  <Checkbox />
+                  <div>
+                    <div>Daily</div>
+                    <div className='text-sm text-muted-foreground'>
+                      Backed up every 24 hours, kept for 6 days.
+                    </div>
                   </div>
                 </div>
-              </ComingSoonBadge>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <div className='flex items-center gap-x-4 space-x-2 rounded-md border p-2'>
+                  <Checkbox />
+                  <div>
+                    <div>Weekly</div>
+                    <div className='text-sm text-muted-foreground'>
+                      Backed up every 7 day, kept for 1 month.
+                    </div>
+                  </div>
+                </div>
+                <div className='flex items-center gap-x-4 space-x-2 rounded-md border p-2'>
+                  <Checkbox />
+                  <div>
+                    <div>Monthly</div>
+                    <div className='text-sm text-muted-foreground'>
+                      Backed up every 30 days, kept for 3 months.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant={'outline'}
+                  onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button>Save schedule</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant={'outline'}
+                disabled={
+                  databaseDetails?.status !== 'running' || isInternalDBPending
+                }
+                className='flex items-center gap-2'>
+                Create Backup
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem
+                className='cursor-pointer hover:text-background'
+                onClick={() =>
+                  internalDBBackupExecution({
+                    serviceId,
+                  })
+                }>
+                <div
+                  className='flex size-8 items-center justify-center'
+                  aria-hidden='true'>
+                  <Server size={16} className='opacity-60' />
+                </div>
+                <div>
+                  <div className='text-sm font-medium'>Internal Backup</div>
+                  <div className='text-xs opacity-60'>
+                    Creates backup within the server
+                  </div>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled>
+                <div
+                  className='flex size-8 items-center justify-center'
+                  aria-hidden='true'>
+                  <Cloud size={16} className='opacity-60' />
+                </div>
+                <ComingSoonBadge position='top-right'>
+                  <div>
+                    <div className='text-sm font-medium'>External Backup</div>
+                    <div className='text-xs opacity-60'>
+                      Creates backup in cloud storage (AWS S3, GCP, etc.)
+                    </div>
+                  </div>
+                </ComingSoonBadge>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {backups.length === 0 ? (
         <div className='flex h-72 flex-col items-center justify-center'>
