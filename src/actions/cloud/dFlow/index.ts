@@ -59,15 +59,19 @@ export const getDFlowPlansAction = protectedClient
     actionName: 'getDFlowPlansAction',
   })
   .action(async () => {
-    const vpsPlansRes = await axios.get(`${env.DFLOW_CLOUD_URL}/api/vpsPlans`, {
-      headers: {
-        Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${env.DFLOW_CLOUD_API_KEY}`,
-      },
-    })
+    let vpsPlans: VpsPlan[] = []
 
-    const vpsPlans = vpsPlansRes?.data?.docs ?? []
+    if (env.DFLOW_CLOUD_URL && env.DFLOW_CLOUD_API_KEY) {
+      const response = await axios.get(`${env.DFLOW_CLOUD_URL}/api/vpsPlans`, {
+        headers: {
+          Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${env.DFLOW_CLOUD_API_KEY}`,
+        },
+      })
 
-    return vpsPlans as VpsPlan[]
+      vpsPlans = response?.data?.docs ?? []
+    }
+
+    return vpsPlans
   })
 
 export const generateDFlowAccessTokenAction = protectedClient

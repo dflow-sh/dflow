@@ -7,7 +7,7 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
-import UpdateServerForm from '@/components/servers/AttachCustomServerForm'
+import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
@@ -27,6 +27,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { loadServerPageTabs } from '@/lib/searchParams'
+import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import LayoutClient from './layout.client'
@@ -54,6 +55,35 @@ const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
   )
 }
 
+const UpdateServerForm = ({
+  server,
+  sshKeys,
+  securityGroups,
+}: {
+  server: ServerType
+  sshKeys: SshKey[]
+  securityGroups: SecurityGroup[]
+}) => {
+  if (server.provider === 'aws') {
+    return (
+      <UpdateEC2InstanceForm
+        sshKeys={sshKeys}
+        server={server}
+        securityGroups={securityGroups}
+        formType='update'
+      />
+    )
+  }
+
+  return (
+    <UpdateManualServerFrom
+      server={server}
+      sshKeys={sshKeys}
+      formType='update'
+    />
+  )
+}
+
 const GeneralTab = ({ server }: { server: ServerType }) => {
   const generalTabDetails = use(getServerGeneralTabDetails({ id: server.id }))
   const sshKeys = generalTabDetails?.data?.sshKeys ?? []
@@ -63,29 +93,6 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
     ? use(netdata.metrics.getServerDetails({ host: server.ip }))
     : {}
 
-  const renderUpdateForm = () => {
-    switch (server.provider) {
-      case 'aws':
-        return (
-          <UpdateEC2InstanceForm
-            sshKeys={sshKeys}
-            server={server}
-            securityGroups={securityGroups}
-            formType='update'
-          />
-        )
-
-      default:
-        return (
-          <UpdateServerForm
-            server={server}
-            sshKeys={sshKeys}
-            formType='update'
-          />
-        )
-    }
-  }
-
   return (
     <div className='flex flex-col space-y-5'>
       <SSHConnectionAlert server={server} />
@@ -94,7 +101,11 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
           <div className='space-y-4 rounded bg-muted/30 p-4'>
-            {renderUpdateForm()}
+            <UpdateServerForm
+              server={server}
+              securityGroups={securityGroups}
+              sshKeys={sshKeys}
+            />
           </div>
         </div>
 
@@ -180,7 +191,7 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
 }
 
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
-  const { id, organisation } = use(params)
+  const { id } = use(params)
   const { tab } = use(loadServerPageTabs(searchParams))
   const result = use(getServerBreadcrumbs({ id }))
 
@@ -230,9 +241,23 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     }
   }
 
+  const Onboarding = () => {
+    const generalTabDetails = use(getServerGeneralTabDetails({ id: server.id }))
+    const sshKeys = generalTabDetails?.data?.sshKeys ?? []
+    const securityGroups = generalTabDetails?.data?.securityGroups ?? []
+
+    return (
+      <ServerOnboarding
+        server={server}
+        securityGroups={securityGroups}
+        sshKeys={sshKeys}
+      />
+    )
+  }
+
   return (
     <LayoutClient server={server} servers={servers}>
-      {server.onboarded ? renderTab() : <ServerOnboarding server={server} />}
+      {server.onboarded ? renderTab() : <Onboarding />}
     </LayoutClient>
   )
 }

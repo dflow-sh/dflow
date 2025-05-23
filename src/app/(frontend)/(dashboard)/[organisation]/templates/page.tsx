@@ -1,5 +1,5 @@
 import LayoutClient from '../../layout.client'
-import { Puzzle } from 'lucide-react'
+import { Plus, Puzzle } from 'lucide-react'
 import Link from 'next/link'
 
 import { getTemplates } from '@/actions/pages/Template'
@@ -19,9 +19,15 @@ const page = async ({ params }: PageProps) => {
       <section>
         <div className='flex w-full justify-between'>
           <h3 className='text-2xl font-semibold'>Templates</h3>
-          <Link href={`/${syncParams.organisation}/templates/compose`}>
-            <Button>Create Template</Button>
-          </Link>
+
+          <Button asChild className='w-min'>
+            <Link
+              href={`/${syncParams.organisation}/templates/compose`}
+              className='flex items-center gap-2'>
+              <Plus />
+              Create Template
+            </Link>
+          </Button>
         </div>
 
         {templates?.data?.length! > 0 ? (

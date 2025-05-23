@@ -213,12 +213,13 @@ const ChooseService: React.FC<ChooseServiceType> = ({
             {!showOptions ? (
               <>
                 <Input
-                  placeholder='Add a server'
+                  placeholder='Add a service'
                   value={searchQuery}
                   onChange={e => {
                     handleSearchChange(e)
                   }}
                 />
+
                 <AnimatePresence mode='wait' initial={false}>
                   <MotionConfig
                     transition={{

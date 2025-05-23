@@ -97,7 +97,8 @@ const ServerOnboardingLayout = ({
     <div className='mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4'>
       <div className='flex w-full items-center justify-start gap-2 text-2xl font-semibold'>
         <Server />
-        <p>{server.name} - Onboarding</p>
+
+        <p>{server.name}</p>
       </div>
 
       <Card className='w-full'>
