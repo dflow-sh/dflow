@@ -82,6 +82,14 @@ const BackupsPage = async () => {
               </div>
             </div>
           ))}
+          {Object.keys(grouped).length === 0 && (
+            <div className='mt-10 rounded-xl p-6 text-center'>
+              <h4 className='mb-4 text-2xl font-semibold'>No Backups Found</h4>
+              <p className='text-muted-foreground'>
+                No backups found for any projects or services.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </LayoutClient>
