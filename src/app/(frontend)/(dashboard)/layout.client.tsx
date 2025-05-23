@@ -22,6 +22,7 @@ const LayoutClient = ({
     { label: 'Servers', slug: `/servers` },
     { label: 'Security', slug: `/security` },
     { label: 'Integrations', slug: `/integrations` },
+    { label: 'Backups', slug: `/backups` },
     { label: 'Templates', slug: `/templates` },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]

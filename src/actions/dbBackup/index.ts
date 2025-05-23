@@ -10,13 +10,34 @@ import {
   internalRestoreSchema,
 } from './validator'
 
+export const getAllBackups = protectedClient
+  .metadata({
+    actionName: 'getAllBackups',
+  })
+  .action(async ({ ctx }) => {
+    const { payload, userTenant } = ctx
+
+    const { docs: backups } = await payload.find({
+      collection: 'backups',
+      pagination: false,
+      sort: '-createdAt',
+      where: {
+        'tenant.slug': {
+          equals: userTenant.tenant?.slug,
+        },
+      },
+    })
+
+    return backups
+  })
+
 export const internalBackupAction = protectedClient
   .metadata({
     actionName: 'internalBackupAction',
   })
   .schema(internalDBBackupSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { serviceId } = clientInput
 
     const { createdAt: backupCreatedTime, id: backupId } = await payload.create(
@@ -26,6 +47,7 @@ export const internalBackupAction = protectedClient
           service: serviceId,
           type: 'internal',
           status: 'in-progress',
+          tenant: userTenant.tenant?.id,
         },
       },
     )

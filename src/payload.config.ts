@@ -70,6 +70,7 @@ export default buildConfig({
         cloudProviderAccounts: {},
         securityGroups: {},
         projects: {},
+        backups: {},
       },
       userHasAccessToAllTenants: user => Boolean(user?.role?.includes('admin')),
       enabled: true,

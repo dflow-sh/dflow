@@ -754,6 +754,7 @@ export interface Template {
  */
 export interface Backup {
   id: string;
+  tenant?: (string | null) | Tenant;
   /**
    * Adding the service for which backup is related to
    */
@@ -1363,6 +1364,7 @@ export interface TenantsSelect<T extends boolean = true> {
  * via the `definition` "backups_select".
  */
 export interface BackupsSelect<T extends boolean = true> {
+  tenant?: T;
   service?: T;
   type?: T;
   backupName?: T;
