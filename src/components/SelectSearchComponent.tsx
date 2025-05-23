@@ -190,6 +190,7 @@ export default function SelectSearchComponent({
                             <span>Not supported</span>
                           </div>
                         )}
+
                         {os.version && dokkuInstalled && (
                           <>
                             <Separator
@@ -199,7 +200,7 @@ export default function SelectSearchComponent({
 
                             <Dokku height={20} width={20} />
                             <span className='text-xs'>
-                              {serverDetails.version}
+                              {serverDetails.version || 'not-installed'}
                             </span>
                           </>
                         )}

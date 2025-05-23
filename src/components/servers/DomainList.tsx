@@ -54,6 +54,8 @@ const DomainItem = ({
   domain: NonNullable<ServerType['domains']>[number]
   server: ServerType | Server
 }) => {
+  const allDomains = server.domains ?? []
+
   const { execute, isPending } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
       if (data?.success) {
@@ -125,8 +127,6 @@ const DomainItem = ({
     }
   }
 
-  console.log({ domain })
-
   return (
     <>
       <Card className='text-sm'>
@@ -187,10 +187,11 @@ const DomainItem = ({
               }
               isLoading={syncingDomain}
               onClick={() => {
+                // for first domain removing all the server pre-configured hostnames with set operation
                 syncDomain({
                   domain: domain.domain,
                   id: server.id,
-                  operation: 'add',
+                  operation: allDomains.length === 1 ? 'set' : 'add',
                 })
               }}>
               {domain.synced

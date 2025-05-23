@@ -6,12 +6,13 @@ interface Args {
 
 // extracting all values by executing an single command
 const parseSSHOutput = (stdout: string) => {
-  const sections = stdout.split(/---([A-Z_]+)---\n/).slice(1) // split and remove first empty part
+  const sections = stdout.split(/---([A-Z_]+)---\s*/).slice(1) // split and remove first empty part
   const parsed: Record<string, string> = {}
 
   for (let i = 0; i < sections.length; i += 2) {
     const key = sections[i]
     const value = sections[i + 1]?.trim()
+    if (value?.startsWith('---')) continue // skip accidental mis-parse
     parsed[key] = value
   }
 

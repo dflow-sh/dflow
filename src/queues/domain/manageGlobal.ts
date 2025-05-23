@@ -138,10 +138,9 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
               serverId: serverDetails.id,
             })
 
-            // 1. for add operation checking the global domains list
-            // 2. updating server domains status based on the global domains list
-            // 3. sending refresh event to the client
-            if (global.action === 'add') {
+            // 1. updating server domains status based on the global domains list
+            // 2. sending refresh event to the client
+            if (global.action === 'add' || global.action === 'set') {
               const domains = await dokku.domains.listGlobal({ ssh })
               const server = await payload.findByID({
                 collection: 'servers',
