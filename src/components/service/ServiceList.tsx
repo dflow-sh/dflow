@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog'
 import { Button } from '../ui/button'
+import { Checkbox } from '../ui/check-box'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -191,6 +192,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
 }) => {
   const menuRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
+  const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
   const { setNodes } = useReactFlow()
 
   const { execute, isPending } = useAction(deleteServiceAction, {
@@ -227,8 +229,24 @@ const ContextMenu: FC<ContextMenuProps> = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Service</AlertDialogTitle>
-            <AlertDialogDescription>
-              {`Are you sure you want to delete the ${service.name}? This action is permanent and cannot be undone.`}
+            <AlertDialogDescription className='flex flex-col gap-y-8' asChild>
+              <div>
+                <div>
+                  {`Are you sure you want to delete the ${service.name}? This action is permanent and cannot be undone.`}
+                </div>
+                <div className='flex items-center space-x-2'>
+                  <Checkbox
+                    id='terms'
+                    checked={deleteBackups}
+                    onCheckedChange={checked => setDeleteBackups(!!checked)}
+                  />
+                  <label
+                    htmlFor='terms'
+                    className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+                    Also delete all backups associated with this service?
+                  </label>
+                </div>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

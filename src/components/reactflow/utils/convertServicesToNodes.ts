@@ -1,5 +1,5 @@
-import { Edge } from '@xyflow/react'
 import { ServiceNode } from '../types'
+import { Edge } from '@xyflow/react'
 
 import { Service, Template } from '@/payload-types'
 
@@ -55,7 +55,7 @@ export function convertToGraph(
         break
     }
 
-    console.log('Created node:', node)
+    // console.log('Created node:', node)
     return node
   })
 

@@ -51,6 +51,7 @@ import { Project, Server, Service } from '@/payload-types'
 import UpdateProject from './project/CreateProject'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { Checkbox } from './ui/check-box'
 
 export function DeleteProjectAlert({
   project,
@@ -62,6 +63,8 @@ export function DeleteProjectAlert({
   setOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const { name } = project
+  const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
+
   const { execute, isPending } = useAction(deleteProjectAction, {
     onSuccess: ({ data }) => {
       if (data?.deleted) {
@@ -80,8 +83,24 @@ export function DeleteProjectAlert({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Project</AlertDialogTitle>
-          <AlertDialogDescription>
-            {`Are you sure you want to delete the ${name}? This action is permanent and will delete all services of this project`}
+          <AlertDialogDescription className='flex flex-col gap-y-8' asChild>
+            <div>
+              <div>
+                {`Are you sure you want to delete the ${name}? This action is permanent and will delete all services of this project`}
+              </div>
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='terms'
+                  checked={deleteBackups}
+                  onCheckedChange={checked => setDeleteBackups(!!checked)}
+                />
+                <label
+                  htmlFor='terms'
+                  className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
+                  Also delete all backups associated with this project?
+                </label>
+              </div>
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -98,6 +117,7 @@ export function DeleteProjectAlert({
             onClick={() => {
               execute({
                 id: project.id,
+                // deleteBackups,
               })
             }}>
             Delete
