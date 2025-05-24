@@ -48,4 +48,6 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 }
 
-export default withContentCollections(withPayload(nextConfig))
+export default withContentCollections(
+  withPayload(nextConfig, { devBundleServerPackages: false }),
+)

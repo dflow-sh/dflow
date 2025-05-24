@@ -195,11 +195,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     })
                   }
 
-                  console.dir(
-                    { updatedServiceDetails, variables },
-                    { depth: Infinity },
-                  )
-
                   const updatedPopulatedVariables =
                     updatedServiceDetails?.populatedVariables ||
                     populatedVariables
@@ -337,6 +332,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       ports,
                       serverId: project.server.id,
                       serviceId: serviceDetails.id,
+                      name: serviceDetails.name,
                     },
                   })
 

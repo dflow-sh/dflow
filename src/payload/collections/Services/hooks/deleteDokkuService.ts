@@ -8,8 +8,6 @@ export const deleteDokkuService: CollectionAfterDeleteHook<Service> = async ({
   doc,
   req: { payload, headers },
 }) => {
-  console.dir({ doc }, { depth: Infinity })
-
   const {
     project,
     type,

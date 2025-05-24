@@ -114,7 +114,7 @@ export async function POST(request: Request) {
   // on push event triggering a deployment
   if (event === 'push') {
     for await (const service of services) {
-      await triggerDeployment({ serviceId: service.id })
+      await triggerDeployment({ serviceId: service.id, cache: 'no-cache' })
     }
   }
 

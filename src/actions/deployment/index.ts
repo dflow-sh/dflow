@@ -13,12 +13,12 @@ export const createDeploymentAction = protectedClient
   })
   .schema(createDeploymentSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { serviceId, projectId } = clientInput
+    const { serviceId, projectId, cache = 'no-cache' } = clientInput
     const {
       userTenant: { tenant },
     } = ctx
 
-    const deploymentQueueId = await triggerDeployment({ serviceId })
+    const deploymentQueueId = await triggerDeployment({ serviceId, cache })
 
     if (deploymentQueueId) {
       return {

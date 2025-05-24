@@ -18,7 +18,5 @@ export const report = async (ssh: NodeSSH, name: string) => {
     throw new Error(resultReportDomains.stderr)
   }
 
-  console.log({ resultReportDomains })
-
   return parseDomainsCommand(resultReportDomains.stdout)
 }

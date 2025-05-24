@@ -17,9 +17,6 @@ export const signUpSchema = z
       .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, {
         message:
           'Must start and end with a lowercase letter or number, with hyphens allowed in between',
-      })
-      .refine(val => val !== 'admin', {
-        message: 'The username "admin" is not allowed',
       }),
     email: z
       .string()

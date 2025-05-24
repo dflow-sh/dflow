@@ -7,6 +7,7 @@ import { listVars } from './config/listVars'
 import { set } from './config/set'
 import { unset } from './config/unset'
 import { info as distroInfo } from './distro/info'
+import { deleteImage } from './docker/delete'
 import { options } from './docker/options'
 import { login } from './docker/registry/login'
 import { add } from './domains/add'
@@ -53,6 +54,7 @@ import { portsAdd } from './ports/add'
 import { portsList } from './ports/list'
 import { portsRemove } from './ports/remove'
 import { portsSet } from './ports/set'
+import { rebuild } from './process/rebuild'
 import { restart } from './process/restart'
 import { start } from './process/start'
 import { stop } from './process/stop'
@@ -71,6 +73,7 @@ export const dokku = {
   config: { listVars, set, unset, clear },
   docker: {
     options,
+    delete: deleteImage,
     registry: {
       login,
     },
@@ -108,6 +111,7 @@ export const dokku = {
     start,
     restart,
     stop,
+    rebuild,
   },
   domains: {
     report,

@@ -219,8 +219,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
           return
         }
 
-        console.dir({ variables }, { depth: Infinity })
-
         // we'll store all the populated values inside this array
         const formattedVariables: FormattedVariablesType[] = []
 
@@ -245,8 +243,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
           // step 2.1: categorize environment variables
           const type = classifyVariableType(value)
 
-          console.dir({ type, key, value }, { depth: Infinity })
-
           // step 2.2: generate values for variables
           switch (type) {
             // for static variables directly storing values
@@ -256,7 +252,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
             // for functions using nunjucks to generate values
             case 'function':
               const generatedValue = env.renderString(value, {})
-              console.dir({ key, generatedValue }, { depth: Infinity })
               formattedVariables.push({ key, value, generatedValue })
               break
             // for reference variables check these cases
@@ -367,11 +362,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
 
                         const databaseExposureDetails = docs?.[0]
 
-                        console.dir(
-                          { databaseExposureDetails },
-                          { depth: Infinity },
-                        )
-
                         // database found check
                         if (!databaseExposureDetails) {
                           sendEvent({
@@ -478,11 +468,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                                 })
 
                                 const updatedDatabaseDetails = docs?.[0]
-
-                                console.dir(
-                                  { updatedDatabaseDetails },
-                                  { depth: Infinity },
-                                )
 
                                 if (updatedDatabaseDetails) {
                                   const { databaseDetails } =
@@ -635,8 +620,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
               break
           }
         }
-
-        console.dir({ formattedVariables }, { depth: Infinity })
 
         if (formattedVariables.length) {
           try {

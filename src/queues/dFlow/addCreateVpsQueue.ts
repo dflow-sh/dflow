@@ -58,8 +58,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         )
 
-        console.dir({ createdSecretRes }, { depth: Infinity })
-
         const { doc: createdSecret } = createdSecretRes
 
         // step 2: creating same sshKey in dflow
@@ -72,8 +70,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             tenant: data.tenant,
           },
         })
-
-        console.dir({ createdSshKey }, { depth: Infinity })
 
         // step 3: create VPS in contentql
         const { data: createdVpsOrderRes } = await axios.post(

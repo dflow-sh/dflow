@@ -2,6 +2,7 @@
 
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
+import dynamic from 'next/dynamic'
 
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -12,7 +13,9 @@ import {
 } from '@/components/ui/tooltip'
 import { Deployment } from '@/payload-types'
 
-import DeploymentTerminal from './DeploymentTerminal'
+const DeploymentTerminal = dynamic(() => import('./DeploymentTerminal'), {
+  ssr: false,
+})
 
 const DeploymentList = ({
   deployments,

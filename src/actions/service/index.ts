@@ -376,7 +376,7 @@ export const restartServiceAction = protectedClient
             name: serviceDetails.name,
           },
           serverDetails: {
-            id: serviceDetails.id,
+            id: project.server.id,
           },
         })
 

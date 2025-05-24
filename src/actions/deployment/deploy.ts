@@ -6,12 +6,15 @@ import { getPayload } from 'payload'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
 import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
+import { addRebuildAppQueue } from '@/queues/app/rebuilt'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
 
 export const triggerDeployment = async ({
   serviceId,
+  cache,
 }: {
   serviceId: string
+  cache: 'cache' | 'no-cache'
 }) => {
   const payload = await getPayload({ config: configPromise })
 
@@ -54,51 +57,68 @@ export const triggerDeployment = async ({
     }
 
     if (type === 'app') {
-      if (providerType === 'github' && githubSettings) {
-        const builder = serviceDetails.builder ?? 'railpack'
+      // for redeploy with cache doing dokku ps:rebuild
+      if (cache === 'cache') {
+        const { id } = await addRebuildAppQueue({
+          serverDetails: {
+            id: project.server.id,
+          },
+          serviceDetails: {
+            deploymentId: deploymentResponse.id,
+            id: serviceId,
+            name: serviceDetails.name,
+          },
+          sshDetails,
+        })
 
-        if (builder === 'railpack') {
-          const { id } = await addRailpackDeployQueue({
-            appName: serviceDetails.name,
-            userName: githubSettings.owner,
-            repoName: githubSettings.repository,
-            branch: githubSettings.branch,
-            sshDetails: sshDetails,
-            serviceDetails: {
-              deploymentId: deploymentResponse.id,
-              serviceId: serviceDetails.id,
-              provider,
-              serverId: project.server.id,
-              port: githubSettings.port
-                ? githubSettings.port.toString()
-                : '3000',
-              populatedVariables: populatedVariables ?? '{}',
-              variables: variables ?? [],
-            },
-          })
+        queueResponseId = id
+      } else {
+        if (providerType === 'github' && githubSettings) {
+          const builder = serviceDetails.builder ?? 'railpack'
 
-          queueResponseId = id
-        } else if (builder === 'dockerfile') {
-          const { id } = await addDockerFileDeploymentQueue({
-            appName: serviceDetails.name,
-            userName: githubSettings.owner,
-            repoName: githubSettings.repository,
-            branch: githubSettings.branch,
-            sshDetails: sshDetails,
-            serviceDetails: {
-              deploymentId: deploymentResponse.id,
-              serviceId: serviceDetails.id,
-              provider,
-              serverId: project.server.id,
-              port: githubSettings.port
-                ? githubSettings.port.toString()
-                : '3000',
-              populatedVariables: populatedVariables ?? '{}',
-              variables: variables ?? [],
-            },
-          })
+          if (builder === 'railpack') {
+            const { id } = await addRailpackDeployQueue({
+              appName: serviceDetails.name,
+              userName: githubSettings.owner,
+              repoName: githubSettings.repository,
+              branch: githubSettings.branch,
+              sshDetails: sshDetails,
+              serviceDetails: {
+                deploymentId: deploymentResponse.id,
+                serviceId: serviceDetails.id,
+                provider,
+                serverId: project.server.id,
+                port: githubSettings.port
+                  ? githubSettings.port.toString()
+                  : '3000',
+                populatedVariables: populatedVariables ?? '{}',
+                variables: variables ?? [],
+              },
+            })
 
-          queueResponseId = id
+            queueResponseId = id
+          } else if (builder === 'dockerfile') {
+            const { id } = await addDockerFileDeploymentQueue({
+              appName: serviceDetails.name,
+              userName: githubSettings.owner,
+              repoName: githubSettings.repository,
+              branch: githubSettings.branch,
+              sshDetails: sshDetails,
+              serviceDetails: {
+                deploymentId: deploymentResponse.id,
+                serviceId: serviceDetails.id,
+                provider,
+                serverId: project.server.id,
+                port: githubSettings.port
+                  ? githubSettings.port.toString()
+                  : '3000',
+                populatedVariables: populatedVariables ?? '{}',
+                variables: variables ?? [],
+              },
+            })
+
+            queueResponseId = id
+          }
         }
       }
     }
@@ -123,24 +143,42 @@ export const triggerDeployment = async ({
       serviceDetails.dockerDetails &&
       serviceDetails.dockerDetails.url
     ) {
-      const { account, url, ports } = serviceDetails.dockerDetails
+      // for redeploy with cache doing dokku ps:rebuild
+      if (cache === 'cache') {
+        const { id } = await addRebuildAppQueue({
+          serverDetails: {
+            id: project.server.id,
+          },
+          serviceDetails: {
+            deploymentId: deploymentResponse.id,
+            id: serviceId,
+            name: serviceDetails.name,
+          },
+          sshDetails,
+        })
 
-      const dockerImageQueueResponse = await addDockerImageDeploymentQueue({
-        sshDetails,
-        appName: serviceDetails.name,
-        serviceDetails: {
-          deploymentId: deploymentResponse.id,
-          account: typeof account === 'object' ? account : null,
-          populatedVariables: populatedVariables ?? '{}',
-          variables: variables ?? [],
-          imageName: url,
-          ports,
-          serverId: project.server.id,
-          serviceId: serviceDetails.id,
-        },
-      })
+        queueResponseId = id
+      } else {
+        const { account, url, ports } = serviceDetails.dockerDetails
 
-      queueResponseId = dockerImageQueueResponse.id
+        const dockerImageQueueResponse = await addDockerImageDeploymentQueue({
+          sshDetails,
+          appName: serviceDetails.name,
+          serviceDetails: {
+            deploymentId: deploymentResponse.id,
+            account: typeof account === 'object' ? account : null,
+            populatedVariables: populatedVariables ?? '{}',
+            variables: variables ?? [],
+            imageName: url,
+            ports,
+            serverId: project.server.id,
+            serviceId: serviceDetails.id,
+            name: serviceDetails.name,
+          },
+        })
+
+        queueResponseId = dockerImageQueueResponse.id
+      }
     }
   }
 

@@ -27,6 +27,7 @@ interface QueueArgs {
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
+    name: string
     imageName: string
   }
 }
@@ -51,6 +52,7 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
       try {
         console.log('inside queue: ' + QUEUE_NAME)
         console.log('from queue', job.id)
+        const dokkuDockerImageName = `dokku/${serviceDetails.name}`
 
         // updating the deployment status to building
         await payload.update({
@@ -63,6 +65,9 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
 
         ssh = await dynamicSSH(sshDetails)
+
+        // deleting docker-image every-time to pull latest image
+        await dokku.docker.delete({ ssh, imageName: dokkuDockerImageName })
 
         // Step 1: Setting dokku ports
         if (ports && ports.length) {
@@ -128,6 +133,7 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
         // Step 2: Add permissions if account has added
         if (account) {
           const { username, type, password } = account
+
           const accountResponse = await dokku.docker.registry.login({
             ssh,
             type,
