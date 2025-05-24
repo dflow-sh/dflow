@@ -51,7 +51,9 @@ const DockerForm = ({
     {
       onSuccess: ({ data }) => {
         if (data) {
-          toast.success('Successfully updated details')
+          toast.info('Successfully updated details', {
+            description: 'Redeploy your app for latest changes',
+          })
         }
       },
     },
