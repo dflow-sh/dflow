@@ -3,6 +3,7 @@ import React from 'react'
 import { Toaster } from 'sonner'
 
 import NProgressProvider from '@/providers/NProgressProvider'
+import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 import SuspendedPostHogPageView from '@/providers/PosthogPageView'
 import PosthogProvider from '@/providers/PosthogProvider'
 
@@ -50,7 +51,7 @@ export default async function RootLayout({
         <NProgressProvider>
           <PosthogProvider>
             <SuspendedPostHogPageView />
-            {children}
+            <NetworkStatusProvider>{children}</NetworkStatusProvider>
           </PosthogProvider>
           <Toaster richColors theme='dark' duration={3000} closeButton />
         </NProgressProvider>

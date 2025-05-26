@@ -1,4 +1,5 @@
 import { createImage } from './docker/createImage'
+import { deleteImages } from './docker/deleteImages'
 import { createWorkspace } from './git/createWorkspace'
 import { deleteWorkspace } from './git/deleteWorkspace'
 import { serverInfo } from './info'
@@ -18,6 +19,7 @@ export const server = {
   },
   docker: {
     createImage,
+    deleteImages,
   },
   railpack: {
     install: installRailpack,

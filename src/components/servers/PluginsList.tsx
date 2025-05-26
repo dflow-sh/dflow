@@ -180,7 +180,10 @@ const PluginCard = ({
         ) : (
           <Button
             variant='outline'
-            disabled={isInstallingPlugin || isDemoEnvironment}
+            disabled={
+              isInstallingPlugin || isDemoEnvironment || triggeredPluginInstall
+            }
+            isLoading={isInstallingPlugin}
             onClick={() => {
               if (notCustomPlugin) {
                 installPlugin({

@@ -1,14 +1,14 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
 interface Args {
-  imageName: string
+  images: string[]
   ssh: NodeSSH
   options?: SSHExecOptions
 }
 
-export const deleteImage = async ({ ssh, options, imageName }: Args) => {
+export const deleteImages = async ({ ssh, options, images }: Args) => {
   const resultOptions = await ssh.execCommand(
-    `sudo docker image rm ${imageName} --force`,
+    `sudo docker image rm ${images.join(' ')} --force`,
     options,
   )
 
