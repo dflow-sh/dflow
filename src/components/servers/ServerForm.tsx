@@ -3,18 +3,37 @@
 import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import SidebarToggleButton from '../SidebarToggleButton'
-import { ArrowRight, ChevronLeft, Cloud, Server } from 'lucide-react'
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle,
+  ChevronLeft,
+  Cloud,
+  CreditCard,
+  Server,
+  Wallet,
+} from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
+import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cloudProvidersList } from '@/lib/integrationList'
-import { SecurityGroup, SshKey } from '@/payload-types'
+import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import AttachCustomServerForm from './AttachCustomServerForm'
@@ -29,9 +48,7 @@ interface ServerSelectionFormProps {
   option: string
   isOnboarding: boolean
   vpsPlans: VpsPlan[]
-  dFlowAccountDetails?: {
-    accessToken: string
-  }
+  dFlowAccounts?: CloudProviderAccount[]
 }
 
 interface ServerFormContentProps {
@@ -51,9 +68,7 @@ interface ServerFormProps {
   server?: ServerType
   formType?: 'create' | 'update'
   vpsPlans?: VpsPlan[]
-  dFlowAccountDetails?: {
-    accessToken: string
-  }
+  dFlowAccounts?: CloudProviderAccount[]
 }
 
 const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
@@ -63,34 +78,138 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   type,
   isOnboarding,
   vpsPlans,
-  dFlowAccountDetails,
+  dFlowAccounts,
 }) => {
   const id = useId()
   const [selectedType, setSelectedType] = useState<string>('manual')
   const [selectedOption, setSelectedOption] = useState<string>('manual')
+  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<string>(
+    dFlowAccounts?.[0]?.id || '',
+  )
+  const [paymentData, setPaymentData] = useState<{
+    walletBalance: number
+    validCardCount: number
+  } | null>(null)
+
+  const { execute: fetchPaymentData, isPending: isFetchingPaymentData } =
+    useAction(checkPaymentMethodAction, {
+      onSuccess: ({ data }) => {
+        setPaymentData({
+          walletBalance: data?.walletBalance,
+          validCardCount: data?.validCardCount,
+        })
+      },
+      onError: () => {
+        setPaymentData(null)
+      },
+    })
+
+  useEffect(() => {
+    if (selectedDFlowAccount) {
+      fetchPaymentData({ accountId: selectedDFlowAccount })
+    }
+  }, [selectedDFlowAccount])
+
+  const handleAccountChange = (accountId: string) => {
+    setSelectedDFlowAccount(accountId)
+  }
+
+  const handleOptionChange = (value: string, type: string) => {
+    setSelectedType(type)
+    setSelectedOption(value)
+  }
 
   const handleContinue = () => {
     setType(selectedType)
     setOption(selectedOption)
   }
 
-  const formatSpecs = (plan: any) => {
+  const formatSpecs = (plan: VpsPlan) => {
     return `${plan.cpu.cores}C ${plan.cpu.type} • ${plan.ram.size}${plan.ram.unit} RAM • ${plan.storageOptions?.[0]?.size}${plan.storageOptions?.[0]?.unit} ${plan.storageOptions?.[0]?.type}`
   }
 
-  // Helper function to format pricing
-  const formatPrice = (plan: any) => {
-    return plan.pricing?.[0] ? `$${plan.pricing[0].price.toFixed(2)}/month` : ''
+  const formatPrice = (plan: VpsPlan) => {
+    return plan.pricing?.[0] ? `${plan.pricing[0].price.toFixed(2)}/month` : ''
+  }
+
+  const selectedAccount = dFlowAccounts?.find(
+    acc => acc.id === selectedDFlowAccount,
+  )
+  const dFlowAccountDetails = selectedAccount?.dFlowDetails
+
+  const selectedPlan =
+    selectedType === 'dFlow'
+      ? vpsPlans?.find(p => p.slug === selectedOption)
+      : null
+  const planCost = selectedPlan?.pricing?.[0]?.price || 0
+  const hasWalletBalance = paymentData
+    ? paymentData.walletBalance >= planCost
+    : false
+  const hasValidCard = paymentData ? paymentData.validCardCount > 0 : false
+  const canProceed = planCost === 0 || hasWalletBalance || hasValidCard
+
+  const getContinueButtonText = () => {
+    if (selectedType === 'manual') {
+      return 'Continue with Manual Setup'
+    } else if (selectedType === 'dFlow') {
+      return `Continue with ${vpsPlans?.find(p => p.slug === selectedOption)?.name}`
+    }
+    return `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`
+  }
+
+  const getPaymentRecommendations = () => {
+    const recommendations: string[] = []
+
+    if (!paymentData) return recommendations
+
+    if (planCost === 0) {
+      recommendations.push(
+        'This service is free. You can proceed without any payment.',
+      )
+    } else if (hasWalletBalance && hasValidCard) {
+      recommendations.push(
+        `You can use your wallet balance ($${paymentData.walletBalance.toFixed(2)}) or your saved payment card.`,
+      )
+    } else if (hasWalletBalance) {
+      recommendations.push(
+        `You can use your wallet balance ($${paymentData.walletBalance.toFixed(2)}) for this purchase.`,
+      )
+    } else if (hasValidCard) {
+      recommendations.push(
+        'Your saved payment card will be charged for this service.',
+      )
+    } else {
+      recommendations.push(
+        'You need to add a payment method or top up your wallet to proceed.',
+      )
+      recommendations.push(`Required amount: $${planCost.toFixed(2)}`)
+    }
+
+    return recommendations
   }
 
   return (
     <div className='space-y-8'>
       {!isOnboarding && (
-        <div>
-          <h2 className='text-2xl font-semibold'>Choose a Deployment Option</h2>
-          <p className='mt-1 text-muted-foreground'>
-            Select a cloud provider or add server details manually
-          </p>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-semibold'>
+              Choose a Deployment Option
+            </h2>
+            <p className='mt-1 text-muted-foreground'>
+              Select a cloud provider or add server details manually
+            </p>
+          </div>
+          <Button
+            size='default'
+            variant={'outline'}
+            onClick={handleContinue}
+            disabled={
+              !selectedOption || (selectedType === 'dFlow' && !canProceed)
+            }>
+            {getContinueButtonText()}
+            <ArrowRight className='ml-2 h-4 w-4' />
+          </Button>
         </div>
       )}
 
@@ -98,7 +217,25 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         {/* dFlow Cloud Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
-            <CardTitle className='text-lg font-medium'>dFlow Cloud</CardTitle>
+            <div className='flex items-center justify-between'>
+              <CardTitle className='text-lg font-medium'>dFlow</CardTitle>
+              {dFlowAccounts && dFlowAccounts.length > 0 && (
+                <Select
+                  value={selectedDFlowAccount}
+                  onValueChange={handleAccountChange}>
+                  <SelectTrigger className='w-fit'>
+                    <SelectValue placeholder='Select dFlow account' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dFlowAccounts.map(account => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name || 'dFlow Account'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </CardHeader>
           <CardContent className='p-6'>
             {!dFlowAccountDetails?.accessToken ? (
@@ -106,16 +243,14 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 <ConnectDFlowCloudButton />
               </div>
             ) : (
-              <RadioGroup
-                className='grid grid-cols-1 gap-6 md:grid-cols-2'
-                value={selectedOption}
-                onValueChange={(value: string) => {
-                  setSelectedType('dFlow')
-                  setSelectedOption(value)
-                }}>
-                {vpsPlans
-                  ?.filter(plan => plan.slug === 'cloud-vps-10')
-                  ?.map(plan => (
+              <>
+                <RadioGroup
+                  className='grid grid-cols-1 gap-6 md:grid-cols-2'
+                  value={selectedOption}
+                  onValueChange={(value: string) =>
+                    handleOptionChange(value, 'dFlow')
+                  }>
+                  {vpsPlans?.map(plan => (
                     <div
                       key={plan.slug}
                       className={`relative flex w-full items-start rounded-md border ${
@@ -139,24 +274,75 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                               className='cursor-pointer font-medium'>
                               {plan.name}
                             </Label>
-                            {plan.slug === 'cloud-vps-10' && (
-                              <Badge variant='success' className='text-xs'>
-                                Free
-                              </Badge>
-                            )}
                           </div>
                           <p className='text-sm text-muted-foreground'>
                             {formatSpecs(plan)}
                           </p>
-                          <p
-                            className={`text-sm font-medium text-primary ${plan.slug === 'cloud-vps-10' ? 'line-through' : ''}`}>
+                          <p className='text-sm font-medium text-primary'>
                             {formatPrice(plan)}
                           </p>
                         </div>
                       </div>
                     </div>
                   ))}
-              </RadioGroup>
+                </RadioGroup>
+
+                {/* Payment Status Section */}
+                {selectedType === 'dFlow' && selectedOption && (
+                  <div className='mt-6 space-y-3'>
+                    {isFetchingPaymentData ? (
+                      <div className='flex items-center gap-3 rounded-md border p-4'>
+                        <Skeleton className='h-4 w-4 rounded-full' />
+                        <div className='space-y-2'>
+                          <Skeleton className='h-4 w-48' />
+                          <Skeleton className='h-3 w-32' />
+                        </div>
+                      </div>
+                    ) : paymentData ? (
+                      <Alert variant={canProceed ? 'default' : 'warning'}>
+                        <div className='flex items-start gap-3'>
+                          {canProceed ? (
+                            <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
+                          ) : (
+                            <AlertCircle className='mt-0.5 h-5 w-5 text-yellow-600' />
+                          )}
+                          <div className='flex-1 space-y-2'>
+                            <div className='flex items-center gap-4 text-sm'>
+                              <div className='flex items-center gap-2'>
+                                <Wallet className='h-4 w-4' />
+                                <span>
+                                  Wallet: $
+                                  {paymentData.walletBalance.toFixed(2)}
+                                </span>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                <CreditCard className='h-4 w-4' />
+                                <span>Cards: {paymentData.validCardCount}</span>
+                              </div>
+                              {planCost > 0 && (
+                                <div className='flex items-center gap-2'>
+                                  <span>Cost: ${planCost.toFixed(2)}</span>
+                                </div>
+                              )}
+                            </div>
+                            {getPaymentRecommendations().length > 0 && (
+                              <AlertDescription className='text-sm'>
+                                {getPaymentRecommendations().map(
+                                  (rec, index) => (
+                                    <div key={index} className='mb-1 last:mb-0'>
+                                      {rec}
+                                    </div>
+                                  ),
+                                )}
+                              </AlertDescription>
+                            )}
+                          </div>
+                        </div>
+                      </Alert>
+                    ) : null}
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -274,13 +460,11 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         <Button
           className='w-full'
           size='lg'
-          disabled={!selectedOption}
+          disabled={
+            !selectedOption || (selectedType === 'dFlow' && !canProceed)
+          }
           onClick={handleContinue}>
-          {selectedType === 'manual'
-            ? 'Continue with Manual Setup'
-            : selectedType === 'dFlow'
-              ? `Continue with ${vpsPlans.find(p => p.slug === selectedOption)?.name}`
-              : `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`}
+          {getContinueButtonText()}
           <ArrowRight className='ml-2 h-4 w-4' />
         </Button>
       </div>
@@ -299,7 +483,6 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   vpsPlan,
 }) => {
   const router = useRouter()
-
   const { organisation } = useParams()
 
   if (!type) return null
@@ -369,7 +552,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
   securityGroups,
   server,
   formType,
-  dFlowAccountDetails,
+  dFlowAccounts,
   vpsPlans,
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
@@ -403,7 +586,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           option={option}
           isOnboarding={isOnboarding}
           vpsPlans={vpsPlans as VpsPlan[]}
-          dFlowAccountDetails={dFlowAccountDetails}
+          dFlowAccounts={dFlowAccounts}
         />
       ) : (
         <ServerFormContent

@@ -32,3 +32,7 @@ export const createSshKeysAndVpsActionSchema = z.object({
     name: z.string(),
   }),
 })
+
+export const checkPaymentMethodSchema = z.object({
+  accountId: z.string().min(1, 'Account ID is required'),
+})

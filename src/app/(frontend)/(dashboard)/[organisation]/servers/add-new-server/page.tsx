@@ -19,7 +19,7 @@ const SuspendedAddNewServerPage = async () => {
     <ServerForm
       sshKeys={sshKeys}
       securityGroups={securityGroups}
-      dFlowAccountDetails={dFlowAccount?.data?.at(0)?.dFlowDetails}
+      dFlowAccounts={dFlowAccount?.data}
       vpsPlans={vpsPlans?.data ?? []}
     />
   )

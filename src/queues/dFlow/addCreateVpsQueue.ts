@@ -45,7 +45,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       try {
         // step 1: creating secret in dflow.sh
         const { data: createdSecretRes } = await axios.post(
-          `${env.DFLOW_CLOUD_URL}/api/secrets`,
+          `${env.DFLOW_URL}/api/secrets`,
           {
             name: sshKeys[0].name,
             type: 'ssh',
@@ -53,7 +53,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
           {
             headers: {
-              Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+              Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
             },
           },
         )
@@ -73,7 +73,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         // step 3: create VPS in dflow.sh
         const { data: createdVpsOrderRes } = await axios.post(
-          `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
+          `${env.DFLOW_URL}/api/vpsOrders`,
           {
             plan: '6821988ea2def4c82c86cf4f',
             userData: {
@@ -104,7 +104,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
           {
             headers: {
-              Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+              Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
             },
           },
         )
@@ -147,10 +147,10 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             for (let i = 0; i < 10; i++) {
               try {
                 const { data: instanceStatusRes } = await axios.get(
-                  `${env.DFLOW_CLOUD_URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
+                  `${env.DFLOW_URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
                   {
                     headers: {
-                      Authorization: `${env.DFLOW_CLOUD_AUTH_SLUG} API-Key ${token}`,
+                      Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
                     },
                   },
                 )
