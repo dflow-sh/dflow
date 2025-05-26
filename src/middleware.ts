@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
       '_static',
       '_vercel',
       'images',
-      'admin',
+      'payload-admin',
     ].includes(organisation)
   ) {
     response.cookies.set('organisation', organisation, {
