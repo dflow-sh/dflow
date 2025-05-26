@@ -18,22 +18,34 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Tenant, User } from '@/payload-types'
+import { useNetworkStatusContext } from '@/providers/NetworkStatusProvider'
 
 export function NavUser({ user }: { user: User }) {
   const { execute } = useAction(logoutAction)
-  const initial = user.email.slice(0, 1)
   const params = useParams()
+
+  const initial = user.email.slice(0, 1)
+  const { isOnline } = useNetworkStatusContext()
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
-              {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
-              <AvatarFallback className='rounded-lg uppercase'>
-                {initial}
-              </AvatarFallback>
-            </Avatar>
+            <div className='relative'>
+              <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
+                {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
+                <AvatarFallback className='rounded-lg uppercase'>
+                  {initial}
+                </AvatarFallback>
+              </Avatar>
+
+              <div
+                role='status'
+                title={isOnline ? 'online' : 'offline'}
+                className={`size-2.5 rounded-full ${isOnline ? 'bg-success' : 'bg-destructive'} absolute -bottom-0.5 -right-0.5 border border-background`}
+              />
+            </div>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent

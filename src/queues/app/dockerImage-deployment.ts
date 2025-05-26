@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { server } from '@/lib/server'
 import { DockerRegistry, Service } from '@/payload-types'
 
 type PortsType = NonNullable<Service['dockerDetails']>['ports']
@@ -52,7 +53,6 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
       try {
         console.log('inside queue: ' + QUEUE_NAME)
         console.log('from queue', job.id)
-        const dokkuDockerImageName = `dokku/${serviceDetails.name}`
 
         // updating the deployment status to building
         await payload.update({
@@ -67,7 +67,10 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
         ssh = await dynamicSSH(sshDetails)
 
         // deleting docker-image every-time to pull latest image
-        await dokku.docker.delete({ ssh, imageName: dokkuDockerImageName })
+        await server.docker.deleteImages({
+          ssh,
+          images: [imageName],
+        })
 
         // Step 1: Setting dokku ports
         if (ports && ports.length) {

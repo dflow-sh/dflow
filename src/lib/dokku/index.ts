@@ -7,7 +7,6 @@ import { listVars } from './config/listVars'
 import { set } from './config/set'
 import { unset } from './config/unset'
 import { info as distroInfo } from './distro/info'
-import { deleteImage } from './docker/delete'
 import { options } from './docker/options'
 import { login } from './docker/registry/login'
 import { add } from './domains/add'
@@ -73,7 +72,6 @@ export const dokku = {
   config: { listVars, set, unset, clear },
   docker: {
     options,
-    delete: deleteImage,
     registry: {
       login,
     },
