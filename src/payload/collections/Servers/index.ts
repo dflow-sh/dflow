@@ -349,7 +349,7 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
-      name: 'dFlowVpsDetails',
+      name: 'dflowVpsDetails',
       type: 'group',
       admin: {
         condition: data => data.provider === 'dflow',

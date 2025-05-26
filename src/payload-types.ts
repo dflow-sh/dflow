@@ -344,7 +344,7 @@ export interface Server {
   /**
    * dFlow Vps details
    */
-  dFlowVpsDetails?: {
+  dflowVpsDetails?: {
     id?: string | null;
     instanceId?: number | null;
     status?:
@@ -1123,7 +1123,7 @@ export interface ServersSelect<T extends boolean = true> {
         keyName?: T;
         architecture?: T;
       };
-  dFlowVpsDetails?:
+  dflowVpsDetails?:
     | T
     | {
         id?: T;

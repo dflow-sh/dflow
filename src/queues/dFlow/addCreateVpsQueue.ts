@@ -125,7 +125,8 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             sshKey: createdSshKey.id,
             provider: 'dflow',
             tenant: data.tenant,
-            dFlowVpsDetails: {
+            cloudProviderAccount: accountDetails.id,
+            dflowVpsDetails: {
               id: createdVpsOrder.id,
               instanceId: createdVpsOrder.instanceId,
               status: createdVpsOrder.instanceResponse.status as any,
@@ -139,7 +140,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         if (createdServer) {
           const instanceId = createdVpsOrder.instanceId
           const serverId = createdServer.id
-          const currentStatus = createdServer?.dFlowVpsDetails?.status
+          const currentStatus = createdServer?.dflowVpsDetails?.status
           const currentIP = createdServer?.ip
 
           const pollForPublicIP = async () => {
@@ -177,7 +178,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                       id: serverId,
                       data: {
                         ip: newIp,
-                        dFlowVpsDetails: {
+                        dflowVpsDetails: {
                           status: newStatus,
                         },
                       },
@@ -194,7 +195,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                       collection: 'servers',
                       id: serverId,
                       data: {
-                        dFlowVpsDetails: {
+                        dflowVpsDetails: {
                           status: newStatus,
                         },
                       },
