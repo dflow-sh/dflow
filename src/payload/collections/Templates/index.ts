@@ -30,6 +30,10 @@ export const Template: CollectionConfig = {
       name: 'description',
     },
     {
+      name: 'imageUrl',
+      type: 'text',
+    },
+    {
       type: 'array',
       name: 'services',
       fields: [

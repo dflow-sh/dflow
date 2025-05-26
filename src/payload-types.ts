@@ -698,6 +698,7 @@ export interface Template {
   tenant?: (string | null) | Tenant;
   name: string;
   description?: string | null;
+  imageUrl?: string | null;
   services?:
     | {
         type: 'app' | 'database' | 'docker';
@@ -1236,6 +1237,7 @@ export interface TemplatesSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   description?: T;
+  imageUrl?: T;
   services?:
     | T
     | {
