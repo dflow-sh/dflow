@@ -43,7 +43,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       console.log('worker triggered...')
 
       try {
-        // step 1: creating secret in contentql
+        // step 1: creating secret in dflow.sh
         const { data: createdSecretRes } = await axios.post(
           `${env.DFLOW_CLOUD_URL}/api/secrets`,
           {
@@ -60,7 +60,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const { doc: createdSecret } = createdSecretRes
 
-        // step 2: creating same sshKey in dflow
+        // step 2: creating same sshKey in dFlow Cloud
         const createdSshKey = await payload.create({
           collection: 'sshKeys',
           data: {
@@ -71,7 +71,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           },
         })
 
-        // step 3: create VPS in contentql
+        // step 3: create VPS in dflow.sh
         const { data: createdVpsOrderRes } = await axios.post(
           `${env.DFLOW_CLOUD_URL}/api/vpsOrders`,
           {
@@ -113,7 +113,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        // step 4: instantly creating a server in dFlow
+        // step 4: instantly creating a server in dFlow Cloud
         const createdServer = await payload.create({
           collection: 'servers',
           data: {
@@ -123,9 +123,9 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             port: 22,
             username: 'root',
             sshKey: createdSshKey.id,
-            provider: 'contentql',
+            provider: 'dflow',
             tenant: data.tenant,
-            contentqlVpsDetails: {
+            dFlowVpsDetails: {
               id: createdVpsOrder.id,
               instanceId: createdVpsOrder.instanceId,
               status: createdVpsOrder.instanceResponse.status as any,
@@ -139,7 +139,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         if (createdServer) {
           const instanceId = createdVpsOrder.instanceId
           const serverId = createdServer.id
-          const currentStatus = createdServer?.contentqlVpsDetails?.status
+          const currentStatus = createdServer?.dFlowVpsDetails?.status
           const currentIP = createdServer?.ip
 
           const pollForPublicIP = async () => {
@@ -177,7 +177,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                       id: serverId,
                       data: {
                         ip: newIp,
-                        contentqlVpsDetails: {
+                        dFlowVpsDetails: {
                           status: newStatus,
                         },
                       },
@@ -194,7 +194,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                       collection: 'servers',
                       id: serverId,
                       data: {
-                        contentqlVpsDetails: {
+                        dFlowVpsDetails: {
                           status: newStatus,
                         },
                       },

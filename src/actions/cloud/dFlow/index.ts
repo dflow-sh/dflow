@@ -9,9 +9,7 @@ import { CloudProviderAccount } from '@/payload-types'
 import { VpsPlan } from './types'
 import {
   connectDFlowAccountSchema,
-  createSshKeyActionSchema,
   createSshKeysAndVpsActionSchema,
-  createVpsOrderActionSchema,
 } from './validator'
 
 export const connectDFlowAccountAction = protectedClient
@@ -173,74 +171,4 @@ export const createSshKeysAndVpsAction = protectedClient
       message:
         'VPS creation process started. You will receive updates on the progress.',
     }
-  })
-
-export const createSshKeyAction = protectedClient
-  .metadata({
-    actionName: 'createSshKeyAction',
-  })
-  .schema(createSshKeyActionSchema)
-  .action(async ({ ctx, clientInput }) => {
-    const { token, name, publicSshKey } = clientInput
-
-    const { data: createdSecretRes } = await axios.post(
-      'https://contentql.io/api/secrets',
-      {
-        name,
-        type: 'ssh',
-        publicKey: publicSshKey,
-      },
-      {
-        headers: {
-          Authorization: `users API-Key ${token}`,
-        },
-      },
-    )
-
-    return createdSecretRes
-  })
-
-export const createVpsOrderAction = protectedClient
-  .metadata({
-    actionName: 'createVpsOrderAction',
-  })
-  .schema(createVpsOrderActionSchema)
-  .action(async ({ ctx, clientInput }) => {
-    const { token, name, sshKeys } = clientInput
-
-    const { data: createdVpsOrderRes } = await axios.post(
-      'https://contentql.io/api/vspOrders',
-      {
-        image: {
-          imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-          priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-        },
-        product: {
-          productId: 'V92',
-          priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-        },
-        displayName: name,
-        region: {
-          code: 'EU',
-          priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-        },
-        card: '',
-        defaultUser: 'root',
-        rootPassword: 141086,
-        period: {
-          months: 1,
-          priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-        },
-        sshKeys,
-        plan: '6821988ea2def4c82c86cf4f',
-        addOns: {},
-      },
-      {
-        headers: {
-          Authorization: `users API-Key ${token}`,
-        },
-      },
-    )
-
-    return createdVpsOrderRes
   })

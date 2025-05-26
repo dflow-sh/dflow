@@ -172,8 +172,8 @@ export const Servers: CollectionConfig = {
           value: 'azure',
         },
         {
-          label: 'ContentQL',
-          value: 'contentql',
+          label: 'dFlow',
+          value: 'dflow',
         },
         {
           label: 'Other',
@@ -349,11 +349,11 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
-      name: 'contentqlVpsDetails',
+      name: 'dFlowVpsDetails',
       type: 'group',
       admin: {
-        condition: data => data.provider === 'contentql',
-        description: 'ContentQL Vps details',
+        condition: data => data.provider === 'dflow',
+        description: 'dFlow Vps details',
         position: 'sidebar',
       },
       fields: [

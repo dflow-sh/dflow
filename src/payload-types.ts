@@ -270,7 +270,7 @@ export interface Server {
       }[]
     | null;
   onboarded?: boolean | null;
-  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'contentql' | 'other';
+  provider: 'digitalocean' | 'aws' | 'gcp' | 'azure' | 'dflow' | 'other';
   cloudProviderAccount?: (string | null) | CloudProviderAccount;
   /**
    * AWS EC2 instance details
@@ -342,9 +342,9 @@ export interface Server {
     architecture?: string | null;
   };
   /**
-   * ContentQL Vps details
+   * dFlow Vps details
    */
-  contentqlVpsDetails?: {
+  dFlowVpsDetails?: {
     id?: string | null;
     instanceId?: number | null;
     status?:
@@ -1123,7 +1123,7 @@ export interface ServersSelect<T extends boolean = true> {
         keyName?: T;
         architecture?: T;
       };
-  contentqlVpsDetails?:
+  dFlowVpsDetails?:
     | T
     | {
         id?: T;
