@@ -45,6 +45,7 @@ export const deleteDokkuService: CollectionAfterDeleteHook<Service> = async ({
           serverDetails: {
             id: serverDetails.id,
           },
+          serviceId: serviceDetails.id,
         })
 
         console.log({ databaseQueueResponse })
