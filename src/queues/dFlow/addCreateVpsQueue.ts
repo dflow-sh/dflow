@@ -5,16 +5,36 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { Tenant } from '@/payload-types'
+import { SshKey, Tenant } from '@/payload-types'
 
 interface CreateVpsQueueArgs {
-  sshKeys: {
-    name: string
-    publicSshKey: string
-    privateSshKey: string
-  }[]
+  sshKeys: SshKey[]
   vps: {
-    name: string
+    plan: string
+    displayName: string
+    image: {
+      imageId: string
+      priceId: string
+    }
+    product: {
+      productId: string
+      priceId: string
+    }
+    region: {
+      code: string
+      priceId: string
+    }
+    defaultUser: 'root'
+    rootPassword: number
+    period: {
+      months: 1
+      priceId: string
+    }
+    addOns?: {
+      backup?: {}
+      priceId?: string
+    }
+    estimatedCost: number
   }
   accountDetails: {
     id: string
@@ -43,65 +63,71 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       console.log('worker triggered...')
 
       try {
-        // step 1: creating secret in dflow.sh
-        const { data: createdSecretRes } = await axios.post(
-          `${env.DFLOW_URL}/api/secrets`,
-          {
-            name: sshKeys[0].name,
-            type: 'ssh',
-            publicKey: sshKeys[0].publicSshKey,
-          },
-          {
-            headers: {
-              Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
-            },
-          },
+        console.dir({ sshKeys }, { depth: Infinity })
+        // step 1 & 2: creating secrets in dflow.sh and sshKeys in dFlow Cloud
+        const secretsAndKeys = await Promise.all(
+          sshKeys.map(async key => {
+            const { data: createdSecretRes } = await axios.post(
+              `${env.DFLOW_URL}/api/secrets`,
+              {
+                name: key.name,
+                type: 'ssh',
+                publicKey: key.publicKey,
+                privateKey: key.privateKey,
+              },
+              {
+                headers: {
+                  Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+                },
+              },
+            )
+
+            const { doc: createdSecret } = createdSecretRes
+
+            return {
+              secretId: createdSecret.details.secretId,
+              sshKeyId: key.id,
+            }
+          }),
         )
 
-        const { doc: createdSecret } = createdSecretRes
-
-        // step 2: creating same sshKey in dFlow Cloud
-        const createdSshKey = await payload.create({
-          collection: 'sshKeys',
-          data: {
-            name: sshKeys[0].name,
-            privateKey: sshKeys[0].privateSshKey,
-            publicKey: sshKeys[0].publicSshKey,
-            tenant: data.tenant,
-          },
-        })
+        const secretIds = secretsAndKeys.map(entry => entry.secretId)
 
         // step 3: create VPS in dflow.sh
+        const vpsData = {
+          plan: vps.plan,
+          userData: {
+            image: {
+              imageId: vps.image.imageId,
+              priceId: vps.image.priceId,
+            },
+            product: {
+              productId: vps.product.productId,
+              priceId: vps.product.priceId,
+            },
+            displayName: vps.displayName,
+            region: {
+              code: vps.region.code,
+              priceId: vps.region.priceId,
+            },
+            card: '',
+            defaultUser: vps.defaultUser,
+            rootPassword: vps.rootPassword,
+            period: {
+              months: vps.period.months,
+              priceId: vps.period.priceId,
+            },
+            sshKeys: secretIds,
+            plan: vps.plan,
+            addOns: vps.addOns || {},
+          },
+        }
+
+        console.dir({ vpsData }, { depth: Infinity })
+        return null
         const { data: createdVpsOrderRes } = await axios.post(
           `${env.DFLOW_URL}/api/vpsOrders`,
-          {
-            plan: '6821988ea2def4c82c86cf4f',
-            userData: {
-              image: {
-                imageId: 'afecbb85-e2fc-46f0-9684-b46b1faf00bb',
-                priceId: 'price_1R1VOXP2ZUGTn5p0TMvSrTTK',
-              },
-              product: {
-                productId: 'V92',
-                priceId: 'price_1RNq0hP2ZUGTn5p0eq28s0op',
-              },
-              displayName: vps.name,
-              region: {
-                code: 'EU',
-                priceId: 'price_1R1VHbP2ZUGTn5p0FeXm5ykp',
-              },
-              card: '',
-              defaultUser: 'root',
-              rootPassword: 141086,
-              period: {
-                months: 1,
-                priceId: 'price_1RNq7DP2ZUGTn5p00casstTj',
-              },
-              sshKeys: [createdSecret.details.secretId],
-              plan: '6821988ea2def4c82c86cf4f',
-              addOns: {},
-            },
-          },
+          vpsData,
           {
             headers: {
               Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
@@ -117,12 +143,12 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         const createdServer = await payload.create({
           collection: 'servers',
           data: {
-            name: vps.name,
+            name: vps.displayName,
             description: '',
             ip: '0.0.0.0',
             port: 22,
             username: 'root',
-            sshKey: createdSshKey.id,
+            sshKey: secretsAndKeys.at(0)?.sshKeyId as string,
             provider: 'dflow',
             tenant: data.tenant,
             cloudProviderAccount: accountDetails.id,

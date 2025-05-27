@@ -40,7 +40,7 @@ import { ServerType } from '@/payload-types-overrides'
 import AttachCustomServerForm from './AttachCustomServerForm'
 import { ConnectDFlowCloudButton } from './ConnectDFlowCloudButton'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
-import DflowVpsForm from './DflowVpsForm'
+import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
 
 interface ServerSelectionFormProps {
   setType: (type: string) => void
@@ -50,6 +50,7 @@ interface ServerSelectionFormProps {
   isOnboarding: boolean
   vpsPlans: VpsPlan[]
   dFlowAccounts?: CloudProviderAccount[]
+  onAccountSelect: (accountId: string) => void
 }
 
 interface ServerFormContentProps {
@@ -62,6 +63,7 @@ interface ServerFormContentProps {
   isOnboarding: boolean
   vpsPlan?: VpsPlan
   dFlowAccounts?: CloudProviderAccount[]
+  selectedDFlowAccount?: CloudProviderAccount
 }
 
 interface ServerFormProps {
@@ -81,6 +83,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   isOnboarding,
   vpsPlans,
   dFlowAccounts,
+  onAccountSelect,
 }) => {
   const id = useId()
   const [selectedType, setSelectedType] = useState<string>('manual')
@@ -111,11 +114,13 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   useEffect(() => {
     if (selectedDFlowAccount) {
       fetchPaymentData({ accountId: selectedDFlowAccount })
+      onAccountSelect(selectedDFlowAccount)
     }
   }, [selectedDFlowAccount])
 
   const handleAccountChange = (accountId: string) => {
     setSelectedDFlowAccount(accountId)
+    onAccountSelect(accountId)
   }
 
   const handleOptionChange = (value: string, type: string) => {
@@ -219,7 +224,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open('https://dflow.sh/dashboard', '_blank')
+                  window.open('https://dflow.sh/profile/cards', '_blank')
                 }>
                 Open dFlow
                 <ExternalLink className='h-4 w-4' />
@@ -245,7 +250,14 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               Select a cloud provider or add server details manually
             </p>
           </div>
-          <Button size='default' variant={'outline'} onClick={handleContinue}>
+          <Button
+            size='default'
+            variant={'outline'}
+            onClick={handleContinue}
+            // disabled={
+            //   !selectedOption || (selectedType === 'dFlow' && !canProceed)
+            // }
+          >
             {getContinueButtonText()}
             <ArrowRight className='ml-2 h-4 w-4' />
           </Button>
@@ -521,6 +533,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   isOnboarding,
   vpsPlan,
   dFlowAccounts,
+  selectedDFlowAccount,
 }) => {
   const router = useRouter()
   const { organisation } = useParams()
@@ -566,7 +579,12 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               }}
             />
           ) : type === 'dFlow' ? (
-            <DflowVpsForm vpsPlan={vpsPlan as VpsPlan} />
+            <DflowVpsFormContainer
+              vpsPlan={vpsPlan as VpsPlan}
+              dFlowAccounts={dFlowAccounts}
+              selectedDFlowAccount={selectedDFlowAccount}
+              sshKeys={sshKeys}
+            />
           ) : (
             <AttachCustomServerForm
               sshKeys={sshKeys}
@@ -600,6 +618,9 @@ const ServerForm: React.FC<ServerFormProps> = ({
     'option',
     parseAsString.withDefault(''),
   )
+  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<string>(
+    dFlowAccounts?.[0]?.id || '',
+  )
 
   const pathName = usePathname()
   const isOnboarding = pathName.includes('onboarding')
@@ -627,6 +648,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           isOnboarding={isOnboarding}
           vpsPlans={vpsPlans as VpsPlan[]}
           dFlowAccounts={dFlowAccounts}
+          onAccountSelect={accountId => setSelectedDFlowAccount(accountId)}
         />
       ) : (
         <ServerFormContent
@@ -643,6 +665,9 @@ const ServerForm: React.FC<ServerFormProps> = ({
               : undefined
           }
           dFlowAccounts={dFlowAccounts}
+          selectedDFlowAccount={dFlowAccounts?.find(
+            acc => acc.id === selectedDFlowAccount,
+          )}
         />
       )}
     </div>
