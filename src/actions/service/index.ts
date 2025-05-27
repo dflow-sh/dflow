@@ -188,6 +188,7 @@ export const deleteServiceAction = protectedClient
             serverDetails: {
               id: serverDetails.id,
             },
+            serviceId: serviceDetails.id,
           })
 
           console.log({ databaseDeletionQueueResponse })
