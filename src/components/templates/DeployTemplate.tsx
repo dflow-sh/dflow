@@ -314,8 +314,8 @@ const TemplateDeploymentForm = ({
 
           <Button
             type='submit'
-            disabled={deployingTemplate || !id}
-            isLoading={deployingTemplate}>
+            disabled={deployingTemplate || deployingOfficialTemplate || !id}
+            isLoading={deployingTemplate || deployingOfficialTemplate}>
             Deploy
           </Button>
         </DialogFooter>
