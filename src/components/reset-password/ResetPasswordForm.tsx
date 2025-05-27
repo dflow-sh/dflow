@@ -4,13 +4,13 @@ import Loader from '../Loader'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { signInAction } from '@/actions/auth'
-import { signInSchema } from '@/actions/auth/validator'
+import { resetPasswordAction } from '@/actions/auth'
+import { resetPasswordSchema } from '@/actions/auth/validator'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -21,35 +21,39 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { isDemoEnvironment } from '@/lib/constants'
 
-const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
-  resendEnvExist,
-}) => {
+const ResetPasswordForm = ({ token }: { token: string }) => {
+  const router = useRouter()
+
   const {
     execute: mutate,
     isPending,
     hasSucceeded: isSuccess,
     hasErrored: isError,
     result,
-  } = useAction(signInAction, {
+  } = useAction(resetPasswordAction, {
+    onSuccess: () => {
+      toast.success('Password reset successful!', {
+        duration: 5000,
+      })
+      router.push('/sign-in')
+    },
     onError: ({ error }) => {
-      toast.error(`Failed to sign in: ${error.serverError}`, { duration: 5000 })
+      toast.error(`Failed to Send Reset Link: ${error.serverError}`, {
+        duration: 5000,
+      })
     },
   })
 
-  const form = useForm<z.infer<typeof signInSchema>>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
     mode: 'onBlur',
-    defaultValues: {
-      email: isDemoEnvironment ? 'admin@example.com' : '',
-      password: isDemoEnvironment ? 'changeme' : '',
-    },
+    defaultValues: { token, password: '', confirmPassword: '' },
   })
 
   const { handleSubmit } = form
 
-  const onSubmit = (data: z.infer<typeof signInSchema>) => {
+  const onSubmit = (data: z.infer<typeof resetPasswordSchema>) => {
     mutate({
       ...data,
     })
@@ -66,23 +70,21 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
             width={50}
             height={50}
           />
-          <h1 className='mb-6 text-center text-3xl font-semibold'>Sign In</h1>
+          <h1 className='mb-6 text-center text-3xl font-semibold'>
+            Reset your password
+          </h1>
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
               <FormField
                 control={form.control}
-                name={'email'}
+                name={'password'}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>New Password</FormLabel>
 
                     <FormControl>
-                      <Input
-                        disabled={isSuccess}
-                        {...field}
-                        placeholder='john.doe@example.com'
-                      />
+                      <Input disabled={isSuccess} {...field} type='password' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -92,19 +94,11 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
               <div className='space-y-4'>
                 <FormField
                   control={form.control}
-                  name={'password'}
+                  name={'confirmPassword'}
                   render={({ field }) => (
                     <FormItem>
-                      <div className='flex justify-between'>
-                        <FormLabel>Password</FormLabel>
-                        {resendEnvExist && (
-                          <Link
-                            className='ml-2 text-sm font-medium text-primary transition duration-150 ease-in-out'
-                            href='/forgot-password'>
-                            Forgot Password?
-                          </Link>
-                        )}
-                      </div>
+                      <FormLabel>Confirm New Password</FormLabel>
+
                       <FormControl>
                         <Input
                           disabled={isSuccess}
@@ -122,23 +116,14 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
                 className='w-full'
                 type='submit'
                 disabled={isPending || isSuccess}>
-                {isPending ? <Loader /> : 'Sign In'}
+                {isPending ? <Loader /> : 'Reset Password'}
               </Button>
             </form>
           </Form>
-
-          <div className='mt-4 text-center text-sm text-muted-foreground'>
-            <p>
-              Don&apos;t have an account?{' '}
-              <Link href='/sign-up' className='text-primary underline'>
-                SignUp
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export default SignInForm
+export default ResetPasswordForm
