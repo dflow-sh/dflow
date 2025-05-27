@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input'
 export const LoginDetailsSection = () => {
   const form = useFormContext()
 
+  console.log({ loginDetails: form.watch('login') })
+
   return (
     <div className='mb-6'>
       <h2 className='mb-3 text-lg font-semibold text-foreground'>
@@ -21,17 +23,17 @@ export const LoginDetailsSection = () => {
         <FormField
           control={form.control}
           name='login.username'
-          render={() => (
+          render={field => (
             <FormItem>
               <FormLabel>
                 Username <span className='text-destructive'>*</span>
               </FormLabel>
               <FormControl>
                 <Input
-                  id='defaultUser'
+                  {...field}
                   className='w-full bg-background'
+                  value={'root'}
                   type='text'
-                  value='root'
                   disabled
                 />
               </FormControl>
@@ -43,17 +45,17 @@ export const LoginDetailsSection = () => {
         <FormField
           control={form.control}
           name='login.rootPassword'
-          render={() => (
+          render={field => (
             <FormItem>
               <FormLabel>
                 Password <span className='text-destructive'>*</span>
               </FormLabel>
               <FormControl>
                 <Input
-                  id='rootPassword'
+                  {...field}
+                  value={141086}
                   className='w-full bg-background'
-                  type='text'
-                  value='141086'
+                  type='number'
                   disabled
                 />
               </FormControl>

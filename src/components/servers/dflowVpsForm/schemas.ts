@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 export const loginSchema = z.object({
-  username: z.string().min(1, { message: 'Username is required' }),
+  username: z
+    .string()
+    .min(1, { message: 'Username is required' })
+    .default('root'),
   rootPassword: z.number().default(141086),
   sshKeyIds: z.array(z.string()),
 })

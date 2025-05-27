@@ -74,8 +74,8 @@ export const OrderForm = () => {
           code: data.region.name,
           priceId: data.pricing.priceId,
         },
-        defaultUser: data.login.username,
-        rootPassword: data.login.rootPassword,
+        defaultUser: data.login.username || 'root',
+        rootPassword: data.login.rootPassword || 141086,
         period: {
           months:
             vpsPlan.pricing?.find(p => p.id === data.pricing.id)?.period || 1,
@@ -94,6 +94,9 @@ export const OrderForm = () => {
       },
     })
   }
+
+  console.log({ pricing })
+  console.log({ isFormValid })
 
   return (
     <Form {...form}>
@@ -123,7 +126,7 @@ export const OrderForm = () => {
           </Button>
           <Button
             type='submit'
-            disabled={isCreatingVpsOrder || !isFormValid}
+            disabled={isCreatingVpsOrder || !pricing.paymentStatus.canProceed}
             className='bg-primary text-primary-foreground hover:bg-primary/90'>
             {isCreatingVpsOrder ? 'Creating...' : 'Place Order'}
           </Button>

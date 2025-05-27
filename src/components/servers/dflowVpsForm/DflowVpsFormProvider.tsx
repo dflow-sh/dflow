@@ -112,6 +112,7 @@ export const DflowVpsFormProvider = ({
     resolver: zodResolver(dflowVpsSchema),
     defaultValues: {
       login: {
+        username: 'root',
         rootPassword: 141086,
       },
     },
