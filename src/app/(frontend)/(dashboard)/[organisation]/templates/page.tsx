@@ -39,7 +39,7 @@ const page = async ({ params }: PageProps) => {
         <Tabs defaultValue='official' className='mt-6 w-full'>
           <TabsList>
             <TabsTrigger value='official'>Official</TabsTrigger>
-            <TabsTrigger value='user'>User</TabsTrigger>
+            <TabsTrigger value='personal'>Personal</TabsTrigger>
           </TabsList>
 
           {/* Official Templates */}
@@ -64,8 +64,8 @@ const page = async ({ params }: PageProps) => {
             </div>
           </TabsContent>
 
-          {/* User Templates */}
-          <TabsContent value='user'>
+          {/* Personal Templates */}
+          <TabsContent value='personal'>
             {templates?.data?.length! > 0 ? (
               <div className='mt-4 grid w-full grid-cols-3 gap-5'>
                 {templates?.data?.map(template => (

@@ -131,5 +131,5 @@ export const deployTemplateFromArchitectureSchema = z.object({
 })
 
 export const getAllTemplatesSchema = z.object({
-  type: z.enum(['official', 'user']),
+  type: z.enum(['official', 'personal']),
 })

@@ -80,10 +80,10 @@ const TemplateDeploymentForm = ({
   type,
   server: { plugins, name: serverName, id: serverId },
 }: {
-  execute: ({ type }: { type: 'official' | 'user' }) => void
+  execute: ({ type }: { type: 'official' | 'personal' }) => void
   isPending: boolean
   templates?: Template[]
-  type: 'official' | 'user'
+  type: 'official' | 'personal'
   server: Server
 }) => {
   const dialogRef = useRef<HTMLButtonElement>(null)
@@ -141,7 +141,7 @@ const TemplateDeploymentForm = ({
   }, [])
 
   function onSubmit(values: z.infer<typeof deployTemplateSchema>) {
-    if (type === 'user') {
+    if (type === 'personal') {
       deployTemplate(values)
     } else if (type === 'official') {
       const filteredTemplate = templates?.find(
@@ -374,9 +374,9 @@ const DeployTemplate = ({
           <DialogDescription />
         </DialogHeader>
 
-        <Tabs defaultValue='user'>
+        <Tabs defaultValue='personal'>
           <TabsList>
-            <TabsTrigger value='user'>User</TabsTrigger>
+            <TabsTrigger value='personal'>Personal</TabsTrigger>
             <TabsTrigger value='official'>Official</TabsTrigger>
           </TabsList>
 
@@ -390,13 +390,13 @@ const DeployTemplate = ({
             />
           </TabsContent>
 
-          <TabsContent value='user'>
+          <TabsContent value='personal'>
             <TemplateDeploymentForm
               execute={execute}
               templates={result.data}
               isPending={isPending}
               server={server}
-              type='user'
+              type='personal'
             />
           </TabsContent>
         </Tabs>
