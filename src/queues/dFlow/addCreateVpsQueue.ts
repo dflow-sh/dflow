@@ -124,7 +124,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         }
 
         console.dir({ vpsData }, { depth: Infinity })
-        return null
+
         const { data: createdVpsOrderRes } = await axios.post(
           `${env.DFLOW_URL}/api/vpsOrders`,
           vpsData,
