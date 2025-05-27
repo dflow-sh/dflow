@@ -48,7 +48,7 @@ const BackupsPage = async () => {
           <h3>Backups</h3>
         </div>
 
-        <div className='space-y-8'>
+        <div className='mt-4 space-y-4'>
           {Object.entries(grouped).map(([projectName, services]) => (
             <div key={projectName} className='rounded-xl border p-6 shadow'>
               <h4 className='mb-4 text-2xl font-semibold'>{projectName}</h4>
@@ -63,6 +63,7 @@ const BackupsPage = async () => {
                         <IndividualBackup
                           key={backup.id}
                           showRestoreIcon={false}
+                          showDeleteIcon={false}
                           backup={backup}
                           serviceId={
                             typeof backup.service === 'string'

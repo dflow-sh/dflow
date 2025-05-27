@@ -23,7 +23,6 @@ import {
   ChevronDown,
   Cloud,
   DatabaseBackup,
-  History,
   Server,
   Trash2,
 } from 'lucide-react'
@@ -42,10 +41,12 @@ export const IndividualBackup = ({
   backup,
   serviceId,
   showRestoreIcon = true,
+  showDeleteIcon = true,
 }: {
   backup: BackupType
   serviceId: string
   showRestoreIcon?: boolean
+  showDeleteIcon?: boolean
 }) => {
   const {
     execute: internalRestoreExecution,
@@ -128,28 +129,31 @@ export const IndividualBackup = ({
       <div className='flex items-center gap-2'>
         {showRestoreIcon && (
           <Button
-            variant='ghost'
-            size='icon'
+            variant='outline'
+            // size='icon'
             disabled={isInternalRestorePending}
             onClick={() =>
               internalRestoreExecution({ backupId: backup.id, serviceId })
             }>
-            <History size={16} />
+            {/* <History size={16} /> */}
+            Restore
           </Button>
         )}
-        <Button
-          variant='ghost'
-          size='icon'
-          onClick={() => {
-            internalDeleteExecution({
-              backupId: backup.id,
-              serviceId,
-              databaseName: '',
-              databaseType: '',
-            })
-          }}>
-          <Trash2 size={16} />
-        </Button>
+        {showDeleteIcon && (
+          <Button
+            variant='outline'
+            size='icon'
+            onClick={() => {
+              internalDeleteExecution({
+                backupId: backup.id,
+                serviceId,
+                databaseName: '',
+                databaseType: '',
+              })
+            }}>
+            <Trash2 size={16} />
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -201,7 +205,7 @@ const Backup = ({
               <DialogHeader>
                 <DialogTitle>Configure backup schedule</DialogTitle>
                 <DialogDescription>
-                  Enable database backups for your production environment.
+                  Enable database backups for your applications.
                 </DialogDescription>
               </DialogHeader>
 
@@ -243,7 +247,9 @@ const Backup = ({
                   onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button>Save schedule</Button>
+                <Button disabled className='cursor-not-allowed'>
+                  Save schedule (Coming soon...)
+                </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
