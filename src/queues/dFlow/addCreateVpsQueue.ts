@@ -24,10 +24,10 @@ interface CreateVpsQueueArgs {
       code: string
       priceId: string
     }
-    defaultUser: 'root'
+    defaultUser: string
     rootPassword: number
     period: {
-      months: 1
+      months: number
       priceId: string
     }
     addOns?: {

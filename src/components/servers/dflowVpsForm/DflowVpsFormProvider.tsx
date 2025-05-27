@@ -1,17 +1,18 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createContext, useContext, useEffect, useMemo } from 'react'
+import { useAction } from 'next-safe-action/hooks'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
+import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
 import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { SshKey } from '@/payload-types'
 
 import { dflowVpsSchema } from './schemas'
 import { handleGenerateName } from './utils'
 
-// Define types for pricing components based on actual data structure
 type PricingOption = {
   id?: string | null
   price: number
@@ -65,6 +66,12 @@ type BackupOption = {
   stripePriceId?: string | null
 }
 
+type PaymentStatus = {
+  canProceed: boolean
+  hasWalletBalance: boolean
+  hasValidCard: boolean
+}
+
 type PricingData = {
   selectedPricing: PricingOption | undefined
   selectedRegion: RegionOption | undefined
@@ -73,6 +80,7 @@ type PricingData = {
   selectedBackup: BackupOption | undefined
   calculateTotalCost: () => number
   planCost: number
+  paymentStatus: PaymentStatus
 }
 
 type DflowVpsFormContextType = {
@@ -81,6 +89,8 @@ type DflowVpsFormContextType = {
   selectedAccountId: string
   onAccountChange: (accountId: string) => void
   pricing: PricingData
+  refreshPaymentStatus: () => void
+  isFetchingPayment: boolean
 }
 
 const DflowVpsFormContext = createContext<DflowVpsFormContextType | null>(null)
@@ -109,54 +119,93 @@ export const DflowVpsFormProvider = ({
   })
 
   const { setValue, watch } = methods
+  const [isFetchingPayment, setIsFetchingPayment] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>({
+    canProceed: false,
+    hasWalletBalance: false,
+    hasValidCard: false,
+  })
 
-  // Watch form values for pricing calculations
-  const selectedTerm = watch('pricing')
-  const selectedImageId = watch('image.imageId')
-  const selectedImageVersionId = watch('image.versionId')
+  const { execute: fetchPaymentData } = useAction(checkPaymentMethodAction, {
+    onExecute: () => setIsFetchingPayment(true),
+    onSuccess: ({ data }) => {
+      const walletBalance = data?.walletBalance || 0
+      const validCardCount = data?.validCardCount || 0
+      const currentPlanCost = calculateTotalCost()
 
-  // Calculate pricing data with proper typing
-  const pricing = useMemo((): PricingData => {
+      setPaymentStatus({
+        canProceed: walletBalance >= currentPlanCost || validCardCount > 0,
+        hasWalletBalance: walletBalance >= currentPlanCost,
+        hasValidCard: validCardCount > 0,
+      })
+      setIsFetchingPayment(false)
+    },
+    onError: () => {
+      setPaymentStatus({
+        canProceed: false,
+        hasWalletBalance: false,
+        hasValidCard: false,
+      })
+      setIsFetchingPayment(false)
+    },
+  })
+
+  const refreshPaymentStatus = () => {
+    if (selectedAccountId) {
+      fetchPaymentData({ accountId: selectedAccountId })
+    }
+  }
+
+  const calculateTotalCost = (): number => {
     const selectedPricing = vpsPlan?.pricing?.find(
       p => p.id === watch('pricing.id'),
     )
-
-    const selectedImage = vpsPlan?.images?.find(
-      image => image.id === selectedImageId,
-    )
-
     const selectedRegion = vpsPlan?.regionOptions?.find(
       region => region.regionCode === watch('region.name'),
     )
-
-    const selectedStorage = vpsPlan?.storageOptions?.find(
-      storage => storage.productId === watch('storageType.productId'),
+    const selectedImage = vpsPlan?.images?.find(
+      image => image.id === watch('image.imageId'),
     )
-
     const selectedBackup = vpsPlan?.backupOptions?.find(
       backup => backup.id === watch('backup.id'),
     )
 
-    const calculateTotalCost = (): number => {
-      const pricingCost = selectedPricing?.price || 0
-      const regionCost =
-        selectedRegion?.price.type === 'paid'
-          ? selectedRegion.price.amount || 0
-          : 0
-      const imageCost =
-        selectedImage?.versions?.find(v => v.imageId === selectedImageVersionId)
-          ?.price.type === 'paid'
-          ? selectedImage?.versions?.find(
-              v => v.imageId === selectedImageVersionId,
-            )?.price.amount || 0
-          : 0
-      const backupCost =
-        selectedBackup?.price.type === 'paid'
-          ? selectedBackup.price.amount || 0
-          : 0
+    const pricingCost = selectedPricing?.price || 0
+    const regionCost =
+      selectedRegion?.price.type === 'paid'
+        ? selectedRegion.price.amount || 0
+        : 0
+    const imageCost =
+      selectedImage?.versions?.find(v => v.imageId === watch('image.versionId'))
+        ?.price.type === 'paid'
+        ? selectedImage?.versions?.find(
+            v => v.imageId === watch('image.versionId'),
+          )?.price.amount || 0
+        : 0
+    const backupCost =
+      selectedBackup?.price.type === 'paid'
+        ? selectedBackup.price.amount || 0
+        : 0
 
-      return pricingCost + regionCost + imageCost + backupCost
-    }
+    return pricingCost + regionCost + imageCost + backupCost
+  }
+
+  const pricing = useMemo((): PricingData => {
+    const selectedPricing = vpsPlan?.pricing?.find(
+      p => p.id === watch('pricing.id'),
+    )
+    const selectedImage = vpsPlan?.images?.find(
+      image => image.id === watch('image.imageId'),
+    )
+    const selectedRegion = vpsPlan?.regionOptions?.find(
+      region => region.regionCode === watch('region.name'),
+    )
+    const selectedStorage = vpsPlan?.storageOptions?.find(
+      storage => storage.productId === watch('storageType.productId'),
+    )
+    const selectedBackup = vpsPlan?.backupOptions?.find(
+      backup => backup.id === watch('backup.id'),
+    )
 
     const planCost = calculateTotalCost()
 
@@ -168,6 +217,7 @@ export const DflowVpsFormProvider = ({
       selectedBackup,
       calculateTotalCost,
       planCost,
+      paymentStatus,
     }
   }, [
     vpsPlan,
@@ -176,9 +226,14 @@ export const DflowVpsFormProvider = ({
     watch('region.name'),
     watch('storageType.productId'),
     watch('backup.id'),
-    selectedImageId,
-    selectedImageVersionId,
+    watch('image.imageId'),
+    watch('image.versionId'),
+    paymentStatus,
   ])
+
+  useEffect(() => {
+    refreshPaymentStatus()
+  }, [selectedAccountId])
 
   useEffect(() => {
     if (vpsPlan) {
@@ -196,7 +251,6 @@ export const DflowVpsFormProvider = ({
       const displayName = handleGenerateName()
 
       setValue('displayName', displayName, { shouldValidate: true })
-
       setValue(
         'pricing',
         {
@@ -256,6 +310,7 @@ export const DflowVpsFormProvider = ({
       )
     }
 
+    setValue('login.username', 'root', { shouldValidate: true })
     setValue('login.rootPassword', 141086, { shouldValidate: true })
   }, [vpsPlan, setValue])
 
@@ -268,6 +323,8 @@ export const DflowVpsFormProvider = ({
           selectedAccountId,
           onAccountChange,
           pricing,
+          refreshPaymentStatus,
+          isFetchingPayment,
         }}>
         {children}
       </DflowVpsFormContext.Provider>

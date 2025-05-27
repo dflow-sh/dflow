@@ -20,7 +20,7 @@ export const LoginDetailsSection = () => {
       <div className='space-y-4 rounded-lg border border-border p-4'>
         <FormField
           control={form.control}
-          name='login.rootPassword'
+          name='login.username'
           render={() => (
             <FormItem>
               <FormLabel>

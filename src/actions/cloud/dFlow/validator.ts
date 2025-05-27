@@ -38,10 +38,10 @@ export const createSshKeysAndVpsActionSchema = z.object({
       code: z.string(),
       priceId: z.string(),
     }),
-    defaultUser: z.literal('root'),
+    defaultUser: z.string(),
     rootPassword: z.number(),
     period: z.object({
-      months: z.literal(1),
+      months: z.number(),
       priceId: z.string(),
     }),
     addOns: z

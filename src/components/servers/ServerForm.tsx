@@ -511,9 +511,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         <Button
           className='w-full'
           size='lg'
-          disabled={
-            !selectedOption || (selectedType === 'dFlow' && !canProceed)
-          }
+          // disabled={
+          //   !selectedOption || (selectedType === 'dFlow' && !canProceed)
+          // }
           onClick={handleContinue}>
           {getContinueButtonText()}
           <ArrowRight className='ml-2 h-4 w-4' />

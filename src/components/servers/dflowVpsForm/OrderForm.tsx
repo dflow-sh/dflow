@@ -74,10 +74,11 @@ export const OrderForm = () => {
           code: data.region.name,
           priceId: data.pricing.priceId,
         },
-        defaultUser: 'root',
+        defaultUser: data.login.username,
         rootPassword: data.login.rootPassword,
         period: {
-          months: 1,
+          months:
+            vpsPlan.pricing?.find(p => p.id === data.pricing.id)?.period || 1,
           priceId: data.pricing.id,
         },
         addOns: {
