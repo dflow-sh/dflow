@@ -91,7 +91,7 @@ export const deleteProjectAction = protectedClient
   })
   .schema(deleteProjectSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
+    const { id, deleteBackups } = clientInput
     const {
       userTenant: { tenant },
       payload,
@@ -155,6 +155,8 @@ export const deleteProjectAction = protectedClient
             serverDetails: {
               id: server.id,
             },
+            serviceId: service.id,
+            deleteBackups,
           })
 
           queueId = databaseQueueResponse.id

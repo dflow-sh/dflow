@@ -2,13 +2,15 @@ import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
 interface Args {
   ssh: NodeSSH
-  backupFileName: string
+  backupFileName: string[]
   options?: SSHExecOptions
 }
 
 export const deleteBackup = async ({ ssh, backupFileName, options }: Args) => {
+  const escapedFilenames = backupFileName.map(name => `'${name}'`).join(' ')
+
   const resultDeleteBackup = await ssh.execCommand(
-    `sudo rm -rf ${backupFileName}`,
+    `sudo rm -rf ${escapedFilenames}`,
     options,
   )
 

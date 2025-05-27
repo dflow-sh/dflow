@@ -8,6 +8,8 @@ const BackupsPage = async () => {
   const result = await getAllBackups()
   const data = result?.data as Backup[]
 
+  // console.log('Backups Data:', data)
+
   const grouped = data.reduce(
     (acc, backup) => {
       let projectName = ''

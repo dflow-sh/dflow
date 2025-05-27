@@ -117,7 +117,7 @@ export function DeleteProjectAlert({
             onClick={() => {
               execute({
                 id: project.id,
-                // deleteBackups,
+                deleteBackups,
               })
             }}>
             Delete

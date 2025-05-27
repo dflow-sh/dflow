@@ -550,6 +550,7 @@ export interface Service {
    * Select the project associated with this service.
    */
   project: string | Project;
+  backup?: (string | null) | Backup;
   /**
    * Enter the name of the service.
    */
@@ -626,6 +627,23 @@ export interface Service {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "backups".
+ */
+export interface Backup {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Adding the service for which backup is related to
+   */
+  service: string | Service;
+  type?: ('external' | 'internal') | null;
+  backupName?: string | null;
+  status: 'in-progress' | 'failed' | 'success';
   updatedAt: string;
   createdAt: string;
 }
@@ -746,23 +764,6 @@ export interface Template {
         id?: string | null;
       }[]
     | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "backups".
- */
-export interface Backup {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  /**
-   * Adding the service for which backup is related to
-   */
-  service: string | Service;
-  type?: ('external' | 'internal') | null;
-  backupName?: string | null;
-  status: 'in-progress' | 'failed' | 'success';
   updatedAt: string;
   createdAt: string;
 }
@@ -1008,6 +1009,7 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface ServicesSelect<T extends boolean = true> {
   tenant?: T;
   project?: T;
+  backup?: T;
   name?: T;
   description?: T;
   type?: T;

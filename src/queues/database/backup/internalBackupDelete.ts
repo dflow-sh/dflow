@@ -60,18 +60,18 @@ export const deleteInternalBackupQueue = async (data: QueueArgs) => {
         const backupCreatedDate = new Date(backupCreatedTime)
 
         const formattedDate = [
-          backupCreatedDate.getFullYear(),
-          String(backupCreatedDate.getMonth() + 1).padStart(2, '0'),
-          String(backupCreatedDate.getDate()).padStart(2, '0'),
-          String(backupCreatedDate.getHours()).padStart(2, '0'),
-          String(backupCreatedDate.getMinutes()).padStart(2, '0'),
-          String(backupCreatedDate.getSeconds()).padStart(2, '0'),
+          backupCreatedDate.getUTCFullYear(),
+          String(backupCreatedDate.getUTCMonth() + 1).padStart(2, '0'),
+          String(backupCreatedDate.getUTCDate()).padStart(2, '0'),
+          String(backupCreatedDate.getUTCHours()).padStart(2, '0'),
+          String(backupCreatedDate.getUTCMinutes()).padStart(2, '0'),
+          String(backupCreatedDate.getUTCSeconds()).padStart(2, '0'),
         ].join('-')
         const fileName = `${databaseName}-${formattedDate}.dump`
 
         const result = await dokku.database.internal.delete({
           ssh,
-          backupFileName: fileName,
+          backupFileName: [fileName],
           options: {
             onStdout(chunk) {
               sendEvent({

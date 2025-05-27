@@ -15,4 +15,5 @@ export const updateProjectSchema = createProjectSchema.extend({
 
 export const deleteProjectSchema = z.object({
   id: z.string(),
+  deleteBackups: z.boolean().optional(),
 })

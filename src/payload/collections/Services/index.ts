@@ -276,6 +276,15 @@ export const Services: CollectionConfig = {
       },
     },
     {
+      name: 'backup',
+      type: 'relationship',
+      label: 'Backup',
+      relationTo: 'backups',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'name',
       type: 'text',
       label: 'Name',
