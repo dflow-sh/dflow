@@ -31,6 +31,11 @@ export const pluginList: PluginListType[] = [
     githubURL: 'https://github.com/dokku/dokku-redis.git',
   },
   {
+    category: 'database',
+    value: 'mysql',
+    githubURL: 'https://github.com/dokku/dokku-mysql.git',
+  },
+  {
     category: 'domain',
     value: 'letsencrypt',
     githubURL: 'https://github.com/dokku/dokku-letsencrypt.git',

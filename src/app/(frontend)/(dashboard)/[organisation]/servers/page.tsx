@@ -8,6 +8,7 @@ import RefreshButton from '@/components/RefreshButton'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import ServerCard from '@/components/servers/ServerCard'
+import SyncDFlow from '@/components/servers/SyncDFlow'
 import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
@@ -46,6 +47,7 @@ const SuspendedServers = async ({
           <p className='mb-4 text-muted-foreground'>
             Get started by adding your first server.
           </p>
+
           {!isDemoEnvironment && (
             <Link href={`/${organisationSlug}/servers/add-new-server`}>
               <Button size='sm'>
@@ -82,12 +84,17 @@ const ServersPage = async ({ params }: PageProps) => {
                 Add New Server
               </Button>
             ) : (
-              <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
-                <Button size={'default'} variant={'default'}>
-                  <Plus className='mr-2 h-4 w-4' />
-                  Add New Server
-                </Button>
-              </Link>
+              <>
+                <SyncDFlow />
+
+                <Link
+                  href={`/${syncParams.organisation}/servers/add-new-server`}>
+                  <Button size={'default'} variant={'default'}>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Add New Server
+                  </Button>
+                </Link>
+              </>
             )}
           </Suspense>
         </div>
