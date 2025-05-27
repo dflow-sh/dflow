@@ -66,7 +66,7 @@ const loginSchema = z.object({
   }),
 })
 
-const vpsSchema = z.object({
+const dflowVpsSchema = z.object({
   displayName: z
     .string()
     .min(1, { message: 'Display name is required' })
@@ -95,9 +95,9 @@ const vpsSchema = z.object({
   }),
 })
 
-type VpsFormData = z.infer<typeof vpsSchema>
+type VpsFormData = z.infer<typeof dflowVpsSchema>
 
-const VpsForm: React.FC<{
+const DflowVpsForm: React.FC<{
   vpsPlan: VpsPlan
 }> = ({ vpsPlan }) => {
   const searchParams = useSearchParams()
@@ -143,7 +143,7 @@ const VpsForm: React.FC<{
   })
 
   const form = useForm<VpsFormData>({
-    resolver: zodResolver(vpsSchema),
+    resolver: zodResolver(dflowVpsSchema),
     defaultValues: {
       login: {
         rootPassword: 141086,
@@ -852,7 +852,7 @@ const VpsForm: React.FC<{
   )
 }
 
-export default VpsForm
+export default DflowVpsForm
 
 const formatValue = (value: number, currency?: string): string =>
   Intl.NumberFormat('en-US', {

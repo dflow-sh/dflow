@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   Cloud,
   CreditCard,
+  ExternalLink,
   Server,
   Wallet,
 } from 'lucide-react'
@@ -39,7 +40,7 @@ import { ServerType } from '@/payload-types-overrides'
 import AttachCustomServerForm from './AttachCustomServerForm'
 import { ConnectDFlowCloudButton } from './ConnectDFlowCloudButton'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
-import VpsForm from './VpsForm'
+import DflowVpsForm from './DflowVpsForm'
 
 interface ServerSelectionFormProps {
   setType: (type: string) => void
@@ -60,6 +61,7 @@ interface ServerFormContentProps {
   onBack: () => void
   isOnboarding: boolean
   vpsPlan?: VpsPlan
+  dFlowAccounts?: CloudProviderAccount[]
 }
 
 interface ServerFormProps {
@@ -90,6 +92,8 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     walletBalance: number
     validCardCount: number
   } | null>(null)
+
+  const router = useRouter()
 
   const { execute: fetchPaymentData, isPending: isFetchingPaymentData } =
     useAction(checkPaymentMethodAction, {
@@ -158,7 +162,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   }
 
   const getPaymentRecommendations = () => {
-    const recommendations: string[] = []
+    const recommendations: React.ReactNode[] = []
 
     if (!paymentData) return recommendations
 
@@ -182,7 +186,48 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       recommendations.push(
         'You need to add a payment method or top up your wallet to proceed.',
       )
-      recommendations.push(`Required amount: $${planCost.toFixed(2)}`)
+      recommendations.push(
+        <span key='required-amount'>
+          Required amount: ${planCost.toFixed(2)}
+        </span>,
+      )
+      recommendations.push(
+        <Card key='payment-card' className='mt-4'>
+          <CardContent className='p-4'>
+            <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
+              <div className='flex items-start gap-3'>
+                <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted'>
+                  <CreditCard className='h-5 w-5 text-muted-foreground' />
+                </div>
+                <div>
+                  <p className='font-medium'>Payment Setup Required</p>
+                  <div className='mt-1 flex flex-col gap-1 text-sm sm:flex-row sm:items-center'>
+                    <span className='text-muted-foreground'>
+                      Add a payment method or top up your wallet
+                    </span>
+                    <span className='hidden text-muted-foreground sm:inline'>
+                      •
+                    </span>
+                    <span className='font-semibold'>
+                      ${planCost.toFixed(2)} required
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <Button
+                variant='outline'
+                size='sm'
+                className='w-full gap-2 sm:w-fit'
+                onClick={() =>
+                  window.open('https://dflow.sh/dashboard', '_blank')
+                }>
+                Open dFlow
+                <ExternalLink className='h-4 w-4' />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>,
+      )
     }
 
     return recommendations
@@ -200,13 +245,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               Select a cloud provider or add server details manually
             </p>
           </div>
-          <Button
-            size='default'
-            variant={'outline'}
-            onClick={handleContinue}
-            disabled={
-              !selectedOption || (selectedType === 'dFlow' && !canProceed)
-            }>
+          <Button size='default' variant={'outline'} onClick={handleContinue}>
             {getContinueButtonText()}
             <ArrowRight className='ml-2 h-4 w-4' />
           </Button>
@@ -481,6 +520,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   onBack,
   isOnboarding,
   vpsPlan,
+  dFlowAccounts,
 }) => {
   const router = useRouter()
   const { organisation } = useParams()
@@ -526,7 +566,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               }}
             />
           ) : type === 'dFlow' ? (
-            <VpsForm vpsPlan={vpsPlan as VpsPlan} />
+            <DflowVpsForm vpsPlan={vpsPlan as VpsPlan} />
           ) : (
             <AttachCustomServerForm
               sshKeys={sshKeys}
@@ -602,6 +642,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
               ? vpsPlans?.find(p => p.slug === option)
               : undefined
           }
+          dFlowAccounts={dFlowAccounts}
         />
       )}
     </div>
