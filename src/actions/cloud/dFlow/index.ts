@@ -118,57 +118,90 @@ export const createSshKeysAndVpsAction = protectedClient
   })
   .schema(createSshKeysAndVpsActionSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { sshKeys, vps } = clientInput
-    const { userTenant, payload } = ctx
+    const { accountId, sshKeyIds, vps } = clientInput
+    const { userTenant, payload, user } = ctx
     const { addCreateVpsQueue } = await import(
       '@/queues/dFlow/addCreateVpsQueue'
     )
 
-    console.log('inside Action....')
+    console.log('Starting VPS creation process...')
 
-    const { docs: dFlowAccount } = await payload.find({
+    // 1. Verify dFlow account
+    const { docs: dFlowAccounts } = await payload.find({
       collection: 'cloudProviderAccounts',
       pagination: false,
       where: {
         and: [
-          {
-            type: {
-              equals: 'dFlow',
-            },
-          },
-          {
-            'tenant.slug': {
-              equals: userTenant.tenant?.slug,
-            },
-          },
+          { id: { equals: accountId } },
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
         ],
       },
     })
 
-    if (!dFlowAccount || dFlowAccount.length === 0) {
-      throw new Error('No dFlow account found for this tenant')
+    console.dir({ dFlowAccounts }, { depth: Infinity })
+
+    if (!dFlowAccounts?.length) {
+      throw new Error('No dFlow account found with the specified ID')
     }
 
-    const token = dFlowAccount[0].dFlowDetails?.accessToken
+    const dFlowAccount = dFlowAccounts[0]
+    const token = dFlowAccount.dFlowDetails?.accessToken
 
     if (!token) {
       throw new Error('Invalid dFlow account: No access token found')
     }
 
-    console.log('triggering queue...')
+    // 2. Check payment method and balance
+    console.log('Checking payment method...')
+    const paymentCheck = await checkPaymentMethodAction({ accountId })
+
+    if (!paymentCheck?.data) {
+      throw new Error('Failed to verify payment methods')
+    }
+
+    const { walletBalance, validCardCount } = paymentCheck.data
+    const hasSufficientFunds = walletBalance >= vps.estimatedCost
+    const hasPaymentMethod = validCardCount > 0 || hasSufficientFunds
+
+    if (!hasPaymentMethod) {
+      throw new Error(
+        `Insufficient funds ($${walletBalance.toFixed(2)}) and no valid payment cards. ` +
+          `Required: $${vps.estimatedCost.toFixed(2)}`,
+      )
+    }
+
+    const { docs: sshKeys } = await payload.find({
+      collection: 'sshKeys',
+      pagination: false,
+      where: {
+        and: [
+          { id: { in: sshKeyIds } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+        ],
+      },
+    })
+
+    // 3. Proceed with VPS creation
+    console.log('Payment verified. Triggering VPS creation queue...')
     await addCreateVpsQueue({
       sshKeys,
       vps,
       accountDetails: {
-        id: dFlowAccount[0].id,
+        id: dFlowAccount.id,
         accessToken: token,
       },
       tenant: userTenant.tenant,
     })
-    console.log('queue done...')
 
+    console.log('VPS creation process initiated successfully')
     return {
       success: true,
+      data: {
+        accountId: dFlowAccount.id,
+        vpsName: vps.displayName,
+        estimatedCost: vps.estimatedCost,
+      },
       message:
         'VPS creation process started. You will receive updates on the progress.',
     }

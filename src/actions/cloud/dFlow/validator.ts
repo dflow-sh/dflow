@@ -21,15 +21,37 @@ export const createVpsOrderActionSchema = z.object({
 })
 
 export const createSshKeysAndVpsActionSchema = z.object({
-  sshKeys: z.array(
-    z.object({
-      name: z.string(),
-      publicSshKey: z.string(),
-      privateSshKey: z.string(),
-    }),
-  ),
+  accountId: z.string(),
+  sshKeyIds: z.array(z.string()),
   vps: z.object({
-    name: z.string(),
+    plan: z.string(),
+    displayName: z.string(),
+    image: z.object({
+      imageId: z.string(),
+      priceId: z.string(),
+    }),
+    product: z.object({
+      productId: z.string(),
+      priceId: z.string(),
+    }),
+    region: z.object({
+      code: z.string(),
+      priceId: z.string(),
+    }),
+    defaultUser: z.string(),
+    rootPassword: z.number(),
+    period: z.object({
+      months: z.number(),
+      priceId: z.string(),
+    }),
+    addOns: z
+      .object({
+        backup: z.object({}).optional(),
+        priceId: z.string(),
+      })
+      .partial()
+      .optional(),
+    estimatedCost: z.number(),
   }),
 })
 

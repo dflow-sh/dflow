@@ -21,32 +21,36 @@ const CreateSSHKey = ({
   type = 'create',
   description = 'This form allows you to add an SSH key manually or generate a new RSA or ED25519 key pair to populate the fields.',
   sshKey,
+  trigger,
 }: {
   type?: 'create' | 'view'
   description?: string
   sshKey?: SshKey
+  trigger?: React.ReactNode
 }) => {
   const [open, setOpen] = useState<boolean>(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          disabled={isDemoEnvironment}
-          onClick={e => e.stopPropagation()}
-          size={type === 'view' ? 'icon' : 'default'}
-          variant={type === 'view' ? 'outline' : 'default'}>
-          {type === 'view' ? (
-            <>
-              <Eye />
-            </>
-          ) : (
-            <>
-              <Plus />
-              Add SSH key
-            </>
-          )}
-        </Button>
+        {trigger ?? (
+          <Button
+            disabled={isDemoEnvironment}
+            onClick={e => e.stopPropagation()}
+            size={type === 'view' ? 'icon' : 'default'}
+            variant={type === 'view' ? 'outline' : 'default'}>
+            {type === 'view' ? (
+              <>
+                <Eye />
+              </>
+            ) : (
+              <>
+                <Plus />
+                Add SSH key
+              </>
+            )}
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className='sm:max-w-2xl'>
