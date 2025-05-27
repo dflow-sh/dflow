@@ -23,7 +23,9 @@ const TemplateCard = ({ template }: { template: Template }) => {
         </div>
 
         <div className='mt-6 flex justify-end'>
-          <Button variant='outline'>Deploy</Button>
+          <Button disabled variant='outline'>
+            Deploy
+          </Button>
         </div>
       </CardContent>
     </Card>
