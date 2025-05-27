@@ -127,6 +127,7 @@ export const syncDflowServersAction = protectedClient
         // Find the secret for the server
         const filteredSecrets = secrets.find((s: any) => {
           const instanceSecretKeyList = order.instanceResponse.sshKeys || []
+
           return (
             instanceSecretKeyList.includes(s?.details?.secretId) &&
             s?.type === 'ssh'
@@ -135,7 +136,7 @@ export const syncDflowServersAction = protectedClient
 
         console.dir({ filteredSecrets }, { depth: null })
 
-        const sshKey = filteredSecrets?.[0]
+        const sshKey = filteredSecrets
 
         if (!sshKey) {
           // If no SSH key is found, skip creating the server
