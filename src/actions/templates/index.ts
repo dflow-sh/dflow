@@ -11,7 +11,7 @@ import {
 
 import { TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
-import { Service } from '@/payload-types'
+import { Service, Template } from '@/payload-types'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
 import {
@@ -19,6 +19,7 @@ import {
   createTemplateSchema,
   deployTemplateFromArchitectureSchema,
   deployTemplateSchema,
+  getAllTemplatesSchema,
   updateTemplateSchema,
 } from './validator'
 
@@ -294,8 +295,21 @@ export const updateTemplate = protectedClient
 
 export const getAllTemplatesAction = protectedClient
   .metadata({ actionName: 'getAllTemplatesAction' })
-  .action(async ({ ctx }) => {
+  .schema(getAllTemplatesSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { type } = clientInput
     const { userTenant, payload } = ctx
+
+    if (type === 'official') {
+      const res = await fetch('https://dflow.sh/api/templates')
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch official templates')
+      }
+
+      const data = await res.json()
+      return (data.docs ?? []) as Template[]
+    }
 
     const { docs } = await payload.find({
       collection: 'templates',

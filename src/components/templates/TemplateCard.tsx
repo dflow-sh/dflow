@@ -1,15 +1,13 @@
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
-import Image from 'next/image'
 
 import { Template } from '@/payload-types'
 
 const TemplateCard = ({ template }: { template: Template }) => {
-  console.log({ template })
   return (
     <Card>
       <CardContent className='p-6'>
-        <Image
+        <img
           alt={`icon`}
           src={template?.imageUrl || '/images/favicon.ico'}
           height={32}

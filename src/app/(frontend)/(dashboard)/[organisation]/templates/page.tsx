@@ -17,11 +17,8 @@ const page = async ({ params }: PageProps) => {
   const syncParams = await params
   const templates = await getTemplates()
 
-  const res = await fetch('https://dflow.sh/api/templates', {
-    next: { revalidate: 60 },
-  })
+  const res = await fetch('https://dflow.sh/api/templates')
   const officialTemplatesData = await res.json()
-  console.log(officialTemplatesData.docs)
 
   return (
     <LayoutClient>
