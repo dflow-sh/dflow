@@ -1,5 +1,6 @@
 import { Network } from 'lucide-react'
 
+import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { Card, CardContent } from '@/components/ui/card'
 
 export const TrafficSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
