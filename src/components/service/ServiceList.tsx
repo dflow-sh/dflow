@@ -261,6 +261,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
               onClick={() => {
                 execute({
                   id: service.id,
+                  deleteBackups,
                 })
               }}>
               Delete

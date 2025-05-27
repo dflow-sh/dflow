@@ -142,7 +142,7 @@ export const deleteServiceAction = protectedClient
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
+    const { id, deleteBackups } = clientInput
     const {
       userTenant: { tenant },
       payload,
@@ -189,6 +189,7 @@ export const deleteServiceAction = protectedClient
               id: serverDetails.id,
             },
             serviceId: serviceDetails.id,
+            deleteBackups,
           })
 
           console.log({ databaseDeletionQueueResponse })
