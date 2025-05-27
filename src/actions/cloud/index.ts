@@ -144,31 +144,30 @@ export const syncDflowServersAction = protectedClient
         }
 
         // Check if the SSH key already exists in the database
-        const { docs: existingSSHKeyResponse } = await payload.find({
+        const { docs: existingSSHKeyList } = await payload.find({
           collection: 'sshKeys',
           where: {
-            and: [
-              {
-                publicKey: {
-                  equals: sshKey?.publicKey,
-                },
-              },
-              {
-                privateKey: {
-                  equals: sshKey?.privateKey,
-                },
-              },
-              {
-                tenant: {
-                  equals: userTenant.tenant,
-                },
-              },
-            ],
+            'tenant.slug': {
+              equals: userTenant.tenant?.slug,
+            },
           },
           pagination: false,
         })
 
+        const existingSSHKeyResponse = existingSSHKeyList.filter(key => {
+          const tenantID =
+            key.tenant && typeof key.tenant === 'object'
+              ? key.tenant.id
+              : key.tenant
+          return (
+            key.publicKey === sshKey?.publicKey &&
+            tenantID === userTenant.tenant?.id
+          )
+        })
+
         let sshKeyID = ''
+
+        console.dir({ existingSSHKeyResponse }, { depth: null })
 
         if (existingSSHKeyResponse?.[0]?.id) {
           sshKeyID = existingSSHKeyResponse[0].id
