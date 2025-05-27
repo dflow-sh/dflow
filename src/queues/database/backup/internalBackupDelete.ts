@@ -21,7 +21,7 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
-  serviceId: string
+  serviceId?: string
   backupId: string
 }
 

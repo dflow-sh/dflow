@@ -38,12 +38,14 @@ import {
 } from '@/actions/dbBackup'
 import { Backup as BackupType, Service } from '@/payload-types'
 
-const IndividualBackup = ({
+export const IndividualBackup = ({
   backup,
   serviceId,
+  showRestoreIcon = true,
 }: {
   backup: BackupType
   serviceId: string
+  showRestoreIcon?: boolean
 }) => {
   const {
     execute: internalRestoreExecution,
@@ -124,15 +126,17 @@ const IndividualBackup = ({
         </Badge>
       </div>
       <div className='flex items-center gap-2'>
-        <Button
-          variant='ghost'
-          size='icon'
-          disabled={isInternalRestorePending}
-          onClick={() =>
-            internalRestoreExecution({ backupId: backup.id, serviceId })
-          }>
-          <History size={16} />
-        </Button>
+        {showRestoreIcon && (
+          <Button
+            variant='ghost'
+            size='icon'
+            disabled={isInternalRestorePending}
+            onClick={() =>
+              internalRestoreExecution({ backupId: backup.id, serviceId })
+            }>
+            <History size={16} />
+          </Button>
+        )}
         <Button
           variant='ghost'
           size='icon'
