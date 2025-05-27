@@ -1,6 +1,8 @@
 import { tenantsArrayField } from '@payloadcms/plugin-multi-tenant/fields'
+import { env } from 'env'
 import type { CollectionConfig } from 'payload'
 
+import { ResetPassword } from '@/emails/reset-password'
 import { isDemoEnvironment } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
@@ -42,6 +44,16 @@ export const Users: CollectionConfig = {
   },
   auth: {
     tokenExpiration: 60 * 60 * 24 * 7,
+    forgotPassword: {
+      generateEmailHTML: args => {
+        return ResetPassword({
+          actionLabel: 'Reset Your Password',
+          buttonText: 'Reset Password',
+          userName: args?.user.username,
+          href: `${env.NEXT_PUBLIC_WEBSITE_URL}/reset-password?token=${args?.token}`,
+        })
+      },
+    },
   },
   hooks: {
     beforeChange: [handleUserRoles],

@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { env } from 'env'
@@ -89,6 +90,15 @@ export default buildConfig({
       },
     }),
   ],
+  ...(env?.RESEND_API_KEY &&
+    env?.RESEND_SENDER_EMAIL &&
+    env?.RESEND_SENDER_NAME && {
+      email: resendAdapter({
+        defaultFromAddress: env.RESEND_SENDER_EMAIL,
+        defaultFromName: env.RESEND_SENDER_NAME,
+        apiKey: env.RESEND_API_KEY,
+      }),
+    }),
   endpoints: [
     {
       method: 'get',

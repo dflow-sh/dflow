@@ -17,6 +17,9 @@ export const env = createEnv({
     DFLOW_URL: z.string().optional(),
     DFLOW_AUTH_SLUG: z.string().optional(),
     DFLOW_API_KEY: z.string().optional(),
+    RESEND_API_KEY: z.string().min(1).optional(),
+    RESEND_SENDER_EMAIL: z.string().email().optional(),
+    RESEND_SENDER_NAME: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -37,6 +40,9 @@ export const env = createEnv({
     DFLOW_URL: process.env.DFLOW_URL,
     DFLOW_AUTH_SLUG: process.env.DFLOW_AUTH_SLUG,
     DFLOW_API_KEY: process.env.DFLOW_API_KEY,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_SENDER_EMAIL: process.env.RESEND_SENDER_EMAIL,
+    RESEND_SENDER_NAME: process.env.RESEND_SENDER_NAME,
   },
   emptyStringAsUndefined: true,
 })
