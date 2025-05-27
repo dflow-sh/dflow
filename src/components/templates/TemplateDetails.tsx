@@ -3,6 +3,7 @@
 import { Button } from '../ui/button'
 import { SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -24,17 +25,23 @@ const TemplateDetails = ({ template }: { template: Template }) => {
 
   return (
     <Card>
-      <CardContent className='flex h-24 w-full items-center justify-between gap-3 pt-4'>
-        <div className='flex items-center gap-3'>
-          <div>
-            <p className='font-semibold'>{template.name}</p>
-            <span className='text-sm text-muted-foreground'>
-              {template?.description}
-            </span>
-          </div>
+      <CardContent className='p-6'>
+        <Image
+          alt={`icon`}
+          src={template?.imageUrl || '/images/favicon.ico'}
+          height={32}
+          width={32}
+          className='size-8'
+        />
+
+        <div className='mt-4 flex flex-col gap-1'>
+          <p className='line-clamp-1 text-lg font-semibold'>{template.name}</p>
+          <p className='line-clamp-2 text-sm text-muted-foreground'>
+            {template.description}
+          </p>
         </div>
 
-        <div className='flex items-center gap-3'>
+        <div className='mt-6 flex justify-end gap-3'>
           <Link
             href={`/${(template?.tenant as Tenant)?.slug}/templates/compose?templateId=${template?.id}`}>
             <Button variant={'outline'}>

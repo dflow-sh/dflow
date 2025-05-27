@@ -129,3 +129,7 @@ export const deployTemplateFromArchitectureSchema = z.object({
   projectId: z.string(),
   services: servicesSchema,
 })
+
+export const getAllTemplatesSchema = z.object({
+  type: z.enum(['official', 'user']),
+})

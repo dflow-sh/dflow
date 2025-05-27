@@ -2,6 +2,7 @@
 
 import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
 import { Badge } from '../ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Database, Github, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -14,6 +15,7 @@ import { z } from 'zod'
 
 import {
   deployTemplateAction,
+  deployTemplateFromArchitectureAction,
   getAllTemplatesAction,
 } from '@/actions/templates'
 import { deployTemplateSchema } from '@/actions/templates/validator'
@@ -75,11 +77,13 @@ const TemplateDeploymentForm = ({
   execute,
   isPending,
   templates,
+  type,
   server: { plugins, name: serverName, id: serverId },
 }: {
-  execute: () => void
+  execute: ({ type }: { type: 'official' | 'user' }) => void
   isPending: boolean
   templates?: Template[]
+  type: 'official' | 'user'
   server: Server
 }) => {
   const dialogRef = useRef<HTMLButtonElement>(null)
@@ -103,6 +107,26 @@ const TemplateDeploymentForm = ({
     },
   )
 
+  const {
+    execute: deployOfficialTemplate,
+    isPending: deployingOfficialTemplate,
+  } = useAction(deployTemplateFromArchitectureAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success('Added to queue', {
+          description: 'Added template deploy to queue',
+        })
+
+        dialogRef.current?.click()
+      }
+    },
+    onError: ({ error }) => {
+      console.log({ error })
+
+      toast.error(`Failed to deploy official template: ${error?.serverError}`)
+    },
+  })
+
   const form = useForm<z.infer<typeof deployTemplateSchema>>({
     resolver: zodResolver(deployTemplateSchema),
     defaultValues: {
@@ -113,13 +137,61 @@ const TemplateDeploymentForm = ({
   const { id } = useWatch({ control: form.control })
 
   useEffect(() => {
-    if (templates === undefined) {
-      execute()
-    }
+    execute({ type: type })
   }, [])
 
   function onSubmit(values: z.infer<typeof deployTemplateSchema>) {
-    deployTemplate(values)
+    if (type === 'user') {
+      deployTemplate(values)
+    } else if (type === 'official') {
+      const filteredTemplate = templates?.find(
+        template => template?.id === values?.id,
+      )
+
+      if (filteredTemplate) {
+        const services = filteredTemplate.services ?? []
+
+        const formattedServices = services.map(
+          ({ type, name, description = '', ...serviceDetails }) => {
+            if (type === 'database') {
+              return {
+                type,
+                name,
+                description,
+                databaseDetails: serviceDetails.databaseDetails,
+              }
+            }
+
+            if (type === 'docker') {
+              return {
+                type,
+                name,
+                description,
+                dockerDetails: serviceDetails?.dockerDetails,
+                variables: serviceDetails?.variables,
+              }
+            }
+
+            if (type === 'app') {
+              return {
+                type,
+                name,
+                description,
+                variables: serviceDetails?.variables,
+                githubSettings: serviceDetails?.githubSettings,
+                providerType: serviceDetails?.providerType,
+                provider: serviceDetails?.provider,
+              }
+            }
+          },
+        ) as any[]
+
+        deployOfficialTemplate({
+          projectId: values?.projectId,
+          services: formattedServices,
+        })
+      }
+    }
   }
 
   return (
@@ -299,15 +371,35 @@ const DeployTemplate = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Deploy from Template</DialogTitle>
-          <DialogDescription aria-describedby={undefined} />
+          <DialogDescription />
         </DialogHeader>
 
-        <TemplateDeploymentForm
-          execute={execute}
-          templates={result.data}
-          isPending={isPending}
-          server={server}
-        />
+        <Tabs defaultValue='user'>
+          <TabsList>
+            <TabsTrigger value='user'>User</TabsTrigger>
+            <TabsTrigger value='official'>Official</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value='official'>
+            <TemplateDeploymentForm
+              execute={execute}
+              templates={result.data}
+              isPending={isPending}
+              server={server}
+              type='official'
+            />
+          </TabsContent>
+
+          <TabsContent value='user'>
+            <TemplateDeploymentForm
+              execute={execute}
+              templates={result.data}
+              isPending={isPending}
+              server={server}
+              type='user'
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   )
