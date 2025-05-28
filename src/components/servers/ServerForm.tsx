@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -288,7 +289,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           </div>
           <Button
             variant='default'
-            onClick={() => window.open('https://dflow.sh/profile', '_blank')}
+            onClick={() => window.open(`${DFLOW_CONFIG.URL}/profile`, '_blank')}
             className='gap-2'>
             Connect dFlow Account
             <ExternalLink className='h-4 w-4' />
@@ -335,7 +336,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         variant='outline'
                         size='sm'
                         onClick={() =>
-                          router.push(`/${params.organisation}/integration`)
+                          router.push(
+                            `/${params.organisation}/integrations?active=dflow-cloud`,
+                          )
                         }
                         className='gap-2'>
                         Check Account Details

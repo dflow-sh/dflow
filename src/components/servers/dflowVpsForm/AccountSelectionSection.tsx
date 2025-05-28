@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from 'react'
+
 import {
   Select,
   SelectContent,
@@ -9,25 +11,53 @@ import { CloudProviderAccount } from '@/payload-types'
 
 export const AccountSelectionSection = ({
   dFlowAccounts,
-  selectedAccountId,
+  selectedAccount,
   onAccountChange,
 }: {
   dFlowAccounts?: CloudProviderAccount[]
-  selectedAccountId: string
-  onAccountChange: (accountId: string) => void
+  selectedAccount: {
+    id: string
+    token: string
+  }
+  onAccountChange: Dispatch<
+    SetStateAction<{
+      id: string
+      token: string
+    }>
+  >
 }) => {
   if (!dFlowAccounts || dFlowAccounts.length === 0) return null
 
+  const handleAccountChange = (accountId: string) => {
+    const account = dFlowAccounts?.find(acc => acc.id === accountId)
+    if (account) {
+      onAccountChange({
+        id: account.id,
+        token: account.dFlowDetails?.accessToken || '',
+      })
+    }
+  }
+
   return (
-    <div className='my-6'>
-      <Select value={selectedAccountId} onValueChange={onAccountChange}>
+    <div className='space-y-2'>
+      <label className='text-sm font-medium text-foreground'>
+        Select Account
+      </label>
+      <Select value={selectedAccount.id} onValueChange={handleAccountChange}>
         <SelectTrigger className='bg-background'>
-          <SelectValue placeholder='Select dFlow account' />
+          <SelectValue placeholder='Choose a dFlow account' />
         </SelectTrigger>
         <SelectContent>
           {dFlowAccounts.map(account => (
             <SelectItem key={account.id} value={account.id}>
-              {account.name || 'dFlow Account'}
+              <div className='flex items-center gap-2'>
+                <div className='flex h-6 w-6 items-center justify-center rounded-full bg-primary/10'>
+                  <span className='text-xs font-medium text-primary'>
+                    {(account.name || 'dFlow Account').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span>{account.name || 'dFlow Account'}</span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>

@@ -24,22 +24,26 @@ export const DflowVpsFormContainer = ({
   selectedDFlowAccount?: CloudProviderAccount
   sshKeys: SshKey[]
 }) => {
-  const [selectedDFlowAccountId, setSelectedDFlowAccountId] = useState<string>(
-    selectedDFlowAccount?.id || dFlowAccounts?.[0]?.id || '',
-  )
+  const [selectedAccount, setSelectedAccount] = useState<{
+    id: string
+    token: string
+  }>({
+    id: dFlowAccounts?.[0]?.id || '',
+    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+  })
 
   return (
     <DflowVpsFormProvider
       vpsPlan={vpsPlan}
       sshKeys={sshKeys}
-      selectedAccountId={selectedDFlowAccountId}
-      onAccountChange={setSelectedDFlowAccountId}>
+      selectedAccount={selectedAccount}
+      onAccountChange={setSelectedAccount}>
       <div className='space-y-6'>
         <HeaderSection vpsPlan={vpsPlan} />
         <AccountSelectionSection
           dFlowAccounts={dFlowAccounts}
-          selectedAccountId={selectedDFlowAccountId}
-          onAccountChange={setSelectedDFlowAccountId}
+          selectedAccount={selectedAccount}
+          onAccountChange={setSelectedAccount}
         />
         <PaymentStatusSection />
         <SpecificationsSection vpsPlan={vpsPlan} />

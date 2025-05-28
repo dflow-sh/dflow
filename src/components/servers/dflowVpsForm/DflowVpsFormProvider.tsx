@@ -2,7 +2,15 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -86,8 +94,16 @@ type PricingData = {
 type DflowVpsFormContextType = {
   vpsPlan: VpsPlan
   sshKeys: SshKey[]
-  selectedAccountId: string
-  onAccountChange: (accountId: string) => void
+  selectedAccount: {
+    id: string
+    token: string
+  }
+  onAccountChange: Dispatch<
+    SetStateAction<{
+      id: string
+      token: string
+    }>
+  >
   pricing: PricingData
   refreshPaymentStatus: () => void
   isFetchingPayment: boolean
@@ -98,14 +114,22 @@ const DflowVpsFormContext = createContext<DflowVpsFormContextType | null>(null)
 export const DflowVpsFormProvider = ({
   children,
   vpsPlan,
-  selectedAccountId,
+  selectedAccount,
   onAccountChange,
   sshKeys,
 }: {
   children: React.ReactNode
   vpsPlan: VpsPlan
-  selectedAccountId: string
-  onAccountChange: (accountId: string) => void
+  selectedAccount: {
+    id: string
+    token: string
+  }
+  onAccountChange: Dispatch<
+    SetStateAction<{
+      id: string
+      token: string
+    }>
+  >
   sshKeys: SshKey[]
 }) => {
   const methods = useForm<z.infer<typeof dflowVpsSchema>>({
@@ -152,8 +176,8 @@ export const DflowVpsFormProvider = ({
   })
 
   const refreshPaymentStatus = () => {
-    if (selectedAccountId) {
-      fetchPaymentData({ accountId: selectedAccountId })
+    if (selectedAccount) {
+      fetchPaymentData({ token: selectedAccount.token })
     }
   }
 
@@ -234,7 +258,7 @@ export const DflowVpsFormProvider = ({
 
   useEffect(() => {
     refreshPaymentStatus()
-  }, [selectedAccountId])
+  }, [selectedAccount.id])
 
   useEffect(() => {
     if (vpsPlan) {
@@ -321,7 +345,7 @@ export const DflowVpsFormProvider = ({
         value={{
           vpsPlan,
           sshKeys,
-          selectedAccountId,
+          selectedAccount,
           onAccountChange,
           pricing,
           refreshPaymentStatus,
