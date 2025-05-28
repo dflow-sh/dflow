@@ -196,7 +196,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                 console.log({ currentStatus, newStatus, newIp })
 
                 // Only update if status changed or if IP is now available
-                if (currentStatus !== newStatus || (newIp && !currentIP)) {
+                if (currentStatus !== newStatus || newIp !== currentIP) {
                   // If the order is running and has an IP, update with IP
                   if (newStatus === 'running' && newIp) {
                     await payload.update({
