@@ -54,6 +54,7 @@ export const Users: CollectionConfig = {
         })
       },
     },
+    useAPIKey: true,
   },
   hooks: {
     beforeChange: [handleUserRoles],
