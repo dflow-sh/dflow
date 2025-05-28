@@ -264,26 +264,17 @@ export const checkPaymentMethodAction = protectedClient
     const walletBalance = userData.wallet || 0
 
     // Fetch user's payment cards
-    const cardsResponse = await axios.get(`${env.DFLOW_URL}/api/cards`, {
+    const cardsResponse = await axios.get(`${env.DFLOW_URL}/api/cards/count`, {
       headers: {
         Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
       },
     })
 
     const cardsData = cardsResponse.data
-    const userCards = cardsData.docs || []
-    const validCardCount = userCards.filter(
-      (card: any) => card.paymentMethodId && card._status !== 'draft',
-    ).length
+    const validCardCount = cardsData.totalDocs || []
 
     return {
       walletBalance,
       validCardCount,
-      paymentMethods: userCards.map((card: any) => ({
-        id: card.id,
-        name: card.name,
-        paymentMethodId: card.paymentMethodId,
-        status: card._status,
-      })),
     }
   })
