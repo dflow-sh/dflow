@@ -11,15 +11,20 @@ import {
   Cloud,
   CreditCard,
   ExternalLink,
+  RefreshCw,
   Server,
   Wallet,
+  XCircle,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { parseAsString, useQueryState } from 'nuqs'
 import React, { useEffect, useId, useState } from 'react'
 
-import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
+import {
+  checkAccountConnection,
+  checkPaymentMethodAction,
+} from '@/actions/cloud/dFlow'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,7 +43,6 @@ import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import AttachCustomServerForm from './AttachCustomServerForm'
-import { ConnectDFlowCloudButton } from './ConnectDFlowCloudButton'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
 import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
 
@@ -50,7 +54,7 @@ interface ServerSelectionFormProps {
   isOnboarding: boolean
   vpsPlans: VpsPlan[]
   dFlowAccounts?: CloudProviderAccount[]
-  onAccountSelect: (accountId: string) => void
+  onAccountSelect: (accountId: string, token: string) => void
 }
 
 interface ServerFormContentProps {
@@ -88,15 +92,24 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   const id = useId()
   const [selectedType, setSelectedType] = useState<string>('manual')
   const [selectedOption, setSelectedOption] = useState<string>('manual')
-  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<string>(
-    dFlowAccounts?.[0]?.id || '',
-  )
+  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<{
+    id: string
+    token: string
+  }>({
+    id: dFlowAccounts?.[0]?.id || '',
+    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+  })
   const [paymentData, setPaymentData] = useState<{
     walletBalance: number
     validCardCount: number
   } | null>(null)
+  const [accountConnectionStatus, setAccountConnectionStatus] = useState<{
+    isConnected: boolean
+    error?: string
+  } | null>(null)
 
   const router = useRouter()
+  const params = useParams()
 
   const { execute: fetchPaymentData, isPending: isFetchingPaymentData } =
     useAction(checkPaymentMethodAction, {
@@ -111,16 +124,41 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       },
     })
 
+  const { execute: checkConnection, isPending: isCheckingAccountConnection } =
+    useAction(checkAccountConnection, {
+      onSuccess: ({ data }) => {
+        setAccountConnectionStatus({
+          isConnected: data?.isConnected || false,
+          error: data?.error || '',
+        })
+      },
+      onError: ({ error }) => {
+        setAccountConnectionStatus({
+          isConnected: false,
+          error: error?.serverError || 'Failed to check account connection',
+        })
+      },
+    })
+
   useEffect(() => {
-    if (selectedDFlowAccount) {
-      fetchPaymentData({ accountId: selectedDFlowAccount })
-      onAccountSelect(selectedDFlowAccount)
+    if (selectedDFlowAccount.id && selectedDFlowAccount.token) {
+      checkConnection({ token: selectedDFlowAccount.token })
+      fetchPaymentData({ token: selectedDFlowAccount.token })
+      onAccountSelect(selectedDFlowAccount.id, selectedDFlowAccount.token)
     }
   }, [selectedDFlowAccount])
 
   const handleAccountChange = (accountId: string) => {
-    setSelectedDFlowAccount(accountId)
-    onAccountSelect(accountId)
+    const account = dFlowAccounts?.find(acc => acc.id === accountId)
+    if (account) {
+      const newAccount = {
+        id: accountId,
+        token: account.dFlowDetails?.accessToken || '',
+      }
+      setSelectedDFlowAccount(newAccount)
+      setAccountConnectionStatus(null) // Reset status while checking
+      setPaymentData(null) // Reset payment data while checking
+    }
   }
 
   const handleOptionChange = (value: string, type: string) => {
@@ -142,7 +180,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   }
 
   const selectedAccount = dFlowAccounts?.find(
-    acc => acc.id === selectedDFlowAccount,
+    acc => acc.id === selectedDFlowAccount.id,
   )
   const dFlowAccountDetails = selectedAccount?.dFlowDetails
 
@@ -238,6 +276,196 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     return recommendations
   }
 
+  const renderDFlowAccountSection = () => {
+    if (!dFlowAccountDetails?.accessToken) {
+      return (
+        <div className='flex flex-col items-center gap-4 py-8'>
+          <div className='text-center'>
+            <h3 className='text-lg font-medium'>Connect Your dFlow Account</h3>
+            <p className='mt-2 text-sm text-muted-foreground'>
+              You need to connect a dFlow account to create VPS instances
+            </p>
+          </div>
+          <Button
+            variant='default'
+            onClick={() => window.open('https://dflow.sh/profile', '_blank')}
+            className='gap-2'>
+            Connect dFlow Account
+            <ExternalLink className='h-4 w-4' />
+          </Button>
+        </div>
+      )
+    }
+
+    return (
+      <>
+        {/* Account Connection Status */}
+        {isCheckingAccountConnection ? (
+          <div className='mb-4 flex items-center gap-3 rounded-md border p-4'>
+            <RefreshCw className='h-4 w-4 animate-spin' />
+            <span className='text-sm'>Checking account connection...</span>
+          </div>
+        ) : accountConnectionStatus ? (
+          <Alert
+            variant={
+              accountConnectionStatus.isConnected ? 'default' : 'destructive'
+            }
+            className='mb-4'>
+            <div className='flex items-start gap-3'>
+              {accountConnectionStatus.isConnected ? (
+                <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
+              ) : (
+                <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
+              )}
+              <div className='flex-1'>
+                <AlertDescription>
+                  {accountConnectionStatus.isConnected ? (
+                    'Account connection verified successfully'
+                  ) : (
+                    <div className='space-y-2'>
+                      <p>
+                        Account connection failed:{' '}
+                        {accountConnectionStatus.error}
+                      </p>
+                      <p className='text-sm'>
+                        Please try a different account or check your account
+                        details in dFlow.
+                      </p>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={() =>
+                          router.push(`/${params.organisation}/integration`)
+                        }
+                        className='gap-2'>
+                        Check Account Details
+                        <ExternalLink className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
+              </div>
+            </div>
+          </Alert>
+        ) : null}
+
+        {/* VPS Plans */}
+        {accountConnectionStatus?.isConnected && (
+          <>
+            {!vpsPlans || vpsPlans.length === 0 ? (
+              <Alert variant='warning' className='mb-4'>
+                <AlertCircle className='h-4 w-4' />
+                <AlertDescription>
+                  No VPS plans available at the moment. Please try again later
+                  or contact support.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <RadioGroup
+                className='grid grid-cols-1 gap-6 md:grid-cols-2'
+                value={selectedOption}
+                onValueChange={(value: string) =>
+                  handleOptionChange(value, 'dFlow')
+                }>
+                {vpsPlans.map(plan => (
+                  <div
+                    key={plan.slug}
+                    className={`relative flex w-full items-start rounded-md border ${
+                      selectedOption === plan.slug
+                        ? 'border-2 border-primary'
+                        : 'border-input'
+                    } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                    <RadioGroupItem
+                      value={String(plan.slug)}
+                      id={`${id}-${plan.slug}`}
+                      className='order-1 after:absolute after:inset-0'
+                    />
+                    <div className='flex grow items-center gap-4'>
+                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                        <Cloud className='h-5 w-5' />
+                      </div>
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-2'>
+                          <Label
+                            htmlFor={`${id}-${plan.slug}`}
+                            className='cursor-pointer font-medium'>
+                            {plan.name}
+                          </Label>
+                        </div>
+                        <p className='text-sm text-muted-foreground'>
+                          {formatSpecs(plan)}
+                        </p>
+                        <p className='text-sm font-medium text-primary'>
+                          {formatPrice(plan)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </RadioGroup>
+            )}
+
+            {/* Payment Status Section */}
+            {selectedType === 'dFlow' &&
+              selectedOption &&
+              vpsPlans &&
+              vpsPlans.length > 0 && (
+                <div className='mt-6 space-y-3'>
+                  {isFetchingPaymentData ? (
+                    <div className='flex items-center gap-3 rounded-md border p-4'>
+                      <Skeleton className='h-4 w-4 rounded-full' />
+                      <div className='space-y-2'>
+                        <Skeleton className='h-4 w-48' />
+                        <Skeleton className='h-3 w-32' />
+                      </div>
+                    </div>
+                  ) : paymentData ? (
+                    <Alert variant={canProceed ? 'default' : 'warning'}>
+                      <div className='flex items-start gap-3'>
+                        {canProceed ? (
+                          <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
+                        ) : (
+                          <AlertCircle className='mt-0.5 h-5 w-5 text-yellow-600' />
+                        )}
+                        <div className='flex-1 space-y-2'>
+                          <div className='flex items-center gap-4 text-sm'>
+                            <div className='flex items-center gap-2'>
+                              <Wallet className='h-4 w-4' />
+                              <span>
+                                Wallet: ${paymentData.walletBalance.toFixed(2)}
+                              </span>
+                            </div>
+                            <div className='flex items-center gap-2'>
+                              <CreditCard className='h-4 w-4' />
+                              <span>Cards: {paymentData.validCardCount}</span>
+                            </div>
+                            {planCost > 0 && (
+                              <div className='flex items-center gap-2'>
+                                <span>Cost: ${planCost.toFixed(2)}</span>
+                              </div>
+                            )}
+                          </div>
+                          {getPaymentRecommendations().length > 0 && (
+                            <AlertDescription className='text-sm'>
+                              {getPaymentRecommendations().map((rec, index) => (
+                                <div key={index} className='mb-1 last:mb-0'>
+                                  {rec}
+                                </div>
+                              ))}
+                            </AlertDescription>
+                          )}
+                        </div>
+                      </div>
+                    </Alert>
+                  ) : null}
+                </div>
+              )}
+          </>
+        )}
+      </>
+    )
+  }
+
   return (
     <div className='space-y-8'>
       {!isOnboarding && (
@@ -254,10 +482,11 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             size='default'
             variant={'outline'}
             onClick={handleContinue}
-            // disabled={
-            //   !selectedOption || (selectedType === 'dFlow' && !canProceed)
-            // }
-          >
+            disabled={
+              !selectedOption ||
+              (selectedType === 'dFlow' &&
+                (!accountConnectionStatus?.isConnected || !canProceed))
+            }>
             {getContinueButtonText()}
             <ArrowRight className='ml-2 h-4 w-4' />
           </Button>
@@ -272,7 +501,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               <CardTitle className='text-lg font-medium'>dFlow</CardTitle>
               {dFlowAccounts && dFlowAccounts.length > 0 && (
                 <Select
-                  value={selectedDFlowAccount}
+                  value={selectedDFlowAccount.id}
                   onValueChange={handleAccountChange}>
                   <SelectTrigger className='w-fit'>
                     <SelectValue placeholder='Select dFlow account' />
@@ -289,112 +518,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             </div>
           </CardHeader>
           <CardContent className='p-6'>
-            {!dFlowAccountDetails?.accessToken ? (
-              <div className='flex justify-center'>
-                <ConnectDFlowCloudButton />
-              </div>
-            ) : (
-              <>
-                <RadioGroup
-                  className='grid grid-cols-1 gap-6 md:grid-cols-2'
-                  value={selectedOption}
-                  onValueChange={(value: string) =>
-                    handleOptionChange(value, 'dFlow')
-                  }>
-                  {vpsPlans?.map(plan => (
-                    <div
-                      key={plan.slug}
-                      className={`relative flex w-full items-start rounded-md border ${
-                        selectedOption === plan.slug
-                          ? 'border-2 border-primary'
-                          : 'border-input'
-                      } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
-                      <RadioGroupItem
-                        value={String(plan.slug)}
-                        id={`${id}-${plan.slug}`}
-                        className='order-1 after:absolute after:inset-0'
-                      />
-                      <div className='flex grow items-center gap-4'>
-                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                          <Cloud className='h-5 w-5' />
-                        </div>
-                        <div className='space-y-1'>
-                          <div className='flex items-center gap-2'>
-                            <Label
-                              htmlFor={`${id}-${plan.slug}`}
-                              className='cursor-pointer font-medium'>
-                              {plan.name}
-                            </Label>
-                          </div>
-                          <p className='text-sm text-muted-foreground'>
-                            {formatSpecs(plan)}
-                          </p>
-                          <p className='text-sm font-medium text-primary'>
-                            {formatPrice(plan)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </RadioGroup>
-
-                {/* Payment Status Section */}
-                {selectedType === 'dFlow' && selectedOption && (
-                  <div className='mt-6 space-y-3'>
-                    {isFetchingPaymentData ? (
-                      <div className='flex items-center gap-3 rounded-md border p-4'>
-                        <Skeleton className='h-4 w-4 rounded-full' />
-                        <div className='space-y-2'>
-                          <Skeleton className='h-4 w-48' />
-                          <Skeleton className='h-3 w-32' />
-                        </div>
-                      </div>
-                    ) : paymentData ? (
-                      <Alert variant={canProceed ? 'default' : 'warning'}>
-                        <div className='flex items-start gap-3'>
-                          {canProceed ? (
-                            <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
-                          ) : (
-                            <AlertCircle className='mt-0.5 h-5 w-5 text-yellow-600' />
-                          )}
-                          <div className='flex-1 space-y-2'>
-                            <div className='flex items-center gap-4 text-sm'>
-                              <div className='flex items-center gap-2'>
-                                <Wallet className='h-4 w-4' />
-                                <span>
-                                  Wallet: $
-                                  {paymentData.walletBalance.toFixed(2)}
-                                </span>
-                              </div>
-                              <div className='flex items-center gap-2'>
-                                <CreditCard className='h-4 w-4' />
-                                <span>Cards: {paymentData.validCardCount}</span>
-                              </div>
-                              {planCost > 0 && (
-                                <div className='flex items-center gap-2'>
-                                  <span>Cost: ${planCost.toFixed(2)}</span>
-                                </div>
-                              )}
-                            </div>
-                            {getPaymentRecommendations().length > 0 && (
-                              <AlertDescription className='text-sm'>
-                                {getPaymentRecommendations().map(
-                                  (rec, index) => (
-                                    <div key={index} className='mb-1 last:mb-0'>
-                                      {rec}
-                                    </div>
-                                  ),
-                                )}
-                              </AlertDescription>
-                            )}
-                          </div>
-                        </div>
-                      </Alert>
-                    ) : null}
-                  </div>
-                )}
-              </>
-            )}
+            {renderDFlowAccountSection()}
           </CardContent>
         </Card>
 
@@ -511,9 +635,11 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         <Button
           className='w-full'
           size='lg'
-          // disabled={
-          //   !selectedOption || (selectedType === 'dFlow' && !canProceed)
-          // }
+          disabled={
+            !selectedOption ||
+            (selectedType === 'dFlow' &&
+              (!accountConnectionStatus?.isConnected || !canProceed))
+          }
           onClick={handleContinue}>
           {getContinueButtonText()}
           <ArrowRight className='ml-2 h-4 w-4' />
@@ -618,9 +744,13 @@ const ServerForm: React.FC<ServerFormProps> = ({
     'option',
     parseAsString.withDefault(''),
   )
-  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<string>(
-    dFlowAccounts?.[0]?.id || '',
-  )
+  const [selectedDFlowAccount, setSelectedDFlowAccount] = useState<{
+    id: string
+    token: string
+  }>({
+    id: dFlowAccounts?.[0]?.id || '',
+    token: dFlowAccounts?.[0]?.dFlowDetails?.accessToken || '',
+  })
 
   const pathName = usePathname()
   const isOnboarding = pathName.includes('onboarding')
@@ -637,6 +767,10 @@ const ServerForm: React.FC<ServerFormProps> = ({
     setOption('')
   }
 
+  const handleAccountSelect = (accountId: string, token: string) => {
+    setSelectedDFlowAccount({ id: accountId, token })
+  }
+
   return (
     <div className='mx-auto w-full'>
       {!type ? (
@@ -648,7 +782,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           isOnboarding={isOnboarding}
           vpsPlans={vpsPlans as VpsPlan[]}
           dFlowAccounts={dFlowAccounts}
-          onAccountSelect={accountId => setSelectedDFlowAccount(accountId)}
+          onAccountSelect={handleAccountSelect}
         />
       ) : (
         <ServerFormContent
@@ -666,7 +800,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           }
           dFlowAccounts={dFlowAccounts}
           selectedDFlowAccount={dFlowAccounts?.find(
-            acc => acc.id === selectedDFlowAccount,
+            acc => acc.id === selectedDFlowAccount.id,
           )}
         />
       )}

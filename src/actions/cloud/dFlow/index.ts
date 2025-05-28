@@ -8,6 +8,7 @@ import { CloudProviderAccount } from '@/payload-types'
 
 import { VpsPlan } from './types'
 import {
+  checkConnectionSchema,
   checkPaymentMethodSchema,
   connectDFlowAccountSchema,
   createSshKeysAndVpsActionSchema,
@@ -111,7 +112,7 @@ export const createSshKeysAndVpsAction = protectedClient
 
     // 2. Check payment method and balance
     console.log('Checking payment method...')
-    const paymentCheck = await checkPaymentMethodAction({ accountId })
+    const paymentCheck = await checkPaymentMethodAction({ token })
 
     if (!paymentCheck?.data) {
       throw new Error('Failed to verify payment methods')
@@ -170,40 +171,8 @@ export const checkPaymentMethodAction = protectedClient
   })
   .schema(checkPaymentMethodSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { accountId } = clientInput
+    const { token } = clientInput
     const { userTenant, payload, user } = ctx
-
-    // Find the specific dFlow account
-    const { docs: dFlowAccounts } = await payload.find({
-      collection: 'cloudProviderAccounts',
-      pagination: false,
-      where: {
-        and: [
-          {
-            id: {
-              equals: accountId,
-            },
-          },
-          {
-            type: {
-              equals: 'dFlow',
-            },
-          },
-          {
-            'tenant.slug': {
-              equals: userTenant.tenant?.slug,
-            },
-          },
-        ],
-      },
-    })
-
-    if (!dFlowAccounts || dFlowAccounts.length === 0) {
-      throw new Error('dFlow account not found or not accessible')
-    }
-
-    const dFlowAccount = dFlowAccounts[0]
-    const token = dFlowAccount.dFlowDetails?.accessToken
 
     if (!token) {
       throw new Error('Invalid dFlow account: No access token found')
@@ -236,5 +205,136 @@ export const checkPaymentMethodAction = protectedClient
     return {
       walletBalance,
       validCardCount,
+    }
+  })
+
+export const checkAccountConnection = protectedClient
+  .metadata({
+    actionName: 'checkAccountConnection',
+  })
+  .schema(checkConnectionSchema)
+  .action(async ({ clientInput }) => {
+    const { token } = clientInput
+
+    try {
+      // Validate token format
+      if (!token || typeof token !== 'string' || token.trim() === '') {
+        return {
+          isConnected: false,
+          user: null,
+          error: 'Invalid or missing access token',
+        }
+      }
+
+      const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 10000, // 10 second timeout
+      })
+
+      const usersData = userResponse?.data?.docs?.at(0)
+
+      if (!usersData || !usersData.id) {
+        return {
+          isConnected: false,
+          user: null,
+          error: 'No user data found or invalid response from dFlow API',
+        }
+      }
+
+      // Additional validation for active user
+      if (usersData.status && usersData.status !== 'active') {
+        return {
+          isConnected: false,
+          user: usersData,
+          error: `Account status is ${usersData.status}. Please ensure your dFlow account is active.`,
+        }
+      }
+
+      return {
+        isConnected: true,
+        user: usersData,
+        error: null,
+      }
+    } catch (error) {
+      console.error('dFlow account connection check failed:', error)
+
+      // Handle specific error types
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with error status
+          const status = error.response.status
+          const statusText = error.response.statusText
+
+          switch (status) {
+            case 401:
+              return {
+                isConnected: false,
+                user: null,
+                error: 'Invalid access token. Please check your dFlow API key.',
+              }
+            case 403:
+              return {
+                isConnected: false,
+                user: null,
+                error:
+                  'Access denied. Please ensure your API key has the necessary permissions.',
+              }
+            case 404:
+              return {
+                isConnected: false,
+                user: null,
+                error: 'dFlow API endpoint not found. Please try again later.',
+              }
+            case 429:
+              return {
+                isConnected: false,
+                user: null,
+                error: 'Too many requests. Please wait a moment and try again.',
+              }
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+              return {
+                isConnected: false,
+                user: null,
+                error:
+                  'dFlow service is temporarily unavailable. Please try again later.',
+              }
+            default:
+              return {
+                isConnected: false,
+                user: null,
+                error: `Connection failed with status ${status}: ${statusText}`,
+              }
+          }
+        } else if (error.request) {
+          // Network error
+          return {
+            isConnected: false,
+            user: null,
+            error:
+              'Network error. Please check your internet connection and try again.',
+          }
+        } else if (error.code === 'ECONNABORTED') {
+          // Timeout error
+          return {
+            isConnected: false,
+            user: null,
+            error:
+              'Connection timeout. The dFlow service may be slow or unavailable.',
+          }
+        }
+      }
+
+      // Generic error fallback
+      return {
+        isConnected: false,
+        user: null,
+        error:
+          'Failed to connect to dFlow. Please check your account details and try again.',
+      }
     }
   })

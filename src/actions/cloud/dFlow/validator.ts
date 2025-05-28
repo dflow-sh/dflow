@@ -56,5 +56,9 @@ export const createSshKeysAndVpsActionSchema = z.object({
 })
 
 export const checkPaymentMethodSchema = z.object({
-  accountId: z.string().min(1, 'Account ID is required'),
+  token: z.string().min(1, 'Token is required'),
+})
+
+export const checkConnectionSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
 })
