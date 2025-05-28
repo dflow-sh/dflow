@@ -77,7 +77,7 @@ export const OrderForm = () => {
         },
         region: {
           code: data.region.name,
-          priceId: data.pricing.priceId,
+          priceId: data.region.priceId,
         },
         defaultUser: data.login.username || 'root',
         rootPassword: data.login.rootPassword || 141086,
