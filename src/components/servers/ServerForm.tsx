@@ -11,8 +11,10 @@ import {
   Cloud,
   CreditCard,
   ExternalLink,
+  Link,
   RefreshCw,
   Server,
+  Settings,
   Wallet,
   XCircle,
 } from 'lucide-react'
@@ -38,7 +40,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { DFLOW_CONFIG } from '@/lib/constants'
 import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -205,6 +206,13 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
     return `Continue with ${cloudProvidersList.find(p => p.slug === selectedOption)?.label || 'Selected Provider'}`
   }
 
+  const navigateWithDflowActive = () => {
+    const currentPath = window.location.pathname
+    const currentSearch = new URLSearchParams(window.location.search)
+    currentSearch.set('active', 'dflow')
+    router.push(`${currentPath}?${currentSearch.toString()}`)
+  }
+
   const getPaymentRecommendations = () => {
     const recommendations: React.ReactNode[] = []
 
@@ -289,10 +297,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           </div>
           <Button
             variant='default'
-            onClick={() => window.open(`${DFLOW_CONFIG.URL}/profile`, '_blank')}
+            onClick={navigateWithDflowActive}
             className='gap-2'>
             Connect dFlow Account
-            <ExternalLink className='h-4 w-4' />
+            <Link className='h-4 w-4' />
           </Button>
         </div>
       )
@@ -335,14 +343,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                       <Button
                         variant='outline'
                         size='sm'
-                        onClick={() =>
-                          router.push(
-                            `/${params.organisation}/integrations?active=dflow`,
-                          )
-                        }
+                        onClick={navigateWithDflowActive}
                         className='gap-2'>
                         Check Account Details
-                        <ExternalLink className='h-4 w-4' />
+                        <Settings className='h-4 w-4' />
                       </Button>
                     </div>
                   )}
