@@ -33,7 +33,7 @@ export const OrderForm = () => {
   const form = useFormContext<VpsFormData>()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { pricing, selectedAccountId, vpsPlan } = useDflowVpsForm()
+  const { pricing, selectedAccount, vpsPlan } = useDflowVpsForm()
 
   const {
     execute: executeCreateSshKeysAndVpsAction,
@@ -65,7 +65,7 @@ export const OrderForm = () => {
     console.log('Image:', data.image)
 
     executeCreateSshKeysAndVpsAction({
-      accountId: selectedAccountId,
+      accountId: selectedAccount.id,
       sshKeyIds: data.login.sshKeyIds,
       vps: {
         plan: vpsPlan.id,

@@ -19,7 +19,7 @@ import { useDflowVpsForm } from './DflowVpsFormProvider'
 
 export const PaymentStatusSection = () => {
   const form = useFormContext()
-  const { selectedAccountId, pricing } = useDflowVpsForm()
+  const { selectedAccount, pricing } = useDflowVpsForm()
   const [paymentData, setPaymentData] = useState<{
     walletBalance: number
     validCardCount: number
@@ -42,10 +42,10 @@ export const PaymentStatusSection = () => {
     })
 
   useEffect(() => {
-    if (selectedAccountId) {
-      fetchPaymentData({ accountId: selectedAccountId })
+    if (selectedAccount) {
+      fetchPaymentData({ token: selectedAccount.token })
     }
-  }, [selectedAccountId, fetchPaymentData])
+  }, [selectedAccount.id, fetchPaymentData])
 
   // Payment validation logic using context pricing
   const hasWalletBalance = paymentData
