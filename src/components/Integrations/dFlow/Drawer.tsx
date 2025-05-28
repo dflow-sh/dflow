@@ -30,7 +30,7 @@ const Drawer = () => {
   )
 
   const integration = integrationsList.find(
-    integration => integration.slug === 'dflow-cloud',
+    integration => integration.slug === 'dflow',
   )
 
   const { execute, isPending, result } = useAction(
@@ -38,7 +38,7 @@ const Drawer = () => {
   )
 
   useEffect(() => {
-    if (activeSlide === 'dflow-cloud' && !result?.data) {
+    if (activeSlide === 'dflow' && !result?.data) {
       execute({ type: 'dFlow' })
     }
   }, [activeSlide, result])
@@ -54,9 +54,9 @@ const Drawer = () => {
 
   return (
     <Sheet
-      open={activeSlide === 'dflow-cloud'}
+      open={activeSlide === 'dflow'}
       onOpenChange={state => {
-        setActiveSlide(state ? 'dflow-cloud' : '')
+        setActiveSlide(state ? 'dflow' : '')
       }}>
       <SheetContent className='flex w-full flex-col justify-between sm:max-w-lg'>
         <SheetHeader className='text-left'>

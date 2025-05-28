@@ -337,7 +337,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         size='sm'
                         onClick={() =>
                           router.push(
-                            `/${params.organisation}/integrations?active=dflow-cloud`,
+                            `/${params.organisation}/integrations?active=dflow`,
                           )
                         }
                         className='gap-2'>
