@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
@@ -6,6 +7,13 @@ import { toast } from 'sonner'
 import { createSshKeysAndVpsAction } from '@/actions/cloud/dFlow'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
 
 import { useDflowVpsForm } from './DflowVpsFormProvider'
@@ -132,6 +140,20 @@ export const OrderForm = () => {
           </Button>
         </div>
       </form>
+      <Dialog open={isCreatingVpsOrder}>
+        <DialogContent className='flex flex-col items-center gap-4 py-6'>
+          <DialogHeader className='text-center'>
+            <DialogTitle>Processing Your Order</DialogTitle>
+            <DialogDescription>
+              Your VPS order is being placed. Please wait...
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className='flex items-center justify-center pt-4'>
+            <Loader2 className='h-10 w-10 animate-spin text-primary' />
+          </div>
+        </DialogContent>
+      </Dialog>
     </Form>
   )
 }
