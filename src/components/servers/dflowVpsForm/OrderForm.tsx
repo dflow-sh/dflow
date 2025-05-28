@@ -60,9 +60,6 @@ export const OrderForm = () => {
     if (!isFormValid) return
 
     console.log('Form data:', data)
-    console.log('Display name:', data.displayName)
-    console.log('Region:', data.region)
-    console.log('Image:', data.image)
 
     executeCreateSshKeysAndVpsAction({
       accountId: selectedAccount.id,
@@ -85,9 +82,8 @@ export const OrderForm = () => {
         defaultUser: data.login.username || 'root',
         rootPassword: data.login.rootPassword || 141086,
         period: {
-          months:
-            vpsPlan.pricing?.find(p => p.id === data.pricing.id)?.period || 1,
-          priceId: data.pricing.id,
+          months: data.pricing.termLength,
+          priceId: data.pricing.priceId,
         },
         addOns: {
           ...(data.backup &&
@@ -102,9 +98,6 @@ export const OrderForm = () => {
       },
     })
   }
-
-  console.log({ pricing })
-  console.log({ isFormValid })
 
   return (
     <Form {...form}>

@@ -12,8 +12,6 @@ import { Input } from '@/components/ui/input'
 export const LoginDetailsSection = () => {
   const form = useFormContext()
 
-  console.log({ loginDetails: form.watch('login') })
-
   return (
     <div className='mb-6'>
       <h2 className='mb-3 text-lg font-semibold text-foreground'>

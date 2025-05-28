@@ -25,6 +25,7 @@ export const TermLengthSection = () => {
             const newValue = {
               id: selectedPlan.id as string,
               priceId: selectedPlan.stripePriceId || '',
+              termLength: selectedPlan.period,
             }
             setValue('pricing', newValue, { shouldValidate: true })
           }

@@ -284,6 +284,8 @@ export const DflowVpsFormProvider = ({
             selectedPricing?.stripePriceId ||
             vpsPlan?.pricing?.at(0)?.stripePriceId ||
             '',
+          termLength:
+            selectedPricing?.period || vpsPlan?.pricing?.at(0)?.period || 1,
         },
         { shouldValidate: true },
       )

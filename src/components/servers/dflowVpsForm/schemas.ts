@@ -17,6 +17,10 @@ export const dflowVpsSchema = z.object({
   pricing: z.object({
     id: z.string().min(1, { message: 'Pricing plan is required' }),
     priceId: z.string().min(1, { message: 'priceId is required' }),
+    termLength: z
+      .number()
+      .min(1, { message: 'Term length must be at least 1 month' })
+      .max(12, { message: 'Term length cannot exceed 12 months' }),
   }),
   region: z.object({
     name: z.string().min(1, { message: 'Region is required' }),
