@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { CloudProviderAccount, SshKey } from '@/payload-types'
 
+import { AccountConnectionStatus } from './AccountConnectionStatus'
 import { AccountSelectionSection } from './AccountSelectionSection'
 import { DflowVpsFormProvider } from './DflowVpsFormProvider'
 import { HeaderSection } from './HeaderSection'
@@ -45,7 +46,10 @@ export const DflowVpsFormContainer = ({
           selectedAccount={selectedAccount}
           onAccountChange={setSelectedAccount}
         />
-        <PaymentStatusSection />
+        <div className='space-y-3'>
+          <AccountConnectionStatus />
+          <PaymentStatusSection />
+        </div>
         <SpecificationsSection vpsPlan={vpsPlan} />
         <TrafficSection vpsPlan={vpsPlan} />
         <OrderForm />

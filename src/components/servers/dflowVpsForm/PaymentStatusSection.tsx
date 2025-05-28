@@ -139,7 +139,7 @@ export const PaymentStatusSection = () => {
   }
 
   return (
-    <div className='mt-6 space-y-3'>
+    <div className='space-y-3'>
       {isFetchingPaymentData ? (
         <div className='flex items-center gap-3 rounded-md border p-4'>
           <Skeleton className='h-4 w-4 rounded-full' />
