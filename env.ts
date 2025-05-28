@@ -14,9 +14,6 @@ export const env = createEnv({
   server: {
     DATABASE_URI: z.string().min(1),
     REDIS_URI: z.string().min(1),
-    DFLOW_URL: z.string().optional(),
-    DFLOW_AUTH_SLUG: z.string().optional(),
-    DFLOW_API_KEY: z.string().optional(),
     RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_SENDER_EMAIL: z.string().email().optional(),
     RESEND_SENDER_NAME: z.string().min(1).optional(),
@@ -37,9 +34,6 @@ export const env = createEnv({
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
     NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED:
       process.env.NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED,
-    DFLOW_URL: process.env.DFLOW_URL,
-    DFLOW_AUTH_SLUG: process.env.DFLOW_AUTH_SLUG,
-    DFLOW_API_KEY: process.env.DFLOW_API_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_SENDER_EMAIL: process.env.RESEND_SENDER_EMAIL,
     RESEND_SENDER_NAME: process.env.RESEND_SENDER_NAME,

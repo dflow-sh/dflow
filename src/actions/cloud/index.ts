@@ -1,9 +1,9 @@
 'use server'
 
 import axios from 'axios'
-import { env } from 'env'
 import { revalidatePath } from 'next/cache'
 
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 
 import {
@@ -51,7 +51,7 @@ export const syncDflowServersAction = protectedClient
     const { id } = clientInput
     const { userTenant, payload } = ctx
 
-    if (!env.DFLOW_URL || !env.DFLOW_AUTH_SLUG) {
+    if (!DFLOW_CONFIG.URL || !DFLOW_CONFIG.AUTH_SLUG) {
       throw new Error('Environment variables configuration missing.')
     }
 
@@ -64,11 +64,14 @@ export const syncDflowServersAction = protectedClient
       const key = account?.dFlowDetails?.accessToken!
 
       // 1. Fetching all servers
-      const ordersResponse = await axios.get(`${env.DFLOW_URL}/api/vpsOrders`, {
-        headers: {
-          Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${key}`,
+      const ordersResponse = await axios.get(
+        `${DFLOW_CONFIG.URL}/api/vpsOrders`,
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
+          },
         },
-      })
+      )
 
       console.dir({ ordersResponse: ordersResponse?.data }, { depth: null })
 
@@ -112,11 +115,14 @@ export const syncDflowServersAction = protectedClient
       }
 
       // 5. fetch all secrets to attach to the servers
-      const secretsResponse = await axios.get(`${env.DFLOW_URL}/api/secrets`, {
-        headers: {
-          Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${key}`,
+      const secretsResponse = await axios.get(
+        `${DFLOW_CONFIG.URL}/api/secrets`,
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
+          },
         },
-      })
+      )
 
       console.dir({ secretsResponse: secretsResponse?.data }, { depth: null })
 

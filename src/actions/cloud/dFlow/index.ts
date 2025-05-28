@@ -1,8 +1,8 @@
 'use server'
 
 import axios from 'axios'
-import { env } from 'env'
 
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
@@ -60,56 +60,13 @@ export const getDFlowPlansAction = protectedClient
   .action(async () => {
     let vpsPlans: VpsPlan[] = []
 
-    if (env.DFLOW_URL && env.DFLOW_API_KEY) {
-      const response = await axios.get(`${env.DFLOW_URL}/api/vpsPlans`, {
-        headers: {
-          Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${env.DFLOW_API_KEY}`,
-        },
-      })
+    if (DFLOW_CONFIG.URL) {
+      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/vpsPlans`, {})
 
       vpsPlans = response?.data?.docs ?? []
     }
 
     return vpsPlans
-  })
-
-export const generateDFlowAccessTokenAction = protectedClient
-  .metadata({
-    actionName: 'generateDFlowAccessTokenAction',
-  })
-  .action(async ({ ctx }) => {
-    const { user, payload, userTenant } = ctx
-
-    // TODO: Need to tell the user to set a password
-    // TODO: Need to check if the user already exists
-    const { data: createdUserRes } = await axios.post(
-      `${env.DFLOW_URL}/api/internal/createUser`,
-      {
-        email: user.email,
-        username: user.username,
-        password: 'changeme',
-      },
-      {
-        headers: {
-          Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${env.DFLOW_API_KEY}`,
-        },
-      },
-    )
-    const { data: createdUser } = createdUserRes
-
-    await payload.create({
-      collection: 'cloudProviderAccounts',
-      data: {
-        type: 'dFlow',
-        dFlowDetails: {
-          accessToken: createdUser?.apiKey,
-        },
-        tenant: userTenant.tenant,
-        name: `Auto Generated for ${user.username} (${user.email}) by dFlow`,
-      },
-    })
-
-    return createdUser
   })
 
 export const createSshKeysAndVpsAction = protectedClient
@@ -253,9 +210,9 @@ export const checkPaymentMethodAction = protectedClient
     }
 
     // Fetch user wallet balance
-    const userResponse = await axios.get(`${env.DFLOW_URL}/api/users`, {
+    const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
       headers: {
-        Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+        Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
       },
     })
 
@@ -264,11 +221,14 @@ export const checkPaymentMethodAction = protectedClient
     const walletBalance = userData.wallet || 0
 
     // Fetch user's payment cards
-    const cardsResponse = await axios.get(`${env.DFLOW_URL}/api/cards/count`, {
-      headers: {
-        Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+    const cardsResponse = await axios.get(
+      `${DFLOW_CONFIG.URL}/api/cards/count`,
+      {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
       },
-    })
+    )
 
     const cardsData = cardsResponse.data
     const validCardCount = cardsData.totalDocs || []

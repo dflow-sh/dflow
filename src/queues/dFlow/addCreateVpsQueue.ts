@@ -1,9 +1,9 @@
 import configPromise from '@payload-config'
 import axios from 'axios'
-import { env } from 'env'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { SshKey, Tenant } from '@/payload-types'
 
@@ -68,7 +68,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         const secretsAndKeys = await Promise.all(
           sshKeys.map(async key => {
             const { data: createdSecretRes } = await axios.post(
-              `${env.DFLOW_URL}/api/secrets`,
+              `${DFLOW_CONFIG.URL}/api/secrets`,
               {
                 name: key.name,
                 type: 'ssh',
@@ -77,7 +77,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
               },
               {
                 headers: {
-                  Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+                  Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
                 },
               },
             )
@@ -126,11 +126,11 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         console.dir({ vpsData }, { depth: Infinity })
 
         const { data: createdVpsOrderRes } = await axios.post(
-          `${env.DFLOW_URL}/api/vpsOrders`,
+          `${DFLOW_CONFIG.URL}/api/vpsOrders`,
           vpsData,
           {
             headers: {
-              Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
           },
         )
@@ -173,10 +173,10 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             for (let i = 0; i < 10; i++) {
               try {
                 const { data: instanceStatusRes } = await axios.get(
-                  `${env.DFLOW_URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
+                  `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
                   {
                     headers: {
-                      Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
+                      Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
                     },
                   },
                 )

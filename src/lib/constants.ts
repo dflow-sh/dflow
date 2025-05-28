@@ -103,3 +103,8 @@ export const databaseOptions = [
     value: 'mariadb',
   },
 ]
+
+export const DFLOW_CONFIG = {
+  URL: 'https://dflow.sh',
+  AUTH_SLUG: 'users',
+}
