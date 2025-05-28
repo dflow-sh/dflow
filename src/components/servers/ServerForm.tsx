@@ -308,54 +308,6 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
     return (
       <>
-        {/* Account Connection Status */}
-        {isCheckingAccountConnection ? (
-          <div className='mb-4 flex items-center gap-3 rounded-md border p-4'>
-            <RefreshCw className='h-4 w-4 animate-spin' />
-            <span className='text-sm'>Checking account connection...</span>
-          </div>
-        ) : accountConnectionStatus ? (
-          <Alert
-            variant={
-              accountConnectionStatus.isConnected ? 'default' : 'destructive'
-            }
-            className='mb-4'>
-            <div className='flex items-start gap-3'>
-              {accountConnectionStatus.isConnected ? (
-                <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
-              ) : (
-                <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
-              )}
-              <div className='flex-1'>
-                <AlertDescription>
-                  {accountConnectionStatus.isConnected ? (
-                    'Account connection verified successfully'
-                  ) : (
-                    <div className='space-y-2'>
-                      <p>
-                        Account connection failed:{' '}
-                        {accountConnectionStatus.error}
-                      </p>
-                      <p className='text-sm'>
-                        Please try a different account or check your account
-                        details in dFlow.
-                      </p>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={navigateWithDflowActive}
-                        className='gap-2'>
-                        Check Account Details
-                        <Settings className='h-4 w-4' />
-                      </Button>
-                    </div>
-                  )}
-                </AlertDescription>
-              </div>
-            </div>
-          </Alert>
-        ) : null}
-
         {/* VPS Plans */}
         {accountConnectionStatus?.isConnected && (
           <>
@@ -469,6 +421,54 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               )}
           </>
         )}
+
+        {/* Account Connection Status */}
+        {isCheckingAccountConnection ? (
+          <div className='mt-4 flex items-center gap-3 rounded-md border p-4'>
+            <RefreshCw className='h-4 w-4 animate-spin' />
+            <span className='text-sm'>Checking account connection...</span>
+          </div>
+        ) : accountConnectionStatus ? (
+          <Alert
+            variant={
+              accountConnectionStatus.isConnected ? 'default' : 'destructive'
+            }
+            className='mt-4'>
+            <div className='flex items-start gap-3'>
+              {accountConnectionStatus.isConnected ? (
+                <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
+              ) : (
+                <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
+              )}
+              <div className='flex-1'>
+                <AlertDescription>
+                  {accountConnectionStatus.isConnected ? (
+                    'Account connection verified successfully'
+                  ) : (
+                    <div className='space-y-2'>
+                      <p>
+                        Account connection failed:{' '}
+                        {accountConnectionStatus.error}
+                      </p>
+                      <p className='text-sm'>
+                        Please try a different account or check your account
+                        details in dFlow.
+                      </p>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={navigateWithDflowActive}
+                        className='gap-2'>
+                        Check Account Details
+                        <Settings className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  )}
+                </AlertDescription>
+              </div>
+            </div>
+          </Alert>
+        ) : null}
       </>
     )
   }
@@ -505,7 +505,17 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
-              <CardTitle className='text-lg font-medium'>dFlow</CardTitle>
+              <div className='flex items-center gap-3'>
+                <CardTitle className='text-lg font-medium'>dFlow</CardTitle>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  onClick={navigateWithDflowActive}
+                  className='h-8 w-8 p-0'
+                  title='Manage dFlow Accounts'>
+                  <Settings className='h-4 w-4' />
+                </Button>
+              </div>
               {dFlowAccounts && dFlowAccounts.length > 0 && (
                 <Select
                   value={selectedDFlowAccount.id}

@@ -121,15 +121,13 @@ const DFlowForm = ({
   }
 
   function onSubmit(values: z.infer<typeof connectDFlowAccountSchema>) {
-    // Only allow submission if connection was tested and successful
     if (!hasTestedConnection) {
-      // Auto-test connection if not tested yet
       handleTestConnection()
       return
     }
 
     if (!connectionStatus?.isConnected) {
-      return // Don't submit if connection failed
+      return
     }
 
     connectAccount({ ...values, id: account?.id })

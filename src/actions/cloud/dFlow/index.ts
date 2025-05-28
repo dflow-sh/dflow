@@ -1,6 +1,7 @@
 'use server'
 
 import axios from 'axios'
+import { revalidatePath } from 'next/cache'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { protectedClient } from '@/lib/safe-action'
@@ -51,6 +52,7 @@ export const connectDFlowAccountAction = protectedClient
       })
     }
 
+    revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
     return response
   })
 
