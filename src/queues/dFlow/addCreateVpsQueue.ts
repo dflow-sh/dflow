@@ -64,7 +64,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
       try {
         console.dir({ sshKeys }, { depth: Infinity })
-        // step 1 & 2: creating secrets in dflow.sh and sshKeys in dFlow Cloud
+        // step 1 & 2: creating secrets in dflow.sh and sshKeys in dFlow
         const secretsAndKeys = await Promise.all(
           sshKeys.map(async key => {
             const { data: createdSecretRes } = await axios.post(
@@ -139,7 +139,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        // step 4: instantly creating a server in dFlow Cloud
+        // step 4: instantly creating a server in dFlow
         const createdServer = await payload.create({
           collection: 'servers',
           data: {

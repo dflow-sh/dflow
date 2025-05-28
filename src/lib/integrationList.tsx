@@ -11,10 +11,10 @@ import {
 
 export const integrationsList = [
   {
-    label: 'dFlow Cloud',
+    label: 'dFlow',
     icon: dFlow,
     description: 'Manage your dFlow account & servers',
-    slug: 'dflow-cloud',
+    slug: 'dflow',
     live: true,
   },
   {

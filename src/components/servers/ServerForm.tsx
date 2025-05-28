@@ -497,7 +497,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       )}
 
       <div className='space-y-6'>
-        {/* dFlow Cloud Section */}
+        {/* dFlow Section */}
         <Card className='border shadow-sm'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
