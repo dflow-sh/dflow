@@ -265,9 +265,6 @@ export const checkPaymentMethodAction = protectedClient
 
     // Fetch user's payment cards
     const cardsResponse = await axios.get(`${env.DFLOW_URL}/api/cards`, {
-      params: {
-        'where[user][equals]': user.id,
-      },
       headers: {
         Authorization: `${env.DFLOW_AUTH_SLUG} API-Key ${token}`,
       },
