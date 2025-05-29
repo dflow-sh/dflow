@@ -1,11 +1,21 @@
 import configPromise from '@payload-config'
-import axios from 'axios'
-import { getPayload } from 'payload'
+import axios, { AxiosError } from 'axios'
+import { RequiredDataFromCollection, getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { SshKey, Tenant } from '@/payload-types'
+import { Server, SshKey, Tenant } from '@/payload-types'
+
+class VpsCreationError extends Error {
+  constructor(
+    message: string,
+    public details?: Record<string, unknown>,
+  ) {
+    super(message)
+    this.name = 'VpsCreationError'
+  }
+}
 
 interface CreateVpsQueueArgs {
   sshKeys: SshKey[]
@@ -55,75 +65,131 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
   getWorker<CreateVpsQueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshKeys, vps, accountDetails } = job.data
+      const { sshKeys, vps, accountDetails, tenant } = job.data
       const token = accountDetails.accessToken
+      const jobId = job.id
 
       const payload = await getPayload({ config: configPromise })
 
-      console.log('worker triggered...')
+      console.log(
+        `[${jobId}] VPS creation worker started for tenant ${tenant.slug}`,
+      )
 
       try {
-        console.dir({ sshKeys }, { depth: Infinity })
-        // step 1 & 2: creating secrets in dflow.sh and sshKeys in dFlow
+        // Validate inputs
+        if (!sshKeys || sshKeys.length === 0) {
+          throw new VpsCreationError('At least one SSH key is required')
+        }
+
+        if (!vps.plan || !vps.displayName) {
+          throw new VpsCreationError('VPS plan and display name are required')
+        }
+
+        // Step 1 & 2: Handle SSH keys and secrets
         const secretsAndKeys = await Promise.all(
           sshKeys.map(async key => {
-            const { data: createdSecretRes } = await axios.post(
-              `${DFLOW_CONFIG.URL}/api/secrets`,
-              {
-                name: key.name,
-                type: 'ssh',
-                publicKey: key.publicKey,
-                privateKey: key.privateKey,
-              },
-              {
-                headers: {
-                  Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+            try {
+              // Validate key
+              if (!key.name || !key.publicKey || !key.privateKey) {
+                throw new VpsCreationError(
+                  'SSH key is missing required fields',
+                  { keyId: key.id },
+                )
+              }
+
+              // Check for existing secret
+              const { data: existingSecretsRes } = await axios.get(
+                `${DFLOW_CONFIG.URL}/api/secrets?where[name][equals]=${encodeURIComponent(key.name)}`,
+                {
+                  headers: {
+                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+                  },
+                  timeout: 10000,
                 },
-              },
-            )
+              )
 
-            const { doc: createdSecret } = createdSecretRes
+              const existingSecrets = existingSecretsRes?.docs || []
+              const matchingSecret = existingSecrets.find(
+                (secret: any) =>
+                  secret.name === key.name &&
+                  secret.publicKey === key.publicKey &&
+                  secret.privateKey === key.privateKey,
+              )
 
-            return {
-              secretId: createdSecret.details.secretId,
-              sshKeyId: key.id,
+              if (matchingSecret) {
+                console.log(
+                  `[${jobId}] Reusing existing secret for key ${key.name}: ${matchingSecret.details.secretId}`,
+                )
+                return {
+                  secretId: matchingSecret.details.secretId,
+                  sshKeyId: key.id,
+                }
+              }
+
+              // Create new secret if no match found
+              const { data: createdSecretRes } = await axios.post(
+                `${DFLOW_CONFIG.URL}/api/secrets`,
+                {
+                  name: key.name,
+                  type: 'ssh',
+                  publicKey: key.publicKey,
+                  privateKey: key.privateKey,
+                },
+                {
+                  headers: {
+                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+                  },
+                  timeout: 10000,
+                },
+              )
+
+              const { doc: createdSecret } = createdSecretRes
+              console.log(
+                `[${jobId}] Created new secret for key ${key.name}: ${createdSecret.details.secretId}`,
+              )
+
+              return {
+                secretId: createdSecret.details.secretId,
+                sshKeyId: key.id,
+              }
+            } catch (error) {
+              if (error instanceof AxiosError) {
+                throw new VpsCreationError(
+                  `Failed to process SSH key ${key.name}: ${error.response?.data?.message || error.message}`,
+                  { keyId: key.id, status: error.response?.status },
+                )
+              }
+              throw new VpsCreationError(
+                `Failed to process SSH key ${key.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              )
             }
           }),
         )
 
         const secretIds = secretsAndKeys.map(entry => entry.secretId)
 
-        // step 3: create VPS in dflow.sh
+        // Step 3: Create VPS order
         const vpsData = {
           plan: vps.plan,
           userData: {
-            image: {
-              imageId: vps.image.imageId,
-              priceId: vps.image.priceId,
-            },
-            product: {
-              productId: vps.product.productId,
-              priceId: vps.product.priceId,
-            },
+            image: vps.image,
+            product: vps.product,
             displayName: vps.displayName,
-            region: {
-              code: vps.region.code,
-              priceId: vps.region.priceId,
-            },
+            region: vps.region,
             card: '',
             defaultUser: vps.defaultUser,
             rootPassword: vps.rootPassword,
-            period: {
-              months: vps.period.months,
-              priceId: vps.period.priceId,
-            },
+            period: vps.period,
             sshKeys: secretIds,
             plan: vps.plan,
             addOns: vps.addOns || {},
           },
         }
 
-        console.dir({ vpsData }, { depth: Infinity })
+        console.log(
+          `[${jobId}] Creating VPS order with data:`,
+          JSON.stringify(vpsData, null, 2),
+        )
 
         const { data: createdVpsOrderRes } = await axios.post(
           `${DFLOW_CONFIG.URL}/api/vpsOrders`,
@@ -132,145 +198,179 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             headers: {
               Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
+            timeout: 30000,
           },
         )
-
-        console.dir({ createdVpsOrderRes }, { depth: Infinity })
-
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        // step 4: instantly creating a server in dFlow
+        console.log(
+          `[${jobId}] VPS order created with ID: ${createdVpsOrder.id}`,
+        )
+
+        // Step 4: Create server record in Payload
+        const serverData: RequiredDataFromCollection<Server> = {
+          name: vps.displayName,
+          description: '',
+          ip: '0.0.0.0',
+          port: 22,
+          username: 'root',
+          sshKey: secretsAndKeys[0]?.sshKeyId,
+          provider: 'dflow',
+          tenant: tenant.id,
+          cloudProviderAccount: accountDetails.id,
+          dflowVpsDetails: {
+            id: createdVpsOrder.id,
+            instanceId: createdVpsOrder.instanceId,
+            status: createdVpsOrder.instanceResponse.status as NonNullable<
+              Server['dflowVpsDetails']
+            >['status'],
+          },
+        }
+
         const createdServer = await payload.create({
           collection: 'servers',
-          data: {
-            name: vps.displayName,
-            description: '',
-            ip: '0.0.0.0',
-            port: 22,
-            username: 'root',
-            sshKey: secretsAndKeys.at(0)?.sshKeyId as string,
-            provider: 'dflow',
-            tenant: data.tenant,
-            cloudProviderAccount: accountDetails.id,
-            dflowVpsDetails: {
-              id: createdVpsOrder.id,
-              instanceId: createdVpsOrder.instanceId,
-              status: createdVpsOrder.instanceResponse.status as any,
-            },
-          },
+          data: serverData,
         })
+        console.log(
+          `[${jobId}] Server record created with ID: ${createdServer.id}`,
+        )
 
-        console.dir({ createdServer }, { depth: Infinity })
+        // Step 5: Improved polling for public IP
+        const pollForPublicIP = async () => {
+          const maxAttempts = 10
+          const delayMs = 30000
+          let pollTimeout: NodeJS.Timeout | null = null
 
-        // step 5: wait for public-ip address for 5mins
-        if (createdServer) {
-          const instanceId = createdVpsOrder.instanceId
-          const serverId = createdServer.id
-          const currentStatus = createdServer?.dflowVpsDetails?.status
-          const currentIP = createdServer?.ip
-
-          const pollForPublicIP = async () => {
-            for (let i = 0; i < 10; i++) {
+          try {
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
               try {
+                console.log(
+                  `[${jobId}] Checking instance status (attempt ${attempt}/${maxAttempts})`,
+                )
+
                 const { data: instanceStatusRes } = await axios.get(
-                  `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${instanceId}`,
+                  `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${createdVpsOrder.instanceId}`,
                   {
                     headers: {
                       Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
                     },
+                    timeout: 10000,
                   },
                 )
 
                 const orders = instanceStatusRes?.docs || []
-
                 if (orders.length === 0) {
-                  console.log(`No orders found for instance ${instanceId}`)
+                  console.log(
+                    `[${jobId}] No orders found for instance ${createdVpsOrder.instanceId}`,
+                  )
                   continue
                 }
 
                 const order = orders[0]
-
                 const newStatus = order.instanceResponse.status
                 const newIp = order.instanceResponse?.ipConfig?.v4?.ip
 
-                console.log({ currentStatus, newStatus, newIp })
-
-                // Only update if status changed or if IP is now available
-                if (currentStatus !== newStatus || newIp !== currentIP) {
-                  // If the order is running and has an IP, update with IP
-                  if (newStatus === 'running' && newIp) {
-                    await payload.update({
-                      collection: 'servers',
-                      id: serverId,
-                      data: {
-                        ip: newIp,
-                        dflowVpsDetails: {
-                          status: newStatus,
-                        },
-                      },
-                    })
-
-                    await pub.publish(
-                      'refresh-channel',
-                      JSON.stringify({ refresh: true }),
-                    )
+                if (
+                  createdServer.dflowVpsDetails?.status !== newStatus ||
+                  createdServer.ip !== newIp
+                ) {
+                  const updateData: any = {
+                    dflowVpsDetails: {
+                      ...createdServer.dflowVpsDetails,
+                      status: newStatus,
+                    },
                   }
-                  // Otherwise just update the status
-                  else {
-                    await payload.update({
-                      collection: 'servers',
-                      id: serverId,
-                      data: {
-                        dflowVpsDetails: {
-                          status: newStatus,
-                        },
-                      },
-                    })
 
-                    // Only notify on status changes
-                    console.log(`VPS status changed to: ${newStatus}`, {
-                      currentStatus,
-                      newStatus,
-                    })
+                  if (newIp) updateData.ip = newIp
 
-                    // Check for failed state or error conditions (looks like there was a missing condition in original code)
-                    if (order.status === 'failed' || order.status === 'error') {
-                      console.log(
-                        `VPS creation ${order.status}: ${order.message || 'No details available'}`,
-                      )
-                    }
+                  await payload.update({
+                    collection: 'servers',
+                    id: createdServer.id,
+                    data: updateData,
+                  })
+
+                  console.log(
+                    `[${jobId}] Server updated - Status: ${newStatus}, IP: ${newIp || 'not assigned'}`,
+                  )
+
+                  await pub.publish(
+                    'refresh-channel',
+                    JSON.stringify({ refresh: true }),
+                  )
+
+                  if (newStatus === 'running' && newIp) {
+                    console.log(`[${jobId}] VPS is ready with IP: ${newIp}`)
+                    return { ip: newIp, status: newStatus }
                   }
                 }
+
+                if (order.status === 'failed' || order.status === 'error') {
+                  throw new VpsCreationError(
+                    `VPS creation failed: ${order.message || 'No details provided'}`,
+                    { orderStatus: order.status },
+                  )
+                }
               } catch (error) {
-                const message =
-                  error instanceof Error ? error.message : 'Unknown error'
-                console.error(`Error checking instance ${instanceId}:`, message)
+                console.error(
+                  `[${jobId}] Error checking instance status:`,
+                  error,
+                )
               }
 
-              await new Promise(r => setTimeout(r, 30000))
+              await new Promise(resolve => {
+                pollTimeout = setTimeout(resolve, delayMs)
+              })
             }
 
-            throw new Error('Public IP not assigned yet after waiting')
+            throw new VpsCreationError(
+              'VPS did not get a public IP within the expected time',
+            )
+          } finally {
+            if (pollTimeout) clearTimeout(pollTimeout)
           }
-
-          await pollForPublicIP()
         }
 
-        // todo: create a common method for refresh events!
-        // sending path, tenant to redirect on client side
+        const pollResult = await pollForPublicIP()
+
+        // Final success notification
         await pub.publish(
           'refresh-channel',
           JSON.stringify({
-            path: `/${data.tenant.slug}/servers`,
-            tenant: data.tenant.slug,
+            path: `/${tenant.slug}/servers`,
+            tenant: tenant.slug,
+            success: true,
+            serverId: createdServer.id,
+            ip: pollResult.ip,
           }),
         )
 
-        return { success: true, orderId: createdVpsOrder.id }
+        return {
+          success: true,
+          orderId: createdVpsOrder.id,
+          serverId: createdServer.id,
+          ip: pollResult.ip,
+        }
       } catch (error) {
-        // const message = error instanceof Error ? error.message : 'Unknown error'
-        // throw new Error(`❌ Failed to create VPS: ${message}`)
-        console.log('error', error)
+        console.error(`[${jobId}] VPS creation failed:`, error)
+
+        await pub.publish(
+          'refresh-channel',
+          JSON.stringify({
+            path: `/${tenant.slug}/servers`,
+            tenant: tenant.slug,
+            error:
+              error instanceof Error ? error.message : 'VPS creation failed',
+          }),
+        )
+
+        if (error instanceof VpsCreationError) {
+          throw error
+        }
+        throw new VpsCreationError(
+          'VPS creation failed: ' +
+            (error instanceof Error ? error.message : 'Unknown error'),
+          { originalError: error },
+        )
       }
     },
     connection: queueConnection,

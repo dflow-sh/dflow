@@ -61,6 +61,7 @@ interface ServerSelectionFormProps {
 
 interface ServerFormContentProps {
   type: string
+  option: string
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
   server?: ServerType
@@ -71,7 +72,6 @@ interface ServerFormContentProps {
   dFlowAccounts?: CloudProviderAccount[]
   selectedDFlowAccount?: CloudProviderAccount
 }
-
 interface ServerFormProps {
   sshKeys: SshKey[]
   securityGroups?: SecurityGroup[]
@@ -668,6 +668,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
 const ServerFormContent: React.FC<ServerFormContentProps> = ({
   type,
+  option,
   sshKeys,
   securityGroups,
   server,
@@ -681,17 +682,222 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   const router = useRouter()
   const { organisation } = useParams()
 
-  if (!type) return null
-
-  let providerName = ''
-
-  if (type === 'manual') {
-    providerName = 'Manual Server Configuration'
-  } else if (type === 'dFlow') {
-    providerName = `Configure dFlow Server`
-  } else {
-    providerName = `Configure ${cloudProvidersList.find(p => p.slug === type)?.label} Server`
+  // Early return if no type is provided
+  if (!type) {
+    return (
+      <div className='space-y-6'>
+        <div className='flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={onBack}
+            className='h-8 w-8'>
+            <ChevronLeft className='h-5 w-5' />
+          </Button>
+          <h2 className='text-xl font-semibold'>No Server Type Selected</h2>
+        </div>
+        <Card className='border shadow-sm'>
+          <CardContent className='p-6'>
+            <Alert variant='warning'>
+              <AlertCircle className='h-4 w-4' />
+              <AlertDescription>
+                Please select a server type to continue with the configuration.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
+
+  // Get the actual server type (handle cloud providers)
+  const getActualServerType = (
+    serverType: string,
+    serverOption: string,
+  ): string => {
+    if (serverType === 'cloud') {
+      return serverOption // For cloud providers, use the option (aws, gcp, etc.)
+    }
+    return serverType // For manual, dFlow, etc.
+  }
+
+  // Get provider name based on type and option
+  const getProviderName = (
+    serverType: string,
+    serverOption: string,
+  ): string => {
+    const actualType = getActualServerType(serverType, serverOption)
+
+    switch (actualType) {
+      case 'manual':
+        return 'Manual Server Configuration'
+      case 'dFlow':
+        return 'Configure dFlow Server'
+      case 'aws':
+        return 'Configure AWS Server'
+      case 'gcp':
+        return 'Configure Google Cloud Server'
+      case 'azure':
+        return 'Configure Azure Server'
+      default:
+        const provider = cloudProvidersList.find(p => p.slug === actualType)
+        return provider
+          ? `Configure ${provider.label} Server`
+          : 'Configure Server'
+    }
+  }
+
+  // Validation function for required data
+  const validateRequiredData = (serverType: string, serverOption: string) => {
+    const actualType = getActualServerType(serverType, serverOption)
+
+    switch (actualType) {
+      case 'aws':
+        if (!sshKeys || sshKeys.length === 0) {
+          return {
+            isValid: false,
+            message: 'SSH keys are required for AWS server configuration.',
+            action: 'Please add SSH keys before proceeding.',
+          }
+        }
+        break
+
+      case 'dFlow':
+        if (!vpsPlan) {
+          return {
+            isValid: false,
+            message: 'VPS plan is required for dFlow server configuration.',
+            action: 'Please select a VPS plan before proceeding.',
+          }
+        }
+        if (!dFlowAccounts || dFlowAccounts.length === 0) {
+          return {
+            isValid: false,
+            message: 'dFlow account is required for server configuration.',
+            action: 'Please connect a dFlow account before proceeding.',
+          }
+        }
+        if (!selectedDFlowAccount) {
+          return {
+            isValid: false,
+            message: 'Please select a dFlow account to continue.',
+            action: 'Choose an account from the available dFlow accounts.',
+          }
+        }
+        break
+
+      case 'manual':
+        if (!sshKeys || sshKeys.length === 0) {
+          return {
+            isValid: false,
+            message: 'SSH keys are required for manual server configuration.',
+            action: 'Please add SSH keys before proceeding.',
+          }
+        }
+        break
+
+      case 'gcp':
+      case 'azure':
+        return {
+          isValid: false,
+          message: `${getProviderName(serverType, serverOption)} is coming soon.`,
+          action: 'Please select a different server type or try AWS for now.',
+        }
+
+      default:
+        // For other cloud providers
+        if (!sshKeys || sshKeys.length === 0) {
+          return {
+            isValid: false,
+            message: `SSH keys are required for ${getProviderName(serverType, serverOption)}.`,
+            action: 'Please add SSH keys before proceeding.',
+          }
+        }
+        break
+    }
+
+    return { isValid: true }
+  }
+
+  // Success handler
+  const handleSuccess = (data: any) => {
+    if (isOnboarding) {
+      router.push('/onboarding/dokku-install')
+    } else {
+      router.push(`/${organisation}/servers/${data?.server.id}`)
+    }
+  }
+
+  // Render form component based on type and option
+  const renderFormComponent = (serverType: string, serverOption: string) => {
+    const actualType = getActualServerType(serverType, serverOption)
+
+    switch (actualType) {
+      case 'aws':
+        return (
+          <CreateEC2InstanceForm
+            sshKeys={sshKeys}
+            securityGroups={securityGroups}
+            formType={formType}
+            onSuccess={handleSuccess}
+          />
+        )
+
+      case 'dFlow':
+        return (
+          <DflowVpsFormContainer
+            vpsPlan={vpsPlan as VpsPlan}
+            dFlowAccounts={dFlowAccounts}
+            selectedDFlowAccount={selectedDFlowAccount}
+            sshKeys={sshKeys}
+          />
+        )
+
+      case 'manual':
+        return (
+          <AttachCustomServerForm
+            sshKeys={sshKeys}
+            server={server}
+            formType={formType}
+            onSuccess={handleSuccess}
+          />
+        )
+
+      case 'gcp':
+      case 'azure':
+        return (
+          <Alert variant='warning'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>
+              <div className='space-y-2'>
+                <p className='font-medium'>
+                  {getProviderName(serverType, serverOption)} is coming soon!
+                </p>
+                <p className='text-sm'>
+                  We're working hard to bring you this integration. For now, you
+                  can use AWS or manual configuration.
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )
+
+      default:
+        return (
+          <Alert variant='warning'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>
+              Configuration for {getProviderName(serverType, serverOption)} is
+              not yet implemented. Please select a different server type or
+              contact support.
+            </AlertDescription>
+          </Alert>
+        )
+    }
+  }
+
+  const providerName = getProviderName(type, option)
+  const validation = validateRequiredData(type, option)
 
   return (
     <div className='space-y-6'>
@@ -708,39 +914,27 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
 
       <Card className='border shadow-sm'>
         <CardContent className='p-6'>
-          {type === 'aws' ? (
-            <CreateEC2InstanceForm
-              sshKeys={sshKeys}
-              securityGroups={securityGroups}
-              formType={formType}
-              onSuccess={data => {
-                if (isOnboarding) {
-                  router.push('/onboarding/dokku-install')
-                } else {
-                  router.push(`/${organisation}/servers/${data?.server.id}`)
-                }
-              }}
-            />
-          ) : type === 'dFlow' ? (
-            <DflowVpsFormContainer
-              vpsPlan={vpsPlan as VpsPlan}
-              dFlowAccounts={dFlowAccounts}
-              selectedDFlowAccount={selectedDFlowAccount}
-              sshKeys={sshKeys}
-            />
+          {!validation.isValid ? (
+            <div className='space-y-4'>
+              <Alert variant='destructive'>
+                <XCircle className='h-4 w-4' />
+                <AlertDescription>
+                  <div className='space-y-2'>
+                    <p className='font-medium'>{validation.message}</p>
+                    <p className='text-sm'>{validation.action}</p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+
+              <div className='flex justify-center'>
+                <Button variant='outline' onClick={onBack} className='gap-2'>
+                  <ChevronLeft className='h-4 w-4' />
+                  Go Back to Selection
+                </Button>
+              </div>
+            </div>
           ) : (
-            <AttachCustomServerForm
-              sshKeys={sshKeys}
-              server={server}
-              formType={formType}
-              onSuccess={data => {
-                if (isOnboarding) {
-                  router.push('/onboarding/dokku-install')
-                } else {
-                  router.push(`/${organisation}/servers/${data?.server.id}`)
-                }
-              }}
-            />
+            renderFormComponent(type, option)
           )}
         </CardContent>
       </Card>
@@ -804,6 +998,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
       ) : (
         <ServerFormContent
           type={type}
+          option={option}
           sshKeys={sshKeys}
           securityGroups={securityGroups}
           server={server}

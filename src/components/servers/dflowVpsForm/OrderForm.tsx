@@ -52,14 +52,13 @@ export const OrderForm = () => {
 
   const handleCancel = () => {
     const params = new URLSearchParams(searchParams.toString())
-    params.delete('selectedVps')
+    params.delete('type')
+    params.delete('option')
     router.push(`?${params.toString()}`, { scroll: false })
   }
 
   const onSubmit: SubmitHandler<VpsFormData> = data => {
     if (!isFormValid) return
-
-    console.log('Form data:', data)
 
     executeCreateSshKeysAndVpsAction({
       accountId: selectedAccount.id,
