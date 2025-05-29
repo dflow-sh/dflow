@@ -18,7 +18,7 @@ import {
   getBranchesAction,
   getRepositoriesAction,
 } from '@/actions/gitProviders'
-import { Docker } from '@/components/icons'
+import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import {
@@ -52,7 +52,14 @@ const options = [
     icon: <Docker fontSize={20} />,
     description: 'Build app using Docker',
   },
+  {
+    label: 'Buildpacks',
+    value: 'buildPacks',
+    icon: <Heroku fontSize={20} />,
+    description: 'Build app using Herokuish buildpacks',
+  },
 ]
+
 const AddGithubService = ({
   setNodes,
   nodes,
@@ -576,7 +583,7 @@ const AddGithubService = ({
                         className='flex w-full items-center space-x-3 space-y-0'
                         key={value}>
                         <FormControl>
-                          <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                          <div className='has-data-[state=checked]:border-ring shadow-xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
                             <RadioGroupItem
                               value={value}
                               id={value}

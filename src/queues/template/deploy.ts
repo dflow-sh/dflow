@@ -1,3 +1,4 @@
+import { addBuildpacksDeploymentQueue } from '../app/buildpacks-deployment'
 import { addDockerImageDeploymentQueue } from '../app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '../app/dockerfile-deployment'
 import { addRailpackDeployQueue } from '../app/railpack-deployment'
@@ -246,6 +247,26 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       })
 
                     await waitForJobCompletion(dockerFileDeploymentQueue)
+                  } else if (builder === 'buildPacks') {
+                    const buildPacksDeploymentQueue =
+                      await addBuildpacksDeploymentQueue({
+                        appName: serviceDetails.name,
+                        userName: githubSettings.owner,
+                        repoName: githubSettings.repository,
+                        branch: githubSettings.branch,
+                        sshDetails: sshDetails,
+                        serviceDetails: {
+                          deploymentId: deploymentResponse.id,
+                          serviceId: serviceDetails.id,
+                          provider,
+                          serverId: project.server.id,
+                          port: githubSettings.port
+                            ? githubSettings.port.toString()
+                            : '3000',
+                        },
+                      })
+
+                    await waitForJobCompletion(buildPacksDeploymentQueue)
                   }
                 } catch (error) {
                   let message = error instanceof Error ? error.message : ''
