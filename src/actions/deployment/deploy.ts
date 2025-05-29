@@ -3,6 +3,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { addBuildpacksDeploymentQueue } from '@/queues/app/buildpacks-deployment'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
 import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
@@ -114,6 +115,25 @@ export const triggerDeployment = async ({
                   : '3000',
                 populatedVariables: populatedVariables ?? '{}',
                 variables: variables ?? [],
+              },
+            })
+
+            queueResponseId = id
+          } else if (builder === 'buildPacks') {
+            const { id } = await addBuildpacksDeploymentQueue({
+              appName: serviceDetails.name,
+              userName: githubSettings.owner,
+              repoName: githubSettings.repository,
+              branch: githubSettings.branch,
+              sshDetails: sshDetails,
+              serviceDetails: {
+                deploymentId: deploymentResponse.id,
+                serviceId: serviceDetails.id,
+                provider,
+                serverId: project.server.id,
+                port: githubSettings.port
+                  ? githubSettings.port.toString()
+                  : '3000',
               },
             })
 

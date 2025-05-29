@@ -1,7 +1,7 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import { Docker } from '../icons'
+import { Docker, Heroku } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
@@ -45,6 +45,12 @@ const options = [
     value: 'dockerfile',
     icon: <Docker fontSize={20} />,
     description: 'Build app using Dockerfile',
+  },
+  {
+    label: 'Buildpacks',
+    value: 'buildPacks',
+    icon: <Heroku fontSize={20} />,
+    description: 'Build app using Herokuish buildpacks',
   },
 ]
 
