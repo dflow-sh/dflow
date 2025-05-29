@@ -9,8 +9,22 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Braces, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
-import { Fragment, JSX, useEffect, useState } from 'react'
-import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
+import {
+  Fragment,
+  JSX,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import {
+  UseFieldArrayRemove,
+  useFieldArray,
+  useForm,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -59,7 +73,7 @@ const ReferenceVariableDropdown = ({
 }: {
   databaseList: Service[]
   gettingDatabases: boolean
-  index: number
+  index: number | string
   serviceName: string
 }) => {
   const { setValue } = useFormContext()
@@ -157,17 +171,26 @@ const ReferenceVariableDropdown = ({
 }
 
 const CopyToClipboard = ({
-  content = '',
   message = '',
+  id,
+  parsedValues,
 }: {
-  content: string
   message?: string
+  id: number
+  parsedValues: Record<string, string>
 }) => {
   const [copying, setCopying] = useState(false)
+  const { control } = useFormContext()
+  const key = useWatch({
+    control,
+    name: `variables.${id}.key`,
+  })
+
+  const populatedValue = parsedValues?.[key] ?? ''
 
   const copyToClipboard = () => {
     setCopying(true)
-    navigator.clipboard.writeText(content).then(
+    navigator.clipboard.writeText(populatedValue).then(
       () => {
         if (message) {
           toast.success(message)
@@ -245,12 +268,91 @@ const CopyToClipboard = ({
   )
 }
 
+const KeyValuePair = memo(
+  ({
+    id,
+    serviceName,
+    removeVariable,
+    parsedValues,
+    databaseList,
+    gettingDatabases,
+  }: {
+    id: number
+    serviceName: string
+    removeVariable: UseFieldArrayRemove
+    parsedValues: Record<string, string>
+    databaseList: Service[]
+    gettingDatabases: boolean
+  }) => {
+    const { control } = useFormContext()
+
+    return (
+      <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4'>
+        <FormField
+          control={control}
+          name={`variables.${id}.key`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name={`variables.${id}.value`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className='relative'>
+                  <Input {...field} className='pr-[4.4rem]' />
+
+                  <CopyToClipboard
+                    message={`Copied ${field.value} variable`}
+                    id={id}
+                    parsedValues={parsedValues}
+                  />
+
+                  <ReferenceVariableDropdown
+                    index={id}
+                    databaseList={databaseList}
+                    gettingDatabases={gettingDatabases}
+                    serviceName={serviceName}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button
+          variant='ghost'
+          type='button'
+          size='icon'
+          onClick={() => {
+            removeVariable(+id)
+          }}>
+          <Trash2 className='text-destructive' />
+        </Button>
+      </div>
+    )
+  },
+)
+
+KeyValuePair.displayName = 'KeyValuePair'
+
 const VariablesForm = ({ service }: { service: Service }) => {
-  const [populatedVariables, _setPopulatedVariables] = useState(
-    service.populatedVariables,
-  )
+  const restartRef = useRef(false)
   const { setDisable: disableDeployment } = useDisableDeploymentContext()
   const defaultPopulatedVariables = service?.populatedVariables ?? '{}'
+  const parsedValues = useMemo(
+    () => JSON.parse(defaultPopulatedVariables),
+    [defaultPopulatedVariables],
+  )
 
   const {
     execute: saveEnvironmentVariables,
@@ -278,23 +380,6 @@ const VariablesForm = ({ service }: { service: Service }) => {
     hasSucceeded,
   } = useAction(getProjectDatabasesAction)
 
-  useEffect(() => {
-    if (!hasSucceeded) {
-      getDatabases({
-        id:
-          typeof service.project === 'string'
-            ? service.project
-            : service.project.id,
-      })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (populatedVariables !== service.populatedVariables) {
-      disableDeployment(false)
-    }
-  }, [service.populatedVariables])
-
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
@@ -311,6 +396,17 @@ const VariablesForm = ({ service }: { service: Service }) => {
     },
   })
 
+  useEffect(() => {
+    if (!hasSucceeded) {
+      getDatabases({
+        id:
+          typeof service.project === 'string'
+            ? service.project
+            : service.project.id,
+      })
+    }
+  }, [])
+
   const {
     fields,
     append: appendVariable,
@@ -321,7 +417,10 @@ const VariablesForm = ({ service }: { service: Service }) => {
   })
 
   const handleSubmit = (values: z.infer<typeof updateServiceSchema>) => {
-    saveEnvironmentVariables(values)
+    saveEnvironmentVariables({
+      ...values,
+      restartServiceOnEnvironmentVariablesUpdate: restartRef.current,
+    })
     disableDeployment(true)
   }
 
@@ -345,63 +444,16 @@ const VariablesForm = ({ service }: { service: Service }) => {
           ) : null}
 
           {fields.map((field, index) => {
-            const parsedValues = JSON.parse(defaultPopulatedVariables)
-            const populatedValue = parsedValues?.[field.key] ?? ''
-
             return (
-              <div
-                key={field?.id ?? index}
-                className='grid grid-cols-[1fr_1fr_2.5rem] gap-4'>
-                <FormField
-                  control={form.control}
-                  name={`variables.${index}.key`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`variables.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className='relative'>
-                          <Input {...field} className='pr-[4.4rem]' />
-
-                          <CopyToClipboard
-                            content={populatedValue}
-                            message={`Copied ${field.value} variable`}
-                          />
-
-                          <ReferenceVariableDropdown
-                            index={index}
-                            databaseList={databaseList?.data ?? []}
-                            gettingDatabases={gettingDatabases}
-                            serviceName={service.name}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  variant='ghost'
-                  type='button'
-                  size='icon'
-                  onClick={() => {
-                    removeVariable(index)
-                  }}>
-                  <Trash2 className='text-destructive' />
-                </Button>
-              </div>
+              <KeyValuePair
+                key={index}
+                id={index}
+                databaseList={databaseList?.data ?? []}
+                gettingDatabases={gettingDatabases}
+                parsedValues={parsedValues}
+                removeVariable={removeVariable}
+                serviceName={service.name}
+              />
             )
           })}
 
@@ -422,14 +474,16 @@ const VariablesForm = ({ service }: { service: Service }) => {
           <Button
             type='submit'
             variant='outline'
-            disabled={savingEnvironmentVariables}>
+            disabled={savingEnvironmentVariables}
+            onClick={() => (restartRef.current = false)}>
             Save
           </Button>
 
           <Button
             type='submit'
             variant='secondary'
-            disabled={savingEnvironmentVariables}>
+            disabled={savingEnvironmentVariables}
+            onClick={() => (restartRef.current = true)}>
             Save & Restart
           </Button>
         </div>

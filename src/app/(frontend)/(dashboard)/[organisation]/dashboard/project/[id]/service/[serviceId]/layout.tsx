@@ -57,10 +57,13 @@ const SuspendedServicePageLayout = async ({
   const { serviceId } = await params
 
   const service = await getServiceDetails({ id: serviceId })
+
   if (!service?.data) {
     return notFound()
   }
+
   const { project, ...serviceDetails } = service?.data
+
   const Icon =
     serviceDetails.type === 'database' && serviceDetails.databaseDetails?.type
       ? iconMapping[serviceDetails.databaseDetails.type]
@@ -79,7 +82,8 @@ const SuspendedServicePageLayout = async ({
     <LayoutClient
       type={serviceDetails.type}
       services={services}
-      serviceName={serviceDetails.name}>
+      serviceName={serviceDetails.name}
+      service={service?.data}>
       <div className='mb-6 md:flex md:justify-between md:gap-x-2'>
         <div>
           <div className='flex items-center gap-2'>

@@ -36,6 +36,7 @@ interface QueueArgs {
     variables: VariablesType
     previousVariables: VariablesType
     id: string
+    restartService?: boolean
   }
   serverDetails: {
     id: string
@@ -155,7 +156,11 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
         tenantDetails,
         exposeDatabase = false,
       } = job.data
-      const { variables, previousVariables } = serviceDetails
+      const {
+        variables,
+        previousVariables,
+        restartService = false,
+      } = serviceDetails
       let ssh: NodeSSH | null = null
 
       console.log(
@@ -701,6 +706,51 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
             sendEvent({
               pub,
               message: `❌ Failed update environment variables for ${serviceDetails.name}: ${message}`,
+              serverId: serverDetails.id,
+            })
+          }
+        }
+
+        if (restartService) {
+          sendEvent({
+            pub,
+            message: `Started restarting ${serviceDetails.name}`,
+            serverId: serverDetails.id,
+          })
+
+          const restartServiceResponse = await dokku.process.restart(
+            ssh,
+            serviceDetails.name,
+            {
+              onStdout: async chunk => {
+                console.info(chunk.toString())
+                sendEvent({
+                  pub,
+                  message: chunk.toString(),
+                  serverId: serverDetails.id,
+                })
+              },
+              onStderr: async chunk => {
+                console.info(chunk.toString())
+                sendEvent({
+                  pub,
+                  message: chunk.toString(),
+                  serverId: serverDetails.id,
+                })
+              },
+            },
+          )
+
+          if (restartServiceResponse.code === 0) {
+            sendEvent({
+              pub,
+              message: `✅ Successfully restarted for ${serviceDetails.name}`,
+              serverId: serverDetails.id,
+            })
+          } else {
+            sendEvent({
+              pub,
+              message: `❌ Failed to restart ${serviceDetails.name}`,
               serverId: serverDetails.id,
             })
           }
