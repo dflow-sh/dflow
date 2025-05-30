@@ -84,6 +84,11 @@ export const Users: CollectionConfig = {
       unique: true,
     },
     {
+      name: 'avatarUrl',
+      type: 'text',
+      label: 'Avatar URL',
+    },
+    {
       name: 'onboarded',
       type: 'checkbox',
       label: 'Onboarded',
