@@ -70,6 +70,10 @@ export const updateServiceSchema = z.object({
     })
     .array()
     .optional(),
+  restartServiceOnEnvironmentVariablesUpdate: z
+    .boolean()
+    .default(false)
+    .optional(),
 })
 
 export const exposeDatabasePortSchema = deleteServiceSchema.extend({
