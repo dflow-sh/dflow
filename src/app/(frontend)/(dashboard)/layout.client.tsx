@@ -24,6 +24,7 @@ const LayoutClient = ({
     { label: 'Integrations', slug: `/integrations` },
     { label: 'Backups', slug: `/backups` },
     { label: 'Templates', slug: `/templates` },
+    { label: 'Team', slug: `/team` },
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
