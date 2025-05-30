@@ -249,11 +249,7 @@ export const updateServiceAction = protectedClient
   })
   .schema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const {
-      id,
-      restartServiceOnEnvironmentVariablesUpdate = false,
-      ...data
-    } = clientInput
+    const { id, ...data } = clientInput
     const {
       userTenant: { tenant },
       payload,
@@ -293,7 +289,6 @@ export const updateServiceAction = protectedClient
           name: response?.name,
           noRestart: data?.noRestart ?? true,
           id,
-          restartService: restartServiceOnEnvironmentVariablesUpdate,
         },
         sshDetails: {
           host: response?.project?.server?.ip,

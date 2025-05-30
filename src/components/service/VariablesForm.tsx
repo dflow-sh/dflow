@@ -381,7 +381,7 @@ const KeyValuePair = memo(
 KeyValuePair.displayName = 'KeyValuePair'
 
 const VariablesForm = ({ service }: { service: Service }) => {
-  const restartRef = useRef(false)
+  const noRestartRef = useRef(true)
   const { setDisable: disableDeployment } = useDisableDeploymentContext()
   const defaultPopulatedVariables = service?.populatedVariables ?? '{}'
   const parsedValues = useMemo(
@@ -454,7 +454,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
   const handleSubmit = (values: z.infer<typeof updateServiceSchema>) => {
     saveEnvironmentVariables({
       ...values,
-      restartServiceOnEnvironmentVariablesUpdate: restartRef.current,
+      noRestart: noRestartRef.current,
     })
     disableDeployment(true)
   }
@@ -510,7 +510,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
             type='submit'
             variant='outline'
             disabled={savingEnvironmentVariables}
-            onClick={() => (restartRef.current = false)}>
+            onClick={() => (noRestartRef.current = true)}>
             Save
           </Button>
 
@@ -518,7 +518,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
             type='submit'
             variant='secondary'
             disabled={savingEnvironmentVariables}
-            onClick={() => (restartRef.current = true)}>
+            onClick={() => (noRestartRef.current = false)}>
             Save & Restart
           </Button>
         </div>

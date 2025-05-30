@@ -40,7 +40,6 @@ interface QueueArgs {
     variables: VariablesType
     previousVariables: VariablesType
     id: string
-    restartService?: boolean
   }
   serverDetails: {
     id: string
@@ -315,11 +314,7 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
         tenantDetails,
         exposeDatabase = false,
       } = job.data
-      const {
-        variables,
-        previousVariables,
-        restartService = false,
-      } = serviceDetails
+      const { variables, previousVariables } = serviceDetails
       let ssh: NodeSSH | null = null
 
       console.log(
@@ -749,6 +744,10 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
               break
             case 'combo':
               // todo: add combination of environment variables
+              // 1. populate the functions example-> something-{{ secret(64, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')}}
+              // 2. split the all the reference variables-> postgres://{{ postgres-database.USERNAME }}{{ postgres-database.PASSWORD }}@{{ postgres-database.HOST }}:{{ postgres-database.PORT }}/{{ postgres-database.NAME }}
+              // 3. loop through variables and populate value
+
               break
             case 'unknown':
               // invalid variable format sending warning to user & pushing env with empty value
@@ -843,51 +842,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
             sendEvent({
               pub,
               message: `❌ Failed update environment variables for ${serviceDetails.name}: ${message}`,
-              serverId: serverDetails.id,
-            })
-          }
-        }
-
-        if (restartService) {
-          sendEvent({
-            pub,
-            message: `Started restarting ${serviceDetails.name}`,
-            serverId: serverDetails.id,
-          })
-
-          const restartServiceResponse = await dokku.process.restart(
-            ssh,
-            serviceDetails.name,
-            {
-              onStdout: async chunk => {
-                console.info(chunk.toString())
-                sendEvent({
-                  pub,
-                  message: chunk.toString(),
-                  serverId: serverDetails.id,
-                })
-              },
-              onStderr: async chunk => {
-                console.info(chunk.toString())
-                sendEvent({
-                  pub,
-                  message: chunk.toString(),
-                  serverId: serverDetails.id,
-                })
-              },
-            },
-          )
-
-          if (restartServiceResponse.code === 0) {
-            sendEvent({
-              pub,
-              message: `✅ Successfully restarted for ${serviceDetails.name}`,
-              serverId: serverDetails.id,
-            })
-          } else {
-            sendEvent({
-              pub,
-              message: `❌ Failed to restart ${serviceDetails.name}`,
               serverId: serverDetails.id,
             })
           }
