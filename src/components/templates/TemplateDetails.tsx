@@ -3,7 +3,6 @@
 import { Button } from '../ui/button'
 import { SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
@@ -26,12 +25,10 @@ const TemplateDetails = ({ template }: { template: Template }) => {
   return (
     <Card>
       <CardContent className='p-6'>
-        <Image
-          alt={`icon`}
+        <img
+          alt='Template Image'
           src={template?.imageUrl || '/images/favicon.ico'}
-          height={32}
-          width={32}
-          className='size-8'
+          className='h-10 w-10 rounded-md'
         />
 
         <div className='mt-4 flex flex-col gap-1'>

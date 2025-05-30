@@ -8,13 +8,16 @@ const TemplateCard = ({ template }: { template: Template }) => {
   return (
     <Card>
       <CardContent className='p-6'>
+<<<<<<< Updated upstream
         <Image
           unoptimized
           alt={`icon`}
+=======
+        <img
+          alt='Template Image'
+>>>>>>> Stashed changes
           src={template?.imageUrl || '/images/favicon.ico'}
-          height={32}
-          width={32}
-          className='size-8'
+          className='h-10 w-10 rounded-md'
         />
 
         <div className='mt-4 flex flex-col gap-1'>
