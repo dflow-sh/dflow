@@ -4,7 +4,7 @@ import Loader from '@/components/Loader'
 import SignUpForm from '@/components/sign-up/SignUpForm'
 
 interface PageProps {
-  searchParams: { token?: string }
+  searchParams: Promise<{ token?: string }>
 }
 
 const SuspensePage = async ({ token }: { token: string | undefined }) => {
@@ -19,7 +19,7 @@ const SuspensePage = async ({ token }: { token: string | undefined }) => {
 }
 
 const SignUpPage = async ({ searchParams }: PageProps) => {
-  const token = searchParams?.token
+  const token = (await searchParams)?.token
   return (
     <Suspense fallback={<Loader />}>
       <SuspensePage token={token} />
