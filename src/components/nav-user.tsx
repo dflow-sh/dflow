@@ -32,7 +32,7 @@ export function NavUser({ user }: { user: User }) {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <div className='relative'>
+            <div className='relative inline-block'>
               <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
                 {user?.avatarUrl ? (
                   <img
@@ -48,11 +48,10 @@ export function NavUser({ user }: { user: User }) {
                 )}
               </Avatar>
 
-              <div
-                role='status'
-                title={isOnline ? 'online' : 'offline'}
-                className={`size-2.5 rounded-full ${isOnline ? 'bg-success' : 'bg-destructive'} absolute -bottom-0.5 -right-0.5 border border-background`}
-              />
+              {/* Badge with letter at bottom right */}
+              <span className='absolute -bottom-[0.5rem] -right-[0.5rem] flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card text-xs uppercase'>
+                {params.organisation?.slice(0, 1)}
+              </span>
             </div>
           </DropdownMenuTrigger>
 
