@@ -40,28 +40,32 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
 
   const validationErrors: string[] = []
 
+  // Get all cloud provider accounts for the tenant
   const baseQuery = {
     tenant: { equals: tenantId },
-    ...(operation === 'update' && originalDoc?.id
-      ? { id: { not_equals: originalDoc.id } }
-      : {}),
   }
+
+  const allAccounts = await payload.find({
+    collection: 'cloudProviderAccounts',
+    where: baseQuery,
+    limit: 0,
+  })
+
+  // Filter out the current document if updating
+  const existingAccounts = allAccounts.docs.filter(account => {
+    if (operation === 'update' && originalDoc?.id) {
+      return account.id !== originalDoc.id
+    }
+    return true
+  })
 
   // 1. Check for duplicate names within the same tenant AND same account type
   if (data?.name && data?.type) {
-    const nameQuery = {
-      ...baseQuery,
-      name: { equals: data.name },
-      type: { equals: data.type }, // Added type filter
-    }
+    const duplicateByName = existingAccounts.find(
+      account => account.name === data.name && account.type === data.type,
+    )
 
-    const existingByName = await payload.find({
-      collection: 'cloudProviderAccounts',
-      where: nameQuery,
-      limit: 1,
-    })
-
-    if (existingByName.docs.length > 0) {
+    if (duplicateByName) {
       validationErrors.push(
         `Account name "${data.name}" is already in use for ${data.type} accounts in this tenant`,
       )
@@ -70,22 +74,15 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
 
   // 2. Check for duplicate account credentials/tokens based on provider type
   if (data?.type) {
-    const providerBaseQuery = {
-      ...baseQuery,
-      type: { equals: data.type },
-    }
+    // Filter existing accounts by the same provider type
+    const existingAccountsOfSameType = existingAccounts.filter(
+      account => account.type === data.type,
+    )
 
     switch (data.type) {
       case 'dFlow':
         if (data.dFlowDetails?.accessToken) {
-          const allDflowAccounts = await payload.find({
-            collection: 'cloudProviderAccounts',
-            where: providerBaseQuery,
-            limit: 0,
-          })
-
-          // Check if any existing account has the same access token
-          const duplicateAccount = allDflowAccounts.docs.find(
+          const duplicateAccount = existingAccountsOfSameType.find(
             account =>
               account.dFlowDetails?.accessToken ===
               data.dFlowDetails?.accessToken,
@@ -101,13 +98,7 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
 
       case 'aws':
         if (data.awsDetails?.accessKeyId && data.awsDetails?.secretAccessKey) {
-          const allAwsAccounts = await payload.find({
-            collection: 'cloudProviderAccounts',
-            where: providerBaseQuery,
-            limit: 0,
-          })
-
-          const duplicateAccount = allAwsAccounts.docs.find(
+          const duplicateAccount = existingAccountsOfSameType.find(
             account =>
               account.awsDetails?.accessKeyId ===
                 data.awsDetails?.accessKeyId &&
@@ -129,13 +120,7 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
           data.azureDetails?.tenantId &&
           data.azureDetails?.subscriptionId
         ) {
-          const allAzureAccounts = await payload.find({
-            collection: 'cloudProviderAccounts',
-            where: providerBaseQuery,
-            limit: 0,
-          })
-
-          const duplicateAccount = allAzureAccounts.docs.find(
+          const duplicateAccount = existingAccountsOfSameType.find(
             account =>
               account.azureDetails?.clientId === data.azureDetails?.clientId &&
               account.azureDetails?.tenantId === data.azureDetails?.tenantId &&
@@ -153,13 +138,7 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
 
       case 'gcp':
         if (data.gcpDetails?.serviceAccountKey) {
-          const allGcpAccounts = await payload.find({
-            collection: 'cloudProviderAccounts',
-            where: providerBaseQuery,
-            limit: 0,
-          })
-
-          const duplicateAccount = allGcpAccounts.docs.find(
+          const duplicateAccount = existingAccountsOfSameType.find(
             account =>
               account.gcpDetails?.serviceAccountKey ===
               data.gcpDetails?.serviceAccountKey,
@@ -175,13 +154,7 @@ export const checkDuplicateCloudAccounts: CollectionBeforeValidateHook<
 
       case 'digitalocean':
         if (data.digitaloceanDetails?.accessToken) {
-          const allDoAccounts = await payload.find({
-            collection: 'cloudProviderAccounts',
-            where: providerBaseQuery,
-            limit: 0,
-          })
-
-          const duplicateAccount = allDoAccounts.docs.find(
+          const duplicateAccount = existingAccountsOfSameType.find(
             account =>
               account.digitaloceanDetails?.accessToken ===
               data.digitaloceanDetails?.accessToken,
