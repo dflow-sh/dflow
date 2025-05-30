@@ -62,7 +62,6 @@ const Invitation = ({ tenant }: { tenant: any }) => {
 
   const sendLink = async () => {
     const link = await generateInviteLink((tenant.tenant as Tenant).id, [role])
-    console.log('link', link)
     sendInvitationLink({
       email,
       link,
