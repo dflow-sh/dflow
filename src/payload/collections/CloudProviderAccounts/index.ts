@@ -3,6 +3,8 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { checkDuplicateCloudAccounts } from './hooks/checkDuplicateCloudAccounts'
+
 export const CloudProviderAccounts: CollectionConfig = {
   slug: 'cloudProviderAccounts',
   admin: {
@@ -14,6 +16,9 @@ export const CloudProviderAccounts: CollectionConfig = {
     update: isAdmin,
     delete: isAdmin,
     readVersions: isAdmin,
+  },
+  hooks: {
+    beforeValidate: [checkDuplicateCloudAccounts],
   },
   fields: [
     {

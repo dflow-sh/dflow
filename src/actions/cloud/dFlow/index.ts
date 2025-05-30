@@ -53,6 +53,7 @@ export const connectDFlowAccountAction = protectedClient
     }
 
     revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
+    console.log(response)
     return response
   })
 

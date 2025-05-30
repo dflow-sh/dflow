@@ -57,6 +57,7 @@ const DFlowForm = ({
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>(null)
   const [hasTestedConnection, setHasTestedConnection] = useState(false)
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
     connectDFlowAccountAction,
@@ -67,10 +68,30 @@ const DFlowForm = ({
           dialogFooterRef.current?.click()
         }
       },
+      onError: ({ error }) => {
+        if (error?.serverError) {
+          setValidationError(error.serverError)
+        }
+
+        if (error?.validationErrors) {
+          Object.entries(error.validationErrors).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                form.setError(
+                  field as keyof z.infer<typeof connectDFlowAccountSchema>,
+                  {
+                    message: messages[0],
+                  },
+                )
+              }
+            },
+          )
+        }
+      },
     },
   )
 
-  const { execute: checkConnection, isPending: isCheckingConnection } =
+  const { execute: checkConnection, isExecuting: isCheckingConnection } =
     useAction(checkAccountConnection, {
       onSuccess: ({ data }) => {
         setConnectionStatus({
@@ -117,10 +138,14 @@ const DFlowForm = ({
       form.reset()
       setConnectionStatus(null)
       setHasTestedConnection(false)
+      setValidationError(null)
     }
   }
 
   function onSubmit(values: z.infer<typeof connectDFlowAccountSchema>) {
+    // Clear previous validation errors
+    setValidationError(null)
+
     if (!hasTestedConnection) {
       handleTestConnection()
       return
@@ -154,6 +179,21 @@ const DFlowForm = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            {/* Display validation errors from server */}
+            {validationError && (
+              <Alert variant='destructive'>
+                <XCircle className='h-4 w-4' />
+                <AlertDescription>
+                  <div className='space-y-1'>
+                    <p className='font-medium'>Validation Error</p>
+                    <p className='text-sm opacity-90'>
+                      {validationError.replace('Validation failed: ', '')}
+                    </p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className='space-y-4'>
               <FormField
                 control={form.control}
@@ -168,6 +208,13 @@ const DFlowForm = ({
                         {...field}
                         placeholder='My dFlow Account'
                         className='h-10'
+                        onChange={e => {
+                          field.onChange(e)
+                          // Clear validation errors when user starts typing
+                          if (validationError) {
+                            setValidationError(null)
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -195,6 +242,10 @@ const DFlowForm = ({
                             if (hasTestedConnection) {
                               setConnectionStatus(null)
                               setHasTestedConnection(false)
+                            }
+                            // Clear validation errors when user starts typing
+                            if (validationError) {
+                              setValidationError(null)
                             }
                           }}
                         />
