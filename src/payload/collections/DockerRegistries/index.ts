@@ -3,6 +3,8 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { checkDuplicateDockerRegistries } from './hooks/checkDuplicateDockerRegistries'
+
 export const DockerRegistries: CollectionConfig = {
   slug: 'dockerRegistries',
   admin: {
@@ -13,6 +15,9 @@ export const DockerRegistries: CollectionConfig = {
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,
+  },
+  hooks: {
+    beforeValidate: [checkDuplicateDockerRegistries],
   },
   fields: [
     {
