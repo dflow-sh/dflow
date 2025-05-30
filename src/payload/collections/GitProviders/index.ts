@@ -2,6 +2,8 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { checkDuplicateGitProviders } from './hooks/checkDuplicateGitProviders'
+
 // import { populateInstallationToken } from './hooks/populateInstallationToken'
 
 export const GitProviders: CollectionConfig = {
@@ -18,6 +20,7 @@ export const GitProviders: CollectionConfig = {
     readVersions: isAdmin,
   },
   hooks: {
+    beforeValidate: [checkDuplicateGitProviders],
     // afterChange: [populateInstallationToken],
   },
   fields: [
