@@ -34,10 +34,18 @@ export function NavUser({ user }: { user: User }) {
           <DropdownMenuTrigger>
             <div className='relative'>
               <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
-                {/* <AvatarImage src={user.avatar} alt={user.name} /> */}
-                <AvatarFallback className='rounded-lg uppercase'>
-                  {initial}
-                </AvatarFallback>
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl || ''}
+                    alt='User avatar'
+                    className='h-8 w-8 rounded-lg object-cover'
+                    loading='lazy'
+                  />
+                ) : (
+                  <AvatarFallback className='rounded-lg uppercase'>
+                    {initial}
+                  </AvatarFallback>
+                )}
               </Avatar>
 
               <div
