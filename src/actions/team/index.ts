@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient, userClient } from '@/lib/safe-action'
 import { Tenant } from '@/payload-types'
 
-import { updateTenantRolesSchema } from './validator'
+import { joinTeamSchema, updateTenantRolesSchema } from './validator'
 
 export const getTeamMembersAction = protectedClient
   .metadata({ actionName: 'getTeamMembersAction' })
@@ -88,4 +88,44 @@ export const removeUserFromTeamAction = protectedClient
     }
 
     return response
+  })
+
+export const joinTeamAction = userClient
+  .metadata({
+    actionName: 'joinTeamAction',
+  })
+  .schema(joinTeamSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { payload, user } = ctx
+    const { roles, tenantId } = clientInput
+
+    const tenant = await payload.findByID({
+      collection: 'tenants',
+      id: tenantId,
+    })
+    if (!tenant) {
+      throw Error('Invalid Invitation Link')
+    }
+
+    const isInTeam = (user?.tenants || []).some(
+      (tenantData: any) => (tenantData.tenant as Tenant).id === tenantId,
+    )
+    if (isInTeam) {
+      throw Error('Your are already in team')
+    }
+
+    const result = await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
+        tenants: [
+          ...(user?.tenants || []),
+          {
+            tenant: tenant,
+            roles,
+          },
+        ],
+      },
+    })
+    return result
   })

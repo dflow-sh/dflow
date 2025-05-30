@@ -8,3 +8,12 @@ export const updateTenantRolesSchema = z.object({
 })
 
 export type updateTenantRolesType = z.infer<typeof updateTenantRolesSchema>
+
+export const joinTeamSchema = z.object({
+  tenantId: z.string(),
+  roles: z
+    .array(z.enum(['tenant-admin', 'tenant-user']))
+    .min(1, { message: 'At least one role must be selected.' }),
+})
+
+export type JoinTeamType = z.infer<typeof joinTeamSchema>
