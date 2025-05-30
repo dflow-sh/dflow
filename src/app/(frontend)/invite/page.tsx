@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/getCurrentUser'
 import { verifyInviteToken } from '@/lib/verifyInviteToken'
 
 interface PageProps {
-  searchParams: { token?: string }
+  searchParams: Promise<{ token?: string }>
 }
 
 type Role = 'tenant-admin' | 'tenant-user'
@@ -17,7 +17,7 @@ interface InvitationData {
 type Invitation = InvitationData | 'expired' | null
 
 const InvitePage = async ({ searchParams }: PageProps) => {
-  const token = searchParams?.token
+  const token = (await searchParams)?.token
 
   if (!token) {
     redirect('/')
