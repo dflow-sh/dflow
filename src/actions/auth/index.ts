@@ -203,3 +203,9 @@ export const getUserAction = protectedClient
   .action(async ({ ctx }) => {
     return ctx.user
   })
+
+export const getTenantAction = protectedClient
+  .metadata({ actionName: 'getTenantAction' })
+  .action(async ({ ctx }) => {
+    return ctx.userTenant
+  })
