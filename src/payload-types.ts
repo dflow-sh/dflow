@@ -157,6 +157,7 @@ export interface UserAuthOperations {
 export interface User {
   id: string;
   username?: string | null;
+  avatarUrl?: string | null;
   onboarded?: boolean | null;
   role?: ('admin' | 'user' | 'demo')[] | null;
   tenants?:
@@ -973,6 +974,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   username?: T;
+  avatarUrl?: T;
   onboarded?: T;
   role?: T;
   tenants?:

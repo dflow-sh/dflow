@@ -65,6 +65,45 @@ const databaseIcons: {
   redis: <Redis className='size-6' />,
 }
 
+const variables = [
+  {
+    type: 'private',
+    value: 'URI',
+  },
+  {
+    type: 'private',
+    value: 'NAME',
+  },
+  {
+    type: 'private',
+    value: 'USERNAME',
+  },
+  {
+    type: 'private',
+    value: 'PASSWORD',
+  },
+  {
+    type: 'private',
+    value: 'HOST',
+  },
+  {
+    type: 'private',
+    value: 'PORT',
+  },
+  {
+    type: 'public',
+    value: 'PUBLIC_HOST',
+  },
+  {
+    type: 'public',
+    value: 'PUBLIC_PORT',
+  },
+  {
+    type: 'public',
+    value: 'PUBLIC_URI',
+  },
+] as const
+
 const ReferenceVariableDropdown = ({
   gettingDatabases,
   databaseList: list = [],
@@ -92,8 +131,13 @@ const ReferenceVariableDropdown = ({
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className='pb-2' align='end'>
-        <DropdownMenuLabel>Reference Variables</DropdownMenuLabel>
+      <DropdownMenuContent
+        className='max-h-64 overflow-y-scroll pb-2 pt-0'
+        align='end'>
+        <DropdownMenuLabel className='sticky top-0 z-10 bg-popover pt-2'>
+          Reference Variables
+        </DropdownMenuLabel>
+
         <DropdownMenuItem
           onSelect={() => {
             setValue(`variables.${index}.value`, publicDomain)
@@ -134,33 +178,24 @@ const ReferenceVariableDropdown = ({
 
               return (
                 <Fragment key={database.id}>
-                  <DropdownMenuItem
-                    disabled={disabled}
-                    onSelect={() => {
-                      setValue(
-                        `variables.${index}.value`,
-                        `{{ ${environmentVariableValue}_URI }}`,
-                      )
-                    }}>
-                    {database.databaseDetails?.type &&
-                      databaseIcons[database.databaseDetails?.type]}
+                  {variables.map(({ type, value }) => {
+                    const populatedValue = `{{ ${environmentVariableValue}_${value} }}`
 
-                    {`{{ ${environmentVariableValue}_URI }} ${disabled ? '(not-deployed)' : ''}`}
-                  </DropdownMenuItem>
+                    return (
+                      <DropdownMenuItem
+                        disabled={
+                          type === 'private' ? disabled : !exposedPorts.length
+                        }
+                        onSelect={() => {
+                          setValue(`variables.${index}.value`, populatedValue)
+                        }}>
+                        {database.databaseDetails?.type &&
+                          databaseIcons[database.databaseDetails?.type]}
 
-                  <DropdownMenuItem
-                    disabled={!exposedPorts.length}
-                    onSelect={() => {
-                      setValue(
-                        `variables.${index}.value`,
-                        `{{ ${environmentVariableValue}_PUBLIC_URI }}`,
-                      )
-                    }}>
-                    {database.databaseDetails?.type &&
-                      databaseIcons[database.databaseDetails?.type]}
-
-                    {`{{ ${environmentVariableValue}_PUBLIC_URI }} ${disabled ? '(not-deployed)' : ''}`}
-                  </DropdownMenuItem>
+                        {`${populatedValue} ${disabled ? '(not-deployed)' : ''}`}
+                      </DropdownMenuItem>
+                    )
+                  })}
                 </Fragment>
               )
             })
