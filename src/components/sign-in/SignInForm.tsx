@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -26,6 +27,9 @@ import { isDemoEnvironment } from '@/lib/constants'
 const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
   resendEnvExist,
 }) => {
+  const searchParams = useSearchParams()
+  const token = searchParams.get('token')
+  const router = useRouter()
   const {
     execute: mutate,
     isPending,
@@ -33,6 +37,11 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
     hasErrored: isError,
     result,
   } = useAction(signInAction, {
+    onSuccess: () => {
+      if (token) {
+        router.replace(`/invite?token=${token}`)
+      }
+    },
     onError: ({ error }) => {
       toast.error(`Failed to sign in: ${error.serverError}`, { duration: 5000 })
     },
@@ -130,7 +139,9 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
           <div className='mt-4 text-center text-sm text-muted-foreground'>
             <p>
               Don&apos;t have an account?{' '}
-              <Link href='/sign-up' className='text-primary underline'>
+              <Link
+                href={token ? `/sign-up?token=${token}` : '/sign-up'}
+                className='text-primary underline'>
                 SignUp
               </Link>
             </p>
