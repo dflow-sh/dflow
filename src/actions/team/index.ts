@@ -1,11 +1,17 @@
 'use server'
 
+import { env } from 'env'
 import { revalidatePath } from 'next/cache'
 
+import { TeamInvitation } from '@/emails/team-invitation'
 import { protectedClient, userClient } from '@/lib/safe-action'
 import { Tenant } from '@/payload-types'
 
-import { joinTeamSchema, updateTenantRolesSchema } from './validator'
+import {
+  joinTeamSchema,
+  sendInvitationLinkSchema,
+  updateTenantRolesSchema,
+} from './validator'
 
 export const getTeamMembersAction = protectedClient
   .metadata({ actionName: 'getTeamMembersAction' })
@@ -128,4 +134,25 @@ export const joinTeamAction = userClient
       },
     })
     return result
+  })
+
+export const sendInvitationLinkAction = userClient
+  .metadata({
+    actionName: 'sendInvitationLinkAction',
+  })
+  .schema(sendInvitationLinkSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { email, link } = clientInput
+    const { payload } = ctx
+
+    await payload.sendEmail({
+      to: email,
+      from: `"Team dFlow" <${env.RESEND_SENDER_EMAIL}>`,
+      subject: 'You have been invited',
+      html: await TeamInvitation({
+        actionLabel: 'Team Invitation',
+        buttonText: 'Join Team',
+        href: link,
+      }),
+    })
   })

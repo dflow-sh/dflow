@@ -17,3 +17,8 @@ export const joinTeamSchema = z.object({
 })
 
 export type JoinTeamType = z.infer<typeof joinTeamSchema>
+
+export const sendInvitationLinkSchema = z.object({
+  email: z.string(),
+  link: z.string(),
+})
