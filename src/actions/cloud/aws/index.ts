@@ -18,6 +18,8 @@ import { protectedClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
 import {
+  checkAWSConnectionSchema,
+  // Add this to your validator file
   connectAWSAccountSchema,
   createEC2InstanceSchema,
   deleteAWSAccountSchema,
@@ -445,4 +447,167 @@ export const updateEC2InstanceAction = protectedClient
     }
 
     return { success: true, server: response }
+  })
+
+// New action to test AWS connection
+export const checkAWSAccountConnection = protectedClient
+  .metadata({
+    actionName: 'checkAWSAccountConnection',
+  })
+  .schema(checkAWSConnectionSchema)
+  .action(async ({ clientInput }) => {
+    const { accessKeyId, secretAccessKey, region = 'us-east-1' } = clientInput
+
+    try {
+      // Validate credentials format
+      if (
+        !accessKeyId ||
+        typeof accessKeyId !== 'string' ||
+        accessKeyId.trim() === ''
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error: 'Invalid or missing AWS Access Key ID',
+        }
+      }
+
+      if (
+        !secretAccessKey ||
+        typeof secretAccessKey !== 'string' ||
+        secretAccessKey.trim() === ''
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error: 'Invalid or missing AWS Secret Access Key',
+        }
+      }
+
+      // Initialize EC2 client with provided credentials
+      const ec2Client = new EC2Client({
+        region,
+        credentials: {
+          accessKeyId: accessKeyId.trim(),
+          secretAccessKey: secretAccessKey.trim(),
+        },
+      })
+
+      // Perform a simple API call to test connectivity
+      // DescribeKeyPairs is a low-cost operation that requires minimal permissions
+      const testCommand = new DescribeKeyPairsCommand({})
+
+      const response = await ec2Client.send(testCommand)
+
+      // If we reach here, the connection is successful
+      const accountInfo = {
+        region,
+        keyPairsCount: response.KeyPairs?.length || 0,
+        hasEC2Access: true,
+        connectionTime: new Date().toISOString(),
+      }
+
+      return {
+        isConnected: true,
+        accountInfo,
+        error: null,
+      }
+    } catch (error: any) {
+      console.error('AWS account connection check failed:', error)
+
+      // Handle specific AWS error types
+      if (
+        error.name === 'InvalidUserID.NotFound' ||
+        error.name === 'InvalidAccessKeyId'
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error: 'Invalid AWS Access Key ID. Please check your credentials.',
+        }
+      }
+
+      if (error.name === 'SignatureDoesNotMatch') {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'Invalid AWS Secret Access Key. Please check your credentials.',
+        }
+      }
+
+      if (error.name === 'UnauthorizedOperation') {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'AWS credentials are valid but lack EC2 permissions. Please ensure your IAM user has the necessary permissions.',
+        }
+      }
+
+      if (
+        error.name === 'TokenRefreshRequired' ||
+        error.name === 'ExpiredToken'
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'AWS security token has expired. Please generate new credentials.',
+        }
+      }
+
+      if (
+        error.name === 'NetworkingError' ||
+        error.code === 'ENOTFOUND' ||
+        error.code === 'ECONNREFUSED'
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'Network error. Please check your internet connection and try again.',
+        }
+      }
+
+      if (error.code === 'ECONNABORTED' || error.name === 'TimeoutException') {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'Connection timeout. The AWS service may be slow or unavailable.',
+        }
+      }
+
+      if (
+        error.name === 'ServiceUnavailable' ||
+        error.name === 'InternalError'
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error:
+            'AWS service is temporarily unavailable. Please try again later.',
+        }
+      }
+
+      if (
+        error.name === 'ThrottlingException' ||
+        error.name === 'RequestLimitExceeded'
+      ) {
+        return {
+          isConnected: false,
+          accountInfo: null,
+          error: 'Too many requests. Please wait a moment and try again.',
+        }
+      }
+
+      // Generic error fallback
+      return {
+        isConnected: false,
+        accountInfo: null,
+        error:
+          'Failed to connect to AWS. Please check your credentials and try again.',
+      }
+    }
   })
