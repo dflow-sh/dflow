@@ -115,7 +115,7 @@ const ReferenceVariableDropdown = ({
   index: number | string
   serviceName: string
 }) => {
-  const { setValue } = useFormContext()
+  const { setValue, getValues } = useFormContext()
   const publicDomain = `{{ ${serviceName}.DFLOW_PUBLIC_DOMAIN }}`
   const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
@@ -183,11 +183,17 @@ const ReferenceVariableDropdown = ({
 
                     return (
                       <DropdownMenuItem
+                        key={value}
                         disabled={
                           type === 'private' ? disabled : !exposedPorts.length
                         }
                         onSelect={() => {
-                          setValue(`variables.${index}.value`, populatedValue)
+                          const value = getValues(`variables.${index}.value`)
+
+                          setValue(
+                            `variables.${index}.value`,
+                            `${value}${populatedValue}`,
+                          )
                         }}>
                         {database.databaseDetails?.type &&
                           databaseIcons[database.databaseDetails?.type]}
@@ -322,12 +328,12 @@ const KeyValuePair = memo(
     const { control } = useFormContext()
 
     return (
-      <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4'>
+      <div className='grid w-full grid-cols-[1fr_1fr_2.5rem] gap-4 font-mono'>
         <FormField
           control={control}
           name={`variables.${id}.key`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='col-span-1'>
               <FormControl>
                 <Input {...field} />
               </FormControl>

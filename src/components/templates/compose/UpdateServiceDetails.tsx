@@ -292,7 +292,7 @@ const ReferenceVariableDropdown = ({
   databaseList: ServiceNode[]
   index: number
 }) => {
-  const { setValue } = useFormContext()
+  const { setValue, getValues } = useFormContext()
   const publicDomain = `{{ ${serviceName}.DFLOW_PUBLIC_DOMAIN }}`
   const secretKey = `{{ secret(64, "abcdefghijklMNOPQRSTUVWXYZ") }}`
 
@@ -338,12 +338,17 @@ const ReferenceVariableDropdown = ({
               return (
                 <Fragment key={database.id}>
                   {variables.map(({ value }) => {
+                    const previousValue = getValues(`variables.${index}.value`)
                     const populatedValue = `{{ ${environmentVariableValue}_${value} }}`
 
                     return (
                       <DropdownMenuItem
+                        key={value}
                         onSelect={() => {
-                          setValue(`variables.${index}.value`, populatedValue)
+                          setValue(
+                            `variables.${index}.value`,
+                            `${previousValue}${populatedValue}`,
+                          )
                         }}>
                         {database.databaseDetails?.type &&
                           databaseIcons[database.databaseDetails?.type]}
