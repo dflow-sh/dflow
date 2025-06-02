@@ -1,15 +1,19 @@
 'use server'
 
 import dns from 'dns/promises'
+import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 
 import { protectedClient } from '@/lib/safe-action'
+import { server } from '@/lib/server'
+import { dynamicSSH } from '@/lib/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 
 import {
   checkDNSConfigSchema,
+  checkServerConnectionSchema,
   completeServerOnboardingSchema,
   createServerSchema,
   deleteServerSchema,
@@ -318,5 +322,189 @@ export const syncServerDomainAction = protectedClient
 
     if (queueResponse.id) {
       return { success: true }
+    }
+  })
+
+export const checkServerConnection = protectedClient
+  .metadata({
+    actionName: 'checkServerConnection',
+  })
+  .schema(checkServerConnectionSchema)
+  .action(async ({ clientInput }) => {
+    const { ip, port, username, privateKey } = clientInput
+
+    try {
+      // Validate input parameters
+      if (!ip || !port || !username || !privateKey) {
+        return {
+          isConnected: false,
+          portIsOpen: false,
+          sshConnected: false,
+          serverInfo: null,
+          error: 'Missing required connection parameters',
+        }
+      }
+
+      // Check if port is reachable
+      const portIsOpen = await isPortReachable(port, {
+        host: ip,
+        timeout: 5000, // 5 second timeout for port check
+      })
+
+      if (!portIsOpen) {
+        return {
+          isConnected: false,
+          portIsOpen: false,
+          sshConnected: false,
+          serverInfo: null,
+          error: `Port ${port} is not reachable on ${ip}. Please check if the server is running and the port is open.`,
+        }
+      }
+
+      let sshConnected = false
+      let serverInfo = null
+      let ssh
+
+      try {
+        // Attempt SSH connection
+        ssh = await dynamicSSH({
+          host: ip,
+          port,
+          privateKey,
+          username,
+        })
+
+        if (ssh.isConnected()) {
+          sshConnected = true
+
+          // Get server information
+          const {
+            dokkuVersion,
+            linuxDistributionType,
+            linuxDistributionVersion,
+            netdataVersion,
+            railpackVersion,
+          } = await server.info({ ssh })
+
+          serverInfo = {
+            dokku: dokkuVersion,
+            netdata: netdataVersion,
+            os: {
+              type: linuxDistributionType,
+              version: linuxDistributionVersion,
+            },
+            railpack: railpackVersion,
+          }
+        }
+      } catch (sshError) {
+        console.error('SSH connection failed:', sshError)
+
+        // Handle specific SSH errors
+        if (sshError instanceof Error) {
+          const errorMessage = sshError.message.toLowerCase()
+
+          if (errorMessage.includes('authentication')) {
+            return {
+              isConnected: false,
+              portIsOpen,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'SSH authentication failed. Please check your username and private key.',
+            }
+          } else if (errorMessage.includes('timeout')) {
+            return {
+              isConnected: false,
+              portIsOpen,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'SSH connection timeout. The server may be slow to respond.',
+            }
+          } else if (errorMessage.includes('refused')) {
+            return {
+              isConnected: false,
+              portIsOpen,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'SSH connection refused. Please check if SSH service is running on the server.',
+            }
+          } else if (errorMessage.includes('host key')) {
+            return {
+              isConnected: false,
+              portIsOpen,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'SSH host key verification failed. The server key may have changed.',
+            }
+          }
+        }
+
+        return {
+          isConnected: false,
+          portIsOpen,
+          sshConnected: false,
+          serverInfo: null,
+          error: 'SSH connection failed. Please check your connection details.',
+        }
+      } finally {
+        // Clean up SSH connection
+        if (ssh) {
+          try {
+            ssh.dispose()
+          } catch (disposeError) {
+            console.error('Error disposing SSH connection:', disposeError)
+          }
+        }
+      }
+
+      const isFullyConnected = portIsOpen && sshConnected
+
+      return {
+        isConnected: isFullyConnected,
+        portIsOpen,
+        sshConnected,
+        serverInfo,
+        error: null,
+      }
+    } catch (error) {
+      console.error('Server connection check failed:', error)
+
+      // Handle different types of errors
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase()
+
+        if (errorMessage.includes('network') || errorMessage.includes('dns')) {
+          return {
+            isConnected: false,
+            portIsOpen: false,
+            sshConnected: false,
+            serverInfo: null,
+            error:
+              'Network error. Please check your internet connection and server IP address.',
+          }
+        } else if (errorMessage.includes('timeout')) {
+          return {
+            isConnected: false,
+            portIsOpen: false,
+            sshConnected: false,
+            serverInfo: null,
+            error:
+              'Connection timeout. The server may be unreachable or overloaded.',
+          }
+        }
+      }
+
+      // Generic error fallback
+      return {
+        isConnected: false,
+        portIsOpen: false,
+        sshConnected: false,
+        serverInfo: null,
+        error:
+          'Failed to connect to server. Please check your connection details and try again.',
+      }
     }
   })
