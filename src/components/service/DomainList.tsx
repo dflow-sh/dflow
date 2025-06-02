@@ -1,13 +1,20 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { ArrowUpRight, Globe, Trash2 } from 'lucide-react'
+import { Switch } from '../ui/switch'
+import { CircleCheckBig, CircleX, Globe, Loader, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { updateServiceDomainAction } from '@/actions/service'
+import { checkDNSConfigAction } from '@/actions/server'
+import {
+  syncServiceDomainAction,
+  updateServiceDomainAction,
+} from '@/actions/service'
 import { Card, CardContent } from '@/components/ui/card'
 import { Service } from '@/payload-types'
 
@@ -16,8 +23,10 @@ import RegenerateSSLForm from './RegenerateSSLForm'
 
 const DomainCard = ({
   domain,
+  ip,
 }: {
   domain: NonNullable<Service['domains']>[number]
+  ip: string
 }) => {
   const { serviceId } = useParams<{ id: string; serviceId: string }>()
 
@@ -34,6 +43,59 @@ const DomainCard = ({
     },
   })
 
+  const {
+    execute: checkDNSConfig,
+    isPending: checkingDNSConfig,
+    result,
+  } = useAction(checkDNSConfigAction)
+
+  const {
+    execute: syncDomain,
+    isPending: syncingDomain,
+    hasSucceeded: triggeredDomainSync,
+  } = useAction(syncServiceDomainAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.info('Added to queue', {
+          description: 'Added syncing domain to queue',
+        })
+      }
+    },
+  })
+
+  useEffect(() => {
+    checkDNSConfig({ ip, domain: domain.domain })
+  }, [])
+
+  const StatusBadge = () => {
+    if (checkingDNSConfig) {
+      return (
+        <Badge variant='info' className='gap-1 [&_svg]:size-4'>
+          <Loader className='animate-spin' />
+          Verifying DNS
+        </Badge>
+      )
+    }
+
+    if (result?.data) {
+      return (
+        <Badge variant='success' className='gap-1 [&_svg]:size-4'>
+          <CircleCheckBig />
+          Verification Success
+        </Badge>
+      )
+    }
+
+    if (result?.serverError) {
+      return (
+        <Badge variant='destructive' className='gap-1 [&_svg]:size-4'>
+          <CircleX />
+          Verification Failed
+        </Badge>
+      )
+    }
+  }
+
   return (
     <Card className='text-sm'>
       <CardContent className='flex w-full items-center justify-between pt-4'>
@@ -44,11 +106,47 @@ const DomainCard = ({
             target='_blank'
             className='font-semibold hover:underline'>
             {domain.domain}
-            <ArrowUpRight className='ml-1 inline-block' size={16} />
           </a>
         </div>
 
-        <div className='space-x-4'>
+        <div className='flex items-center space-x-4'>
+          <Switch
+            checked={domain.default ?? false}
+            disabled
+            title={domain.default ? 'Default Domain' : ''}
+          />
+
+          <StatusBadge />
+
+          <Button
+            disabled={
+              !!result?.serverError ||
+              checkingDNSConfig ||
+              syncingDomain ||
+              domain.synced ||
+              triggeredDomainSync
+            }
+            isLoading={syncingDomain}
+            onClick={() => {
+              syncDomain({
+                domain: {
+                  hostname: domain.domain,
+                  autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
+                  certificateType: domain.certificateType ?? 'letsencrypt',
+                  default: domain.default ?? false,
+                },
+                id: serviceId,
+                operation: 'add',
+              })
+            }}
+            variant='outline'>
+            {domain.synced
+              ? 'Synced Domain'
+              : triggeredDomainSync
+                ? 'Syncing Domain'
+                : 'Sync Domain'}
+          </Button>
+
           <Button
             size='icon'
             onClick={() => {
@@ -74,8 +172,10 @@ const DomainCard = ({
 
 const DomainList = ({
   domains,
+  ip,
 }: {
   domains: NonNullable<Service['domains']>
+  ip: string
 }) => {
   return (
     <section className='space-y-6'>
@@ -93,7 +193,11 @@ const DomainList = ({
         {domains.length ? (
           domains?.map(domainDetails => {
             return (
-              <DomainCard key={domainDetails.domain} domain={domainDetails} />
+              <DomainCard
+                key={domainDetails.domain}
+                domain={domainDetails}
+                ip={ip}
+              />
             )
           })
         ) : (

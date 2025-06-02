@@ -352,7 +352,7 @@ const KeyValuePair = memo(
                   <Input {...field} className='pr-[4.4rem]' />
 
                   <CopyToClipboard
-                    message={`Copied ${field.value} variable`}
+                    message={`Copied variable`}
                     id={id}
                     parsedValues={parsedValues}
                   />
