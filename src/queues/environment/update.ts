@@ -6,7 +6,7 @@ import { Job } from 'bullmq'
 import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
 import nunjucks from 'nunjucks'
-import { getPayload } from 'payload'
+import { Payload, getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
@@ -132,7 +132,6 @@ async function waitForJobCompletion(
     try {
       // Get the current state of the job
       const state = await job.getState()
-      console.log({ state })
 
       // Check if job completed successfully
       if (successStates.includes(state)) {
@@ -176,36 +175,31 @@ function classifyVariableType(value: string) {
   return 'unknown'
 }
 
+// Extract the reference variables from combination variable -> postgres://{{ service-name.USERNAME }}:{{ service-name.PASSWORD }} -> [service-name.USERNAME, service-name.PASSWORD]
+function extractTemplateRefs(str: string) {
+  const matches = str.match(/\{\{\s*[^}]+\s*\}\}/g)
+  return matches ?? []
+}
+
 type FormattedVariablesType = NonNullable<Service['variables']>[number] & {
   generatedValue: string
 }
 
+// populates private database variables
 async function updatePrivateDatabaseVariables({
-  formattedVariables,
   variable,
-  key,
-  value,
   ssh,
   serviceName,
   envAlias,
 }: {
-  formattedVariables: FormattedVariablesType[]
   variable: string
-  key: string
-  value: string
   ssh: NodeSSH
   serviceName: string
   envAlias: string
 }) {
   // checking if variable name is url -> serviceName.MONGO_URL
-  if (variable.includes('_URL')) {
-    formattedVariables.push({
-      key,
-      value,
-      generatedValue: `$(dokku config:get ${serviceName} ${envAlias}_URL)`,
-    })
-
-    return
+  if (variable.includes('_URI')) {
+    return `$(dokku config:get ${serviceName} ${envAlias}_URL)`
   }
 
   const echoResponse = await server.echo({
@@ -218,52 +212,29 @@ async function updatePrivateDatabaseVariables({
     const fields = parseDatabaseUrl(echoResponse.stdout)
 
     if (variable.includes('_NAME')) {
-      formattedVariables.push({
-        key,
-        value,
-        generatedValue: fields.databaseName ?? '',
-      })
+      return fields.databaseName ?? ''
     } else if (variable.includes('_USERNAME')) {
-      formattedVariables.push({
-        key,
-        value,
-        generatedValue: fields.username ?? '',
-      })
+      return fields.username ?? ''
     } else if (variable.includes('_PASSWORD')) {
-      formattedVariables.push({
-        key,
-        value,
-        generatedValue: fields.password ?? '',
-      })
+      return fields.password ?? ''
     } else if (variable.includes('_HOST')) {
-      formattedVariables.push({
-        key,
-        value,
-        generatedValue: fields.host ?? '',
-      })
+      return fields.host ?? ''
     } else if (variable.includes('_PORT')) {
-      formattedVariables.push({
-        key,
-        value,
-        generatedValue: fields.port ?? '',
-      })
+      return fields.port ?? ''
     }
   }
+
+  return ''
 }
 
+// populates public database variables
 async function updatePublicDatabaseVariables({
   databaseDetails,
   variableName,
-  key,
-  value,
-  formattedVariables,
   serverHost,
 }: {
   variableName: string
-  key: string
-  value: string
   databaseDetails: NonNullable<Service['databaseDetails']>
-  formattedVariables: FormattedVariablesType[]
   serverHost: string
 }) {
   const connectionUrl = databaseDetails?.connectionUrl ?? ''
@@ -271,27 +242,371 @@ async function updatePublicDatabaseVariables({
   const port = databaseDetails?.port ?? ''
   const exposedPort = databaseDetails?.exposedPorts?.[0] ?? ''
 
-  if (variableName.includes('_URL')) {
-    formattedVariables.push({
-      key,
-      value,
-      generatedValue: connectionUrl
-        .replace(host, serverHost)
-        .replace(port, exposedPort),
-    })
+  if (variableName.includes('_URI')) {
+    return connectionUrl.replace(host, serverHost).replace(port, exposedPort)
   } else if (variableName.includes('_PUBLIC_HOST')) {
-    formattedVariables.push({
-      key,
-      value,
-      generatedValue: serverHost,
-    })
+    return serverHost
   } else if (variableName.includes('_PUBLIC_PORT')) {
-    formattedVariables.push({
-      key,
-      value,
-      generatedValue: exposedPort,
-    })
+    return exposedPort
   }
+
+  return ''
+}
+
+// populates reference variables
+async function handleReferenceVariables({
+  payload,
+  ssh,
+  tenantSlug,
+  serviceDetails,
+  serverDetails,
+  sshDetails,
+  variable,
+  exposeDatabase,
+}: {
+  payload: Payload
+  ssh: NodeSSH
+  tenantSlug: string
+  serviceDetails: QueueArgs['serviceDetails']
+  serverDetails: QueueArgs['serverDetails']
+  sshDetails: QueueArgs['sshDetails']
+  variable: string
+  exposeDatabase: boolean
+}) {
+  const extractedVariable = variable
+    .match(TEMPLATE_EXPR)?.[0]
+    ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+    ?.trim()
+
+  if (extractedVariable) {
+    const refMatch = extractedVariable.match(
+      /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+    )
+
+    if (refMatch) {
+      const [, serviceName, variableName] = refMatch
+      // if variable is in knownVariable list, populating it's value
+      if (isKnownVariable(variableName)) {
+        // for DFLOW_PUBLIC_DOMAIN variable checking domains of that service and updating the
+        if (variableName === 'DFLOW_PUBLIC_DOMAIN') {
+          try {
+            const domains = await dokku.domains.list({
+              ssh,
+              appName: serviceName,
+            })
+
+            const domain = domains?.[0] ?? ''
+
+            // incase of single domain directly assigning that value
+            if (domains.length === 1) {
+              return {
+                [variable]: domain,
+              }
+            }
+
+            // check for synced default domain
+            const { docs } = await payload.find({
+              collection: 'services',
+              where: {
+                and: [
+                  {
+                    name: {
+                      equals: serviceName,
+                    },
+                    'tenant.slug': {
+                      equals: tenantSlug,
+                    },
+                  },
+                ],
+              },
+            })
+
+            const serviceDetails = docs?.[0]
+
+            console.dir({ serviceDetails }, { depth: null })
+
+            if (serviceDetails) {
+              const { domains = [] } = serviceDetails
+
+              const defaultDomain = domains?.find(
+                domainDetails => domainDetails.default && domainDetails.synced,
+              )
+
+              if (defaultDomain) {
+                return {
+                  [variable]: defaultDomain.domain,
+                }
+              }
+            }
+
+            return {
+              [variable]: domain,
+            }
+          } catch (error) {
+            return {
+              [variable]: '',
+            }
+
+            // todo: add sendEvent showing error to user!
+          }
+        }
+
+        // handle database variable linking 'MONGO_URI', 'POSTGRES_URI', 'REDIS_URI', 'MARIADB_URI', 'MYSQL_URI', 'MONGO_PUBLIC_URI', 'POSTGRES_PUBLIC_URI', 'REDIS_PUBLIC_URI', 'MARIADB_PUBLIC_URI', 'MYSQL_PUBLIC_URI'
+        // aliasing serviceName to databaseName ex: DATABASE_URI={{ my-mongo-db:MONGO_URI }}
+        const { success: isDatabaseVariable, data: databaseVariableName } =
+          databaseVariablesList.safeParse(variableName)
+
+        if (isDatabaseVariable) {
+          const databaseName = serviceName
+          const databaseType = databaseVariableName?.split('_')[0].toLowerCase()
+
+          const formattedDatabaseVariableName = `${databaseName}-db`
+          const envAlias = formattedDatabaseVariableName
+            .replace(/-([a-z])/g, (_, char) => '_' + char.toUpperCase())
+            .toUpperCase()
+
+          // 1. Public database connection -> MONGO_PUBLIC_URI
+          if (databaseVariableName.includes('PUBLIC')) {
+            // check for database deployments & exposed ports
+            const { docs } = await payload.find({
+              collection: 'services',
+              where: {
+                and: [
+                  {
+                    name: {
+                      equals: databaseName,
+                    },
+                  },
+                  {
+                    'tenant.slug': {
+                      equals: tenantSlug,
+                    },
+                  },
+                ],
+              },
+              joins: {
+                deployments: {
+                  limit: 1000,
+                },
+              },
+            })
+
+            const databaseExposureDetails = docs?.[0]
+
+            // database found check
+            if (!databaseExposureDetails) {
+              sendEvent({
+                message: `can't link ${databaseName} not found!`,
+                pub,
+                serverId: serverDetails.id,
+              })
+
+              return {
+                [variable]: '',
+              }
+            }
+
+            // database deployed check
+            const deployments = databaseExposureDetails?.deployments?.docs ?? []
+
+            const deploymentSucceed = deployments.some(
+              deployment =>
+                typeof deployment === 'object' &&
+                deployment.status === 'success',
+            )
+
+            if (!deploymentSucceed) {
+              sendEvent({
+                message: `please deploy ${databaseName} database to link variable`,
+                pub,
+                serverId: serverDetails.id,
+              })
+
+              return {
+                [variable]: '',
+              }
+            }
+
+            // checking for exposed ports
+            const hasExposedPorts =
+              databaseExposureDetails?.databaseDetails?.exposedPorts ?? []
+
+            // directly populating the url based on the sever-details, exposed-ports
+            if (hasExposedPorts.length) {
+              const generatedValue = await updatePublicDatabaseVariables({
+                databaseDetails: databaseExposureDetails.databaseDetails!,
+                variableName: databaseVariableName,
+                serverHost: sshDetails.host,
+              })
+
+              return { [variable]: generatedValue }
+            } else {
+              // exposed based on a boolean expose and populate values
+              if (exposeDatabase) {
+                const databaseExposeResponse = await addExposeDatabasePortQueue(
+                  {
+                    sshDetails,
+                    databaseName: databaseExposureDetails.name,
+                    databaseType:
+                      databaseExposureDetails?.databaseDetails?.type!,
+                    serviceDetails: {
+                      action: 'expose',
+                      id: databaseExposureDetails.id,
+                    },
+                    serverDetails,
+                  },
+                )
+
+                try {
+                  const exposeResponse = await waitForJobCompletion(
+                    databaseExposeResponse,
+                  )
+
+                  if (exposeResponse.success) {
+                    // fetching latest details after exposing database
+                    const { docs } = await payload.find({
+                      collection: 'services',
+                      where: {
+                        and: [
+                          {
+                            name: {
+                              equals: databaseName,
+                            },
+                          },
+                          {
+                            'tenant.slug': {
+                              equals: tenantSlug,
+                            },
+                          },
+                        ],
+                      },
+                    })
+
+                    const updatedDatabaseDetails = docs?.[0]
+
+                    if (updatedDatabaseDetails) {
+                      const { databaseDetails } = updatedDatabaseDetails
+                      const hasExposedPorts =
+                        databaseDetails?.exposedPorts ?? []
+
+                      if (hasExposedPorts.length) {
+                        const generatedValue =
+                          await updatePublicDatabaseVariables({
+                            databaseDetails: databaseDetails!,
+                            variableName: databaseVariableName,
+                            serverHost: sshDetails.host,
+                          })
+
+                        return { [variable]: generatedValue }
+                      }
+                    }
+                  }
+                } catch (error) {
+                  const message = error instanceof Error ? error.message : ''
+
+                  sendEvent({
+                    message: `❌ Failed to expose ${databaseName}: ${message}`,
+                    pub,
+                    serverId: serverDetails.id,
+                  })
+
+                  return { [variable]: '' }
+                }
+              }
+            }
+          }
+          // 2. Private database connection -> MONGO_URI
+          else {
+            let databaseLinkResponse: string[] = []
+
+            // getting all database linked apps-list
+            try {
+              databaseLinkResponse = await dokku.database.listLinks({
+                ssh,
+                databaseName,
+                databaseType,
+              })
+            } catch (error) {
+              console.log(
+                `${databaseName} is not linked to any services!`,
+                error,
+              )
+            }
+
+            // checking if database is linked
+            if (databaseLinkResponse.includes(serviceDetails.name)) {
+              const generatedValue = await updatePrivateDatabaseVariables({
+                variable: databaseVariableName,
+                envAlias,
+                serviceName: serviceDetails.name,
+                ssh,
+              })
+
+              console.log({ generatedValue })
+
+              return { [variable]: generatedValue }
+            }
+            // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
+            else {
+              const databaseLinkResponse = await dokku.database.link({
+                ssh,
+                databaseName,
+                databaseType,
+                appName: serviceDetails.name,
+                alias: envAlias,
+                noRestart: true,
+                options: {
+                  onStdout: async chunk => {
+                    sendEvent({
+                      message: chunk.toString(),
+                      pub,
+                      serverId: serverDetails.id,
+                    })
+                  },
+                  onStderr: async chunk => {
+                    sendEvent({
+                      message: chunk.toString(),
+                      pub,
+                      serverId: serverDetails.id,
+                    })
+                  },
+                },
+              })
+
+              if (databaseLinkResponse.code === 0) {
+                const generatedValue = await updatePrivateDatabaseVariables({
+                  variable: databaseVariableName,
+                  envAlias,
+                  serviceName: serviceDetails.name,
+                  ssh,
+                })
+
+                console.log({ generatedValue })
+
+                return { [variable]: generatedValue }
+              } else {
+                sendEvent({
+                  message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
+                  pub,
+                  serverId: serverDetails.id,
+                })
+
+                return { [variable]: '' }
+              }
+            }
+          }
+        }
+      }
+      // if variable is not in knownVariable list assuming it as variable from another app!
+      else {
+        return {
+          [variable]: `$(dokku config:get ${serviceName} ${variableName})`,
+        }
+      }
+    }
+  }
+
+  return { [variable]: '' }
 }
 
 export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
@@ -320,6 +635,12 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
       console.log(
         `starting updateEnvironmentVariables queue database for service: ${serviceDetails.name}`,
       )
+
+      sendEvent({
+        pub,
+        message: 'Started updating environment variables!',
+        serverId: serverDetails.id,
+      })
 
       try {
         ssh = await dynamicSSH(sshDetails)
@@ -401,7 +722,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
           const { key, value } = variable
           // step 2.1: categorize environment variables
           const type = classifyVariableType(value)
-
           // step 2.2: generate values for variables
           switch (type) {
             // for static variables directly storing values
@@ -417,336 +737,66 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
             // check for variable value should be MONGO_URI, POSTGRES_URI, REDIS_URI, MARIA_URI, MYSQL_URI, DFLOW_PUBLIC_DOMAIN
             // for any other variable value use $(dokku config:get serviceName variableName)
             case 'reference':
-              const extractedVariable = value
-                .match(TEMPLATE_EXPR)?.[0]
-                ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
-                ?.trim()
+              const generateKeyPair = await handleReferenceVariables({
+                payload,
+                ssh,
+                sshDetails,
+                serverDetails,
+                serviceDetails,
+                tenantSlug: tenantDetails.slug,
+                exposeDatabase,
+                variable: value,
+              })
 
-              if (extractedVariable) {
-                const refMatch = extractedVariable.match(
-                  /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
-                )
+              console.log({ generateKeyPair })
 
-                if (refMatch) {
-                  const [, serviceName, variableName] = refMatch
-                  // if variable is in knownVariable list, populating it's value
-                  if (isKnownVariable(variableName)) {
-                    // for DFLOW_PUBLIC_DOMAIN variable checking domains of that service and updating the
-                    if (variableName === 'DFLOW_PUBLIC_DOMAIN') {
-                      try {
-                        const domains = await dokku.domains.list({
-                          ssh,
-                          appName: serviceName,
-                        })
-
-                        const domain = domains?.[0] ?? ''
-
-                        formattedVariables.push({
-                          key,
-                          value,
-                          generatedValue: domain,
-                        })
-                      } catch (error) {
-                        formattedVariables.push({
-                          key,
-                          value,
-                          generatedValue: '',
-                        })
-
-                        // todo: add sendEvent showing error to user!
-                      }
-                    }
-
-                    // handle database variable linking 'MONGO_URI', 'POSTGRES_URI', 'REDIS_URI', 'MARIADB_URI', 'MYSQL_URI', 'MONGO_PUBLIC_URI', 'POSTGRES_PUBLIC_URI', 'REDIS_PUBLIC_URI', 'MARIADB_PUBLIC_URI', 'MYSQL_PUBLIC_URI'
-                    // aliasing serviceName to databaseName ex: DATABASE_URI={{ my-mongo-db:MONGO_URI }}
-                    const {
-                      success: isDatabaseVariable,
-                      data: databaseVariableName,
-                    } = databaseVariablesList.safeParse(variableName)
-
-                    if (isDatabaseVariable) {
-                      const databaseName = serviceName
-                      const databaseType = databaseVariableName
-                        ?.split('_')[0]
-                        .toLowerCase()
-
-                      const formattedDatabaseVariableName = `${databaseName}-db`
-                      const envAlias = formattedDatabaseVariableName
-                        .replace(
-                          /-([a-z])/g,
-                          (_, char) => '_' + char.toUpperCase(),
-                        )
-                        .toUpperCase()
-
-                      // 1. Public database connection -> MONGO_PUBLIC_URI
-                      if (databaseVariableName.includes('PUBLIC')) {
-                        // check for database deployments & exposed ports
-                        const { docs } = await payload.find({
-                          collection: 'services',
-                          where: {
-                            and: [
-                              {
-                                name: {
-                                  equals: databaseName,
-                                },
-                              },
-                              {
-                                'tenant.slug': {
-                                  equals: tenantDetails.slug,
-                                },
-                              },
-                            ],
-                          },
-                          joins: {
-                            deployments: {
-                              limit: 1000,
-                            },
-                          },
-                        })
-
-                        const databaseExposureDetails = docs?.[0]
-
-                        // database found check
-                        if (!databaseExposureDetails) {
-                          sendEvent({
-                            message: `can't link ${databaseName} not found!`,
-                            pub,
-                            serverId: serverDetails.id,
-                          })
-
-                          formattedVariables.push({
-                            key,
-                            value,
-                            generatedValue: '',
-                          })
-                        }
-
-                        // database deployed check
-                        const deployments =
-                          databaseExposureDetails?.deployments?.docs ?? []
-
-                        const deploymentSucceed = deployments.some(
-                          deployment =>
-                            typeof deployment === 'object' &&
-                            deployment.status === 'success',
-                        )
-
-                        if (!deploymentSucceed) {
-                          sendEvent({
-                            message: `please deploy ${databaseName} database to link variable`,
-                            pub,
-                            serverId: serverDetails.id,
-                          })
-
-                          formattedVariables.push({
-                            key,
-                            value,
-                            generatedValue: '',
-                          })
-                        }
-
-                        // checking for exposed ports
-                        const hasExposedPorts =
-                          databaseExposureDetails?.databaseDetails
-                            ?.exposedPorts ?? []
-
-                        // directly populating the url based on the sever-details, exposed-ports
-                        if (hasExposedPorts.length) {
-                          await updatePublicDatabaseVariables({
-                            databaseDetails:
-                              databaseExposureDetails.databaseDetails!,
-                            formattedVariables,
-                            key,
-                            value,
-                            variableName: databaseVariableName,
-                            serverHost: sshDetails.host,
-                          })
-                        } else {
-                          // exposed based on a boolean expose and populate values
-                          if (exposeDatabase) {
-                            const databaseExposeResponse =
-                              await addExposeDatabasePortQueue({
-                                sshDetails,
-                                databaseName: databaseExposureDetails.name,
-                                databaseType:
-                                  databaseExposureDetails?.databaseDetails
-                                    ?.type!,
-                                serviceDetails: {
-                                  action: 'expose',
-                                  id: databaseExposureDetails.id,
-                                },
-                                serverDetails,
-                              })
-
-                            try {
-                              const exposeResponse = await waitForJobCompletion(
-                                databaseExposeResponse,
-                              )
-
-                              if (exposeResponse.success) {
-                                // fetching latest details after exposing database
-                                const { docs } = await payload.find({
-                                  collection: 'services',
-                                  where: {
-                                    and: [
-                                      {
-                                        name: {
-                                          equals: databaseName,
-                                        },
-                                      },
-                                      {
-                                        'tenant.slug': {
-                                          equals: tenantDetails.slug,
-                                        },
-                                      },
-                                    ],
-                                  },
-                                })
-
-                                const updatedDatabaseDetails = docs?.[0]
-
-                                if (updatedDatabaseDetails) {
-                                  const { databaseDetails } =
-                                    updatedDatabaseDetails
-                                  const hasExposedPorts =
-                                    databaseDetails?.exposedPorts ?? []
-
-                                  if (hasExposedPorts.length) {
-                                    await updatePublicDatabaseVariables({
-                                      databaseDetails: databaseDetails!,
-                                      formattedVariables,
-                                      key,
-                                      value,
-                                      variableName: databaseVariableName,
-                                      serverHost: sshDetails.host,
-                                    })
-                                  }
-                                }
-                              }
-                            } catch (error) {
-                              const message =
-                                error instanceof Error ? error.message : ''
-
-                              sendEvent({
-                                message: `❌ Failed to expose ${databaseName}: ${message}`,
-                                pub,
-                                serverId: serverDetails.id,
-                              })
-
-                              formattedVariables.push({
-                                key,
-                                value,
-                                generatedValue: '',
-                              })
-                            }
-                          }
-                        }
-                      }
-                      // 2. Private database connection -> MONGO_URI
-                      else {
-                        let databaseLinkResponse: string[] = []
-
-                        // getting all database linked apps-list
-                        try {
-                          databaseLinkResponse = await dokku.database.listLinks(
-                            {
-                              ssh,
-                              databaseName,
-                              databaseType,
-                            },
-                          )
-                        } catch (error) {
-                          console.log(
-                            `${databaseName} is not linked to any services!`,
-                            error,
-                          )
-                        }
-
-                        // checking if database is linked
-                        if (
-                          databaseLinkResponse.includes(serviceDetails.name)
-                        ) {
-                          await updatePrivateDatabaseVariables({
-                            formattedVariables,
-                            key,
-                            value,
-                            variable: databaseVariableName,
-                            envAlias,
-                            serviceName: serviceDetails.name,
-                            ssh,
-                          })
-                        }
-                        // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
-                        else {
-                          const databaseLinkResponse =
-                            await dokku.database.link({
-                              ssh,
-                              databaseName,
-                              databaseType,
-                              appName: serviceDetails.name,
-                              alias: envAlias,
-                              noRestart: true,
-                              options: {
-                                onStdout: async chunk => {
-                                  sendEvent({
-                                    message: chunk.toString(),
-                                    pub,
-                                    serverId: serverDetails.id,
-                                  })
-                                },
-                                onStderr: async chunk => {
-                                  sendEvent({
-                                    message: chunk.toString(),
-                                    pub,
-                                    serverId: serverDetails.id,
-                                  })
-                                },
-                              },
-                            })
-
-                          if (databaseLinkResponse.code === 0) {
-                            await updatePrivateDatabaseVariables({
-                              formattedVariables,
-                              key,
-                              value,
-                              variable: databaseVariableName,
-                              envAlias,
-                              serviceName: serviceDetails.name,
-                              ssh,
-                            })
-                          } else {
-                            sendEvent({
-                              message: `❌ Failed to link ${databaseName} to ${serviceDetails.name}`,
-                              pub,
-                              serverId: serverDetails.id,
-                            })
-
-                            formattedVariables.push({
-                              key,
-                              value,
-                              generatedValue: '',
-                            })
-                          }
-                        }
-                      }
-                    }
-                  }
-                  // if variable is not in knownVariable list assuming it as variable from another app!
-                  else {
-                    formattedVariables.push({
-                      key,
-                      value,
-                      generatedValue: `$(dokku config:get ${serviceName} ${variableName})`,
-                    })
-                  }
-                }
-              }
+              formattedVariables.push({
+                key,
+                value,
+                generatedValue: generateKeyPair[value] ?? '',
+              })
               break
             case 'combo':
-              // todo: add combination of environment variables
               // 1. populate the functions example-> something-{{ secret(64, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')}}
+              let functionPopulatedValue = value
+
               // 2. split the all the reference variables-> postgres://{{ postgres-database.USERNAME }}{{ postgres-database.PASSWORD }}@{{ postgres-database.HOST }}:{{ postgres-database.PORT }}/{{ postgres-database.NAME }}
+              const referenceVariablesList = extractTemplateRefs(value)
+
               // 3. loop through variables and populate value
+              for await (const variable of referenceVariablesList) {
+                const type = classifyVariableType(variable)
+
+                // again checking type because nunjucks replacing other context variables as NaN (if context not provided)
+                if (type === 'function') {
+                  functionPopulatedValue = functionPopulatedValue.replace(
+                    variable,
+                    env.renderString(variable, {}) ?? '',
+                  )
+                }
+
+                const generateKeyPair = await handleReferenceVariables({
+                  payload,
+                  ssh,
+                  sshDetails,
+                  serverDetails,
+                  serviceDetails,
+                  tenantSlug: tenantDetails.slug,
+                  exposeDatabase,
+                  variable,
+                })
+
+                functionPopulatedValue = functionPopulatedValue.replace(
+                  variable,
+                  generateKeyPair[variable],
+                )
+              }
+
+              formattedVariables.push({
+                key,
+                value,
+                generatedValue: functionPopulatedValue,
+              })
 
               break
             case 'unknown':

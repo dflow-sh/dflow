@@ -621,6 +621,7 @@ export interface Service {
     | {
         domain: string;
         default: boolean;
+        synced: boolean;
         autoRegenerateSSL?: boolean | null;
         certificateType?: ('letsencrypt' | 'none') | null;
         id?: string | null;
@@ -1074,6 +1075,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         domain?: T;
         default?: T;
+        synced?: T;
         autoRegenerateSSL?: T;
         certificateType?: T;
         id?: T;

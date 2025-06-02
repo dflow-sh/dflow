@@ -24,7 +24,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { slugify } from '@/lib/slugify'
 
-const SignUpForm: React.FC = () => {
+interface SignupProps {
+  token: string | undefined
+}
+
+const SignUpForm: React.FC<SignupProps> = ({ token }) => {
   const router = useRouter()
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -42,7 +46,7 @@ const SignUpForm: React.FC = () => {
     onSuccess: ({ data }) => {
       if (data) {
         toast.success('Account created successfully!')
-        router.push('/sign-in')
+        router.push(token ? `/sign-in?token=${token}` : '/sign-in')
       }
     },
     onError: ({ error }) => {
@@ -153,7 +157,9 @@ const SignUpForm: React.FC = () => {
         <div className='text-base-content/70 mt-4 text-center text-sm'>
           <p>
             Already have an account?{' '}
-            <Link href='/sign-in' className='text-primary underline'>
+            <Link
+              href={token ? `/sign-in?token=${token}` : '/sign-in'}
+              className='text-primary underline'>
               SignIn
             </Link>
           </p>

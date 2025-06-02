@@ -81,3 +81,25 @@ export const protectedClient = publicClient.use(async ({ next, ctx }) => {
     },
   })
 })
+
+export const userClient = publicClient.use(async ({ next, ctx }) => {
+  const headersList = await headers()
+  const payload = await getPayload({
+    config: configPromise,
+  })
+
+  // 1. checking for user
+  const { user } = await payload.auth({ headers: headersList })
+
+  if (!user) {
+    throw Error('Unauthenticated')
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      payload,
+      user,
+    },
+  })
+})

@@ -1,11 +1,15 @@
 import { dokku } from '../../lib/dokku'
 import { dynamicSSH } from '../../lib/ssh'
+import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
+import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
+import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { Service } from '@/payload-types'
 
 interface QueueArgs {
   sshDetails: {
@@ -20,9 +24,15 @@ interface QueueArgs {
     name: string
     certificateType: 'letsencrypt' | 'none'
     autoRegenerateSSL: boolean
+    id: string
+    variables: Service['variables']
   }
   serverDetails: {
     id: string
+  }
+  updateEnvironmentVariables?: boolean
+  tenantDetails: {
+    slug: string
   }
 }
 
@@ -43,9 +53,22 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails } = job.data
-      const { domain, name, action, certificateType } = job.data.serviceDetails
+      const {
+        sshDetails,
+        serverDetails,
+        updateEnvironmentVariables = false,
+        tenantDetails,
+      } = job.data
+      const {
+        domain,
+        name,
+        action,
+        certificateType,
+        id: serviceId,
+        variables,
+      } = job.data.serviceDetails
       let ssh: NodeSSH | null = null
+      const payload = await getPayload({ config: configPromise })
 
       try {
         ssh = await dynamicSSH(sshDetails)
@@ -143,6 +166,40 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
             message: `✅ Successfully ${operation[action]} domain ${domain}`,
             serverId: serverDetails.id,
           })
+
+          const domains = await dokku.domains.list({ ssh, appName: name })
+
+          // todo: in add operation change domain status to synced
+          try {
+            const service = await payload.findByID({
+              collection: 'services',
+              id: serviceId,
+            })
+
+            const newDomains = (service.domains ?? []).map(domain => ({
+              ...domain,
+              synced: domains.includes(domain.domain),
+            }))
+
+            await payload.update({
+              id: serviceId,
+              collection: 'services',
+              data: {
+                domains: newDomains,
+              },
+            })
+
+            await pub.publish(
+              'refresh-channel',
+              JSON.stringify({ refresh: true }),
+            )
+          } catch (error) {
+            let message = error instanceof Error ? error.message : ''
+
+            console.log(
+              `Service missing ${serviceId}, failed to update domain details: ${message}`,
+            )
+          }
         }
 
         if (certificateType === 'letsencrypt') {
@@ -187,6 +244,21 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
               serverId: serverDetails.id,
             })
           }
+        }
+
+        if (updateEnvironmentVariables) {
+          addUpdateEnvironmentVariablesQueue({
+            sshDetails,
+            serverDetails,
+            serviceDetails: {
+              id: serviceId,
+              name,
+              noRestart: false,
+              previousVariables: [],
+              variables: variables ?? [],
+            },
+            tenantDetails,
+          })
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''
