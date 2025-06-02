@@ -570,10 +570,12 @@ export const updateServiceDomainAction = protectedClient
     } = ctx
 
     // Fetching service-details for showing previous details
-    const { domains: servicePreviousDomains } = await payload.findByID({
-      id,
-      collection: 'services',
-    })
+    const { domains: servicePreviousDomains, project } = await payload.findByID(
+      {
+        id,
+        collection: 'services',
+      },
+    )
 
     let updatedDomains = servicePreviousDomains ?? []
 
@@ -589,17 +591,23 @@ export const updateServiceDomainAction = protectedClient
           default: true,
           autoRegenerateSSL: domain.autoRegenerateSSL,
           certificateType: domain.certificateType,
+          synced: false,
         },
       ]
     } else {
-      // in add case directly adding domain
+      // in ADD case directly adding domain
       updatedDomains = [
-        ...updatedDomains,
+        ...updatedDomains.map(updatedDomain =>
+          domain?.default
+            ? { ...updatedDomain, default: false }
+            : updatedDomain,
+        ),
         {
           domain: domain.hostname,
-          default: false,
+          default: domain.default ?? false,
           autoRegenerateSSL: domain.autoRegenerateSSL,
           certificateType: domain.certificateType,
+          synced: false,
         },
       ]
     }
@@ -613,42 +621,53 @@ export const updateServiceDomainAction = protectedClient
       depth: 10,
     })
 
-    if (
-      typeof updatedServiceDomainResponse.project === 'object' &&
-      typeof updatedServiceDomainResponse.project.server === 'object' &&
-      typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
-    ) {
-      const { ip, port, username, id } =
-        updatedServiceDomainResponse.project.server
-      const privateKey =
-        updatedServiceDomainResponse.project.server.sshKey.privateKey
-
-      const queueResponse = await addManageServiceDomainQueue({
-        serviceDetails: {
-          action: operation,
-          domain: domain.hostname,
-          name: updatedServiceDomainResponse.name,
-          certificateType: domain.certificateType,
-          autoRegenerateSSL: domain.autoRegenerateSSL,
-        },
-        sshDetails: {
-          privateKey,
-          host: ip,
+    // for add operation we're not syncing domain as domain verification process not done!
+    if (operation !== 'add') {
+      if (
+        typeof updatedServiceDomainResponse.project === 'object' &&
+        typeof updatedServiceDomainResponse.project.server === 'object' &&
+        typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
+      ) {
+        const {
+          ip,
           port,
           username,
-        },
-        serverDetails: {
-          id,
-        },
-      })
+          id: serverId,
+        } = updatedServiceDomainResponse.project.server
+        const privateKey =
+          updatedServiceDomainResponse.project.server.sshKey.privateKey
 
-      if (queueResponse.id) {
-        revalidatePath(
-          `/${tenant.slug}/dashboard/project/${updatedServiceDomainResponse.project.id}/service/${id}`,
-        )
-        return { success: true }
+        await addManageServiceDomainQueue({
+          serviceDetails: {
+            action: operation,
+            domain: domain.hostname,
+            name: updatedServiceDomainResponse.name,
+            certificateType: domain.certificateType,
+            autoRegenerateSSL: domain.autoRegenerateSSL,
+            id,
+            variables: updatedServiceDomainResponse.variables ?? [],
+          },
+          sshDetails: {
+            privateKey,
+            host: ip,
+            port,
+            username,
+          },
+          serverDetails: {
+            id: serverId,
+          },
+          tenantDetails: {
+            slug: tenant.slug,
+          },
+        })
       }
     }
+
+    revalidatePath(
+      `/${tenant.slug}/dashboard/project/${typeof project === 'object' ? project.id : project}/service/${id}`,
+    )
+
+    return { success: true }
   })
 
 export const regenerateSSLAction = protectedClient
@@ -695,6 +714,60 @@ export const regenerateSSLAction = protectedClient
       })
 
       if (response.id) {
+        return { success: true }
+      }
+    }
+  })
+
+export const syncServiceDomainAction = protectedClient
+  .metadata({
+    actionName: 'syncServiceDomainAction',
+  })
+  .schema(updateServiceDomainSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, domain, operation } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, variables, ...serviceDetails } = await payload.findByID({
+      id,
+      collection: 'services',
+      depth: 10,
+    })
+
+    if (
+      typeof project === 'object' &&
+      typeof project.server === 'object' &&
+      typeof project.server.sshKey === 'object'
+    ) {
+      const { ip, port, username, id: serverId } = project.server
+      const privateKey = project.server.sshKey.privateKey
+
+      const queueResponse = await addManageServiceDomainQueue({
+        serviceDetails: {
+          action: operation,
+          domain: domain.hostname,
+          name: serviceDetails.name,
+          certificateType: domain.certificateType,
+          autoRegenerateSSL: domain.autoRegenerateSSL,
+          id,
+          variables,
+        },
+        sshDetails: {
+          privateKey,
+          host: ip,
+          port,
+          username,
+        },
+        serverDetails: {
+          id: serverId,
+        },
+        updateEnvironmentVariables: domain.default,
+        tenantDetails: {
+          slug: userTenant.tenant.slug,
+        },
+      })
+
+      if (queueResponse.id) {
         return { success: true }
       }
     }

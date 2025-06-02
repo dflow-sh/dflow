@@ -378,6 +378,12 @@ export const Services: CollectionConfig = {
           required: true,
         },
         {
+          name: 'synced',
+          type: 'checkbox',
+          required: true,
+          defaultValue: false,
+        },
+        {
           name: 'autoRegenerateSSL',
           type: 'checkbox',
           defaultValue: false,

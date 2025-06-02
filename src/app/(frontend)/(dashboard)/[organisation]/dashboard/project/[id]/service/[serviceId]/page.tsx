@@ -66,7 +66,12 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       )
 
     case 'domains':
-      return <DomainList domains={domains} />
+      return (
+        <DomainList
+          domains={domains}
+          ip={typeof server === 'object' ? server.ip : ''}
+        />
+      )
 
     case 'logs':
       return (

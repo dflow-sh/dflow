@@ -458,22 +458,51 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
         const domainsResponse = await dokku.domains.report(ssh, appName)
 
         if (domainsResponse.length) {
-          await payload.update({
-            collection: 'services',
-            id: serviceId,
-            data: {
-              domains: domainsResponse?.map(domain => ({
-                domain,
-              })),
-            },
-          })
+          try {
+            const { domains = [] } = await payload.findByID({
+              id: serviceId,
+              collection: 'services',
+            })
 
-          sendEvent({
-            message: `✅ Updated domain details`,
-            pub,
-            serverId,
-            serviceId,
-          })
+            await payload.update({
+              collection: 'services',
+              id: serviceId,
+              data: {
+                domains: domainsResponse?.map(domain => {
+                  const domainExists = domains?.find(
+                    domainDetails => domainDetails.domain === domain,
+                  )
+
+                  if (domainExists) {
+                    return {
+                      ...domainExists,
+                      synced: true,
+                    }
+                  }
+
+                  return {
+                    domain,
+                    synced: true,
+                  }
+                }),
+              },
+            })
+
+            sendEvent({
+              message: `✅ Updated domain details`,
+              pub,
+              serverId,
+              serviceId,
+            })
+          } catch (error) {
+            const message = error instanceof Error ? error.message : ''
+            sendEvent({
+              message: `❌ Failed to update domain details: ${message}`,
+              pub,
+              serverId,
+              serviceId,
+            })
+          }
         }
 
         // Step 9: saving the deployment logs
@@ -491,8 +520,6 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
         })
 
         await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
-
-        // todo: add webhook to update deployment status
       } catch (error) {
         let message = ''
 

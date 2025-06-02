@@ -315,26 +315,54 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
           serviceId,
         })
 
-        // todo: for now taking to first domain name
         const domainsResponse = await dokku.domains.report(ssh, appName)
 
         if (domainsResponse.length) {
-          await payload.update({
-            collection: 'services',
-            id: serviceId,
-            data: {
-              domains: domainsResponse?.map(domain => ({
-                domain,
-              })),
-            },
-          })
+          try {
+            const { domains = [] } = await payload.findByID({
+              id: serviceId,
+              collection: 'services',
+            })
 
-          sendEvent({
-            message: `✅ Updated domain details`,
-            pub,
-            serverId,
-            serviceId,
-          })
+            await payload.update({
+              collection: 'services',
+              id: serviceId,
+              data: {
+                domains: domainsResponse?.map(domain => {
+                  const domainExists = domains?.find(
+                    domainDetails => domainDetails.domain === domain,
+                  )
+
+                  if (domainExists) {
+                    return {
+                      ...domainExists,
+                      synced: true,
+                    }
+                  }
+
+                  return {
+                    domain,
+                    synced: true,
+                  }
+                }),
+              },
+            })
+
+            sendEvent({
+              message: `✅ Updated domain details`,
+              pub,
+              serverId,
+              serviceId,
+            })
+          } catch (error) {
+            const message = error instanceof Error ? error.message : ''
+            sendEvent({
+              message: `❌ Failed to update domain details: ${message}`,
+              pub,
+              serverId,
+              serviceId,
+            })
+          }
         }
 
         const logs = (await pub.lrange(deploymentId, 0, -1)).reverse()

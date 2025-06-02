@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Button } from '../ui/button'
 import {
   Dialog,
@@ -11,8 +12,9 @@ import {
   DialogTrigger,
 } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
+import { Info, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -25,6 +27,7 @@ import { updateServiceDomainSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,6 +53,7 @@ const DomainForm = () => {
         certificateType: 'letsencrypt',
         autoRegenerateSSL: false,
         hostname: '',
+        default: true,
       },
       operation: 'add',
     },
@@ -104,6 +108,19 @@ const DomainForm = () => {
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className='w-full space-y-6'>
+              <Alert variant='info'>
+                <Info className='h-4 w-4' />
+                <AlertTitle>
+                  Domain environment variables of this service will be updated
+                  automatically
+                </AlertTitle>
+
+                <AlertDescription>
+                  Other services using these variables should be updated
+                  manually.
+                </AlertDescription>
+              </Alert>
+
               <FormField
                 control={form.control}
                 name='domain.hostname'
@@ -146,28 +163,34 @@ const DomainForm = () => {
                 )}
               />
 
-              {/* <FormField
+              <FormField
                 control={form.control}
-                name='domain.autoRegenerateSSL'
+                name='domain.default'
                 render={({ field }) => (
                   <FormItem className='flex flex-row items-center justify-between gap-1 rounded-lg border p-4'>
                     <div className='space-y-0.5'>
-                      <FormLabel className='text-base'>HTTPS</FormLabel>
+                      <FormLabel className='text-base'>DEFAULT</FormLabel>
                       <FormDescription>
-                        Enable automatic regeneration of SSL certificate
+                        This will be used as the default domain
                       </FormDescription>
                     </div>
 
                     <FormControl>
                       <Switch
-                        disabled={domain?.certificateType !== 'letsencrypt'}
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
                   </FormItem>
                 )}
-              /> */}
+              />
+
+              {/* The environment variables
+              of this service will be updated automatically.
+              <br />
+              <b>Note:</b> Other services using these environment variables will
+              not be updated automatically—you will need to update them
+              manually. */}
 
               <DialogFooter>
                 <Button disabled={isPending} type='submit'>

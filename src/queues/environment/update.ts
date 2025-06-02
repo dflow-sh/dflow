@@ -198,7 +198,7 @@ async function updatePrivateDatabaseVariables({
   envAlias: string
 }) {
   // checking if variable name is url -> serviceName.MONGO_URL
-  if (variable.includes('_URL')) {
+  if (variable.includes('_URI')) {
     return `$(dokku config:get ${serviceName} ${envAlias}_URL)`
   }
 
@@ -242,7 +242,7 @@ async function updatePublicDatabaseVariables({
   const port = databaseDetails?.port ?? ''
   const exposedPort = databaseDetails?.exposedPorts?.[0] ?? ''
 
-  if (variableName.includes('_URL')) {
+  if (variableName.includes('_URI')) {
     return connectionUrl.replace(host, serverHost).replace(port, exposedPort)
   } else if (variableName.includes('_PUBLIC_HOST')) {
     return serverHost
@@ -296,6 +296,48 @@ async function handleReferenceVariables({
             })
 
             const domain = domains?.[0] ?? ''
+
+            // incase of single domain directly assigning that value
+            if (domains.length === 1) {
+              return {
+                [variable]: domain,
+              }
+            }
+
+            // check for synced default domain
+            const { docs } = await payload.find({
+              collection: 'services',
+              where: {
+                and: [
+                  {
+                    name: {
+                      equals: serviceName,
+                    },
+                    'tenant.slug': {
+                      equals: tenantSlug,
+                    },
+                  },
+                ],
+              },
+            })
+
+            const serviceDetails = docs?.[0]
+
+            console.dir({ serviceDetails }, { depth: null })
+
+            if (serviceDetails) {
+              const { domains = [] } = serviceDetails
+
+              const defaultDomain = domains?.find(
+                domainDetails => domainDetails.default && domainDetails.synced,
+              )
+
+              if (defaultDomain) {
+                return {
+                  [variable]: defaultDomain.domain,
+                }
+              }
+            }
 
             return {
               [variable]: domain,
@@ -500,6 +542,8 @@ async function handleReferenceVariables({
                 ssh,
               })
 
+              console.log({ generatedValue })
+
               return { [variable]: generatedValue }
             }
             // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
@@ -536,6 +580,8 @@ async function handleReferenceVariables({
                   serviceName: serviceDetails.name,
                   ssh,
                 })
+
+                console.log({ generatedValue })
 
                 return { [variable]: generatedValue }
               } else {
@@ -589,6 +635,12 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
       console.log(
         `starting updateEnvironmentVariables queue database for service: ${serviceDetails.name}`,
       )
+
+      sendEvent({
+        pub,
+        message: 'Started updating environment variables!',
+        serverId: serverDetails.id,
+      })
 
       try {
         ssh = await dynamicSSH(sshDetails)
@@ -695,6 +747,8 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                 exposeDatabase,
                 variable: value,
               })
+
+              console.log({ generateKeyPair })
 
               formattedVariables.push({
                 key,
