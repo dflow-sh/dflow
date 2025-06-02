@@ -13,6 +13,8 @@ const TemplateCard = ({ template }: { template: Template }) => {
           alt='Template Image'
           src={template?.imageUrl || '/images/favicon.ico'}
           className='h-10 w-10 rounded-md'
+          width={100}
+          height={100}
         />
 
         <div className='mt-4 flex flex-col gap-1'>

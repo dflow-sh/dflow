@@ -17,15 +17,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar'
-import { Tenant, User } from '@/payload-types'
-import { useNetworkStatusContext } from '@/providers/NetworkStatusProvider'
+import { User } from '@/payload-types'
 
 export function NavUser({ user }: { user: User }) {
   const { execute } = useAction(logoutAction)
-  const params = useParams()
+  const params = useParams<{ organisation: string }>()
 
   const initial = user.email.slice(0, 1)
-  const { isOnline } = useNetworkStatusContext()
 
   return (
     <SidebarMenu>
@@ -49,7 +47,9 @@ export function NavUser({ user }: { user: User }) {
               </Avatar>
 
               {/* Badge with letter at bottom right */}
-              <span className='absolute -bottom-[0.5rem] -right-[0.5rem] flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card text-xs uppercase'>
+              <span
+                title={params.organisation}
+                className='absolute -bottom-[0.5rem] -right-[0.5rem] flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card text-xs uppercase'>
                 {params.organisation?.slice(0, 1)}
               </span>
             </div>
@@ -72,34 +72,37 @@ export function NavUser({ user }: { user: User }) {
               <DropdownMenuLabel className='font-normal text-muted-foreground'>
                 Team
               </DropdownMenuLabel>
-              {user?.tenants?.map(tenant => (
-                <DropdownMenuItem className='group' key={tenant.id}>
-                  <Link
-                    href={`/${(tenant?.tenant as Tenant)?.slug}/dashboard`}
-                    className='flex h-full w-full items-center justify-between gap-2 text-sm'>
-                    <div className='inline-flex items-center gap-x-2'>
-                      <Avatar className='h-6 w-6 rounded-lg'>
-                        <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
-                          {(tenant?.tenant as Tenant)?.name.slice(0, 1)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className='inline-flex items-center gap-x-1'>
-                        <p className='line-clamp-1 break-all'>
-                          {(tenant?.tenant as Tenant)?.name}{' '}
-                        </p>
-                        <span className='text-muted-foreground group-hover:text-accent-foreground'>
-                          {user.username === (tenant?.tenant as Tenant)?.slug &&
-                            '(you)'}
-                        </span>
+              {user?.tenants?.map(({ tenant }) =>
+                typeof tenant === 'object' ? (
+                  <DropdownMenuItem className='group' key={tenant.id}>
+                    <Link
+                      href={`/${tenant?.slug}/dashboard`}
+                      className='flex h-full w-full items-center justify-between gap-2 text-sm'>
+                      <div className='inline-flex items-center gap-x-2'>
+                        <Avatar className='h-6 w-6 rounded-lg'>
+                          <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
+                            {tenant?.name.slice(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className='inline-flex items-center gap-x-1'>
+                          <p className='line-clamp-1 break-all'>
+                            {tenant?.name}{' '}
+                          </p>
+
+                          <span className='text-muted-foreground group-hover:text-accent-foreground'>
+                            {user.username === tenant?.slug && '(you)'}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    {params.organisation ===
-                      (tenant?.tenant as Tenant)?.slug && (
-                      <Check size={20} className='text-primary' />
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
+
+                      {params.organisation === tenant?.slug && (
+                        <Check size={20} className='text-primary' />
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null,
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
