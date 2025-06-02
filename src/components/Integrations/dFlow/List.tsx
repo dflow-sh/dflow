@@ -5,6 +5,7 @@ import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 
 import { deleteAWSAccountAction } from '@/actions/cloud/aws'
+import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { isDemoEnvironment } from '@/lib/constants'
@@ -23,7 +24,8 @@ const EditForm = ({
   account: CloudProviderAccount
   refetch?: RefetchType
 }) => {
-  if (account.type === 'aws') {
+  // Add support for both AWS and dFlow accounts
+  if (account.type === 'aws' || account.type === 'dFlow') {
     return (
       <DFlowForm account={account} refetch={refetch}>
         <Button size='icon' variant='outline' disabled={isDemoEnvironment}>
@@ -32,6 +34,8 @@ const EditForm = ({
       </DFlowForm>
     )
   }
+
+  return null
 }
 
 const CloudProviderCard = ({
@@ -41,12 +45,15 @@ const CloudProviderCard = ({
   account: CloudProviderAccount
   refetch?: RefetchType
 }) => {
+  const deleteAction =
+    account.type === 'dFlow' ? deleteDFlowAccountAction : deleteAWSAccountAction
+
   const { execute: deleteAccount, isPending: deletingAccount } = useAction(
-    deleteAWSAccountAction,
+    deleteAction as any, // Type assertion to bypass strict typing
     {
-      onSuccess: ({ data }) => {
+      onSuccess: ({ data }: any) => {
         if (data?.id) {
-          refetch?.({ type: 'dFlow' })
+          refetch?.({ type: account.type })
         }
       },
     },

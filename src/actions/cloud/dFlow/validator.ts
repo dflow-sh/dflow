@@ -62,3 +62,7 @@ export const checkPaymentMethodSchema = z.object({
 export const checkConnectionSchema = z.object({
   token: z.string().min(1, 'Token is required'),
 })
+
+export const deleteDFlowAccountSchema = z.object({
+  id: z.string(),
+})

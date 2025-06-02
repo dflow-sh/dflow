@@ -13,7 +13,7 @@ import { CloudProviderAccount } from '@/payload-types'
 import AWSAccountForm from './aws/AWSAccountForm'
 
 type RefetchType = (input: {
-  type: 'aws' | 'azure' | 'gcp' | 'digitalocean'
+  type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
 }) => void
 
 const EditForm = ({

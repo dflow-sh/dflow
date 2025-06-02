@@ -13,6 +13,7 @@ import {
   checkPaymentMethodSchema,
   connectDFlowAccountSchema,
   createSshKeysAndVpsActionSchema,
+  deleteDFlowAccountSchema,
 } from './validator'
 
 export const connectDFlowAccountAction = protectedClient
@@ -340,4 +341,21 @@ export const checkAccountConnection = protectedClient
           'Failed to connect to dFlow. Please check your account details and try again.',
       }
     }
+  })
+
+export const deleteDFlowAccountAction = protectedClient
+  .metadata({
+    actionName: 'deleteDFlowAccountSchema',
+  })
+  .schema(deleteDFlowAccountSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const { payload } = ctx
+
+    const response = await payload.delete({
+      collection: 'dockerRegistries',
+      id,
+    })
+
+    return response
   })
