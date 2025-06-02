@@ -449,7 +449,6 @@ export const updateEC2InstanceAction = protectedClient
     return { success: true, server: response }
   })
 
-// New action to test AWS connection
 export const checkAWSAccountConnection = protectedClient
   .metadata({
     actionName: 'checkAWSAccountConnection',

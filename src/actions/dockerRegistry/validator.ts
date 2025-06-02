@@ -11,3 +11,10 @@ export const connectDockerRegistrySchema = z.object({
 export const deleteDockerRegistrySchema = z.object({
   id: z.string(),
 })
+
+export const testDockerRegistryConnectionSchema = z.object({
+  type: z.enum(['docker', 'github', 'digitalocean', 'quay']),
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password/Token is required'),
+  name: z.string().optional(),
+})
