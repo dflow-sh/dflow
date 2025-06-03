@@ -2,6 +2,7 @@
 
 import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
 import SidebarToggleButton from '../SidebarToggleButton'
+import CreateSSHKey from '../security/CreateSSHKey'
 import CreateSecurityGroup from '../security/CreateSecurityGroup'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
@@ -350,25 +351,41 @@ const CreateEC2InstanceForm = ({
                   fileName='add-server-aws'
                   sectionId='#ssh-key'
                 />
-              </FormLabel>{' '}
+              </FormLabel>
               {isCreating ? (
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Select a SSH key' />
-                    </SelectTrigger>
-                  </FormControl>
+                <div className='flex items-center space-x-2'>
+                  <div className='flex-1'>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select a SSH key' />
+                        </SelectTrigger>
+                      </FormControl>
 
-                  <SelectContent>
-                    {sshKeys.map(({ name, id }) => (
-                      <SelectItem key={id} value={id}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      <SelectContent>
+                        {sshKeys.map(({ name, id }) => (
+                          <SelectItem key={id} value={id}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <CreateSSHKey
+                    trigger={
+                      <Button
+                        onClick={(e: any) => e.stopPropagation()}
+                        size='sm'
+                        variant='outline'
+                        type='button'
+                        className='m-0 h-fit shrink-0 p-2'>
+                        <Plus className='h-4 w-4' />
+                      </Button>
+                    }
+                  />
+                </div>
               ) : (
                 <>
                   <Input
