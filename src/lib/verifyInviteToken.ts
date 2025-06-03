@@ -1,9 +1,9 @@
 'use server'
 
+import { env } from 'env'
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken'
 
-//Todo:convert this to an env variable
-const secret = 'testing'
+const secret = env.PAYLOAD_SECRET
 
 export async function verifyInviteToken(
   token: string,

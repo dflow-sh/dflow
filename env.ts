@@ -13,6 +13,7 @@ const changeBasedOnENV = (env: any) => {
 export const env = createEnv({
   server: {
     DATABASE_URI: z.string().min(1),
+    PAYLOAD_SECRET: z.string().min(1),
     REDIS_URI: z.string().min(1),
     RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_SENDER_EMAIL: z.string().email().optional(),
@@ -30,6 +31,7 @@ export const env = createEnv({
     ),
     NEXT_PUBLIC_WEBHOOK_URL: process.env.NEXT_PUBLIC_WEBHOOK_URL,
     DATABASE_URI: process.env.DATABASE_URI,
+    PAYLOAD_SECRET: process.env.PAYLOAD_SECRET,
     REDIS_URI: process.env.REDIS_URI,
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
     NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED:
