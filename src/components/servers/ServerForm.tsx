@@ -974,7 +974,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
         <ServerFormContent
           type={type}
           option={option}
-          sshKeys={[]}
+          sshKeys={sshKeys}
           securityGroups={securityGroups}
           server={server}
           formType={formType}

@@ -149,6 +149,9 @@ export const Servers: CollectionConfig = {
       type: 'checkbox',
       label: 'Onboarded',
       defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'provider',

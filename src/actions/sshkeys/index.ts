@@ -41,6 +41,7 @@ export const createSSHKeyAction = protectedClient
 
     if (response) {
       revalidatePath(`/${tenant.slug}/security`)
+      revalidatePath(`/${tenant.slug}/servers/add-new-server`)
     }
 
     return response
