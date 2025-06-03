@@ -747,21 +747,18 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
     }
   }
 
-  // Validation function for required data
+  const handleSuccess = (data: any) => {
+    if (isOnboarding) {
+      router.push('/onboarding/dokku-install')
+    } else {
+      router.push(`/${organisation}/servers/${data?.server.id}`)
+    }
+  }
+
   const validateRequiredData = (serverType: string, serverOption: string) => {
     const actualType = getActualServerType(serverType, serverOption)
 
     switch (actualType) {
-      case 'aws':
-        if (!sshKeys || sshKeys.length === 0) {
-          return {
-            isValid: false,
-            message: 'SSH keys are required for AWS server configuration.',
-            action: 'Please add SSH keys before proceeding.',
-          }
-        }
-        break
-
       case 'dFlow':
         if (!vpsPlan) {
           return {
@@ -786,16 +783,6 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
         }
         break
 
-      case 'manual':
-        if (!sshKeys || sshKeys.length === 0) {
-          return {
-            isValid: false,
-            message: 'SSH keys are required for manual server configuration.',
-            action: 'Please add SSH keys before proceeding.',
-          }
-        }
-        break
-
       case 'gcp':
       case 'azure':
         return {
@@ -804,96 +791,84 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
           action: 'Please select a different server type or try AWS for now.',
         }
 
+      case 'aws':
+      case 'manual':
       default:
-        // For other cloud providers
-        if (!sshKeys || sshKeys.length === 0) {
-          return {
-            isValid: false,
-            message: `SSH keys are required for ${getProviderName(serverType, serverOption)}.`,
-            action: 'Please add SSH keys before proceeding.',
-          }
-        }
         break
     }
 
     return { isValid: true }
   }
 
-  // Success handler
-  const handleSuccess = (data: any) => {
-    if (isOnboarding) {
-      router.push('/onboarding/dokku-install')
-    } else {
-      router.push(`/${organisation}/servers/${data?.server.id}`)
-    }
-  }
-
-  // Render form component based on type and option
   const renderFormComponent = (serverType: string, serverOption: string) => {
     const actualType = getActualServerType(serverType, serverOption)
 
-    switch (actualType) {
-      case 'aws':
-        return (
-          <CreateEC2InstanceForm
-            sshKeys={sshKeys}
-            securityGroups={securityGroups}
-            formType={formType}
-            onSuccess={handleSuccess}
-          />
-        )
+    const formContent = (() => {
+      switch (actualType) {
+        case 'aws':
+          return (
+            <CreateEC2InstanceForm
+              sshKeys={sshKeys}
+              securityGroups={securityGroups}
+              formType={formType}
+              onSuccess={handleSuccess}
+            />
+          )
 
-      case 'dFlow':
-        return (
-          <DflowVpsFormContainer
-            vpsPlan={vpsPlan as VpsPlan}
-            dFlowAccounts={dFlowAccounts}
-            selectedDFlowAccount={selectedDFlowAccount}
-            sshKeys={sshKeys}
-          />
-        )
+        case 'dFlow':
+          return (
+            <DflowVpsFormContainer
+              vpsPlan={vpsPlan as VpsPlan}
+              dFlowAccounts={dFlowAccounts}
+              selectedDFlowAccount={selectedDFlowAccount}
+              sshKeys={sshKeys}
+            />
+          )
 
-      case 'manual':
-        return (
-          <AttachCustomServerForm
-            sshKeys={sshKeys}
-            server={server}
-            formType={formType}
-            onSuccess={handleSuccess}
-          />
-        )
+        case 'manual':
+          return (
+            <AttachCustomServerForm
+              sshKeys={sshKeys}
+              server={server}
+              formType={formType}
+              onSuccess={handleSuccess}
+            />
+          )
 
-      case 'gcp':
-      case 'azure':
-        return (
-          <Alert variant='warning'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertDescription>
-              <div className='space-y-2'>
-                <p className='font-medium'>
-                  {getProviderName(serverType, serverOption)} is coming soon!
-                </p>
-                <p className='text-sm'>
-                  We're working hard to bring you this integration. For now, you
-                  can use AWS or manual configuration.
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )
+        case 'gcp':
+        case 'azure':
+          return (
+            <Alert variant='warning'>
+              <AlertCircle className='h-4 w-4' />
+              <AlertDescription>
+                <div className='space-y-2'>
+                  <p className='font-medium'>
+                    {getProviderName(serverType, serverOption)} is coming soon!
+                  </p>
+                  <p className='text-sm'>
+                    We're working hard to bring you this integration. For now,
+                    you can use AWS or manual configuration.
+                  </p>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )
 
-      default:
-        return (
-          <Alert variant='warning'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertDescription>
-              Configuration for {getProviderName(serverType, serverOption)} is
-              not yet implemented. Please select a different server type or
-              contact support.
-            </AlertDescription>
-          </Alert>
-        )
-    }
+        default:
+          return (
+            <Alert variant='warning'>
+              <AlertCircle className='h-4 w-4' />
+              <AlertDescription>
+                Configuration for {getProviderName(serverType, serverOption)} is
+                not yet implemented. Please select a different server type or
+                contact support.
+              </AlertDescription>
+            </Alert>
+          )
+      }
+    })()
+
+    return <div className='space-y-4'>{formContent}</div>
   }
 
   const providerName = getProviderName(type, option)
@@ -999,7 +974,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
         <ServerFormContent
           type={type}
           option={option}
-          sshKeys={sshKeys}
+          sshKeys={[]}
           securityGroups={securityGroups}
           server={server}
           formType={formType}
