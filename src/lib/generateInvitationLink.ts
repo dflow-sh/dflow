@@ -3,7 +3,7 @@
 import { env } from 'env'
 import jwt from 'jsonwebtoken'
 
-const secret = process.env.JWT_SECRET!
+const secret = env.PAYLOAD_SECRET
 
 /**
  * Generate a secure invitation link.
@@ -17,8 +17,7 @@ export async function generateInviteLink(
   tenantId: string,
   roles: string[],
 ): Promise<string> {
-  console.log('function called')
-  const token = jwt.sign({ tenantId, roles }, 'testing', {
+  const token = jwt.sign({ tenantId, roles }, secret, {
     expiresIn: '1d',
   })
   console.log('token', token)
