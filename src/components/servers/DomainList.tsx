@@ -36,7 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { isDemoEnvironment } from '@/lib/constants'
+import { WILD_CARD_DOMAINS, isDemoEnvironment } from '@/lib/constants'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -136,11 +136,15 @@ const DomainItem = ({
             <p className='font-semibold'>{domain.domain}</p>
 
             <Dialog>
-              <DialogTrigger asChild>
-                <Button size='icon' variant='ghost'>
-                  <Info />
-                </Button>
-              </DialogTrigger>
+              {!WILD_CARD_DOMAINS.some(wildcardDomain =>
+                domain.domain.endsWith(wildcardDomain),
+              ) && (
+                <DialogTrigger asChild>
+                  <Button size='icon' variant='ghost'>
+                    <Info />
+                  </Button>
+                </DialogTrigger>
+              )}
 
               <DialogContent>
                 <DialogHeader>
