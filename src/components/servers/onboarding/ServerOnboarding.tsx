@@ -71,7 +71,7 @@ const ServerOnboarding = ({
 
           <TabsContent value='configuration'>
             <Card>
-              <CardContent className='pt-4'>
+              <CardContent className='pt-4'> 
                 <UpdateServerForm />
               </CardContent>
             </Card>

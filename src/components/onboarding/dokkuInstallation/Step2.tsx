@@ -1,6 +1,5 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useQueryState } from 'nuqs'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -12,9 +11,8 @@ import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
-const Step2 = ({ server }: { server: ServerType | undefined }) => {
+const Step2 = ({ server }: { server: ServerType }) => {
   const [outdatedDokku, setOutdatedDokku] = useState(false)
-  const [selectedServer] = useQueryState('server')
   const { setDokkuInstallationStep, dokkuInstallationStep } =
     useDokkuInstallationStep()
 
@@ -39,7 +37,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
   })
 
   useEffect(() => {
-    if (selectedServer && dokkuInstallationStep === 2 && server) {
+    if (dokkuInstallationStep === 2 && server) {
       if (
         server.version &&
         server.version !== 'not-installed' &&
@@ -61,10 +59,10 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
         server.connection?.status === 'success' &&
         supportedLinuxVersions.includes(server.os.version ?? '')
       ) {
-        installDokku({ serverId: selectedServer })
+        installDokku({ serverId: server.id })
       }
     }
-  }, [selectedServer, server, dokkuInstallationStep])
+  }, [server, dokkuInstallationStep])
 
   if (outdatedDokku) {
     return (
@@ -78,6 +76,7 @@ const Step2 = ({ server }: { server: ServerType | undefined }) => {
             <a
               href='https://dokku.com/docs/getting-started/upgrading/'
               target='_blank'
+              rel='noopener'
               className='text-foreground underline'>
               docs
             </a>

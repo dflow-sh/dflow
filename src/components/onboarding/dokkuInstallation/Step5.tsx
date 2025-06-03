@@ -2,7 +2,6 @@
 
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
-import { useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -10,6 +9,7 @@ import { completeServerOnboardingAction } from '@/actions/server'
 import { pluginList } from '@/components/plugins'
 import { LetsencryptForm } from '@/components/servers/PluginConfigurationForm'
 import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
+import { User } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
@@ -17,11 +17,12 @@ import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 const Step5 = ({
   server,
   isServerOnboarding = false,
+  user,
 }: {
   server: ServerType
   isServerOnboarding?: boolean
+  user?: User
 }) => {
-  const [selectedServer] = useQueryState('server')
   const { dokkuInstallationStep } = useDokkuInstallationStep()
   const serverOnboardingContext = useServerOnboarding()
 
@@ -46,7 +47,7 @@ const Step5 = ({
         if (isServerOnboarding) {
           serverOnboardingContext?.nextStep()
         } else {
-          router.push(`/onboarding/configure-domain?server=${selectedServer}`)
+          router.push(`/onboarding/configure-domain?server=${server.id}`)
         }
       },
     })
@@ -74,7 +75,7 @@ const Step5 = ({
         !Array.isArray(pluginDetails.configuration) &&
         pluginDetails.configuration.email
 
-      if (!!letsencryptConfiguration && !!selectedServer) {
+      if (!!letsencryptConfiguration) {
         // if server is not onboarded and we're not in server-onboarding page skipping updating server onboarding status
         if (!server?.onboarded && !isServerOnboarding) {
           updateServer({
@@ -87,7 +88,7 @@ const Step5 = ({
         }
       }
     }
-  }, [server, selectedServer, dokkuInstallationStep])
+  }, [server, dokkuInstallationStep])
 
   useEffect(() => {
     if (updatedServer) {
@@ -100,6 +101,7 @@ const Step5 = ({
       plugin={letsencryptPluginDetails ?? plugin}
       serverId={server?.id}
       key={JSON.stringify({ ...pluginDetails, serverId: server?.id })}
+      userEmail={user?.email}
     />
   )
 }

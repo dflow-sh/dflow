@@ -1,8 +1,10 @@
 'use client'
 
 import { Hammer, HardDrive, Lock, Plug2 } from 'lucide-react'
-import { useMemo } from 'react'
+import { useAction } from 'next-safe-action/hooks'
+import { useEffect, useMemo } from 'react'
 
+import { getUserAction } from '@/actions/auth'
 import TimeLineComponent, {
   TimeLineComponentType,
 } from '@/components/TimeLineComponent'
@@ -21,59 +23,70 @@ const DokkuInstallation = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
 
+  const {
+    execute: getUser,
+    result: { data: user },
+  } = useAction(getUserAction)
+
+  useEffect(() => {
+    getUser()
+  }, [])
+
   const list = useMemo<TimeLineComponentType[]>(() => {
     return [
       {
-        title: 'Select a Server',
-        description: 'Select a server for dokku installation',
-        content: <Step1 servers={[server] as ServerType[]} />,
+        title: 'Server Preparation',
+        description: `Preparing ${server.name || 'your server'} for Dokku installation`,
+        content: <Step1 server={server as ServerType} />,
         icon: <HardDrive size={16} />,
         highlighted: dokkuInstallationStep > 1,
       },
       {
         title: 'Dokku Installation',
-        description: 'Installing dokku for deployment management',
-        content: (
-          <Step2 server={dokkuInstallationStep >= 2 ? server : undefined} />
-        ),
+        description: `Installing Dokku PaaS platform on ${server.provider === 'aws' ? 'EC2 instance' : 'server'}`,
+        content: <Step2 server={server} />,
         icon: <Dokku fontSize={16} />,
         disabled: dokkuInstallationStep < 2,
         highlighted: dokkuInstallationStep > 2,
       },
       {
-        title: 'Plugin Configuration',
-        description: 'Installing dokku plugins required for deployment',
+        title: 'Essential Plugins',
+        description: 'Installing required plugins for seamless app deployment',
         content: <Step3 server={server} />,
         icon: <Plug2 size={20} />,
         disabled: dokkuInstallationStep < 3,
         highlighted: dokkuInstallationStep > 3,
       },
       {
-        title: 'Builder Installation',
-        description: 'Installing build-tool required for deployment',
+        title: 'Build Tools Setup',
+        description:
+          'Configuring build environment for application deployments',
         content: <Step4 server={server} />,
         icon: <Hammer size={20} />,
         disabled: dokkuInstallationStep < 4,
         highlighted: dokkuInstallationStep > 4,
       },
       {
-        title: 'SSL Configuration',
+        title: 'SSL & Security',
         description:
-          'Add a global email configuration, for SSL certificate generation',
-        content: <Step5 server={server} isServerOnboarding />,
+          'Configuring SSL certificates and security settings for this server',
+        content: <Step5 server={server} user={user} isServerOnboarding />,
         icon: <Lock size={16} />,
         disabled: dokkuInstallationStep < 5,
       },
     ]
-  }, [dokkuInstallationStep, setDokkuInstallationStep, server])
+  }, [dokkuInstallationStep, server])
 
+  // Check if Dokku is properly installed on this server
   const installationDone =
     !!server && !!server.version && server.version !== 'not-installed'
 
+  // Check if required plugins are installed on this server
   const pluginsInstalled = (server?.plugins ?? []).find(
     plugin => plugin.name === 'letsencrypt',
   )
 
+  // Check if SSL email configuration is completed for this server
   const emailConfirmationDone =
     pluginsInstalled &&
     pluginsInstalled.configuration &&
@@ -81,14 +94,21 @@ const DokkuInstallation = ({ server }: { server: ServerType }) => {
     !Array.isArray(pluginsInstalled.configuration) &&
     pluginsInstalled.configuration.email
 
-  const isComplete =
+  // Server onboarding is complete when all components are properly configured
+  const isServerOnboardingComplete =
     installationDone && !!pluginsInstalled && Boolean(emailConfirmationDone)
+
+  const getCardTitle = () => {
+    const serverIdentifier =
+      server.name || `${server.provider?.toUpperCase()} Server`
+    return `Setting up ${serverIdentifier} for Deployment`
+  }
 
   return (
     <ServerOnboardingLayout
       server={server}
-      cardTitle={'Dokku & Tools Installation'}
-      disableNextStep={isComplete}>
+      cardTitle={getCardTitle()}
+      disableNextStep={isServerOnboardingComplete}>
       <TimeLineComponent list={list} />
     </ServerOnboardingLayout>
   )

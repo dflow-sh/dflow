@@ -114,7 +114,7 @@ const AttachCustomServerForm = ({
         onSuccess?.(data)
       },
       onError: ({ error }) => {
-        toast.error(`Failed to create service: ${error.serverError}`)
+        toast.error(`Failed to create server: ${error.serverError}`)
 
         onError?.(error)
       },

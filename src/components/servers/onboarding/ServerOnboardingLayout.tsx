@@ -3,7 +3,6 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'
-import { useQueryState } from 'nuqs'
 import { toast } from 'sonner'
 
 import { completeServerOnboardingAction } from '@/actions/server'
@@ -28,7 +27,6 @@ const ServerOnboardingLayout = ({
 }) => {
   const { currentStep, totalSteps, nextStep, previousStep } =
     useServerOnboarding()
-  const [_selectedServer, setSelectedServer] = useQueryState('server')
   const router = useRouter()
   const { organisation } = useParams<{ organisation: string }>()
 
@@ -122,7 +120,6 @@ const ServerOnboardingLayout = ({
             variant={'outline'}
             size={'icon'}
             onClick={() => {
-              setSelectedServer('')
               previousStep()
             }}
             disabled={currentStep === 1}>

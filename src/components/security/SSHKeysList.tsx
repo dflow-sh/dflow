@@ -103,7 +103,7 @@ const SSHKeyItem = ({
             <ViewSSHKey
               sshKey={sshKey}
               type='view'
-              description='This form updates SSH key'
+              description='View SSH Key Details'
             />
 
             <Button

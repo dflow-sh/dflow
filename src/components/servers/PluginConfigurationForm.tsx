@@ -5,7 +5,7 @@ import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -36,10 +36,12 @@ export const LetsencryptForm = ({
   plugin,
   setOpen = () => {},
   serverId,
+  userEmail,
 }: {
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   setOpen?: Dispatch<SetStateAction<boolean>>
   serverId: string
+  userEmail?: string
 }) => {
   const defaultValues =
     'name' in plugin &&
@@ -59,11 +61,19 @@ export const LetsencryptForm = ({
     resolver: zodResolver(configureLetsencryptPluginSchema),
     defaultValues: {
       email:
-        typeof defaultValues?.email === 'string' ? defaultValues.email : '',
+        (typeof defaultValues?.email === 'string' ? defaultValues.email : '') ||
+        userEmail ||
+        '',
       autoGenerateSSL: !!defaultValues?.autoGenerateSSL,
       serverId,
     },
   })
+
+  useEffect(() => {
+    if (userEmail && !defaultValues?.email) {
+      form.setValue('email', userEmail)
+    }
+  }, [userEmail, form, defaultValues?.email])
 
   const { execute, isPending } = useAction(configureLetsencryptPluginAction, {
     onSuccess: ({ data }) => {
