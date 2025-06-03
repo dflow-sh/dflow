@@ -136,16 +136,29 @@ const CreateSSHKeyForm = ({
     },
   )
 
-  function onSubmit(values: z.infer<typeof createSSHKeySchema>) {
+  // Modified onSubmit to prevent event propagation
+  function onSubmit(
+    values: z.infer<typeof createSSHKeySchema>,
+    event?: React.BaseSyntheticEvent,
+  ) {
+    // Prevent the event from bubbling up to parent forms
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     createSSHKey(values)
   }
 
-  // Handlers for generating RSA and ED25519 keys
-  const handleGenerateRSA = () => {
+  // Modified button click handlers to prevent event propagation
+  const handleGenerateRSA = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
     generateSSHKey({ type: 'rsa' })
   }
 
-  const handleGenerateED25519 = () => {
+  const handleGenerateED25519 = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
     generateSSHKey({ type: 'ed25519' })
   }
 
@@ -239,9 +252,41 @@ const CreateSSHKeyForm = ({
     })
   }
 
+  const handleDownloadPublic = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    downloadKey('public')
+  }
+
+  const handleDownloadPrivate = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    downloadKey('private')
+  }
+
+  const handleCopyPublic = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    copyToClipboard('public')
+  }
+
+  const handleCopyPrivate = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    copyToClipboard('private')
+  }
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+      <form
+        onSubmit={e => {
+          e.preventDefault()
+          e.stopPropagation()
+          form.handleSubmit(values => {
+            createSSHKey(values)
+          })()
+        }}
+        className='w-full space-y-6'>
         {/* Only show generate buttons if creating */}
         {type === 'create' && (
           <div className='flex flex-col gap-4 sm:flex-row'>
@@ -310,7 +355,7 @@ const CreateSSHKeyForm = ({
                   type='button'
                   variant='outline'
                   size='sm'
-                  onClick={() => copyToClipboard('public')}
+                  onClick={handleCopyPublic}
                   className='h-8 px-2 text-xs'>
                   {publicKeyCopied ? (
                     <Check className='max-h-[13px] max-w-[13px]' />
@@ -341,7 +386,7 @@ const CreateSSHKeyForm = ({
                   type='button'
                   variant='outline'
                   size='sm'
-                  onClick={() => copyToClipboard('private')}
+                  onClick={handleCopyPrivate}
                   className='h-8 px-2 text-xs'>
                   {privateKeyCopied ? (
                     <Check className='max-h-[13px] max-w-[13px]' />
@@ -366,7 +411,7 @@ const CreateSSHKeyForm = ({
             <Button
               type='button'
               variant='outline'
-              onClick={() => downloadKey('public')}
+              onClick={handleDownloadPublic}
               className='w-full sm:w-auto'>
               <Download className='mr-2 h-4 w-4' />
               Public Key
@@ -375,7 +420,7 @@ const CreateSSHKeyForm = ({
             <Button
               type='button'
               variant='outline'
-              onClick={() => downloadKey('private')}
+              onClick={handleDownloadPrivate}
               className='w-full sm:w-auto'>
               <Download className='mr-2 h-4 w-4' />
               Private Key
