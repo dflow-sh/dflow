@@ -202,7 +202,7 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
           }
         }
 
-        if (certificateType === 'letsencrypt') {
+        if (certificateType === 'letsencrypt' && action !== 'remove') {
           sendEvent({
             pub,
             message: `Started adding SSL Certificate to domain ${domain}`,
