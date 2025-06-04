@@ -1,3 +1,4 @@
+import { softDeletePlugin } from '@payload-bites/soft-delete'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
@@ -87,6 +88,414 @@ export default buildConfig({
       enabled: true,
       tenantsArrayField: {
         includeDefaultField: false,
+      },
+    }),
+    softDeletePlugin({
+      enabled: true,
+      collections: {
+        projects: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        backups: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        deployments: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        cloudProviderAccounts: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        dockerRegistries: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        gitProviders: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        securityGroups: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        servers: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        services: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        sshKeys: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        templates: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        tenants: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
+        users: {
+          enableRestore: true,
+          enableHardDelete: true,
+          hardDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          restoreAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+          softDeleteAccess: async ({ req }) => {
+            const { user } = req
+
+            if (user?.role?.includes('admin')) {
+              return true
+            }
+
+            return false
+          },
+        },
       },
     }),
   ],
