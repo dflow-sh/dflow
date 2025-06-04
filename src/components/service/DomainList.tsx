@@ -231,6 +231,7 @@ const DomainCard = ({
                   hostname: domain.domain,
                   autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
                   certificateType: domain.certificateType ?? 'none',
+                  default: domain.default,
                 },
                 id: serviceId,
               })

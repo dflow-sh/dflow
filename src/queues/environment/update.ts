@@ -297,6 +297,8 @@ async function handleReferenceVariables({
 
             const domain = domains?.[0] ?? ''
 
+            console.log({ domains })
+
             // incase of single domain directly assigning that value
             if (domains.length === 1) {
               return {
@@ -747,8 +749,6 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                 exposeDatabase,
                 variable: value,
               })
-
-              console.log({ generateKeyPair })
 
               formattedVariables.push({
                 key,

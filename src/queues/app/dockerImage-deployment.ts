@@ -10,7 +10,7 @@ import { sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 import { DockerRegistry, Service } from '@/payload-types'
 
-type PortsType = NonNullable<Service['dockerDetails']>['ports']
+type PortsType = NonNullable<NonNullable<Service['dockerDetails']>['ports']>
 
 interface QueueArgs {
   appName: string
@@ -76,60 +76,101 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
         if (ports && ports.length) {
           const formattedPorts = `${ports.map(port => port.containerPort).join(', ')}`
 
-          sendEvent({
-            message: `Stated exposing ports ${formattedPorts}`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: deploymentId,
-          })
+          // validate weather port is set or not
+          const exposedPorts = (await dokku.ports.report(ssh, appName)) ?? []
+          const alreadyExposedPorts: PortsType = []
+          const unExposedPorts: PortsType = []
 
-          const portResponse = await dokku.ports.set({
-            ssh,
-            appName,
-            options: {
-              onStdout: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: deploymentId,
+          ports.forEach(
+            ({ scheme, hostPort, containerPort, ...portDetails }) => {
+              const portExposed = exposedPorts.includes(
+                `${scheme}:${hostPort}:${containerPort}`,
+              )
+
+              if (portExposed) {
+                alreadyExposedPorts.push({
+                  scheme,
+                  hostPort,
+                  containerPort,
+                  ...portDetails,
                 })
-              },
-              onStderr: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: deploymentId,
+              } else {
+                unExposedPorts.push({
+                  scheme,
+                  hostPort,
+                  containerPort,
+                  ...portDetails,
                 })
-              },
+              }
             },
-            ports: ports.map(port => ({
-              container: `${port.containerPort}`,
-              host: `${port.hostPort}`,
-              scheme: port.scheme,
-            })),
-          })
+          )
 
-          if (portResponse) {
+          if (alreadyExposedPorts.length) {
             sendEvent({
-              message: `✅ Successfully exposed port ${formattedPorts}`,
+              message: `${alreadyExposedPorts.map(({ scheme, hostPort, containerPort }) => `${scheme}:${hostPort}:${containerPort}`)} already exposed skipping exposure!`,
               pub,
               serverId,
               serviceId,
               channelId: deploymentId,
             })
-          } else {
+          }
+
+          if (unExposedPorts.length) {
             sendEvent({
-              message: `❌ Failed to exposed port ${formattedPorts}`,
+              message: `Stated exposing ports ${unExposedPorts.map(({ scheme, hostPort, containerPort }) => `${scheme}:${hostPort}:${containerPort}`)}`,
               pub,
               serverId,
               serviceId,
               channelId: deploymentId,
             })
+
+            const portResponse = await dokku.ports.add({
+              ssh,
+              appName,
+              options: {
+                onStdout: async chunk => {
+                  sendEvent({
+                    message: chunk.toString(),
+                    pub,
+                    serverId,
+                    serviceId,
+                    channelId: deploymentId,
+                  })
+                },
+                onStderr: async chunk => {
+                  sendEvent({
+                    message: chunk.toString(),
+                    pub,
+                    serverId,
+                    serviceId,
+                    channelId: deploymentId,
+                  })
+                },
+              },
+              ports: unExposedPorts.map(port => ({
+                container: `${port.containerPort}`,
+                host: `${port.hostPort}`,
+                scheme: port.scheme,
+              })),
+            })
+
+            if (portResponse) {
+              sendEvent({
+                message: `✅ Successfully exposed port ${formattedPorts}`,
+                pub,
+                serverId,
+                serviceId,
+                channelId: deploymentId,
+              })
+            } else {
+              sendEvent({
+                message: `❌ Failed to exposed port ${formattedPorts}`,
+                pub,
+                serverId,
+                serviceId,
+                channelId: deploymentId,
+              })
+            }
           }
         }
 

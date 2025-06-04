@@ -78,49 +78,14 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
 
         // Step 1: Setting dokku port
         const port = serviceDetails.port ?? '3000'
-        sendEvent({
-          message: `Stated exposing port ${port}`,
-          pub,
-          serverId,
-          serviceId,
-          channelId: serviceDetails.deploymentId,
-        })
 
-        const portResponse = await dokku.ports.set({
-          ssh,
-          appName,
-          options: {
-            onStdout: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-            onStderr: async chunk => {
-              sendEvent({
-                message: chunk.toString(),
-                pub,
-                serverId,
-                serviceId,
-                channelId: serviceDetails.deploymentId,
-              })
-            },
-          },
-          ports: [
-            {
-              scheme: 'http',
-              host: '80',
-              container: port,
-            },
-          ],
-        })
+        // validate weather port is set or not
+        const exposedPorts = (await dokku.ports.report(ssh, appName)) ?? []
+        const hasPortExposed = exposedPorts?.includes(`http:80:${port}`)
 
-        if (portResponse) {
+        if (hasPortExposed) {
           sendEvent({
-            message: `✅ Successfully exposed port ${port}`,
+            message: `${port} already exposed skipping exposure!`,
             pub,
             serverId,
             serviceId,
@@ -128,12 +93,62 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           })
         } else {
           sendEvent({
-            message: `❌ Failed to exposed port ${port}`,
+            message: `Stated exposing port ${port}`,
             pub,
             serverId,
             serviceId,
             channelId: serviceDetails.deploymentId,
           })
+
+          const portResponse = await dokku.ports.set({
+            ssh,
+            appName,
+            options: {
+              onStdout: async chunk => {
+                sendEvent({
+                  message: chunk.toString(),
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: serviceDetails.deploymentId,
+                })
+              },
+              onStderr: async chunk => {
+                sendEvent({
+                  message: chunk.toString(),
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: serviceDetails.deploymentId,
+                })
+              },
+            },
+            ports: [
+              {
+                scheme: 'http',
+                host: '80',
+                container: port,
+              },
+            ],
+          })
+
+          if (portResponse) {
+            sendEvent({
+              message: `✅ Successfully exposed port ${port}`,
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          } else {
+            sendEvent({
+              message: `❌ Failed to exposed port ${port}`,
+              pub,
+              serverId,
+              serviceId,
+              channelId: serviceDetails.deploymentId,
+            })
+          }
         }
 
         // Step 2: Setting environment variables & add build-args

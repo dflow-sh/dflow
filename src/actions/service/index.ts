@@ -659,6 +659,7 @@ export const updateServiceDomainAction = protectedClient
           tenantDetails: {
             slug: tenant.slug,
           },
+          updateEnvironmentVariables: domain.default,
         })
       }
     }

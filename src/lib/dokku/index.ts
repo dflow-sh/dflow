@@ -52,6 +52,7 @@ import { uninstall as PluginUninstall } from './plugin/uninstall'
 import { portsAdd } from './ports/add'
 import { portsList } from './ports/list'
 import { portsRemove } from './ports/remove'
+import { portsReport } from './ports/report'
 import { portsSet } from './ports/set'
 import { rebuild } from './process/rebuild'
 import { restart } from './process/restart'
@@ -104,6 +105,7 @@ export const dokku = {
     set: portsSet,
     add: portsAdd,
     remove: portsRemove,
+    report: portsReport,
   },
   process: {
     start,
