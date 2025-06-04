@@ -190,7 +190,7 @@ export const triggerDeployment = async ({
             populatedVariables: populatedVariables ?? '{}',
             variables: variables ?? [],
             imageName: url,
-            ports,
+            ports: ports ?? [],
             serverId: project.server.id,
             serviceId: serviceDetails.id,
             name: serviceDetails.name,

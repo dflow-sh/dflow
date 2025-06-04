@@ -350,7 +350,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       populatedVariables: updatedPopulatedVariables ?? '{}',
                       variables: updatedVariables ?? [],
                       imageName: url,
-                      ports,
+                      ports: ports ?? [],
                       serverId: project.server.id,
                       serviceId: serviceDetails.id,
                       name: serviceDetails.name,
