@@ -374,10 +374,10 @@ const DeployTemplate = ({
           <DialogDescription />
         </DialogHeader>
 
-        <Tabs defaultValue='personal'>
+        <Tabs defaultValue='official'>
           <TabsList>
-            <TabsTrigger value='personal'>Personal</TabsTrigger>
             <TabsTrigger value='official'>Official</TabsTrigger>
+            <TabsTrigger value='personal'>Personal</TabsTrigger>
           </TabsList>
 
           <TabsContent value='official'>
