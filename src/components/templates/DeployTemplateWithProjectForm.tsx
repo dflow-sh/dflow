@@ -132,7 +132,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
     <>
       <Button
         onClick={() => setOpen(true)}
-        disabled={isPending}
+        disabled={isPending || services.length <= 0}
         variant={'outline'}>
         Deploy
       </Button>

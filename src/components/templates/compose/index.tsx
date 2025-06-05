@@ -1,5 +1,6 @@
 'use client'
 
+import DeployTemplateWithProjectForm from '../DeployTemplateWithProjectForm'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Edge,
@@ -22,6 +23,7 @@ import {
 
 import {
   createTemplate,
+  getOfficialTemplateByIdAction,
   getTemplateById,
   updateTemplate,
 } from '@/actions/templates'
@@ -56,7 +58,9 @@ const CreateNewTemplate = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const templateId = searchParams.get('templateId')
+  const type = searchParams.get('type')
   const { organisation } = useParams()
+  let template: any
 
   const {
     register,
@@ -64,6 +68,7 @@ const CreateNewTemplate = () => {
     formState: { errors },
     handleSubmit,
     setValue,
+    control,
   } = useForm<CreateTemplateSchemaType>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
@@ -106,12 +111,22 @@ const CreateNewTemplate = () => {
     },
   })
 
-  //getTemplateBYId api
+  //getTemplateBYId api for personal templates
   const {
     execute: getTemplateByIdAction,
     isPending: isGetTemplateByIdPending,
-    result: template,
+    result: personalTemplate,
   } = useAction(getTemplateById, {
+    onError: ({ error }) => {
+      toast.error(`Failed to get template: ${error.serverError}`)
+    },
+  })
+
+  const {
+    execute: getOfficialTemplateById,
+    isPending: isGetOfficialTemplateByIdPending,
+    result: officialTemplate,
+  } = useAction(getOfficialTemplateByIdAction, {
     onError: ({ error }) => {
       toast.error(`Failed to get template: ${error.serverError}`)
     },
@@ -139,19 +154,28 @@ const CreateNewTemplate = () => {
   }
 
   useEffect(() => {
-    if (templateId) {
+    if (!templateId) return
+    if (type === 'personal') {
       getTemplateByIdAction({ id: templateId })
+    } else if (type === 'official') {
+      getOfficialTemplateById({ templateId })
     }
-  }, [templateId])
+  }, [templateId, type])
+
+  template = type === 'official' ? officialTemplate : personalTemplate
 
   useEffect(() => {
-    if (!template?.data?.services) return
-
-    setValue('name', template?.data?.name)
-    setValue('description', template?.data?.description ?? '')
+    if (!template.data?.services) return
+    setValue('name', template.data?.name ?? '')
+    setValue(
+      'description',
+      type === 'official'
+        ? (officialTemplate.data?.description ?? '')
+        : (template?.data?.description ?? ''),
+    )
 
     const { edges: edgesData, nodes: nodesData } = convertToGraph(
-      template.data.services,
+      template?.data?.services!,
     )
 
     const initialNodes = nodesData?.map((node, index) => ({
@@ -176,9 +200,9 @@ const CreateNewTemplate = () => {
 
     setNodes(initialNodes || [])
     setEdges(initialEdges)
-  }, [template?.data?.services])
+  }, [template.data?.services])
 
-  if (isGetTemplateByIdPending) {
+  if (isGetTemplateByIdPending || isGetOfficialTemplateByIdPending) {
     return (
       <ReactFlowConfig
         edges={[]}
@@ -215,10 +239,11 @@ const CreateNewTemplate = () => {
   }
   return (
     <div className='w-full'>
-      <div className='flex w-full items-center justify-end p-2'>
+      <div className='flex w-full items-center justify-end gap-x-2 p-2'>
+        <DeployTemplateWithProjectForm services={services} />
         <Button
           variant={'default'}
-          disabled={nodes?.length <= 0}
+          disabled={nodes?.length <= 0 || type === 'official'}
           onClick={() => setOpenCreateTemplate(true)}>
           {templateId && template?.data ? 'Update template' : 'Save template'}
         </Button>
@@ -256,7 +281,11 @@ const CreateNewTemplate = () => {
             </div>
             <DialogFooter className='mt-4'>
               <Button
-                disabled={isCreateNewTemplatePending || isUpdateTemplatePending}
+                disabled={
+                  isCreateNewTemplatePending ||
+                  isUpdateTemplatePending ||
+                  type === 'official'
+                }
                 type='submit'>
                 {templateId && template?.data ? 'Update' : 'Create'}
               </Button>
