@@ -210,13 +210,19 @@ export const deleteServiceAction = protectedClient
           console.log({ appDeletionQueueResponse })
         }
 
-        const response = await payload.delete({
+        const response = await payload.update({
           collection: 'services',
           id,
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
         })
 
-        const deletedDeploymentsResponse = await payload.delete({
+        const deletedDeploymentsResponse = await payload.update({
           collection: 'deployments',
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
           where: {
             service: {
               equals: id,

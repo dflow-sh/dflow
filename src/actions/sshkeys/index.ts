@@ -81,9 +81,12 @@ export const deleteSSHKeyAction = protectedClient
       payload,
     } = ctx
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'sshKeys',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (response) {

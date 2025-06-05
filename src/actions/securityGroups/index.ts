@@ -114,9 +114,12 @@ export const deleteSecurityGroupAction = protectedClient
       payload,
     } = ctx
 
-    const deleteSecurityGroup = await payload.delete({
+    const deleteSecurityGroup = await payload.update({
       collection: 'securityGroups',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (deleteSecurityGroup) {

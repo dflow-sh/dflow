@@ -20,8 +20,11 @@ export const deleteGitProviderAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'gitProviders',
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
       where: {
         and: [
           {

@@ -164,17 +164,23 @@ export const deleteProjectAction = protectedClient
 
         // If deleting of service is added to queue, deleting the payload entry
         if (queueId) {
-          await payload.delete({
+          await payload.update({
             collection: 'services',
             id: service.id,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
           })
         }
       }
     }
 
-    const deleteProjectResponse = await payload.delete({
+    const deleteProjectResponse = await payload.update({
       collection: 'projects',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (deleteProjectResponse.id) {
