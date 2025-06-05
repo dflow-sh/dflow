@@ -44,7 +44,7 @@ const TemplateDetails = ({ template }: { template: Template }) => {
 
         <div className='mt-6 flex items-end justify-end gap-3'>
           <Link
-            href={`/${(template?.tenant as Tenant)?.slug}/templates/compose?templateId=${template?.id}`}>
+            href={`/${(template?.tenant as Tenant)?.slug}/templates/compose?templateId=${template?.id}&type=personal`}>
             <Button variant={'outline'}>
               <SquarePen size={20} />
             </Button>

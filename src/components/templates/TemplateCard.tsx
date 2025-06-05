@@ -1,10 +1,13 @@
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import Image from 'next/image'
+import Link from 'next/link'
 
+import { getTenant } from '@/lib/get-tenant'
 import { Template } from '@/payload-types'
 
-const TemplateCard = ({ template }: { template: Template }) => {
+const TemplateCard = async ({ template }: { template: Template }) => {
+  const tenant = await getTenant()
   return (
     <div>
       <Card>
@@ -29,8 +32,11 @@ const TemplateCard = ({ template }: { template: Template }) => {
             </div>
           </div>
 
-          <div className='mt-6 flex items-end justify-end'>
-            <Button variant='outline'>Deploy</Button>
+          <div className='flex items-end justify-end'>
+            <Link
+              href={`/${tenant}/templates/compose?templateId=${template.id}&type=official`}>
+              <Button variant={'outline'}>Deploy</Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
