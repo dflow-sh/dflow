@@ -10,8 +10,9 @@ import {
 } from 'unique-names-generator'
 
 import { TEMPLATE_EXPR } from '@/lib/constants'
-import { protectedClient } from '@/lib/safe-action'
-import { Service, Template } from '@/payload-types'
+import { protectedClient, publicClient } from '@/lib/safe-action'
+import { Project, Service, Template } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
 import {
@@ -19,7 +20,9 @@ import {
   createTemplateSchema,
   deployTemplateFromArchitectureSchema,
   deployTemplateSchema,
+  deployTemplateWithProjectCreateSchema,
   getAllTemplatesSchema,
+  getTemplateByIdSchema,
   updateTemplateSchema,
 } from './validator'
 
@@ -340,6 +343,212 @@ export const deployTemplateFromArchitectureAction = protectedClient
       collection: 'projects',
       id: projectId,
     })
+
+    if (!services.length) {
+      throw new Error('Please attach services to deploy the template')
+    }
+
+    const serviceNames = {} as Record<string, string>
+
+    services.forEach(service => {
+      if (service?.name) {
+        serviceNames[service?.name] = `${projectDetails.name}-${service.name}`
+      }
+    })
+
+    // Step 1: update service names & reference variables name to unique
+    const updatedServices = services.map(service => {
+      const serviceName = serviceNames[`${service?.name}`]
+      let variables = [] as Array<{
+        key: string
+        value: string
+        id?: string | null
+      }>
+
+      // todo: check if variable is of reference type
+      // change the service name if exists
+      service?.variables?.forEach(variable => {
+        const extractedVariable = variable.value
+          .match(TEMPLATE_EXPR)?.[0]
+          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+          ?.trim()
+
+        if (extractedVariable) {
+          const refMatch = extractedVariable.match(
+            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+          )
+
+          if (refMatch) {
+            const [, serviceName, variableName] = refMatch
+            const newServiceName = serviceNames[serviceName]
+
+            if (newServiceName) {
+              variables.push({
+                ...variable,
+                value: `{{ ${newServiceName}.${variableName} }}`,
+              })
+            } else {
+              variables?.push(variable)
+            }
+          } else {
+            variables?.push(variable)
+          }
+        } else {
+          variables?.push(variable)
+        }
+      })
+
+      return { ...service, name: serviceName, variables }
+    })
+
+    let createdServices: Service[] = []
+
+    // Step 2: map through services and create services in database
+    for await (const service of updatedServices) {
+      const { type, name } = service
+
+      if (type === 'database' && service?.databaseDetails) {
+        const serviceResponse = await payload.create({
+          collection: 'services',
+          data: {
+            name: `${name}`,
+            type,
+            databaseDetails: {
+              type: service.databaseDetails?.type,
+              exposedPorts: service.databaseDetails?.exposedPorts ?? [],
+            },
+            project: projectDetails?.id,
+            tenant,
+          },
+          depth: 10,
+        })
+
+        createdServices.push(serviceResponse)
+      } else if (type === 'docker' && service?.dockerDetails) {
+        const serviceResponse = await payload.create({
+          collection: 'services',
+          data: {
+            name: `${name}`,
+            type,
+            dockerDetails: service?.dockerDetails,
+            project: projectDetails?.id,
+            variables: service?.variables,
+            tenant,
+          },
+          depth: 10,
+        })
+
+        createdServices.push(serviceResponse)
+      } else if (type === 'app') {
+        // todo: handle all git-providers cases
+        if (service?.providerType === 'github' && service?.githubSettings) {
+          const serviceResponse = await payload.create({
+            collection: 'services',
+            data: {
+              name: `${name}`,
+              type,
+              project: projectDetails?.id,
+              variables: service?.variables,
+              githubSettings: service?.githubSettings,
+              providerType: service?.providerType,
+              provider: service?.provider,
+              builder: service?.builder,
+              tenant,
+            },
+            depth: 10,
+          })
+
+          createdServices.push(serviceResponse)
+        }
+      }
+    }
+
+    // Step 3: trigger template-deploy queue with services
+    const response = await addTemplateDeployQueue({
+      services: createdServices,
+      serverDetails: {
+        id:
+          typeof projectDetails?.server === 'object'
+            ? projectDetails?.server?.id
+            : projectDetails?.server,
+      },
+      tenantDetails: {
+        slug: tenant.slug,
+      },
+    })
+
+    if (response.id) {
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
+      return { success: true }
+    }
+  })
+
+export const getOfficialTemplateByIdAction = publicClient
+  .metadata({
+    actionName: 'getOfficialTemplateByIdAction',
+  })
+  .schema(getTemplateByIdSchema)
+  .action(async ({ clientInput }) => {
+    const { templateId } = clientInput
+
+    const res = await fetch(`https://dflow.sh/api/templates/${templateId}`)
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch template details')
+    }
+
+    const templateDetails = await res.json()
+    return templateDetails as Omit<Template, 'tenant'>
+  })
+
+export const deployTemplateWithProjectCreateAction = protectedClient
+  .metadata({
+    actionName: 'deployTemplateWithProjectCreateAction',
+  })
+  .schema(deployTemplateWithProjectCreateSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+    let projectDetails: Project
+
+    const {
+      services,
+      isCreateNewProject,
+      projectDetails: projectData,
+      projectId,
+    } = clientInput
+    if (isCreateNewProject) {
+      const { version } = (await payload.findByID({
+        collection: 'servers',
+        id: projectData?.serverId!,
+        context: {
+          populateServerDetails: true,
+        },
+      })) as ServerType
+
+      if (!version || version === 'not-installed') {
+        throw new Error('Dokku is not installed!')
+      }
+
+      const response = await payload.create({
+        collection: 'projects',
+        data: {
+          name: projectData?.name!,
+          description: projectData?.description,
+          server: projectData?.serverId!,
+          tenant,
+        },
+      })
+      projectDetails = response
+    } else {
+      const project = await payload.findByID({
+        collection: 'projects',
+        id: projectId!,
+      })
+      projectDetails = project
+    }
 
     if (!services.length) {
       throw new Error('Please attach services to deploy the template')
