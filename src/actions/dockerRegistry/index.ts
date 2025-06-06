@@ -83,9 +83,12 @@ export const deleteDockerRegistryAction = protectedClient
     const { id } = clientInput
     const payload = await getPayload({ config: configPromise })
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'dockerRegistries',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     return response

@@ -97,9 +97,12 @@ export const deleteInternalBackupQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
-          await payload.delete({
+          await payload.update({
             collection: 'backups',
             id: backupId,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
           })
 
           await pub.publish(

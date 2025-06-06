@@ -226,9 +226,12 @@ export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
 
             // deleting backup entry from payload
             for (const backup of backups) {
-              await payload.delete({
+              await payload.update({
                 collection: 'backups',
                 id: (backup as Backup)?.id,
+                data: {
+                  deletedAt: new Date().toISOString(),
+                },
               })
             }
 

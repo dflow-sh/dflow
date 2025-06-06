@@ -167,6 +167,7 @@ export interface User {
         id?: string | null;
       }[]
     | null;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -190,6 +191,7 @@ export interface Tenant {
   name: string;
   slug: string;
   subdomain: string;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -199,6 +201,7 @@ export interface Tenant {
  */
 export interface Project {
   id: string;
+  _order?: string | null;
   tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the project.
@@ -217,6 +220,7 @@ export interface Project {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -377,6 +381,7 @@ export interface Server {
     status?: ('success' | 'failed' | 'not-checked-yet') | null;
     lastChecked?: string | null;
   };
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -397,6 +402,7 @@ export interface SshKey {
   description?: string | null;
   publicKey: string;
   privateKey: string;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -435,6 +441,7 @@ export interface CloudProviderAccount {
     tenantId: string;
     subscriptionId: string;
   };
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -540,6 +547,7 @@ export interface SecurityGroup {
   securityGroupId?: string | null;
   syncStatus?: ('in-sync' | 'pending' | 'failed' | 'start-sync') | null;
   lastSyncedAt?: string | null;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -632,6 +640,7 @@ export interface Service {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -649,6 +658,7 @@ export interface Backup {
   type?: ('external' | 'internal') | null;
   backupName?: string | null;
   status: 'in-progress' | 'failed' | 'success';
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -672,6 +682,7 @@ export interface GitProvider {
     installationToken?: string | null;
     tokenExpiration?: string | null;
   };
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -686,6 +697,7 @@ export interface DockerRegistry {
   type: 'docker' | 'github' | 'digitalocean' | 'quay';
   username: string;
   password: string;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -709,6 +721,7 @@ export interface Deployment {
     | number
     | boolean
     | null;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -769,6 +782,7 @@ export interface Template {
         id?: string | null;
       }[]
     | null;
+  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -985,6 +999,7 @@ export interface UsersSelect<T extends boolean = true> {
         roles?: T;
         id?: T;
       };
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;
@@ -1003,11 +1018,13 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  _order?: T;
   tenant?: T;
   name?: T;
   description?: T;
   server?: T;
   services?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1081,6 +1098,7 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   deployments?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1149,6 +1167,7 @@ export interface ServersSelect<T extends boolean = true> {
         status?: T;
         lastChecked?: T;
       };
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1162,6 +1181,7 @@ export interface SshKeysSelect<T extends boolean = true> {
   description?: T;
   publicKey?: T;
   privateKey?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1186,6 +1206,7 @@ export interface GitProvidersSelect<T extends boolean = true> {
         installationToken?: T;
         tokenExpiration?: T;
       };
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1197,6 +1218,7 @@ export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
   logs?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1238,6 +1260,7 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
         tenantId?: T;
         subscriptionId?: T;
       };
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1297,6 +1320,7 @@ export interface TemplatesSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1346,6 +1370,7 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
   securityGroupId?: T;
   syncStatus?: T;
   lastSyncedAt?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1359,6 +1384,7 @@ export interface DockerRegistriesSelect<T extends boolean = true> {
   type?: T;
   username?: T;
   password?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1370,6 +1396,7 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   subdomain?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1383,6 +1410,7 @@ export interface BackupsSelect<T extends boolean = true> {
   type?: T;
   backupName?: T;
   status?: T;
+  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

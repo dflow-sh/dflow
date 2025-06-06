@@ -93,9 +93,12 @@ export const deleteServerAction = protectedClient
     const { id } = clientInput
     const { payload } = ctx
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'servers',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (response) {
