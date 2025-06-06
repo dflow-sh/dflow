@@ -10,6 +10,22 @@ export const Projects: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    defaultColumns: ['name', 'description', 'server'],
+  },
+  hooks: {
+    beforeOperation: [
+      async ({ operation, req, args }) => {
+        if (operation === 'read') {
+          const where = args?.where || {}
+          args.where = {
+            ...where,
+            deletedAt: { exists: false },
+          }
+        }
+
+        return args
+      },
+    ],
   },
   access: {
     read: isAdmin,
@@ -18,6 +34,7 @@ export const Projects: CollectionConfig = {
     delete: isAdmin,
     readVersions: isAdmin,
   },
+  orderable: true,
   fields: [
     {
       name: 'name',

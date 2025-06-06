@@ -201,6 +201,7 @@ export interface Tenant {
  */
 export interface Project {
   id: string;
+  _order?: string | null;
   tenant?: (string | null) | Tenant;
   /**
    * Enter the name of the project.
@@ -1017,6 +1018,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "projects_select".
  */
 export interface ProjectsSelect<T extends boolean = true> {
+  _order?: T;
   tenant?: T;
   name?: T;
   description?: T;
