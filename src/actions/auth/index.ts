@@ -4,6 +4,9 @@ import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
+import qrcode from 'qrcode'
+import speakeasy from 'speakeasy'
+import { z } from 'zod'
 
 import { protectedClient, publicClient } from '@/lib/safe-action'
 
@@ -208,4 +211,95 @@ export const getTenantAction = protectedClient
   .metadata({ actionName: 'getTenantAction' })
   .action(async ({ ctx }) => {
     return ctx.userTenant
+  })
+
+export const generate2FASetup = protectedClient
+  .metadata({ actionName: 'generate2FASetup' })
+  .action(async ({ ctx }) => {
+    const { user } = ctx
+    const payload = await getPayload({ config: configPromise })
+
+    const secret = speakeasy.generateSecret({
+      name: `dFlow (${user.email})`,
+    })
+
+    if (!secret.otpauth_url) {
+      throw new Error('Failed to generate OTP Auth URL.')
+    }
+
+    const qrCode = await qrcode.toDataURL(secret.otpauth_url)
+
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
+        twoFASecret: secret.base32,
+        twoFAEnabled: false,
+      },
+    })
+
+    return {
+      qrCode,
+      manualCode: secret.base32,
+    }
+  })
+
+export const verify2FASetup = protectedClient
+  .metadata({ actionName: 'verify2FASetup' })
+  .schema(
+    z.object({
+      token: z.string().min(6, 'Code is required'),
+    }),
+  )
+  .action(async ({ ctx, clientInput }) => {
+    const { token } = clientInput
+    const { user } = ctx
+    const payload = await getPayload({ config: configPromise })
+    const currentUser = await payload.findByID({
+      collection: 'users',
+      id: user.id,
+    })
+
+    const secret = currentUser.twoFASecret
+    if (!secret) {
+      throw new Error('Two-factor authentication has not been set up.')
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token,
+    })
+    if (!verified) {
+      throw new Error('Invalid authentication code')
+    }
+
+    // Enable 2FA
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
+        twoFAEnabled: true,
+      },
+    })
+
+    return { success: true }
+  })
+
+export const disable2FA = protectedClient
+  .metadata({ actionName: 'disable2FA' })
+  .action(async ({ ctx }) => {
+    const { user } = ctx
+    const payload = await getPayload({ config: configPromise })
+
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
+        twoFAEnabled: false,
+        twoFASecret: null,
+      },
+    })
+
+    return { success: true }
   })

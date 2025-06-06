@@ -109,5 +109,20 @@ export const Users: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'twoFAEnabled',
+      type: 'checkbox',
+      defaultValue: false,
+    },
+    {
+      name: 'twoFASecret',
+      type: 'text',
+      access: {
+        read: () => false, // hide from API responses
+      },
+      admin: {
+        hidden: true,
+      },
+    },
   ],
 }

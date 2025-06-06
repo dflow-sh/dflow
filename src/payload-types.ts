@@ -167,6 +167,8 @@ export interface User {
         id?: string | null;
       }[]
     | null;
+  twoFAEnabled?: boolean | null;
+  twoFASecret?: string | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -985,6 +987,8 @@ export interface UsersSelect<T extends boolean = true> {
         roles?: T;
         id?: T;
       };
+  twoFAEnabled?: T;
+  twoFASecret?: T;
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;
