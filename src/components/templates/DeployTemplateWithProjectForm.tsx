@@ -30,6 +30,7 @@ import {
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -52,12 +53,17 @@ import { cn } from '@/lib/utils'
 const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
   console.log('services in DeployTemplateWithProjectForm', services)
   const [open, setOpen] = useState(false)
-
+  const router = useRouter()
   const form = useForm<DeployTemplateWithProjectCreateType>({
     resolver: zodResolver(deployTemplateWithProjectCreateSchema),
     defaultValues: {
       projectDetails: {
-        name: '',
+        name: uniqueNamesGenerator({
+          dictionaries: [adjectives, colors, animals],
+          separator: '-',
+          style: 'lowerCase',
+          length: 2,
+        }),
         description: '',
       },
       services: services,
@@ -69,8 +75,10 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
   const { execute: templateDeploy, isPending } = useAction(
     deployTemplateWithProjectCreateAction,
     {
-      onSuccess: () => {
+      onSuccess: ({ data }) => {
         toast.success('Template deployed successfully')
+        setOpen(false)
+        router.push(`/${data?.tenantSlug}/dashboard/project/${data?.projectId}`)
       },
       onError: error => {
         toast.error(
@@ -88,7 +96,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
     }
   }, [services])
 
-  const { isCreateNewProject, services: Data } = useWatch({
+  const { isCreateNewProject } = useWatch({
     control: form.control,
   })
 
@@ -101,20 +109,6 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
   useEffect(() => {
     getProjectsAndServersDetails()
   }, [])
-
-  useEffect(() => {
-    if (isCreateNewProject) {
-      form.setValue(
-        'projectDetails.name',
-        uniqueNamesGenerator({
-          dictionaries: [adjectives, colors, animals],
-          separator: '-',
-          style: 'lowerCase',
-          length: 2,
-        }),
-      )
-    }
-  }, [isCreateNewProject])
 
   const servers = result?.data?.serversRes.docs ?? []
   const projects = result?.data?.projectsRes.docs ?? []
@@ -189,6 +183,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
+                            defaultValue={field.value}
                             {...field}
                             onChange={e => {
                               e.stopPropagation()

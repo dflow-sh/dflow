@@ -685,6 +685,10 @@ export const deployTemplateWithProjectCreateAction = protectedClient
 
     if (response.id) {
       revalidatePath(`/${tenant.slug}/dashboard/project/${projectDetails.id}`)
-      return { success: true }
+      return {
+        success: true,
+        projectId: projectDetails.id,
+        tenantSlug: tenant.slug,
+      }
     }
   })
