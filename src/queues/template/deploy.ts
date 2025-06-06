@@ -222,6 +222,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                         populatedVariables: updatedPopulatedVariables ?? '{}',
                         variables: updatedVariables ?? [],
                       },
+                      tenantSlug: tenantDetails.slug,
                     })
 
                     await waitForJobCompletion(railpackDeployQueue)
@@ -244,6 +245,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                           populatedVariables: updatedPopulatedVariables ?? '{}',
                           variables: updatedVariables ?? [],
                         },
+                        tenantSlug: tenantDetails.slug,
                       })
 
                     await waitForJobCompletion(dockerFileDeploymentQueue)
@@ -264,6 +266,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                             ? githubSettings.port.toString()
                             : '3000',
                         },
+                        tenantSlug: tenantDetails.slug,
                       })
 
                     await waitForJobCompletion(buildPacksDeploymentQueue)
@@ -355,6 +358,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       serviceId: serviceDetails.id,
                       name: serviceDetails.name,
                     },
+                    tenantSlug: tenantDetails.slug,
                   })
 
                 await waitForJobCompletion(dockerImageQueueResponse)
