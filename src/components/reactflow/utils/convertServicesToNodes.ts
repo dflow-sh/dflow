@@ -93,6 +93,5 @@ export function convertToGraph(
     })
   })
 
-  console.log(`Final graph: ${nodes.length} nodes, ${edges.length} edges`)
   return { nodes, edges }
 }
