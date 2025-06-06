@@ -660,51 +660,90 @@ export const deployTemplateWithProjectCreateAction = protectedClient
     const serviceNames = {} as Record<string, string>
 
     services.forEach(service => {
+      const serviceName = handleGenerateName()
+
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${service.name}`
+        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
       }
     })
 
     // Step 1: update service names & reference variables name to unique
     const updatedServices = services.map(service => {
       const serviceName = serviceNames[`${service?.name}`]
+
       let variables = [] as Array<{
         key: string
         value: string
         id?: string | null
       }>
 
-      // todo: check if variable is of reference type
-      // change the service name if exists
       service?.variables?.forEach(variable => {
-        const extractedVariable = variable.value
-          .match(TEMPLATE_EXPR)?.[0]
-          ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
-          ?.trim()
+        // check for environment variables type
+        const type = classifyVariableType(variable.value)
 
-        if (extractedVariable) {
-          const refMatch = extractedVariable.match(
-            /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
-          )
+        if (type === 'combo') {
+          // for combination variables extract and replace variables
+          const referenceVariablesList = extractTemplateRefs(variable.value)
+          let populatedValue = variable.value
 
-          if (refMatch) {
-            const [, serviceName, variableName] = refMatch
-            const newServiceName = serviceNames[serviceName]
+          for (const variable of referenceVariablesList) {
+            const extractedVariable = variable
+              .match(TEMPLATE_EXPR)?.[0]
+              ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+              ?.trim()
 
-            if (newServiceName) {
-              variables.push({
-                ...variable,
-                value: `{{ ${newServiceName}.${variableName} }}`,
-              })
-            } else {
-              variables?.push(variable)
+            if (extractedVariable) {
+              const refMatch = extractedVariable.match(
+                /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+              )
+
+              if (refMatch) {
+                const [, serviceName, variableName] = refMatch
+                const newServiceName = serviceNames[serviceName]
+
+                populatedValue = populatedValue.replace(
+                  `{{ ${serviceName}.${variableName} }}`,
+                  `{{ ${newServiceName}.${variableName} }}`,
+                )
+              }
             }
-          } else {
-            variables?.push(variable)
           }
-        } else {
-          variables?.push(variable)
+
+          variables.push({
+            ...variable,
+            value: populatedValue,
+          })
+
+          return
+        } else if (type === 'reference') {
+          // replace directly the values
+          const extractedVariable = variable.value
+            .match(TEMPLATE_EXPR)?.[0]
+            ?.match(/\{\{\s*(.*?)\s*\}\}/)?.[1]
+            ?.trim()
+
+          if (extractedVariable) {
+            const refMatch = extractedVariable.match(
+              /^([a-zA-Z_][\w-]*)\.([a-zA-Z_][\w]*)$/,
+            )
+
+            if (refMatch) {
+              const [, serviceName, variableName] = refMatch
+              const newServiceName = serviceNames[serviceName]
+
+              if (newServiceName) {
+                variables.push({
+                  ...variable,
+                  value: `{{ ${newServiceName}.${variableName} }}`,
+                })
+
+                return
+              }
+            }
+          }
         }
+
+        variables?.push(variable)
       })
 
       return { ...service, name: serviceName, variables }
