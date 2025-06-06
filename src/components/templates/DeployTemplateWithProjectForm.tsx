@@ -24,14 +24,16 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
+import { Fragment, useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import {
@@ -49,11 +51,14 @@ import {
 } from '@/actions/templates/validator'
 import { slugify } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
+import { Service } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
 const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
-  console.log('services in DeployTemplateWithProjectForm', services)
   const [open, setOpen] = useState(false)
   const router = useRouter()
+  const { organisation } = useParams()
+
   const form = useForm<DeployTemplateWithProjectCreateType>({
     resolver: zodResolver(deployTemplateWithProjectCreateSchema),
     defaultValues: {
@@ -89,10 +94,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
   )
   useEffect(() => {
     if (services && services.length > 0) {
-      form.reset({
-        ...form.getValues(),
-        services,
-      })
+      form.setValue('services', services)
     }
   }, [services])
 
@@ -147,13 +149,12 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                       <FormLabel
                         htmlFor='isCreateNewProject'
                         className={cn(
-                          'flex cursor-pointer items-center space-x-2 rounded-md border p-2',
+                          'flex cursor-pointer items-start gap-3 rounded-md border p-3',
                           isCreateNewProject
                             ? 'border-primary/30 bg-primary/10'
                             : 'bg-card',
                         )}>
                         <Checkbox
-                          className='items-start justify-start'
                           id='isCreateNewProject'
                           checked={field.value}
                           onCheckedChange={field.onChange}
@@ -163,17 +164,17 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                             Deploy to a New Project
                           </h4>
                           <p className='text-sm text-muted-foreground'>
-                            deploy this template to a newly created project.
+                            Choose this to deploy the template in a newly
+                            created project
                           </p>
                         </div>
                       </FormLabel>
                     </FormControl>
-                    {/* <FormMessage /> */}
                   </FormItem>
                 )}
               />
 
-              {isCreateNewProject && (
+              {isCreateNewProject ? (
                 <>
                   <FormField
                     control={form.control}
@@ -183,7 +184,6 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
-                            defaultValue={field.value}
                             {...field}
                             onChange={e => {
                               e.stopPropagation()
@@ -249,39 +249,103 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                               e.stopPropagation()
                             }}>
                             {servers.map(
-                              ({ name, id, connection, onboarded }) => {
+                              ({
+                                name,
+                                id,
+                                connection,
+                                onboarded,
+                                plugins,
+                              }) => {
                                 const isConnected =
                                   connection?.status === 'success'
                                 const isOnboarded = onboarded === true
                                 const isAvailable = isConnected && isOnboarded
+                                const databasesList = services?.filter(
+                                  (service: Service) =>
+                                    service.type === 'database',
+                                )
 
+                                const disabledDatabasesList =
+                                  databasesList?.filter((database: Service) => {
+                                    const databaseType =
+                                      database?.databaseDetails?.type
+
+                                    const pluginDetails = plugins?.find(
+                                      plugin => plugin.name === databaseType,
+                                    )
+
+                                    return (
+                                      !pluginDetails ||
+                                      (pluginDetails &&
+                                        pluginDetails?.status === 'disabled')
+                                    )
+                                  })
+
+                                const disabledDatabasesListNames =
+                                  disabledDatabasesList
+                                    ?.map(
+                                      (database: Service) =>
+                                        database?.databaseDetails?.type,
+                                    )
+                                    ?.filter(
+                                      (
+                                        value: string,
+                                        index: number,
+                                        self: any,
+                                      ) => {
+                                        return self.indexOf(value) === index
+                                      },
+                                    )
                                 return (
-                                  <SelectItem
-                                    key={id}
-                                    value={id}
-                                    disabled={!isAvailable}
-                                    className={
-                                      !isAvailable
-                                        ? 'cursor-not-allowed opacity-50'
-                                        : ''
-                                    }>
-                                    <div className='flex w-full items-center justify-between'>
-                                      <span>{name}</span>
-                                      {!isOnboarded ? (
-                                        <Badge
-                                          variant='warning'
-                                          className='ml-2 text-xs'>
-                                          Setup Required
-                                        </Badge>
-                                      ) : !isConnected ? (
-                                        <Badge
-                                          variant='destructive'
-                                          className='ml-2 text-xs'>
-                                          Connection error
-                                        </Badge>
-                                      ) : null}
-                                    </div>
-                                  </SelectItem>
+                                  <Fragment key={id}>
+                                    <SelectItem
+                                      key={id}
+                                      value={id}
+                                      disabled={
+                                        !isAvailable ||
+                                        !!disabledDatabasesList?.length
+                                      }
+                                      className={
+                                        !isAvailable ||
+                                        !!disabledDatabasesList?.length
+                                          ? 'cursor-not-allowed opacity-50'
+                                          : ''
+                                      }>
+                                      <div className='flex w-full items-center justify-between'>
+                                        <span>{name}</span>
+                                        {!isOnboarded ? (
+                                          <Badge
+                                            variant='warning'
+                                            className='ml-2 text-xs'>
+                                            Setup Required
+                                          </Badge>
+                                        ) : !isConnected ? (
+                                          <Badge
+                                            variant='destructive'
+                                            className='ml-2 text-xs'>
+                                            Connection error
+                                          </Badge>
+                                        ) : null}
+                                      </div>
+                                    </SelectItem>
+                                    {disabledDatabasesListNames?.length ? (
+                                      <span className='px-2 text-xs'>
+                                        {`Enable ${disabledDatabasesListNames?.join(',')} plugin for `}
+                                        <Button
+                                          variant='link'
+                                          className='w-min px-0'
+                                          size={'sm'}
+                                          asChild>
+                                          <Link
+                                            href={`/${organisation}/servers/${id}?tab=plugins`}>
+                                            {name}
+                                          </Link>
+                                        </Button>
+                                        {` server to deploy template`}
+                                      </span>
+                                    ) : null}
+                                    <SelectSeparator />
+                                  </Fragment>
                                 )
                               },
                             )}
@@ -293,9 +357,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                     )}
                   />
                 </>
-              )}
-
-              {!isCreateNewProject && (
+              ) : (
                 <FormField
                   control={form.control}
                   name='projectId'
@@ -323,13 +385,78 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                             e.preventDefault()
                             e.stopPropagation()
                           }}>
-                          {projects.map(({ name, id }) => {
+                          {projects.map(({ name, id, server }) => {
+                            const {
+                              plugins,
+                              id: serverId,
+                              name: serverName,
+                            } = server as ServerType
+
+                            const databasesList = services?.filter(
+                              (service: Service) => service.type === 'database',
+                            )
+
+                            const disabledDatabasesList = databasesList?.filter(
+                              (database: Service) => {
+                                const databaseType =
+                                  database?.databaseDetails?.type
+
+                                const pluginDetails = plugins?.find(
+                                  plugin => plugin.name === databaseType,
+                                )
+
+                                return (
+                                  !pluginDetails ||
+                                  (pluginDetails &&
+                                    pluginDetails?.status === 'disabled')
+                                )
+                              },
+                            )
+
+                            const disabledDatabasesListNames =
+                              disabledDatabasesList
+                                ?.map(
+                                  (database: Service) =>
+                                    database?.databaseDetails?.type,
+                                )
+                                ?.filter(
+                                  (value: string, index: number, self: any) => {
+                                    return self.indexOf(value) === index
+                                  },
+                                )
                             return (
-                              <SelectItem key={id} value={id}>
-                                <div className='flex w-full items-center justify-between'>
-                                  <span>{name}</span>
-                                </div>
-                              </SelectItem>
+                              <Fragment key={id}>
+                                <SelectItem
+                                  disabled={!!disabledDatabasesList?.length}
+                                  className={
+                                    !!disabledDatabasesList?.length
+                                      ? 'cursor-not-allowed opacity-50'
+                                      : ''
+                                  }
+                                  key={id}
+                                  value={id}>
+                                  <div className='flex w-full items-center justify-between'>
+                                    <span>{name}</span>
+                                  </div>
+                                </SelectItem>
+                                {disabledDatabasesListNames?.length ? (
+                                  <span className='px-2 text-xs'>
+                                    {`Enable ${disabledDatabasesListNames?.join(',')} plugin for `}
+                                    <Button
+                                      variant='link'
+                                      className='w-min px-0'
+                                      size={'sm'}
+                                      asChild>
+                                      <Link
+                                        href={`/${organisation}/servers/${serverId}?tab=plugins`}>
+                                        {serverName}
+                                      </Link>
+                                    </Button>
+                                    {` server to deploy template`}
+                                  </span>
+                                ) : null}
+                                <SelectSeparator />
+                              </Fragment>
                             )
                           })}
                         </SelectContent>

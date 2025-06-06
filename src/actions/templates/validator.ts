@@ -164,7 +164,7 @@ export const deployTemplateWithProjectCreateSchema = z
         ctx.addIssue({
           path: ['projectId'],
           code: z.ZodIssueCode.custom,
-          message: 'Project ID is required',
+          message: 'project is required',
         })
       }
     }
