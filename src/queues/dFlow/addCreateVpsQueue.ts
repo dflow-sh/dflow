@@ -5,6 +5,7 @@ import { RequiredDataFromCollection, getPayload } from 'payload'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendActionEvent } from '@/lib/sendEvent'
 import { Server, SshKey, Tenant } from '@/payload-types'
 
 class VpsCreationError extends Error {
@@ -293,10 +294,11 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                     `[${jobId}] Server updated - Status: ${newStatus}, IP: ${newIp || 'not assigned'}`,
                   )
 
-                  await pub.publish(
-                    'refresh-channel',
-                    JSON.stringify({ refresh: true }),
-                  )
+                  sendActionEvent({
+                    pub,
+                    action: 'refresh',
+                    tenantSlug: tenant.slug,
+                  })
 
                   if (newStatus === 'running' && newIp) {
                     console.log(`[${jobId}] VPS is ready with IP: ${newIp}`)
@@ -362,6 +364,13 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
               error instanceof Error ? error.message : 'VPS creation failed',
           }),
         )
+
+        sendActionEvent({
+          pub,
+          action: 'redirect',
+          tenantSlug: tenant.slug,
+          url: `/${tenant.slug}/servers`,
+        })
 
         if (error instanceof VpsCreationError) {
           throw error

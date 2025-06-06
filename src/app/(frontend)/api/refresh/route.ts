@@ -9,7 +9,10 @@ export const config = {
 export async function GET(req: NextRequest) {
   const encoder = new TextEncoder()
 
+  const searchParams = req.nextUrl.searchParams
   const duplicateSubscriber = sub.duplicate()
+
+  const organisation = searchParams.get('organisation') ?? ''
 
   const stream = new ReadableStream({
     start(controller) {
@@ -20,7 +23,7 @@ export async function GET(req: NextRequest) {
       }
 
       // Subscribe to a Redis channel
-      duplicateSubscriber.subscribe('refresh-channel', err => {
+      duplicateSubscriber.subscribe(`refresh-channel-${organisation}`, err => {
         if (err) console.error('Redis Subscribe Error:', err)
       })
 
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest) {
       })
 
       duplicateSubscriber.on('connect', () => {
-        console.log('Connected to refresh-channel')
+        console.log(`Connected to refresh-channel-${organisation}`)
       })
 
       // Use a separate client for the keepalive ping
@@ -43,7 +46,7 @@ export async function GET(req: NextRequest) {
       }, 29000)
 
       req.signal.addEventListener('abort', () => {
-        duplicateSubscriber.unsubscribe('refresh-channel')
+        duplicateSubscriber.unsubscribe(`refresh-channel-${organisation}`)
         duplicateSubscriber.off('message', sendEvent)
         clearInterval(keepAlive)
         // Close the connection when done

@@ -190,6 +190,9 @@ export const deleteServiceAction = protectedClient
             },
             serviceId: serviceDetails.id,
             deleteBackups,
+            tenant: {
+              slug: tenant.slug,
+            },
           })
 
           console.log({ databaseDeletionQueueResponse })
@@ -330,7 +333,7 @@ export const restartServiceAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -371,6 +374,9 @@ export const restartServiceAction = protectedClient
           serverDetails: {
             id: serviceDetails.id,
           },
+          tenant: {
+            slug: userTenant.tenant.slug,
+          },
         })
 
         queueId = queueResponse.id
@@ -404,7 +410,7 @@ export const stopServerAction = protectedClient
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -445,6 +451,9 @@ export const stopServerAction = protectedClient
           serverDetails: {
             id: project.server.id,
           },
+          tenant: {
+            slug: userTenant.tenant.slug,
+          },
         })
 
         queueId = queueResponse.id
@@ -478,7 +487,7 @@ export const exposeDatabasePortAction = protectedClient
   .schema(exposeDatabasePortSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, action } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -521,6 +530,9 @@ export const exposeDatabasePortAction = protectedClient
             },
             serverDetails: {
               id: project.server.id,
+            },
+            tenant: {
+              slug: userTenant.tenant.slug,
             },
           })
 

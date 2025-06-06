@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { parseDatabaseInfo } from '@/lib/utils'
 
 export type DatabaseType = Exclude<
@@ -30,6 +30,9 @@ interface QueueArgs {
     deploymentId: string
     serverId: string
   }
+  tenant: {
+    slug: string
+  }
 }
 
 export const addCreateDatabaseQueue = async (data: QueueArgs) => {
@@ -40,12 +43,12 @@ export const addCreateDatabaseQueue = async (data: QueueArgs) => {
     connection: queueConnection,
   })
 
-  getWorker({
+  getWorker<QueueArgs>({
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
       const payload = await getPayload({ config: configPromise })
-      const { databaseName, databaseType, sshDetails, serviceDetails } =
+      const { databaseName, databaseType, sshDetails, serviceDetails, tenant } =
         job.data
       const { id: serviceId, serverId, deploymentId } = serviceDetails
       let ssh: NodeSSH | null = null
@@ -63,7 +66,12 @@ export const addCreateDatabaseQueue = async (data: QueueArgs) => {
             status: 'building',
           },
         })
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug: tenant.slug,
+        })
 
         ssh = await dynamicSSH(sshDetails)
 
@@ -165,7 +173,11 @@ export const addCreateDatabaseQueue = async (data: QueueArgs) => {
           `❌ Failed creating ${databaseName}-database: ${message}`,
         )
       } finally {
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug: tenant.slug,
+        })
 
         if (ssh) {
           ssh.dispose()

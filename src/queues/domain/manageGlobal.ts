@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
@@ -30,6 +30,9 @@ interface QueueArgs {
     }
     id: string
   }
+  tenant: {
+    slug: string
+  }
 }
 
 export const addManageServerDomainQueue = async (data: QueueArgs) => {
@@ -43,7 +46,7 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       const { global } = job.data.serverDetails
       const payload = await getPayload({ config: configPromise })
 
@@ -163,10 +166,11 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
                   },
                 })
 
-                await pub.publish(
-                  'refresh-channel',
-                  JSON.stringify({ refresh: true }),
-                )
+                sendActionEvent({
+                  pub,
+                  action: 'refresh',
+                  tenantSlug: tenant.slug,
+                })
               }
             }
           }

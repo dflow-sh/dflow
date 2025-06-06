@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
@@ -17,7 +17,6 @@ interface QueueArgs {
     username: string
     privateKey: string
   }
-  //   payload: BasePayload
   pluginDetails: {
     enabled: boolean
     name: string
@@ -25,6 +24,9 @@ interface QueueArgs {
   serverDetails: {
     id: string
     previousPlugins: Server['plugins']
+  }
+  tenant: {
+    slug: string
   }
 }
 
@@ -39,7 +41,7 @@ export const addTogglePluginQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, pluginDetails, serverDetails } = job.data
+      const { sshDetails, pluginDetails, serverDetails, tenant } = job.data
       const { previousPlugins = [] } = serverDetails
       let ssh: NodeSSH | null = null
       const payload = await getPayload({ config: configPromise })
@@ -112,10 +114,11 @@ export const addTogglePluginQueue = async (data: QueueArgs) => {
             },
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : ''

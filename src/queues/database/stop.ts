@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { parseDatabaseInfo } from '@/lib/utils'
 
 export type DatabaseType = Exclude<
@@ -32,6 +32,9 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
+  tenant: {
+    slug: string
+  }
 }
 
 export const addStopDatabaseQueue = async (data: QueueArgs) => {
@@ -51,6 +54,7 @@ export const addStopDatabaseQueue = async (data: QueueArgs) => {
         sshDetails,
         serviceDetails,
         serverDetails,
+        tenant,
       } = job.data
 
       let ssh: NodeSSH | null = null
@@ -112,7 +116,11 @@ export const addStopDatabaseQueue = async (data: QueueArgs) => {
           },
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug: tenant.slug,
+        })
       } catch (error) {
         let message = error instanceof Error ? error.message : ''
         throw new Error(`❌ Failed stop ${databaseName}-database: ${message}`)

@@ -5,7 +5,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
@@ -18,6 +18,9 @@ interface QueueArgs {
   serverDetails: {
     id: string
     provider: Server['provider']
+  }
+  tenant: {
+    slug: string
   }
 }
 
@@ -32,7 +35,7 @@ export const addInstallDokkuQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
       console.log('inside install plugin queue')
@@ -75,10 +78,11 @@ export const addInstallDokkuQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : ''
