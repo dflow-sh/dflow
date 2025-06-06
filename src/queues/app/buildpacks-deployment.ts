@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
@@ -29,6 +29,7 @@ interface QueueArgs {
     port?: string
     serverId: string
   }
+  tenantSlug: string
 }
 
 export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
@@ -51,6 +52,7 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
         branch,
         sshDetails,
         serviceDetails,
+        tenantSlug,
       } = job.data
       const { serverId, serviceId } = serviceDetails
 
@@ -67,7 +69,11 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           },
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
 
         ssh = await dynamicSSH(sshDetails)
 
@@ -426,7 +432,11 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
       } catch (error) {
         let message = ''
 
@@ -455,7 +465,11 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
         throw new Error(`❌ Failed to deploy app: ${message}`)
       } finally {
         if (ssh) {

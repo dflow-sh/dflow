@@ -18,7 +18,11 @@ export const createDeploymentAction = protectedClient
       userTenant: { tenant },
     } = ctx
 
-    const deploymentQueueId = await triggerDeployment({ serviceId, cache })
+    const deploymentQueueId = await triggerDeployment({
+      serviceId,
+      cache,
+      tenantSlug: tenant.slug,
+    })
 
     if (deploymentQueueId) {
       return {
