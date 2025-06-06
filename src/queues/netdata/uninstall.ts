@@ -5,7 +5,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 
 interface QueueArgs {
   sshDetails: {
@@ -16,6 +16,9 @@ interface QueueArgs {
   }
   serverDetails: {
     id: string
+  }
+  tenant: {
+    slug: string
   }
 }
 
@@ -30,7 +33,7 @@ export const addUninstallNetdataQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
       console.log('inside uninstall netdata queue')
@@ -77,10 +80,11 @@ export const addUninstallNetdataQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         } else {
           throw new Error(
             `Failed to uninstall Netdata: ${uninstallResponse.message}`,

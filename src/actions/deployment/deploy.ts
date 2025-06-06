@@ -159,6 +159,9 @@ export const triggerDeployment = async ({
           deploymentId: deploymentResponse.id,
           serverId: project.server.id,
         },
+        tenant: {
+          slug: tenantSlug,
+        },
       })
 
       queueResponseId = databaseQueueResponse.id

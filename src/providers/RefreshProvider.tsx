@@ -11,7 +11,9 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Initializing a SSE for listening changes to update UI
   useEffect(() => {
-    const eventSource = new EventSource('/api/refresh')
+    const eventSource = new EventSource(
+      `/api/refresh?organisation=${organisation}`,
+    )
     eventSource.onmessage = event => {
       const data = JSON.parse(event.data) ?? {}
       if (data?.refresh) {

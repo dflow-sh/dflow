@@ -24,7 +24,7 @@ export const installPluginAction = protectedClient
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
@@ -66,6 +66,9 @@ export const installPluginAction = protectedClient
         previousPlugins,
       },
       sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
     })
 
     if (queueResponse.id) {
@@ -168,7 +171,7 @@ export const togglePluginStatusAction = protectedClient
   })
   .schema(togglePluginStatusSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { pluginName, serverId, enabled } = clientInput
 
     // Fetching server details instead of passing from client
@@ -210,6 +213,9 @@ export const togglePluginStatusAction = protectedClient
         id: serverId,
         previousPlugins,
       },
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
     })
 
     if (queueResponse.id) {
@@ -223,7 +229,7 @@ export const deletePluginAction = protectedClient
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { serverId, pluginName } = clientInput
 
     // Fetching server details instead of passing from client
@@ -264,6 +270,9 @@ export const deletePluginAction = protectedClient
         previousPlugins,
       },
       sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
     })
 
     console.log({ queueResponse })
@@ -277,7 +286,7 @@ export const configureLetsencryptPluginAction = protectedClient
   })
   .schema(configureLetsencryptPluginSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { email, autoGenerateSSL = false, serverId } = clientInput
 
     // Fetching server details instead of passing from client
@@ -311,6 +320,9 @@ export const configureLetsencryptPluginAction = protectedClient
         email,
       },
       sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
     })
 
     if (queueResponse.id) {

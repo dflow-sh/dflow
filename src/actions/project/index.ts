@@ -157,6 +157,9 @@ export const deleteProjectAction = protectedClient
             },
             serviceId: service.id,
             deleteBackups,
+            tenant: {
+              slug: tenant.slug,
+            },
           })
 
           queueId = databaseQueueResponse.id

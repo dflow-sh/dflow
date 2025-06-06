@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
@@ -189,10 +189,11 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
               },
             })
 
-            await pub.publish(
-              'refresh-channel',
-              JSON.stringify({ refresh: true }),
-            )
+            sendActionEvent({
+              pub,
+              action: 'refresh',
+              tenantSlug: tenantDetails.slug,
+            })
           } catch (error) {
             let message = error instanceof Error ? error.message : ''
 

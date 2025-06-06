@@ -4,7 +4,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 
 interface QueueArgs {
@@ -16,6 +16,9 @@ interface QueueArgs {
   }
   serverDetails: {
     id: string
+  }
+  tenant: {
+    slug: string
   }
 }
 
@@ -30,7 +33,7 @@ export const addInstallRailpackQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
       console.log('inside install railpack queue')
@@ -71,10 +74,11 @@ export const addInstallRailpackQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : ''
