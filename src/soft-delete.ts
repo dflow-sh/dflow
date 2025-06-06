@@ -52,8 +52,6 @@ export const addBeforeOperationHook = (
           const isAdminPanel = req?.pathname?.includes('payload-admin')
           const isAdminRole = req?.user?.role?.includes('admin')
 
-          console.log({ isAdminPanel, isAdminRole })
-
           if (operation === 'read' && !isAdminPanel && !isAdminRole) {
             const where = args?.where || {}
             args.where = {
