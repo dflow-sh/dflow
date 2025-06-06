@@ -133,3 +133,47 @@ export const deployTemplateFromArchitectureSchema = z.object({
 export const getAllTemplatesSchema = z.object({
   type: z.enum(['official', 'personal']),
 })
+
+export const deployTemplateWithProjectCreateSchema = z
+  .object({
+    isCreateNewProject: z.boolean().default(false),
+    projectDetails: z
+      .object({
+        name: z
+          .string()
+          .min(1, { message: 'Name should be at least 1 character' })
+          .max(50, { message: 'Name should be less than 50 characters' }),
+        description: z.string().optional(),
+        serverId: z.string({ message: 'Server is required' }),
+      })
+      .optional(),
+    projectId: z.string({ message: 'project is required' }).optional(),
+    services: servicesSchema,
+  })
+  .superRefine((data, ctx) => {
+    if (data.isCreateNewProject) {
+      if (!data.projectDetails) {
+        ctx.addIssue({
+          path: ['projectDetails'],
+          code: z.ZodIssueCode.custom,
+          message: 'Project details are required',
+        })
+      }
+    } else {
+      if (!data.projectId) {
+        ctx.addIssue({
+          path: ['projectId'],
+          code: z.ZodIssueCode.custom,
+          message: 'project is required',
+        })
+      }
+    }
+  })
+
+export type DeployTemplateWithProjectCreateType = z.infer<
+  typeof deployTemplateWithProjectCreateSchema
+>
+
+export const getTemplateByIdSchema = z.object({
+  templateId: z.string(),
+})

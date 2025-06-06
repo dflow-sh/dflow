@@ -44,7 +44,7 @@ const page = async ({ params }: PageProps) => {
 
           {/* Official Templates */}
           <TabsContent value='official'>
-            <div className='mt-4 grid w-full grid-cols-3 gap-5'>
+            <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
               {officialTemplatesData?.docs?.length! > 0 ? (
                 officialTemplatesData?.docs?.map(
                   (template: Template, index: number) => (
@@ -67,7 +67,7 @@ const page = async ({ params }: PageProps) => {
           {/* Personal Templates */}
           <TabsContent value='personal'>
             {templates?.data?.length! > 0 ? (
-              <div className='mt-4 grid w-full grid-cols-3 gap-5'>
+              <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
                 {templates?.data?.map(template => (
                   <TemplateDetails key={template.id} template={template} />
                 ))}

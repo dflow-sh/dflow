@@ -577,7 +577,7 @@ const AddGithubService = ({
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className='flex w-full flex-col gap-4 md:flex-row'>
+                    className='grid w-full grid-cols-2 gap-4'>
                     {options.map(({ value, label, icon, description }) => (
                       <FormItem
                         className='flex w-full items-center space-x-3 space-y-0'

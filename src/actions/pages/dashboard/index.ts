@@ -34,10 +34,12 @@ export const getProjectsAndServers = protectedClient
           name: true,
           connection: true,
           onboarded: true,
+          plugins: true,
         },
       }),
       payload.find({
         collection: 'projects',
+        depth: 5,
         where: {
           'tenant.slug': {
             equals: tenant.slug,
