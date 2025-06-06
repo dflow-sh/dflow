@@ -334,17 +334,12 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const pollResult = await pollForPublicIP()
 
-        // Final success notification
-        await pub.publish(
-          'refresh-channel',
-          JSON.stringify({
-            path: `/${tenant.slug}/servers`,
-            tenant: tenant.slug,
-            success: true,
-            serverId: createdServer.id,
-            ip: pollResult.ip,
-          }),
-        )
+        sendActionEvent({
+          pub,
+          action: 'redirect',
+          tenantSlug: tenant.slug,
+          url: `/${tenant.slug}/servers/${createdServer.id}`,
+        })
 
         return {
           success: true,
@@ -355,15 +350,12 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       } catch (error) {
         console.error(`[${jobId}] VPS creation failed:`, error)
 
-        await pub.publish(
-          'refresh-channel',
-          JSON.stringify({
-            path: `/${tenant.slug}/servers`,
-            tenant: tenant.slug,
-            error:
-              error instanceof Error ? error.message : 'VPS creation failed',
-          }),
-        )
+        sendActionEvent({
+          pub,
+          action: 'redirect',
+          tenantSlug: tenant.slug,
+          url: `/${tenant.slug}/servers`,
+        })
 
         sendActionEvent({
           pub,

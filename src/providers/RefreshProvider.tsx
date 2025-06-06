@@ -24,7 +24,7 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // redirecting user to respective page on page-event
-      if (data?.path && organisation === data?.organisation) {
+      if (data?.path) {
         router.push(data?.path)
       }
     }
