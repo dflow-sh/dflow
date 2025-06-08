@@ -16,6 +16,7 @@ export const createServiceSchema = z.object({
 export const deleteServiceSchema = z.object({
   id: z.string(),
   deleteBackups: z.boolean().optional(),
+  deleteFromServer: z.boolean(),
 })
 
 export const updateServiceSchema = z.object({

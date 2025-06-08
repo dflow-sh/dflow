@@ -1,17 +1,8 @@
 'use client'
 
-import { AlertCircle, HardDrive, Trash2 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
-import { Dispatch, SetStateAction, useState } from 'react'
-import { toast } from 'sonner'
-
-import { deleteProjectAction } from '@/actions/project'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Project, Server, Service } from '@/payload-types'
-
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
-import { Checkbox } from './ui/check-box'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/check-box'
 import {
   Dialog,
   DialogContent,
@@ -19,42 +10,56 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog'
+} from '../ui/dialog'
+import { AlertCircle, HardDrive, Trash2 } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { Dispatch, SetStateAction, useState } from 'react'
+import { toast } from 'sonner'
 
-const DeleteProjectDialog = ({
+import { deleteServiceAction } from '@/actions/service'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Server, Service } from '@/payload-types'
+
+const DeleteServiceDialog = ({
+  service,
   project,
   open,
   setOpen,
-  services = [],
 }: {
-  project: Project
+  service: Service & { displayName?: string }
+  project: {
+    id: string
+    name: string
+    description?: string | null | undefined
+    server: string | Server
+  }
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
-  services?: Service[]
 }) => {
-  const { name } = project
+  const { name, type } = service
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
   const [deleteFromServer, setDeleteFromServer] = useState<boolean>(true)
 
-  const hasServices = services.length > 0
   const serverName = (project.server as Server)?.name
 
-  const { execute, isPending } = useAction(deleteProjectAction, {
+  const { execute, isPending } = useAction(deleteServiceAction, {
     onSuccess: ({ data }) => {
       if (data?.deleted) {
         setOpen(false)
-        toast.success('Successfully deleted project')
+        toast.info('Added to queue', {
+          description: 'Added deleting service to queue',
+        })
       }
     },
     onError: ({ error }) => {
       setOpen(false)
-      toast.error(`Failed to delete project: ${error.serverError}`)
+      toast.error(`Failed to delete service: ${error.serverError}`)
     },
   })
 
   const handleDelete = () => {
     execute({
-      id: project.id,
+      id: service.id,
       deleteBackups,
       deleteFromServer,
     })
@@ -66,64 +71,51 @@ const DeleteProjectDialog = ({
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2 text-lg'>
             <Trash2 className='h-5 w-5 text-destructive' />
-            Delete Project
+            Delete Service
           </DialogTitle>
           <DialogDescription className='pt-2'>
-            Are you sure you want to delete the project{' '}
+            Are you sure you want to delete the service{' '}
             <span className='font-medium'>{name}</span>?
           </DialogDescription>
         </DialogHeader>
 
         <div className='space-y-4'>
-          {/* Project Info */}
+          {/* Service Info */}
           <div className='rounded-md border bg-muted/50 p-3'>
             <div className='flex items-center gap-2 text-sm'>
               <HardDrive className='h-4 w-4 text-muted-foreground' />
               <span className='font-medium'>Server:</span>
               <span>{serverName || 'Unknown server'}</span>
             </div>
-            {hasServices && (
-              <div className='mt-1 flex items-center gap-2 text-sm'>
-                <div className='h-4 w-4' /> {/* Spacer */}
-                <span className='font-medium'>Services:</span>
-                <span>
-                  {services.length} service{services.length > 1 ? 's' : ''}
-                </span>
-              </div>
-            )}
+            <div className='mt-1 flex items-center gap-2 text-sm'>
+              <div className='h-4 w-4' /> {/* Spacer */}
+              <span className='font-medium'>Type:</span>
+              <Badge variant='secondary' className='text-xs'>
+                {type || 'Service'}
+              </Badge>
+            </div>
+            <div className='mt-1 flex items-center gap-2 text-sm'>
+              <div className='h-4 w-4' /> {/* Spacer */}
+              <span className='font-medium'>Project:</span>
+              <span>{project.name}</span>
+            </div>
           </div>
 
-          {/* Services List */}
-          {hasServices && (
-            <Alert variant='warning'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Warning: Connected Services</AlertTitle>
-              <AlertDescription>
-                <p className='mb-2'>
-                  This project contains the following services:
-                </p>
-                <ul className='space-y-2'>
-                  {services.slice(0, 3).map((service, index) => (
-                    <li
-                      key={service.id}
-                      className='flex items-center gap-2 text-sm'>
-                      <div className='h-2 w-2 rounded-full bg-primary' />
-                      <span>{service.name}</span>
-                      <Badge variant='secondary' className='text-xs'>
-                        {service.type || 'Service'}
-                      </Badge>
-                    </li>
-                  ))}
-                  {services.length > 3 && (
-                    <li className='text-xs text-muted-foreground'>
-                      ... and {services.length - 3} more service
-                      {services.length - 3 > 1 ? 's' : ''}
-                    </li>
-                  )}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
+          {/* Service Warning */}
+          <Alert variant='warning'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertTitle>Warning: Service Deletion</AlertTitle>
+            <AlertDescription>
+              <p className='mb-2'>This will permanently delete the service:</p>
+              <div className='flex items-center gap-2 text-sm'>
+                <div className='h-2 w-2 rounded-full bg-primary' />
+                <span>{service.name}</span>
+                <Badge variant='secondary' className='text-xs'>
+                  {service.type || 'Service'}
+                </Badge>
+              </div>
+            </AlertDescription>
+          </Alert>
 
           {/* Deletion Options */}
           <div className='space-y-3'>
@@ -141,10 +133,10 @@ const DeleteProjectDialog = ({
                   <label
                     htmlFor='delete-from-server'
                     className='cursor-pointer text-sm font-medium leading-none'>
-                    Delete project files from server
+                    Delete service files from server
                   </label>
                   <p className='text-xs text-muted-foreground'>
-                    Remove Docker containers, volumes, and project files from{' '}
+                    Remove Docker containers, volumes, and service files from{' '}
                     {serverName}
                   </p>
                 </div>
@@ -164,7 +156,7 @@ const DeleteProjectDialog = ({
                     Delete all associated backups
                   </label>
                   <p className='text-xs text-muted-foreground'>
-                    Permanently remove all backup data for this project
+                    Permanently remove all backup data for this service
                   </p>
                 </div>
               </div>
@@ -177,21 +169,20 @@ const DeleteProjectDialog = ({
               <AlertCircle className='h-4 w-4' />
               <AlertTitle>Files will remain on server</AlertTitle>
               <AlertDescription>
-                Project files and containers will continue running on{' '}
+                Service files and containers will continue running on{' '}
                 {serverName}. You'll need to manually stop and remove them if
                 desired.
               </AlertDescription>
             </Alert>
           )}
 
-          {deleteFromServer && hasServices && (
+          {deleteFromServer && (
             <Alert variant='destructive'>
               <AlertCircle className='h-4 w-4' />
               <AlertTitle>Permanent Action</AlertTitle>
               <AlertDescription>
-                All {services.length} service{services.length > 1 ? 's' : ''}{' '}
-                will be stopped and removed from the server. This action cannot
-                be undone.
+                The service will be stopped and removed from the server. This
+                action cannot be undone.
               </AlertDescription>
             </Alert>
           )}
@@ -217,7 +208,7 @@ const DeleteProjectDialog = ({
             ) : (
               <>
                 <Trash2 size={16} />
-                Delete Project
+                Delete Service
               </>
             )}
           </Button>
@@ -227,4 +218,4 @@ const DeleteProjectDialog = ({
   )
 }
 
-export default DeleteProjectDialog
+export default DeleteServiceDialog

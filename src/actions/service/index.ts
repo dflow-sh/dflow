@@ -142,7 +142,7 @@ export const deleteServiceAction = protectedClient
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, deleteBackups } = clientInput
+    const { id, deleteBackups, deleteFromServer } = clientInput
     const {
       userTenant: { tenant },
       payload,
@@ -171,13 +171,20 @@ export const deleteServiceAction = protectedClient
         id: serverId,
       })
 
-      if (serverDetails.id && typeof serverDetails.sshKey === 'object') {
+      // Only delete from server if the option is enabled
+      if (
+        deleteFromServer &&
+        serverDetails.id &&
+        typeof serverDetails.sshKey === 'object'
+      ) {
         const sshDetails = {
           privateKey: serverDetails.sshKey?.privateKey,
           host: serverDetails?.ip,
           username: serverDetails?.username,
           port: serverDetails?.port,
         }
+
+        let queueId: string | undefined = ''
 
         // handling database delete
         if (type === 'database' && serviceDetails.databaseDetails?.type) {
@@ -192,6 +199,7 @@ export const deleteServiceAction = protectedClient
             deleteBackups,
           })
 
+          queueId = databaseDeletionQueueResponse.id
           console.log({ databaseDeletionQueueResponse })
         }
 
@@ -207,45 +215,76 @@ export const deleteServiceAction = protectedClient
             },
           })
 
+          queueId = appDeletionQueueResponse.id
           console.log({ appDeletionQueueResponse })
         }
 
-        const response = await payload.update({
+        // If deleting of service is added to queue, update the service entry
+        if (queueId) {
+          await payload.update({
+            collection: 'services',
+            id,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
+          })
+        }
+      } else if (!deleteFromServer) {
+        // If not deleting from server, just mark as deleted in database
+        await payload.update({
           collection: 'services',
           id,
           data: {
             deletedAt: new Date().toISOString(),
           },
         })
+      }
 
-        const deletedDeploymentsResponse = await payload.update({
-          collection: 'deployments',
+      // Always update the service in the database (if not already done above)
+      const response = await payload.findByID({
+        collection: 'services',
+        id,
+      })
+
+      // Only update if not already marked as deleted
+      if (!response.deletedAt) {
+        await payload.update({
+          collection: 'services',
+          id,
           data: {
             deletedAt: new Date().toISOString(),
           },
-          where: {
-            service: {
-              equals: id,
-            },
-          },
         })
-
-        if (response) {
-          const projectId =
-            typeof response.project === 'object'
-              ? response.project.id
-              : response.project
-
-          // Revalidate the parent project page and the service page
-          revalidatePath(
-            `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-          )
-          revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
-          return { deleted: true }
-        }
-      } else {
-        console.log('Server details not found!', serverId)
       }
+
+      // Always delete associated deployments
+      const deletedDeploymentsResponse = await payload.update({
+        collection: 'deployments',
+        data: {
+          deletedAt: new Date().toISOString(),
+        },
+        where: {
+          service: {
+            equals: id,
+          },
+        },
+      })
+
+      const projectId = typeof project === 'object' ? project.id : project
+
+      // Revalidate the parent project page and the service page
+      revalidatePath(
+        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
+      )
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
+
+      return {
+        deleted: true,
+        deletedFromServer: deleteFromServer,
+      }
+    } else {
+      console.log('Project not found for service:', id)
+      throw new Error('Failed to delete service: Project not found')
     }
   })
 
