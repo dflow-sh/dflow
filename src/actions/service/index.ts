@@ -22,6 +22,8 @@ import {
   deleteServiceSchema,
   exposeDatabasePortSchema,
   regenerateSSLSchema,
+  restartServiceSchema,
+  stopServiceSchema,
   updateServiceDomainSchema,
   updateServiceEnvironmentsSchema,
   updateServiceSchema,
@@ -366,7 +368,7 @@ export const restartServiceAction = protectedClient
   .metadata({
     actionName: 'restartServiceAction',
   })
-  .schema(deleteServiceSchema)
+  .schema(restartServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx
@@ -440,7 +442,7 @@ export const stopServerAction = protectedClient
   .metadata({
     actionName: 'stopServerAction',
   })
-  .schema(deleteServiceSchema)
+  .schema(stopServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

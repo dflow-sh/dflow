@@ -18,3 +18,7 @@ export const deleteProjectSchema = z.object({
   deleteBackups: z.boolean().optional(),
   deleteFromServer: z.boolean(),
 })
+
+export const getProjectDatabasesSchema = z.object({
+  id: z.string(),
+})

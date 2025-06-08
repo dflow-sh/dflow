@@ -10,6 +10,7 @@ import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import {
   createProjectSchema,
   deleteProjectSchema,
+  getProjectDatabasesSchema,
   updateProjectSchema,
 } from './validator'
 
@@ -211,7 +212,7 @@ export const getProjectDatabasesAction = protectedClient
   .metadata({
     actionName: 'getProjectDatabasesAction',
   })
-  .schema(deleteProjectSchema)
+  .schema(getProjectDatabasesSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

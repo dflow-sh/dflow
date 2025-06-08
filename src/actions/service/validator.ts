@@ -73,7 +73,8 @@ export const updateServiceSchema = z.object({
     .optional(),
 })
 
-export const exposeDatabasePortSchema = deleteServiceSchema.extend({
+export const exposeDatabasePortSchema = z.object({
+  id: z.string(),
   action: z.enum(['expose', 'unexpose']),
 })
 
@@ -95,4 +96,12 @@ export const updateServiceDomainSchema = z.object({
 
 export const regenerateSSLSchema = deleteServiceSchema.extend({
   email: z.string().email().optional(),
+})
+
+export const restartServiceSchema = z.object({
+  id: z.string(),
+})
+
+export const stopServiceSchema = z.object({
+  id: z.string(),
 })
