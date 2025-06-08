@@ -572,15 +572,6 @@ export interface Service {
    */
   description?: string | null;
   type: 'database' | 'app' | 'docker';
-  environmentVariables?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
   variables?:
     | {
         key: string;
@@ -1039,7 +1030,6 @@ export interface ServicesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   type?: T;
-  environmentVariables?: T;
   variables?:
     | T
     | {

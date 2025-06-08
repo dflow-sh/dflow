@@ -27,7 +27,6 @@ export const triggerDeployment = async ({
     providerType,
     githubSettings,
     provider,
-    environmentVariables,
     populatedVariables,
     variables,
     ...serviceDetails

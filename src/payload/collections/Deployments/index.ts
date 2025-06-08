@@ -19,6 +19,9 @@ export const Deployments: CollectionConfig = {
     name: true,
     status: true,
   },
+  admin: {
+    defaultColumns: ['service', 'status', 'createdAt', 'updatedAt'],
+  },
   fields: [
     {
       name: 'service',
