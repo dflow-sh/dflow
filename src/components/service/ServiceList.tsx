@@ -2,17 +2,7 @@
 
 import { ServiceNode } from '../reactflow/types'
 import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '../ui/alert-dialog'
 import { Button } from '../ui/button'
-import { Checkbox } from '../ui/check-box'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -20,16 +10,14 @@ import {
   Node,
   useEdgesState,
   useNodesState,
-  useReactFlow,
 } from '@xyflow/react'
 import { Trash2 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
 
-import { deleteServiceAction } from '@/actions/service'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Server, Service } from '@/payload-types'
+
+import DeleteServiceDialog from './DeleteServiceDialog'
 
 interface ServiceWithDisplayName extends Service {
   displayName: string
@@ -64,6 +52,7 @@ const calculateNodePositions = (
 
   return positions
 }
+
 interface Menu {
   service: ServiceNode
   top: number
@@ -88,7 +77,11 @@ const ServiceList = ({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [menu, setMenu] = useState<Menu | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedService, setSelectedService] =
+    useState<ServiceWithDisplayName | null>(null)
   const router = useRouter()
+
   const onNodeContextMenu = useCallback(
     (event: React.MouseEvent, node: Node) => {
       event.preventDefault()
@@ -103,6 +96,20 @@ const ServiceList = ({
   )
 
   const onPaneClick = useCallback(() => setMenu(null), [setMenu])
+
+  const handleDeleteService = useCallback(
+    (service: ServiceNode) => {
+      // Find the full service object from the services array
+      const fullService = services.find(s => s.id === service.id)
+      if (fullService) {
+        setSelectedService(fullService)
+        setDeleteDialogOpen(true)
+      }
+      setMenu(null) // Close context menu
+    },
+    [services],
+  )
+
   const handleRedirectToService = (id: string) => {
     router.push(
       `/${organisationSlug}/dashboard/project/${project.id}/service/${id}`,
@@ -156,20 +163,38 @@ const ServiceList = ({
   }, [services])
 
   return (
-    <div
-      className='mx-auto mt-4 h-[calc(100vh-190px)] w-full max-w-6xl rounded-xl border'
-      ref={containerRef}>
-      <ReactFlowConfig
-        edges={edges}
-        nodes={nodes}
-        onPaneClick={onPaneClick}
-        onNodeContextMenu={onNodeContextMenu}
-        onEdgesChange={onEdgesChange}
-        onNodesChange={onNodesChange}
-        className='h-full w-full'>
-        {menu && <ContextMenu onClick={onPaneClick} edges={edges} {...menu} />}
-      </ReactFlowConfig>
-    </div>
+    <>
+      <div
+        className='mx-auto mt-4 h-[calc(100vh-190px)] w-full max-w-6xl rounded-xl border'
+        ref={containerRef}>
+        <ReactFlowConfig
+          edges={edges}
+          nodes={nodes}
+          onPaneClick={onPaneClick}
+          onNodeContextMenu={onNodeContextMenu}
+          onEdgesChange={onEdgesChange}
+          onNodesChange={onNodesChange}
+          className='h-full w-full'>
+          {menu && (
+            <ContextMenu
+              onClick={onPaneClick}
+              edges={edges}
+              onDeleteService={handleDeleteService}
+              {...menu}
+            />
+          )}
+        </ReactFlowConfig>
+      </div>
+
+      {selectedService && (
+        <DeleteServiceDialog
+          service={selectedService}
+          project={project}
+          open={deleteDialogOpen}
+          setOpen={setDeleteDialogOpen}
+        />
+      )}
+    </>
   )
 }
 
@@ -181,6 +206,7 @@ interface ContextMenuProps {
   service: ServiceNode
   edges: Edge[]
   onClick: () => void
+  onDeleteService: (service: ServiceNode) => void
 }
 
 const ContextMenu: FC<ContextMenuProps> = ({
@@ -188,28 +214,10 @@ const ContextMenu: FC<ContextMenuProps> = ({
   left,
   service,
   onClick,
-  edges,
+  onDeleteService,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null)
-  const [open, setOpen] = useState(false)
-  const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
-  const { setNodes } = useReactFlow()
 
-  const { execute, isPending } = useAction(deleteServiceAction, {
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        toast.info('Added to queue', {
-          description: 'Added deleting service to queue',
-        })
-
-        onClick() // Close the context menu
-        setOpen(false)
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete service ${error.serverError}`)
-    },
-  })
   return (
     <div
       ref={menuRef}
@@ -219,56 +227,11 @@ const ContextMenu: FC<ContextMenuProps> = ({
         <Button
           variant='destructive'
           className='w-full'
-          onClick={() => setOpen(true)}>
+          onClick={() => onDeleteService(service)}>
           <Trash2 />
           Delete service
         </Button>
       </ul>
-
-      <AlertDialog open={open}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Service</AlertDialogTitle>
-            <AlertDialogDescription className='flex flex-col gap-y-8' asChild>
-              <div>
-                <div>
-                  {`Are you sure you want to delete the ${service.name}? This action is permanent and cannot be undone.`}
-                </div>
-                <div className='flex items-center space-x-2'>
-                  <Checkbox
-                    id='terms'
-                    checked={deleteBackups}
-                    onCheckedChange={checked => setDeleteBackups(!!checked)}
-                  />
-                  <label
-                    htmlFor='terms'
-                    className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
-                    Also delete all backups associated with this service?
-                  </label>
-                </div>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setOpen(false)}>
-              Cancel
-            </AlertDialogCancel>
-
-            <Button
-              variant='destructive'
-              disabled={isPending}
-              isLoading={isPending}
-              onClick={() => {
-                execute({
-                  id: service.id,
-                  deleteBackups,
-                })
-              }}>
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
