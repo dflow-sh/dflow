@@ -104,7 +104,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             providerType,
             githubSettings,
             provider,
-            environmentVariables,
             populatedVariables,
             variables,
             ...serviceDetails
@@ -116,7 +115,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             providerType,
             githubSettings,
             provider,
-            environmentVariables,
             populatedVariables,
             variables,
             ...serviceDetails,

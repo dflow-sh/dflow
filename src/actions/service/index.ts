@@ -23,7 +23,6 @@ import {
   exposeDatabasePortSchema,
   regenerateSSLSchema,
   updateServiceDomainSchema,
-  updateServiceEnvironmentsSchema,
   updateServiceSchema,
 } from './validator'
 
@@ -544,34 +543,6 @@ export const exposeDatabasePortAction = protectedClient
           throw new Error(message)
         }
       }
-    }
-  })
-
-export const updateServiceEnvironmentVariablesAction = protectedClient
-  .metadata({
-    actionName: 'updateServiceEnvironmentVariablesAction',
-  })
-  .schema(updateServiceEnvironmentsSchema)
-  .action(async ({ clientInput, ctx }) => {
-    const { id, environmentVariables, projectId } = clientInput
-    const {
-      userTenant: { tenant },
-      payload,
-    } = ctx
-
-    const updatedService = await payload.update({
-      collection: 'services',
-      id,
-      data: {
-        environmentVariables,
-      },
-    })
-
-    if (updatedService.id) {
-      revalidatePath(
-        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-      )
-      return { success: true }
     }
   })
 

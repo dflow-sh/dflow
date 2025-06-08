@@ -76,11 +76,6 @@ export const exposeDatabasePortSchema = deleteServiceSchema.extend({
   action: z.enum(['expose', 'unexpose']),
 })
 
-export const updateServiceEnvironmentsSchema = deleteServiceSchema.extend({
-  projectId: z.string(),
-  environmentVariables: z.record(z.string(), z.string()),
-})
-
 export const updateServiceDomainSchema = z.object({
   domain: z.object({
     hostname: z.string(),
