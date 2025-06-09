@@ -24,35 +24,45 @@ export const signInAction = publicClient
   })
   .schema(signInSchema)
   .action(async ({ clientInput }) => {
-    const payload = await getPayload({
-      config: configPromise,
-    })
+    const payload = await getPayload({ config: configPromise })
 
     const { email, password } = clientInput
 
     const { user, token } = await payload.login({
       collection: 'users',
-      data: {
-        email,
-        password,
-      },
+      data: { email, password },
     })
 
     const cookieStore = await cookies()
+
+    if (user.twoFAEnabled) {
+      // Store temp cookie with user id and password for 2FA verification step
+      // NOTE: Storing password like this is risky; consider alternatives
+      const temp2FACookie = JSON.stringify({ id: user.id, password })
+      cookieStore.set('2fa-user', temp2FACookie, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+        maxAge: 5 * 60, // 5 minutes
+        path: '/',
+      })
+
+      // Redirect user to 2FA page to verify token before full login
+      redirect('/2fa')
+    }
+
+    // Set full auth token cookie for users without 2FA
     cookieStore.set('payload-token', token || '', {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'development',
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     })
 
     if (user) {
-      // finding user tenants and redirecting user to first tenant, last resort redirecting with there user-name
-      const tenants = user?.tenants ?? []
+      // Redirect user to tenant dashboard or fallback to username dashboard
+      const tenants = user.tenants ?? []
       const tenantSlug =
-        typeof tenants?.[0]?.tenant === 'object'
-          ? tenants?.[0]?.tenant?.slug
-          : ''
+        typeof tenants[0]?.tenant === 'object' ? tenants[0].tenant.slug : ''
 
       redirect(`/${tenantSlug || user.username}/dashboard`)
     }
@@ -302,4 +312,76 @@ export const disable2FA = protectedClient
     })
 
     return { success: true }
+  })
+
+export const verify2FAandLogin = publicClient
+  .metadata({ actionName: 'verify2FAandLogin' })
+  .schema(z.object({ token: z.string().length(6) }))
+  .action(async ({ clientInput }) => {
+    const cookieStore = await cookies()
+    const tempSession = cookieStore.get('2fa-user')?.value
+    if (!tempSession) {
+      throw new Error('2FA session expired. Please login again.')
+    }
+
+    let parsedSession: { id: string; password: string }
+    try {
+      parsedSession = JSON.parse(tempSession)
+    } catch {
+      throw new Error('Invalid session format.')
+    }
+
+    const { id: userId, password } = parsedSession
+
+    const payload = await getPayload({ config: configPromise })
+
+    const user = await payload.findByID({
+      collection: 'users',
+      id: userId,
+    })
+
+    const secret = user.twoFASecret
+    if (!secret) {
+      throw new Error('Two-factor authentication has not been set up.')
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token: clientInput.token,
+    })
+
+    if (!verified) {
+      throw new Error('Invalid 2FA code.')
+    }
+
+    // Now perform full login using saved credentials
+    const { token } = await payload.login({
+      collection: 'users',
+      data: {
+        email: user.email,
+        password,
+      },
+    })
+
+    // Clear temporary 2FA session cookie
+    cookieStore.delete('2fa-user')
+
+    if (!token) {
+      throw new Error('Failed to generate auth token.')
+    }
+
+    cookieStore.set('payload-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    })
+
+    // Redirect to user's dashboard
+    const tenants = user?.tenants ?? []
+    const tenantSlug =
+      typeof tenants?.[0]?.tenant === 'object' ? tenants?.[0]?.tenant?.slug : ''
+
+    redirect(`/${tenantSlug || user.username}/dashboard`)
   })
