@@ -1,18 +1,17 @@
 import { env } from 'env'
-import {
-  PayloadHandler,
-  generatePayloadCookie,
-  getFieldsToSign,
-  headersWithCors,
-  jwtSign,
-} from 'payload'
+import { PayloadHandler, PayloadRequest } from 'payload'
 
-export const autoLogin: PayloadHandler = async req => {
-  const { payload, t, searchParams } = req
+import { createSession } from '@/lib/createSession'
 
-  // TODO: get token from searchParams, and extract userId from it
+export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
+  const { payload, routeParams } = req
 
-  let user = await payload.db.findOne<any>({
+  const receivedToken = routeParams?.token
+  // TODO: Pavan, ensure this was properly configured with frequently changed token
+  // The token has to be generate upon user click from dflow.sh (expiration time < 1 minute)
+  // once used the token should be null
+
+  const user = await payload.db.findOne<any>({
     collection: 'users',
     req,
     where: {
@@ -22,61 +21,9 @@ export const autoLogin: PayloadHandler = async req => {
     },
   })
 
-  user.collection = 'users'
-  user._strategy = 'local-jwt'
-  const sanitizeInternalFields = <T extends Record<string, unknown>>(
-    incomingDoc: T,
-  ): T => {
-    // Create a new object to hold the sanitized fields
-    const newDoc: Record<string, unknown> = {}
+  await createSession(user)
 
-    for (const key in incomingDoc) {
-      const val = incomingDoc[key]
-      if (key === '_id') {
-        newDoc['id'] = val
-      } else if (key !== '__v') {
-        newDoc[key] = val
-      }
-    }
-
-    return newDoc as T
-  }
-
-  user = sanitizeInternalFields(user)
-
-  const fieldsToSign = getFieldsToSign({
-    collectionConfig: req.payload.collections['users'].config,
-    email: user.email,
-    user,
-  })
-
-  const { exp, token } = await jwtSign({
-    fieldsToSign,
-    secret: env.PAYLOAD_SECRET,
-    tokenExpiration:
-      req.payload.collections['users'].config.auth.tokenExpiration,
-  })
-
-  req.user = user
-
-  const cookie = generatePayloadCookie({
-    collectionAuthConfig: req.payload.collections['users'].config.auth,
-    cookiePrefix: req.payload.config.cookiePrefix,
-    token,
-  })
-
-  return Response.json(
-    {
-      message: t('authentication:passed'),
-    },
-    {
-      headers: headersWithCors({
-        headers: new Headers({
-          'Set-Cookie': cookie,
-        }),
-        req,
-      }),
-      status: 200,
-    },
+  return Response.redirect(
+    new URL(`${user?.username}/dashboard`, env.NEXT_PUBLIC_WEBSITE_URL),
   )
 }
