@@ -1,27 +1,71 @@
 import { env } from 'env'
-import { PayloadHandler, PayloadRequest } from 'payload'
+import jwt from 'jsonwebtoken'
+import { APIError, PayloadHandler, PayloadRequest } from 'payload'
 
 import { createSession } from '@/lib/createSession'
+import { createRedisClient } from '@/lib/redis'
 
 export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
-  const { payload, routeParams } = req
+  const { payload, searchParams } = req
+  const token = searchParams.get('token') ?? ''
 
-  const receivedToken = routeParams?.token
-  // TODO: Pavan, ensure this was properly configured with frequently changed token
-  // The token has to be generate upon user click from dflow.sh (expiration time < 1 minute)
-  // once used the token should be null
+  // if token is not provided, throwing an error
+  if (!token) {
+    throw new APIError('Forbidden', 403)
+  }
 
-  const user = await payload.db.findOne<any>({
+  // verifying JWT token
+  const decodedToken = jwt.verify(token, env.PAYLOAD_SECRET, {
+    algorithms: ['HS256'],
+  })
+
+  if (!decodedToken || typeof decodedToken !== 'object') {
+    throw new APIError('Invalid token', 401)
+  }
+
+  // Check if the token has expired
+  if (
+    typeof decodedToken.exp !== 'number' ||
+    decodedToken.exp < Date.now() / 1000
+  ) {
+    throw new APIError('Forbidden', 403)
+  }
+
+  // Extracting user email and code from the decoded token
+  const userEmail = decodedToken?.email
+  const code = decodedToken?.code
+
+  // querying the user by email
+  const { docs: usersList } = await payload.find({
     collection: 'users',
     req,
     where: {
-      id: {
-        equals: '681dd95b18402af3dca75fd3', // TODO: replace with extracted userId
+      email: {
+        equals: userEmail,
       },
     },
   })
 
-  await createSession(user)
+  if (usersList.length === 0) {
+    throw new APIError('User not found', 404)
+  }
+
+  const user = usersList[0]
+  const redisClient = createRedisClient()
+
+  // Check if the code matches the one stored in Redis
+  const storedCode = await redisClient.get(`auto-login-code:${code}`)
+
+  // If the stored code matches the provided code, throw an error
+  // This prevents reusing the same code for auto-login
+  if (storedCode === code) {
+    throw new APIError('Forbidden', 403)
+  }
+
+  await createSession({ user, payload })
+
+  // Store the code in Redis with a TTL of 5 minutes to prevent reuse
+  await redisClient.set(`auto-login-code:${code}`, code, 'EX', 60 * 5)
 
   return Response.redirect(
     new URL(`${user?.username}/dashboard`, env.NEXT_PUBLIC_WEBSITE_URL),
