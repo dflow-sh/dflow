@@ -11,7 +11,9 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Initializing a SSE for listening changes to update UI
   useEffect(() => {
-    const eventSource = new EventSource('/api/refresh')
+    const eventSource = new EventSource(
+      `/api/refresh?organisation=${organisation}`,
+    )
     eventSource.onmessage = event => {
       const data = JSON.parse(event.data) ?? {}
       if (data?.refresh) {
@@ -22,7 +24,7 @@ const RefreshProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // redirecting user to respective page on page-event
-      if (data?.path && organisation === data?.organisation) {
+      if (data?.path) {
         router.push(data?.path)
       }
     }

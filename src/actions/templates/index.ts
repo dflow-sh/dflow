@@ -93,9 +93,12 @@ export const deleteTemplate = protectedClient
     const { id } = clientInput
     const { userTenant, payload } = ctx
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'templates',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (response) {

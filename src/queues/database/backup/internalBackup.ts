@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
@@ -26,6 +26,9 @@ interface QueueArgs {
   }
   serviceId: Service['id']
   backupId: string
+  tenant: {
+    slug: string
+  }
 }
 
 export const addInternalBackupQueue = async (data: QueueArgs) => {
@@ -48,6 +51,7 @@ export const addInternalBackupQueue = async (data: QueueArgs) => {
         type,
         dumpFileName,
         backupId,
+        tenant,
       } = job.data
 
       let ssh: NodeSSH | null = null
@@ -147,10 +151,11 @@ export const addInternalBackupQueue = async (data: QueueArgs) => {
             })
           }
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''

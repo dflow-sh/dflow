@@ -315,10 +315,6 @@ export const Services: CollectionConfig = {
       ],
     },
     {
-      name: 'environmentVariables',
-      type: 'json',
-    },
-    {
       name: 'variables',
       type: 'array',
       fields: [

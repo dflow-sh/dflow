@@ -15,7 +15,7 @@ export const installNetdataAction = protectedClient
   .schema(installNetdataSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     // Fetch server details from the database
     const { id, ip, username, port, sshKey } = await payload.findByID({
@@ -46,6 +46,9 @@ export const installNetdataAction = protectedClient
       serverDetails: {
         id: serverId,
       },
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
     })
 
     // Refresh the server details page
@@ -65,7 +68,7 @@ export const uninstallNetdataAction = protectedClient
   .schema(uninstallNetdataSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const serverDetails = await payload.findByID({
       collection: 'servers',
@@ -83,6 +86,9 @@ export const uninstallNetdataAction = protectedClient
           port: serverDetails.port,
           privateKey: serverDetails.sshKey.privateKey,
           username: serverDetails.username,
+        },
+        tenant: {
+          slug: userTenant.tenant.slug,
         },
       })
 

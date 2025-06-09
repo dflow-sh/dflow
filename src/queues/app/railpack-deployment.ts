@@ -8,7 +8,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 import { GitProvider, Service } from '@/payload-types'
 
@@ -32,6 +32,7 @@ interface QueueArgs {
     populatedVariables: string
     serverId: string
   }
+  tenantSlug: string
 }
 
 export const addRailpackDeployQueue = async (data: QueueArgs) => {
@@ -55,6 +56,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
         branch,
         sshDetails,
         serviceDetails,
+        tenantSlug,
       } = job.data
       const { serverId, serviceId, variables, populatedVariables } =
         serviceDetails
@@ -72,7 +74,12 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
             status: 'building',
           },
         })
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
 
         ssh = await dynamicSSH(sshDetails)
 
@@ -534,7 +541,11 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
       } catch (error) {
         let message = ''
 
@@ -563,7 +574,11 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
         throw new Error(`❌ Failed to deploy app: ${message}`)
       } finally {
         if (ssh) {

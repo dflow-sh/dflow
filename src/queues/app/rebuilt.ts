@@ -7,7 +7,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 
 interface QueueArgs {
   sshDetails: {
@@ -24,6 +24,7 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
+  tenantSlug: string
 }
 
 export const addRebuildAppQueue = async (data: QueueArgs) => {
@@ -37,7 +38,7 @@ export const addRebuildAppQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serviceDetails, serverDetails } = job.data
+      const { sshDetails, serviceDetails, serverDetails, tenantSlug } = job.data
       const payload = await getPayload({ config: configPromise })
       let ssh: NodeSSH | null = null
 
@@ -52,7 +53,17 @@ export const addRebuildAppQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
+
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
 
         ssh = await dynamicSSH(sshDetails)
         const res = await dokku.process.rebuild(ssh, serviceDetails.name, {
@@ -96,10 +107,11 @@ export const addRebuildAppQueue = async (data: QueueArgs) => {
             },
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug,
+          })
         } else {
           throw Error(res.stderr)
         }
@@ -127,7 +139,12 @@ export const addRebuildAppQueue = async (data: QueueArgs) => {
           id: serviceDetails.deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          pub,
+          action: 'refresh',
+          tenantSlug,
+        })
+
         throw new Error(`❌ Failed to rebuild app: ${message}`)
       } finally {
         ssh?.dispose()

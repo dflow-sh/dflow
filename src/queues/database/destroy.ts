@@ -9,7 +9,7 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { Backup } from '@/payload-types'
 
 export type DatabaseType = Exclude<
@@ -31,6 +31,9 @@ interface QueueArgs {
   }
   serviceId: string
   deleteBackups?: boolean
+  tenant: {
+    slug: string
+  }
 }
 
 export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
@@ -48,7 +51,8 @@ export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { databaseName, databaseType, sshDetails, serverDetails } = job.data
+      const { databaseName, databaseType, sshDetails, serverDetails, tenant } =
+        job.data
       let ssh: NodeSSH | null = null
 
       console.log(
@@ -226,16 +230,20 @@ export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
 
             // deleting backup entry from payload
             for (const backup of backups) {
-              await payload.delete({
+              await payload.update({
                 collection: 'backups',
                 id: (backup as Backup)?.id,
+                data: {
+                  deletedAt: new Date().toISOString(),
+                },
               })
             }
 
-            await pub.publish(
-              'refresh-channel',
-              JSON.stringify({ refresh: true }),
-            )
+            sendActionEvent({
+              pub,
+              action: 'refresh',
+              tenantSlug: tenant.slug,
+            })
           }
         }
       } catch (error) {

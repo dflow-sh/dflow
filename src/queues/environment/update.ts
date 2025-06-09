@@ -13,7 +13,7 @@ import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { TEMPLATE_EXPR } from '@/lib/constants'
 import { pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 import { parseDatabaseUrl } from '@/lib/utils'
 import { Service } from '@/payload-types'
@@ -456,6 +456,9 @@ async function handleReferenceVariables({
                       id: databaseExposureDetails.id,
                     },
                     serverDetails,
+                    tenant: {
+                      slug: tenantSlug,
+                    },
                   },
                 )
 
@@ -882,10 +885,11 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
                 serverId: serverDetails.id,
               })
 
-              await pub.publish(
-                'refresh-channel',
-                JSON.stringify({ refresh: true }),
-              )
+              sendActionEvent({
+                pub,
+                action: 'refresh',
+                tenantSlug: tenantDetails.slug,
+              })
             }
           } catch (error) {
             const message = error instanceof Error ? error.message : ''

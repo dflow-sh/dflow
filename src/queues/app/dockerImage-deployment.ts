@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 import { DockerRegistry, Service } from '@/payload-types'
 
@@ -31,6 +31,7 @@ interface QueueArgs {
     name: string
     imageName: string
   }
+  tenantSlug: string
 }
 
 export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
@@ -46,7 +47,7 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
     processor: async job => {
       const payload = await getPayload({ config: configPromise })
       let ssh: NodeSSH | null = null
-      const { appName, sshDetails, serviceDetails } = job.data
+      const { appName, sshDetails, serviceDetails, tenantSlug } = job.data
       const { serverId, serviceId, ports, account, imageName, deploymentId } =
         serviceDetails
 
@@ -62,7 +63,18 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
             status: 'building',
           },
         })
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+
+        sendActionEvent({
+          action: 'refresh',
+          pub,
+          tenantSlug,
+        })
+
+        sendActionEvent({
+          action: 'refresh',
+          pub,
+          tenantSlug,
+        })
 
         ssh = await dynamicSSH(sshDetails)
 
@@ -417,7 +429,11 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
           id: deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          action: 'refresh',
+          pub,
+          tenantSlug,
+        })
 
         // todo: add webhook to update deployment status
       } catch (error) {
@@ -446,7 +462,12 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
           id: deploymentId,
         })
 
-        await pub.publish('refresh-channel', JSON.stringify({ refresh: true }))
+        sendActionEvent({
+          action: 'refresh',
+          pub,
+          tenantSlug,
+        })
+
         throw new Error(`❌ Failed to deploy app: ${message}`)
       } finally {
         if (ssh) {

@@ -1,3 +1,4 @@
+import { softDeletePlugin } from '@payload-bites/soft-delete'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
@@ -21,12 +22,33 @@ import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Users } from './payload/collections/Users'
+import { autoLogin } from './payload/endpoints/auto-login'
 import { logs } from './payload/endpoints/logs'
 import { serverEvents } from './payload/endpoints/server-events'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
+import {
+  addBeforeOperationHook,
+  softDeletePluginConfigCollections,
+} from './soft-delete'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const collectionsWithHook = addBeforeOperationHook([
+  Users,
+  Projects,
+  Services,
+  Servers,
+  SSHKeys,
+  GitProviders,
+  Deployments,
+  CloudProviderAccounts,
+  Template,
+  SecurityGroups,
+  DockerRegistries,
+  Tenants,
+  Backups,
+])
 
 export default buildConfig({
   routes: {
@@ -45,21 +67,7 @@ export default buildConfig({
       ),
     },
   },
-  collections: [
-    Users,
-    Projects,
-    Services,
-    Servers,
-    SSHKeys,
-    GitProviders,
-    Deployments,
-    CloudProviderAccounts,
-    Template,
-    SecurityGroups,
-    DockerRegistries,
-    Tenants,
-    Backups,
-  ],
+  collections: collectionsWithHook,
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -89,6 +97,10 @@ export default buildConfig({
         includeDefaultField: false,
       },
     }),
+    softDeletePlugin({
+      enabled: true,
+      collections: softDeletePluginConfigCollections,
+    }),
   ],
   ...(env?.RESEND_API_KEY &&
     env?.RESEND_SENDER_EMAIL &&
@@ -109,6 +121,11 @@ export default buildConfig({
       method: 'get',
       path: '/server-events',
       handler: serverEvents,
+    },
+    {
+      method: 'get',
+      path: '/auto-login/:token',
+      handler: autoLogin,
     },
   ],
   jobs: {

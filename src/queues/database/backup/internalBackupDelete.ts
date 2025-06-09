@@ -6,7 +6,7 @@ import { getPayload } from 'payload'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { dynamicSSH } from '@/lib/ssh'
 
 interface QueueArgs {
@@ -23,6 +23,9 @@ interface QueueArgs {
   }
   serviceId?: string
   backupId: string
+  tenant: {
+    slug: string
+  }
 }
 
 export const deleteInternalBackupQueue = async (data: QueueArgs) => {
@@ -43,6 +46,7 @@ export const deleteInternalBackupQueue = async (data: QueueArgs) => {
         databaseType,
         databaseName,
         backupId,
+        tenant,
       } = job.data
 
       let ssh: NodeSSH | null = null
@@ -97,15 +101,19 @@ export const deleteInternalBackupQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
-          await payload.delete({
+          await payload.update({
             collection: 'backups',
             id: backupId,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
           })
 
-          await pub.publish(
-            'refresh-channel',
-            JSON.stringify({ refresh: true }),
-          )
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenant.slug,
+          })
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''

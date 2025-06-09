@@ -287,9 +287,12 @@ export const deleteAWSAccountAction = protectedClient
     const { id } = clientInput
     const payload = await getPayload({ config: configPromise })
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'cloudProviderAccounts',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     return response

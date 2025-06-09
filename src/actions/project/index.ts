@@ -10,6 +10,7 @@ import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import {
   createProjectSchema,
   deleteProjectSchema,
+  getProjectDatabasesSchema,
   updateProjectSchema,
 } from './validator'
 
@@ -91,13 +92,11 @@ export const deleteProjectAction = protectedClient
   })
   .schema(deleteProjectSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, deleteBackups } = clientInput
+    const { id, deleteBackups, deleteFromServer } = clientInput
     const {
       userTenant: { tenant },
       payload,
     } = ctx
-
-    console.log("I'm inside a project deletion")
 
     // Fetching all services of project
     const { server, services } = await payload.findByID({
@@ -115,7 +114,9 @@ export const deleteProjectAction = protectedClient
       service => typeof service === 'object',
     )
 
+    // Only delete from server if the option is enabled
     if (
+      deleteFromServer &&
       servicesList &&
       typeof server === 'object' &&
       typeof server.sshKey === 'object'
@@ -157,37 +158,64 @@ export const deleteProjectAction = protectedClient
             },
             serviceId: service.id,
             deleteBackups,
+            tenant: {
+              slug: tenant.slug,
+            },
           })
 
           queueId = databaseQueueResponse.id
         }
 
-        // If deleting of service is added to queue, deleting the payload entry
+        // If deleting of service is added to queue, update the service entry
         if (queueId) {
-          await payload.delete({
+          await payload.update({
             collection: 'services',
             id: service.id,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
           })
         }
       }
+    } else if (!deleteFromServer && servicesList) {
+      for await (const service of servicesList) {
+        await payload.update({
+          collection: 'services',
+          id: service.id,
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
+        })
+      }
     }
 
-    const deleteProjectResponse = await payload.delete({
+    // Always delete the project from the database
+    const deleteProjectResponse = await payload.update({
       collection: 'projects',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (deleteProjectResponse.id) {
       revalidatePath(`/${tenant.slug}/dashboard`)
-      return { deleted: true }
+
+      return {
+        deleted: true,
+        deletedFromServer: deleteFromServer,
+        servicesCount: servicesList?.length || 0,
+      }
     }
+
+    throw new Error('Failed to delete project')
   })
 
 export const getProjectDatabasesAction = protectedClient
   .metadata({
     actionName: 'getProjectDatabasesAction',
   })
-  .schema(deleteProjectSchema)
+  .schema(getProjectDatabasesSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

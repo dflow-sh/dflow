@@ -10,21 +10,9 @@ import {
   Trash2,
   WifiOff,
 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { Dispatch, SetStateAction, useState } from 'react'
-import { toast } from 'sonner'
+import { useState } from 'react'
 
-import { deleteProjectAction } from '@/actions/project'
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import {
   Card,
   CardContent,
@@ -48,85 +36,10 @@ import {
 import { cn } from '@/lib/utils'
 import { Project, Server, Service } from '@/payload-types'
 
+import DeleteProjectDialog from './DeleteProjectDialog'
 import UpdateProject from './project/CreateProject'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Checkbox } from './ui/check-box'
-
-export function DeleteProjectAlert({
-  project,
-  open,
-  setOpen,
-}: {
-  project: Project
-  open: boolean
-  setOpen: Dispatch<SetStateAction<boolean>>
-}) {
-  const { name } = project
-  const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
-
-  const { execute, isPending } = useAction(deleteProjectAction, {
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        setOpen(false)
-        toast.success('Successfully deleted project')
-      }
-    },
-    onError: ({ error }) => {
-      setOpen(false)
-      toast.error(`Failed to delete project: ${error.serverError}`)
-    },
-  })
-
-  return (
-    <AlertDialog open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Project</AlertDialogTitle>
-          <AlertDialogDescription className='flex flex-col gap-y-8' asChild>
-            <div>
-              <div>
-                {`Are you sure you want to delete the ${name}? This action is permanent and will delete all services of this project`}
-              </div>
-              <div className='flex items-center space-x-2'>
-                <Checkbox
-                  id='terms'
-                  checked={deleteBackups}
-                  onCheckedChange={checked => setDeleteBackups(!!checked)}
-                />
-                <label
-                  htmlFor='terms'
-                  className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'>
-                  Also delete all backups associated with this project?
-                </label>
-              </div>
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel
-            disabled={isPending}
-            onClick={() => setOpen(false)}>
-            Cancel
-          </AlertDialogCancel>
-
-          <Button
-            variant='destructive'
-            disabled={isPending}
-            isLoading={isPending}
-            onClick={() => {
-              execute({
-                id: project.id,
-                deleteBackups,
-              })
-            }}>
-            Delete
-          </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
 
 export function ProjectCard({
   project,
@@ -150,7 +63,7 @@ export function ProjectCard({
   organisationSlug: string
 }) {
   const [manualOpen, setManualOpen] = useState(false)
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const serverName = (project.server as Server)?.name
   const serverId = (project.server as Server)?.id
@@ -205,7 +118,7 @@ export function ProjectCard({
               onClick={e => {
                 e.preventDefault()
                 e.stopPropagation()
-                setDeleteAlertOpen(true)
+                setDeleteDialogOpen(true)
               }}>
               <Trash2 />
               Delete
@@ -305,10 +218,11 @@ export function ProjectCard({
         setManualOpen={setManualOpen}
       />
 
-      <DeleteProjectAlert
+      <DeleteProjectDialog
         project={project}
-        open={deleteAlertOpen}
-        setOpen={setDeleteAlertOpen}
+        open={deleteDialogOpen}
+        setOpen={setDeleteDialogOpen}
+        services={services}
       />
     </>
   )

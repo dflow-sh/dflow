@@ -22,8 +22,9 @@ import {
   deleteServiceSchema,
   exposeDatabasePortSchema,
   regenerateSSLSchema,
+  restartServiceSchema,
+  stopServiceSchema,
   updateServiceDomainSchema,
-  updateServiceEnvironmentsSchema,
   updateServiceSchema,
 } from './validator'
 
@@ -142,7 +143,7 @@ export const deleteServiceAction = protectedClient
   })
   .schema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, deleteBackups } = clientInput
+    const { id, deleteBackups, deleteFromServer } = clientInput
     const {
       userTenant: { tenant },
       payload,
@@ -171,13 +172,20 @@ export const deleteServiceAction = protectedClient
         id: serverId,
       })
 
-      if (serverDetails.id && typeof serverDetails.sshKey === 'object') {
+      // Only delete from server if the option is enabled
+      if (
+        deleteFromServer &&
+        serverDetails.id &&
+        typeof serverDetails.sshKey === 'object'
+      ) {
         const sshDetails = {
           privateKey: serverDetails.sshKey?.privateKey,
           host: serverDetails?.ip,
           username: serverDetails?.username,
           port: serverDetails?.port,
         }
+
+        let queueId: string | undefined = ''
 
         // handling database delete
         if (type === 'database' && serviceDetails.databaseDetails?.type) {
@@ -190,8 +198,12 @@ export const deleteServiceAction = protectedClient
             },
             serviceId: serviceDetails.id,
             deleteBackups,
+            tenant: {
+              slug: tenant.slug,
+            },
           })
 
+          queueId = databaseDeletionQueueResponse.id
           console.log({ databaseDeletionQueueResponse })
         }
 
@@ -207,39 +219,76 @@ export const deleteServiceAction = protectedClient
             },
           })
 
+          queueId = appDeletionQueueResponse.id
           console.log({ appDeletionQueueResponse })
         }
 
-        const response = await payload.delete({
+        // If deleting of service is added to queue, update the service entry
+        if (queueId) {
+          await payload.update({
+            collection: 'services',
+            id,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
+          })
+        }
+      } else if (!deleteFromServer) {
+        // If not deleting from server, just mark as deleted in database
+        await payload.update({
           collection: 'services',
           id,
-        })
-
-        const deletedDeploymentsResponse = await payload.delete({
-          collection: 'deployments',
-          where: {
-            service: {
-              equals: id,
-            },
+          data: {
+            deletedAt: new Date().toISOString(),
           },
         })
-
-        if (response) {
-          const projectId =
-            typeof response.project === 'object'
-              ? response.project.id
-              : response.project
-
-          // Revalidate the parent project page and the service page
-          revalidatePath(
-            `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-          )
-          revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
-          return { deleted: true }
-        }
-      } else {
-        console.log('Server details not found!', serverId)
       }
+
+      // Always update the service in the database (if not already done above)
+      const response = await payload.findByID({
+        collection: 'services',
+        id,
+      })
+
+      // Only update if not already marked as deleted
+      if (!response.deletedAt) {
+        await payload.update({
+          collection: 'services',
+          id,
+          data: {
+            deletedAt: new Date().toISOString(),
+          },
+        })
+      }
+
+      // Always delete associated deployments
+      const deletedDeploymentsResponse = await payload.update({
+        collection: 'deployments',
+        data: {
+          deletedAt: new Date().toISOString(),
+        },
+        where: {
+          service: {
+            equals: id,
+          },
+        },
+      })
+
+      const projectId = typeof project === 'object' ? project.id : project
+
+      // Revalidate the parent project page and the service page
+      revalidatePath(
+        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
+      )
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
+
+      return {
+        deleted: true,
+        deletedFromServer: deleteFromServer,
+      }
+    } else {
+      console.log('Project not found for service:', id)
+      throw new Error('Failed to delete service: Project not found')
     }
   })
 
@@ -321,10 +370,10 @@ export const restartServiceAction = protectedClient
   .metadata({
     actionName: 'restartServiceAction',
   })
-  .schema(deleteServiceSchema)
+  .schema(restartServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -365,6 +414,9 @@ export const restartServiceAction = protectedClient
           serverDetails: {
             id: serviceDetails.id,
           },
+          tenant: {
+            slug: userTenant.tenant.slug,
+          },
         })
 
         queueId = queueResponse.id
@@ -395,10 +447,10 @@ export const stopServerAction = protectedClient
   .metadata({
     actionName: 'stopServerAction',
   })
-  .schema(deleteServiceSchema)
+  .schema(stopServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -439,6 +491,9 @@ export const stopServerAction = protectedClient
           serverDetails: {
             id: project.server.id,
           },
+          tenant: {
+            slug: userTenant.tenant.slug,
+          },
         })
 
         queueId = queueResponse.id
@@ -472,7 +527,7 @@ export const exposeDatabasePortAction = protectedClient
   .schema(exposeDatabasePortSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, action } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const {
       project,
@@ -516,6 +571,9 @@ export const exposeDatabasePortAction = protectedClient
             serverDetails: {
               id: project.server.id,
             },
+            tenant: {
+              slug: userTenant.tenant.slug,
+            },
           })
 
           if (queueResponse.id) {
@@ -526,34 +584,6 @@ export const exposeDatabasePortAction = protectedClient
           throw new Error(message)
         }
       }
-    }
-  })
-
-export const updateServiceEnvironmentVariablesAction = protectedClient
-  .metadata({
-    actionName: 'updateServiceEnvironmentVariablesAction',
-  })
-  .schema(updateServiceEnvironmentsSchema)
-  .action(async ({ clientInput, ctx }) => {
-    const { id, environmentVariables, projectId } = clientInput
-    const {
-      userTenant: { tenant },
-      payload,
-    } = ctx
-
-    const updatedService = await payload.update({
-      collection: 'services',
-      id,
-      data: {
-        environmentVariables,
-      },
-    })
-
-    if (updatedService.id) {
-      revalidatePath(
-        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-      )
-      return { success: true }
     }
   })
 

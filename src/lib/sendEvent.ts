@@ -8,10 +8,11 @@ type SendEventType = {
   channelId?: string // this channelId is used for lpush command
 }
 
-type PublishEventType = {
+type SendActionEventType = {
   pub: Redis
-  message: string
-  channelId: string
+  action: 'refresh' | 'redirect'
+  url?: string
+  tenantSlug: string
 }
 
 export const sendEvent = ({
@@ -31,20 +32,17 @@ export const sendEvent = ({
   })
 }
 
-export const storeEvent = async ({
-  channelId,
-  message,
+export const sendActionEvent = ({
   pub,
-}: PublishEventType) => {
-  try {
-    pub.lpush(channelId, message)
-  } catch (error) {
-    let message = ''
-
-    if (error instanceof Error) {
-      message = error.message
-    }
-
-    console.log(`Failed to store log ${channelId}: ${message}`)
+  action,
+  url,
+  tenantSlug,
+}: SendActionEventType) => {
+  // sending refresh event to the pub/sub channel so client can do router.refresh()
+  if (action === 'refresh') {
+    pub.publish(
+      `refresh-channel-${tenantSlug}`,
+      JSON.stringify({ refresh: true }),
+    )
   }
 }

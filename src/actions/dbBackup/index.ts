@@ -96,6 +96,9 @@ export const internalBackupAction = protectedClient
         dumpFileName: `${serviceDetails?.name}-${formattedDate}.dump`,
         serviceId,
         backupId,
+        tenant: {
+          slug: userTenant.tenant.slug,
+        },
       })
       queueResponseId = id
     }
@@ -113,7 +116,7 @@ export const internalRestoreAction = protectedClient
   .schema(internalRestoreSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serviceId, backupId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
@@ -147,6 +150,9 @@ export const internalRestoreAction = protectedClient
         },
         serviceId,
         backupId,
+        tenant: {
+          slug: userTenant.tenant.slug,
+        },
       })
       queueResponseId = id
     }
@@ -163,7 +169,7 @@ export const internalDbDeleteAction = protectedClient
   })
   .schema(internalDbDeleteScheme)
   .action(async ({ clientInput, ctx }) => {
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
     const { backupId, serviceId, databaseType } = clientInput
 
     const { project, ...serviceDetails } = await payload.findByID({
@@ -196,6 +202,9 @@ export const internalDbDeleteAction = protectedClient
         databaseType: databaseType || '',
         serverDetails: {
           id: project?.server?.id,
+        },
+        tenant: {
+          slug: userTenant.tenant.slug,
         },
       })
       queueResponseId = id

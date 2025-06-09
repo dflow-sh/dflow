@@ -93,9 +93,12 @@ export const deleteServerAction = protectedClient
     const { id } = clientInput
     const { payload } = ctx
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'servers',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (response) {
@@ -111,7 +114,7 @@ export const installDokkuAction = protectedClient
   .schema(installDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const serverDetails = await payload.findByID({
       collection: 'servers',
@@ -131,6 +134,9 @@ export const installDokkuAction = protectedClient
           privateKey: serverDetails.sshKey.privateKey,
           username: serverDetails.username,
         },
+        tenant: {
+          slug: userTenant.tenant.slug,
+        },
       })
 
       if (installationResponse.id) {
@@ -146,7 +152,7 @@ export const updateServerDomainAction = protectedClient
   .schema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     // Fetching server-details for showing previous details
     const { domains: serverPreviousDomains } = await payload.findByID({
@@ -189,6 +195,9 @@ export const updateServerDomainAction = protectedClient
           username: response.username,
           privateKey,
         },
+        tenant: {
+          slug: userTenant.tenant.slug,
+        },
       })
     }
 
@@ -203,7 +212,7 @@ export const installRailpackAction = protectedClient
   .schema(installDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const serverDetails = await payload.findByID({
       collection: 'servers',
@@ -221,6 +230,9 @@ export const installRailpackAction = protectedClient
           port: serverDetails.port,
           privateKey: serverDetails.sshKey.privateKey,
           username: serverDetails.username,
+        },
+        tenant: {
+          slug: userTenant.tenant.slug,
         },
       })
 
@@ -293,7 +305,7 @@ export const syncServerDomainAction = protectedClient
   .schema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
-    const { payload } = ctx
+    const { payload, userTenant } = ctx
 
     const response = await payload.findByID({
       id,
@@ -317,6 +329,9 @@ export const syncServerDomainAction = protectedClient
         port: response.port,
         username: response.username,
         privateKey,
+      },
+      tenant: {
+        slug: userTenant.tenant.slug,
       },
     })
 
