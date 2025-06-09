@@ -21,7 +21,6 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -33,7 +32,7 @@ import {
   createTemplateSchema,
   servicesSchema,
 } from '@/actions/templates/validator'
-import { Service, Tenant } from '@/payload-types'
+import { Service } from '@/payload-types'
 
 export const servicesToTemplate = (services: Service[]) => {
   const sortedServices = [...services].sort((a, b) => {
@@ -73,7 +72,6 @@ const CreateTemplateFromProject = ({ services }: { services: Service[] }) => {
   const updatedServices = servicesToTemplate(services)
 
   const [open, setOpen] = useState(false)
-  const router = useRouter()
   const form = useForm<CreateTemplateSchemaType>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
@@ -89,9 +87,6 @@ const CreateTemplateFromProject = ({ services }: { services: Service[] }) => {
   } = useAction(createTemplate, {
     onSuccess: ({ data }) => {
       toast.success('Template created successfully')
-      router.push(
-        `/${(data?.tenant as Tenant)?.slug}/templates/compose?templateId=${data?.id}?type=personal`,
-      )
       setOpen(false)
     },
     onError: () => {
