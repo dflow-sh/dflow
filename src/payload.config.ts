@@ -124,7 +124,7 @@ export default buildConfig({
     },
     {
       method: 'get',
-      path: '/auto-login/:token',
+      path: '/auto-login',
       handler: autoLogin,
     },
   ],

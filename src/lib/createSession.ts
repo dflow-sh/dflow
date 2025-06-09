@@ -1,9 +1,8 @@
-import configPromise from '@payload-config'
 import { cookies } from 'next/headers'
 import {
+  BasePayload,
   getCookieExpiration,
   getFieldsToSign,
-  getPayload,
   jwtSign,
 } from 'payload'
 
@@ -11,9 +10,15 @@ import { User } from '@/payload-types'
 
 export type UserWithCollection = User & { collection: 'users' }
 
-export const createSession = async (user: User) => {
+export const createSession = async ({
+  user,
+  payload,
+}: {
+  user: User
+  payload: BasePayload
+}) => {
   const cookieStore = await cookies()
-  const payload = await getPayload({ config: configPromise })
+
   const userWithCollection: UserWithCollection = {
     ...user,
     collection: 'users',
@@ -40,9 +45,11 @@ export const createSession = async (user: User) => {
   })
 
   const name = `${payload.config.cookiePrefix}-token`
+
   const expires = getCookieExpiration({
     seconds: collectionConfig.auth.tokenExpiration,
   })
+
   cookieStore.set({
     name,
     value: token,
