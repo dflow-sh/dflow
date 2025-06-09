@@ -22,6 +22,7 @@ import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Users } from './payload/collections/Users'
+import { autoLogin } from './payload/endpoints/auto-login'
 import { logs } from './payload/endpoints/logs'
 import { serverEvents } from './payload/endpoints/server-events'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
@@ -120,6 +121,11 @@ export default buildConfig({
       method: 'get',
       path: '/server-events',
       handler: serverEvents,
+    },
+    {
+      method: 'get',
+      path: '/auto-login',
+      handler: autoLogin,
     },
   ],
   jobs: {
