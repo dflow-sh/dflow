@@ -1,5 +1,6 @@
 import { Webhooks } from '@octokit/webhooks'
 import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 import { triggerDeployment } from '@/actions/deployment/deploy'
 
@@ -14,7 +15,6 @@ export async function POST(request: Request) {
   const branchName = body?.ref?.replace('refs/heads/', '')
   const repositoryName = body?.repository?.name
 
-  const { getPayload } = await import('payload')
   const payload = await getPayload({ config: configPromise })
 
   if (!installationId) {
@@ -35,9 +35,14 @@ export async function POST(request: Request) {
         equals: installationId,
       },
     },
+    depth: 5,
   })
 
   const githubAppDetails = docs?.[0]
+  const tenantSlug =
+    githubAppDetails?.tenant && typeof githubAppDetails?.tenant === 'object'
+      ? githubAppDetails?.tenant?.slug
+      : ''
 
   // Checking if github-app is present or not
   if (!githubAppDetails?.id) {
@@ -117,7 +122,7 @@ export async function POST(request: Request) {
       await triggerDeployment({
         serviceId: service.id,
         cache: 'no-cache',
-        tenantSlug: '', // Assuming tenantSlug is not needed for this action
+        tenantSlug, // Assuming tenantSlug is not needed for this action
       })
     }
   }

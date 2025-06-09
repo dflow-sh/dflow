@@ -2,14 +2,14 @@ import configPromise from '@payload-config'
 import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
 import { Octokit } from 'octokit'
+import { getPayload } from 'payload'
 
 import { getTenant } from '@/lib/get-tenant'
 
 export async function GET(request: NextRequest) {
-  const { getPayload } = await import('payload')
   const payload = await getPayload({ config: configPromise })
-
   const tenantSlug = await getTenant()
+
   const { docs: tenantDocs } = await payload.find({
     collection: 'tenants',
     where: { slug: { equals: tenantSlug } },
