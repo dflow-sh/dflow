@@ -76,30 +76,49 @@ const EditServiceName = ({
     const oldServiceName = service.name
 
     const connectedEdges = edges.filter(edge => edge.target === service.id)
-
     const connectedNodeNames = connectedEdges.map(edge => edge.source)
 
     setNodes((prevNodes: Node[]) =>
       prevNodes.map(node => {
+        // Update the current (renamed) node
         if (node.id === service.id) {
+          const updatedVariables = Array.isArray(node.data?.variables)
+            ? node.data.variables.map(
+                (variable: NonNullable<ServiceNode['variables']>[number]) => {
+                  const updatedValue = variable?.value.replace(
+                    new RegExp(
+                      `\\{\\{\\s*${oldServiceName}\\.(\\w+)\\s*\\}\\}`,
+                      'g',
+                    ),
+                    `{{ ${data.name}.$1 }}`,
+                  )
+                  return { ...variable, value: updatedValue }
+                },
+              )
+            : []
+
           return {
             ...node,
             data: {
               ...node.data,
               name: data.name,
               description: data.description,
+              variables: updatedVariables,
             },
           }
         }
 
+        // Update connected nodes
         if (connectedNodeNames.includes(node.id)) {
           const updatedVariables = Array.isArray(node.data?.variables)
             ? node.data.variables.map(
                 (variable: NonNullable<ServiceNode['variables']>[number]) => {
                   const updatedValue = variable?.value.replace(
-                    new RegExp(`\\$\\{\\{[^:{}\\s]+:${oldServiceName}\\.`),
-                    match =>
-                      match.replace(`${oldServiceName}.`, `${data.name}.`),
+                    new RegExp(
+                      `\\{\\{\\s*${oldServiceName}\\.(\\w+)\\s*\\}\\}`,
+                      'g',
+                    ),
+                    `{{ ${data.name}.$1 }}`,
                   )
                   return { ...variable, value: updatedValue }
                 },
@@ -122,6 +141,7 @@ const EditServiceName = ({
     form.reset()
     setEditServiceName(false)
   }
+
   return (
     <div>
       <div

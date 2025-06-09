@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const servicesSchema = z.array(
+export const servicesSchema = z.array(
   z.object({
     type: z.enum(['app', 'database', 'docker']),
     name: z.string(),
@@ -55,7 +55,9 @@ const servicesSchema = z.array(
 )
 
 export const createTemplateSchema = z.object({
-  name: z.string({ message: 'Name is required' }),
+  name: z
+    .string({ message: 'Name is required' })
+    .min(3, { message: 'Name must be at least 3 characters' }),
   description: z.string().optional(),
   services: servicesSchema,
 })

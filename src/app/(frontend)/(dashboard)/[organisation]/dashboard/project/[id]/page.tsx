@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 
 import { getProjectDetails } from '@/actions/pages/project'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
+import CreateTemplateFromProject from '@/components/project/CreateTemplateFromProject'
 import CreateService from '@/components/service/CreateService'
 import ServiceList from '@/components/service/ServiceList'
 import ServicesArchitecture from '@/components/service/ServicesArchitecture'
@@ -79,14 +80,19 @@ const SuspendedPage = async ({
               />
 
               {result?.data?.services?.length ? (
-                <CreateService
-                  server={project.server}
-                  project={project}
-                  disableCreateButton={!isServerConnected}
-                  disableReason={
-                    'Cannot create service: Server is not connected'
-                  }
-                />
+                <>
+                  <CreateTemplateFromProject
+                    services={result?.data?.services}
+                  />
+                  <CreateService
+                    server={project.server}
+                    project={project}
+                    disableCreateButton={!isServerConnected}
+                    disableReason={
+                      'Cannot create service: Server is not connected'
+                    }
+                  />
+                </>
               ) : null}
             </div>
           )}
