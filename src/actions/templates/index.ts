@@ -116,6 +116,7 @@ export const getTemplateById = protectedClient
 
     const response = await payload.find({
       collection: 'templates',
+      depth: 3,
       where: {
         and: [
           {
