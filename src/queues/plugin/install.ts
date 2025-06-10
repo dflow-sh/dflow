@@ -30,10 +30,10 @@ interface QueueArgs {
   }
 }
 
-export const addCreatePluginQueue = async (data: QueueArgs) => {
-  const QUEUE_NAME = `server-${data.serverDetails.id}-create-plugin`
+export const addInstallPluginQueue = async (data: QueueArgs) => {
+  const QUEUE_NAME = `server-${data.serverDetails.id}-install-plugin`
 
-  const createPluginQueue = getQueue({
+  const installPluginQueue = getQueue({
     name: QUEUE_NAME,
     connection: queueConnection,
   })
@@ -51,10 +51,11 @@ export const addCreatePluginQueue = async (data: QueueArgs) => {
       try {
         ssh = await dynamicSSH(sshDetails)
 
-        const pluginInstallationResponse = await dokku.plugin.install(
+        const pluginInstallationResponse = await dokku.plugin.install({
           ssh,
-          `${pluginDetails.url} ${pluginDetails.name}`,
-          {
+          pluginUrl: pluginDetails.url,
+          pluginName: pluginDetails.name,
+          options: {
             onStdout: async chunk => {
               sendEvent({
                 pub,
@@ -70,7 +71,7 @@ export const addCreatePluginQueue = async (data: QueueArgs) => {
               })
             },
           },
-        )
+        })
 
         if (pluginInstallationResponse.code === 0) {
           sendEvent({
@@ -147,7 +148,7 @@ export const addCreatePluginQueue = async (data: QueueArgs) => {
 
   const id = `create-plugin-${data.pluginDetails.name}:${new Date().getTime()}`
 
-  return await createPluginQueue.add(id, data, {
+  return await installPluginQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })
