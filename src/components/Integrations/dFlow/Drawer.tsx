@@ -79,7 +79,7 @@ const Drawer = () => {
 
         <SheetFooter>
           <DFlowForm refetch={execute}>
-            <Button disabled={isPending}>
+            <Button>
               <Link />
               Connect account
             </Button>

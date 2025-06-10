@@ -77,7 +77,7 @@ const DockerRegistryDrawer = () => {
 
         <SheetFooter>
           <DockerRegistryForm refetch={execute}>
-            <Button disabled={isPending}>
+            <Button>
               <Link />
               Connect registry
             </Button>

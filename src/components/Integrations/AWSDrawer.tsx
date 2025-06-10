@@ -79,7 +79,7 @@ const AWSDrawer = () => {
 
         <SheetFooter>
           <AWSAccountForm refetch={execute}>
-            <Button disabled={isPending}>
+            <Button>
               <Link />
               Connect account
             </Button>

@@ -11,8 +11,6 @@ import {
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 
-import { isDemoEnvironment } from '@/lib/constants'
-
 type Doc =
   | (typeof allServers)[number]
   | (typeof allIntroductions)[number]
@@ -53,10 +51,7 @@ const DocsSidebar = () => {
   const pathname = usePathname()
   const params = useParams()
   return (
-    <aside
-      className={`sticky left-0 ${
-        isDemoEnvironment ? 'top-[170px]' : 'top-[120px]'
-      } h-screen w-64 border-r p-4`}>
+    <aside className={`sticky left-0 top-[120px] h-screen w-64 border-r p-4`}>
       <nav>
         {sortedCategories.map(({ category, docs }) => (
           <div key={category} className='mb-4'>
