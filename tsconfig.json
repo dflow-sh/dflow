@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@payload-config": ["./src/payload.config.ts"],
-      "content-collections": ["./.content-collections/generated"]
+      "content-collections": ["./.content-collections/generated"],
+      "@/dokku/*": ["./src/lib/dokku/*"]
     },
     "target": "ES2022"
   },

@@ -1,4 +1,5 @@
-import { create } from './apps/create'
+import { create } from '@/dokku/apps/create'
+
 import { destroy } from './apps/destroy'
 import { list as appList } from './apps/list'
 import { logs } from './apps/logs'
