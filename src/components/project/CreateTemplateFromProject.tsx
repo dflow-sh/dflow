@@ -32,7 +32,7 @@ import {
   createTemplateSchema,
   servicesSchema,
 } from '@/actions/templates/validator'
-import { Service } from '@/payload-types'
+import { GitProvider, Service } from '@/payload-types'
 
 export const servicesToTemplate = (services: Service[]) => {
   const sortedServices = [...services].sort((a, b) => {
@@ -48,7 +48,8 @@ export const servicesToTemplate = (services: Service[]) => {
     ...(service.type === 'app' && {
       githubSettings: service.githubSettings,
       providerType: service.providerType,
-      provider: service.provider,
+      provider: (service.provider as GitProvider)?.id || undefined,
+      builder: service.builder || 'railpack',
     }),
     ...(service.type === 'database' && {
       databaseDetails: service.databaseDetails
@@ -62,7 +63,6 @@ export const servicesToTemplate = (services: Service[]) => {
     ...(service.type === 'docker' && {
       dockerDetails: service.dockerDetails,
     }),
-    builder: service.builder || 'railpack',
   }))
 
   return updatedServices as z.infer<typeof servicesSchema>
