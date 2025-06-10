@@ -50,7 +50,16 @@ export const servicesSchema = z.array(
           .optional(),
       })
       .optional(),
-    builder: z.enum(['dockerfile', 'railpack']).default('railpack').optional(),
+    builder: z
+      .enum([
+        'dockerfile',
+        'railpack',
+        'buildPacks',
+        'herokuBuildPacks',
+        'nixpacks',
+      ])
+      .default('railpack')
+      .optional(),
   }),
 )
 
