@@ -126,14 +126,6 @@ const ServiceList = ({
     const initialPositions = calculateNodePositions(services, width, height)
     const { edges: edgesData, nodes: nodesData } = convertToGraph(services)
 
-    console.log({
-      edgesData: Boolean(
-        project.server &&
-          typeof project.server === 'object' &&
-          project.server.connection?.status !== 'success',
-      ),
-    })
-
     const initialNodes = nodesData?.map((node, index) => ({
       id: node.id,
       position: initialPositions[index],
