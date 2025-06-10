@@ -5,7 +5,13 @@ export const install = async (
   pluginUrl: string,
   options?: SSHExecCommandOptions,
 ) => {
-  // TODO validate plugin url to allow only url finishing with .git
+  const pluginURLValidate = pluginUrl.endsWith('.git')
+
+  if (!pluginURLValidate) {
+    console.error('ensure the plugin url ends with .git')
+    throw new Error('ensure the plugin url ends with .git')
+  }
+
   const resultPluginInstall = await ssh.execCommand(
     `sudo dokku plugin:install ${pluginUrl}`,
     options,

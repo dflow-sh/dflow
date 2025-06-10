@@ -7,11 +7,13 @@ const parsePluginListCommand = (commandResult: string) => {
     .filter(Boolean) // Trim and remove empty lines
 
   // First line is the plugin version, extract it
-  const pluginVersion = plugins[0].split(/\s+/)[1] // Assuming it's always in "dokku version x.y.z"
+  // Assuming it's always in "dokku version x.y.z"
+  const pluginVersion = plugins[0].split(/\s+/)[1]
 
   // Process plugin list
   const parsedPlugins = plugins.slice(1).map(plugin => {
-    const split = plugin.split(/\s+/) // Split by spaces (handles inconsistent spacing)
+    // Split by spaces (handles inconsistent spacing)
+    const split = plugin.split(/\s+/)
 
     return {
       name: split[0], // Plugin name

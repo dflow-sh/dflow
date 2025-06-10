@@ -1,14 +1,14 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
+import { dokku } from '@/dokku/index'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { dynamicSSH } from '@/lib/ssh'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
