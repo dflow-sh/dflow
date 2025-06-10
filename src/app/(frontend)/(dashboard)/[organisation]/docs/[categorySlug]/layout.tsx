@@ -1,17 +1,20 @@
 import LayoutClient from '../../layout.client'
-import React, { Suspense } from 'react'
-
-import { DocsSidebarSkeleton } from '@/components/skeletons/DocsSkeleton'
+import React from 'react'
 
 import DocsSidebar from './DocsSidebar'
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+interface PageProps {
+  params: Promise<{
+    organisation: string
+  }>
+  children: React.ReactNode
+}
+
+export default function Layout({ children, params }: PageProps) {
   return (
     <LayoutClient>
       <section className='flex h-full w-full'>
-        <Suspense fallback={<DocsSidebarSkeleton />}>
-          <DocsSidebar />
-        </Suspense>
+        <DocsSidebar params={params} />
 
         {/* Right Side Content */}
         <div className='h-full flex-1 p-6'>{children}</div>
