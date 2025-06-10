@@ -34,49 +34,85 @@ import {
 } from '@/actions/templates/validator'
 import { DockerRegistry, GitProvider, Service } from '@/payload-types'
 
-export const servicesToTemplate = (services: Service[]) => {
+export const servicesToTemplate = (
+  services: Service[],
+  projectName: string,
+) => {
   const sortedServices = [...services].sort((a, b) => {
     if (a.type === 'database' && b.type !== 'database') return -1
     if (a.type !== 'database' && b.type === 'database') return 1
     return 0
   })
 
-  const updatedServices = sortedServices.map(service => ({
-    name: service.name,
-    variables: service.variables || [],
-    type: service.type,
-    ...(service.type === 'app' && {
-      githubSettings: service.githubSettings,
-      providerType: service.providerType,
-      provider: (service.provider as GitProvider)?.id || undefined,
-      builder: service.builder || 'railpack',
-    }),
-    ...(service.type === 'database' && {
-      databaseDetails: service.databaseDetails
-        ? {
-            type: service.databaseDetails.type || undefined,
-            exposedPorts: service.databaseDetails.exposedPorts || undefined,
-          }
-        : undefined,
-    }),
-    ...(service.type === 'docker' && {
-      dockerDetails: service.dockerDetails
-        ? {
-            url: service.dockerDetails.url,
-            account:
-              (service.dockerDetails.account as DockerRegistry)?.id ||
-              undefined,
-            ports: service?.dockerDetails?.ports,
-          }
-        : undefined,
-    }),
-  }))
+  const updatedServices = sortedServices.map(service => {
+    const cleanServiceName = service.name.replace(`${projectName}-`, '')
+
+    const updatedVariables = (service.variables || []).map(variable => {
+      if (typeof variable.value !== 'string') return variable
+
+      const updatedValue = variable.value.replace(
+        /\{\{\s*(.*?)\s*\}\}/g,
+        (match, inner) => {
+          // Only replace inside the {{ ... }} block
+          const cleanedInner = inner.replace(`${projectName}-`, '')
+          return `{{ ${cleanedInner} }}`
+        },
+      )
+
+      return {
+        ...variable,
+        value: updatedValue,
+      }
+    })
+
+    return {
+      name: cleanServiceName,
+      variables: updatedVariables,
+      type: service.type,
+      ...(service.type === 'app' && {
+        githubSettings: service.githubSettings,
+        providerType: service.providerType,
+        provider:
+          typeof service.provider === 'object'
+            ? (service.provider as GitProvider)?.id
+            : typeof service.provider === 'string'
+              ? service.provider
+              : undefined,
+        builder: service.builder || 'railpack',
+      }),
+      ...(service.type === 'database' && {
+        databaseDetails: service.databaseDetails
+          ? {
+              type: service.databaseDetails.type || undefined,
+              exposedPorts: service.databaseDetails.exposedPorts || undefined,
+            }
+          : undefined,
+      }),
+      ...(service.type === 'docker' && {
+        dockerDetails: service.dockerDetails
+          ? {
+              url: service.dockerDetails.url,
+              account:
+                (service.dockerDetails.account as DockerRegistry)?.id ||
+                undefined,
+              ports: service.dockerDetails.ports,
+            }
+          : undefined,
+      }),
+    }
+  })
 
   return updatedServices as z.infer<typeof servicesSchema>
 }
 
-const CreateTemplateFromProject = ({ services }: { services: Service[] }) => {
-  const updatedServices = servicesToTemplate(services)
+const CreateTemplateFromProject = ({
+  services,
+  projectName,
+}: {
+  services: Service[]
+  projectName: string
+}) => {
+  const updatedServices = servicesToTemplate(services, projectName)
 
   const [open, setOpen] = useState(false)
   const form = useForm<CreateTemplateSchemaType>({
@@ -101,9 +137,7 @@ const CreateTemplateFromProject = ({ services }: { services: Service[] }) => {
       toast.error('Failed to create template')
     },
   })
-  console.log('error', form.formState.errors)
   const onSubmit = (data: CreateTemplateSchemaType) => {
-    console.log('data', data)
     createTemplateAction({
       name: data.name,
       description: data.description,

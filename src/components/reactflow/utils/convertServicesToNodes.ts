@@ -1,7 +1,7 @@
 import { ServiceNode } from '../types'
 import { Edge } from '@xyflow/react'
 
-import { Service, Template } from '@/payload-types'
+import { GitProvider, Service, Template } from '@/payload-types'
 
 interface ServiceWithDisplayName extends Service {
   displayName: string
@@ -47,7 +47,11 @@ export function convertToGraph(
         node.githubSettings = item.githubSettings ?? undefined
         node.builder = item.builder ?? undefined
         node.provider =
-          typeof item.provider === 'string' ? item.provider : undefined
+          typeof item.provider === 'object'
+            ? (item.provider as GitProvider)?.id
+            : item.provider === 'string'
+              ? item.provider
+              : undefined
         node.providerType = item.providerType ?? undefined
         break
       case 'docker':

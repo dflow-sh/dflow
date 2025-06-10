@@ -83,6 +83,7 @@ const SuspendedPage = async ({
                 <>
                   <CreateTemplateFromProject
                     services={result?.data?.services}
+                    projectName={project?.name}
                   />
                   <CreateService
                     server={project.server}
