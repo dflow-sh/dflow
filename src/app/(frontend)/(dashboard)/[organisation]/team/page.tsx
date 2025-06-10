@@ -1,6 +1,6 @@
 'use server'
 
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 
 import { getTenantAction } from '@/actions/auth'
 import { getTeamMembersAction } from '@/actions/team'

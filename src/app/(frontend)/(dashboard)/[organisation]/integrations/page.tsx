@@ -1,6 +1,6 @@
 'use client'
 
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 
