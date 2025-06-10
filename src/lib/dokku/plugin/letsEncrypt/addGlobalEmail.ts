@@ -5,7 +5,6 @@ export const addGlobalEmail = async (
   email: string,
   options?: SSHExecCommandOptions,
 ) => {
-  // TODO validate plugin url to allow only url finishing with .git
   const resultAddGlobalEmail = await ssh.execCommand(
     `dokku letsencrypt:set --global email ${email}`,
     options,
