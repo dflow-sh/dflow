@@ -38,7 +38,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { isDemoEnvironment } from '@/lib/constants'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -174,7 +173,7 @@ const DomainForm = ({ server }: { server: ServerType | Server }) => {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button disabled={isDemoEnvironment} onClick={e => e.stopPropagation()}>
+        <Button onClick={e => e.stopPropagation()}>
           <Plus /> Add Domain
         </Button>
       </DialogTrigger>

@@ -18,7 +18,6 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteGitProviderAction } from '@/actions/gitProviders'
-import { isDemoEnvironment } from '@/lib/constants'
 import { GitProvider } from '@/payload-types'
 
 const GithubCard = ({
@@ -63,7 +62,7 @@ const GithubCard = ({
           )}
 
           <Button
-            disabled={isPending || isDemoEnvironment}
+            disabled={isPending}
             onClick={() => {
               execute({ id: provider.id })
             }}

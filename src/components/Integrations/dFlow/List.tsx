@@ -8,7 +8,6 @@ import { deleteAWSAccountAction } from '@/actions/cloud/aws'
 import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount } from '@/payload-types'
 
 import DFlowForm from './Form'
@@ -28,7 +27,7 @@ const EditForm = ({
   if (account.type === 'aws' || account.type === 'dFlow') {
     return (
       <DFlowForm account={account} refetch={refetch}>
-        <Button size='icon' variant='outline' disabled={isDemoEnvironment}>
+        <Button size='icon' variant='outline'>
           <Pencil size={20} />
         </Button>
       </DFlowForm>
@@ -78,7 +77,7 @@ const CloudProviderCard = ({
             size='icon'
             variant='outline'
             onClick={() => deleteAccount({ id: account.id })}
-            disabled={deletingAccount || isDemoEnvironment}>
+            disabled={deletingAccount}>
             <Trash2 size={20} />
           </Button>
         </div>

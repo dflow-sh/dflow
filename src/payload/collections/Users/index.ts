@@ -3,7 +3,6 @@ import { env } from 'env'
 import type { CollectionConfig } from 'payload'
 
 import { ResetPassword } from '@/emails/reset-password'
-import { isDemoEnvironment } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 import { handleUserRoles } from './hooks/handleUserRoles'
@@ -63,7 +62,7 @@ export const Users: CollectionConfig = {
     admin: async ({ req }) => {
       const { user } = req
 
-      if (user?.role?.includes('admin') && !Boolean(isDemoEnvironment)) {
+      if (user?.role?.includes('admin')) {
         return true
       }
 

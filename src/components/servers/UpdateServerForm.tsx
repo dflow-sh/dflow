@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { isDemoEnvironment, supportedLinuxVersions } from '@/lib/constants'
+import { supportedLinuxVersions } from '@/lib/constants'
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -227,7 +227,7 @@ const UpdateServerForm = ({
             <Button
               type='submit'
               variant='outline'
-              disabled={isUpdatingService || isDemoEnvironment}>
+              disabled={isUpdatingService}>
               Save
             </Button>
           </div>

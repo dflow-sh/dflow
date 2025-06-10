@@ -5,7 +5,6 @@ import { useAction } from 'next-safe-action/hooks'
 import { deleteDockerRegistryAction } from '@/actions/dockerRegistry'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { isDemoEnvironment } from '@/lib/constants'
 import { DockerRegistry } from '@/payload-types'
 
 import DockerRegistryForm from './Form'
@@ -19,7 +18,7 @@ const EditForm = ({
 }) => {
   return (
     <DockerRegistryForm account={account} refetch={refetch}>
-      <Button size='icon' variant='outline' disabled={isDemoEnvironment}>
+      <Button size='icon' variant='outline'>
         <Pencil size={20} />
       </Button>
     </DockerRegistryForm>
@@ -63,7 +62,7 @@ const DockerRegistryCard = ({
             size='icon'
             variant='outline'
             onClick={() => deleteAccount({ id: account.id })}
-            disabled={deletingAccount || isDemoEnvironment}>
+            disabled={deletingAccount}>
             <Trash2 size={20} />
           </Button>
         </div>

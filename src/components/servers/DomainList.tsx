@@ -36,7 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { WILD_CARD_DOMAINS, isDemoEnvironment } from '@/lib/constants'
+import { WILD_CARD_DOMAINS } from '@/lib/constants'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -214,7 +214,7 @@ const DomainItem = ({
                   id: server.id,
                 })
               }}
-              disabled={isPending || isDemoEnvironment}
+              disabled={isPending}
               variant='outline'>
               <Trash2 />
             </Button>

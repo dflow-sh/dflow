@@ -47,7 +47,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { isDemoEnvironment } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 
@@ -163,7 +162,6 @@ const ServerCard = ({
                   variant='ghost'
                   size='icon'
                   className='!mt-0'
-                  disabled={isDemoEnvironment}
                   onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()

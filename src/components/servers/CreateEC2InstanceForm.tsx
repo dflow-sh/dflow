@@ -46,12 +46,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  amiList,
-  awsRegions,
-  instanceTypes,
-  isDemoEnvironment,
-} from '@/lib/constants'
+import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
 import {
   CloudProviderAccount,
   SecurityGroup,
@@ -307,7 +302,6 @@ const CreateEC2InstanceForm = ({
                     {isOnboarding && (
                       <AWSAccountForm refetch={getAccounts}>
                         <Button
-                          disabled={isDemoEnvironment}
                           onClick={e => e.stopPropagation()}
                           size='sm'
                           type='button'
@@ -451,7 +445,6 @@ const CreateEC2InstanceForm = ({
                   }}
                   trigger={
                     <Button
-                      disabled={isDemoEnvironment}
                       onClick={e => e.stopPropagation()}
                       size='sm'
                       variant='outline'

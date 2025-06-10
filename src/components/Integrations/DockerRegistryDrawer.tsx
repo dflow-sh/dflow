@@ -17,7 +17,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { isDemoEnvironment } from '@/lib/constants'
 import { integrationsList } from '@/lib/integrationList'
 
 import DockerRegistryForm from './dockerRegistry/Form'
@@ -78,7 +77,7 @@ const DockerRegistryDrawer = () => {
 
         <SheetFooter>
           <DockerRegistryForm refetch={execute}>
-            <Button disabled={isDemoEnvironment}>
+            <Button disabled={isPending}>
               <Link />
               Connect registry
             </Button>

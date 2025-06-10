@@ -12,7 +12,6 @@ import {
 import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { isDemoEnvironment } from '@/lib/constants'
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -69,7 +68,6 @@ const ServerFormDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          disabled={isDemoEnvironment}
           size={formType === 'update' ? 'icon' : 'default'}
           variant={formType === 'update' ? 'outline' : 'default'}>
           {formType === 'update' ? (

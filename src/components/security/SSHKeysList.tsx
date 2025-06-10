@@ -25,7 +25,6 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteSSHKeyAction } from '@/actions/sshkeys'
-import { isDemoEnvironment } from '@/lib/constants'
 import { Server, SshKey } from '@/payload-types'
 
 import ViewSSHKey from './CreateSSHKey'
@@ -107,7 +106,7 @@ const SSHKeyItem = ({
             />
 
             <Button
-              disabled={isDeletePending || isDemoEnvironment}
+              disabled={isDeletePending}
               onClick={() => setIsDeleteDialogOpen(true)}
               size='icon'
               variant='outline'

@@ -17,7 +17,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { isDemoEnvironment } from '@/lib/constants'
 import { integrationsList } from '@/lib/integrationList'
 
 import CloudProvidersList from './CloudProvidersList'
@@ -80,7 +79,7 @@ const AWSDrawer = () => {
 
         <SheetFooter>
           <AWSAccountForm refetch={execute}>
-            <Button disabled={isDemoEnvironment}>
+            <Button disabled={isPending}>
               <Link />
               Connect account
             </Button>

@@ -35,7 +35,6 @@ import {
   Redis,
 } from '@/components/icons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { isDemoEnvironment } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import PluginConfigurationForm from './PluginConfigurationForm'
@@ -150,9 +149,7 @@ const PluginCard = ({
           <div className='space-x-2'>
             <Button
               variant='outline'
-              disabled={
-                !notCustomPlugin || isDeletingPlugin || isDemoEnvironment
-              }
+              disabled={!notCustomPlugin || isDeletingPlugin}
               onClick={() => {
                 if (notCustomPlugin) {
                   deletePlugin({
@@ -168,10 +165,7 @@ const PluginCard = ({
 
             {'hasConfig' in plugin && plugin.hasConfig && (
               <PluginConfigurationForm plugin={installedPlugin}>
-                <Button
-                  variant='outline'
-                  size='icon'
-                  disabled={isDemoEnvironment}>
+                <Button variant='outline' size='icon'>
                   <Settings />
                 </Button>
               </PluginConfigurationForm>
@@ -180,9 +174,7 @@ const PluginCard = ({
         ) : (
           <Button
             variant='outline'
-            disabled={
-              isInstallingPlugin || isDemoEnvironment || triggeredPluginInstall
-            }
+            disabled={isInstallingPlugin || triggeredPluginInstall}
             isLoading={isInstallingPlugin}
             onClick={() => {
               if (notCustomPlugin) {
@@ -200,9 +192,7 @@ const PluginCard = ({
 
         {installedPlugin && (
           <Switch
-            disabled={
-              !notCustomPlugin || isUpdatingPluginStatus || isDemoEnvironment
-            }
+            disabled={!notCustomPlugin || isUpdatingPluginStatus}
             defaultChecked={installedPlugin.status === 'enabled'}
             onCheckedChange={enabled => {
               if (notCustomPlugin) {

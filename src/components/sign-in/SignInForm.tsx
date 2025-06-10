@@ -22,7 +22,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { isDemoEnvironment } from '@/lib/constants'
 
 const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
   resendEnvExist,
@@ -51,8 +50,8 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
     resolver: zodResolver(signInSchema),
     mode: 'onBlur',
     defaultValues: {
-      email: isDemoEnvironment ? 'admin@example.com' : '',
-      password: isDemoEnvironment ? 'changeme' : '',
+      email: '',
+      password: '',
     },
   })
 

@@ -32,7 +32,6 @@ import {
   deleteSecurityGroupAction,
   syncSecurityGroupAction,
 } from '@/actions/securityGroups'
-import { isDemoEnvironment } from '@/lib/constants'
 import { CloudProviderAccount, SecurityGroup, Server } from '@/payload-types'
 
 import UpdateSecurityGroup from './CreateSecurityGroup'
@@ -190,7 +189,7 @@ const SecurityGroupItem = ({
 
           <div className='flex items-center gap-2'>
             <Button
-              disabled={hasMissingFields || isSyncPending || isDemoEnvironment}
+              disabled={hasMissingFields || isSyncPending}
               onClick={handleSyncClick}
               size='icon'
               variant='outline'
@@ -214,7 +213,7 @@ const SecurityGroupItem = ({
             />
 
             <Button
-              disabled={isDeletePending || isDemoEnvironment}
+              disabled={isDeletePending}
               onClick={() => setIsDeleteDialogOpen(true)}
               size='icon'
               variant='outline'

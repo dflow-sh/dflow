@@ -1,12 +1,10 @@
 import LayoutClient from '../../layout.client'
-import { redirect } from 'next/navigation'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
 import { getDFlowPlansAction } from '@/actions/cloud/dFlow'
 import { getAddServerDetails } from '@/actions/pages/server'
 import DflowCloudDrawer from '@/components/Integrations/dFlow/Drawer'
 import ServerForm from '@/components/servers/ServerForm'
-import { isDemoEnvironment } from '@/lib/constants'
 
 const SuspendedAddNewServerPage = async () => {
   const result = await getAddServerDetails()
@@ -30,10 +28,6 @@ const SuspendedAddNewServerPage = async () => {
 }
 
 const AddNewServerPage = async () => {
-  if (isDemoEnvironment) {
-    redirect('/servers')
-  }
-
   return (
     <LayoutClient>
       <SuspendedAddNewServerPage />

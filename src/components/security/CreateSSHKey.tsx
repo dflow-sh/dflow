@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { isDemoEnvironment } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 
 import CreateSSHKeyForm from './CreateSSHKeyForm'
@@ -35,7 +34,6 @@ const CreateSSHKey = ({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button
-            disabled={isDemoEnvironment}
             onClick={e => e.stopPropagation()}
             size={type === 'view' ? 'icon' : 'default'}
             variant={type === 'view' ? 'outline' : 'default'}>

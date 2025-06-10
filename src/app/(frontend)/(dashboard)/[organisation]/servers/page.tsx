@@ -14,7 +14,6 @@ import {
   ServersSkeleton,
 } from '@/components/skeletons/ServersSkeleton'
 import { Button } from '@/components/ui/button'
-import { isDemoEnvironment } from '@/lib/constants'
 
 interface PageProps {
   params: Promise<{
@@ -49,14 +48,12 @@ const SuspendedServers = async ({
             Get started by adding your first server.
           </p>
 
-          {!isDemoEnvironment && (
-            <Link href={`/${organisationSlug}/servers/add-new-server`}>
-              <Button size='sm'>
-                <Plus className='mr-2 h-4 w-4' />
-                Add Your First Server
-              </Button>
-            </Link>
-          )}
+          <Link href={`/${organisationSlug}/servers/add-new-server`}>
+            <Button size='sm'>
+              <Plus className='mr-2 h-4 w-4' />
+              Add Your First Server
+            </Button>
+          </Link>
         </div>
       )}
 
@@ -79,24 +76,14 @@ const ServersPage = async ({ params }: PageProps) => {
           <RefreshButton />
 
           <Suspense fallback={<CreateServerButtonSkeleton />}>
-            {isDemoEnvironment ? (
-              <Button disabled={true} size={'default'} variant={'default'}>
+            <SyncDFlow />
+
+            <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
+              <Button size={'default'} variant={'default'}>
                 <Plus className='mr-2 h-4 w-4' />
                 Add New Server
               </Button>
-            ) : (
-              <>
-                <SyncDFlow />
-
-                <Link
-                  href={`/${syncParams.organisation}/servers/add-new-server`}>
-                  <Button size={'default'} variant={'default'}>
-                    <Plus className='mr-2 h-4 w-4' />
-                    Add New Server
-                  </Button>
-                </Link>
-              </>
-            )}
+            </Link>
           </Suspense>
         </div>
       </div>

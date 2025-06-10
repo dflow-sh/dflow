@@ -1,5 +1,3 @@
-import { env } from 'env'
-
 export const supportedLinuxVersions = ['11', '12', '20.04', '22.04', '24.04']
 
 export const supportedDokkuVersion = '0.35.15'
@@ -73,7 +71,6 @@ export const instanceTypes = [
   },
 ] as const
 
-export const isDemoEnvironment = env.NEXT_PUBLIC_ENVIRONMENT === 'DEMO'
 export const numberRegex = /^\d+$/
 export const REFERENCE_VARIABLE_REGEX = /\${{\s*(\w+):([\w-]+)\.([\w_]+)\s*}}/
 export const TEMPLATE_EXPR = /\{\{\s*(.*?)\s*\}\}/g

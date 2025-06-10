@@ -5,11 +5,9 @@ import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
 import DocSidebar from '@/components/DocSidebar'
-import { HeaderBanner } from '@/components/HeaderBanner'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { buttonVariants } from '@/components/ui/button'
-import { isDemoEnvironment } from '@/lib/constants'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 import { cn } from '@/lib/utils'
 import Provider from '@/providers/Provider'
@@ -87,20 +85,9 @@ const DashboardLayoutInner = async ({
   )
 }
 
-const BannerLayout = ({ children }: { children: React.ReactNode }) => {
-  return isDemoEnvironment ? (
-    <div className='fixed top-0 z-50 w-full bg-background'>
-      <HeaderBanner />
-      {children}
-    </div>
-  ) : (
-    <>{children}</>
-  )
-}
-
 const DashboardLayout = ({ children, params }: PageProps) => {
   return (
-    <BannerLayout>
+    <>
       <div className='relative flex h-screen w-full overflow-hidden'>
         <div className='flex-1 overflow-y-auto'>
           <DashboardLayoutInner params={params} />
@@ -109,7 +96,7 @@ const DashboardLayout = ({ children, params }: PageProps) => {
 
         <DocSidebar />
       </div>
-    </BannerLayout>
+    </>
   )
 }
 
