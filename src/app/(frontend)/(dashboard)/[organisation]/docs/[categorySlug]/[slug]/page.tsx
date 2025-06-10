@@ -20,8 +20,6 @@ export async function generateStaticParams() {
     })
     .flat()
 
-  console.dir({ slugs }, { depth: null })
-
   return slugs
 }
 
@@ -44,7 +42,7 @@ const DocPage = async ({ params }: PageProps) => {
   }
 
   return (
-    <article className='prose prose-purple prose-invert md:prose-lg prose-headings:font-medium prose-headings:text-foreground prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain'>
+    <article className='prose prose-purple prose-invert w-full md:prose-lg prose-headings:font-medium prose-headings:text-foreground prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain'>
       <MDXContent code={doc.mdx} />
     </article>
   )

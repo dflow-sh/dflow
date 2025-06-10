@@ -17,7 +17,7 @@ export default function Layout({ children, params }: PageProps) {
         <DocsSidebar params={params} />
 
         {/* Right Side Content */}
-        <div className='h-full flex-1 p-6'>{children}</div>
+        <div className='h-full w-full md:flex-1 md:p-6'>{children}</div>
       </section>
     </LayoutClient>
   )
