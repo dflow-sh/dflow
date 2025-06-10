@@ -11,17 +11,18 @@ interface PageProps {
   }>
 }
 
-export async function generateStaticParams() {
-  const slugs = Object.entries(allDocs)
-    .map(([_key, docs]) => {
-      return docs.map(({ categorySlug, slug }) => {
-        return { categorySlug, slug }
-      })
-    })
-    .flat()
+// for now commenting static-generation because of  ⨯ [Error: An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.] {digest: 'DYNAMIC_SERVER_USAGE' }
+// export async function generateStaticParams() {
+//   const slugs = Object.entries(allDocs)
+//     .map(([_key, docs]) => {
+//       return docs.map(({ categorySlug, slug }) => {
+//         return { categorySlug, slug }
+//       })
+//     })
+//     .flat()
 
-  return slugs
-}
+//   return slugs
+// }
 
 const DocPage = async ({ params }: PageProps) => {
   const { categorySlug, slug } = await params
