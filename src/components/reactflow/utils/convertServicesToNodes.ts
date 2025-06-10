@@ -57,6 +57,8 @@ export function convertToGraph(
       case 'docker':
         node.dockerDetails = item.dockerDetails ?? undefined
         break
+      default:
+        break
     }
 
     // console.log('Created node:', node)
