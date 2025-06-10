@@ -1,42 +1,30 @@
-'use client'
+import HighLightedLink from '@/components/docs/HighLightedLink'
+import { allDocs } from '@/docs'
 
-import {
-  allIntroductions,
-  allOnboardings,
-  allSecurities,
-  allServers,
-  allServices,
-  allTemplates,
-} from 'content-collections'
-import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
+interface Props {
+  params: Promise<{
+    organisation: string
+  }>
+}
 
-type Doc =
-  | (typeof allServers)[number]
-  | (typeof allIntroductions)[number]
-  | (typeof allOnboardings)[number]
-  | (typeof allServices)[number]
-  | (typeof allSecurities)[number]
-  | (typeof allTemplates)[number]
+const formattedDocs = Object.entries(allDocs)
+  .map(([_key, docs]) => docs)
+  .flat()
 
+type Doc = (typeof formattedDocs)[number]
 type GroupedDocs = Record<string, Doc[]>
-// console.log({ allOnboardings })
-const allDocs: Doc[] = [
-  ...allIntroductions,
-  ...allServers,
-  ...allOnboardings,
-  ...allServices,
-  ...allSecurities,
-  ...allTemplates,
-]
 
-const groupedDocs: GroupedDocs = allDocs.reduce<GroupedDocs>((acc, doc) => {
-  if (!acc[doc.category]) {
-    acc[doc.category] = []
-  }
-  acc[doc.category].push(doc)
-  return acc
-}, {})
+const groupedDocs: GroupedDocs = formattedDocs.reduce<GroupedDocs>(
+  (acc, doc) => {
+    if (!acc[doc.category]) {
+      acc[doc.category] = []
+    }
+
+    acc[doc.category].push(doc)
+    return acc
+  },
+  {},
+)
 
 const sortedCategories = Object.entries(groupedDocs)
   .sort(
@@ -47,9 +35,9 @@ const sortedCategories = Object.entries(groupedDocs)
     docs: docs.sort((a, b) => (a.order ?? 999) - (b.order ?? 999)),
   }))
 
-const DocsSidebar = () => {
-  const pathname = usePathname()
-  const params = useParams()
+const DocsSidebar = async ({ params }: Props) => {
+  const { organisation } = await params
+
   return (
     <aside className={`sticky left-0 top-[120px] h-screen w-64 border-r p-4`}>
       <nav>
@@ -59,15 +47,10 @@ const DocsSidebar = () => {
             <ul className='ml-2'>
               {docs.map(doc => (
                 <li key={doc.slug} className='py-1'>
-                  <Link
-                    href={`/${params.organisation}/docs/${doc.categorySlug}/${doc.slug}`}
-                    className={`block hover:underline ${
-                      pathname === `/docs/${doc.categorySlug}/${doc.slug}`
-                        ? 'font-semibold text-primary'
-                        : 'text-muted-foreground'
-                    }`}>
-                    {doc.title}
-                  </Link>
+                  <HighLightedLink
+                    href={`/${organisation}/docs/${doc.categorySlug}/${doc.slug}`}
+                    label={doc.title}
+                  />
                 </li>
               ))}
             </ul>

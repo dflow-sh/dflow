@@ -1,22 +1,9 @@
 'use server'
 
-import {
-  allIntroductions,
-  allOnboardings,
-  allServers,
-  allServices,
-} from 'content-collections'
-
+import { allDocs } from '@/docs'
 import { publicClient } from '@/lib/safe-action'
 
 import { docsSchema } from './validator'
-
-const allDocs = {
-  introduction: allIntroductions,
-  servers: allServers,
-  onboarding: allOnboardings,
-  services: allServices,
-}
 
 export const docsAction = publicClient
   .metadata({
