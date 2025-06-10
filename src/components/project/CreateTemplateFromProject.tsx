@@ -32,7 +32,7 @@ import {
   createTemplateSchema,
   servicesSchema,
 } from '@/actions/templates/validator'
-import { GitProvider, Service } from '@/payload-types'
+import { DockerRegistry, GitProvider, Service } from '@/payload-types'
 
 export const servicesToTemplate = (services: Service[]) => {
   const sortedServices = [...services].sort((a, b) => {
@@ -54,14 +54,21 @@ export const servicesToTemplate = (services: Service[]) => {
     ...(service.type === 'database' && {
       databaseDetails: service.databaseDetails
         ? {
-            ...service.databaseDetails,
             type: service.databaseDetails.type || undefined,
             exposedPorts: service.databaseDetails.exposedPorts || undefined,
           }
         : undefined,
     }),
     ...(service.type === 'docker' && {
-      dockerDetails: service.dockerDetails,
+      dockerDetails: service.dockerDetails
+        ? {
+            url: service.dockerDetails.url,
+            account:
+              (service.dockerDetails.account as DockerRegistry)?.id ||
+              undefined,
+            ports: service?.dockerDetails?.ports,
+          }
+        : undefined,
     }),
   }))
 
@@ -88,6 +95,7 @@ const CreateTemplateFromProject = ({ services }: { services: Service[] }) => {
     onSuccess: ({ data }) => {
       toast.success('Template created successfully')
       setOpen(false)
+      form.reset()
     },
     onError: () => {
       toast.error('Failed to create template')
