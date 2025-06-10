@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { AlertCircle, Folder } from 'lucide-react'
 import { Suspense } from 'react'
 

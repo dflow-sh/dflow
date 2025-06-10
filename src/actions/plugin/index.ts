@@ -7,8 +7,8 @@ import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH } from '@/lib/ssh'
 import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
-import { addCreatePluginQueue } from '@/queues/plugin/create'
 import { addDeletePluginQueue } from '@/queues/plugin/delete'
+import { addInstallPluginQueue } from '@/queues/plugin/install'
 import { addTogglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
@@ -56,7 +56,7 @@ export const installPluginAction = protectedClient
       privateKey: sshKey.privateKey,
     }
 
-    const queueResponse = await addCreatePluginQueue({
+    const queueResponse = await addInstallPluginQueue({
       pluginDetails: {
         name: pluginName,
         url: pluginURL,

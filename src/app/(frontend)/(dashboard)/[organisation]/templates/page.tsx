@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { Plus, Puzzle } from 'lucide-react'
 import Link from 'next/link'
 

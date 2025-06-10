@@ -1,4 +1,4 @@
-import LayoutClient from '../../../layout.client'
+import LayoutClient from '../../layout.client'
 import { redirect } from 'next/navigation'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'

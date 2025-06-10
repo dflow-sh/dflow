@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { Suspense } from 'react'
 
 import { getSecurityDetails } from '@/actions/pages/security'

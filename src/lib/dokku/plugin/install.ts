@@ -1,10 +1,16 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-export const install = async (
-  ssh: NodeSSH,
-  pluginUrl: string,
-  options?: SSHExecCommandOptions,
-) => {
+export const install = async ({
+  ssh,
+  pluginUrl,
+  pluginName,
+  options = {},
+}: {
+  ssh: NodeSSH
+  pluginUrl: string
+  pluginName: string
+  options?: SSHExecCommandOptions
+}) => {
   const pluginURLValidate = pluginUrl.endsWith('.git')
 
   if (!pluginURLValidate) {
@@ -13,7 +19,7 @@ export const install = async (
   }
 
   const resultPluginInstall = await ssh.execCommand(
-    `sudo dokku plugin:install ${pluginUrl}`,
+    `sudo dokku plugin:install ${pluginUrl} ${pluginName}`,
     options,
   )
 

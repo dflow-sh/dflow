@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -21,6 +21,7 @@ interface PageProps {
     organisation: string
   }>
 }
+
 const SuspendedServers = async ({
   organisationSlug,
 }: {

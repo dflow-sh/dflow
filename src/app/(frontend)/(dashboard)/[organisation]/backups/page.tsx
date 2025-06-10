@@ -1,4 +1,4 @@
-import LayoutClient from '../../layout.client'
+import LayoutClient from '../layout.client'
 import { History } from 'lucide-react'
 
 import { getAllBackups } from '@/actions/dbBackup'
