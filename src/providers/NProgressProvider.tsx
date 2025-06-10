@@ -6,7 +6,7 @@ const NProgressProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <ProgressProvider
       height='2px'
-      color={`hsl(var(--primary))`}
+      color='hsl(var(--primary))'
       shouldCompareComplexProps
       options={{ showSpinner: false }}>
       {children}

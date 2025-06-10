@@ -87,16 +87,14 @@ const DashboardLayoutInner = async ({
 
 const DashboardLayout = ({ children, params }: PageProps) => {
   return (
-    <>
-      <div className='relative flex h-screen w-full overflow-hidden'>
-        <div className='flex-1 overflow-y-auto'>
-          <DashboardLayoutInner params={params} />
-          {children}
-        </div>
-
-        <DocSidebar />
+    <div className='relative flex h-screen w-full overflow-hidden'>
+      <div className='flex-1 overflow-y-auto'>
+        <DashboardLayoutInner params={params} />
+        {children}
       </div>
-    </>
+
+      <DocSidebar />
+    </div>
   )
 }
 
