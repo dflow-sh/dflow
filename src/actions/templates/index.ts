@@ -921,7 +921,7 @@ export const publishTemplateAction = protectedClient
     if (!token) {
       throw new Error('Invalid dFlow account: No access token found')
     }
-    const { docs: templates, totalDocs } = await payload.find({
+    const { docs: templates } = await payload.find({
       collection: 'templates',
       where: {
         and: [
@@ -1011,7 +1011,7 @@ export const unPublishTemplateAction = protectedClient
     if (!token) {
       throw new Error('Invalid dFlow account: No access token found')
     }
-    const { docs: templates, totalDocs } = await payload.find({
+    const { docs: templates } = await payload.find({
       collection: 'templates',
       where: {
         and: [
@@ -1118,7 +1118,7 @@ export const syncWithPublicTemplateAction = protectedClient
 
 export const getPublicTemplatesAction = publicClient
   .metadata({ actionName: 'getPublicTemplatesAction' })
-  .action(async ({ ctx }) => {
+  .action(async () => {
     const response = await axios.get(
       `${DFLOW_CONFIG.URL}/api/templates?pagination=false`,
     )

@@ -316,8 +316,7 @@ export const Template: CollectionConfig = {
       label: 'Template Id',
       admin: {
         condition: data => {
-          if (data.isPublished) return true
-          return false
+          return data.isPublished
         },
       },
     },
