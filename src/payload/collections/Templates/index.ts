@@ -304,6 +304,22 @@ export const Template: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'isPublished',
+      type: 'checkbox',
+      label: 'Is Template Published',
+      defaultValue: false,
+    },
+    {
+      type: 'text',
+      name: 'publishedTemplateId',
+      label: 'Template Id',
+      admin: {
+        condition: data => {
+          return data.isPublished
+        },
+      },
+    },
     // {
     //   name: 'content',
     //   label: 'Content',

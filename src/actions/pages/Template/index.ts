@@ -14,7 +14,7 @@ export const getTemplates = protectedClient
     const { docs: templates, totalDocs } = await payload.find({
       collection: 'templates',
       pagination: false,
-      sort: '-createdAt',
+      sort: '-isPublished',
       where: {
         'tenant.slug': {
           equals: tenant.slug,

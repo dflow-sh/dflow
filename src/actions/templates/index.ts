@@ -1,5 +1,6 @@
 'use server'
 
+import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 import {
   Config,
@@ -9,7 +10,7 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { TEMPLATE_EXPR } from '@/lib/constants'
+import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { Project, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -22,7 +23,9 @@ import {
   deployTemplateSchema,
   deployTemplateWithProjectCreateSchema,
   getAllTemplatesSchema,
+  getPersonalTemplateByIdSchema,
   getTemplateByIdSchema,
+  publicTemplateSchema,
   updateTemplateSchema,
 } from './validator'
 
@@ -61,6 +64,13 @@ function extractTemplateRefs(str: string) {
   return matches ?? []
 }
 
+type PublicTemplate = Omit<
+  Template,
+  'tenant' | 'isPublished' | 'publishedTemplateId'
+> & {
+  type: 'community' | 'official'
+}
+
 export const createTemplate = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
@@ -69,7 +79,7 @@ export const createTemplate = protectedClient
   .schema(createTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { userTenant, payload } = ctx
-    const { name, description, services } = clientInput
+    const { name, description, services, imageUrl } = clientInput
 
     const response = await payload.create({
       collection: 'templates',
@@ -77,6 +87,7 @@ export const createTemplate = protectedClient
         name,
         description,
         services,
+        imageUrl,
         tenant: userTenant.tenant,
       },
     })
@@ -90,9 +101,33 @@ export const deleteTemplate = protectedClient
   })
   .schema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
-    const { userTenant, payload } = ctx
+    const { id, accountId } = clientInput
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+    const { docs: dFlowAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { id: { equals: accountId } },
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
 
+    if (!dFlowAccounts?.length) {
+      throw new Error('No dFlow account found with the specified ID')
+    }
+
+    const dFlowAccount = dFlowAccounts[0]
+    const token = dFlowAccount.dFlowDetails?.accessToken
+
+    if (!token) {
+      throw new Error('Invalid dFlow account: No access token found')
+    }
     const response = await payload.update({
       collection: 'templates',
       id,
@@ -101,15 +136,26 @@ export const deleteTemplate = protectedClient
       },
     })
 
+    if (response.isPublished) {
+      await axios.delete(
+        `${DFLOW_CONFIG.URL}/api/templates/${response.publishedTemplateId}`,
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          },
+          timeout: 10000,
+        },
+      )
+    }
     if (response) {
-      revalidatePath(`${userTenant.tenant.slug}/templates`)
+      revalidatePath(`${tenant.slug}/templates`)
       return { deleted: true }
     }
   })
 
 export const getTemplateById = protectedClient
   .metadata({ actionName: 'getTemplateById' })
-  .schema(DeleteTemplateSchema)
+  .schema(getPersonalTemplateByIdSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx
@@ -345,7 +391,7 @@ export const updateTemplate = protectedClient
   })
   .schema(updateTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, name, services, description } = clientInput
+    const { id, name, services, description, imageUrl } = clientInput
     const { payload } = ctx
 
     const response = await payload.update({
@@ -358,6 +404,7 @@ export const updateTemplate = protectedClient
       data: {
         name,
         description,
+        imageUrl,
         services,
       },
     })
@@ -836,5 +883,258 @@ export const deployTemplateWithProjectCreateAction = protectedClient
         projectId: projectDetails.id,
         tenantSlug: tenant.slug,
       }
+    }
+  })
+
+export const publishTemplateAction = protectedClient
+  .metadata({
+    actionName: 'publishTemplateAction',
+  })
+  .schema(publicTemplateSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
+    const { accountId, templateId } = clientInput
+
+    const { docs: dFlowAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { id: { equals: accountId } },
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+
+    if (!dFlowAccounts?.length) {
+      throw new Error('No dFlow account found with the specified ID')
+    }
+
+    const dFlowAccount = dFlowAccounts[0]
+    const token = dFlowAccount.dFlowDetails?.accessToken
+
+    if (!token) {
+      throw new Error('Invalid dFlow account: No access token found')
+    }
+    const { docs: templates } = await payload.find({
+      collection: 'templates',
+      where: {
+        and: [
+          { id: { equals: templateId } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+    const template = templates.at(0)
+    if (!template) {
+      throw new Error('Invalid templateId: No access template.')
+    }
+    const response = await axios.post(
+      `${DFLOW_CONFIG.URL}/api/templates`,
+      {
+        name: template.name,
+        description: template.description,
+        imageUrl: template.imageUrl,
+        services: template.services,
+      },
+      {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 10000,
+      },
+    )
+    if (response.data.doc) {
+      try {
+        await payload.update({
+          collection: 'templates',
+          id: templateId,
+          data: {
+            isPublished: true,
+            publishedTemplateId: response.data.doc.id,
+          },
+        })
+      } catch (err) {
+        await axios.delete(
+          `${DFLOW_CONFIG.URL}/api/templates/${response.data.doc.id}`,
+          {
+            headers: {
+              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+            },
+            timeout: 10000,
+          },
+        )
+        throw new Error('Failed to update template')
+      }
+    }
+    revalidatePath(`/${tenant.slug}/templates`)
+    return { success: true }
+  })
+
+export const unPublishTemplateAction = protectedClient
+  .metadata({
+    actionName: 'unPublishTemplateAction',
+  })
+  .schema(publicTemplateSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
+    const { accountId, templateId } = clientInput
+
+    const { docs: dFlowAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { id: { equals: accountId } },
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+
+    if (!dFlowAccounts?.length) {
+      throw new Error('No dFlow account found with the specified ID')
+    }
+
+    const dFlowAccount = dFlowAccounts[0]
+    const token = dFlowAccount.dFlowDetails?.accessToken
+
+    if (!token) {
+      throw new Error('Invalid dFlow account: No access token found')
+    }
+    const { docs: templates } = await payload.find({
+      collection: 'templates',
+      where: {
+        and: [
+          { id: { equals: templateId } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+    const template = templates.at(0)
+    if (!template) {
+      throw new Error('Invalid templateId: No access template.')
+    }
+    const templateData = await payload.update({
+      collection: 'templates',
+      id: templateId,
+      data: {
+        isPublished: false,
+        publishedTemplateId: '',
+      },
+    })
+    if (templateData) {
+      await axios.delete(
+        `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          },
+          timeout: 10000,
+        },
+      )
+    }
+    revalidatePath(`/${tenant.slug}/templates`)
+    return { success: true }
+  })
+
+export const syncWithPublicTemplateAction = protectedClient
+  .metadata({
+    actionName: 'syncWithPublicTemplateAction',
+  })
+  .schema(publicTemplateSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      userTenant: { tenant },
+      payload,
+    } = ctx
+
+    const { accountId, templateId } = clientInput
+
+    const { docs: dFlowAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { id: { equals: accountId } },
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+
+    if (!dFlowAccounts?.length) {
+      throw new Error('No dFlow account found with the specified ID')
+    }
+
+    const dFlowAccount = dFlowAccounts[0]
+    const token = dFlowAccount.dFlowDetails?.accessToken
+
+    if (!token) {
+      throw new Error('Invalid dFlow account: No access token found')
+    }
+    const { docs: templates } = await payload.find({
+      collection: 'templates',
+      where: {
+        and: [
+          { id: { equals: templateId } },
+          { 'tenant.slug': { equals: tenant?.slug } },
+        ],
+      },
+    })
+    const template = templates.at(0)
+    if (!template) {
+      throw new Error('Invalid templateId: No access to template.')
+    }
+
+    await axios.patch(
+      `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+      {
+        name: template.name,
+        description: template.description,
+        imageUrl: template.imageUrl,
+        services: template.services,
+      },
+      {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 10000,
+      },
+    )
+
+    revalidatePath(`/${tenant.slug}/templates`)
+    return { success: true }
+  })
+
+export const getPublicTemplatesAction = publicClient
+  .metadata({ actionName: 'getPublicTemplatesAction' })
+  .action(async () => {
+    const response = await axios.get(
+      `${DFLOW_CONFIG.URL}/api/templates?pagination=false`,
+    )
+
+    const allTemplates = response?.data?.docs || []
+
+    const communityTemplates = allTemplates.filter(
+      (template: PublicTemplate) => template.type === 'community',
+    )
+
+    const officialTemplates = allTemplates.filter(
+      (template: PublicTemplate) => template.type === 'official',
+    )
+
+    return {
+      communityTemplates,
+      officialTemplates,
     }
   })
