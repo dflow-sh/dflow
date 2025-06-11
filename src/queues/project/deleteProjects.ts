@@ -32,14 +32,12 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
       const { serverDetails, tenant, deleteProjectsFromServer, deleteBackups } =
         job.data
 
-      console.log('inside delete projects queue')
-
       try {
         const payload = await getPayload({ config: configPromise })
 
         sendEvent({
           pub,
-          message: `Fetching projects for server...`,
+          message: 'Fetching projects for server...',
           serverId: serverDetails.id,
         })
 
@@ -54,7 +52,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
                 },
               },
               {
-                server: { equals: id },
+                server: { equals: serverDetails.id },
               },
             ],
           },
@@ -63,7 +61,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
         if (projects.length === 0) {
           sendEvent({
             pub,
-            message: `✅ No projects found on server`,
+            message: '✅ No projects found on server',
             serverId: serverDetails.id,
           })
           return
@@ -118,7 +116,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
 
         sendEvent({
           pub,
-          message: `Syncing changes...`,
+          message: 'Syncing changes...',
           serverId: serverDetails.id,
         })
 

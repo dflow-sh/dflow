@@ -126,7 +126,9 @@ const DeleteServiceDialog = ({
                 <Checkbox
                   id='delete-from-server'
                   checked={deleteFromServer}
-                  onCheckedChange={checked => setDeleteFromServer(!!checked)}
+                  onCheckedChange={checked =>
+                    setDeleteFromServer(Boolean(checked))
+                  }
                   className='mt-0.5'
                 />
                 <div className='space-y-1'>
@@ -146,7 +148,9 @@ const DeleteServiceDialog = ({
                 <Checkbox
                   id='delete-backups'
                   checked={deleteBackups}
-                  onCheckedChange={checked => setDeleteBackups(!!checked)}
+                  onCheckedChange={checked =>
+                    setDeleteBackups(Boolean(checked))
+                  }
                   className='mt-0.5'
                 />
                 <div className='space-y-1'>

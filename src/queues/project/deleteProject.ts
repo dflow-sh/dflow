@@ -48,7 +48,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
 
         sendEvent({
           pub,
-          message: `Starting project deletion process...`,
+          message: 'Starting project deletion process...',
           serverId: serverDetails.id,
         })
 
@@ -90,7 +90,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
 
           sendEvent({
             pub,
-            message: `Deleting services from server...`,
+            message: 'Deleting services from server...',
             serverId: serverDetails.id,
           })
 
@@ -164,7 +164,8 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         } else if (!deleteFromServer && servicesList) {
           sendEvent({
             pub,
-            message: `Marking services as deleted (not deleting from server)...`,
+            message:
+              'Marking services as deleted (not deleting from server)...',
             serverId: serverDetails.id,
           })
 
@@ -188,7 +189,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         // Always delete the project from the database
         sendEvent({
           pub,
-          message: `Marking project as deleted...`,
+          message: 'Marking project as deleted...',
           serverId: serverDetails.id,
         })
 
@@ -209,7 +210,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
 
           sendEvent({
             pub,
-            message: `Syncing changes...`,
+            message: 'Syncing changes...',
             serverId: serverDetails.id,
           })
 

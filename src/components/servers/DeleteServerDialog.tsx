@@ -247,21 +247,28 @@ const DeleteServerDialog = ({
                                       <div className='ml-4 mt-2'>
                                         <div className='flex flex-wrap gap-1'>
                                           {project.services.docs.map(
-                                            (service: any) => (
-                                              <div
-                                                key={service.id}
-                                                className='flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs'>
-                                                <Package className='h-3 w-3' />
-                                                <span>{service.name}</span>
-                                                {service.type && (
-                                                  <Badge
-                                                    variant='secondary'
-                                                    className='h-4 text-xs'>
-                                                    {service.type}
-                                                  </Badge>
-                                                )}
-                                              </div>
-                                            ),
+                                            serviceData => {
+                                              const service =
+                                                typeof serviceData === 'object'
+                                                  ? serviceData
+                                                  : null
+
+                                              return (
+                                                <div
+                                                  key={service?.id}
+                                                  className='flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs'>
+                                                  <Package className='h-3 w-3' />
+                                                  <span>{service?.name}</span>
+                                                  {service?.type && (
+                                                    <Badge
+                                                      variant='secondary'
+                                                      className='h-4 text-xs'>
+                                                      {service?.type}
+                                                    </Badge>
+                                                  )}
+                                                </div>
+                                              )
+                                            },
                                           )}
                                         </div>
                                       </div>
@@ -295,7 +302,7 @@ const DeleteServerDialog = ({
                         id='delete-projects'
                         checked={deleteProjects}
                         onCheckedChange={checked =>
-                          setDeleteProjects(!!checked)
+                          setDeleteProjects(Boolean(checked))
                         }
                         className='mt-0.5'
                       />
@@ -325,7 +332,9 @@ const DeleteServerDialog = ({
                       <Checkbox
                         id='delete-backups'
                         checked={deleteBackups}
-                        onCheckedChange={checked => setDeleteBackups(!!checked)}
+                        onCheckedChange={checked =>
+                          setDeleteBackups(Boolean(checked))
+                        }
                         className='mt-0.5'
                       />
                       <div className='space-y-1'>

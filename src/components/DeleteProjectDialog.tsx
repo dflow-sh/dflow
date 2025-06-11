@@ -106,7 +106,7 @@ const DeleteProjectDialog = ({
                   This project contains the following services:
                 </p>
                 <ul className='space-y-2'>
-                  {services.slice(0, 3).map((service, index) => (
+                  {services.slice(0, 3).map(service => (
                     <li
                       key={service.id}
                       className='flex items-center gap-2 text-sm'>
@@ -137,7 +137,9 @@ const DeleteProjectDialog = ({
                 <Checkbox
                   id='delete-from-server'
                   checked={deleteFromServer}
-                  onCheckedChange={checked => setDeleteFromServer(!!checked)}
+                  onCheckedChange={checked =>
+                    setDeleteFromServer(Boolean(checked))
+                  }
                   className='mt-0.5'
                 />
                 <div className='space-y-1'>
@@ -157,7 +159,9 @@ const DeleteProjectDialog = ({
                 <Checkbox
                   id='delete-backups'
                   checked={deleteBackups}
-                  onCheckedChange={checked => setDeleteBackups(!!checked)}
+                  onCheckedChange={checked =>
+                    setDeleteBackups(Boolean(checked))
+                  }
                   className='mt-0.5'
                 />
                 <div className='space-y-1'>
@@ -181,8 +185,8 @@ const DeleteProjectDialog = ({
               <AlertTitle>Files will remain on server</AlertTitle>
               <AlertDescription>
                 Project files and containers will continue running on{' '}
-                {serverName}. You'll need to manually stop and remove them if
-                desired.
+                {serverName}. You&apos;ll need to manually stop and remove them
+                if desired.
               </AlertDescription>
             </Alert>
           )}
