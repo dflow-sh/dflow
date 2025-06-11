@@ -11,7 +11,7 @@ export const ensureUniqueName: FieldHook = async ({
   value,
 }) => {
   // if value is unchanged, skip validation
-  if (originalDoc?.ip === value) {
+  if (originalDoc?.name === value) {
     return value
   }
 
@@ -43,10 +43,10 @@ export const ensureUniqueName: FieldHook = async ({
   })
 
   if (findDuplicateSSHKeys.docs.length > 0 && req.user) {
-    // if the user is an admin or has access to more than 1 tenant
-    // provide a more specific error message
     const tenantIDs = getUserTenantIDs(req.user)
 
+    // if the user is an admin or has access to more than 1 tenant
+    // provide a more specific error message
     if (req.user.role?.includes('admin') || tenantIDs.length > 1) {
       const attemptedTenantChange = await req.payload.findByID({
         id: tenantIDToMatch,
@@ -66,7 +66,7 @@ export const ensureUniqueName: FieldHook = async ({
     throw new ValidationError({
       errors: [
         {
-          message: `A server with SSH-key ${value} already exists. name must be unique.`,
+          message: `SSH-key ${value} already exists. name must be unique.`,
           path: 'name',
         },
       ],
