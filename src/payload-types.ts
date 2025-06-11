@@ -773,6 +773,8 @@ export interface Template {
         id?: string | null;
       }[]
     | null;
+  isPublished?: boolean | null;
+  publishedTemplateId?: string | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1310,6 +1312,8 @@ export interface TemplatesSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  isPublished?: T;
+  publishedTemplateId?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
