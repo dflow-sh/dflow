@@ -11,22 +11,9 @@ import {
   Trash2,
   WifiOff,
 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { Dispatch, SetStateAction, useState } from 'react'
-import { toast } from 'sonner'
+import { useState } from 'react'
 
-import { deleteServerAction } from '@/actions/server'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import {
   Card,
   CardContent,
@@ -50,62 +37,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 
-export function DeleteServerAlert({
-  server,
-  open,
-  setOpen,
-}: {
-  server: Server
-  open: boolean
-  setOpen: Dispatch<SetStateAction<boolean>>
-}) {
-  const { id, name } = server
-
-  const { execute } = useAction(deleteServerAction, {
-    onExecute: () => {
-      setOpen(false)
-      toast.loading('Please wait deleting server...', { id })
-    },
-    onSuccess: ({ data }) => {
-      if (data?.deleted) {
-        toast.success('Successfully deleted server', { id })
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(`Failed to delete server: ${error.serverError}`, {
-        id,
-      })
-    },
-  })
-
-  return (
-    <AlertDialog open={open}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Project</AlertDialogTitle>
-          <AlertDialogDescription>
-            {`Are you sure you want to delete the ${name}?`}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setOpen(false)}>
-            Cancel
-          </AlertDialogCancel>
-
-          <AlertDialogAction
-            variant='destructive'
-            onClick={() => {
-              execute({
-                id: server.id,
-              })
-            }}>
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  )
-}
+import DeleteServerDialog from './DeleteServerDialog'
 
 const ServerCard = ({
   server,
@@ -230,7 +162,7 @@ const ServerCard = ({
         </Card>
       </Link>
 
-      <DeleteServerAlert server={server} open={open} setOpen={setOpen} />
+      <DeleteServerDialog server={server} open={open} setOpen={setOpen} />
     </>
   )
 }

@@ -141,7 +141,7 @@ const ServerItem = ({
           <Button
             disabled={isPending}
             onClick={() => {
-              execute({ id: server.id })
+              // execute({ id: server.id, })
             }}
             size='icon'
             variant='outline'>
