@@ -68,12 +68,18 @@ export const createTemplateSchema = z.object({
     .string({ message: 'Name is required' })
     .min(3, { message: 'Name must be at least 3 characters' }),
   description: z.string().optional(),
+  imageUrl: z.string().optional(),
   services: servicesSchema,
 })
 
 export type CreateTemplateSchemaType = z.infer<typeof createTemplateSchema>
 
 export const DeleteTemplateSchema = z.object({
+  id: z.string(),
+  accountId: z.string(),
+})
+
+export const getPersonalTemplateByIdSchema = z.object({
   id: z.string(),
 })
 
@@ -187,4 +193,9 @@ export type DeployTemplateWithProjectCreateType = z.infer<
 
 export const getTemplateByIdSchema = z.object({
   templateId: z.string(),
+})
+
+export const publicTemplateSchema = z.object({
+  templateId: z.string(),
+  accountId: z.string({ message: 'select an account to publish' }),
 })

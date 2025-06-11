@@ -4,7 +4,6 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -49,6 +48,7 @@ const CreateProject = ({
   project,
   manualOpen = false,
   setManualOpen = () => {},
+  children,
 }: {
   servers: {
     id: string
@@ -67,6 +67,7 @@ const CreateProject = ({
   project?: Project
   manualOpen?: boolean
   setManualOpen?: Dispatch<SetStateAction<boolean>>
+  children?: React.ReactNode
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -106,9 +107,15 @@ const CreateProject = ({
         }
       },
       onError: ({ error }) => {
-        form.setError('serverId', {
-          message: 'Dokku not installed on the server!',
-        })
+        if (error.serverError === 'Dokku is not installed!') {
+          form.setError('serverId', {
+            message: 'Dokku not installed on the server!',
+          })
+        } else {
+          toast.error('Failed to create project', {
+            description: error.serverError,
+          })
+        }
       },
     },
   )
@@ -146,14 +153,7 @@ const CreateProject = ({
         setOpen(state)
         setManualOpen(state)
       }}>
-      {type === 'create' && (
-        <DialogTrigger asChild>
-          <Button>
-            <Plus size={16} />
-            Create Project
-          </Button>
-        </DialogTrigger>
-      )}
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
@@ -174,12 +174,12 @@ const CreateProject = ({
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={type === 'update'}
                       onChange={e => {
                         e.stopPropagation()
                         e.preventDefault()
 
                         e.target.value = slugify(e.target.value)
-
                         field.onChange(e)
                       }}
                     />
@@ -188,6 +188,7 @@ const CreateProject = ({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name='description'
@@ -240,12 +241,7 @@ const CreateProject = ({
                           <SelectItem
                             key={id}
                             value={id}
-                            disabled={!isAvailable}
-                            className={
-                              !isAvailable
-                                ? 'cursor-not-allowed opacity-50'
-                                : ''
-                            }>
+                            disabled={!isAvailable}>
                             <div className='flex w-full items-center justify-between'>
                               <span>{name}</span>
                               {!isOnboarded ? (

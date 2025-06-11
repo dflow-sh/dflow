@@ -37,7 +37,7 @@ export const createProjectAction = protectedClient
       },
     })) as ServerType
 
-    if (!version || version === 'not-installed') {
+    if (!version) {
       throw new Error('Dokku is not installed!')
     }
 
@@ -49,6 +49,7 @@ export const createProjectAction = protectedClient
         server: serverId,
         tenant,
       },
+      user: ctx.user,
     })
 
     if (response) {

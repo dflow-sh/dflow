@@ -1,4 +1,5 @@
 import { withContentCollections } from '@content-collections/next'
+import { withBetterStack } from '@logtail/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
@@ -49,5 +50,5 @@ const nextConfig: NextConfig = {
 }
 
 export default withContentCollections(
-  withPayload(nextConfig, { devBundleServerPackages: false }),
+  withBetterStack(withPayload(nextConfig, { devBundleServerPackages: false })),
 )

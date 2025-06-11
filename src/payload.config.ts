@@ -9,6 +9,7 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
+import { log } from './lib/logger'
 import { Backups } from './payload/collections/Backups'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
@@ -126,6 +127,18 @@ export default buildConfig({
       method: 'get',
       path: '/auto-login',
       handler: autoLogin,
+    },
+    {
+      method: 'get',
+      path: '/log/test',
+      handler: async () => {
+        log.info('test', { userId: 1234567 })
+
+        await log.flush() //use this to ensure, log is sent before function exits
+        return Response.json({
+          success: true,
+        })
+      },
     },
   ],
   jobs: {
