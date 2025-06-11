@@ -1,15 +1,14 @@
 'use client'
 
-import { AlertCircle, HardDrive, Trash2 } from 'lucide-react'
+import { HardDrive, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteProjectAction } from '@/actions/project'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Project, Server, Service } from '@/payload-types'
 
-import { Badge } from './ui/badge'
+import ServiceIcon, { StatusType } from './ServiceIcon'
 import { Button } from './ui/button'
 import { Checkbox } from './ui/check-box'
 import {
@@ -68,9 +67,10 @@ const DeleteProjectDialog = ({
             <Trash2 className='h-5 w-5 text-destructive' />
             Delete Project
           </DialogTitle>
-          <DialogDescription className='pt-2'>
+
+          <DialogDescription>
             Are you sure you want to delete the project{' '}
-            <span className='font-medium'>{name}</span>?
+            <span className='font-medium text-foreground'>{name}</span>?
           </DialogDescription>
         </DialogHeader>
 
@@ -82,54 +82,32 @@ const DeleteProjectDialog = ({
               <span className='font-medium'>Server:</span>
               <span>{serverName || 'Unknown server'}</span>
             </div>
+
             {hasServices && (
-              <div className='mt-1 flex items-center gap-2 text-sm'>
-                <div className='h-4 w-4' /> {/* Spacer */}
-                <span className='font-medium'>Services:</span>
-                <span>
-                  {services.length} service{services.length > 1 ? 's' : ''}
-                </span>
-              </div>
+              <ul className='mt-2 space-y-2'>
+                {services.map(service => (
+                  <li
+                    key={service.id}
+                    className='flex items-center gap-2 text-sm'>
+                    <ServiceIcon
+                      type={
+                        service.type === 'database' &&
+                        service.databaseDetails?.type
+                          ? (service.databaseDetails.type as StatusType)
+                          : (service.type as StatusType)
+                      }
+                    />
+
+                    <span>{service.name}</span>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
 
-          {/* Services List */}
-          {hasServices && (
-            <Alert variant='warning'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Warning: Connected Services</AlertTitle>
-              <AlertDescription>
-                <p className='mb-2'>
-                  This project contains the following services:
-                </p>
-                <ul className='space-y-2'>
-                  {services.slice(0, 3).map((service, index) => (
-                    <li
-                      key={service.id}
-                      className='flex items-center gap-2 text-sm'>
-                      <div className='h-2 w-2 rounded-full bg-primary' />
-                      <span>{service.name}</span>
-                      <Badge variant='secondary' className='text-xs'>
-                        {service.type || 'Service'}
-                      </Badge>
-                    </li>
-                  ))}
-                  {services.length > 3 && (
-                    <li className='text-xs text-muted-foreground'>
-                      ... and {services.length - 3} more service
-                      {services.length - 3 > 1 ? 's' : ''}
-                    </li>
-                  )}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Deletion Options */}
           <div className='space-y-3'>
-            <p className='text-sm font-medium'>Deletion Options:</p>
-
-            <div className='space-y-3 rounded-md border p-3'>
+            <div className='space-y-3 rounded-md border p-3 text-sm'>
               <div className='flex items-start space-x-3'>
                 <Checkbox
                   id='delete-from-server'
@@ -137,15 +115,17 @@ const DeleteProjectDialog = ({
                   onCheckedChange={checked => setDeleteFromServer(!!checked)}
                   className='mt-0.5'
                 />
+
                 <div className='space-y-1'>
                   <label
                     htmlFor='delete-from-server'
-                    className='cursor-pointer text-sm font-medium leading-none'>
-                    Delete project files from server
+                    className='cursor-pointer font-medium'>
+                    Delete Services
                   </label>
-                  <p className='text-xs text-muted-foreground'>
-                    Remove Docker containers, volumes, and project files from{' '}
-                    {serverName}
+
+                  <p className='text-muted-foreground'>
+                    All services of this project will be permanently deleted
+                    from your {serverName}
                   </p>
                 </div>
               </div>
@@ -157,44 +137,22 @@ const DeleteProjectDialog = ({
                   onCheckedChange={checked => setDeleteBackups(!!checked)}
                   className='mt-0.5'
                 />
+
                 <div className='space-y-1'>
                   <label
                     htmlFor='delete-backups'
-                    className='cursor-pointer text-sm font-medium leading-none'>
-                    Delete all associated backups
+                    className='cursor-pointer font-medium'>
+                    Delete Backups
                   </label>
-                  <p className='text-xs text-muted-foreground'>
-                    Permanently remove all backup data for this project
+
+                  <p className='text-muted-foreground'>
+                    All backups of this project will be permanently deleted from
+                    your {serverName}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Warning Messages */}
-          {!deleteFromServer && (
-            <Alert variant='warning'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Files will remain on server</AlertTitle>
-              <AlertDescription>
-                Project files and containers will continue running on{' '}
-                {serverName}. You'll need to manually stop and remove them if
-                desired.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {deleteFromServer && hasServices && (
-            <Alert variant='destructive'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Permanent Action</AlertTitle>
-              <AlertDescription>
-                All {services.length} service{services.length > 1 ? 's' : ''}{' '}
-                will be stopped and removed from the server. This action cannot
-                be undone.
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
 
         <DialogFooter className='mt-6 space-x-2'>

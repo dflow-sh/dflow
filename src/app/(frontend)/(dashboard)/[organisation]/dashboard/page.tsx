@@ -1,5 +1,5 @@
 import LayoutClient from '../layout.client'
-import { AlertCircle, Folder } from 'lucide-react'
+import { AlertCircle, Folder, Plus } from 'lucide-react'
 import { Suspense } from 'react'
 
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
@@ -8,6 +8,7 @@ import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Service } from '@/payload-types'
 
 interface PageProps {
@@ -42,7 +43,12 @@ const SuspendedDashboard = async ({
             Projects
           </div>
 
-          <CreateProject servers={servers} />
+          <CreateProject servers={servers}>
+            <Button>
+              <Plus size={16} />
+              Create Project
+            </Button>
+          </CreateProject>
         </div>
 
         {/* Server Alerts */}
