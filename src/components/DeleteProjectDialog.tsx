@@ -38,10 +38,12 @@ const DeleteProjectDialog = ({
 
   const hasServices = services.length > 0
   const serverName = (project.server as Server)?.name
+  const serverId =
+    typeof project.server === 'string' ? project.server : project.server?.id
 
   const { execute, isPending } = useAction(deleteProjectAction, {
     onSuccess: ({ data }) => {
-      if (data?.deleted) {
+      if (data?.queued) {
         setOpen(false)
         toast.success('Successfully deleted project')
       }
@@ -55,6 +57,7 @@ const DeleteProjectDialog = ({
   const handleDelete = () => {
     execute({
       id: project.id,
+      serverId,
       deleteBackups,
       deleteFromServer,
     })

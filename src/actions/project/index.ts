@@ -4,8 +4,7 @@ import { revalidatePath } from 'next/cache'
 
 import { protectedClient } from '@/lib/safe-action'
 import { ServerType } from '@/payload-types-overrides'
-import { addDestroyApplicationQueue } from '@/queues/app/destroy'
-import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
+import { addDeleteProjectQueue } from '@/queues/project/deleteProject'
 
 import {
   createProjectSchema,
@@ -92,123 +91,36 @@ export const deleteProjectAction = protectedClient
   })
   .schema(deleteProjectSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, deleteBackups, deleteFromServer } = clientInput
+    const { id, serverId, deleteBackups, deleteFromServer } = clientInput
     const {
       userTenant: { tenant },
-      payload,
     } = ctx
 
-    // Fetching all services of project
-    const { server, services } = await payload.findByID({
-      collection: 'projects',
-      id: id,
-      depth: 10,
-      joins: {
-        services: {
-          limit: 1000,
-        },
+    const queueResponse = await addDeleteProjectQueue({
+      serverDetails: {
+        id: serverId,
       },
+      projectDetails: {
+        id,
+      },
+      tenant: {
+        slug: tenant.slug,
+      },
+      deleteBackups,
+      deleteFromServer,
     })
 
-    const servicesList = services?.docs?.filter(
-      service => typeof service === 'object',
-    )
-
-    // Only delete from server if the option is enabled
-    if (
-      deleteFromServer &&
-      servicesList &&
-      typeof server === 'object' &&
-      typeof server.sshKey === 'object'
-    ) {
-      const sshDetails = {
-        privateKey: server.sshKey?.privateKey,
-        host: server?.ip,
-        username: server?.username,
-        port: server?.port,
-      }
-
-      // iterating in loop and adding deleting of services to queue
-      for await (const service of servicesList) {
-        let queueId: string | undefined = ''
-
-        // adding deleting of app to queue
-        if (service.type === 'app' || service.type === 'docker') {
-          const appQueueResponse = await addDestroyApplicationQueue({
-            sshDetails,
-            serviceDetails: {
-              name: service.name,
-            },
-            serverDetails: {
-              id: server.id,
-            },
-          })
-
-          queueId = appQueueResponse.id
-        }
-
-        // adding deleting of database to queue
-        if (service.type === 'database' && service.databaseDetails?.type) {
-          const databaseQueueResponse = await addDestroyDatabaseQueue({
-            databaseName: service.name,
-            databaseType: service.databaseDetails?.type,
-            sshDetails,
-            serverDetails: {
-              id: server.id,
-            },
-            serviceId: service.id,
-            deleteBackups,
-            tenant: {
-              slug: tenant.slug,
-            },
-          })
-
-          queueId = databaseQueueResponse.id
-        }
-
-        // If deleting of service is added to queue, update the service entry
-        if (queueId) {
-          await payload.update({
-            collection: 'services',
-            id: service.id,
-            data: {
-              deletedAt: new Date().toISOString(),
-            },
-          })
-        }
-      }
-    } else if (!deleteFromServer && servicesList) {
-      for await (const service of servicesList) {
-        await payload.update({
-          collection: 'services',
-          id: service.id,
-          data: {
-            deletedAt: new Date().toISOString(),
-          },
-        })
-      }
-    }
-
-    // Always delete the project from the database
-    const deleteProjectResponse = await payload.update({
-      collection: 'projects',
-      id,
-      data: {
-        deletedAt: new Date().toISOString(),
-      },
-    })
-
-    if (deleteProjectResponse.id) {
+    if (queueResponse.id) {
       revalidatePath(`/${tenant.slug}/dashboard`)
 
       return {
-        deleted: true,
-        deletedFromServer: deleteFromServer,
-        servicesCount: servicesList?.length || 0,
+        queued: true,
+        queueId: queueResponse.id,
+        deleteFromServer,
       }
     }
 
-    throw new Error('Failed to delete project')
+    throw new Error('Failed to queue project deletion')
   })
 
 export const getProjectDatabasesAction = protectedClient

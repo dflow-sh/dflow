@@ -340,54 +340,55 @@ const DeleteServerDialog = ({
                 </div>
               </div>
 
-              {/* Destructive Alert for Projects */}
-              {deleteProjects && (
+              {/* Destructive Alert */}
+              {(deleteProjects || deleteBackups) && (
                 <Alert variant='destructive'>
                   <AlertCircle className='h-4 w-4' />
-                  <AlertTitle>Permanent Data Loss - Projects</AlertTitle>
+                  <AlertTitle>Permanent Data Loss Warning</AlertTitle>
                   <AlertDescription>
-                    {hasProjectsData ? (
-                      <>
-                        <strong>
-                          {projects.length} project
-                          {projects.length !== 1 ? 's' : ''}
-                        </strong>{' '}
-                        and{' '}
-                        <strong>
-                          {totalServices} service
-                          {totalServices !== 1 ? 's' : ''}
-                        </strong>{' '}
-                        will be permanently deleted from the server. This
-                        includes all containers, volumes, and associated data.
-                      </>
-                    ) : (
-                      <>
-                        All projects and services will be permanently deleted
-                        from the server. This includes all containers, volumes,
-                        and associated data.
-                      </>
-                    )}
-                    <span className='mt-1 block font-medium'>
-                      This action cannot be undone.
-                    </span>
-                  </AlertDescription>
-                </Alert>
-              )}
+                    <div className='space-y-2'>
+                      {deleteProjects && (
+                        <div>
+                          <span className='font-medium'>
+                            Projects & Services:
+                          </span>
+                          {hasProjectsData ? (
+                            <>
+                              {' '}
+                              <strong>
+                                {projects.length} project
+                                {projects.length !== 1 ? 's' : ''}
+                              </strong>{' '}
+                              and{' '}
+                              <strong>
+                                {totalServices} service
+                                {totalServices !== 1 ? 's' : ''}
+                              </strong>{' '}
+                              will be permanently deleted from the server.
+                            </>
+                          ) : (
+                            ' All projects and services will be permanently deleted from the server.'
+                          )}{' '}
+                          This includes all Docker containers, volumes, and
+                          project files.
+                        </div>
+                      )}
 
-              {/* Destructive Alert for Backups */}
-              {deleteBackups && (
-                <Alert variant='destructive'>
-                  <AlertCircle className='h-4 w-4' />
-                  <AlertTitle>
-                    Permanent Data Loss - Database Backups
-                  </AlertTitle>
-                  <AlertDescription>
-                    All database backups associated with services on this server
-                    will be permanently deleted.
-                    <span className='mt-1 block font-medium'>
-                      This action cannot be undone and may affect your ability
-                      to restore services.
-                    </span>
+                      {deleteBackups && (
+                        <div>
+                          <span className='font-medium'>Database Backups:</span>{' '}
+                          All database backups associated with services on this
+                          server will be permanently deleted. This may affect
+                          your ability to restore services in the future.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className='mt-3 border-t border-destructive/30 pt-2'>
+                      <span className='font-medium'>
+                        This action cannot be undone.
+                      </span>
+                    </div>
                   </AlertDescription>
                 </Alert>
               )}

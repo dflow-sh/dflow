@@ -1,6 +1,7 @@
+import configPromise from '@payload-config'
 import { Job } from 'bullmq'
+import { getPayload } from 'payload'
 
-import { getServerProjects } from '@/actions/pages/server'
 import { deleteProjectAction } from '@/actions/project'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
@@ -34,6 +35,8 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
       console.log('inside delete projects queue')
 
       try {
+        const payload = await getPayload({ config: configPromise })
+
         sendEvent({
           pub,
           message: `Fetching projects for server...`,
@@ -41,8 +44,21 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
         })
 
         // Get all projects for this server
-        const projectsResult = await getServerProjects({ id: serverDetails.id })
-        const projects = projectsResult?.data?.projects ?? []
+        const { docs: projects } = await payload.find({
+          collection: 'projects',
+          where: {
+            and: [
+              {
+                'tenant.slug': {
+                  equals: tenant.slug,
+                },
+              },
+              {
+                server: { equals: id },
+              },
+            ],
+          },
+        })
 
         if (projects.length === 0) {
           sendEvent({
@@ -64,6 +80,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
           projects.map(project =>
             deleteProjectAction({
               id: project.id,
+              serverId: serverDetails.id,
               deleteFromServer: deleteProjectsFromServer,
               deleteBackups,
             }),
