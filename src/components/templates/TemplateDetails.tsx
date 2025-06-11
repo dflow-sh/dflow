@@ -74,7 +74,7 @@ const TemplateDetails = ({
     execute: syncWithPublicTemplate,
     isPending: isSyncWithPublicTemplate,
   } = useAction(syncWithPublicTemplateAction, {
-    onSuccess: ({ data }) => {
+    onSuccess: () => {
       toast.success('Successfully synced with community template')
     },
     onError: () => {

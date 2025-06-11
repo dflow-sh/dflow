@@ -969,7 +969,7 @@ export const publishTemplateAction = protectedClient
             timeout: 10000,
           },
         )
-        throw new Error(`Failed to update template`)
+        throw new Error('Failed to update template')
       }
     }
     revalidatePath(`/${tenant.slug}/templates`)

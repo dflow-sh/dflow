@@ -74,8 +74,8 @@ const page = async ({ params }: PageProps) => {
             {publicTemplates?.data?.communityTemplates?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
                 {publicTemplates?.data?.communityTemplates?.map(
-                  (template: Template, index: number) => (
-                    <TemplateCard key={index} template={template} />
+                  (template: Template) => (
+                    <TemplateCard key={template.id} template={template} />
                   ),
                 )}
               </div>
