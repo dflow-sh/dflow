@@ -137,12 +137,14 @@ const CreateNewTemplate = () => {
       updateExistingTemplate({
         id: templateId,
         name: data.name,
+        imageUrl: data?.imageUrl,
         description: data.description,
         services,
       })
     } else {
       createNewTemplate({
         name: data?.name,
+        imageUrl: data?.imageUrl,
         description: data?.description,
         services,
       })
@@ -167,12 +169,8 @@ const CreateNewTemplate = () => {
   useEffect(() => {
     if (!template.data?.services) return
     setValue('name', template.data?.name ?? '')
-    setValue(
-      'description',
-      type === 'official'
-        ? (officialTemplate.data?.description ?? '')
-        : (template?.data?.description ?? ''),
-    )
+    setValue('description', template?.data?.description ?? '')
+    setValue('imageUrl', template.data?.imageUrl || '')
 
     const { edges: edgesData, nodes: nodesData } = convertToGraph(
       template?.data?.services!,
@@ -277,6 +275,10 @@ const CreateNewTemplate = () => {
               <div>
                 <Label>Description</Label>
                 <Textarea {...register('description')} className='min-h-44' />
+              </div>
+              <div>
+                <Label>Image</Label>
+                <Input {...register('imageUrl')} type='text' />
               </div>
             </div>
             <DialogFooter className='mt-4'>
