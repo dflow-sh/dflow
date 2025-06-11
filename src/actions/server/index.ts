@@ -10,6 +10,7 @@ import { dynamicSSH } from '@/lib/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
+import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
 
 import {
   checkDNSConfigSchema,
@@ -90,8 +91,8 @@ export const deleteServerAction = protectedClient
   })
   .schema(deleteServerSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id } = clientInput
-    const { payload } = ctx
+    const { id, deleteProjects, deleteBackups } = clientInput
+    const { payload, userTenant } = ctx
 
     const response = await payload.update({
       collection: 'servers',
@@ -101,8 +102,21 @@ export const deleteServerAction = protectedClient
       },
     })
 
-    if (response) {
-      revalidatePath(`/servers/${id}`)
+    const installationResponse = await addDeleteProjectsQueue({
+      serverDetails: {
+        id,
+      },
+      deleteProjectsFromServer: deleteProjects,
+      deleteBackups,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
+
+    if (response && installationResponse.id) {
+      revalidatePath(`${userTenant.tenant}/dashboard`)
+      revalidatePath(`${userTenant.tenant}/servers`)
+      revalidatePath(`${userTenant.tenant}/servers/${id}`)
       return { deleted: true }
     }
   })

@@ -20,6 +20,8 @@ export const updateServerSchema = createServerSchema.extend({
 
 export const deleteServerSchema = z.object({
   id: z.string(),
+  deleteProjects: z.boolean(),
+  deleteBackups: z.boolean(),
 })
 
 export const installDokkuSchema = z.object({

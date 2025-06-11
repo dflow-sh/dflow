@@ -106,6 +106,37 @@ export const getServerBreadcrumbs = protectedClient
     return { server, servers }
   })
 
+export const getServerProjects = protectedClient
+  .metadata({
+    actionName: 'getServerProjects',
+  })
+  .schema(getServerDetailsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const {
+      payload,
+      userTenant: { tenant },
+    } = ctx
+
+    const { docs: projects } = await payload.find({
+      collection: 'projects',
+      where: {
+        and: [
+          {
+            'tenant.slug': {
+              equals: tenant.slug,
+            },
+          },
+          {
+            server: { equals: id },
+          },
+        ],
+      },
+    })
+
+    return { projects }
+  })
+
 export const getServerGeneralTabDetails = protectedClient
   .metadata({
     actionName: 'getServerGeneralTabDetails',
