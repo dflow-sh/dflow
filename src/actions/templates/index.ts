@@ -64,6 +64,13 @@ function extractTemplateRefs(str: string) {
   return matches ?? []
 }
 
+type PublicTemplate = Omit<
+  Template,
+  'tenant' | 'isPublished' | 'publishedTemplateId'
+> & {
+  type: 'community' | 'official'
+}
+
 export const createTemplate = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
@@ -1119,11 +1126,11 @@ export const getPublicTemplatesAction = publicClient
     const allTemplates = response?.data?.docs || []
 
     const communityTemplates = allTemplates.filter(
-      (template: any) => template.type === 'community',
+      (template: PublicTemplate) => template.type === 'community',
     )
 
     const officialTemplates = allTemplates.filter(
-      (template: any) => template.type === 'official',
+      (template: PublicTemplate) => template.type === 'official',
     )
 
     return {
