@@ -48,16 +48,21 @@ const DFlowForm = ({
   children,
   account,
   refetch,
+  existingAccountsCount = 0,
 }: {
   children: React.ReactNode
   account?: CloudProviderAccount
   refetch?: RefetchType
+  existingAccountsCount?: number
 }) => {
   const dialogFooterRef = useRef<HTMLButtonElement>(null)
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>(null)
   const [hasTestedConnection, setHasTestedConnection] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
+
+  // Check if user can add new account (only if they have 0 accounts or this is an edit)
+  const canAddAccount = account || existingAccountsCount === 0
 
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
     connectDFlowAccountAction,
@@ -161,6 +166,11 @@ const DFlowForm = ({
   const canSave = hasTestedConnection && connectionStatus?.isConnected
   const showConnectionError =
     hasTestedConnection && !connectionStatus?.isConnected
+
+  // Don't render if user can't add account
+  if (!canAddAccount) {
+    return null
+  }
 
   return (
     <Dialog onOpenChange={handleDialogOpenChange}>
