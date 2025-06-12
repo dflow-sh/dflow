@@ -59,12 +59,16 @@ export const Banners: CollectionConfig = {
           value: 'announcement',
         },
         {
-          label: 'Alert',
-          value: 'alert',
+          label: 'Maintainance',
+          value: 'maintainance',
         },
         {
           label: 'Promotion',
           value: 'promotion',
+        },
+        {
+          label: 'Alert',
+          value: 'alert',
         },
       ],
       required: true,
@@ -104,22 +108,6 @@ export const Banners: CollectionConfig = {
         {
           label: 'Success',
           value: 'success',
-        },
-        {
-          label: 'Error',
-          value: 'error',
-        },
-        {
-          label: 'Neutral',
-          value: 'neutral',
-        },
-        {
-          label: 'Primary',
-          value: 'primary',
-        },
-        {
-          label: 'Secondary',
-          value: 'secondary',
         },
       ],
     },

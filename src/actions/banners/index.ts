@@ -23,6 +23,13 @@ export const getAllBanners = protectedClient
             },
           },
         ],
+        and: [
+          {
+            isActive: {
+              equals: true,
+            },
+          },
+        ],
       },
     })
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { ExternalLink, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -11,24 +11,31 @@ interface BannerProps {
   banners: Banner[]
 }
 
+const bannerTypeIcon = {
+  announcement: '📢',
+  maintainance: '🔧',
+  promotion: '🎉',
+  alert: '⚠️',
+}
+
 const variantStyles = {
-  info: 'bg-blue-50 border-blue-200 text-blue-900',
-  warning: 'bg-yellow-50 border-yellow-200 text-yellow-900',
-  success: 'bg-green-50 border-green-200 text-green-900',
-  error: 'bg-red-50 border-red-200 text-red-900',
-  neutral: 'bg-gray-50 border-gray-200 text-gray-900',
-  primary: 'bg-purple-50 border-purple-200 text-purple-900',
-  secondary: 'bg-slate-50 border-slate-200 text-slate-900',
+  info: 'border-info/50 bg-info-foreground/90 text-info dark:border-info [&>svg]:text-info',
+  warning:
+    'border-warning/50 bg-warning-foreground/90 text-warning [&>svg]:text-warning',
+  success:
+    'border-success/50 bg-success-foreground/90 text-success [&>svg]:text-success',
 }
 
 const ctaButtonStyles = {
-  info: 'bg-blue-600 hover:bg-blue-700 text-white',
-  warning: 'bg-yellow-600 hover:bg-yellow-700 text-white',
-  success: 'bg-green-600 hover:bg-green-700 text-white',
-  error: 'bg-red-600 hover:bg-red-700 text-white',
-  neutral: 'bg-gray-600 hover:bg-gray-700 text-white',
-  primary: 'bg-purple-600 hover:bg-purple-700 text-white',
-  secondary: 'bg-slate-600 hover:bg-slate-700 text-white',
+  info: 'bg-none hover:text-info text-white',
+  warning: 'bg-transparent hover:text-amber-700 text-white',
+  success: 'bg-transparent hover:text-green-700 text-white',
+}
+
+const closeButtonStyles = {
+  info: 'hover:bg-blue-200 text-blue-700',
+  warning: 'hover:bg-amber-200 text-amber-700',
+  success: 'hover:bg-green-200 text-green-700',
 }
 
 export default function BannerComponent({ banners }: BannerProps) {
@@ -45,39 +52,82 @@ export default function BannerComponent({ banners }: BannerProps) {
     setDismissedBanners(prev => new Set([...prev, bannerId]))
   }
 
+  const scrollToNext = () => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current
+      const scrollAmount = container.clientWidth
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
+
+  const scrollToPrev = () => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current
+      const scrollAmount = container.clientWidth
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
+    }
+  }
+
   if (activeBanners.length === 0) {
     return null
   }
 
   return (
     <div className='relative w-full'>
+      {activeBanners.length > 1 && (
+        <>
+          <Button
+            variant='ghost'
+            size='sm'
+            className={`absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 bg-transparent p-0 text-slate-200`}
+            onClick={scrollToPrev}>
+            <ChevronLeft className='h-4 w-4' />
+            <span className='sr-only'>Previous banner</span>
+          </Button>
+          <Button
+            variant='ghost'
+            size='sm'
+            className={`absolute right-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 bg-transparent p-0 text-slate-200`}
+            onClick={scrollToNext}>
+            <ChevronRight className='h-4 w-4' />
+            <span className='sr-only'>Next banner</span>
+          </Button>
+        </>
+      )}
+
       <div
         ref={scrollContainerRef}
-        className='scrollbar-hide flex overflow-x-auto'
+        className='scrollbar-hide flex snap-x snap-mandatory overflow-x-auto'
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {activeBanners.map(banner => (
           <div
             key={banner.id}
             className={cn(
-              'relative flex w-full flex-shrink-0 items-center justify-between px-4 py-1',
+              'relative flex w-full flex-shrink-0 snap-start items-center justify-center px-6 py-1 transition-colors duration-200',
               variantStyles[banner.variant ?? 'info'],
             )}>
-            <div className='mx-auto flex w-full max-w-6xl items-center justify-between px-4'>
-              <div className='flex-1'>
-                {banner.title && (
-                  <h3 className='mb-1 font-semibold'>{banner.title}</h3>
+            <div className='mx-auto flex max-w-7xl items-center justify-center gap-3'>
+              <div className='flex-shrink-0'>
+                {bannerTypeIcon[banner.type] && (
+                  <span className='text-lg'>{bannerTypeIcon[banner.type]}</span>
                 )}
-                <p className='text-sm'>{banner.content}</p>
               </div>
 
-              <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-4'>
+                <div className='text-center'>
+                  {banner.title && (
+                    <span className='mr-2 text-sm font-medium'>
+                      {banner.title}
+                    </span>
+                  )}
+                  <span className='text-sm'>{banner.content}</span>
+                </div>
+
                 {banner.cta?.label && banner.cta?.url && (
                   <Button
+                    variant={'link'}
                     size='sm'
-                    className={cn(
-                      'text-xs',
-                      ctaButtonStyles[banner.variant ?? 'info'],
-                    )}
+                    className={`p-0 text-slate-200 ${ctaButtonStyles[banner.variant ?? 'info']}`}
                     onClick={() => {
                       if (banner.cta?.isExternal) {
                         window.open(
@@ -90,22 +140,23 @@ export default function BannerComponent({ banners }: BannerProps) {
                       }
                     }}>
                     {banner.cta.label}
-                    {banner.cta.isExternal && (
-                      <ExternalLink className='ml-1 h-3 w-3' />
-                    )}
-                  </Button>
-                )}
-
-                {banner.isDismissible && (
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='h-6 w-6 flex-shrink-0 hover:bg-black/10'
-                    onClick={() => dismissBanner(banner.id)}>
-                    <X className='h-4 w-4' />
                   </Button>
                 )}
               </div>
+
+              {banner.isDismissible && (
+                <Button
+                  variant='link'
+                  size='sm'
+                  className={cn(
+                    'ml-2 h-7 w-7 flex-shrink-0 rounded-md p-0 transition-colors duration-200',
+                    closeButtonStyles[banner.variant ?? 'info'],
+                  )}
+                  onClick={() => dismissBanner(banner.id)}>
+                  <X className='h-3.5 w-3.5' />
+                  <span className='sr-only'>Dismiss banner</span>
+                </Button>
+              )}
             </div>
           </div>
         ))}
