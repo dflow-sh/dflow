@@ -62,7 +62,7 @@ export default function BannerComponent({ banners }: BannerProps) {
               'relative flex w-full flex-shrink-0 items-center justify-between px-4 py-1',
               variantStyles[banner.variant ?? 'info'],
             )}>
-            <div className='flex w-full items-center justify-between'>
+            <div className='mx-auto flex w-full max-w-6xl items-center justify-between px-4'>
               <div className='flex-1'>
                 {banner.title && (
                   <h3 className='mb-1 font-semibold'>{banner.title}</h3>
