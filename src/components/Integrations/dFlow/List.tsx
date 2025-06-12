@@ -4,7 +4,6 @@ import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 
-import { deleteAWSAccountAction } from '@/actions/cloud/aws'
 import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,44 +15,20 @@ type RefetchType = (input: {
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'
 }) => void
 
-const EditForm = ({
-  account,
-  refetch,
-}: {
-  account: CloudProviderAccount
-  refetch?: RefetchType
-}) => {
-  // Add support for both AWS and dFlow accounts
-  if (account.type === 'aws' || account.type === 'dFlow') {
-    return (
-      <DFlowForm account={account} refetch={refetch}>
-        <Button size='icon' variant='outline'>
-          <Pencil size={20} />
-        </Button>
-      </DFlowForm>
-    )
-  }
-
-  return null
-}
-
 const CloudProviderCard = ({
   account,
   refetch,
+  existingAccountsCount = 0,
 }: {
   account: CloudProviderAccount
   refetch?: RefetchType
+  existingAccountsCount?: number
 }) => {
-  const deleteAction =
-    account.type === 'dFlow' ? deleteDFlowAccountAction : deleteAWSAccountAction
-
   const { execute: deleteAccount, isPending: deletingAccount } = useAction(
-    deleteAction as any, // Type assertion to bypass strict typing
+    deleteDFlowAccountAction,
     {
       onSuccess: ({ data }: any) => {
-        if (data?.id) {
-          refetch?.({ type: account.type })
-        }
+        if (data?.id) refetch?.({ type: account.type })
       },
     },
   )
@@ -71,7 +46,15 @@ const CloudProviderCard = ({
         </div>
 
         <div className='flex items-center gap-4'>
-          <EditForm account={account} refetch={refetch} />
+          {/* Edit and Delete actions */}
+          <DFlowForm
+            account={account}
+            refetch={refetch}
+            existingAccountsCount={existingAccountsCount}>
+            <Button size='icon' variant='outline'>
+              <Pencil size={20} />
+            </Button>
+          </DFlowForm>
 
           <Button
             size='icon'
@@ -93,6 +76,8 @@ const CloudProvidersList = ({
   accounts: CloudProviderAccount[]
   refetch?: RefetchType
 }) => {
+  const existingAccountsCount = accounts.length
+
   return accounts.length ? (
     <div className='mt-4 space-y-4'>
       {accounts.map(account => {
@@ -101,6 +86,7 @@ const CloudProvidersList = ({
             account={account}
             key={account.id}
             refetch={refetch}
+            existingAccountsCount={existingAccountsCount}
           />
         )
       })}

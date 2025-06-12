@@ -26,6 +26,11 @@ export const getCloudProvidersAccountsAction = protectedClient
       where: {
         and: [
           {
+            deletedAt: {
+              exists: false,
+            },
+          },
+          {
             type: {
               equals: type,
             },

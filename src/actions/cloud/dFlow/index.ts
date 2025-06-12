@@ -353,7 +353,7 @@ export const deleteDFlowAccountAction = protectedClient
     const { payload } = ctx
 
     const response = await payload.update({
-      collection: 'dockerRegistries',
+      collection: 'cloudProviderAccounts',
       id,
       data: {
         deletedAt: new Date().toISOString(),

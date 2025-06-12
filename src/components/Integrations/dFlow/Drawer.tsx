@@ -22,7 +22,7 @@ import { integrationsList } from '@/lib/integrationList'
 import DFlowForm from './Form'
 import CloudProvidersList from './List'
 
-const Drawer = () => {
+const DflowDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(
     'active',
     parseAsString.withDefault(''),
@@ -51,6 +51,10 @@ const Drawer = () => {
     </div>
   ) : null
 
+  // Count existing dFlow accounts
+  const dflowAccountsCount = result?.data?.length || 0
+  const canAddNewAccount = dflowAccountsCount === 0
+
   return (
     <Sheet
       open={activeSlide === 'dflow'}
@@ -78,16 +82,30 @@ const Drawer = () => {
         )}
 
         <SheetFooter>
-          <DFlowForm refetch={execute}>
-            <Button>
-              <Link />
-              Connect account
-            </Button>
-          </DFlowForm>
+          {canAddNewAccount ? (
+            <DFlowForm
+              refetch={execute}
+              existingAccountsCount={dflowAccountsCount}>
+              <Button>
+                <Link />
+                Connect account
+              </Button>
+            </DFlowForm>
+          ) : (
+            <div className='w-full text-center'>
+              <p className='mb-2 text-sm text-muted-foreground'>
+                You can only connect one dFlow account
+              </p>
+              <Button disabled variant='outline' className='w-full'>
+                <Link />
+                Account limit reached
+              </Button>
+            </div>
+          )}
         </SheetFooter>
       </SheetContent>
     </Sheet>
   )
 }
 
-export default Drawer
+export default DflowDrawer
