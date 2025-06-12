@@ -55,6 +55,8 @@ const DFlowForm = ({
   refetch?: RefetchType
   existingAccountsCount?: number
 }) => {
+  console.log({ account })
+
   const dialogFooterRef = useRef<HTMLButtonElement>(null)
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>(null)
@@ -117,7 +119,7 @@ const DFlowForm = ({
   const form = useForm<z.infer<typeof connectDFlowAccountSchema>>({
     resolver: zodResolver(connectDFlowAccountSchema),
     defaultValues: account
-      ? account
+      ? { name: account.name, accessToken: account.dFlowDetails?.accessToken }
       : {
           accessToken: '',
           name: '',
