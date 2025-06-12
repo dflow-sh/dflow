@@ -798,7 +798,7 @@ export interface Banner {
   /**
    * Select the type of banner. This helps categorize the banner for better management and display.
    */
-  type: 'announcement' | 'alert' | 'promotion';
+  type: 'announcement' | 'maintainance' | 'promotion' | 'alert';
   /**
    * The title of the banner, displayed prominently.
    */
@@ -810,7 +810,7 @@ export interface Banner {
   /**
    * Select the visual style of the banner. This affects its appearance and how it stands out on the page.
    */
-  variant?: ('info' | 'warning' | 'success' | 'error' | 'neutral' | 'primary' | 'secondary') | null;
+  variant?: ('info' | 'warning' | 'success') | null;
   /**
    * If enabled, users can dismiss the banner, removing it from their view.
    */
