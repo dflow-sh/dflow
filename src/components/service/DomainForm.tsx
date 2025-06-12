@@ -193,7 +193,10 @@ const DomainForm = () => {
               manually. */}
 
               <DialogFooter>
-                <Button disabled={isPending} type='submit'>
+                <Button
+                  disabled={isPending}
+                  isLoading={isPending}
+                  type='submit'>
                   Add
                 </Button>
               </DialogFooter>

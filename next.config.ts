@@ -3,8 +3,6 @@ import { withBetterStack } from '@logtail/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
-// import { posthogHost } from '@/lib/constants'
-
 const nextConfig: NextConfig = {
   // This will rewrite the events to posthog endpoint
   async rewrites() {

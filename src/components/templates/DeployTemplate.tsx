@@ -212,7 +212,7 @@ const TemplateDeploymentForm = ({
                     <SelectValue
                       placeholder={
                         isPending
-                          ? 'Fetching Templates...'
+                          ? `Fetching ${type} templates...`
                           : 'Select a Template'
                       }
                     />

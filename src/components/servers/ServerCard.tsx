@@ -58,9 +58,7 @@ const ServerCard = ({
 
   return (
     <>
-      <Link
-        href={`/${organisationSlug}/servers/${server.id}`}
-        className='block h-full'>
+      <div className='relative'>
         <Card
           className={cn(
             'h-full min-h-36 border-l-4 transition-all duration-200',
@@ -90,14 +88,7 @@ const ServerCard = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='!mt-0'
-                  onClick={e => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}>
+                <Button variant='ghost' size='icon' className='z-10 !mt-0'>
                   <Ellipsis />
                 </Button>
               </DropdownMenuTrigger>
@@ -105,9 +96,7 @@ const ServerCard = ({
               <DropdownMenuContent align='end'>
                 <DropdownMenuItem
                   className='cursor-pointer'
-                  onClick={e => {
-                    e.preventDefault()
-                    e.stopPropagation()
+                  onClick={() => {
                     setOpen(true)
                   }}>
                   <Trash2 className='mr-2' />
@@ -160,7 +149,13 @@ const ServerCard = ({
             </CardFooter>
           )}
         </Card>
-      </Link>
+
+        <Link
+          title={server.name}
+          href={`/${organisationSlug}/servers/${server.id}`}
+          className='absolute left-0 top-0 h-full w-full'
+        />
+      </div>
 
       <DeleteServerDialog server={server} open={open} setOpen={setOpen} />
     </>

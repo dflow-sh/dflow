@@ -142,9 +142,12 @@ const DeleteProjectDialog = ({
                   </div>
                 )}
 
-                {/* Deletion Options */}
-                <div className='space-y-3'>
-                  <p className='text-sm font-medium'>Deletion Options:</p>
+                <div className='space-y-1'>
+                  <label
+                    htmlFor='delete-backups'
+                    className='cursor-pointer font-medium'>
+                    Delete Database Backups
+                  </label>
 
                   <div className='space-y-3 rounded-md border p-3'>
                     <div className='flex items-start space-x-3'>

@@ -1,5 +1,6 @@
 'use client'
 
+import ServiceIcon, { StatusType } from '../ServiceIcon'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/check-box'
@@ -18,7 +19,6 @@ import {
   ChevronRight,
   FolderOpen,
   HardDrive,
-  Package,
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -273,14 +273,20 @@ const DeleteServerDialog = ({
                                       return (
                                         <div
                                           key={service?.id}
-                                          className='flex items-center gap-1 text-xs text-muted-foreground'>
-                                          <Package className='h-3 w-3' />
-                                          <span>{service?.name}</span>
+                                          className='flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs'>
                                           {service?.type && (
-                                            <span className='text-muted-foreground/80'>
-                                              ({service.type})
-                                            </span>
+                                            <ServiceIcon
+                                              type={
+                                                service.type === 'database' &&
+                                                service.databaseDetails?.type
+                                                  ? (service.databaseDetails
+                                                      .type as StatusType)
+                                                  : (service.type as StatusType)
+                                              }
+                                            />
                                           )}
+
+                                          <span>{service?.name}</span>
                                         </div>
                                       )
                                     })}
@@ -328,11 +334,11 @@ const DeleteServerDialog = ({
                         <label
                           htmlFor='delete-projects'
                           className='cursor-pointer text-sm font-medium leading-none'>
-                          Delete all projects and services from server
+                          Delete Projects & Services
                         </label>
                         <p className='text-xs text-muted-foreground'>
-                          Remove Docker containers, volumes, and project files
-                          from {name}
+                          All Projects & Services will be permanently deleted
+                          from your {server.name}
                           {hasProjectsData && (
                             <span className='mt-1 block'>
                               This will affect {projects.length} project
@@ -358,7 +364,7 @@ const DeleteServerDialog = ({
                         <label
                           htmlFor='delete-backups'
                           className='cursor-pointer text-sm font-medium leading-none'>
-                          Delete all associated backups
+                          Delete Database Backups
                         </label>
                         <p className='text-xs text-muted-foreground'>
                           Permanently remove all backup data for services on

@@ -9,7 +9,13 @@ export const createProjectSchema = z.object({
   serverId: z.string({ message: 'Server is required' }),
 })
 
-export const updateProjectSchema = createProjectSchema.extend({
+export const updateProjectSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'Name should be at-least than 1 character' })
+    .max(50, { message: 'Name should be less than 50 characters' }),
+  description: z.string().optional(),
+  serverId: z.string({ message: 'Server is required' }),
   id: z.string(),
 })
 

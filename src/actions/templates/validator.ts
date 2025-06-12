@@ -83,7 +83,8 @@ export const getPersonalTemplateByIdSchema = z.object({
   id: z.string(),
 })
 
-export const deployTemplateSchema = DeleteTemplateSchema.extend({
+export const deployTemplateSchema = z.object({
+  id: z.string(),
   projectId: z.string(),
 })
 
@@ -138,8 +139,14 @@ export const UpdateServiceSchema = z.object({
 
 export type UpdateServiceType = z.infer<typeof UpdateServiceSchema>
 
-export const updateTemplateSchema = createTemplateSchema.extend({
+export const updateTemplateSchema = z.object({
   id: z.string(),
+  name: z
+    .string({ message: 'Name is required' })
+    .min(3, { message: 'Name must be at least 3 characters' }),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  services: servicesSchema,
 })
 
 export const deployTemplateFromArchitectureSchema = z.object({

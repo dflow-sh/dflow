@@ -20,7 +20,10 @@ export const syncPluginSchema = z.object({
   serverId: z.string(),
 })
 
-export const togglePluginStatusSchema = installPluginSchema.extend({
+export const togglePluginStatusSchema = z.object({
+  serverId: z.string(),
+  pluginName: supportedPluginsSchema,
+  pluginURL: z.string(),
   enabled: z.boolean(),
 })
 
