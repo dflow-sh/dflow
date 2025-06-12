@@ -80,6 +80,7 @@ export interface Config {
     dockerRegistries: DockerRegistry;
     tenants: Tenant;
     backups: Backup;
+    banners: Banner;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -107,6 +108,7 @@ export interface Config {
     dockerRegistries: DockerRegistriesSelect<false> | DockerRegistriesSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     backups: BackupsSelect<false> | BackupsSelect<true>;
+    banners: BannersSelect<false> | BannersSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -781,6 +783,63 @@ export interface Template {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banners".
+ */
+export interface Banner {
+  id: string;
+  /**
+   * Select the scope of the banner. Global banners are visible to all users, while user-specific banners are only visible to users of a specific tenant.
+   */
+  scope: 'global' | 'user-specific';
+  /**
+   * Select the tenant for which this banner is applicable. This is only required if the scope is set to "User-specific".
+   */
+  tenant?: (string | null) | Tenant;
+  /**
+   * Select the type of banner. This helps categorize the banner for better management and display.
+   */
+  type: 'announcement' | 'alert' | 'promotion';
+  /**
+   * The title of the banner, displayed prominently.
+   */
+  title?: string | null;
+  /**
+   * The main content of the banner, providing details or information.
+   */
+  content: string;
+  /**
+   * Select the visual style of the banner. This affects its appearance and how it stands out on the page.
+   */
+  variant?: ('info' | 'warning' | 'success' | 'error' | 'neutral' | 'primary' | 'secondary') | null;
+  /**
+   * If enabled, users can dismiss the banner, removing it from their view.
+   */
+  isDismissible?: boolean | null;
+  /**
+   * If enabled, the banner is active and visible to users.
+   */
+  isActive?: boolean | null;
+  /**
+   * The date from which the banner will be active. If not set, the banner is considered active immediately.
+   */
+  startDate?: string | null;
+  /**
+   * The date until which the banner will be active. If not set, the banner remains active indefinitely.
+   */
+  endDate?: string | null;
+  /**
+   * Call to Action (CTA) for the banner. This can include a label and a URL for users to follow.
+   */
+  cta?: {
+    label?: string | null;
+    url?: string | null;
+    isExternal?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
@@ -929,6 +988,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'backups';
         value: string | Backup;
+      } | null)
+    | ({
+        relationTo: 'banners';
+        value: string | Banner;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -1405,6 +1468,31 @@ export interface BackupsSelect<T extends boolean = true> {
   backupName?: T;
   status?: T;
   deletedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banners_select".
+ */
+export interface BannersSelect<T extends boolean = true> {
+  scope?: T;
+  tenant?: T;
+  type?: T;
+  title?: T;
+  content?: T;
+  variant?: T;
+  isDismissible?: T;
+  isActive?: T;
+  startDate?: T;
+  endDate?: T;
+  cta?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        isExternal?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

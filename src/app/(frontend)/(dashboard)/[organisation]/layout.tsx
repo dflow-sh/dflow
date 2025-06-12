@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
+import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
@@ -104,6 +105,7 @@ export default async function OrganisationLayout({
 }: PageProps) {
   return (
     <Provider>
+      <Banner />
       <DashboardLayout params={params}>{children}</DashboardLayout>
     </Provider>
   )

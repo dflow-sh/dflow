@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 
 import { log } from './lib/logger'
 import { Backups } from './payload/collections/Backups'
+import { Banners } from './payload/collections/Banners'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
 import { Deployments } from './payload/collections/Deployments'
 import { DockerRegistries } from './payload/collections/DockerRegistries'
@@ -68,7 +69,7 @@ export default buildConfig({
       ),
     },
   },
-  collections: collectionsWithHook,
+  collections: [...collectionsWithHook, Banners],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
