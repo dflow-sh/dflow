@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog'
+import { ScrollArea } from '../ui/scroll-area'
 import { AlertCircle, HardDrive, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useState } from 'react'
@@ -67,8 +68,8 @@ const DeleteServiceDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='sm:max-w-2xl'>
-        <DialogHeader>
+      <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
+        <DialogHeader className='flex-shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
             <Trash2 className='h-5 w-5 text-destructive' />
             Delete Service
@@ -79,120 +80,124 @@ const DeleteServiceDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-4'>
-          {/* Service Info */}
-          <div className='rounded-md border bg-muted/50 p-3'>
-            <div className='flex items-center gap-2 text-sm'>
-              <HardDrive className='h-4 w-4 text-muted-foreground' />
-              <span className='font-medium'>Server:</span>
-              <span>{serverName || 'Unknown server'}</span>
-            </div>
-            <div className='mt-1 flex items-center gap-2 text-sm'>
-              <div className='h-4 w-4' /> {/* Spacer */}
-              <span className='font-medium'>Type:</span>
-              <Badge variant='secondary' className='text-xs'>
-                {type || 'Service'}
-              </Badge>
-            </div>
-            <div className='mt-1 flex items-center gap-2 text-sm'>
-              <div className='h-4 w-4' /> {/* Spacer */}
-              <span className='font-medium'>Project:</span>
-              <span>{project.name}</span>
-            </div>
-          </div>
-
-          {/* Service Warning */}
-          <Alert variant='warning'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Warning: Service Deletion</AlertTitle>
-            <AlertDescription>
-              <p className='mb-2'>This will permanently delete the service:</p>
-              <div className='flex items-center gap-2 text-sm'>
-                <div className='h-2 w-2 rounded-full bg-primary' />
-                <span>{service.name}</span>
-                <Badge variant='secondary' className='text-xs'>
-                  {service.type || 'Service'}
-                </Badge>
-              </div>
-            </AlertDescription>
-          </Alert>
-
-          {/* Deletion Options */}
-          <div className='space-y-3'>
-            <p className='text-sm font-medium'>Deletion Options:</p>
-
-            <div className='space-y-3 rounded-md border p-3'>
-              <div className='flex items-start space-x-3'>
-                <Checkbox
-                  id='delete-from-server'
-                  checked={deleteFromServer}
-                  onCheckedChange={checked =>
-                    setDeleteFromServer(Boolean(checked))
-                  }
-                  className='mt-0.5'
-                />
-                <div className='space-y-1'>
-                  <label
-                    htmlFor='delete-from-server'
-                    className='cursor-pointer text-sm font-medium leading-none'>
-                    Delete service files from server
-                  </label>
-                  <p className='text-xs text-muted-foreground'>
-                    Remove Docker containers, volumes, and service files from{' '}
-                    {serverName}
-                  </p>
+        <div className='min-h-0 flex-1 overflow-hidden'>
+          <ScrollArea className='h-full'>
+            <div className='max-h-[60vh] pr-3'>
+              <div className='space-y-4 pb-6'>
+                {/* Service Info */}
+                <div className='rounded-md border bg-muted/50 p-3'>
+                  <div className='flex items-center gap-2 text-sm'>
+                    <HardDrive className='h-4 w-4 text-muted-foreground' />
+                    <span className='font-medium'>Server:</span>
+                    <span>{serverName || 'Unknown server'}</span>
+                  </div>
+                  <div className='mt-1 flex items-center gap-2 text-sm'>
+                    <div className='h-4 w-4' /> {/* Spacer */}
+                    <span className='font-medium'>Type:</span>
+                    <Badge variant='secondary' className='text-xs'>
+                      {type || 'Service'}
+                    </Badge>
+                  </div>
+                  <div className='mt-1 flex items-center gap-2 text-sm'>
+                    <div className='h-4 w-4' /> {/* Spacer */}
+                    <span className='font-medium'>Project:</span>
+                    <span>{project.name}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className='flex items-start space-x-3'>
-                <Checkbox
-                  id='delete-backups'
-                  checked={deleteBackups}
-                  onCheckedChange={checked =>
-                    setDeleteBackups(Boolean(checked))
-                  }
-                  className='mt-0.5'
-                />
-                <div className='space-y-1'>
-                  <label
-                    htmlFor='delete-backups'
-                    className='cursor-pointer text-sm font-medium leading-none'>
-                    Delete all associated backups
-                  </label>
-                  <p className='text-xs text-muted-foreground'>
-                    Permanently remove all backup data for this service
+                {/* Service Details */}
+                <div className='rounded-md border bg-muted/50 p-3'>
+                  <p className='mb-2 text-sm font-medium'>
+                    Service to be deleted:
                   </p>
+                  <div className='flex items-center gap-2 text-sm'>
+                    <div className='h-2 w-2 rounded-full bg-primary' />
+                    <span>{service.name}</span>
+                    <Badge variant='secondary' className='text-xs'>
+                      {service.type || 'Service'}
+                    </Badge>
+                  </div>
                 </div>
+
+                {/* Deletion Options */}
+                <div className='space-y-3'>
+                  <p className='text-sm font-medium'>Deletion Options:</p>
+
+                  <div className='space-y-3 rounded-md border p-3'>
+                    <div className='flex items-start space-x-3'>
+                      <Checkbox
+                        id='delete-from-server'
+                        checked={deleteFromServer}
+                        onCheckedChange={checked =>
+                          setDeleteFromServer(Boolean(checked))
+                        }
+                        className='mt-0.5'
+                      />
+                      <div className='space-y-1'>
+                        <label
+                          htmlFor='delete-from-server'
+                          className='cursor-pointer text-sm font-medium leading-none'>
+                          Delete service files from server
+                        </label>
+                        <p className='text-xs text-muted-foreground'>
+                          Remove Docker containers, volumes, and service files
+                          from {serverName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className='flex items-start space-x-3'>
+                      <Checkbox
+                        id='delete-backups'
+                        checked={deleteBackups}
+                        onCheckedChange={checked =>
+                          setDeleteBackups(Boolean(checked))
+                        }
+                        className='mt-0.5'
+                      />
+                      <div className='space-y-1'>
+                        <label
+                          htmlFor='delete-backups'
+                          className='cursor-pointer text-sm font-medium leading-none'>
+                          Delete all associated backups
+                        </label>
+                        <p className='text-xs text-muted-foreground'>
+                          Permanently remove all backup data for this service
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Warning Messages */}
+                {!deleteFromServer && (
+                  <Alert variant='warning'>
+                    <AlertCircle className='h-4 w-4' />
+                    <AlertTitle>Files will remain on server</AlertTitle>
+                    <AlertDescription>
+                      Service files and containers will continue running on{' '}
+                      {serverName}. You'll need to manually stop and remove them
+                      if desired.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {deleteFromServer && (
+                  <Alert variant='destructive'>
+                    <AlertCircle className='h-4 w-4' />
+                    <AlertTitle>Permanent Action</AlertTitle>
+                    <AlertDescription>
+                      The service will be stopped and removed from the server.
+                      This action cannot be undone.
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Warning Messages */}
-          {!deleteFromServer && (
-            <Alert variant='warning'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Files will remain on server</AlertTitle>
-              <AlertDescription>
-                Service files and containers will continue running on{' '}
-                {serverName}. You'll need to manually stop and remove them if
-                desired.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {deleteFromServer && (
-            <Alert variant='destructive'>
-              <AlertCircle className='h-4 w-4' />
-              <AlertTitle>Permanent Action</AlertTitle>
-              <AlertDescription>
-                The service will be stopped and removed from the server. This
-                action cannot be undone.
-              </AlertDescription>
-            </Alert>
-          )}
+          </ScrollArea>
         </div>
 
-        <DialogFooter className='mt-6 space-x-2'>
+        <DialogFooter className='flex-shrink-0 space-x-2 pt-4'>
           <Button
             variant='outline'
             disabled={isPending}
