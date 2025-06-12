@@ -1,16 +1,15 @@
-import { Github } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
+import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
+import { GithubSvg } from '@/components/icons/Github'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
-import { buttonVariants } from '@/components/ui/button'
 import { getCurrentUser } from '@/lib/getCurrentUser'
-import { cn } from '@/lib/utils'
 import Provider from '@/providers/Provider'
 
 interface PageProps {
@@ -37,6 +36,8 @@ const DashboardLayoutInner = async ({
 }) => {
   const organisationSlug = (await params).organisation
 
+  const result = await getGithubStarsAction()
+
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
@@ -62,19 +63,11 @@ const DashboardLayoutInner = async ({
 
         <div className='flex items-center gap-x-4'>
           <Link
-            className={cn(
-              buttonVariants({
-                variant: 'ghost',
-                size: 'sm',
-              }),
-              'group hidden md:inline-flex',
-            )}
             target='_blank'
+            className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
             href='https://github.com/akhil-naidu/dflow'>
-            <div className='flex items-center'>
-              <Github className='size-4' />
-              <span className='ml-1 hidden md:inline'>Star on GitHub</span>{' '}
-            </div>
+            <GithubSvg width='1.25em' height='1.25em' />{' '}
+            {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
 
           <Suspense fallback={<NavUserSkeleton />}>
