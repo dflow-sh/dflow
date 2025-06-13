@@ -55,8 +55,6 @@ const DFlowForm = ({
   refetch?: RefetchType
   existingAccountsCount?: number
 }) => {
-  console.log({ account })
-
   const dialogFooterRef = useRef<HTMLButtonElement>(null)
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>(null)
