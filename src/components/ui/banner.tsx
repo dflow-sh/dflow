@@ -27,9 +27,9 @@ const variantStyles = {
 }
 
 const ctaButtonStyles = {
-  info: 'bg-none hover:text-info text-white',
-  warning: 'bg-transparent hover:text-amber-700 text-white',
-  success: 'bg-transparent hover:text-green-700 text-white',
+  info: 'bg-info/50 hover:bg-info/30 text-white',
+  warning: 'bg-warning/50 hover:bg-warning/30 text-white',
+  success: 'bg-success/50 hover:bg-success/30 text-white',
 }
 
 const closeButtonStyles = {
@@ -120,14 +120,14 @@ export default function BannerComponent({ banners }: BannerProps) {
                       {banner.title}
                     </span>
                   )}
-                  <span className='text-sm'>{banner.content}</span>
+                  <span className='text-sm text-white'>{banner.content}</span>
                 </div>
 
                 {banner.cta?.label && banner.cta?.url && (
                   <Button
-                    variant={'link'}
+                    variant={'outline'}
                     size='sm'
-                    className={`p-0 text-slate-200 ${ctaButtonStyles[banner.variant ?? 'info']}`}
+                    className={`px-4 text-slate-200 ${ctaButtonStyles[banner.variant ?? 'info']}`}
                     onClick={() => {
                       if (banner.cta?.isExternal) {
                         window.open(
@@ -149,11 +149,11 @@ export default function BannerComponent({ banners }: BannerProps) {
                   variant='link'
                   size='sm'
                   className={cn(
-                    'ml-2 h-7 w-7 flex-shrink-0 rounded-md p-0 transition-colors duration-200',
+                    'ml-2 h-7 w-7 flex-shrink-0 rounded-md p-0 hover:bg-none',
                     closeButtonStyles[banner.variant ?? 'info'],
                   )}
                   onClick={() => dismissBanner(banner.id)}>
-                  <X className='h-3.5 w-3.5' />
+                  <X className='h-3.5 w-3.5 stroke-white' />
                   <span className='sr-only'>Dismiss banner</span>
                 </Button>
               )}
