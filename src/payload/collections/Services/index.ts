@@ -407,6 +407,11 @@ export const Services: CollectionConfig = {
       label: 'Deployments',
       collection: 'deployments',
       on: 'service',
+      where: {
+        deletedAt: {
+          exists: false,
+        },
+      },
     },
   ],
 }

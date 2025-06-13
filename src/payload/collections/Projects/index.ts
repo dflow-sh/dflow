@@ -63,6 +63,11 @@ export const Projects: CollectionConfig = {
       collection: 'services',
       on: 'project',
       maxDepth: 10,
+      where: {
+        deletedAt: {
+          exists: false,
+        },
+      },
     },
   ],
 }
