@@ -788,6 +788,10 @@ export interface Template {
 export interface Banner {
   id: string;
   /**
+   * A unique name for the banner, used for identification and management purposes.
+   */
+  name?: string | null;
+  /**
    * Select the scope of the banner. Global banners are visible to all users, while user-specific banners are only visible to users of a specific tenant.
    */
   scope: 'global' | 'user-specific';
@@ -1476,6 +1480,7 @@ export interface BackupsSelect<T extends boolean = true> {
  * via the `definition` "banners_select".
  */
 export interface BannersSelect<T extends boolean = true> {
+  name?: T;
   scope?: T;
   tenant?: T;
   type?: T;

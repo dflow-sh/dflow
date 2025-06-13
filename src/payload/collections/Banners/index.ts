@@ -16,6 +16,14 @@ export const Banners: CollectionConfig = {
   },
   fields: [
     {
+      name: 'name',
+      type: 'text',
+      admin: {
+        description:
+          'A unique name for the banner, used for identification and management purposes.',
+      },
+    },
+    {
       name: 'scope',
       type: 'select',
       admin: {
