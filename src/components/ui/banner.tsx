@@ -79,7 +79,7 @@ export default function BannerComponent({ banners }: BannerProps) {
           <Button
             variant='ghost'
             size='sm'
-            className={`absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 bg-transparent p-0 text-slate-200`}
+            className={`absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 p-0 text-slate-200`}
             onClick={scrollToPrev}>
             <ChevronLeft className='h-4 w-4' />
             <span className='sr-only'>Previous banner</span>
@@ -87,7 +87,7 @@ export default function BannerComponent({ banners }: BannerProps) {
           <Button
             variant='ghost'
             size='sm'
-            className={`absolute right-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 bg-transparent p-0 text-slate-200`}
+            className={`absolute right-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 p-0 text-slate-200`}
             onClick={scrollToNext}>
             <ChevronRight className='h-4 w-4' />
             <span className='sr-only'>Next banner</span>
@@ -145,17 +145,10 @@ export default function BannerComponent({ banners }: BannerProps) {
               </div>
 
               {banner.isDismissible && (
-                <Button
-                  variant='link'
-                  size='sm'
-                  className={cn(
-                    'ml-2 h-7 w-7 flex-shrink-0 rounded-md p-0 hover:bg-none',
-                    closeButtonStyles[banner.variant ?? 'info'],
-                  )}
-                  onClick={() => dismissBanner(banner.id)}>
-                  <X className='h-3.5 w-3.5 stroke-white' />
-                  <span className='sr-only'>Dismiss banner</span>
-                </Button>
+                <X
+                  className='h-3.5 w-3.5 cursor-pointer stroke-white'
+                  onClick={() => dismissBanner(banner.id)}
+                />
               )}
             </div>
           </div>
