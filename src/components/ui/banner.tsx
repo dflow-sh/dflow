@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -9,6 +9,11 @@ import type { Banner } from '@/payload-types'
 
 interface BannerProps {
   banners: Banner[]
+}
+
+interface DismissedBanner {
+  id: string
+  dismissedAt: number
 }
 
 const bannerTypeIcon = {
@@ -38,18 +43,67 @@ const closeButtonStyles = {
   success: 'hover:bg-green-200 text-green-700',
 }
 
+const DISMISSAL_DURATION = 24 * 60 * 60 * 1000
+const STORAGE_KEY = 'dismissed-banners'
+
 export default function BannerComponent({ banners }: BannerProps) {
   const [dismissedBanners, setDismissedBanners] = useState<Set<string>>(
     new Set(),
   )
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    const loadDismissedBanners = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY)
+        if (stored) {
+          const dismissedData: DismissedBanner[] = JSON.parse(stored)
+          const now = Date.now()
+
+          const validDismissals = dismissedData.filter(
+            item => now - item.dismissedAt < DISMISSAL_DURATION,
+          )
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(validDismissals))
+
+          const dismissedIds = new Set(validDismissals.map(item => item.id))
+          setDismissedBanners(dismissedIds)
+        }
+      } catch (error) {
+        console.error('Error loading dismissed banners:', error)
+      }
+    }
+
+    loadDismissedBanners()
+  }, [])
+
   const activeBanners = banners.filter(
     banner => !dismissedBanners.has(banner.id),
   )
 
   const dismissBanner = (bannerId: string) => {
-    setDismissedBanners(prev => new Set([...prev, bannerId]))
+    try {
+      setDismissedBanners(prev => new Set([...prev, bannerId]))
+
+      const stored = localStorage.getItem(STORAGE_KEY)
+      const existingDismissals: DismissedBanner[] = stored
+        ? JSON.parse(stored)
+        : []
+
+      const newDismissal: DismissedBanner = {
+        id: bannerId,
+        dismissedAt: Date.now(),
+      }
+
+      const updatedDismissals = [
+        ...existingDismissals.filter(item => item.id !== bannerId),
+        newDismissal,
+      ]
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedDismissals))
+    } catch (error) {
+      console.error('Error dismissing banner:', error)
+    }
   }
 
   const scrollToNext = () => {
