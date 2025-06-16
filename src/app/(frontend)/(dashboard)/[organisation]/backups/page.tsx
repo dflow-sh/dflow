@@ -79,11 +79,19 @@ const BackupsPage = async () => {
             </div>
           ))}
           {Object.keys(grouped).length === 0 && (
-            <div className='mt-10 rounded-xl p-6 text-center'>
-              <h4 className='mb-4 text-2xl font-semibold'>No Backups Found</h4>
-              <p className='text-muted-foreground'>
-                No backups found for any projects or services.
-              </p>
+            <div className='rounded-lg border bg-muted/20 py-12 text-center'>
+              <div className='grid min-h-[40vh] place-items-center'>
+                <div className='max-w-md space-y-4 text-center'>
+                  <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                    <History className='h-8 w-8 animate-pulse text-muted-foreground' />
+                  </div>
+                  <h2 className='text-2xl font-semibold'>No Backups Found</h2>
+                  <p className='text-muted-foreground'>
+                    You don’t have any backups yet. Backups for your projects or
+                    services will appear here once they’re created.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
