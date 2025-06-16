@@ -96,22 +96,24 @@ const SuspendedDashboard = async ({
 
         {/* Server Alerts */}
         {!hasServers ? (
-          <div className='grid min-h-[50vh] place-items-center'>
-            <div className='max-w-md space-y-4 text-center'>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <Server className='h-8 w-8 animate-pulse text-muted-foreground' />
+          <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+            <div className='grid min-h-[40vh] place-items-center'>
+              <div className='max-w-md space-y-4 text-center'>
+                <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                  <Server className='h-8 w-8 animate-pulse text-muted-foreground' />
+                </div>
+                <h2 className='text-2xl font-semibold'>No Servers Available</h2>
+                <p className='text-muted-foreground'>
+                  To get started, you need at least one server connected. Add a
+                  server to deploy your projects with ease.
+                </p>
+                <Link className='block' href={`/${organisationSlug}/servers`}>
+                  <Button variant='default'>
+                    <PlusCircle className='mr-2 h-4 w-4' />
+                    Create Server
+                  </Button>
+                </Link>
               </div>
-              <h2 className='text-2xl font-semibold'>No Servers Available</h2>
-              <p className='text-muted-foreground'>
-                To get started, you need at least one server connected. Add a
-                server to deploy your projects with ease.
-              </p>
-              <Link className='block' href={`/${organisationSlug}/servers`}>
-                <Button variant='default'>
-                  <PlusCircle className='mr-2 h-4 w-4' />
-                  Create Server
-                </Button>
-              </Link>
             </div>
           </div>
         ) : !hasConnectedServers ? (
@@ -142,22 +144,24 @@ const SuspendedDashboard = async ({
             })}
           </div>
         ) : hasServers ? (
-          <div className='grid min-h-[40vh] place-items-center'>
-            <div className='max-w-md space-y-4 text-center'>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <Folder className='h-8 w-8 animate-pulse text-muted-foreground' />
+          <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+            <div className='grid min-h-[40vh] place-items-center'>
+              <div className='max-w-md space-y-4 text-center'>
+                <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                  <Folder className='h-8 w-8 animate-pulse text-muted-foreground' />
+                </div>
+                <h2 className='text-2xl font-semibold'>No Projects Yet</h2>
+                <p className='text-muted-foreground'>
+                  It looks like you haven’t created any projects yet. Start by
+                  creating a new one using a connected server.
+                </p>
+                <CreateProject servers={servers}>
+                  <Button variant='default'>
+                    <Plus className='mr-2 h-4 w-4' />
+                    Create Project
+                  </Button>
+                </CreateProject>
               </div>
-              <h2 className='text-2xl font-semibold'>No Projects Yet</h2>
-              <p className='text-muted-foreground'>
-                It looks like you haven’t created any projects yet. Start by
-                creating a new one using a connected server.
-              </p>
-              <CreateProject servers={servers}>
-                <Button variant='default'>
-                  <Plus className='mr-2 h-4 w-4' />
-                  Create Project
-                </Button>
-              </CreateProject>
             </div>
           </div>
         ) : null}
