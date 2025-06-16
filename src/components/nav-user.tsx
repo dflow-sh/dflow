@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, LogOut } from 'lucide-react'
+import { Check, HelpCircle, LogOut } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -105,6 +105,16 @@ export function NavUser({ user }: { user: User }) {
               )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <a
+                href='https://discord.com/channels/1346775217594302484/1346812912341221386'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='flex items-center'>
+                <HelpCircle />
+                Help & Support
+              </a>
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
                 execute()
