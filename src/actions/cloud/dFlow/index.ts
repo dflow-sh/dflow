@@ -362,3 +362,89 @@ export const deleteDFlowAccountAction = protectedClient
 
     return response
   })
+
+export const getDflowUser = protectedClient
+  .metadata({
+    actionName: 'getDflowUser',
+  })
+  .action(async ({ ctx }) => {
+    const { payload, userTenant } = ctx
+
+    try {
+      const { docs: dflowAccounts } = await payload.find({
+        collection: 'cloudProviderAccounts',
+        pagination: false,
+        where: {
+          and: [
+            { type: { equals: 'dFlow' } },
+            { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+          ],
+        },
+      })
+
+      if (!dflowAccounts || dflowAccounts.length === 0) {
+        throw new Error('No connected dFlow accounts found')
+      }
+
+      const results = await Promise.allSettled(
+        dflowAccounts.map(async account => {
+          const token = account.dFlowDetails?.accessToken
+
+          if (!token || typeof token !== 'string' || token.trim() === '') {
+            throw new Error(
+              ` Missing or invalid token for account ID: ${account.id}`,
+            )
+          }
+
+          const response = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+            headers: {
+              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+            },
+            timeout: 10000,
+          })
+
+          const user = response?.data?.docs?.[0]
+          if (!user) {
+            throw new Error(`User not found for account ID: ${account.id}`)
+          }
+
+          return {
+            accountId: account.id,
+            user,
+          }
+        }),
+      )
+
+      const successfulUsers = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => (result as PromiseFulfilledResult<any>).value)
+
+      const errors = results
+        .filter(result => result.status === 'rejected')
+        .map(result => (result as PromiseRejectedResult).reason)
+
+      if (successfulUsers.length === 0) {
+        throw new Error(
+          `Failed to fetch user data for all dFlow accounts. Errors: ${errors.map(e => e.message).join(', ')}`,
+        )
+      }
+
+      return {
+        users: successfulUsers,
+        errors,
+      }
+    } catch (error) {
+      console.error('Error fetching dFlow user(s):', error)
+
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message ||
+          error.response?.statusText ||
+          error.message ||
+          'Unknown error from dFlow'
+        throw new Error(message)
+      }
+
+      throw error
+    }
+  })
