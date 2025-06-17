@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
 import { getGithubStarsAction } from '@/actions/github'
+import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
 import { GithubSvg } from '@/components/icons/Github'
 import { NavUser } from '@/components/nav-user'
@@ -97,6 +98,7 @@ export default async function OrganisationLayout({
 }: PageProps) {
   return (
     <Provider>
+      <Banner />
       <DashboardLayout params={params}>{children}</DashboardLayout>
     </Provider>
   )
