@@ -107,7 +107,7 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <a
-                href='https://discord.com/channels/1346775217594302484/1346812912341221386'
+                href='https://discord.com/channels/1346775217594302484/1384588060393603099'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='flex items-center'>
