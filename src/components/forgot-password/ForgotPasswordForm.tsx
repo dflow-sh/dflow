@@ -66,7 +66,7 @@ const ForgotPasswordForm: React.FC = () => {
             </h1>
           )}
           {isSuccess ? (
-            <div className='mx-auto max-w-sm rounded-md border border-border bg-card'>
+            <div className='mx-auto max-w-sm rounded-md border border-border bg-card/30'>
               <p className='px-10 py-10 text-center text-lg text-green-600'>
                 Reset link sent to your email. Don't forget to check your spam
                 inbox!

@@ -240,10 +240,10 @@ const ChooseService: React.FC<ChooseServiceType> = ({
                             filteredOptions.map(option => (
                               <li
                                 key={option.id}
-                                className={`flex items-center justify-between rounded-md p-3 text-base hover:bg-card ${
+                                className={`flex items-center justify-between rounded-md p-3 text-base hover:bg-card/30 ${
                                   option.isDisabled
                                     ? 'cursor-not-allowed text-primary-foreground'
-                                    : 'cursor-pointer hover:text-base focus:bg-card'
+                                    : 'cursor-pointer hover:text-base focus:bg-card/30'
                                 }`}
                                 onClick={
                                   !option.isDisabled

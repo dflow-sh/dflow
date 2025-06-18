@@ -112,7 +112,7 @@ const AddDatabaseService = ({
           <div
             onClick={() => addDatabaseNode(database?.type as DatabaseType)}
             key={database.id}
-            className='grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4 hover:bg-card'>
+            className='grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4 hover:bg-card/30'>
             <div className='flex items-center justify-between'>
               <div className='inline-flex items-center gap-x-2'>
                 {database?.icon}
