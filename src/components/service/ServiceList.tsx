@@ -213,7 +213,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className='fixed z-10 w-48 rounded-md border border-border bg-card shadow-md'
+      className='fixed z-10 w-48 rounded-md border border-border bg-card/30 shadow-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
         <Button

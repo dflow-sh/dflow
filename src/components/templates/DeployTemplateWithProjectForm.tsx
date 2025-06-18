@@ -152,7 +152,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                           'flex cursor-pointer items-start gap-3 rounded-md border p-3',
                           isCreateNewProject
                             ? 'border-primary/30 bg-primary/10'
-                            : 'bg-card',
+                            : 'bg-card/30',
                         )}>
                         <Checkbox
                           id='isCreateNewProject'

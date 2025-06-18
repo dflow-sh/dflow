@@ -49,7 +49,7 @@ export function NavUser({ user }: { user: User }) {
               {/* Badge with letter at bottom right */}
               <span
                 title={params.organisation}
-                className='absolute -bottom-[0.5rem] -right-[0.5rem] flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card text-xs uppercase'>
+                className='absolute -bottom-[0.5rem] -right-[0.5rem] flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/30 text-xs uppercase'>
                 {params.organisation?.slice(0, 1)}
               </span>
             </div>
