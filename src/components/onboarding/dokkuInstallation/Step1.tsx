@@ -52,7 +52,7 @@ const Step1 = ({ server }: { server: ServerType }) => {
   }
 
   const getButtonText = () => {
-    if (isDokkuInstalled) return 'Continue Setup'
+    if (isDokkuInstalled) return 'Continue with Other Process'
     return 'Start Installation'
   }
 
