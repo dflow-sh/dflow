@@ -765,6 +765,13 @@ export interface Template {
         };
         name: string;
         description?: string | null;
+        volumes?:
+          | {
+              hostPath: string;
+              containerPath: string;
+              id?: string | null;
+            }[]
+          | null;
         variables?:
           | {
               key: string;
@@ -1370,6 +1377,13 @@ export interface TemplatesSelect<T extends boolean = true> {
             };
         name?: T;
         description?: T;
+        volumes?:
+          | T
+          | {
+              hostPath?: T;
+              containerPath?: T;
+              id?: T;
+            };
         variables?:
           | T
           | {
