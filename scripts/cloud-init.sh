@@ -6,7 +6,7 @@ set -e  # Exit on error
 exec > >(tee -a /var/log/dflow-bootstrap.log | logger -t dflow-init -s) 2>&1
 
 echo "[+] Installing Dokku v0.35.20"
-curl -Lo bootstrap.sh https://dokku.com/bootstrap.sh
+wget -NP . https://dokku.com/bootstrap.sh --inet4-only
 DOKKU_TAG="v0.35.20"
 sudo DOKKU_TAG=$DOKKU_TAG bash bootstrap.sh
 
