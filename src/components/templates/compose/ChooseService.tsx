@@ -1,7 +1,7 @@
 'use client'
 
 import { Edge, Node, OnEdgesChange, OnNodesChange } from '@xyflow/react'
-import { ChevronRight, Database, Github, Plus } from 'lucide-react'
+import { ChevronRight, Database, Github, Package2, Plus } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import {
   ChangeEvent,
@@ -176,6 +176,14 @@ const ChooseService: React.FC<ChooseServiceType> = ({
       onClick: handleShowDatabaseClick,
       chevronRightDisable: false,
     },
+    {
+      id: 4,
+      text: 'Volume',
+      icon: <Package2 size={18} />,
+      isDisabled: nodes.length <= 0,
+      onClick: handleShowDatabaseClick,
+      chevronRightDisable: nodes.length <= 1,
+    },
   ]
 
   const filteredOptions = mainOptions.filter(option =>
@@ -242,7 +250,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
                                 key={option.id}
                                 className={`flex items-center justify-between rounded-md p-3 text-base hover:bg-card/30 ${
                                   option.isDisabled
-                                    ? 'cursor-not-allowed text-primary-foreground'
+                                    ? 'cursor-not-allowed text-muted-foreground'
                                     : 'cursor-pointer hover:text-base focus:bg-card/30'
                                 }`}
                                 onClick={
