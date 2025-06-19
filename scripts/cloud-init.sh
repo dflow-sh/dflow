@@ -2,6 +2,9 @@
 
 set -e  # Exit on error
 
+# Log everything to console + file + syslog
+exec > >(tee -a /var/log/dflow-bootstrap.log | logger -t dflow-init -s) 2>&1
+
 echo "[+] Installing Dokku v0.35.20"
 wget -q https://dokku.com/bootstrap.sh
 DOKKU_TAG="v0.35.20"
