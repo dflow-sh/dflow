@@ -1,6 +1,6 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { installDokkuAction } from '@/actions/server'
@@ -13,6 +13,7 @@ import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step2 = ({ server }: { server: ServerType }) => {
   const [outdatedDokku, setOutdatedDokku] = useState(false)
+  const installationAttemptedRef = useRef<string | null>(null)
   const { setDokkuInstallationStep, dokkuInstallationStep } =
     useDokkuInstallationStep()
 
@@ -25,6 +26,8 @@ const Step2 = ({ server }: { server: ServerType }) => {
       toast.loading('Adding dokku installation to queue', {
         id: input.serverId,
       })
+      // Mark as attempted for this server
+      installationAttemptedRef.current = input.serverId
     },
     onSuccess: ({ data, input }) => {
       if (data?.success) {
@@ -36,8 +39,18 @@ const Step2 = ({ server }: { server: ServerType }) => {
     },
   })
 
+  // Reset attempt tracking when server changes or step resets
   useEffect(() => {
-    if (dokkuInstallationStep === 2 && server) {
+    if (
+      dokkuInstallationStep !== 2 ||
+      installationAttemptedRef.current !== server?.id
+    ) {
+      installationAttemptedRef.current = null
+    }
+  }, [dokkuInstallationStep, server?.id])
+
+  useEffect(() => {
+    if (dokkuInstallationStep === 2 && server && !isInstallingDokku) {
       if (
         server.version &&
         server.version !== 'not-installed' &&
@@ -54,15 +67,23 @@ const Step2 = ({ server }: { server: ServerType }) => {
         return setDokkuInstallationStep(3)
       }
 
+      // Check if we haven't already attempted installation for this server
       if (
         server.portIsOpen &&
         server.connection?.status === 'success' &&
-        supportedLinuxVersions.includes(server.os.version ?? '')
+        supportedLinuxVersions.includes(server.os.version ?? '') &&
+        installationAttemptedRef.current !== server.id
       ) {
         installDokku({ serverId: server.id })
       }
     }
-  }, [server, dokkuInstallationStep])
+  }, [
+    server,
+    dokkuInstallationStep,
+    isInstallingDokku,
+    installDokku,
+    setDokkuInstallationStep,
+  ])
 
   if (outdatedDokku) {
     return (

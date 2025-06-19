@@ -38,7 +38,7 @@ export const addInstallDokkuQueue = async (data: QueueArgs) => {
       const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
-      console.log('inside install plugin queue')
+      console.log('inside install dokku queue')
 
       try {
         ssh = await dynamicSSH(sshDetails)
@@ -59,6 +59,8 @@ export const addInstallDokkuQueue = async (data: QueueArgs) => {
             })
           },
         })
+
+        console.dir({ installationResponse }, { depth: Infinity })
 
         if (installationResponse.code === 0) {
           // For AWS, add the dokku permission to ubuntu user
