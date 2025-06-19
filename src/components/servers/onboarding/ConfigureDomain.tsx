@@ -1,26 +1,24 @@
-'use client'
-
-import { DomainFormWithoutDialog } from '../DomainForm'
 import DomainList from '../DomainList'
 
 import { ServerType } from '@/payload-types-overrides'
 
+import ConfigureDefaultDomain from './ConfigureDefaultDomain'
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
 const ConfigureDomain = ({ server }: { server: ServerType }) => {
-  const isDomainConfigured = !!(server.domains ?? []).length
+  const domains = server.domains ?? []
 
   return (
     <ServerOnboardingLayout
       server={server}
       cardTitle={'Configure Domain'}
       cardDescription={`🚀 Pro Tip: Don't have a domain no worries use nip.io wildcard domain: ${server.ip}.nip.io`}
-      disableNextStep={isDomainConfigured}>
-      <DomainFormWithoutDialog server={server} />
+      disableNextStep={!domains.length}>
+      <ConfigureDefaultDomain server={server} />
 
       <div className='mt-8'>
-        {isDomainConfigured ? (
-          <DomainList showForm={false} server={server} />
+        {domains.length ? (
+          <DomainList server={server} showSync={false} />
         ) : null}
       </div>
     </ServerOnboardingLayout>

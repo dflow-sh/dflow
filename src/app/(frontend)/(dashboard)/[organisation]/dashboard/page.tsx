@@ -1,6 +1,7 @@
 import LayoutClient from '../layout.client'
 import {
   AlertCircle,
+  ArrowUpRight,
   Folder,
   Gift,
   Plus,
@@ -77,18 +78,16 @@ const SuspendedDashboard = async ({
                 </h4>
                 <p className='text-sm text-info'>
                   You can claim rewards by joining our Discord community. Click
-                  on Claim Rewards to continue on dflow.sh
-                </p>
-              </div>
-              <div className='ml-auto'>
-                <Button variant='default' asChild>
+                  on Claim Rewards to continue on{' '}
                   <a
+                    className='inline-flex items-center text-foreground underline'
                     href='https://dflow.sh/dashboard'
                     target='_blank'
                     rel='noopener noreferrer'>
-                    Claim Rewards
+                    dflow.sh
+                    <ArrowUpRight size={16} />
                   </a>
-                </Button>
+                </p>
               </div>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -77,6 +77,23 @@ const CreateProject = ({
     }
   }, [manualOpen])
 
+  // if user has only one server, selecting that by-default by checking if onboarding and connection status
+  const defaultServerId = useMemo(() => {
+    if (servers.length === 1) {
+      const { connection, onboarded, id } = servers?.[0]
+      const isConnected = connection?.status === 'success'
+      const isOnboarded = onboarded === true
+
+      const isAvailable = isConnected && isOnboarded
+
+      if (isAvailable) {
+        return id
+      }
+    }
+
+    return ''
+  }, [servers])
+
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: project
@@ -91,7 +108,7 @@ const CreateProject = ({
       : {
           name: '',
           description: '',
-          serverId: '',
+          serverId: defaultServerId,
         },
   })
 

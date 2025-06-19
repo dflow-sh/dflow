@@ -75,22 +75,25 @@ export const LetsencryptForm = ({
     }
   }, [userEmail, form, defaultValues?.email])
 
-  const { execute, isPending } = useAction(configureLetsencryptPluginAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.info('Added to queue', {
-          description:
-            'Added to updating letsencrypt plugin configuration to queue',
-        })
+  const { execute, isPending, hasSucceeded } = useAction(
+    configureLetsencryptPluginAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.info('Added to queue', {
+            description:
+              'Added to updating letsencrypt plugin configuration to queue',
+          })
 
-        setOpen(false)
-        form.reset()
-      }
+          setOpen(false)
+          form.reset()
+        }
+      },
+      onError: ({ error }) => {
+        toast.info(`Failed to update config: ${error.serverError}`)
+      },
     },
-    onError: ({ error }) => {
-      toast.info(`Failed to update config: ${error.serverError}`)
-    },
-  })
+  )
 
   function onSubmit(values: z.infer<typeof configureLetsencryptPluginSchema>) {
     execute(values)
@@ -139,7 +142,10 @@ export const LetsencryptForm = ({
         />
 
         <DialogFooter>
-          <Button disabled={isPending} type='submit'>
+          <Button
+            disabled={isPending || hasSucceeded}
+            isLoading={isPending}
+            type='submit'>
             Save changes
           </Button>
         </DialogFooter>

@@ -165,7 +165,7 @@ export const updateServerDomainAction = protectedClient
   })
   .schema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, domain, operation } = clientInput
+    const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
 
     // Fetching server-details for showing previous details
@@ -176,15 +176,23 @@ export const updateServerDomainAction = protectedClient
 
     const previousDomains = serverPreviousDomains ?? []
 
-    const domains =
+    const filteredDomains =
       operation !== 'remove'
-        ? [...previousDomains, { domain, default: operation === 'set' }]
-        : previousDomains.filter(prevDomain => prevDomain.domain !== domain)
+        ? [
+            ...previousDomains,
+            ...domains.map(domain => ({
+              domain,
+              default: operation === 'set',
+            })),
+          ]
+        : previousDomains.filter(
+            prevDomain => !domains.includes(prevDomain.domain),
+          )
 
     const response = await payload.update({
       id,
       data: {
-        domains,
+        domains: filteredDomains,
       },
       collection: 'servers',
       depth: 10,
@@ -198,7 +206,7 @@ export const updateServerDomainAction = protectedClient
       await addManageServerDomainQueue({
         serverDetails: {
           global: {
-            domain,
+            domains,
             action: operation,
           },
           id,
@@ -318,7 +326,7 @@ export const syncServerDomainAction = protectedClient
   })
   .schema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, domain, operation } = clientInput
+    const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
 
     const response = await payload.findByID({
@@ -333,7 +341,7 @@ export const syncServerDomainAction = protectedClient
     const queueResponse = await addManageServerDomainQueue({
       serverDetails: {
         global: {
-          domain,
+          domains,
           action: operation,
         },
         id,

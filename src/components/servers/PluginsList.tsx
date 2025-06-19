@@ -254,7 +254,7 @@ const PluginsList = ({ server }: { server: ServerType }) => {
   )
 
   return (
-    <div className='space-y-4 rounded bg-muted/30 p-4'>
+    <div className='space-y-4'>
       <h4 className='text-lg font-semibold'>Plugins</h4>
 
       <Alert variant='info'>

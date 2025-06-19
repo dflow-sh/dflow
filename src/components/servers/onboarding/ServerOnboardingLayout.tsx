@@ -127,22 +127,27 @@ const ServerOnboardingLayout = ({
           </Button>
 
           <div className='flex-1' />
-
           {isLastStep ? (
-            <Button
-              variant={'default'}
-              className='flex items-center gap-2'
-              onClick={handleComplete}
-              disabled={!isFullyComplete || isPending}>
-              {isPending ? (
-                'Processing...'
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  Complete Setup
-                </>
-              )}
-            </Button>
+            <>
+              <Button variant='outline' className='mr-2'>
+                Sync Domains
+              </Button>
+
+              <Button
+                variant={'default'}
+                className='flex items-center gap-2'
+                onClick={handleComplete}
+                disabled={!isFullyComplete || isPending}>
+                {isPending ? (
+                  'Processing...'
+                ) : (
+                  <>
+                    <CheckCircle size={18} />
+                    Complete Setup
+                  </>
+                )}
+              </Button>
+            </>
           ) : (
             <Button
               variant={'outline'}

@@ -1,12 +1,16 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-export const removeGlobal = async (
-  ssh: NodeSSH,
-  domainName: string,
-  options?: SSHExecOptions,
-) => {
+export const removeGlobal = async ({
+  domains,
+  ssh,
+  options,
+}: {
+  ssh: NodeSSH
+  domains: string[]
+  options?: SSHExecOptions
+}) => {
   const resultRemoveGlobalDomain = await ssh.execCommand(
-    `dokku domains:remove-global ${domainName}`,
+    `dokku domains:remove-global ${domains.join(' ')}`,
     options,
   )
 

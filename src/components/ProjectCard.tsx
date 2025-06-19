@@ -167,8 +167,10 @@ export function ProjectCard({
           </CardHeader>
 
           <CardContent className='flex flex-col gap-2'>
-            <div className='z-10 flex justify-end'>
-              <Badge variant={serverExists ? 'secondary' : 'destructive'}>
+            <div className='flex justify-end'>
+              <Badge
+                className='z-10'
+                variant={serverExists ? 'secondary' : 'destructive'}>
                 <div className='flex items-center gap-x-2'>
                   <HardDrive size={16} />
 
