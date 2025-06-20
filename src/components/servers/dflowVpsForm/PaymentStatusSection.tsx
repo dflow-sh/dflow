@@ -54,6 +54,13 @@ export const PaymentStatusSection = () => {
   const hasValidCard = paymentData ? paymentData.validCardCount > 0 : false
   const canProceed = hasWalletBalance || hasValidCard
 
+  const walletCreditsApplied = paymentData
+    ? Math.min(paymentData.walletBalance, planCost)
+    : 0
+
+  const finalPrice = planCost - walletCreditsApplied
+  const isCreditsUsed = walletCreditsApplied > 0
+
   const getPaymentRecommendations = () => {
     const recommendations: React.ReactNode[] = []
 
@@ -153,7 +160,7 @@ export const PaymentStatusSection = () => {
           <div className='flex items-start gap-3'>
             {getPaymentStatusIcon()}
             <div className='flex-1 space-y-2'>
-              <div className='flex items-center gap-4 text-sm'>
+              <div className='flex flex-wrap items-center gap-4 text-sm'>
                 <div className='flex items-center gap-2'>
                   <Wallet className='h-4 w-4' />
                   <span>Wallet: ${paymentData.walletBalance.toFixed(2)}</span>
@@ -174,8 +181,19 @@ export const PaymentStatusSection = () => {
                 </div>
                 <div className='flex items-center gap-2'>
                   <span className='font-medium'>
-                    Cost: ${planCost.toFixed(2)}
+                    Final Price:{' '}
+                    {finalPrice === 0 ? (
+                      <span className='font-semibold text-green-600'>Free</span>
+                    ) : (
+                      `$${finalPrice.toFixed(2)}`
+                    )}
                   </span>
+
+                  {isCreditsUsed && (
+                    <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs'>
+                      Credits Applied: -${walletCreditsApplied.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               </div>
               {getPaymentRecommendations().length > 0 && (

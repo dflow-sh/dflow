@@ -2,13 +2,21 @@
 
 import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { formatValue } from '../utils'
+import { useAction } from 'next-safe-action/hooks'
+import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { getDflowUser } from '@/actions/cloud/dFlow'
 import { Separator } from '@/components/ui/separator'
 
 export const PriceSummarySection = () => {
   const { vpsPlan, pricing } = useDflowVpsForm()
   const form = useFormContext()
+  const { execute, result } = useAction(getDflowUser)
+
+  useEffect(() => {
+    execute()
+  }, [])
 
   const {
     selectedPricing,
@@ -20,6 +28,11 @@ export const PriceSummarySection = () => {
   } = pricing
 
   const selectedImageVersionId = form.watch('image.versionId')
+
+  // Wallet logic
+  const walletBalance = result?.data?.users?.at(0)?.user?.wallet || 0
+  const walletUsed = Math.min(walletBalance, planCost)
+  const finalCost = Math.max(planCost - walletBalance, 0)
 
   return (
     <div className='mb-6'>
@@ -97,13 +110,20 @@ export const PriceSummarySection = () => {
           </div>
         )}
 
+        {walletUsed > 0 && (
+          <div className='flex justify-between'>
+            <span className='text-muted-foreground'>Wallet Credits</span>
+            <span className='text-green-600'>- {formatValue(walletUsed)}</span>
+          </div>
+        )}
+
         <Separator className='my-2' />
 
         <div className='flex justify-between'>
           <span className='font-bold text-foreground'>
             Total ({selectedPricing?.period || 1} month)
           </span>
-          <span className='text-lg text-primary'>{formatValue(planCost)}</span>
+          <span className='text-lg text-primary'>{formatValue(finalCost)}</span>
         </div>
       </div>
     </div>

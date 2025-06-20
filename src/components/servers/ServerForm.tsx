@@ -83,6 +83,50 @@ interface ServerFormProps {
   dFlowUser?: any
 }
 
+const calculateDiscountedPrice = (
+  originalPrice: number,
+  walletBalance: number,
+) => {
+  if (originalPrice <= 0) return { finalPrice: 0, creditsApplied: 0 }
+
+  const creditsApplied = Math.min(walletBalance, originalPrice)
+  const finalPrice = Math.max(0, originalPrice - creditsApplied)
+
+  return { finalPrice, creditsApplied }
+}
+
+const formatDiscountedPrice = (plan: VpsPlan, walletBalance: number = 0) => {
+  const originalPrice = plan.pricing?.[0]?.price || 0
+
+  if (originalPrice === 0) return 'Free'
+
+  const { finalPrice, creditsApplied } = calculateDiscountedPrice(
+    originalPrice,
+    walletBalance,
+  )
+
+  if (finalPrice === 0) {
+    return 'Free'
+  }
+
+  if (creditsApplied > 0) {
+    return `$${finalPrice.toFixed(2)}/month`
+  }
+
+  return `$${originalPrice.toFixed(2)}/month`
+}
+
+const shouldShowCreditsNote = (plan: VpsPlan, walletBalance: number = 0) => {
+  const originalPrice = plan.pricing?.[0]?.price || 0
+  if (originalPrice <= 0) return false
+
+  const { creditsApplied } = calculateDiscountedPrice(
+    originalPrice,
+    walletBalance,
+  )
+  return creditsApplied > 0
+}
+
 const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   setType,
   setOption,
@@ -178,9 +222,9 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
   const formatSpecs = (plan: VpsPlan) => {
     return `${plan.cpu.cores}C ${plan.cpu.type} • ${plan.ram.size}${plan.ram.unit} RAM • ${plan.storageOptions?.[0]?.size}${plan.storageOptions?.[0]?.unit} ${plan.storageOptions?.[0]?.type}`
   }
-
   const formatPrice = (plan: VpsPlan) => {
-    return plan.pricing?.[0] ? `${plan.pricing[0].price.toFixed(2)}/month` : ''
+    const walletBalance = paymentData?.walletBalance || 0
+    return formatDiscountedPrice(plan, walletBalance)
   }
 
   const selectedAccount = dFlowAccounts?.find(
@@ -220,18 +264,36 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
     if (!paymentData) return recommendations
 
+    // Calculate the actual amount needed after applying wallet credits
+    const { finalPrice, creditsApplied } = calculateDiscountedPrice(
+      planCost,
+      paymentData.walletBalance,
+    )
+
     if (planCost === 0) {
       recommendations.push(
         'This service is free. You can proceed without any payment.',
       )
     } else if (hasWalletBalance && hasValidCard) {
-      recommendations.push(
-        `You can use your wallet balance ($${paymentData.walletBalance.toFixed(2)}) or your saved payment card.`,
-      )
+      if (finalPrice === 0) {
+        recommendations.push(
+          `Your wallet balance ($${paymentData.walletBalance.toFixed(2)}) covers the full cost. This service will be free for you.`,
+        )
+      } else {
+        recommendations.push(
+          `You can use your wallet balance ($${paymentData.walletBalance.toFixed(2)}) and your saved payment card for the remaining amount.`,
+        )
+      }
     } else if (hasWalletBalance) {
-      recommendations.push(
-        `You can use your wallet balance ($${paymentData.walletBalance.toFixed(2)}) for this purchase.`,
-      )
+      if (finalPrice === 0) {
+        recommendations.push(
+          `Your wallet balance ($${paymentData.walletBalance.toFixed(2)}) covers the full cost. This service will be free for you.`,
+        )
+      } else {
+        recommendations.push(
+          `Your wallet balance ($${paymentData.walletBalance.toFixed(2)}) will be applied, but you need an additional payment method for the remaining amount.`,
+        )
+      }
     } else if (hasValidCard) {
       recommendations.push(
         'Your saved payment card will be charged for this service.',
@@ -240,11 +302,20 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
       recommendations.push(
         'You need to add a payment method or top up your wallet to proceed.',
       )
+
+      // Show the actual required amount (after wallet credits)
+      const requiredAmount = finalPrice > 0 ? finalPrice : planCost
       recommendations.push(
         <span key='required-amount'>
-          Required amount: ${planCost.toFixed(2)}
+          Required amount: ${requiredAmount.toFixed(2)}
+          {creditsApplied > 0 && (
+            <span className='ml-2 text-sm text-green-600'>
+              (${creditsApplied.toFixed(2)} wallet credit will be applied)
+            </span>
+          )}
         </span>,
       )
+
       recommendations.push(
         <Card key='payment-card' className='mt-4'>
           <CardContent className='p-4'>
@@ -263,7 +334,12 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                       •
                     </span>
                     <span className='font-semibold'>
-                      ${planCost.toFixed(2)} required
+                      ${requiredAmount.toFixed(2)} required
+                      {creditsApplied > 0 && (
+                        <span className='ml-1 text-xs text-green-600'>
+                          (after ${creditsApplied.toFixed(2)} credit)
+                        </span>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -328,41 +404,65 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 onValueChange={(value: string) =>
                   handleOptionChange(value, 'dFlow')
                 }>
-                {vpsPlans.map(plan => (
-                  <div
-                    key={plan.slug}
-                    className={`relative flex w-full items-start rounded-md border ${
-                      selectedOption === plan.slug
-                        ? 'border-2 border-primary'
-                        : 'border-input'
-                    } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
-                    <RadioGroupItem
-                      value={String(plan.slug)}
-                      id={`${id}-${plan.slug}`}
-                      className='order-1 after:absolute after:inset-0'
-                    />
-                    <div className='flex grow items-center gap-4'>
-                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
-                        <Cloud className='h-5 w-5' />
-                      </div>
-                      <div className='space-y-1'>
-                        <div className='flex items-center gap-2'>
-                          <Label
-                            htmlFor={`${id}-${plan.slug}`}
-                            className='cursor-pointer font-medium'>
-                            {plan.name}
-                          </Label>
+                {vpsPlans.map(plan => {
+                  const originalPrice = plan.pricing?.[0]?.price || 0
+                  const walletBalance = paymentData?.walletBalance || 0
+                  const { finalPrice, creditsApplied } =
+                    calculateDiscountedPrice(originalPrice, walletBalance)
+                  const showCreditsNote = shouldShowCreditsNote(
+                    plan,
+                    walletBalance,
+                  )
+
+                  return (
+                    <div
+                      key={plan.slug}
+                      className={`relative flex w-full items-start rounded-md border ${
+                        selectedOption === plan.slug
+                          ? 'border-2 border-primary'
+                          : 'border-input'
+                      } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                      <RadioGroupItem
+                        value={String(plan.slug)}
+                        id={`${id}-${plan.slug}`}
+                        className='order-1 after:absolute after:inset-0'
+                      />
+                      <div className='flex grow items-center gap-4'>
+                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                          <Cloud className='h-5 w-5' />
                         </div>
-                        <p className='text-sm text-muted-foreground'>
-                          {formatSpecs(plan)}
-                        </p>
-                        <p className='text-sm font-medium text-primary'>
-                          {formatPrice(plan)}
-                        </p>
+                        <div className='space-y-1'>
+                          <div className='flex items-center gap-2'>
+                            <Label
+                              htmlFor={`${id}-${plan.slug}`}
+                              className='cursor-pointer font-medium'>
+                              {plan.name}
+                            </Label>
+                          </div>
+                          <p className='text-sm text-muted-foreground'>
+                            {formatSpecs(plan)}
+                          </p>
+                          <div className='flex flex-col gap-1'>
+                            <div className='flex items-center gap-2'>
+                              <span
+                                className={`text-sm font-medium text-primary`}>
+                                {formatDiscountedPrice(plan, walletBalance)}
+                              </span>
+                            </div>
+                            {/* Credits applied note */}
+                            {showCreditsNote && (
+                              <div className='flex items-center gap-1'>
+                                <span className='text-xs font-medium text-green-600'>
+                                  Credits Applied: -${creditsApplied.toFixed(2)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </RadioGroup>
             )}
 
@@ -402,7 +502,30 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                             </div>
                             {planCost > 0 && (
                               <div className='flex items-center gap-2'>
-                                <span>Cost: ${planCost.toFixed(2)}</span>
+                                {(() => {
+                                  const { finalPrice, creditsApplied } =
+                                    calculateDiscountedPrice(
+                                      planCost,
+                                      paymentData.walletBalance,
+                                    )
+
+                                  if (creditsApplied > 0) {
+                                    return (
+                                      <div className='flex items-center gap-2'>
+                                        <span className={`font-medium`}>
+                                          Final: ${finalPrice.toFixed(2)}
+                                        </span>
+                                        <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs text-foreground'>
+                                          -${creditsApplied.toFixed(2)} credits
+                                        </span>
+                                      </div>
+                                    )
+                                  }
+
+                                  return (
+                                    <span>Cost: ${planCost.toFixed(2)}</span>
+                                  )
+                                })()}
                               </div>
                             )}
                           </div>
