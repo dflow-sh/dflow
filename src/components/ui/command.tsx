@@ -21,7 +21,7 @@ function Command({
     <CommandPrimitive
       data-slot='command'
       className={cn(
-        'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+        'flex h-full w-full flex-col overflow-hidden rounded-md bg-card/30 text-popover-foreground',
         className,
       )}
       {...props}
