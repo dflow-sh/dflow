@@ -20,7 +20,7 @@ export const TermLengthSection = () => {
     execute()
   }, [])
 
-  const walletBalance = result?.data?.users?.at(0)?.user?.wallet || 0
+  const walletBalance = result?.data?.user?.wallet || 0
 
   return (
     <div className='mb-6'>
