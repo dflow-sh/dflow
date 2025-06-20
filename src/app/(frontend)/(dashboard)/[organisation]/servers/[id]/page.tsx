@@ -7,8 +7,10 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
+import SidebarToggleButton from '@/components/SidebarToggleButton'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
+import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
@@ -183,7 +185,20 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
   return (
     <>
       <SSHConnectionAlert server={server} />
-      <div className='mt-2'>
+
+      <div className='space-y-4'>
+        <div className='flex w-full items-center justify-between'>
+          <div className='flex items-center'>
+            <h4 className='text-lg font-semibold'>Domains</h4>
+            <SidebarToggleButton
+              directory='servers'
+              fileName='domains'
+              sectionId='#️-server-level-domains'
+            />
+          </div>
+          <DomainForm server={server} />
+        </div>
+
         <DomainList server={server} />
       </div>
     </>

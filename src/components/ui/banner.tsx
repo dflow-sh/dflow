@@ -132,16 +132,17 @@ export default function BannerComponent({ banners }: BannerProps) {
         <>
           <Button
             variant='ghost'
-            size='sm'
-            className={`absolute left-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 p-0 text-slate-200`}
+            size='icon'
+            className={`absolute left-2 top-1/2 z-10 size-6 -translate-y-1/2`}
             onClick={scrollToPrev}>
             <ChevronLeft className='h-4 w-4' />
             <span className='sr-only'>Previous banner</span>
           </Button>
+
           <Button
             variant='ghost'
-            size='sm'
-            className={`absolute right-2 top-1/2 z-10 h-8 w-8 -translate-y-1/2 rounded-lg border-0 p-0 text-slate-200`}
+            size='icon'
+            className={`absolute right-2 top-1/2 z-10 size-6 -translate-y-1/2`}
             onClick={scrollToNext}>
             <ChevronRight className='h-4 w-4' />
             <span className='sr-only'>Next banner</span>
@@ -174,14 +175,15 @@ export default function BannerComponent({ banners }: BannerProps) {
                       {banner.title}
                     </span>
                   )}
-                  <span className='text-sm text-white'>{banner.content}</span>
+
+                  <span className='text-sm'>{banner.content}</span>
                 </div>
 
                 {banner.cta?.label && banner.cta?.url && (
                   <Button
                     variant={'outline'}
                     size='sm'
-                    className={`px-4 text-slate-200 ${ctaButtonStyles[banner.variant ?? 'info']}`}
+                    className={`h-6 rounded-sm border-none px-3 text-slate-200 ${ctaButtonStyles[banner.variant ?? 'info']}`}
                     onClick={() => {
                       if (banner.cta?.isExternal) {
                         window.open(
@@ -199,10 +201,12 @@ export default function BannerComponent({ banners }: BannerProps) {
               </div>
 
               {banner.isDismissible && (
-                <X
-                  className='h-3.5 w-3.5 cursor-pointer stroke-white'
-                  onClick={() => dismissBanner(banner.id)}
-                />
+                <Button variant='ghost' size='icon' className='size-6'>
+                  <X
+                    className='h-3.5 w-3.5 cursor-pointer stroke-white'
+                    onClick={() => dismissBanner(banner.id)}
+                  />
+                </Button>
               )}
             </div>
           </div>

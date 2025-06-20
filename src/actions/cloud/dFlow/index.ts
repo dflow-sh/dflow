@@ -146,7 +146,8 @@ export const createSshKeysAndVpsAction = protectedClient
 
     // 3. Proceed with VPS creation
     console.log('Payment verified. Triggering VPS creation queue...')
-    await addCreateVpsQueue({
+
+    const createVPSresponse = await addCreateVpsQueue({
       sshKeys,
       vps,
       accountDetails: {
@@ -156,16 +157,19 @@ export const createSshKeysAndVpsAction = protectedClient
       tenant: userTenant.tenant,
     })
 
-    console.log('VPS creation process initiated successfully')
-    return {
-      success: true,
-      data: {
-        accountId: dFlowAccount.id,
-        vpsName: vps.displayName,
-        estimatedCost: vps.estimatedCost,
-      },
-      message:
-        'VPS creation process started. You will receive updates on the progress.',
+    if (createVPSresponse.id) {
+      console.log('VPS creation process initiated successfully')
+
+      return {
+        success: true,
+        data: {
+          accountId: dFlowAccount.id,
+          vpsName: vps.displayName,
+          estimatedCost: vps.estimatedCost,
+        },
+        message:
+          'VPS creation process started. You will receive updates on the progress.',
+      }
     }
   })
 
@@ -370,81 +374,40 @@ export const getDflowUser = protectedClient
   .action(async ({ ctx }) => {
     const { payload, userTenant } = ctx
 
+    const { docs: dflowAccounts } = await payload.find({
+      collection: 'cloudProviderAccounts',
+      pagination: false,
+      where: {
+        and: [
+          { type: { equals: 'dFlow' } },
+          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+        ],
+      },
+    })
+
+    if (!dflowAccounts || dflowAccounts.length === 0) {
+      throw new Error('No connected dFlow accounts found')
+    }
+
+    const dflowAccount = dflowAccounts?.[0]
+    const token = dflowAccount.dFlowDetails?.accessToken
+
+    let user = null
+
     try {
-      const { docs: dflowAccounts } = await payload.find({
-        collection: 'cloudProviderAccounts',
-        pagination: false,
-        where: {
-          and: [
-            { type: { equals: 'dFlow' } },
-            { 'tenant.slug': { equals: userTenant.tenant?.slug } },
-          ],
+      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
+        timeout: 10000,
       })
 
-      if (!dflowAccounts || dflowAccounts.length === 0) {
-        throw new Error('No connected dFlow accounts found')
-      }
-
-      const results = await Promise.allSettled(
-        dflowAccounts.map(async account => {
-          const token = account.dFlowDetails?.accessToken
-
-          if (!token || typeof token !== 'string' || token.trim() === '') {
-            throw new Error(
-              ` Missing or invalid token for account ID: ${account.id}`,
-            )
-          }
-
-          const response = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
-            headers: {
-              Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
-            },
-            timeout: 10000,
-          })
-
-          const user = response?.data?.docs?.[0]
-          if (!user) {
-            throw new Error(`User not found for account ID: ${account.id}`)
-          }
-
-          return {
-            accountId: account.id,
-            user,
-          }
-        }),
-      )
-
-      const successfulUsers = results
-        .filter(result => result.status === 'fulfilled')
-        .map(result => (result as PromiseFulfilledResult<any>).value)
-
-      const errors = results
-        .filter(result => result.status === 'rejected')
-        .map(result => (result as PromiseRejectedResult).reason)
-
-      if (successfulUsers.length === 0) {
-        throw new Error(
-          `Failed to fetch user data for all dFlow accounts. Errors: ${errors.map(e => e.message).join(', ')}`,
-        )
-      }
-
-      return {
-        users: successfulUsers,
-        errors,
-      }
+      user = response?.data?.docs?.[0]
     } catch (error) {
-      console.error('Error fetching dFlow user(s):', error)
-
-      if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.message ||
-          error.response?.statusText ||
-          error.message ||
-          'Unknown error from dFlow'
-        throw new Error(message)
-      }
-
-      throw error
+      console.log(
+        `Failed to fetch user details with account: ${dflowAccount.id}`,
+      )
     }
+
+    return { user, account: dflowAccount }
   })

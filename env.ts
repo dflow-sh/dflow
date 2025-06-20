@@ -23,6 +23,8 @@ export const env = createEnv({
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
     NEXT_PUBLIC_WEBHOOK_URL: z.string().url().optional(),
     NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED: z.literal('1').optional(),
+    NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: z.string().min(1).optional(),
+    NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: z.string().min(1).optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -37,6 +39,10 @@ export const env = createEnv({
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_SENDER_EMAIL: process.env.RESEND_SENDER_EMAIL,
     RESEND_SENDER_NAME: process.env.RESEND_SENDER_NAME,
+    NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN:
+      process.env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN,
+    NEXT_PUBLIC_BETTER_STACK_INGESTING_URL:
+      process.env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL,
   },
   emptyStringAsUndefined: true,
 })

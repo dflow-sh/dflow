@@ -3,9 +3,13 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'
+import { parseAsBoolean, useQueryState } from 'nuqs'
 import { toast } from 'sonner'
 
-import { completeServerOnboardingAction } from '@/actions/server'
+import {
+  completeServerOnboardingAction,
+  syncServerDomainAction,
+} from '@/actions/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { ServerType } from '@/payload-types-overrides'
@@ -29,6 +33,10 @@ const ServerOnboardingLayout = ({
     useServerOnboarding()
   const router = useRouter()
   const { organisation } = useParams<{ organisation: string }>()
+  const [domainsVerified, setDomainsVerified] = useQueryState(
+    'domains-verified',
+    parseAsBoolean.withDefault(false),
+  )
 
   const isLastStep = currentStep === totalSteps
 
@@ -87,8 +95,34 @@ const ServerOnboardingLayout = ({
     },
   })
 
+  const {
+    execute: syncDomain,
+    isPending: syncingDomains,
+    hasSucceeded: triggeredDomainsSync,
+  } = useAction(syncServerDomainAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.info('Added to queue', {
+          description: 'Added syncing domains to queue',
+        })
+      }
+    },
+  })
+
   const handleComplete = () => {
     execute({ serverId: server.id })
+  }
+
+  const handleSyncDomains = () => {
+    const unsyncedDomains = (server?.domains ?? [])
+      .filter(({ synced }) => !synced)
+      .map(({ domain }) => domain)
+
+    syncDomain({
+      domains: unsyncedDomains,
+      id: server.id,
+      operation: 'add',
+    })
   }
 
   return (
@@ -121,28 +155,46 @@ const ServerOnboardingLayout = ({
             size={'icon'}
             onClick={() => {
               previousStep()
+              setDomainsVerified(null)
             }}
             disabled={currentStep === 1}>
             <ChevronLeft size={24} />
           </Button>
 
           <div className='flex-1' />
-
           {isLastStep ? (
-            <Button
-              variant={'default'}
-              className='flex items-center gap-2'
-              onClick={handleComplete}
-              disabled={!isFullyComplete || isPending}>
-              {isPending ? (
-                'Processing...'
-              ) : (
-                <>
-                  <CheckCircle size={18} />
-                  Complete Setup
-                </>
-              )}
-            </Button>
+            <>
+              <Button
+                variant='outline'
+                isLoading={syncingDomains}
+                disabled={
+                  syncingDomains ||
+                  triggeredDomainsSync ||
+                  !(server?.domains ?? []).length ||
+                  !domainsVerified
+                }
+                className='mr-2'
+                onClick={() => {
+                  handleSyncDomains()
+                }}>
+                Sync Domains
+              </Button>
+
+              <Button
+                variant={'default'}
+                className='flex items-center gap-2'
+                onClick={handleComplete}
+                disabled={!isFullyComplete || isPending}>
+                {isPending ? (
+                  'Processing...'
+                ) : (
+                  <>
+                    <CheckCircle size={18} />
+                    Complete Setup
+                  </>
+                )}
+              </Button>
+            </>
           ) : (
             <Button
               variant={'outline'}

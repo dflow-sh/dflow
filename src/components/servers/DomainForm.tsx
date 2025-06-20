@@ -1,6 +1,5 @@
 'use client'
 
-import SidebarToggleButton from '../SidebarToggleButton'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -71,12 +70,13 @@ export const DomainFormWithoutDialog = ({
   })
 
   const { execute, isPending, input } = useAction(updateServerDomainAction, {
-    onSuccess: ({ input, data }) => {
+    onSuccess: ({ data }) => {
       if (data?.success) {
         setOpen?.(false)
         form.reset()
-        toast.info('Added domain to server', {
-          description: `Please sync domain`,
+        toast.info('Successfully added domain', {
+          description: `Please add necessary records and sync domain`,
+          duration: 2500,
         })
 
         if (pathName.includes('onboarding')) {
@@ -84,17 +84,20 @@ export const DomainFormWithoutDialog = ({
         }
       }
     },
+    onError: ({ error }) => {
+      toast.error(`Failed to add domain: ${error.serverError}`)
+    },
   })
 
   function onSubmit(values: z.infer<typeof subdomainSchema>) {
     execute({
       operation: values.defaultDomain ? 'set' : 'add',
       id: server.id,
-      domain: values.domain,
+      domains: [values.domain],
     })
   }
 
-  const parts = input?.domain?.split('.')
+  const parts = input?.domains?.[0]?.split('.')
 
   return (
     <>
@@ -177,11 +180,6 @@ const DomainForm = ({ server }: { server: ServerType | Server }) => {
           <Plus /> Add Domain
         </Button>
       </DialogTrigger>
-      <SidebarToggleButton
-        directory='servers'
-        fileName='domains'
-        sectionId='#️-server-level-domains'
-      />
 
       <DialogContent>
         <DialogHeader>

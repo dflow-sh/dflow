@@ -1,12 +1,16 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-export const setGlobal = async (
-  ssh: NodeSSH,
-  domainName: string,
-  options?: SSHExecOptions,
-) => {
+export const setGlobal = async ({
+  domains,
+  ssh,
+  options,
+}: {
+  ssh: NodeSSH
+  domains: string[]
+  options?: SSHExecOptions
+}) => {
   const resultSetGlobalDomain = await ssh.execCommand(
-    `dokku domains:set-global ${domainName}`,
+    `dokku domains:set-global ${domains.join(' ')}`,
     options,
   )
 

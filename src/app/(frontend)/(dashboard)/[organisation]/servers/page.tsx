@@ -44,21 +44,25 @@ const SuspendedServers = async ({
       ) : (
         <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
           <div className='grid min-h-[40vh] place-items-center'>
-            <div className='space-y-4'>
+            <div>
               <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
                 <Server className='h-8 w-8 animate-pulse text-muted-foreground' />
               </div>
-              <h3 className='text-xl font-semibold text-foreground'>
-                No Servers Added
-              </h3>
-              <p className='text-base text-muted-foreground'>
-                Get started by adding your first server.
-              </p>
+
+              <div className='my-4'>
+                <h3 className='text-xl font-semibold text-foreground'>
+                  No Servers Added
+                </h3>
+                <p className='text-base text-muted-foreground'>
+                  Get started by adding your first server.
+                </p>
+              </div>
+
               <Link
                 className='block'
                 href={`/${organisationSlug}/servers/add-new-server`}>
-                <Button size='sm' className='mt-2'>
-                  <Plus className='mr-2 h-4 w-4' />
+                <Button className='mt-2'>
+                  <Plus className='h-4 w-4' />
                   Add Your First Server
                 </Button>
               </Link>
@@ -89,8 +93,8 @@ const ServersPage = async ({ params }: PageProps) => {
             <SyncDFlow />
 
             <Link href={`/${syncParams.organisation}/servers/add-new-server`}>
-              <Button size={'default'} variant={'default'}>
-                <Plus className='mr-2 h-4 w-4' />
+              <Button variant={'default'}>
+                <Plus size={16} />
                 Add New Server
               </Button>
             </Link>

@@ -25,7 +25,7 @@ interface QueueArgs {
   }
   serverDetails: {
     global: {
-      domain: string
+      domains: string[]
       action: 'add' | 'remove' | 'set'
     }
     id: string
@@ -65,10 +65,10 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
         if (global) {
           switch (global.action) {
             case 'add':
-              executionResponse = await dokku.domains.addGlobal(
+              executionResponse = await dokku.domains.addGlobal({
                 ssh,
-                global.domain,
-                {
+                domains: global.domains,
+                options: {
                   onStdout: async chunk => {
                     sendEvent({
                       pub,
@@ -84,13 +84,13 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
                     })
                   },
                 },
-              )
+              })
               break
             case 'remove':
-              executionResponse = await dokku.domains.removeGlobal(
+              executionResponse = await dokku.domains.removeGlobal({
                 ssh,
-                global.domain,
-                {
+                domains: global.domains,
+                options: {
                   onStdout: async chunk => {
                     sendEvent({
                       pub,
@@ -106,13 +106,13 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
                     })
                   },
                 },
-              )
+              })
               break
             case 'set':
-              executionResponse = await dokku.domains.setGlobal(
+              executionResponse = await dokku.domains.setGlobal({
                 ssh,
-                global.domain,
-                {
+                domains: global.domains,
+                options: {
                   onStdout: async chunk => {
                     sendEvent({
                       pub,
@@ -128,7 +128,7 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
                     })
                   },
                 },
-              )
+              })
               break
             default:
               break
@@ -137,7 +137,7 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
           if (executionResponse.code === 0) {
             sendEvent({
               pub,
-              message: `✅ Successfully ${global.action}ed global domain ${global.domain}, updating details...`,
+              message: `✅ Successfully ${global.action}ed global domain ${global.domains.join(', ')}, updating details...`,
               serverId: serverDetails.id,
             })
 
@@ -179,7 +179,7 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
         let message = error instanceof Error ? error.message : ''
 
         throw new Error(
-          `❌ failed to ${serverDetails?.global.action} for domain ${serverDetails?.global?.domain}: ${message}`,
+          `❌ failed to ${serverDetails?.global.action} for domain ${serverDetails?.global?.domains.join(', ')}: ${message}`,
         )
       } finally {
         ssh?.dispose()
@@ -200,7 +200,7 @@ export const addManageServerDomainQueue = async (data: QueueArgs) => {
     }
   })
 
-  const id = `manage-global-domain-${data.serverDetails.global?.domain}-:${new Date().getTime()}`
+  const id = `manage-global-domain-${data.serverDetails.global?.domains.join(', ')}-:${new Date().getTime()}`
 
   return await manageServerDomainQueue.add(id, data, {
     jobId: id,

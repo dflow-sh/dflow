@@ -20,8 +20,11 @@ const ServerOnboardingContent = ({ server }: { server: ServerType }) => {
 
   return (
     <>
-      {currentStep === 1 && <DokkuInstallation server={server} />}
-      {currentStep === 2 && <ConfigureDomain server={server} />}
+      {currentStep === 1 ? (
+        <DokkuInstallation server={server} />
+      ) : (
+        <ConfigureDomain server={server} />
+      )}
     </>
   )
 }
@@ -35,27 +38,6 @@ const ServerOnboarding = ({
   sshKeys: SshKey[]
   securityGroups: SecurityGroup[]
 }) => {
-  const UpdateServerForm = () => {
-    if (server.provider === 'aws') {
-      return (
-        <UpdateEC2InstanceForm
-          sshKeys={sshKeys}
-          server={server}
-          securityGroups={securityGroups}
-          formType='update'
-        />
-      )
-    }
-
-    return (
-      <UpdateManualServerFrom
-        server={server}
-        sshKeys={sshKeys}
-        formType='update'
-      />
-    )
-  }
-
   return (
     <ServerOnboardingProvider totalSteps={2}>
       <DokkuInstallationStepContextProvider>
@@ -71,8 +53,21 @@ const ServerOnboarding = ({
 
           <TabsContent value='configuration'>
             <Card>
-              <CardContent className='pt-4'> 
-                <UpdateServerForm />
+              <CardContent className='pt-4'>
+                {server.provider === 'aws' ? (
+                  <UpdateEC2InstanceForm
+                    sshKeys={sshKeys}
+                    server={server}
+                    securityGroups={securityGroups}
+                    formType='update'
+                  />
+                ) : (
+                  <UpdateManualServerFrom
+                    server={server}
+                    sshKeys={sshKeys}
+                    formType='update'
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>

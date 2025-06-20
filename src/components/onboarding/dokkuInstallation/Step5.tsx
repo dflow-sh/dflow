@@ -1,11 +1,9 @@
 'use client'
 
-import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { completeServerOnboardingAction } from '@/actions/server'
 import { pluginList } from '@/components/plugins'
 import { LetsencryptForm } from '@/components/servers/PluginConfigurationForm'
 import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
@@ -24,7 +22,7 @@ const Step5 = ({
   user?: User
 }) => {
   const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const serverOnboardingContext = useServerOnboarding()
+  const { currentStep, setCurrentStep } = useServerOnboarding()
 
   const router = useRouter()
   const plugins = server?.plugins ?? []
@@ -45,27 +43,13 @@ const Step5 = ({
       duration: 3000,
       onAutoClose: () => {
         if (isServerOnboarding) {
-          serverOnboardingContext?.nextStep()
+          setCurrentStep(2)
         } else {
           router.push(`/onboarding/configure-domain?server=${server.id}`)
         }
       },
     })
   }
-
-  const { execute: updateServer, hasSucceeded: updatedServer } = useAction(
-    completeServerOnboardingAction,
-    {
-      onExecute: () => {
-        toast.loading('Marking server as onboarded...', {
-          id: 'server-onboarding',
-        })
-      },
-      onSettled: () => {
-        toast.dismiss('server-onboarding')
-      },
-    },
-  )
 
   useEffect(() => {
     if ('name' in pluginDetails && dokkuInstallationStep === 5) {
@@ -76,25 +60,10 @@ const Step5 = ({
         pluginDetails.configuration.email
 
       if (!!letsencryptConfiguration) {
-        // if server is not onboarded and we're not in server-onboarding page skipping updating server onboarding status
-        if (!server?.onboarded && !isServerOnboarding) {
-          updateServer({
-            serverId: server.id,
-          })
-        } else {
-          if (!updatedServer) {
-            redirectToNextStep()
-          }
-        }
+        redirectToNextStep()
       }
     }
-  }, [server, dokkuInstallationStep])
-
-  useEffect(() => {
-    if (updatedServer) {
-      redirectToNextStep()
-    }
-  }, [updatedServer])
+  }, [server, dokkuInstallationStep, currentStep])
 
   return (
     <LetsencryptForm

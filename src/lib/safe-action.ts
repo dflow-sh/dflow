@@ -1,10 +1,12 @@
 import configPromise from '@payload-config'
+import { env } from 'env'
 import { createSafeActionClient } from 'next-safe-action'
 import { headers } from 'next/headers'
 import { forbidden } from 'next/navigation'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
+import { log } from '@/lib/logger'
 import { Tenant } from '@/payload-types'
 
 import { getTenant } from './get-tenant'
@@ -21,9 +23,23 @@ export const publicClient = createSafeActionClient({
     })
   },
   // Can also be an async function.
-  handleServerError(error) {
+  handleServerError(error, utils) {
     // Log to console.
     console.error('Action error:', error.message)
+    const { clientInput, metadata } = utils
+
+    if (
+      env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL &&
+      env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN
+    ) {
+      log.error(error.message, {
+        actionName: metadata?.actionName,
+        clientInput,
+        stack: error.stack,
+        errorType: error.constructor.name,
+      })
+    }
+
     // Returning the error message instead of throwing it
     return error.message
   },

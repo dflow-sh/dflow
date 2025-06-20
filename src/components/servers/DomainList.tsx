@@ -11,6 +11,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { parseAsBoolean, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -40,8 +41,6 @@ import { WILD_CARD_DOMAINS } from '@/lib/constants'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import DomainForm from './DomainForm'
-
 const extractWildcard = (domain: string) => {
   const match = domain.match(/^([\d\.]+|[^.]+)\./)
   return match ? match[1] : null
@@ -50,17 +49,23 @@ const extractWildcard = (domain: string) => {
 const DomainItem = ({
   domain,
   server,
+  showSync = true,
 }: {
   domain: NonNullable<ServerType['domains']>[number]
   server: ServerType | Server
+  showSync?: boolean // this prop is to hide sync button during server-onboarding time
 }) => {
+  const [, setDomainsVerified] = useQueryState(
+    'domains-verified',
+    parseAsBoolean.withDefault(false),
+  )
   const allDomains = server.domains ?? []
 
   const { execute, isPending } = useAction(updateServerDomainAction, {
     onSuccess: ({ input, data }) => {
       if (data?.success) {
         toast.info('Added to queue', {
-          description: `Added ${input.operation === 'set' ? 'setting' : 'removing'} domain ${input.domain} to queue`,
+          description: `Added ${input.operation === 'set' ? 'setting' : 'removing'} domain ${input.domains.join(', ')} to queue`,
         })
       }
     },
@@ -70,7 +75,19 @@ const DomainItem = ({
     execute: checkDNSConfig,
     isPending: checkingDNSConfig,
     result,
-  } = useAction(checkDNSConfigAction)
+  } = useAction(checkDNSConfigAction, {
+    onSuccess: ({ data: state }) => {
+      // if it's server-onboarding that time updating query-params
+      if (showSync) {
+        setDomainsVerified(state ?? false)
+      }
+    },
+    onError: ({ error, input }) => {
+      toast.error(
+        `Failed to verify ${input.domain} domain status: ${error.serverError}`,
+      )
+    },
+  })
 
   const {
     execute: syncDomain,
@@ -86,8 +103,19 @@ const DomainItem = ({
     },
   })
 
+  const isWildCardDomain = WILD_CARD_DOMAINS.some(wildCardDomain =>
+    domain.domain.endsWith(wildCardDomain),
+  )
+
   useEffect(() => {
-    checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+    if (!isWildCardDomain) {
+      checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+    }
+
+    // if it's server-onboarding that time updating query-params
+    if (isWildCardDomain && showSync) {
+      setDomainsVerified(true)
+    }
   }, [])
 
   useEffect(() => {
@@ -99,7 +127,7 @@ const DomainItem = ({
   }, [result?.serverError, checkingDNSConfig])
 
   const StatusBadge = () => {
-    if (checkingDNSConfig) {
+    if (checkingDNSConfig && !isWildCardDomain) {
       return (
         <Badge variant='info' className='gap-1 [&_svg]:size-4'>
           <Loader className='animate-spin' />
@@ -108,7 +136,7 @@ const DomainItem = ({
       )
     }
 
-    if (result?.data) {
+    if (result?.data || isWildCardDomain) {
       return (
         <Badge variant='success' className='gap-1 [&_svg]:size-4'>
           <CircleCheckBig />
@@ -180,37 +208,40 @@ const DomainItem = ({
           <div className='flex items-center gap-4 self-end'>
             <StatusBadge />
 
-            <Button
-              variant='outline'
-              disabled={
-                !!result?.serverError ||
-                checkingDNSConfig ||
-                syncingDomain ||
-                domain.synced ||
-                triggeredDomainSync
-              }
-              isLoading={syncingDomain}
-              onClick={() => {
-                // for first domain removing all the server pre-configured hostnames with set operation
-                syncDomain({
-                  domain: domain.domain,
-                  id: server.id,
-                  operation: allDomains.length === 1 ? 'set' : 'add',
-                })
-              }}>
-              {domain.synced
-                ? 'Synced Domain'
-                : triggeredDomainSync
-                  ? 'Syncing Domain'
-                  : 'Sync Domain'}
-            </Button>
+            {showSync && (
+              <Button
+                variant='outline'
+                disabled={
+                  !!result?.serverError ||
+                  checkingDNSConfig ||
+                  syncingDomain ||
+                  domain.synced ||
+                  triggeredDomainSync ||
+                  isPending
+                }
+                isLoading={syncingDomain}
+                onClick={() => {
+                  // for first domain removing all the server pre-configured hostnames with set operation
+                  syncDomain({
+                    domains: [domain.domain],
+                    id: server.id,
+                    operation: allDomains.length === 1 ? 'set' : 'add',
+                  })
+                }}>
+                {domain.synced
+                  ? 'Synced Domain'
+                  : triggeredDomainSync
+                    ? 'Syncing Domain'
+                    : 'Sync Domain'}
+              </Button>
+            )}
 
             <Button
               size='icon'
               onClick={() => {
                 execute({
                   operation: 'remove',
-                  domain: domain.domain,
+                  domains: [domain.domain],
                   id: server.id,
                 })
               }}
@@ -227,21 +258,24 @@ const DomainItem = ({
 
 const DomainList = ({
   server,
-  showForm = true,
+  showSync = true,
 }: {
   server: ServerType | Server
-  showForm?: boolean
+  showSync?: boolean
 }) => {
   const addedDomains = server.domains ?? []
 
   return (
     <div className='space-y-4'>
-      {showForm && <DomainForm server={server} />}
-
       {addedDomains.length ? (
         <div className='space-y-4'>
           {addedDomains.map(domain => (
-            <DomainItem key={domain.domain} domain={domain} server={server} />
+            <DomainItem
+              key={domain.id}
+              domain={domain}
+              server={server}
+              showSync={showSync}
+            />
           ))}
         </div>
       ) : (

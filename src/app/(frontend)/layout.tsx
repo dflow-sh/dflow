@@ -47,7 +47,9 @@ export default async function RootLayout({
           />
         )} */}
       </head>
-      <body className={`${geistSans.className} ${geistMono.variable}`}>
+
+      <body
+        className={`${geistSans.className} ${geistMono.variable} overflow-y-hidden`}>
         <NProgressProvider>
           <PosthogProvider>
             <SuspendedPostHogPageView />

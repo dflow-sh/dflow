@@ -20,8 +20,7 @@ import { ServerType } from '@/payload-types-overrides'
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
 const DokkuInstallation = ({ server }: { server: ServerType }) => {
-  const { dokkuInstallationStep, setDokkuInstallationStep } =
-    useDokkuInstallationStep()
+  const { dokkuInstallationStep } = useDokkuInstallationStep()
 
   const {
     execute: getUser,

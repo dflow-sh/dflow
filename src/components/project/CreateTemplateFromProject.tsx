@@ -20,6 +20,7 @@ import {
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Puzzle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -137,6 +138,7 @@ const CreateTemplateFromProject = ({
       toast.error('Failed to create template')
     },
   })
+
   const onSubmit = (data: CreateTemplateSchemaType) => {
     createTemplateAction({
       name: data.name,
@@ -144,9 +146,14 @@ const CreateTemplateFromProject = ({
       services: updatedServices,
     })
   }
+
   return (
     <>
-      <Button onClick={() => setOpen(true)}>Create Template</Button>
+      <Button variant='outline' onClick={() => setOpen(true)}>
+        <Puzzle />
+        Convert as Template
+      </Button>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>

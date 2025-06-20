@@ -45,4 +45,8 @@ export const sendActionEvent = ({
       JSON.stringify({ refresh: true }),
     )
   }
+
+  if (action === 'redirect') {
+    pub.publish(`refresh-channel-${tenantSlug}`, JSON.stringify({ path: url }))
+  }
 }
