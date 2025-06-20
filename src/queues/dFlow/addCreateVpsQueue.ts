@@ -202,6 +202,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             timeout: 30000,
           },
         )
+
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
         console.log(
@@ -232,6 +233,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           collection: 'servers',
           data: serverData,
         })
+
         console.log(
           `[${jobId}] Server record created with ID: ${createdServer.id}`,
         )
@@ -357,16 +359,10 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           url: `/${tenant.slug}/servers`,
         })
 
-        sendActionEvent({
-          pub,
-          action: 'redirect',
-          tenantSlug: tenant.slug,
-          url: `/${tenant.slug}/servers`,
-        })
-
         if (error instanceof VpsCreationError) {
           throw error
         }
+
         throw new VpsCreationError(
           'VPS creation failed: ' +
             (error instanceof Error ? error.message : 'Unknown error'),

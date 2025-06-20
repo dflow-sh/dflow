@@ -5,7 +5,6 @@ import {
   Folder,
   Gift,
   Plus,
-  PlusCircle,
   Server,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -33,9 +32,9 @@ const SuspendedDashboard = async ({
   organisationSlug: string
 }) => {
   const result = await getProjectsAndServers()
-  const dflowUsers = await getDflowUser()
-  const hasClaimedCredits =
-    dflowUsers?.data?.users?.at(0)?.user?.hasClaimedFreeCredits
+  const dflowUser = await getDflowUser()
+
+  const hasClaimedCredits = dflowUser?.data?.user?.hasClaimedFreeCredits
 
   const servers = result?.data?.serversRes.docs ?? []
   const projects = result?.data?.projectsRes.docs ?? []
@@ -69,14 +68,16 @@ const SuspendedDashboard = async ({
 
         {/* Claim Credits Section */}
         {!hasClaimedCredits && (
-          <div className='rounded-lg border border-info/50 bg-info-foreground/50 p-5 text-info dark:border-info'>
-            <div className='flex items-center gap-4'>
-              <Gift className='h-6 w-6 text-info' />
+          <div className='rounded-lg border border-info/50 bg-info-foreground/50 p-4 text-info'>
+            <div className='flex w-full gap-4'>
+              <Gift className='size-6 flex-shrink-0' />
+
               <div className='flex flex-col'>
-                <h4 className='text-lg font-medium text-info'>
+                <h4 className='text-lg font-medium'>
                   Claim your free credits!
                 </h4>
-                <p className='text-sm text-info'>
+
+                <p className='text-sm'>
                   You can claim rewards by joining our Discord community. Click
                   on Claim Rewards to continue on{' '}
                   <a
@@ -106,9 +107,12 @@ const SuspendedDashboard = async ({
                   To get started, you need at least one server connected. Add a
                   server to deploy your projects with ease.
                 </p>
-                <Link className='block' href={`/${organisationSlug}/servers`}>
+
+                <Link
+                  className='block'
+                  href={`/${organisationSlug}/servers/add-new-server`}>
                   <Button variant='default'>
-                    <PlusCircle className='mr-2 h-4 w-4' />
+                    <Plus />
                     Create Server
                   </Button>
                 </Link>

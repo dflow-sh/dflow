@@ -1,8 +1,10 @@
 import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { VpsFormData } from '../schemas'
-import { Key } from 'lucide-react'
+import { Key, Plus } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
+import CreateSSHKey from '@/components/security/CreateSSHKey'
+import { Button } from '@/components/ui/button'
 import {
   FormField,
   FormItem,
@@ -51,7 +53,7 @@ export const SshKeySection = () => {
                     className='w-full'
                   />
                 </div>
-                {/* <CreateSSHKey
+                <CreateSSHKey
                   trigger={
                     <Button
                       onClick={(e: any) => e.stopPropagation()}
@@ -62,7 +64,7 @@ export const SshKeySection = () => {
                       <Plus className='h-4 w-4' />
                     </Button>
                   }
-                /> */}
+                />
               </div>
               <FormMessage />
               <div className='mt-1 text-sm text-amber-500'>

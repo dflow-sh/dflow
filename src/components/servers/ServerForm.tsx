@@ -71,6 +71,7 @@ interface ServerFormContentProps {
   vpsPlan?: VpsPlan
   dFlowAccounts?: CloudProviderAccount[]
   selectedDFlowAccount?: CloudProviderAccount
+  dFlowUser: any
 }
 interface ServerFormProps {
   sshKeys: SshKey[]
@@ -79,6 +80,7 @@ interface ServerFormProps {
   formType?: 'create' | 'update'
   vpsPlans?: VpsPlan[]
   dFlowAccounts?: CloudProviderAccount[]
+  dFlowUser?: any
 }
 
 const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
@@ -678,6 +680,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   vpsPlan,
   dFlowAccounts,
   selectedDFlowAccount,
+  dFlowUser,
 }) => {
   const router = useRouter()
   const { organisation } = useParams()
@@ -822,6 +825,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
               dFlowAccounts={dFlowAccounts}
               selectedDFlowAccount={selectedDFlowAccount}
               sshKeys={sshKeys}
+              dFlowUser={dFlowUser}
             />
           )
 
@@ -924,6 +928,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
   formType,
   dFlowAccounts,
   vpsPlans,
+  dFlowUser,
 }) => {
   const [type, setType] = useQueryState('type', parseAsString.withDefault(''))
   const [option, setOption] = useQueryState(
@@ -989,6 +994,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
           selectedDFlowAccount={dFlowAccounts?.find(
             acc => acc.id === selectedDFlowAccount.id,
           )}
+          dFlowUser={dFlowUser}
         />
       )}
     </div>

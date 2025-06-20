@@ -70,7 +70,7 @@ export const DomainFormWithoutDialog = ({
   })
 
   const { execute, isPending, input } = useAction(updateServerDomainAction, {
-    onSuccess: ({ input, data }) => {
+    onSuccess: ({ data }) => {
       if (data?.success) {
         setOpen?.(false)
         form.reset()
@@ -84,17 +84,20 @@ export const DomainFormWithoutDialog = ({
         }
       }
     },
+    onError: ({ error }) => {
+      toast.error(`Failed to add domain: ${error.serverError}`)
+    },
   })
 
   function onSubmit(values: z.infer<typeof subdomainSchema>) {
     execute({
       operation: values.defaultDomain ? 'set' : 'add',
       id: server.id,
-      domain: values.domain,
+      domains: [values.domain],
     })
   }
 
-  const parts = input?.domain?.split('.')
+  const parts = input?.domains?.[0]?.split('.')
 
   return (
     <>
