@@ -28,7 +28,7 @@ export const PriceSummarySection = () => {
   } = pricing
 
   const selectedImageVersionId = form.watch('image.versionId')
-  console.log({ result })
+  // console.log({ result })
   // Wallet logic
   const walletBalance = result?.data?.user?.wallet || 0
   const walletUsed = Math.min(walletBalance, planCost)
