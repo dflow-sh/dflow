@@ -56,6 +56,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+RUN mkdir -p /var/run/tailscale /var/lib/tailscale
 RUN apk add --no-cache tailscale
 
 COPY --from=builder /app/public ./public

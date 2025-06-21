@@ -1,8 +1,12 @@
 #!/bin/sh
 set -e
 
-# Start Tailscale
-tailscaled --tun=userspace-networking --socks5-server=0.0.0.0:1055 &
+# Make sure directories exist
+mkdir -p /var/run/tailscale
+mkdir -p /var/lib/tailscale
+
+# Start tailscaled in background
+tailscaled --tun=userspace-networking --socks5-server=0.0.0.0:1055 --state=/var/lib/tailscale/tailscaled.state &
 
 # Give tailscaled time to come up
 sleep 2
