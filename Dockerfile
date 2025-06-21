@@ -56,8 +56,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-RUN mkdir -p /var/run/tailscale /var/lib/tailscale
-RUN apk add --no-cache tailscale
+# RUN mkdir -p /var/run/tailscale /var/lib/tailscale
+# RUN apk add --no-cache tailscale
 
 COPY --from=builder /app/public ./public
 
@@ -65,8 +65,8 @@ COPY --from=builder /app/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY scripts/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# COPY scripts/entrypoint.sh /app/entrypoint.sh
+# RUN chmod +x /app/entrypoint.sh
 
 USER nextjs
 
@@ -77,6 +77,6 @@ ENV PORT=3000
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
-# CMD ["node", "server.js"]
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["node", "server.js"]
+# ENTRYPOINT ["/app/entrypoint.sh"]
  
