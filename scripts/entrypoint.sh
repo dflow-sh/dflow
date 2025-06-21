@@ -12,7 +12,7 @@ tailscaled --tun=userspace-networking --socks5-server=0.0.0.0:1055 --state=/var/
 sleep 2
 
 # Join Tailscale as an ephemeral node
-tailscale up --authkey="${TAILSCALE_AUTH_KEY}" --hostname "railway-container"
+tailscale up --authkey="${1}" --hostname "railway-container"
 # On container stop, log out of Tailscale
 trap 'echo "Logging out of Tailscale..."; tailscale logout; exit 0' TERM INT
 
