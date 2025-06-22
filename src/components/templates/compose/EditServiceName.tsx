@@ -173,7 +173,7 @@ const EditServiceName = ({
 
       {/* Edit Service Name Dialog */}
       <Dialog modal open={ediServiceName} onOpenChange={setEditServiceName}>
-        <DialogContent>
+        <DialogContent onCloseAutoFocus={() => onCloseContextMenu?.()}>
           <DialogHeader>
             <DialogTitle>Edit Service</DialogTitle>
           </DialogHeader>
