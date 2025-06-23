@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle, Plus, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -72,6 +72,9 @@ const AttachCustomServerForm = ({
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>(null)
   const [hasTestedConnection, setHasTestedConnection] = useState(false)
+  const [previousSshKeysLength, setPreviousSshKeysLength] = useState(
+    sshKeys.length,
+  )
 
   const form = useForm<z.infer<typeof createServerSchema>>({
     resolver: zodResolver(createServerSchema),
@@ -96,6 +99,19 @@ const AttachCustomServerForm = ({
           username: '',
         },
   })
+
+  // Auto-select newly created SSH key
+  useEffect(() => {
+    if (sshKeys.length > previousSshKeysLength) {
+      // A new SSH key was added, select the most recent one
+      const newestKey = sshKeys[0]
+      if (newestKey) {
+        form.setValue('sshKey', newestKey.id, { shouldValidate: true })
+        handleFieldChange('sshKey')
+      }
+    }
+    setPreviousSshKeysLength(sshKeys.length)
+  }, [sshKeys, previousSshKeysLength, form])
 
   const { execute: createServer, isPending: isCreatingServer } = useAction(
     createServerAction,
@@ -302,7 +318,7 @@ const AttachCustomServerForm = ({
                         field.onChange(value)
                         handleFieldChange('sshKey')
                       }}
-                      defaultValue={field.value}>
+                      value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder='Select a SSH key' />
