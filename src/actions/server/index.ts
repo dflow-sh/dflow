@@ -176,6 +176,19 @@ export const updateServerDomainAction = protectedClient
 
     const previousDomains = serverPreviousDomains ?? []
 
+    // for add operation check for duplicate domain check
+    if (operation === 'add') {
+      const addedDomain = domains?.[0]
+
+      const domainExists = previousDomains.find(
+        ({ domain }) => addedDomain === domain,
+      )
+
+      if (domainExists) {
+        throw new Error(`${addedDomain} already exists!`)
+      }
+    }
+
     const filteredDomains =
       operation !== 'remove'
         ? [

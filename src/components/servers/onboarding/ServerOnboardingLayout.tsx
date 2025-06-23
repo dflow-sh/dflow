@@ -3,7 +3,6 @@
 import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'
-import { parseAsBoolean, useQueryState } from 'nuqs'
 import { toast } from 'sonner'
 
 import {
@@ -33,10 +32,6 @@ const ServerOnboardingLayout = ({
     useServerOnboarding()
   const router = useRouter()
   const { organisation } = useParams<{ organisation: string }>()
-  const [domainsVerified, setDomainsVerified] = useQueryState(
-    'domains-verified',
-    parseAsBoolean.withDefault(false),
-  )
 
   const isLastStep = currentStep === totalSteps
 
@@ -155,7 +150,6 @@ const ServerOnboardingLayout = ({
             size={'icon'}
             onClick={() => {
               previousStep()
-              setDomainsVerified(null)
             }}
             disabled={currentStep === 1}>
             <ChevronLeft size={24} />
@@ -170,8 +164,7 @@ const ServerOnboardingLayout = ({
                 disabled={
                   syncingDomains ||
                   triggeredDomainsSync ||
-                  !(server?.domains ?? []).length ||
-                  !domainsVerified
+                  !(server?.domains ?? []).length
                 }
                 className='mr-2'
                 onClick={() => {

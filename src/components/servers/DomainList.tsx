@@ -11,7 +11,6 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { parseAsBoolean, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -55,10 +54,6 @@ const DomainItem = ({
   server: ServerType | Server
   showSync?: boolean // this prop is to hide sync button during server-onboarding time
 }) => {
-  const [, setDomainsVerified] = useQueryState(
-    'domains-verified',
-    parseAsBoolean.withDefault(false),
-  )
   const allDomains = server.domains ?? []
 
   const { execute, isPending } = useAction(updateServerDomainAction, {
@@ -76,12 +71,6 @@ const DomainItem = ({
     isPending: checkingDNSConfig,
     result,
   } = useAction(checkDNSConfigAction, {
-    onSuccess: ({ data: state }) => {
-      // if it's server-onboarding that time updating query-params
-      if (showSync) {
-        setDomainsVerified(state ?? false)
-      }
-    },
     onError: ({ error, input }) => {
       toast.error(
         `Failed to verify ${input.domain} domain status: ${error.serverError}`,
@@ -111,11 +100,6 @@ const DomainItem = ({
     if (!isWildCardDomain) {
       checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
     }
-
-    // if it's server-onboarding that time updating query-params
-    if (isWildCardDomain && showSync) {
-      setDomainsVerified(true)
-    }
   }, [])
 
   useEffect(() => {
@@ -124,7 +108,7 @@ const DomainItem = ({
         checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
       }, 3000)
     }
-  }, [result?.serverError, checkingDNSConfig])
+  }, [result?.serverError, checkingDNSConfig, isPending])
 
   const StatusBadge = () => {
     if (checkingDNSConfig && !isWildCardDomain) {
