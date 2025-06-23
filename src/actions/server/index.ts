@@ -398,7 +398,7 @@ export const checkServerConnection = protectedClient
       try {
         // Attempt SSH connection
         ssh = await dynamicSSH({
-          host: ip,
+          ip: ip,
           port,
           privateKey,
           username,
