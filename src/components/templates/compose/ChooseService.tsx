@@ -28,6 +28,7 @@ import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 import AddDatabaseService from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
 import AddGithubService from './AddGithubService'
+import { VolumeServicesList } from './AddVolumeToService'
 import ContextMenu from './ContextMenu'
 import ReorderList from './DeploymentOrder'
 import UpdateServiceDetails from './UpdateServiceDetails'
@@ -86,6 +87,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const [showGithub, setShowGithub] = useState<boolean>(false)
   const [showDocker, setShowDocker] = useState<boolean>(false)
   const [showDatabases, setShowDatabases] = useState<boolean>(false)
+  const [showVolumeServices, setShowVolumeServices] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   const [openDrawer, setOpenDrawer] = useState<boolean>(false)
@@ -130,6 +132,10 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const handleShowDockerClick = () => {
     setShowOptions(true)
     setShowDocker(true)
+  }
+  const handleShowVolumeServices = () => {
+    setShowOptions(true)
+    setShowVolumeServices(true)
   }
   const resetDialog = () => {
     setSearchQuery('')
@@ -181,7 +187,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
       text: 'Volume',
       icon: <Package2 size={18} />,
       isDisabled: nodes.length <= 0,
-      onClick: handleShowDatabaseClick,
+      onClick: handleShowVolumeServices,
       chevronRightDisable: nodes.length <= 1,
     },
   ]
@@ -303,6 +309,12 @@ const ChooseService: React.FC<ChooseServiceType> = ({
                 setNodes={setNodes}
                 handleOnClick={handleOnClick}
               />
+            ) : showOptions && showVolumeServices ? (
+              <VolumeServicesList
+                setOpen={setOpen}
+                nodes={nodes}
+                setNodes={setNodes}
+              />
             ) : null}
           </DialogContent>
         </Dialog>
@@ -322,7 +334,14 @@ const ChooseService: React.FC<ChooseServiceType> = ({
           setEdges={setEdges}
           service={nodes?.find(node => node?.id === serviceId)?.data as any}
         />
-        {menu && <ContextMenu onClick={onPaneClick} edges={edges} {...menu} />}
+        {menu && (
+          <ContextMenu
+            nodes={nodes}
+            onClick={onPaneClick}
+            edges={edges}
+            {...menu}
+          />
+        )}
         {children}
       </section>
     </ReactFlowConfig>

@@ -59,3 +59,25 @@ export const editServiceNameSchema = (existingNames: string[]) =>
 export type EditServiceNameType = z.infer<
   ReturnType<typeof editServiceNameSchema>
 >
+
+export const volumesSchema = z.object({
+  volumes: z.array(
+    z.object({
+      hostPath: z
+        .string()
+        .min(1, 'Host path is required')
+        .refine(val => !val.includes('/'), {
+          message: 'Host path should not contain "/"',
+        }),
+
+      containerPath: z
+        .string()
+        .min(1, 'Container path is required')
+        .refine(val => /^\/.+/.test(val), {
+          message: 'Container path must start with "/" followed by text',
+        }),
+    }),
+  ),
+})
+
+export type VolumesType = z.infer<typeof volumesSchema>
