@@ -46,6 +46,7 @@ export const getProjectsAndServers = protectedClient
           },
         },
         pagination: false,
+        sort: '-createdAt',
       }),
     ])
 

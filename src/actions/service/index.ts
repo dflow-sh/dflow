@@ -609,6 +609,17 @@ export const updateServiceDomainAction = protectedClient
 
     let updatedDomains = servicePreviousDomains ?? []
 
+    // throwing error if duplicate domain was added again
+    if (operation === 'add') {
+      const domainExists = updatedDomains.find(
+        updatedDomain => updatedDomain.domain === domain.hostname,
+      )
+
+      if (domainExists) {
+        throw new Error(`${domain.hostname} already exists!`)
+      }
+    }
+
     if (operation === 'remove') {
       // In remove case removing that particular domain
       updatedDomains = updatedDomains.filter(

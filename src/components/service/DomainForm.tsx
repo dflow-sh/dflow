@@ -12,7 +12,6 @@ import {
   DialogTrigger,
 } from '../ui/dialog'
 import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Info, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -27,7 +26,6 @@ import { updateServiceDomainSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -53,7 +51,7 @@ const DomainForm = () => {
         certificateType: 'letsencrypt',
         autoRegenerateSSL: false,
         hostname: '',
-        default: true,
+        default: false,
       },
       operation: 'add',
     },
@@ -163,7 +161,7 @@ const DomainForm = () => {
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name='domain.default'
                 render={({ field }) => (
@@ -183,7 +181,7 @@ const DomainForm = () => {
                     </FormControl>
                   </FormItem>
                 )}
-              />
+              /> */}
 
               {/* The environment variables
               of this service will be updated automatically.
