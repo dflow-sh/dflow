@@ -1,5 +1,3 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
@@ -8,8 +6,10 @@ import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],
@@ -17,12 +17,7 @@ export type DatabaseType = Exclude<
 >
 
 interface QueueArgs {
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serverDetails: {
     global: {
       domains: string[]

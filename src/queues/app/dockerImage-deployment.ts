@@ -1,5 +1,4 @@
 import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
@@ -8,18 +7,14 @@ import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { DockerRegistry, Service } from '@/payload-types'
 
 type PortsType = NonNullable<NonNullable<Service['dockerDetails']>['ports']>
 
 interface QueueArgs {
   appName: string
-  sshDetails: {
-    host: string
-    port: number
-    username: string
-    privateKey: string
-  }
+  sshDetails: SSHType
   serviceDetails: {
     deploymentId: string
     serviceId: string

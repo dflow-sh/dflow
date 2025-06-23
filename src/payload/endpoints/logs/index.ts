@@ -4,7 +4,7 @@ import { APIError, PayloadHandler } from 'payload'
 
 import { dokku } from '@/lib/dokku'
 import { loadServiceLogs } from '@/lib/searchParams'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 
 export const logs: PayloadHandler = async ({ headers, payload, query }) => {
   const auth = await payload.auth({ headers })
@@ -26,16 +26,7 @@ export const logs: PayloadHandler = async ({ headers, payload, query }) => {
     id: serviceId,
   })
 
-  if (typeof serverDetails.sshKey === 'string') {
-    throw new APIError('Failed to connect to server', 500)
-  }
-
-  const sshDetails = {
-    host: serverDetails.ip,
-    port: serverDetails.port,
-    username: serverDetails.username,
-    privateKey: serverDetails.sshKey.privateKey,
-  }
+  const sshDetails = extractSSHDetails({ server: serverDetails })
 
   const encoder = new TextEncoder()
   let keepAliveInterval: NodeJS.Timeout | null = null

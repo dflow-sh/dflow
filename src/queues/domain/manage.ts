@@ -1,5 +1,3 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
@@ -7,17 +5,14 @@ import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serviceDetails: {
     action: 'add' | 'remove' | 'set'
     domain: string

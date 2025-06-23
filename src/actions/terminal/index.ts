@@ -3,12 +3,13 @@
 import { revalidatePath } from 'next/cache'
 
 import { protectedClient } from '@/lib/safe-action'
+// import { addInstallTerminalQueue } from '@/queues/terminal/install'
+// import { addUninstallTerminalQueue } from '@/queues/terminal/uninstall'
+
+import { extractSSHDetails } from '@/lib/ssh'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStartAppQueue } from '@/queues/app/start'
 import { addStopAppQueue } from '@/queues/app/stop'
-
-// import { addInstallTerminalQueue } from '@/queues/terminal/install'
-// import { addUninstallTerminalQueue } from '@/queues/terminal/uninstall'
 
 import {
   installTerminalSchema,
@@ -135,20 +136,13 @@ export const startTerminalAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
+    const sshDetails = extractSSHDetails({ server: serverDetails })
 
     const startResponse = await addStartAppQueue({
       serverDetails: {
         id: serverId,
       },
-      sshDetails: {
-        host: serverDetails.ip,
-        port: serverDetails.port,
-        privateKey: serverDetails.sshKey.privateKey,
-        username: serverDetails.username,
-      },
+      sshDetails,
       serviceDetails: {
         id: `terminal-${serverId}`,
         name: TERMINAL_APP_NAME,
@@ -178,20 +172,13 @@ export const stopTerminalAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
+    const sshDetails = extractSSHDetails({ server: serverDetails })
 
     const stopResponse = await addStopAppQueue({
       serverDetails: {
         id: serverId,
       },
-      sshDetails: {
-        host: serverDetails.ip,
-        port: serverDetails.port,
-        privateKey: serverDetails.sshKey.privateKey,
-        username: serverDetails.username,
-      },
+      sshDetails,
       serviceDetails: {
         id: `terminal-${serverId}`,
         name: TERMINAL_APP_NAME,
@@ -221,20 +208,13 @@ export const restartTerminalAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
+    const sshDetails = extractSSHDetails({ server: serverDetails })
 
     const restartResponse = await addRestartAppQueue({
       serverDetails: {
         id: serverId,
       },
-      sshDetails: {
-        host: serverDetails.ip,
-        port: serverDetails.port,
-        privateKey: serverDetails.sshKey.privateKey,
-        username: serverDetails.username,
-      },
+      sshDetails,
       serviceDetails: {
         id: `terminal-${serverId}`,
         name: TERMINAL_APP_NAME,

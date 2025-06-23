@@ -5,7 +5,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
@@ -48,55 +48,20 @@ export const createServiceAction = protectedClient
       depth: 10,
     })
 
-    if (typeof server === 'object' && typeof server.sshKey === 'object') {
-      let ssh: NodeSSH | null = null
-      const sshOptions = {
-        host: server.ip,
-        username: server.username,
-        port: server.port,
-        privateKey: server.sshKey.privateKey,
-      }
+    let ssh: NodeSSH | null = null
 
-      try {
-        ssh = await dynamicSSH(sshOptions)
+    const sshDetails = extractSSHDetails({ server })
 
-        if (type === 'app' || type === 'docker') {
-          // Creating app in dokku
-          const appsCreationResponse = await dokku.apps.create(ssh, name)
+    try {
+      ssh = await dynamicSSH(sshDetails)
 
-          // If app created adding db entry
-          if (appsCreationResponse) {
-            const response = await payload.create({
-              collection: 'services',
-              data: {
-                project: projectId,
-                name,
-                description,
-                type,
-                databaseDetails: {
-                  type: databaseType,
-                },
-                tenant,
-              },
-            })
+      if (type === 'app' || type === 'docker') {
+        // Creating app in dokku
+        const appsCreationResponse = await dokku.apps.create(ssh, name)
 
-            if (response?.id) {
-              revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
-              return {
-                success: true,
-                redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${response.id}`,
-              }
-            }
-          }
-        } else if (databaseType) {
-          const databaseList = await dokku.database.list(ssh, databaseType)
-
-          // Throwing a error if database is already created
-          if (databaseList.includes(name)) {
-            throw new Error('Name is already taken!')
-          }
-
-          const databaseResponse = await payload.create({
+        // If app created adding db entry
+        if (appsCreationResponse) {
+          const response = await payload.create({
             collection: 'services',
             data: {
               project: projectId,
@@ -110,28 +75,57 @@ export const createServiceAction = protectedClient
             },
           })
 
-          if (databaseResponse.id) {
+          if (response?.id) {
             revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
-
             return {
               success: true,
-              redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${databaseResponse.id}`,
+              redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${response.id}`,
             }
           }
         }
-      } catch (error) {
-        let message = ''
+      } else if (databaseType) {
+        const databaseList = await dokku.database.list(ssh, databaseType)
 
-        if (error instanceof Error) {
-          message = error.message
+        // Throwing a error if database is already created
+        if (databaseList.includes(name)) {
+          throw new Error('Name is already taken!')
         }
 
-        throw new Error(message)
-      } finally {
-        // disposing ssh even on error cases
-        if (ssh) {
-          ssh.dispose()
+        const databaseResponse = await payload.create({
+          collection: 'services',
+          data: {
+            project: projectId,
+            name,
+            description,
+            type,
+            databaseDetails: {
+              type: databaseType,
+            },
+            tenant,
+          },
+        })
+
+        if (databaseResponse.id) {
+          revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
+
+          return {
+            success: true,
+            redirectUrl: `/${tenant.slug}/dashboard/project/${projectId}/service/${databaseResponse.id}`,
+          }
         }
+      }
+    } catch (error) {
+      let message = ''
+
+      if (error instanceof Error) {
+        message = error.message
+      }
+
+      throw new Error(message)
+    } finally {
+      // disposing ssh even on error cases
+      if (ssh) {
+        ssh.dispose()
       }
     }
   })
@@ -178,12 +172,7 @@ export const deleteServiceAction = protectedClient
         serverDetails.id &&
         typeof serverDetails.sshKey === 'object'
       ) {
-        const sshDetails = {
-          privateKey: serverDetails.sshKey?.privateKey,
-          host: serverDetails?.ip,
-          username: serverDetails?.username,
-          port: serverDetails?.port,
-        }
+        const sshDetails = extractSSHDetails({ server: serverDetails })
 
         let queueId: string | undefined = ''
 
@@ -331,6 +320,8 @@ export const updateServiceAction = protectedClient
       typeof response?.project?.server === 'object' &&
       typeof response?.project?.server?.sshKey === 'object'
     ) {
+      const sshDetails = extractSSHDetails({ project: response.project })
+
       await addUpdateEnvironmentVariablesQueue({
         serviceDetails: {
           previousVariables: previousDetails?.variables ?? [],
@@ -339,12 +330,7 @@ export const updateServiceAction = protectedClient
           noRestart: data?.noRestart ?? true,
           id,
         },
-        sshDetails: {
-          host: response?.project?.server?.ip,
-          port: response?.project?.server?.port,
-          username: response?.project?.server?.username,
-          privateKey: response?.project?.server?.sshKey?.privateKey,
-        },
+        sshDetails,
         serverDetails: {
           id: response.project.server.id,
         },
@@ -394,12 +380,7 @@ export const restartServiceAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       let queueId: string | undefined
 
@@ -471,13 +452,7 @@ export const stopServerAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
-
+      const sshDetails = extractSSHDetails({ project })
       let queueId: string | undefined
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
@@ -548,12 +523,7 @@ export const exposeDatabasePortAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
         const { exposedPorts } = serviceDetails?.databaseDetails
@@ -669,14 +639,7 @@ export const updateServiceDomainAction = protectedClient
         typeof updatedServiceDomainResponse.project.server === 'object' &&
         typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
       ) {
-        const {
-          ip,
-          port,
-          username,
-          id: serverId,
-        } = updatedServiceDomainResponse.project.server
-        const privateKey =
-          updatedServiceDomainResponse.project.server.sshKey.privateKey
+        const sshDetails = extractSSHDetails({ project })
 
         await addManageServiceDomainQueue({
           serviceDetails: {
@@ -688,14 +651,9 @@ export const updateServiceDomainAction = protectedClient
             id,
             variables: updatedServiceDomainResponse.variables ?? [],
           },
-          sshDetails: {
-            privateKey,
-            host: ip,
-            port,
-            username,
-          },
+          sshDetails,
           serverDetails: {
-            id: serverId,
+            id: updatedServiceDomainResponse.project.server.id,
           },
           tenantDetails: {
             slug: tenant.slug,
@@ -739,12 +697,7 @@ export const regenerateSSLAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       const response = await addLetsencryptRegenerateQueueQueue({
         sshDetails,
@@ -781,8 +734,7 @@ export const syncServiceDomainAction = protectedClient
       typeof project.server === 'object' &&
       typeof project.server.sshKey === 'object'
     ) {
-      const { ip, port, username, id: serverId } = project.server
-      const privateKey = project.server.sshKey.privateKey
+      const sshDetails = extractSSHDetails({ project })
 
       const queueResponse = await addManageServiceDomainQueue({
         serviceDetails: {
@@ -794,14 +746,9 @@ export const syncServiceDomainAction = protectedClient
           id,
           variables,
         },
-        sshDetails: {
-          privateKey,
-          host: ip,
-          port,
-          username,
-        },
+        sshDetails,
         serverDetails: {
-          id: serverId,
+          id: project.server.id,
         },
         updateEnvironmentVariables: domain.default,
         tenantDetails: {

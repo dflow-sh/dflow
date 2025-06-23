@@ -1,5 +1,5 @@
 import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
+import { SSHType, dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
@@ -19,12 +19,7 @@ export type DatabaseType = Exclude<
 interface QueueArgs {
   databaseName: string
   databaseType: DatabaseType
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serviceDetails: {
     id: string
     deploymentId: string

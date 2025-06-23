@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { protectedClient } from '@/lib/safe-action'
+import { extractSSHDetails } from '@/lib/ssh'
 import { addInstallNetdataQueue } from '@/queues/netdata/install'
 import { addUninstallNetdataQueue } from '@/queues/netdata/uninstall'
 
@@ -18,27 +19,14 @@ export const installNetdataAction = protectedClient
     const { payload, userTenant } = ctx
 
     // Fetch server details from the database
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
     // Set up SSH connection details
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
+    const sshDetails = extractSSHDetails({ server })
 
     // Add the job to the queue instead of executing directly
     await addInstallNetdataQueue({
@@ -77,16 +65,12 @@ export const uninstallNetdataAction = protectedClient
     })
 
     if (typeof serverDetails.sshKey === 'object') {
+      const sshDetails = extractSSHDetails({ server: serverDetails })
       const uninstallResponse = await addUninstallNetdataQueue({
         serverDetails: {
           id: serverId,
         },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: serverDetails.sshKey.privateKey,
-          username: serverDetails.username,
-        },
+        sshDetails,
         tenant: {
           slug: userTenant.tenant.slug,
         },

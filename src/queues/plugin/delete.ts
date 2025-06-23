@@ -1,22 +1,17 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {
-  sshDetails: {
-    host: string
-    port: number
-    username: string
-    privateKey: string
-  }
+  sshDetails: SSHType
   pluginDetails: {
     name: string
   }

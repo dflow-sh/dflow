@@ -7,7 +7,7 @@ import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { dynamicSSH } from '@/lib/ssh'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
@@ -15,12 +15,7 @@ interface QueueArgs {
   databaseName: string
   dumpFileName?: string
   type: 'import' | 'export'
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serverDetails: {
     id: string
   }

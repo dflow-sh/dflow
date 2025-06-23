@@ -5,7 +5,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
 import { addDeletePluginQueue } from '@/queues/plugin/delete'
 import { addInstallPluginQueue } from '@/queues/plugin/install'
@@ -28,34 +28,13 @@ export const installPluginAction = protectedClient
     const { serverId, pluginName, pluginURL } = clientInput
 
     // Fetching server details instead of passing from client
-    const {
-      id,
-      ip,
-      username,
-      port,
-      sshKey,
-      plugins: previousPlugins,
-    } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
-
+    const sshDetails = extractSSHDetails({ server })
     const queueResponse = await addInstallPluginQueue({
       pluginDetails: {
         name: pluginName,
@@ -63,7 +42,7 @@ export const installPluginAction = protectedClient
       },
       serverDetails: {
         id: serverId,
-        previousPlugins,
+        previousPlugins: server.plugins ?? [],
       },
       sshDetails,
       tenant: {
@@ -86,38 +65,21 @@ export const syncPluginAction = protectedClient
     const { serverId } = clientInput
 
     // Fetching server details instead of passing from client
-    const {
-      id,
-      ip,
-      username,
-      port,
-      sshKey,
-      plugins: previousPlugins,
-    } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
+    const sshDetails = extractSSHDetails({
+      server,
+    })
 
     let ssh: NodeSSH | null = null
 
     try {
       ssh = await dynamicSSH(sshDetails)
+      const previousPlugins = server?.plugins ?? []
 
       const pluginsResponse = await dokku.plugin.list(ssh)
 
@@ -175,34 +137,13 @@ export const togglePluginStatusAction = protectedClient
     const { pluginName, serverId, enabled } = clientInput
 
     // Fetching server details instead of passing from client
-    const {
-      id,
-      ip,
-      username,
-      port,
-      sshKey,
-      plugins: previousPlugins,
-    } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
-
+    const sshDetails = extractSSHDetails({ server })
     const queueResponse = await addTogglePluginQueue({
       sshDetails,
       pluginDetails: {
@@ -211,7 +152,7 @@ export const togglePluginStatusAction = protectedClient
       },
       serverDetails: {
         id: serverId,
-        previousPlugins,
+        previousPlugins: server.plugins ?? [],
       },
       tenant: {
         slug: userTenant.tenant.slug,
@@ -233,33 +174,13 @@ export const deletePluginAction = protectedClient
     const { serverId, pluginName } = clientInput
 
     // Fetching server details instead of passing from client
-    const {
-      id,
-      ip,
-      username,
-      port,
-      sshKey,
-      plugins: previousPlugins,
-    } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
+    const sshDetails = extractSSHDetails({ server })
 
     const queueResponse = await addDeletePluginQueue({
       pluginDetails: {
@@ -267,7 +188,7 @@ export const deletePluginAction = protectedClient
       },
       serverDetails: {
         id: serverId,
-        previousPlugins,
+        previousPlugins: server.plugins ?? [],
       },
       sshDetails,
       tenant: {
@@ -290,27 +211,13 @@ export const configureLetsencryptPluginAction = protectedClient
     const { email, autoGenerateSSL = false, serverId } = clientInput
 
     // Fetching server details instead of passing from client
-    const { id, ip, username, port, sshKey } = await payload.findByID({
+    const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 5,
     })
 
-    if (!id) {
-      throw new Error('Server not found')
-    }
-
-    if (typeof sshKey !== 'object') {
-      throw new Error('SSH key not found')
-    }
-
-    const sshDetails = {
-      host: ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-    }
-
+    const sshDetails = extractSSHDetails({ server })
     const queueResponse = await addLetsencryptPluginConfigureQueue({
       serverDetails: {
         id: serverId,

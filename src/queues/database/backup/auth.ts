@@ -5,7 +5,7 @@ import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
-import { dynamicSSH } from '@/lib/ssh'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 
 interface QueueArgs {
   databaseType: string
@@ -15,12 +15,7 @@ interface QueueArgs {
   awsDefaultRegion: string
   provider: number
   endPointUrl: string
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serverDetails: {
     id: string
   }
