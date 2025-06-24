@@ -100,6 +100,14 @@ const CreateSSHKeyForm = ({
         },
   })
 
+  // Define handleNameChange function early
+  const handleNameChange = (inputValue: string) => {
+    const formattedName = slugify(inputValue)
+    form.setValue('name', formattedName, {
+      shouldValidate: true,
+    })
+  }
+
   const { execute: createSSHKey, isPending: isCreatingSSHKey } = useAction(
     createSSHKeyAction,
     {
@@ -265,13 +273,6 @@ const CreateSSHKeyForm = ({
         toast.error(`Failed to copy ${keyType} key`)
       },
     )
-  }
-
-  const handleNameChange = (inputValue: string) => {
-    const formattedName = slugify(inputValue)
-    form.setValue('name', formattedName, {
-      shouldValidate: true,
-    })
   }
 
   const handleDownloadPublic = (event: React.MouseEvent) => {

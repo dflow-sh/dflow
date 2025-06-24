@@ -100,6 +100,17 @@ const AttachCustomServerForm = ({
         },
   })
 
+  const handleFieldChange = (field: string) => {
+    // Reset connection status when critical fields change
+    if (
+      ['ip', 'port', 'username', 'sshKey'].includes(field) &&
+      hasTestedConnection
+    ) {
+      setConnectionStatus(null)
+      setHasTestedConnection(false)
+    }
+  }
+
   // Auto-select newly created SSH key
   useEffect(() => {
     if (sshKeys.length > previousSshKeysLength) {
@@ -212,17 +223,6 @@ const AttachCustomServerForm = ({
       username,
       privateKey: selectedSshKey.privateKey,
     })
-  }
-
-  const handleFieldChange = (field: string) => {
-    // Reset connection status when critical fields change
-    if (
-      ['ip', 'port', 'username', 'sshKey'].includes(field) &&
-      hasTestedConnection
-    ) {
-      setConnectionStatus(null)
-      setHasTestedConnection(false)
-    }
   }
 
   function onSubmit(values: z.infer<typeof createServerSchema>) {
