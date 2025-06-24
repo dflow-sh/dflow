@@ -58,6 +58,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+RUN apk add --no-cache openssh
+
+# Generate host keys
+RUN ssh-keygen -A
+
+# Enable root login and password auth for testing
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo 'root:rootpassword' | chpasswd
+
 # RUN mkdir -p /var/run/tailscale /var/lib/tailscale && chmod 777 /var/run/tailscale /var/lib/tailscale
 
 RUN apk add --no-cache tailscale
