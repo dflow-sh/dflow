@@ -141,6 +141,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
     setSearchQuery('')
     setShowDatabases(false)
     setShowGithub(false)
+    setShowVolumeServices(false)
     setShowOptions(false)
   }
 
@@ -186,9 +187,15 @@ const ChooseService: React.FC<ChooseServiceType> = ({
       id: 4,
       text: 'Volume',
       icon: <Package2 size={18} />,
-      isDisabled: nodes.length <= 0,
+      isDisabled:
+        nodes.filter(
+          node => (node?.data as unknown as ServiceNode)?.type !== 'database',
+        )?.length <= 0,
       onClick: handleShowVolumeServices,
-      chevronRightDisable: nodes.length <= 1,
+      chevronRightDisable:
+        nodes.filter(
+          node => (node?.data as unknown as ServiceNode)?.type !== 'database',
+        )?.length <= 1,
     },
   ]
 
@@ -312,7 +319,10 @@ const ChooseService: React.FC<ChooseServiceType> = ({
             ) : showOptions && showVolumeServices ? (
               <VolumeServicesList
                 setOpen={setOpen}
-                nodes={nodes}
+                nodes={nodes.filter(
+                  node =>
+                    (node?.data as unknown as ServiceNode)?.type !== 'database',
+                )}
                 setNodes={setNodes}
               />
             ) : null}

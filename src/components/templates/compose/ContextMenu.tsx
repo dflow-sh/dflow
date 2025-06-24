@@ -73,14 +73,17 @@ const ContextMenu: FC<ContextMenuProps> = ({
             onCloseContextMenu={onClick}
           />
         </li>
-        <li>
-          <AddVolumeToService
-            onCloseContextMenu={onClick}
-            service={service}
-            setNodes={setNodes}
-            type='contextMenu'
-          />
-        </li>
+
+        {service?.type !== 'database' && (
+          <li>
+            <AddVolumeToService
+              onCloseContextMenu={onClick}
+              service={service}
+              setNodes={setNodes}
+              type='contextMenu'
+            />
+          </li>
+        )}
         <hr />
         <Button
           variant='destructive'
