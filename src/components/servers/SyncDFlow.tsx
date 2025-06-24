@@ -69,6 +69,14 @@ const SyncDFlow = () => {
     execute({ type: 'dFlow' })
   }, [])
 
+  // Auto-select first account when accounts are loaded and dialog opens
+  useEffect(() => {
+    const accounts = result?.data || []
+    if (open && accounts.length > 0 && !form.getValues('id')) {
+      form.setValue('id', accounts[0].id)
+    }
+  }, [open, result?.data, form])
+
   function onSubmit(values: z.infer<typeof syncDflowServersSchema>) {
     syncDflowServers({ id: values.id })
   }
@@ -110,7 +118,7 @@ const SyncDFlow = () => {
                   <Select
                     disabled={isFetchingAccounts || !accounts.length}
                     onValueChange={field.onChange}
-                    defaultValue={field.value}>
+                    value={field.value}>
                     <FormControl>
                       <SelectTrigger className='h-max text-left'>
                         <SelectValue
