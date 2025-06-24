@@ -60,7 +60,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # RUN mkdir -p /var/run/tailscale /var/lib/tailscale && chmod 777 /var/run/tailscale /var/lib/tailscale
 
-# RUN apk add --no-cache tailscale
+RUN apk add --no-cache tailscale
 
 COPY --from=builder /app/public ./public
 
@@ -80,8 +80,8 @@ ENV PORT=3000
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
-CMD ["node", "server.js"]
+# CMD ["node", "server.js"]
 # CMD ["/app/entrypoint.sh", "Hello World"]
 # ENTRYPOINT ["/app/entrypoint.sh"]
-# ENTRYPOINT ["/bin/sh", "-c", "/app/entrypoint.sh \"$TAILSCALE_AUTH_KEY\""]
+ENTRYPOINT ["/bin/sh", "-c", "/app/entrypoint.sh \"$TAILSCALE_AUTH_KEY\""]
  

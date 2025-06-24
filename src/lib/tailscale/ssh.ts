@@ -42,18 +42,27 @@ export class NodeSSH extends OriginalNodeSSH {
         username: config.username || 'root',
       }
 
-      // Test Tailscale connection
+      // Test Tailscale connection - if it fails, fall back to regular SSH
       try {
         const result = await this.execCommand('echo "tailscale-test"')
         if (result.code === 0) {
           return this
         } else {
-          throw new Error('Tailscale SSH connection test failed')
+          // Tailscale failed, fall back to regular SSH
+          console.warn('Tailscale SSH test failed, falling back to regular SSH')
+          this.useTailscale = false
+          this.tailscaleConfig = null
+          return await super.connect(config)
         }
       } catch (error) {
-        throw new Error(
-          `Tailscale SSH connection failed: ${(error as Error).message}`,
+        // Tailscale failed, fall back to regular SSH without throwing
+        console.warn(
+          'Tailscale SSH connection failed, falling back to regular SSH:',
+          (error as Error).message,
         )
+        this.useTailscale = false
+        this.tailscaleConfig = null
+        return await super.connect(config)
       }
     } else {
       // Use original node-ssh for regular SSH connections
@@ -83,11 +92,31 @@ export class NodeSSH extends OriginalNodeSSH {
           signal: null,
         }
       } catch (error: any) {
-        return {
-          stdout: error.stdout || '',
-          stderr: error.stderr || error.message || '',
-          code: error.code || 1,
-          signal: null,
+        // If Tailscale command fails, fall back to regular SSH
+        console.warn(
+          'Tailscale SSH command failed, attempting fallback to regular SSH',
+        )
+        this.useTailscale = false
+
+        try {
+          // Try to reconnect with regular SSH using the stored config
+          const config = {
+            host: this.tailscaleConfig.host,
+            username: this.tailscaleConfig.username,
+          }
+          await super.connect(config)
+          this.tailscaleConfig = null
+
+          // Retry the command with regular SSH
+          return await super.execCommand(command, options)
+        } catch (fallbackError) {
+          // If fallback also fails, return the original Tailscale error format
+          return {
+            stdout: error.stdout || '',
+            stderr: error.stderr || error.message || '',
+            code: error.code || 1,
+            signal: null,
+          }
         }
       }
     } else {
