@@ -45,6 +45,11 @@ export const Servers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/components/ServerHostConnectionCheck.tsx'],
+      },
+    },
   },
   access: {
     read: isAdmin,
@@ -116,6 +121,11 @@ export const Servers: CollectionConfig = {
         description: 'Enter the username of the server.',
         placeholder: 'e.g: root',
       },
+    },
+    {
+      name: 'hostname',
+      type: 'text',
+      label: 'Hostname',
     },
     {
       name: 'plugins',

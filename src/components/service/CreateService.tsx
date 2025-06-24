@@ -125,11 +125,7 @@ const CreateService = ({
   const handleNameChange = (inputValue: string) => {
     const serviceSpecificName = slugify(inputValue)
 
-    const fullServiceName = projectName
-      ? `${projectName}-${serviceSpecificName}`
-      : serviceSpecificName
-
-    form.setValue('name', fullServiceName, {
+    form.setValue('name', serviceSpecificName, {
       shouldValidate: true,
     })
   }

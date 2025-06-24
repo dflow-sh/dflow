@@ -254,6 +254,7 @@ export interface Server {
    * Enter the username of the server.
    */
   username: string;
+  hostname?: string | null;
   plugins?:
     | {
         name: string;
@@ -1173,6 +1174,7 @@ export interface ServersSelect<T extends boolean = true> {
   ip?: T;
   port?: T;
   username?: T;
+  hostname?: T;
   plugins?:
     | T
     | {
