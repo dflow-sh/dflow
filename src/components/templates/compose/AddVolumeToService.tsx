@@ -2,9 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node } from '@xyflow/react'
-import { ChevronRight, Plus, Trash2 } from 'lucide-react'
+import { ChevronRight, Database, Github, Plus, Trash2 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { memo, useState } from 'react'
+import { JSX, memo, useState } from 'react'
 import {
   UseFieldArrayRemove,
   useFieldArray,
@@ -12,6 +12,7 @@ import {
   useFormContext,
 } from 'react-hook-form'
 
+import { Docker } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,6 +36,12 @@ import { slugify, slugifyWithSlash } from '@/lib/slugify'
 import { VolumesType, volumesSchema } from './types'
 
 type type = 'contextMenu' | 'sideBar'
+
+const icon: { [key in ServiceNode['type']]: JSX.Element } = {
+  app: <Github className='size-4' />,
+  database: <Database className='size-4' />,
+  docker: <Docker className='size-4' />,
+}
 
 const AddVolumeToService = ({
   service,
@@ -111,6 +118,7 @@ const AddVolumeToService = ({
           <div className='grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4 hover:bg-card/30'>
             <div className='flex items-center justify-between'>
               <div className='inline-flex items-center gap-x-2'>
+                {icon[service.type]}
                 <p>{service?.name}</p>
               </div>
             </div>

@@ -133,7 +133,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
     setShowOptions(true)
     setShowDocker(true)
   }
-  const handleShowVolumeServices = () => {
+  const handleShowVolumeServicesClick = () => {
     setShowOptions(true)
     setShowVolumeServices(true)
   }
@@ -141,6 +141,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
     setSearchQuery('')
     setShowDatabases(false)
     setShowGithub(false)
+    setShowDocker(false)
     setShowVolumeServices(false)
     setShowOptions(false)
   }
@@ -191,7 +192,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         nodes.filter(
           node => (node?.data as unknown as ServiceNode)?.type !== 'database',
         )?.length <= 0,
-      onClick: handleShowVolumeServices,
+      onClick: handleShowVolumeServicesClick,
       chevronRightDisable:
         nodes.filter(
           node => (node?.data as unknown as ServiceNode)?.type !== 'database',
@@ -229,7 +230,11 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent onCloseAutoFocus={resetDialog}>
             <DialogHeader>
-              <DialogTitle>Add Service</DialogTitle>
+              <DialogTitle>
+                {showOptions && showVolumeServices
+                  ? 'Add Volume'
+                  : 'Add Service'}
+              </DialogTitle>
             </DialogHeader>
             {!showOptions ? (
               <>
