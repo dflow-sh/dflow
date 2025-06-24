@@ -581,6 +581,13 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
+  volumes?:
+    | {
+        hostPath: string;
+        containerPath: string;
+        id?: string | null;
+      }[]
+    | null;
   populatedVariables?: string | null;
   builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
   provider?: (string | null) | GitProvider;
@@ -1111,6 +1118,13 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         key?: T;
         value?: T;
+        id?: T;
+      };
+  volumes?:
+    | T
+    | {
+        hostPath?: T;
+        containerPath?: T;
         id?: T;
       };
   populatedVariables?: T;

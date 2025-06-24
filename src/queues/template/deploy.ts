@@ -82,6 +82,30 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     connection: queueConnection,
   })
 
+  const createVolumes = async (
+    appName: string,
+    ssh: NodeSSH,
+    volumes: { hostPath: string; containerPath: string }[],
+  ) => {
+    const results = await Promise.allSettled(
+      volumes.map(volume => dokku.volumes.mount({ appName, ssh, volume })),
+    )
+
+    results.forEach((result, index) => {
+      const { hostPath, containerPath } = volumes[index]
+      if (result.status === 'fulfilled') {
+        console.log(`✅ Mounted: ${hostPath} -> ${containerPath}`)
+      } else {
+        console.error(
+          `❌ Failed: ${hostPath} -> ${containerPath}`,
+          result.reason,
+        )
+      }
+    })
+
+    return results
+  }
+
   // todo: need to add deployment strategy which will sort the services or based on dependency
   // todo: change the waitForJobCompletion method from for-loop to performant way
   getWorker<QueueArgs>({
@@ -106,6 +130,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             provider,
             populatedVariables,
             variables,
+            volumes,
             ...serviceDetails
           } = createdService
 
@@ -117,6 +142,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             provider,
             populatedVariables,
             variables,
+            volumes,
             ...serviceDetails,
           })
 
@@ -167,6 +193,10 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                   }
 
                   let updatedServiceDetails: Service | null = null
+
+                  if (volumes?.length) {
+                    await createVolumes(serviceDetails?.name, ssh, volumes)
+                  }
 
                   // if variables are added updating the variables
                   if (variables?.length) {
@@ -308,6 +338,10 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                 }
 
                 let updatedServiceDetails: Service | null = null
+
+                if (volumes?.length) {
+                  await createVolumes(serviceDetails?.name, ssh, volumes)
+                }
 
                 if (variables?.length) {
                   const environmentVariablesQueue =

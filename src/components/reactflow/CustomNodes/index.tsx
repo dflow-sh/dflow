@@ -161,7 +161,7 @@ const CustomNode = ({
         </CardFooter>
       </Card>
       {data.volumes && data.volumes.length > 0 && (
-        <div className='z-0 -mt-6 w-full items-start gap-x-2 rounded-md border bg-muted/30 px-2 pb-2 pt-7 text-sm text-muted-foreground backdrop-blur-sm'>
+        <div className='z-0 -mt-6 w-full items-start gap-x-2 rounded-md border bg-muted/30 px-2 pb-2 pt-8 text-sm text-muted-foreground backdrop-blur-sm'>
           <div className='flex items-center justify-between gap-x-2'>
             <div className='inline-flex items-center gap-x-2 overflow-hidden'>
               <span className='flex-shrink-0'>

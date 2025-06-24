@@ -331,6 +331,25 @@ export const Services: CollectionConfig = {
         }),
       ],
     },
+    {
+      type: 'array',
+      label: 'Volumes',
+      name: 'volumes',
+      fields: [
+        {
+          type: 'text',
+          name: 'hostPath',
+          label: 'Host Path',
+          required: true,
+        },
+        {
+          type: 'text',
+          name: 'containerPath',
+          label: 'Container Path',
+          required: true,
+        },
+      ],
+    },
     encryptedField({
       name: 'populatedVariables',
       type: 'json',
