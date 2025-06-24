@@ -120,8 +120,6 @@ export const deleteProjectAction = protectedClient
         deleteFromServer,
       }
     }
-
-    throw new Error('Failed to queue project deletion')
   })
 
 export const getProjectDatabasesAction = protectedClient

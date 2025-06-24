@@ -10,7 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Project, Server, Service } from '@/payload-types'
 
 import ServiceIcon, { StatusType } from './ServiceIcon'
-import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Checkbox } from './ui/check-box'
 import {
@@ -23,18 +22,15 @@ import {
 } from './ui/dialog'
 import { ScrollArea } from './ui/scroll-area'
 
-const DeleteProjectDialog = ({
+const DeleteProjectContent = ({
   project,
-  open,
-  setOpen,
   services = [],
+  setOpen,
 }: {
   project: Project
-  open: boolean
-  setOpen: Dispatch<SetStateAction<boolean>>
   services?: Service[]
+  setOpen: Dispatch<SetStateAction<boolean>>
 }) => {
-  const { name } = project
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
   const [deleteFromServer, setDeleteFromServer] = useState<boolean>(true)
 
@@ -66,60 +62,31 @@ const DeleteProjectDialog = ({
       deleteFromServer,
     })
   }
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
-        <DialogHeader className='flex-shrink-0'>
-          <DialogTitle className='flex items-center gap-2 text-lg'>
-            <Trash2 className='h-5 w-5 text-destructive' />
-            Delete Project
-          </DialogTitle>
-          <DialogDescription className='pt-2'>
-            Are you sure you want to delete the project{' '}
-            <span className='font-medium'>{name}</span>?
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <div className='min-h-0 flex-1 overflow-hidden'>
+        <ScrollArea className='h-full'>
+          <div className='max-h-[60vh] pr-3'>
+            <div className='space-y-4 pb-6'>
+              {/* Services to be deleted */}
+              {hasServices && (
+                <div className='space-y-3 rounded-md border bg-muted/50 p-3'>
+                  <div className='text-sm'>
+                    <span className='font-medium'>Server</span>
 
-        <div className='min-h-0 flex-1 overflow-hidden'>
-          <ScrollArea className='h-full'>
-            <div className='max-h-[60vh] pr-3'>
-              <div className='space-y-4 pb-6'>
-                {/* Project Info */}
-                <div className='rounded-md border bg-muted/50 p-3'>
-                  <div className='flex items-center gap-2 text-sm'>
-                    <HardDrive className='h-4 w-4 text-muted-foreground' />
-                    <span className='font-medium'>Server:</span>
-                    <span>{serverName || 'Unknown server'}</span>
-                  </div>
-                  <div className='mt-1 flex items-center gap-2 text-sm'>
-                    <div className='h-4 w-4' /> {/* Spacer */}
-                    <span className='font-medium'>Project:</span>
-                    <span>{project.name}</span>
-                  </div>
-                  {project.description && (
-                    <div className='mt-1 flex items-center gap-2 text-sm'>
-                      <div className='h-4 w-4' /> {/* Spacer */}
-                      <span className='font-medium'>Description:</span>
-                      <span className='text-muted-foreground'>
-                        {project.description}
-                      </span>
+                    <div className='flex items-center gap-2'>
+                      <HardDrive className='h-4 w-4 text-muted-foreground' />
+                      <span>{serverName || 'Unknown server'}</span>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Services to be deleted */}
-                {hasServices && (
-                  <div className='rounded-md border bg-muted/50 p-3'>
-                    <p className='mb-2 text-sm font-medium'>
-                      Services to be deleted:
-                    </p>
+                  <div>
+                    <p className='text-sm font-medium'>Services</p>
                     <div className='space-y-2'>
                       {services.map(service => (
                         <div
                           key={service.id}
                           className='flex items-center gap-2 text-sm'>
-                          <div className='h-2 w-2 rounded-full bg-primary' />
                           <ServiceIcon
                             type={
                               service.type === 'database' &&
@@ -130,137 +97,152 @@ const DeleteProjectDialog = ({
                             className='h-4 w-4'
                           />
                           <span>{service.name}</span>
-                          <Badge variant='secondary' className='text-xs'>
-                            {service.type === 'database' &&
-                            service.databaseDetails?.type
-                              ? service.databaseDetails.type
-                              : service.type || 'Service'}
-                          </Badge>
                         </div>
                       ))}
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                <div className='space-y-1'>
-                  <label
-                    htmlFor='delete-backups'
-                    className='cursor-pointer font-medium'>
-                    Delete Database Backups
-                  </label>
-
-                  <div className='space-y-3 rounded-md border p-3'>
-                    <div className='flex items-start space-x-3'>
-                      <Checkbox
-                        id='delete-from-server'
-                        checked={deleteFromServer}
-                        onCheckedChange={checked =>
-                          setDeleteFromServer(Boolean(checked))
-                        }
-                        className='mt-0.5'
-                      />
-                      <div className='space-y-1'>
-                        <label
-                          htmlFor='delete-from-server'
-                          className='cursor-pointer text-sm font-medium leading-none'>
-                          Delete project files from server
-                        </label>
-                        <p className='text-xs text-muted-foreground'>
-                          Remove Docker containers, volumes, and all service
-                          files from {serverName}
-                          {hasServices &&
-                            ` (${services.length} service${
-                              services.length > 1 ? 's' : ''
-                            })`}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className='flex items-start space-x-3'>
-                      <Checkbox
-                        id='delete-backups'
-                        checked={deleteBackups}
-                        onCheckedChange={checked =>
-                          setDeleteBackups(Boolean(checked))
-                        }
-                        className='mt-0.5'
-                      />
-                      <div className='space-y-1'>
-                        <label
-                          htmlFor='delete-backups'
-                          className='cursor-pointer text-sm font-medium leading-none'>
-                          Delete all associated backups
-                        </label>
-                        <p className='text-xs text-muted-foreground'>
-                          Permanently remove all backup data for this project
-                          and its services
-                        </p>
-                      </div>
-                    </div>
+              <div className='space-y-3 rounded-md border p-3'>
+                <div className='flex items-start space-x-3'>
+                  <Checkbox
+                    id='delete-from-server'
+                    checked={deleteFromServer}
+                    onCheckedChange={checked =>
+                      setDeleteFromServer(Boolean(checked))
+                    }
+                    className='mt-0.5'
+                  />
+                  <div className='space-y-1'>
+                    <label
+                      htmlFor='delete-from-server'
+                      className='cursor-pointer text-sm font-medium leading-none'>
+                      Delete project files from server
+                    </label>
+                    <p className='text-xs text-muted-foreground'>
+                      Remove Docker containers, volumes, and all service files
+                      from {serverName}
+                      {hasServices &&
+                        ` (${services.length} service${
+                          services.length > 1 ? 's' : ''
+                        })`}
+                    </p>
                   </div>
                 </div>
 
-                {/* Warning Messages */}
-                {!deleteFromServer && (
-                  <Alert variant='warning'>
-                    <AlertCircle className='h-4 w-4' />
-                    <AlertTitle>Files will remain on server</AlertTitle>
-                    <AlertDescription>
-                      Project files and containers will continue running on{' '}
-                      {serverName}. You'll need to manually stop and remove them
-                      if desired.
-                      {hasServices &&
-                        ` This includes ${services.length} service${
-                          services.length > 1 ? 's' : ''
-                        }.`}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {deleteFromServer && (
-                  <Alert variant='destructive'>
-                    <AlertCircle className='h-4 w-4' />
-                    <AlertTitle>Permanent Action</AlertTitle>
-                    <AlertDescription>
-                      The project and all its services will be stopped and
-                      removed from the server. This action cannot be undone.
-                      {hasServices &&
-                        ` This will delete ${services.length} service${
-                          services.length > 1 ? 's' : ''
-                        }.`}
-                    </AlertDescription>
-                  </Alert>
-                )}
+                <div className='flex items-start space-x-3'>
+                  <Checkbox
+                    id='delete-backups'
+                    checked={deleteBackups}
+                    onCheckedChange={checked =>
+                      setDeleteBackups(Boolean(checked))
+                    }
+                    className='mt-0.5'
+                  />
+                  <div className='space-y-1'>
+                    <label
+                      htmlFor='delete-backups'
+                      className='cursor-pointer text-sm font-medium leading-none'>
+                      Delete all associated backups
+                    </label>
+                    <p className='text-xs text-muted-foreground'>
+                      Permanently remove all backup data for this project and
+                      its services
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </ScrollArea>
-        </div>
 
-        <DialogFooter className='flex-shrink-0 space-x-2 pt-4'>
-          <Button
-            variant='outline'
-            disabled={isPending}
-            onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant='destructive'
-            disabled={isPending}
-            onClick={handleDelete}
-            className='gap-2'>
-            {isPending ? (
-              <>
-                <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
-                Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 size={16} />
-                Delete Project
-              </>
-            )}
-          </Button>
-        </DialogFooter>
+              {/* Warning Messages */}
+              {!deleteFromServer && (
+                <Alert variant='warning'>
+                  <AlertCircle className='h-4 w-4' />
+                  <AlertTitle>Files will remain on server</AlertTitle>
+                  <AlertDescription>
+                    Project files and containers will continue running on{' '}
+                    {serverName}. You'll need to manually stop and remove them
+                    if desired.
+                    {hasServices &&
+                      ` This includes ${services.length} service${
+                        services.length > 1 ? 's' : ''
+                      }.`}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {deleteFromServer && (
+                <Alert variant='destructive'>
+                  <AlertCircle className='h-4 w-4' />
+                  <AlertTitle>Permanent Action</AlertTitle>
+                  <AlertDescription>
+                    The project and all its services will be stopped and removed
+                    from the server. This action cannot be undone.
+                    {hasServices &&
+                      ` This will delete ${services.length} service${
+                        services.length > 1 ? 's' : ''
+                      }.`}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </div>
+        </ScrollArea>
+      </div>
+
+      <DialogFooter className='flex-shrink-0 space-x-2 pt-4'>
+        <Button
+          variant='outline'
+          disabled={isPending}
+          onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
+
+        <Button
+          variant='destructive'
+          disabled={isPending}
+          isLoading={isPending}
+          onClick={handleDelete}
+          className='gap-2'>
+          <Trash2 size={16} />
+          Delete Project
+        </Button>
+      </DialogFooter>
+    </>
+  )
+}
+
+const DeleteProjectDialog = ({
+  project,
+  open,
+  setOpen,
+  services = [],
+}: {
+  project: Project
+  open: boolean
+  setOpen: Dispatch<SetStateAction<boolean>>
+  services?: Service[]
+}) => {
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
+        <DialogHeader className='flex-shrink-0'>
+          <DialogTitle className='flex items-center gap-2 text-lg'>
+            <Trash2 className='h-5 w-5 text-destructive' />
+            Delete {project.name} project
+          </DialogTitle>
+
+          <DialogDescription>
+            Are you sure you want to delete the project? Project associated
+            server & services might be affected!
+          </DialogDescription>
+        </DialogHeader>
+
+        <DeleteProjectContent
+          services={services}
+          project={project}
+          setOpen={setOpen}
+        />
       </DialogContent>
     </Dialog>
   )

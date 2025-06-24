@@ -76,12 +76,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         })
 
         // Only delete from server if the option is enabled
-        if (
-          deleteFromServer &&
-          servicesList &&
-          typeof server === 'object' &&
-          typeof server.sshKey === 'object'
-        ) {
+        if (deleteFromServer && servicesList && typeof server === 'object') {
           const sshDetails = extractSSHDetails({ server })
 
           sendEvent({
