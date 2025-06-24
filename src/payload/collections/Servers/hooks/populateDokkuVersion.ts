@@ -2,7 +2,7 @@ import isPortReachable from 'is-port-reachable'
 import { CollectionAfterReadHook } from 'payload'
 
 import { server } from '@/lib/server'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
 const extractValue = ({ key, data }: { key: string; data: string }) => {
@@ -32,15 +32,14 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   let linuxType
   let railpack: string | undefined
 
+  const sshDetails = extractSSHDetails({
+    server: doc,
+  })
+
   if (sshKey && sshKey?.privateKey) {
     if (portIsOpen) {
       try {
-        const ssh = await dynamicSSH({
-          host: doc.ip,
-          port: doc.port,
-          privateKey: sshKey.privateKey,
-          username: doc.username,
-        })
+        const ssh = await dynamicSSH(sshDetails)
 
         if (ssh.isConnected()) {
           sshConnected = true

@@ -1,5 +1,5 @@
 import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
+import { SSHType, dynamicSSH } from '../../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
@@ -17,12 +17,7 @@ interface QueueArgs {
   userName: string
   repoName: string
   branch: string
-  sshDetails: {
-    host: string
-    port: number
-    username: string
-    privateKey: string
-  }
+  sshDetails: SSHType
   serviceDetails: {
     deploymentId: string
     serviceId: string

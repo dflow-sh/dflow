@@ -3,6 +3,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { extractSSHDetails } from '@/lib/ssh'
 import { addBuildpacksDeploymentQueue } from '@/queues/app/buildpacks-deployment'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
@@ -51,12 +52,7 @@ export const triggerDeployment = async ({
     typeof project?.server === 'object' &&
     typeof project?.server?.sshKey === 'object'
   ) {
-    const sshDetails = {
-      privateKey: project?.server?.sshKey?.privateKey,
-      host: project?.server?.ip,
-      username: project?.server?.username,
-      port: project?.server?.port,
-    }
+    const sshDetails = extractSSHDetails({ project })
 
     if (type === 'app') {
       // for redeploy with cache doing dokku ps:rebuild

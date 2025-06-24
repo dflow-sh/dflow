@@ -1,18 +1,13 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import { NodeSSH } from 'node-ssh'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 
 interface QueueArgs {
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serviceDetails: {
     name: string
   }

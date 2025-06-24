@@ -14,7 +14,7 @@ import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent } from '@/lib/sendEvent'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {
@@ -140,12 +140,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             typeof project?.server === 'object' &&
             typeof project?.server?.sshKey === 'object'
           ) {
-            const sshDetails = {
-              privateKey: project?.server?.sshKey?.privateKey,
-              host: project?.server?.ip,
-              username: project?.server?.username,
-              port: project?.server?.port,
-            }
+            const sshDetails = extractSSHDetails({ project })
 
             if (type === 'app') {
               if (providerType === 'github' && githubSettings) {

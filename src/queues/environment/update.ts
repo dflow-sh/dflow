@@ -1,5 +1,3 @@
-import { dokku } from '../../lib/dokku'
-import { dynamicSSH } from '../../lib/ssh'
 import { addExposeDatabasePortQueue } from '../database/expose'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
@@ -12,9 +10,11 @@ import { z } from 'zod'
 import { createServiceSchema } from '@/actions/service/validator'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { TEMPLATE_EXPR } from '@/lib/constants'
+import { dokku } from '@/lib/dokku'
 import { pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { parseDatabaseUrl } from '@/lib/utils'
 import { Service } from '@/payload-types'
 
@@ -28,12 +28,7 @@ export type DatabaseType = Exclude<
 type VariablesType = NonNullable<Service['variables']>
 
 interface QueueArgs {
-  sshDetails: {
-    privateKey: string
-    host: string
-    username: string
-    port: number
-  }
+  sshDetails: SSHType
   serviceDetails: {
     name: string
     noRestart: boolean
@@ -438,7 +433,8 @@ async function handleReferenceVariables({
               const generatedValue = await updatePublicDatabaseVariables({
                 databaseDetails: databaseExposureDetails.databaseDetails!,
                 variableName: databaseVariableName,
-                serverHost: sshDetails.host,
+                // todo: handle tailscale case
+                serverHost: 'ip' in sshDetails ? sshDetails?.ip : '',
               })
 
               return { [variable]: generatedValue }
@@ -499,7 +495,8 @@ async function handleReferenceVariables({
                           await updatePublicDatabaseVariables({
                             databaseDetails: databaseDetails!,
                             variableName: databaseVariableName,
-                            serverHost: sshDetails.host,
+                            serverHost:
+                              'ip' in sshDetails ? sshDetails?.ip : '',
                           })
 
                         return { [variable]: generatedValue }

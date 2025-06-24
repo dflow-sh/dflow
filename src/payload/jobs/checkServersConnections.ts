@@ -4,8 +4,7 @@
  */
 import { TaskConfig } from 'payload'
 
-import { dynamicSSH } from '@/lib/ssh'
-import { SshKey } from '@/payload-types'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 
 export const checkServersConnectionsTask: TaskConfig<any> = {
   slug: 'checkServersSshConnections',
@@ -78,12 +77,8 @@ export const checkServersConnectionsTask: TaskConfig<any> = {
 
       for (const server of servers.docs) {
         try {
-          const ssh = await dynamicSSH({
-            host: server.ip,
-            port: server.port,
-            privateKey: (server.sshKey as SshKey).privateKey,
-            username: server.username,
-          })
+          const sshDetails = extractSSHDetails({ server })
+          const ssh = await dynamicSSH(sshDetails)
 
           const isConnected = ssh.isConnected()
 

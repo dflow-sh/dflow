@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
-import { dynamicSSH } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -136,18 +136,15 @@ export const installDokkuAction = protectedClient
       depth: 10,
     })
 
+    const sshDetails = extractSSHDetails({ server: serverDetails })
+
     if (typeof serverDetails.sshKey === 'object') {
       const installationResponse = await addInstallDokkuQueue({
         serverDetails: {
           id: serverId,
           provider: serverDetails.provider,
         },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: serverDetails.sshKey.privateKey,
-          username: serverDetails.username,
-        },
+        sshDetails,
         tenant: {
           slug: userTenant.tenant.slug,
         },
@@ -202,7 +199,7 @@ export const updateServerDomainAction = protectedClient
             prevDomain => !domains.includes(prevDomain.domain),
           )
 
-    const response = await payload.update({
+    const server = await payload.update({
       id,
       data: {
         domains: filteredDomains,
@@ -211,11 +208,10 @@ export const updateServerDomainAction = protectedClient
       depth: 10,
     })
 
-    const privateKey =
-      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
-
     // for delete action remove domain from dokku
     if (operation === 'remove') {
+      const sshDetails = extractSSHDetails({ server })
+
       await addManageServerDomainQueue({
         serverDetails: {
           global: {
@@ -224,12 +220,7 @@ export const updateServerDomainAction = protectedClient
           },
           id,
         },
-        sshDetails: {
-          host: response.ip,
-          port: response.port,
-          username: response.username,
-          privateKey,
-        },
+        sshDetails,
         tenant: {
           slug: userTenant.tenant.slug,
         },
@@ -255,25 +246,20 @@ export const installRailpackAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey === 'object') {
-      const installationResponse = await addInstallRailpackQueue({
-        serverDetails: {
-          id: serverId,
-        },
-        sshDetails: {
-          host: serverDetails.ip,
-          port: serverDetails.port,
-          privateKey: serverDetails.sshKey.privateKey,
-          username: serverDetails.username,
-        },
-        tenant: {
-          slug: userTenant.tenant.slug,
-        },
-      })
+    const sshDetails = extractSSHDetails({ server: serverDetails })
 
-      if (installationResponse.id) {
-        return { success: true }
-      }
+    const installationResponse = await addInstallRailpackQueue({
+      serverDetails: {
+        id: serverId,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
+
+    if (installationResponse.id) {
+      return { success: true }
     }
   })
 
@@ -342,14 +328,13 @@ export const syncServerDomainAction = protectedClient
     const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
 
-    const response = await payload.findByID({
+    const server = await payload.findByID({
       id,
       collection: 'servers',
       depth: 10,
     })
 
-    const privateKey =
-      typeof response.sshKey === 'object' ? response.sshKey.privateKey : ''
+    const sshDetails = extractSSHDetails({ server })
 
     const queueResponse = await addManageServerDomainQueue({
       serverDetails: {
@@ -359,12 +344,7 @@ export const syncServerDomainAction = protectedClient
         },
         id,
       },
-      sshDetails: {
-        host: response.ip,
-        port: response.port,
-        username: response.username,
-        privateKey,
-      },
+      sshDetails,
       tenant: {
         slug: userTenant.tenant.slug,
       },
@@ -418,7 +398,7 @@ export const checkServerConnection = protectedClient
       try {
         // Attempt SSH connection
         ssh = await dynamicSSH({
-          host: ip,
+          ip: ip,
           port,
           privateKey,
           username,

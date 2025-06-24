@@ -8,7 +8,7 @@ import { dokku } from '@/dokku/index'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { dynamicSSH } from '@/lib/ssh'
+import { SSHType, dynamicSSH } from '@/lib/ssh'
 import { GitProvider } from '@/payload-types'
 
 interface QueueArgs {
@@ -16,12 +16,7 @@ interface QueueArgs {
   userName: string
   repoName: string
   branch: string
-  sshDetails: {
-    host: string
-    port: number
-    username: string
-    privateKey: string
-  }
+  sshDetails: SSHType
   serviceDetails: {
     deploymentId: string
     serviceId: string

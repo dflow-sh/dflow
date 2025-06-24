@@ -1,6 +1,7 @@
 'use server'
 
 import { protectedClient } from '@/lib/safe-action'
+import { extractSSHDetails } from '@/lib/ssh'
 import { addInternalBackupQueue } from '@/queues/database/backup/internalBackup'
 import { deleteInternalBackupQueue } from '@/queues/database/backup/internalBackupDelete'
 
@@ -76,19 +77,12 @@ export const internalBackupAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       const { id } = await addInternalBackupQueue({
         databaseName: serviceDetails?.name,
         databaseType: serviceDetails?.databaseDetails?.type ?? '',
-        sshDetails: {
-          ...sshDetails,
-        },
+        sshDetails,
         type: 'export',
         serverDetails: {
           id: project?.server?.id,
@@ -131,19 +125,12 @@ export const internalRestoreAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       const { id } = await addInternalBackupQueue({
         databaseName: serviceDetails?.name,
         databaseType: serviceDetails?.databaseDetails?.type ?? '',
-        sshDetails: {
-          ...sshDetails,
-        },
+        sshDetails,
         type: 'import',
         serverDetails: {
           id: project?.server?.id,
@@ -185,19 +172,12 @@ export const internalDbDeleteAction = protectedClient
       typeof project?.server === 'object' &&
       typeof project?.server?.sshKey === 'object'
     ) {
-      const sshDetails = {
-        privateKey: project?.server?.sshKey?.privateKey,
-        host: project?.server?.ip,
-        username: project?.server?.username,
-        port: project?.server?.port,
-      }
+      const sshDetails = extractSSHDetails({ project })
 
       const { id } = await deleteInternalBackupQueue({
         backupId,
         serviceId,
-        sshDetails: {
-          ...sshDetails,
-        },
+        sshDetails,
         databaseName: serviceDetails?.name,
         databaseType: databaseType || '',
         serverDetails: {
