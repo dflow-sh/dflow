@@ -16,6 +16,7 @@ import { addStopDatabaseQueue } from '@/queues/database/stop'
 import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regenerate'
+import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
   createServiceSchema,
@@ -26,6 +27,7 @@ import {
   stopServiceSchema,
   updateServiceDomainSchema,
   updateServiceSchema,
+  updateVolumesSchema,
 } from './validator'
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
@@ -801,5 +803,42 @@ export const syncServiceDomainAction = protectedClient
       if (queueResponse.id) {
         return { success: true }
       }
+    }
+  })
+
+export const updateVolumesAction = protectedClient
+  .metadata({ actionName: 'updateVolumesAction' })
+  .schema(updateVolumesSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      payload,
+      userTenant: { tenant },
+    } = ctx
+    const { id, volumes } = clientInput
+
+    const updatedService = await payload.update({
+      collection: 'services',
+      id: id,
+      data: {
+        volumes: volumes,
+      },
+    })
+
+    const project = updatedService.project
+    if (
+      updatedService &&
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      await updateVolumesQueue({
+        service: updatedService,
+        serverDetails: {
+          id: project?.server?.sshKey?.privateKey,
+        },
+        tenantDetails: {
+          slug: tenant.slug,
+        },
+      })
     }
   })

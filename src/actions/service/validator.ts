@@ -101,3 +101,16 @@ export const restartServiceSchema = z.object({
 export const stopServiceSchema = z.object({
   id: z.string(),
 })
+
+export const updateVolumesSchema = z.object({
+  id: z.string(),
+  volumes: z
+    .object({
+      hostPath: z.string().min(1, 'Host path must be at-least 1 character'),
+      containerPath: z
+        .string()
+        .min(1, 'Container path must be at-least 1 character'),
+    })
+    .array()
+    .optional(),
+})

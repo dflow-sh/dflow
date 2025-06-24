@@ -13,6 +13,7 @@ export const servicePageTabs = {
     'domains',
     'deployments',
     'backup',
+    'volumes',
   ]).withDefault('general'),
 }
 
