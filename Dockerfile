@@ -63,6 +63,14 @@ RUN mkdir -p /var/run/tailscale /var/lib/tailscale && chmod 777 /var/run/tailsca
 RUN apk add --no-cache openssh
 RUN apk add --no-cache tailscale
 
+# Generate host keys
+RUN ssh-keygen -A
+
+# Enable root login and password auth for testing
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo 'root:rootpassword' | chpasswd
+
 COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
