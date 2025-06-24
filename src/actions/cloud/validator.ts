@@ -7,3 +7,7 @@ export const cloudProviderAccountsSchema = z.object({
 export const syncDflowServersSchema = z.object({
   id: z.string(),
 })
+
+export const getVpsOrderByInstanceIdSchema = z.object({
+  instanceId: z.number().min(1),
+})

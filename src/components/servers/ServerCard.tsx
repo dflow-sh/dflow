@@ -2,18 +2,22 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import {
   AlertCircle,
+  Calendar,
   Clock,
+  Cloud,
   Ellipsis,
   HardDrive,
   Trash2,
   WifiOff,
 } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import { getVpsOrderByInstanceIdAction } from '@/actions/cloud'
 import {
   Card,
   CardContent,
@@ -55,6 +59,15 @@ const ServerCard = ({
         addSuffix: true,
       })
     : 'unknown'
+  const instanceId = server?.dflowVpsDetails?.instanceId
+
+  const { execute, result } = useAction(getVpsOrderByInstanceIdAction)
+
+  useEffect(() => {
+    if (instanceId != null) {
+      execute({ instanceId })
+    }
+  }, [instanceId])
 
   return (
     <>
@@ -107,25 +120,66 @@ const ServerCard = ({
           </CardHeader>
 
           <CardContent>
-            <div className='flex w-full items-center justify-between'>
-              <p className='truncate'>{server.ip}</p>
+            <div>
+              <div className='flex w-full items-center justify-between pb-6'>
+                <p className='truncate'>{server.ip}</p>
 
-              {!isConnected && isOnboarded && (
-                <div className='flex items-center gap-2 text-sm text-red-500'>
-                  <WifiOff size={16} />
-                  <span>Connection error</span>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <AlertCircle size={14} className='cursor-help' />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Check server configuration or network status.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                {!isConnected && isOnboarded && (
+                  <div className='flex items-center gap-2 text-sm text-red-500'>
+                    <WifiOff size={16} />
+                    <span>Connection error</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <AlertCircle size={14} className='cursor-help' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Check server configuration or network status.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+              </div>
+
+              {/* Cloud Provider and Validity Info */}
+              <div className='flex w-full items-center justify-between'>
+                <div className='flex items-center gap-1'>
+                  <Cloud size={14} className='text-muted-foreground' />
+                  <Badge variant='info' className='text-xs'>
+                    {server.provider}
+                  </Badge>
                 </div>
-              )}
+
+                {server?.provider.toLowerCase() === 'dflow' &&
+                  result?.data?.next_billing_date && (
+                    <div className='flex items-center gap-1 text-sm text-muted-foreground'>
+                      <Calendar size={14} />
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className='cursor-help'>
+                              Valid till{' '}
+                              {format(
+                                result?.data?.next_billing_date,
+                                'MMM d, yyyy',
+                              )}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              Dflow instance expires on{' '}
+                              {format(
+                                result?.data?.next_billing_date,
+                                'MMM d, yyyy',
+                              )}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
+              </div>
             </div>
           </CardContent>
 
