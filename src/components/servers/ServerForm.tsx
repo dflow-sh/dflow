@@ -563,7 +563,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               {accountConnectionStatus.isConnected ? (
                 <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
               ) : (
-                <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
+                <XCircle className='mt-0.5 h-5 w-5' />
               )}
               <div className='flex-1'>
                 <AlertDescription>

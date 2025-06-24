@@ -27,6 +27,8 @@ import {
 import { slugify } from '@/lib/slugify'
 import { SshKey } from '@/payload-types'
 
+import { handleGenerateName } from './BasicInfoSection'
+
 // Helper function to determine key type from content
 const determineKeyType = (
   keyContent: string,
@@ -98,6 +100,14 @@ const CreateSSHKeyForm = ({
         },
   })
 
+  // Define handleNameChange function early
+  const handleNameChange = (inputValue: string) => {
+    const formattedName = slugify(inputValue)
+    form.setValue('name', formattedName, {
+      shouldValidate: true,
+    })
+  }
+
   const { execute: createSSHKey, isPending: isCreatingSSHKey } = useAction(
     createSSHKeyAction,
     {
@@ -153,12 +163,32 @@ const CreateSSHKeyForm = ({
   const handleGenerateRSA = (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
+
+    // Check if name field is empty and generate random name if needed
+    const currentName = form.getValues('name')
+    if (!currentName || currentName.trim() === '') {
+      const generatedName = handleGenerateName()
+      form.setValue('name', generatedName)
+      // Trigger the handleNameChange if you have validation logic there
+      handleNameChange(generatedName)
+    }
+
     generateSSHKey({ type: 'rsa' })
   }
 
   const handleGenerateED25519 = (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
+
+    // Check if name field is empty and generate random name if needed
+    const currentName = form.getValues('name')
+    if (!currentName || currentName.trim() === '') {
+      const generatedName = handleGenerateName()
+      form.setValue('name', generatedName)
+      // Trigger the handleNameChange if you have validation logic there
+      handleNameChange(generatedName)
+    }
+
     generateSSHKey({ type: 'ed25519' })
   }
 
@@ -243,13 +273,6 @@ const CreateSSHKeyForm = ({
         toast.error(`Failed to copy ${keyType} key`)
       },
     )
-  }
-
-  const handleNameChange = (inputValue: string) => {
-    const formattedName = slugify(inputValue)
-    form.setValue('name', formattedName, {
-      shouldValidate: true,
-    })
   }
 
   const handleDownloadPublic = (event: React.MouseEvent) => {
