@@ -118,13 +118,16 @@ const AddVolumeToService = ({
         )}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
-          className='w-full md:w-[42rem]'
-          onCloseAutoFocus={() => {
+      <Dialog
+        open={open}
+        onOpenChange={isOpen => {
+          if (!isOpen) {
             onCloseContextMenu?.()
             setOpenDialog?.(false)
-          }}>
+          }
+          setOpen(isOpen)
+        }}>
+        <DialogContent className='w-full md:w-[42rem]'>
           <DialogHeader>
             <DialogTitle>Manage Volumes</DialogTitle>
             <DialogDescription>
