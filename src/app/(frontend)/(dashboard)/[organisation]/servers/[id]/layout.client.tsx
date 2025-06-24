@@ -91,7 +91,7 @@ const LayoutClient = ({
         <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
       </div>
 
-      <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4'>
+      <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4 pb-10'>
         {children}
       </main>
 
