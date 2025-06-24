@@ -4,7 +4,7 @@ export const createServiceSchema = z.object({
   name: z
     .string()
     .min(1, { message: 'Name should be at-least than 1 character' })
-    .max(50, { message: 'Name should be less than 50 characters' }),
+    .max(10, { message: 'Name should be less than 10 characters' }),
   description: z.string().optional(),
   type: z.enum(['database', 'app', 'docker']),
   databaseType: z

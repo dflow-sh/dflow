@@ -60,3 +60,7 @@ export const checkServerConnectionSchema = z.object({
   username: z.string().min(1, 'Username is required'),
   privateKey: z.string().min(1, 'Private key is required'),
 })
+
+export const checkHostnameConnectionSchema = z.object({
+  serverId: z.string(),
+})

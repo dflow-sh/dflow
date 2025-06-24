@@ -4,7 +4,7 @@ import { CollectionConfig, Field } from 'payload'
 import { databaseOptions } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { checkServiceName } from './hooks/checkServiceName'
+import { ensureUniqueName } from './hooks/ensureUniqueName'
 
 const databaseField: Field = {
   label: 'Database Details',
@@ -248,10 +248,6 @@ export const Services: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
   },
-  hooks: {
-    // afterDelete: [deleteDokkuService],
-    beforeChange: [checkServiceName],
-  },
   access: {
     read: isAdmin,
     create: isAdmin,
@@ -292,6 +288,9 @@ export const Services: CollectionConfig = {
       admin: {
         description: 'Enter the name of the service.',
         placeholder: 'e.g., test-service',
+      },
+      hooks: {
+        beforeValidate: [ensureUniqueName],
       },
     },
     {

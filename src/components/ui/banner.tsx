@@ -201,11 +201,12 @@ export default function BannerComponent({ banners }: BannerProps) {
               </div>
 
               {banner.isDismissible && (
-                <Button variant='ghost' size='icon' className='size-6'>
-                  <X
-                    className='h-3.5 w-3.5 cursor-pointer stroke-white'
-                    onClick={() => dismissBanner(banner.id)}
-                  />
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  className='size-6'
+                  onClick={() => dismissBanner(banner.id)}>
+                  <X className='h-3.5 w-3.5 cursor-pointer stroke-white' />
                 </Button>
               )}
             </div>

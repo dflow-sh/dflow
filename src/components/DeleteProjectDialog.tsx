@@ -229,12 +229,12 @@ const DeleteProjectDialog = ({
         <DialogHeader className='flex-shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
             <Trash2 className='h-5 w-5 text-destructive' />
-            Delete {project.name} project
+            Delete project
           </DialogTitle>
 
           <DialogDescription>
-            Are you sure you want to delete the project? Project associated
-            server & services might be affected!
+            Are you sure you want to delete the {project.name} project? Project
+            associated server & services might be affected!
           </DialogDescription>
         </DialogHeader>
 

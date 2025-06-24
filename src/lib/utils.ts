@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
+import crypto from 'crypto'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -191,4 +192,20 @@ export function parseDatabaseUrl(url: string): {
   }
 
   return data
+}
+
+export function generateRandomString({
+  length = 4,
+  charset = '',
+}: {
+  length: number
+  charset?: string
+}) {
+  const chars =
+    charset || 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  const values = crypto.randomBytes(length)
+
+  return Array.from(values)
+    .map(v => chars.charAt(v % chars.length))
+    .join('')
 }

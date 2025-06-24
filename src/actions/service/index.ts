@@ -40,6 +40,7 @@ export const createServiceAction = protectedClient
     const {
       userTenant: { tenant },
       payload,
+      user,
     } = ctx
 
     const { server } = await payload.findByID({
@@ -73,6 +74,7 @@ export const createServiceAction = protectedClient
               },
               tenant,
             },
+            user,
           })
 
           if (response?.id) {
@@ -103,6 +105,7 @@ export const createServiceAction = protectedClient
             },
             tenant,
           },
+          user,
         })
 
         if (databaseResponse.id) {

@@ -1,14 +1,16 @@
-import type { FieldHook, Where } from 'payload'
+import { FieldHook, Where } from 'payload'
 
 import { extractID } from '@/lib/extractID'
 import { generateRandomString } from '@/lib/utils'
 
 export const ensureUniqueName: FieldHook = async ({
   data,
-  originalDoc,
   req,
+  originalDoc,
   value,
 }) => {
+  const { payload } = req
+
   // if value is unchanged, skip validation
   if (originalDoc?.name === value) {
     return value
@@ -22,6 +24,9 @@ export const ensureUniqueName: FieldHook = async ({
     },
   ]
 
+  const projectId =
+    typeof data?.project === 'object' ? data?.project.id : data?.project
+
   const incomingTenantID = extractID(data?.tenant)
   const currentTenantID = extractID(originalDoc?.tenant)
   const tenantIDToMatch = incomingTenantID || currentTenantID
@@ -34,21 +39,27 @@ export const ensureUniqueName: FieldHook = async ({
     })
   }
 
-  const { docs: duplicateSevers } = await req.payload.find({
-    collection: 'projects',
+  const { docs: duplicateServices } = await req.payload.find({
+    collection: 'services',
     where: {
       and: constraints,
     },
   })
 
-  // if character limit is greater than 10 slicing the name
-  const slicedName = value?.slice(0, 10)
+  const projectDetails = await payload.findByID({
+    id: projectId,
+    collection: 'projects',
+  })
 
-  if (duplicateSevers.length > 0 && req.user) {
+  // add 10 character limit
+  const slicedName = value.replace(`${projectDetails.name}-`, '').slice(0, 10)
+
+  // in-case of duplicate service name change prefix
+  if (duplicateServices.length > 0 && req.user) {
     // add a 4-random character generation
     const uniqueSuffix = generateRandomString({ length: 4 })
-    return `${slicedName}-${uniqueSuffix}`
+    return `${projectDetails.name}-${slicedName}-${uniqueSuffix}`
   }
 
-  return slicedName
+  return `${projectDetails.name}-${slicedName}`
 }
