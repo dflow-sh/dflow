@@ -569,7 +569,7 @@ export const checkHostnameConnection = protectedClient
       //   hostname: server.hostname,
       // })
 
-      ssh = await createSSH(server.username, server.hostname)
+      ssh = await createSSH(server.hostname, server.username)
 
       const appsList = await dokku.apps.list(ssh)
 
