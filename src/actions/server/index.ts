@@ -9,6 +9,7 @@ import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { createSSH } from '@/lib/tailscale/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -563,10 +564,12 @@ export const checkHostnameConnection = protectedClient
     let ssh: NodeSSH | null = null
 
     try {
-      ssh = await dynamicSSH({
-        username: server.username,
-        hostname: server.hostname,
-      })
+      // ssh = await dynamicSSH({
+      //   username: server.username,
+      //   hostname: server.hostname,
+      // })
+
+      ssh = await createSSH(server.username, server.hostname)
 
       const appsList = await dokku.apps.list(ssh)
 
