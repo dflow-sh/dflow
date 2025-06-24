@@ -85,49 +85,85 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
           console.log('dokku fetched volumes', list)
 
           if (addedVolumes?.length) {
-            const volumesResult = await Promise.allSettled(
-              addedVolumes.map(volume =>
-                dokku.volumes.mount({
-                  appName: service.name,
-                  ssh,
+            // const volumesResult = await Promise.allSettled(
+            //   addedVolumes.map(volume =>
+            //     dokku.volumes.mount({
+            //       appName: service.name,
+            //       ssh,
+            //       volume,
+            //     }),
+            //   ),
+            // )
+
+            for await (const volume of addedVolumes) {
+              const volumeMountResult = await dokku.volumes.mount({
+                appName: service.name,
+                ssh,
+                volume,
+              })
+
+              console.dir(
+                {
+                  volumeMountResult,
                   volume,
-                }),
-              ),
-            )
-            volumesResult.forEach((result, index) => {
-              const { hostPath, containerPath } = addedVolumes[index]
-              if (result.status === 'fulfilled') {
-                console.log(`✅ Mounted: ${hostPath} -> ${containerPath}`)
-              } else {
-                console.error(
-                  `❌ Failed: ${hostPath} -> ${containerPath}`,
-                  result.reason,
-                )
-              }
-            })
+                },
+                { depth: null },
+              )
+            }
+
+            // volumesResult.forEach((result, index) => {
+            //   const { hostPath, containerPath } = addedVolumes[index]
+            //   if (result.status === 'fulfilled') {
+            //     console.log(`✅ Mounted: ${hostPath} -> ${containerPath}`)
+            //   } else {
+            //     console.error(
+            //       `❌ Failed: ${hostPath} -> ${containerPath}`,
+            //       result.reason,
+            //     )
+            //   }
+            // })
           }
 
           if (deletedVolumes?.length) {
-            const volumesResult = await Promise.allSettled(
-              deletedVolumes.map(volume =>
-                dokku.volumes.unmount({
-                  appName: service.name,
-                  ssh,
-                  volume,
-                }),
-              ),
-            )
-            volumesResult.forEach((result, index) => {
-              const { container_path, host_path } = deletedVolumes[index]
-              if (result.status === 'fulfilled') {
-                console.log(`✅ Unmounted: ${host_path} -> ${container_path}`)
-              } else {
-                console.error(
-                  `❌ Failed: ${host_path} -> ${container_path}`,
-                  result.reason,
-                )
-              }
-            })
+            // const volumesResult = await Promise.allSettled(
+            //   deletedVolumes.map(volume =>
+            //     dokku.volumes.unmount({
+            //       appName: service.name,
+            //       ssh,
+            //       volume,
+            //     }),
+            //   ),
+            // )
+
+            for await (const volume of deletedVolumes) {
+              const volumeUnmountResult = await dokku.volumes.unmount({
+                appName: service.name,
+                ssh,
+                volume,
+              })
+
+              console.dir(
+                {
+                  volumeUnmountResult,
+                },
+                { depth: null },
+              )
+            }
+
+            // volumesResult.forEach((result, index) => {
+            //   const { container_path, host_path } = deletedVolumes[index]
+            //   if (result.status === 'fulfilled') {
+            //     console.dir({
+            //       message: `✅ Unmounted: ${host_path} -> ${container_path}`,
+            //       result: result.value,
+            //     })
+            //   } else {
+            //     console.error(
+            //       `❌ Failed: ${host_path} -> ${container_path}`,
+            //       result.reason,
+            //     )
+            //   }
+            // })
           }
 
           const updatedDokkuVolumes = (await dokku.volumes.list(
@@ -135,9 +171,12 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
             service.name,
           )) as VolumeFromDokku[]
 
+          console.dir({ updatedDokkuVolumes }, { depth: Infinity })
+
           const dokkuHostNames = updatedDokkuVolumes.map(v =>
             v.host_path.split('/').at(-1),
           )
+
           const currentAvailableVolumes = volumesList.map(volume => ({
             ...volume,
             created: dokkuHostNames.includes(volume.hostPath),
@@ -150,6 +189,8 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
               volumes: currentAvailableVolumes,
             },
           })
+
+          // todo: add dokku.apps.restart
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''
