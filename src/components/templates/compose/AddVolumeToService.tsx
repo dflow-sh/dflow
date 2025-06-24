@@ -138,7 +138,7 @@ const AddVolumeToService = ({
                 {fields.map((field, index) => {
                   return (
                     <KeyValuePair
-                      key={index}
+                      key={field.id}
                       id={index}
                       removeVariable={removeVariable}
                       serviceName={service?.name!}
@@ -193,8 +193,7 @@ const KeyValuePair = memo(
                 <Input
                   {...field}
                   onChange={e => {
-                    e.target.value = slugify(e.target.value)
-                    field.onChange(e)
+                    field.onChange(slugify(e.target.value))
                   }}
                   placeholder='default'
                 />
@@ -214,8 +213,7 @@ const KeyValuePair = memo(
                   <Input
                     {...field}
                     onChange={e => {
-                      e.target.value = slugifyWithSlash(e.target.value)
-                      field.onChange(e)
+                      field.onChange(slugifyWithSlash(e.target.value))
                     }}
                     placeholder='/data'
                   />
