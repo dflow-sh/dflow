@@ -5,6 +5,7 @@ import { addRailpackDeployQueue } from '../app/railpack-deployment'
 import { addCreateDatabaseQueue } from '../database/create'
 import { addExposeDatabasePortQueue } from '../database/expose'
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
+import { updateVolumesQueue } from '../volume/updateVolumesQueue'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
@@ -81,30 +82,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
   })
-
-  const createVolumes = async (
-    appName: string,
-    ssh: NodeSSH,
-    volumes: { hostPath: string; containerPath: string }[],
-  ) => {
-    const results = await Promise.allSettled(
-      volumes.map(volume => dokku.volumes.mount({ appName, ssh, volume })),
-    )
-
-    results.forEach((result, index) => {
-      const { hostPath, containerPath } = volumes[index]
-      if (result.status === 'fulfilled') {
-        console.log(`✅ Mounted: ${hostPath} -> ${containerPath}`)
-      } else {
-        console.error(
-          `❌ Failed: ${hostPath} -> ${containerPath}`,
-          result.reason,
-        )
-      }
-    })
-
-    return results
-  }
 
   // todo: need to add deployment strategy which will sort the services or based on dependency
   // todo: change the waitForJobCompletion method from for-loop to performant way
@@ -195,7 +172,13 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                   let updatedServiceDetails: Service | null = null
 
                   if (volumes?.length) {
-                    await createVolumes(serviceDetails?.name, ssh, volumes)
+                    await updateVolumesQueue({
+                      service: createdService,
+                      serverDetails: {
+                        id: project?.server?.sshKey?.privateKey,
+                      },
+                      tenantDetails,
+                    })
                   }
 
                   // if variables are added updating the variables
@@ -340,7 +323,13 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                 let updatedServiceDetails: Service | null = null
 
                 if (volumes?.length) {
-                  await createVolumes(serviceDetails?.name, ssh, volumes)
+                  await updateVolumesQueue({
+                    service: createdService,
+                    serverDetails: {
+                      id: project?.server?.sshKey?.privateKey,
+                    },
+                    tenantDetails,
+                  })
                 }
 
                 if (variables?.length) {

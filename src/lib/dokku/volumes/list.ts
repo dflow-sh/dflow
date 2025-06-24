@@ -9,7 +9,7 @@ export const list = async (ssh: NodeSSH, appName: string) => {
     throw new Error(resultVolumes.stderr)
   }
 
-  const volumes = resultVolumes.stdout
+  const volumes = JSON.parse(resultVolumes.stdout)
   console.log('list', { volumes, resultVolumes })
 
   return volumes

@@ -585,6 +585,7 @@ export interface Service {
     | {
         hostPath: string;
         containerPath: string;
+        created?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -1125,6 +1126,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         hostPath?: T;
         containerPath?: T;
+        created?: T;
         id?: T;
       };
   populatedVariables?: T;

@@ -348,6 +348,11 @@ export const Services: CollectionConfig = {
           label: 'Container Path',
           required: true,
         },
+        {
+          type: 'checkbox',
+          label: 'Created',
+          name: 'created',
+        },
       ],
     },
     encryptedField({

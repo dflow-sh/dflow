@@ -8,12 +8,12 @@ export const unmount = async ({
   ssh: NodeSSH
   appName: string
   volume: {
-    hostPath: string
-    containerPath: string
+    host_path: string
+    container_path: string
   }
 }) => {
   const resultVolume = await ssh.execCommand(
-    `dokku storage:unmount ${appName} /var/lib/dokku/data/storage/${appName}/${volume.hostPath}:${volume.containerPath}`,
+    `dokku storage:unmount ${appName} ${volume.host_path}:${volume.container_path}`,
   )
 
   if (resultVolume.code === 1) {
