@@ -59,6 +59,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 RUN mkdir -p /var/run/tailscale /var/lib/tailscale && chmod 777 /var/run/tailscale /var/lib/tailscale
+
+RUN apk add --no-cache openssh
 RUN apk add --no-cache tailscale
 
 COPY --from=builder /app/public ./public
