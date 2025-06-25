@@ -140,6 +140,12 @@ export class NodeSSH extends OriginalNodeSSH {
     }
   }
 
+  async isConnectedViaTailnet() {
+    const result = await this.execCommand('echo "tailscale-test"')
+
+    return result.code === 0
+  }
+
   // Keep all other node-ssh methods intact
   // putFile, getFile, etc. will use the original implementation
 }

@@ -50,8 +50,19 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     try {
       const ssh = await dynamicSSH(sshDetails)
 
-      if (ssh.isConnected()) {
+      if (await ssh.isConnectedViaTailnet()) {
+        console.log('populate dokku', 'connecting with tailscale, 2 methods')
         sshConnected = true
+        console.log('populate dokku', 'connected with one of tailscale method')
+      } else {
+        console.log('populate dokku', 'both tailscale methods failed')
+        if (ssh.isConnected()) {
+          sshConnected = true
+        }
+        console.log(
+          'populate dokku',
+          'connection failed with both tailscale and node-ssh',
+        )
       }
 
       const {
