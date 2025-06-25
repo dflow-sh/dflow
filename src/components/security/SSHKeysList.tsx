@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -38,6 +39,8 @@ const SSHKeyItem = ({
 }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const isConnectedToServers = connectedServers.length > 0
+
+  const { organisation } = useParams()
 
   const { execute: executeDelete, isPending: isDeletePending } = useAction(
     deleteSSHKeyAction,
@@ -162,13 +165,14 @@ const SSHKeyItem = ({
                           <span>{server.name || `Server ${index + 1}`}</span>
                         </div>
                         <div className='flex gap-2'>
-                          <Link href={`/servers/${server.id}`}>
+                          <Link href={`/${organisation}/servers/${server.id}`}>
                             <Button size='sm' variant='outline' className='h-8'>
                               View Server
                               <ExternalLink className='ml-1 h-4 w-4' />
                             </Button>
                           </Link>
-                          <Link href={`/servers/${server.id}/danger`}>
+                          <Link
+                            href={`/${organisation}/servers/${server.id}/danger`}>
                             <Button
                               size='sm'
                               variant='secondary'

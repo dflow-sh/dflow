@@ -803,3 +803,24 @@ export const Heroku = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 )
+
+export const Tailscale = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    fill='none'
+    height='18'
+    viewBox='0 0 80 80'
+    width='18'
+    xmlns='http://www.w3.org/2000/svg'>
+    <g fill='currentColor'>
+      <circle cx='20' cy='40' r='6' />
+      <circle cx='40' cy='40' r='6' />
+      <circle cx='20' cy='60' opacity='.3' r='6' />
+      <circle cx='60' cy='60' opacity='.3' r='6' />
+      <circle cx='40' cy='60' r='6' />
+      <circle cx='60' cy='40' r='6' />
+      <circle cx='20' cy='20' opacity='.3' r='6' />
+      <circle cx='40' cy='20' opacity='.3' r='6' />
+      <circle cx='60' cy='20' opacity='.3' r='6' />
+    </g>
+  </svg>
+)

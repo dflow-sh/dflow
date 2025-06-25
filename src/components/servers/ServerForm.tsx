@@ -27,6 +27,7 @@ import {
   checkAccountConnection,
   checkPaymentMethodAction,
 } from '@/actions/cloud/dFlow'
+import ManualSetupTabs from '@/components/security/ManualSetupTabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -44,7 +45,6 @@ import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import AttachCustomServerForm from './AttachCustomServerForm'
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'
 import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
 
@@ -954,7 +954,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
 
         case 'manual':
           return (
-            <AttachCustomServerForm
+            <ManualSetupTabs
               sshKeys={sshKeys}
               server={server}
               formType={formType}
@@ -1014,9 +1014,9 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
         <h2 className='text-xl font-semibold'>{providerName}</h2>
       </div>
 
-      <Card className='border shadow-sm'>
-        <CardContent className='p-6'>
-          {!validation.isValid ? (
+      {!validation.isValid ? (
+        <Card className='border shadow-sm'>
+          <CardContent className='p-6'>
             <div className='space-y-4'>
               <Alert variant='destructive'>
                 <XCircle className='h-4 w-4' />
@@ -1035,11 +1035,17 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
                 </Button>
               </div>
             </div>
-          ) : (
-            renderFormComponent(type, option)
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : type === 'manual' && option === 'manual' ? (
+        renderFormComponent(type, option)
+      ) : (
+        <Card className='border shadow-sm'>
+          <CardContent className='p-6'>
+            {renderFormComponent(type, option)}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

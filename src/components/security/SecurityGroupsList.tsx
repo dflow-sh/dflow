@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -82,6 +83,8 @@ const SecurityGroupItem = ({
 }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const isConnectedToServers = connectedServers.length > 0
+
+  const { organisation } = useParams()
 
   const { execute: executeDelete, isPending: isDeletePending } = useAction(
     deleteSecurityGroupAction,
@@ -269,7 +272,8 @@ const SecurityGroupItem = ({
                                 {server.name || `Server ${index + 1}`}
                               </span>
                             </div>
-                            <Link href={`/servers/${server.id}`}>
+                            <Link
+                              href={`/${organisation}/servers/${server.id}`}>
                               <Button
                                 size='sm'
                                 variant='outline'
