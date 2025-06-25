@@ -110,6 +110,8 @@ const HostContainerPair = memo(
   },
 )
 
+HostContainerPair.displayName = 'HostContainerPair'
+
 const AddVolumeToService = ({
   service,
   setNodes,

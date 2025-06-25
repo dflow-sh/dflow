@@ -97,6 +97,8 @@ const HostContainerPair = memo(
   },
 )
 
+HostContainerPair.displayName = 'HostContainerPair'
+
 const VolumesForm = ({ service }: { service: Service }) => {
   const { execute: updateVolumes, isPending: isUpdateVolumePending } =
     useAction(updateVolumesAction, {
