@@ -12,6 +12,7 @@ import {
 
 import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
+import { generateRandomString } from '@/lib/utils'
 import { Project, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
@@ -198,6 +199,8 @@ export const deployTemplateAction = protectedClient
       id: projectId,
     })
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     const templateDetails = await payload.findByID({
       collection: 'templates',
       id,
@@ -212,10 +215,18 @@ export const deployTemplateAction = protectedClient
     const serviceNames = {} as Record<string, string>
 
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
@@ -260,8 +271,6 @@ export const deployTemplateAction = protectedClient
               }
             }
           }
-
-          console.log({ populatedValue })
 
           variables.push({
             ...variable,
