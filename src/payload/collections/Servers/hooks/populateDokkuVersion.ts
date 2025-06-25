@@ -23,7 +23,14 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   }
 
   const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
-  const portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
+
+  let portIsOpen: boolean = false
+
+  if (doc.hostname) {
+    portIsOpen = true
+  } else {
+    portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
+  }
 
   let dokku: string | undefined
   let netdata: string | undefined
