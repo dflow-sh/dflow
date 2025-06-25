@@ -14,6 +14,16 @@ export const createServerSchema = z.object({
   sshKey: z.string({ message: 'SSH key is required' }),
 })
 
+export const createTailscaleServerSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'Server name is required' })
+    .max(50, { message: 'Server name should be less than 50 characters' }),
+  description: z.string().optional(),
+  hostname: z.string().min(1, 'Hostname is required'),
+  username: z.string().min(1, 'Username is required'),
+})
+
 export const updateServerSchema = z.object({
   name: z
     .string()
