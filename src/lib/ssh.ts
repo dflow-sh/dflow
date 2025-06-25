@@ -16,21 +16,22 @@ interface TailscaleConfig {
   username: string
 }
 
-export type SSHType =
-  | {
-      ip: string
-      port: number
-      username: string
-      privateKey: string
-    }
-  | {
-      hostname: string
-      username: string
-    }
+export type SSHType = {
+  ip: string
+  port: number
+  username: string
+  hostname?: string | null
+  privateKey: string
+}
 
 type ExtractSSHDetails =
   | { project: Project | string; server?: never }
   | { project?: never; server: Server | string }
+
+interface ExtendedConfig extends Config {
+  tailscale?: boolean
+  hostname?: string | null
+}
 
 export class NodeSSH extends OriginalNodeSSH {
   private useTailscale: boolean = false
@@ -40,22 +41,22 @@ export class NodeSSH extends OriginalNodeSSH {
     super()
   }
 
-  async connect(config: Config): Promise<this> {
+  async connect(config: ExtendedConfig): Promise<this> {
     // Detect if we should use Tailscale
-    const shouldUseTailscale =
-      (config.host && config.host.includes('.ts.net')) || !config.privateKey
+    const shouldUseTailscale = config.hostname
+
+    console.log(shouldUseTailscale, config)
 
     if (shouldUseTailscale) {
       this.useTailscale = true
       this.tailscaleConfig = {
-        host: config.host!,
+        host: config.hostname!,
         username: config.username || 'root',
       }
 
       // Test Tailscale connection - if it fails, fall back to regular SSH
       try {
         const result = await this.execCommand('echo "tailscale-test"')
-
         if (result.code === 0) {
           return this
         } else {
@@ -77,7 +78,8 @@ export class NodeSSH extends OriginalNodeSSH {
         this.useTailscale = false
         this.tailscaleConfig = null
 
-        return await super.connect(config)
+        const { hostname, ...extractedConfig } = config
+        return await super.connect(extractedConfig)
       }
     } else {
       // Use original node-ssh for regular SSH connections
@@ -149,23 +151,15 @@ export class NodeSSH extends OriginalNodeSSH {
 export const dynamicSSH = async (params: SSHType) => {
   const ssh = new NodeSSH()
 
-  if ('ip' in params) {
-    const { ip, port, privateKey, username } = params
+  const { ip, port, privateKey, username, hostname } = params
 
-    await ssh.connect({
-      host: ip,
-      port,
-      username,
-      privateKey,
-    })
-  } else {
-    const { hostname, username } = params
-
-    await ssh.connect({
-      host: hostname,
-      username,
-    })
-  }
+  await ssh.connect({
+    host: ip,
+    port,
+    username,
+    privateKey,
+    hostname,
+  })
 
   return ssh
 }
@@ -181,7 +175,7 @@ export const extractSSHDetails = ({ project, server }: ExtractSSHDetails) => {
     typeof project === 'object' &&
     typeof project?.server === 'object'
   ) {
-    const { ip, port, username, sshKey } = project?.server
+    const { ip, port, username, sshKey, hostname } = project?.server
 
     if (typeof sshKey === 'string') {
       throw new Error('SSH details missing')
@@ -192,9 +186,10 @@ export const extractSSHDetails = ({ project, server }: ExtractSSHDetails) => {
       port,
       username,
       privateKey: sshKey.privateKey,
+      hostname,
     }
   } else if (server && typeof server === 'object') {
-    const { ip, port, username, sshKey } = server
+    const { ip, port, username, sshKey, hostname } = server
 
     if (typeof sshKey === 'string') {
       throw new Error('SSH details missing')
@@ -205,6 +200,7 @@ export const extractSSHDetails = ({ project, server }: ExtractSSHDetails) => {
       port,
       username,
       privateKey: sshKey.privateKey,
+      hostname,
     }
   }
 
