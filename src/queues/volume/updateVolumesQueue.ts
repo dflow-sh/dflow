@@ -4,7 +4,8 @@ import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
-import { jobOptions, queueConnection } from '@/lib/redis'
+import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { sendActionEvent } from '@/lib/sendEvent'
 import { dynamicSSH } from '@/lib/ssh'
 import { Project, Service } from '@/payload-types'
 
@@ -13,7 +14,7 @@ interface QueueArgs {
     id: string
   }
   service: Service
-
+  restart: boolean
   tenantDetails: {
     slug: string
   }
@@ -33,13 +34,11 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
     connection: queueConnection,
   })
 
-  // todo: need to add deployment strategy which will sort the services or based on dependency
-  // todo: change the waitForJobCompletion method from for-loop to performant way
   getWorker<QueueArgs>({
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { service, serverDetails, tenantDetails } = job.data
+      const { service, tenantDetails, restart = false } = job.data
       const project = service.project as Project
       const payload = await getPayload({ config: configPromise })
 
@@ -74,96 +73,38 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
           const addedVolumes = volumesList?.filter(
             volume => !list.some(existing => isSameVolume(volume, existing)),
           )
-          console.log('added Volumes', addedVolumes)
-          // Deleted volumes: in list but not in volumesList
+
           const deletedVolumes = list.filter(
             existing =>
               !volumesList?.some(volume => isSameVolume(volume, existing)),
           )
-          console.log('deleted Volumes', deletedVolumes)
-
-          console.log('dokku fetched volumes', list)
 
           if (addedVolumes?.length) {
-            // const volumesResult = await Promise.allSettled(
-            //   addedVolumes.map(volume =>
-            //     dokku.volumes.mount({
-            //       appName: service.name,
-            //       ssh,
-            //       volume,
-            //     }),
-            //   ),
-            // )
-
             for await (const volume of addedVolumes) {
-              const volumeMountResult = await dokku.volumes.mount({
-                appName: service.name,
-                ssh,
-                volume,
-              })
-
-              console.dir(
-                {
-                  volumeMountResult,
+              try {
+                await dokku.volumes.mount({
+                  appName: service.name,
+                  ssh,
                   volume,
-                },
-                { depth: null },
-              )
+                })
+              } catch (err) {
+                console.error(`Failed to mount volume`, volume, err)
+              }
             }
-
-            // volumesResult.forEach((result, index) => {
-            //   const { hostPath, containerPath } = addedVolumes[index]
-            //   if (result.status === 'fulfilled') {
-            //     console.log(`✅ Mounted: ${hostPath} -> ${containerPath}`)
-            //   } else {
-            //     console.error(
-            //       `❌ Failed: ${hostPath} -> ${containerPath}`,
-            //       result.reason,
-            //     )
-            //   }
-            // })
           }
 
           if (deletedVolumes?.length) {
-            // const volumesResult = await Promise.allSettled(
-            //   deletedVolumes.map(volume =>
-            //     dokku.volumes.unmount({
-            //       appName: service.name,
-            //       ssh,
-            //       volume,
-            //     }),
-            //   ),
-            // )
-
             for await (const volume of deletedVolumes) {
-              const volumeUnmountResult = await dokku.volumes.unmount({
-                appName: service.name,
-                ssh,
-                volume,
-              })
-
-              console.dir(
-                {
-                  volumeUnmountResult,
-                },
-                { depth: null },
-              )
+              try {
+                await dokku.volumes.unmount({
+                  appName: service.name,
+                  ssh,
+                  volume,
+                })
+              } catch (err) {
+                console.error(`Failed to unmount volume`, volume, err)
+              }
             }
-
-            // volumesResult.forEach((result, index) => {
-            //   const { container_path, host_path } = deletedVolumes[index]
-            //   if (result.status === 'fulfilled') {
-            //     console.dir({
-            //       message: `✅ Unmounted: ${host_path} -> ${container_path}`,
-            //       result: result.value,
-            //     })
-            //   } else {
-            //     console.error(
-            //       `❌ Failed: ${host_path} -> ${container_path}`,
-            //       result.reason,
-            //     )
-            //   }
-            // })
           }
 
           const updatedDokkuVolumes = (await dokku.volumes.list(
@@ -171,26 +112,36 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
             service.name,
           )) as VolumeFromDokku[]
 
-          console.dir({ updatedDokkuVolumes }, { depth: Infinity })
-
-          const dokkuHostNames = updatedDokkuVolumes.map(v =>
-            v.host_path.split('/').at(-1),
+          const failedVolumes = volumesList?.filter(
+            volume =>
+              !updatedDokkuVolumes?.some(existing =>
+                isSameVolume(volume, existing),
+              ),
           )
 
-          const currentAvailableVolumes = volumesList.map(volume => ({
-            ...volume,
-            created: dokkuHostNames.includes(volume.hostPath),
+          const availableDokkuVolumes = updatedDokkuVolumes?.map(volume => ({
+            hostPath: volume.host_path?.split('/')?.at(-1),
+            containerPath: volume.container_path,
+            created: true,
           }))
 
-          const updatedValues = await payload.update({
+          await payload.update({
             collection: 'services',
             id: service.id,
             data: {
-              volumes: currentAvailableVolumes,
+              volumes: [...availableDokkuVolumes, ...failedVolumes],
             },
           })
 
-          // todo: add dokku.apps.restart
+          sendActionEvent({
+            pub,
+            action: 'refresh',
+            tenantSlug: tenantDetails.slug,
+          })
+
+          if (restart) {
+            await dokku.process.restart(ssh, service.name)
+          }
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''

@@ -7,5 +7,5 @@ export const slugify = (val: string): string =>
 export const slugifyWithSlash = (val: string): string =>
   val
     .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/[^a-zA-Z0-9-/]/g, '') // Keep a-z, A-Z, 0-9, hyphen, and slash
+    .replace(/[^a-zA-Z0-9-/.]/g, '') // Allow a-z, A-Z, 0-9, hyphen, slash, and period
     .toLowerCase()

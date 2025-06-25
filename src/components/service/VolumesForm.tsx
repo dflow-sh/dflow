@@ -6,7 +6,7 @@ import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import {
   UseFieldArrayRemove,
   useFieldArray,
@@ -61,21 +61,38 @@ const VolumesForm = ({ service }: { service: Service }) => {
   })
 
   const onSubmit = (data: VolumesType) => {
-    console.log('data', data)
     updateVolumes({
       id: service.id,
       volumes: data.volumes,
     })
   }
+
+  useEffect(() => {
+    if (Array.isArray(service?.volumes)) {
+      form.reset({
+        volumes: service.volumes.length
+          ? service.volumes
+          : [{ containerPath: '', hostPath: '' }],
+      })
+    }
+  }, [service?.volumes])
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='space-y-2'>
+          {fields.length ? (
+            <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
+              <p className='font-semibold'>Host Path</p>
+              <p />
+              <p className='font-semibold'>Container Path</p>
+            </div>
+          ) : null}
           {fields.map((field, index) => {
             return (
               <KeyValuePair
                 key={field.id}
                 id={index}
+                created={field?.created}
                 removeVariable={removeVariable}
                 serviceName={service?.name!}
               />
@@ -94,7 +111,14 @@ const VolumesForm = ({ service }: { service: Service }) => {
             <Plus /> New Volume
           </Button>
         </div>
-        <Button type='submit'>save</Button>
+        <div className='flex items-center justify-end'>
+          <Button
+            type='submit'
+            disabled={isUpdateVolumePending}
+            isLoading={isUpdateVolumePending}>
+            save
+          </Button>
+        </div>
       </form>
     </Form>
   )
@@ -106,15 +130,17 @@ const KeyValuePair = memo(
   ({
     id,
     removeVariable,
+    created,
   }: {
     id: number
     removeVariable: UseFieldArrayRemove
     serviceName: string
+    created: boolean | null | undefined
   }) => {
-    const { control } = useFormContext()
+    const { control, trigger } = useFormContext()
 
     return (
-      <div className='flex w-full items-center gap-x-2 font-mono'>
+      <div className='grid w-full grid-cols-[1fr_min-content_1fr_auto] gap-2 font-mono'>
         <FormField
           control={control}
           name={`volumes.${id}.hostPath`}
@@ -122,6 +148,7 @@ const KeyValuePair = memo(
             <FormItem>
               <FormControl>
                 <Input
+                  disabled={Boolean(created)}
                   {...field}
                   onChange={e => {
                     field.onChange(slugify(e.target.value))
@@ -142,6 +169,7 @@ const KeyValuePair = memo(
               <FormControl>
                 <div className='relative'>
                   <Input
+                    disabled={Boolean(created)}
                     {...field}
                     onChange={e => {
                       field.onChange(slugifyWithSlash(e.target.value))
@@ -160,6 +188,7 @@ const KeyValuePair = memo(
           size='icon'
           onClick={() => {
             removeVariable(+id)
+            trigger()
           }}>
           <Trash2 className='text-destructive' />
         </Button>

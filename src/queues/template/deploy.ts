@@ -173,6 +173,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
 
                   if (volumes?.length) {
                     await updateVolumesQueue({
+                      restart: false,
                       service: createdService,
                       serverDetails: {
                         id: project?.server?.sshKey?.privateKey,
@@ -324,6 +325,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
 
                 if (volumes?.length) {
                   await updateVolumesQueue({
+                    restart: false,
                     service: createdService,
                     serverDetails: {
                       id: project?.server?.sshKey?.privateKey,

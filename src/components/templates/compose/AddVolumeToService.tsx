@@ -146,6 +146,13 @@ const AddVolumeToService = ({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className='space-y-2'>
+                {fields.length ? (
+                  <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-sm text-muted-foreground'>
+                    <p className='font-semibold'>Host Path</p>
+                    <span />
+                    <p className='font-semibold'>Container Path</p>
+                  </div>
+                ) : null}
                 {fields.map((field, index) => {
                   return (
                     <KeyValuePair
@@ -191,10 +198,10 @@ const KeyValuePair = memo(
     removeVariable: UseFieldArrayRemove
     serviceName: string
   }) => {
-    const { control } = useFormContext()
+    const { control, trigger } = useFormContext()
 
     return (
-      <div className='flex w-full items-center gap-x-2 font-mono'>
+      <div className='grid w-full grid-cols-[1fr_min-content_1fr_auto] gap-2 font-mono'>
         <FormField
           control={control}
           name={`volumes.${id}.hostPath`}
@@ -213,7 +220,7 @@ const KeyValuePair = memo(
             </FormItem>
           )}
         />
-        <span>:</span>
+        <span className='h-full text-center'>:</span>
         <FormField
           control={control}
           name={`volumes.${id}.containerPath`}
@@ -238,8 +245,9 @@ const KeyValuePair = memo(
           variant='ghost'
           type='button'
           size='icon'
-          onClick={() => {
+          onClick={async () => {
             removeVariable(+id)
+            await trigger()
           }}>
           <Trash2 className='text-destructive' />
         </Button>

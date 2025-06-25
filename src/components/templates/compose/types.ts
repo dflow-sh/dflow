@@ -61,23 +61,50 @@ export type EditServiceNameType = z.infer<
 >
 
 export const volumesSchema = z.object({
-  volumes: z.array(
-    z.object({
-      hostPath: z
-        .string()
-        .min(1, 'Host path is required')
-        .refine(val => !val.includes('/'), {
-          message: 'Host path should not contain "/"',
-        }),
+  volumes: z
+    .array(
+      z.object({
+        hostPath: z
+          .string()
+          .min(1, 'Host path is required')
+          .refine(val => !val.includes('/'), {
+            message: 'Host path should not contain "/"',
+          }),
 
-      containerPath: z
-        .string()
-        .min(1, 'Container path is required')
-        .refine(val => /^\/.+/.test(val), {
-          message: 'Container path must start with "/" followed by text',
-        }),
+        containerPath: z
+          .string()
+          .min(1, 'Container path is required')
+          .refine(val => /^\/.+/.test(val), {
+            message: 'Container path must start with "/" followed by text',
+          }),
+
+        created: z.boolean().default(false).optional().nullable(),
+      }),
+    )
+    .superRefine((volumes, ctx) => {
+      const seen = new Map<string, number[]>()
+
+      volumes.forEach((item, index) => {
+        const path = item.hostPath.trim()
+        if (seen.has(path)) {
+          seen.get(path)!.push(index)
+        } else {
+          seen.set(path, [index])
+        }
+      })
+
+      for (const [path, indices] of seen.entries()) {
+        if (indices.length > 1) {
+          indices.forEach(i => {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Host path must be unique',
+              path: [i, 'hostPath'],
+            })
+          })
+        }
+      }
     }),
-  ),
 })
 
 export type VolumesType = z.infer<typeof volumesSchema>

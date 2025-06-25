@@ -819,6 +819,7 @@ export const updateVolumesAction = protectedClient
     const updatedService = await payload.update({
       collection: 'services',
       id: id,
+      depth: 10,
       data: {
         volumes: volumes,
       },
@@ -832,6 +833,7 @@ export const updateVolumesAction = protectedClient
       typeof project?.server?.sshKey === 'object'
     ) {
       await updateVolumesQueue({
+        restart: true,
         service: updatedService,
         serverDetails: {
           id: project?.server?.sshKey?.privateKey,
