@@ -11,9 +11,13 @@ export const installRailpack = async ({ options, ssh }: Args) => {
     options,
   )
 
+  // installing buildkitd which is required for railpack to work
   await ssh.execCommand(
     `sudo docker run -d --name buildkitd --privileged moby/buildkit:latest`,
   )
+
+  // added restart parameter when container stopped
+  await ssh.execCommand(`sudo docker update --restart=unless-stopped buildkitd`)
 
   return resultInstallRailpack
 }

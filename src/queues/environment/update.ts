@@ -292,8 +292,6 @@ async function handleReferenceVariables({
 
             const domain = domains?.[0] ?? ''
 
-            console.log({ domains })
-
             // incase of single domain directly assigning that value
             if (domains.length === 1) {
               return {
@@ -319,8 +317,6 @@ async function handleReferenceVariables({
             })
 
             const serviceDetails = docs?.[0]
-
-            console.dir({ serviceDetails }, { depth: null })
 
             if (serviceDetails) {
               const { domains = [] } = serviceDetails
@@ -359,7 +355,7 @@ async function handleReferenceVariables({
 
           const formattedDatabaseVariableName = `${databaseName}-db`
           const envAlias = formattedDatabaseVariableName
-            .replace(/-([a-z])/g, (_, char) => '_' + char.toUpperCase())
+            .replace(/-([a-z0-9])/g, (_, char) => '_' + char.toUpperCase())
             .toUpperCase()
 
           // 1. Public database connection -> MONGO_PUBLIC_URI
@@ -544,8 +540,6 @@ async function handleReferenceVariables({
                 ssh,
               })
 
-              console.log({ generatedValue })
-
               return { [variable]: generatedValue }
             }
             // link the database and use `$(dokku config:get serviceName SERVICE_NAME_DB_URL)`
@@ -582,8 +576,6 @@ async function handleReferenceVariables({
                   serviceName: serviceDetails.name,
                   ssh,
                 })
-
-                console.log({ generatedValue })
 
                 return { [variable]: generatedValue }
               } else {
@@ -722,8 +714,10 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
         // step 2: go through variables list, categorize and populate values accordingly
         for await (const variable of variables) {
           const { key, value } = variable
+
           // step 2.1: categorize environment variables
           const type = classifyVariableType(value)
+
           // step 2.2: generate values for variables
           switch (type) {
             // for static variables directly storing values

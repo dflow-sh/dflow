@@ -201,11 +201,11 @@ export function generateRandomString({
   length: number
   charset?: string
 }) {
-  const chars =
-    charset || 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  const chars = charset || 'abcdefghijklmnopqrstuvwxyz0123456789'
   const values = crypto.randomBytes(length)
 
   return Array.from(values)
     .map(v => chars.charAt(v % chars.length))
     .join('')
+    .toLowerCase()
 }
