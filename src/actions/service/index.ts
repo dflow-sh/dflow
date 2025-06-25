@@ -151,14 +151,7 @@ export const deleteServiceAction = protectedClient
       payload,
     } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       id,
       depth: 10,
@@ -262,7 +255,7 @@ export const deleteServiceAction = protectedClient
       }
 
       // Always delete associated deployments
-      const deletedDeploymentsResponse = await payload.update({
+      await payload.update({
         collection: 'deployments',
         data: {
           deletedAt: new Date().toISOString(),
@@ -374,14 +367,7 @@ export const restartServiceAction = protectedClient
     const { id } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -451,14 +437,7 @@ export const stopServerAction = protectedClient
     const { id } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -531,9 +510,9 @@ export const exposeDatabasePortAction = protectedClient
     const {
       project,
       type,
-      providerType,
+      // providerType,
       githubSettings,
-      provider,
+      // provider,
       ...serviceDetails
     } = await payload.findByID({
       collection: 'services',
@@ -709,14 +688,7 @@ export const regenerateSSLAction = protectedClient
     const { id, email } = clientInput
     const { payload } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,

@@ -93,7 +93,7 @@ export const volumesSchema = z.object({
         }
       })
 
-      for (const [path, indices] of seen.entries()) {
+      for (const [_, indices] of seen.entries()) {
         if (indices.length > 1) {
           indices.forEach(i => {
             ctx.addIssue({
