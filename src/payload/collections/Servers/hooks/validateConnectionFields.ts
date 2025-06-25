@@ -28,13 +28,13 @@ export const validateConnectionFields: CollectionBeforeValidateHook = async ({
       })
     }
 
-    if (!data?.description) {
-      errors.push({
-        message:
-          'Description is required when SSH is the preferred connection type',
-        path: 'description',
-      })
-    }
+    // if (!data?.description) {
+    //   errors.push({
+    //     message:
+    //       'Description is required when SSH is the preferred connection type',
+    //     path: 'description',
+    //   })
+    // }
 
     if (!data?.sshKey) {
       errors.push({
@@ -77,13 +77,13 @@ export const validateConnectionFields: CollectionBeforeValidateHook = async ({
       })
     }
 
-    if (!data?.description) {
-      errors.push({
-        message:
-          'Description is required when Tailscale is the preferred connection type',
-        path: 'description',
-      })
-    }
+    // if (!data?.description) {
+    //   errors.push({
+    //     message:
+    //       'Description is required when Tailscale is the preferred connection type',
+    //     path: 'description',
+    //   })
+    // }
 
     if (!data?.hostname) {
       errors.push({
