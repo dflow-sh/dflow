@@ -5,6 +5,7 @@ import { addRailpackDeployQueue } from '../app/railpack-deployment'
 import { addCreateDatabaseQueue } from '../database/create'
 import { addExposeDatabasePortQueue } from '../database/expose'
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
+import { updateVolumesQueue } from '../volume/updateVolumesQueue'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
@@ -106,19 +107,9 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             provider,
             populatedVariables,
             variables,
+            volumes,
             ...serviceDetails
           } = createdService
-
-          console.log({
-            project,
-            type,
-            providerType,
-            githubSettings,
-            provider,
-            populatedVariables,
-            variables,
-            ...serviceDetails,
-          })
 
           const deploymentResponse = await payload.create({
             collection: 'deployments',
@@ -162,6 +153,17 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                   }
 
                   let updatedServiceDetails: Service | null = null
+
+                  if (volumes?.length) {
+                    await updateVolumesQueue({
+                      restart: false,
+                      service: createdService,
+                      serverDetails: {
+                        id: project?.server?.sshKey?.privateKey,
+                      },
+                      tenantDetails,
+                    })
+                  }
 
                   // if variables are added updating the variables
                   if (variables?.length) {
@@ -283,7 +285,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
               serviceDetails.dockerDetails &&
               serviceDetails.dockerDetails.url
             ) {
-              console.log('inside docker')
               let ssh: NodeSSH | null = null
               const { account, url, ports } = serviceDetails.dockerDetails
 
@@ -303,6 +304,17 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                 }
 
                 let updatedServiceDetails: Service | null = null
+
+                if (volumes?.length) {
+                  await updateVolumesQueue({
+                    restart: false,
+                    service: createdService,
+                    serverDetails: {
+                      id: project?.server?.sshKey?.privateKey,
+                    },
+                    tenantDetails,
+                  })
+                }
 
                 if (variables?.length) {
                   const environmentVariablesQueue =

@@ -1,17 +1,21 @@
-import type { Edge } from '@xyflow/react'
+import type { Edge, Node } from '@xyflow/react'
 import { useReactFlow } from '@xyflow/react'
 import { Trash2 } from 'lucide-react'
-import { type FC, useEffect, useRef } from 'react'
+import { type FC, useRef } from 'react'
 
 import type { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+
+import AddVolumeToService from './AddVolumeToService'
+import EditServiceName from './EditServiceName'
 
 interface ContextMenuProps {
   top: number
   left: number
   service: ServiceNode
   edges: Edge[]
+  nodes: Node[]
   onClick: () => void
 }
 
@@ -21,6 +25,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   service,
   onClick,
   edges,
+  nodes,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null)
   const { setNodes } = useReactFlow()
@@ -33,18 +38,18 @@ const ContextMenu: FC<ContextMenuProps> = ({
     }
   }
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClick()
-      }
-    }
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+  //       onClick()
+  //     }
+  //   }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [onClick])
+  //   document.addEventListener('mousedown', handleClickOutside)
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside)
+  //   }
+  // }, [onClick])
 
   const deleteNode = (nodeId: string) => {
     setNodes(prevNodes => prevNodes.filter(node => node.id !== nodeId))
@@ -54,21 +59,32 @@ const ContextMenu: FC<ContextMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className='back fixed z-10 w-48 rounded-md bg-card/30 shadow-md'
+      className='back fixed z-10 w-56 rounded-md border border-border bg-card/80 shadow-md backdrop-blur-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
-        {/* <li>
+        <li>
           <EditServiceName
-            className={
-              'w-full justify-between rounded bg-transparent hover:bg-primary/10 hover:text-primary'
-            }
+            key={service.id}
             service={service}
             edges={edges}
-            onClose={onClick}
+            nodes={nodes}
+            setNodes={setNodes}
+            type='contextMenu'
+            onCloseContextMenu={onClick}
           />
         </li>
-        <hr /> */}
 
+        {service?.type !== 'database' && (
+          <li>
+            <AddVolumeToService
+              onCloseContextMenu={onClick}
+              service={service}
+              setNodes={setNodes}
+              type='contextMenu'
+            />
+          </li>
+        )}
+        <hr />
         <Button
           variant='destructive'
           className='w-full'

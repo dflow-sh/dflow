@@ -118,6 +118,7 @@ const UpdateServiceDetails = ({
                 ? databaseIcons[service?.databaseDetails?.type]
                 : icon[service.type]}
               <EditServiceName
+                type='sideBar'
                 key={service?.id}
                 edges={edges}
                 service={service}

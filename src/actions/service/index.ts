@@ -16,6 +16,7 @@ import { addStopDatabaseQueue } from '@/queues/database/stop'
 import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regenerate'
+import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
   createServiceSchema,
@@ -26,6 +27,7 @@ import {
   stopServiceSchema,
   updateServiceDomainSchema,
   updateServiceSchema,
+  updateVolumesSchema,
 } from './validator'
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
@@ -146,14 +148,7 @@ export const deleteServiceAction = protectedClient
       payload,
     } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       id,
       depth: 10,
@@ -196,7 +191,6 @@ export const deleteServiceAction = protectedClient
           })
 
           queueId = databaseDeletionQueueResponse.id
-          console.log({ databaseDeletionQueueResponse })
         }
 
         // handling service delete
@@ -212,7 +206,6 @@ export const deleteServiceAction = protectedClient
           })
 
           queueId = appDeletionQueueResponse.id
-          console.log({ appDeletionQueueResponse })
         }
 
         // If deleting of service is added to queue, update the service entry
@@ -254,7 +247,7 @@ export const deleteServiceAction = protectedClient
       }
 
       // Always delete associated deployments
-      const deletedDeploymentsResponse = await payload.update({
+      await payload.update({
         collection: 'deployments',
         data: {
           deletedAt: new Date().toISOString(),
@@ -279,7 +272,6 @@ export const deleteServiceAction = protectedClient
         deletedFromServer: deleteFromServer,
       }
     } else {
-      console.log('Project not found for service:', id)
       throw new Error('Failed to delete service: Project not found')
     }
   })
@@ -364,14 +356,7 @@ export const restartServiceAction = protectedClient
     const { id } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -436,14 +421,7 @@ export const stopServerAction = protectedClient
     const { id } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -507,14 +485,7 @@ export const exposeDatabasePortAction = protectedClient
     const { id, action } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -682,14 +653,7 @@ export const regenerateSSLAction = protectedClient
     const { id, email } = clientInput
     const { payload } = ctx
 
-    const {
-      project,
-      type,
-      providerType,
-      githubSettings,
-      provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,
@@ -762,5 +726,44 @@ export const syncServiceDomainAction = protectedClient
       if (queueResponse.id) {
         return { success: true }
       }
+    }
+  })
+
+export const updateVolumesAction = protectedClient
+  .metadata({ actionName: 'updateVolumesAction' })
+  .schema(updateVolumesSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      payload,
+      userTenant: { tenant },
+    } = ctx
+    const { id, volumes } = clientInput
+
+    const updatedService = await payload.update({
+      collection: 'services',
+      id: id,
+      depth: 10,
+      data: {
+        volumes: volumes,
+      },
+    })
+
+    const project = updatedService.project
+    if (
+      updatedService &&
+      typeof project === 'object' &&
+      typeof project?.server === 'object' &&
+      typeof project?.server?.sshKey === 'object'
+    ) {
+      await updateVolumesQueue({
+        restart: true,
+        service: updatedService,
+        serverDetails: {
+          id: project?.server?.sshKey?.privateKey,
+        },
+        tenantDetails: {
+          slug: tenant.slug,
+        },
+      })
     }
   })

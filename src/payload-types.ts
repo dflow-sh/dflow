@@ -582,6 +582,14 @@ export interface Service {
         id?: string | null;
       }[]
     | null;
+  volumes?:
+    | {
+        hostPath: string;
+        containerPath: string;
+        created?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   populatedVariables?: string | null;
   builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
   provider?: (string | null) | GitProvider;
@@ -766,6 +774,13 @@ export interface Template {
         };
         name: string;
         description?: string | null;
+        volumes?:
+          | {
+              hostPath: string;
+              containerPath: string;
+              id?: string | null;
+            }[]
+          | null;
         variables?:
           | {
               key: string;
@@ -1107,6 +1122,14 @@ export interface ServicesSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  volumes?:
+    | T
+    | {
+        hostPath?: T;
+        containerPath?: T;
+        created?: T;
+        id?: T;
+      };
   populatedVariables?: T;
   builder?: T;
   provider?: T;
@@ -1372,6 +1395,13 @@ export interface TemplatesSelect<T extends boolean = true> {
             };
         name?: T;
         description?: T;
+        volumes?:
+          | T
+          | {
+              hostPath?: T;
+              containerPath?: T;
+              id?: T;
+            };
         variables?:
           | T
           | {

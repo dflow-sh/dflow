@@ -10,6 +10,7 @@ import {
   Database,
   Github,
   Hammer,
+  Package2,
 } from 'lucide-react'
 import { JSX } from 'react'
 
@@ -99,19 +100,7 @@ const CustomNode = ({
   }
 
   return (
-    <Card
-      onClick={() => {
-        if (architectureContext()?.isDeploying || isDisabled) {
-          return
-        }
-
-        data?.onClick?.()
-      }}
-      className={`h-full min-h-36 cursor-pointer backdrop-blur-md ${
-        isDisabled
-          ? 'cursor-not-allowed'
-          : 'cursor-pointer hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
-      }`}>
+    <div className='w-64 cursor-pointer'>
       <Handle
         type='source'
         style={{
@@ -123,39 +112,74 @@ const CustomNode = ({
         position={Position.Left}
       />
 
-      <CardHeader className='w-64 flex-row justify-between pb-2'>
-        <div className='flex items-center gap-x-3'>
-          {data.type === 'database' && data.databaseDetails?.type
-            ? databaseIcons[data?.databaseDetails?.type]
-            : icon[data.type]}
+      <Card
+        onClick={() => {
+          if (architectureContext()?.isDeploying || isDisabled) {
+            return
+          }
 
-          <div className='flex-1 items-start'>
-            <CardTitle className='line-clamp-1' title={data.name}>
-              {data.displayName ? data.displayName : data.name}
-            </CardTitle>
+          data?.onClick?.()
+        }}
+        className={`relative z-10 h-full min-h-36 backdrop-blur-md ${
+          isDisabled
+            ? 'cursor-not-allowed'
+            : 'cursor-pointer hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
+        }`}>
+        <CardHeader className='w-64 flex-row justify-between pb-2'>
+          <div className='flex items-center gap-x-3'>
+            {data.type === 'database' && data.databaseDetails?.type
+              ? databaseIcons[data?.databaseDetails?.type]
+              : icon[data.type]}
+
+            <div className='flex-1 items-start'>
+              <CardTitle className='line-clamp-1' title={data.name}>
+                {data.displayName ? data.displayName : data.name}
+              </CardTitle>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className='pb-3'>
+          {isDisabled && (
+            <div className='mb-1 flex items-center gap-2 rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground'>
+              <AlertCircle size={16} />
+              <span>Node disabled</span>
+            </div>
+          )}
+          <DeploymentBadge />
+        </CardContent>
+
+        <CardFooter>
+          {data?.createdAt && (
+            <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+              <Clock size={14} />
+              {`Created ${formatDistanceToNow(new Date(data?.createdAt), {
+                addSuffix: true,
+              })}`}
+            </time>
+          )}
+        </CardFooter>
+      </Card>
+      {data.volumes && data.volumes.length > 0 && (
+        <div className='z-0 -mt-6 w-full items-start gap-x-2 rounded-md border bg-muted/30 px-2 pb-2 pt-8 text-sm text-muted-foreground backdrop-blur-sm'>
+          <div className='flex items-center justify-between gap-x-2'>
+            <div className='inline-flex items-center gap-x-2 overflow-hidden'>
+              <span className='flex-shrink-0'>
+                <Package2 size={16} />
+              </span>
+
+              <span className='truncate break-all'>
+                {data.volumes[0].containerPath}
+              </span>
+            </div>
+
+            {data.volumes.length > 1 && (
+              <span className='justify-end whitespace-nowrap text-primary-foreground'>
+                +{data.volumes.length - 1}
+              </span>
+            )}
           </div>
         </div>
-      </CardHeader>
-
-      <CardContent className='pb-3'>
-        {isDisabled && (
-          <div className='mb-1 flex items-center gap-2 rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground'>
-            <AlertCircle size={16} />
-            <span>Node disabled</span>
-          </div>
-        )}
-        <DeploymentBadge />
-      </CardContent>
-
-      {data?.createdAt && (
-        <CardFooter>
-          <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
-            <Clock size={14} />
-            {`Created ${formatDistanceToNow(new Date(data?.createdAt), {
-              addSuffix: true,
-            })}`}
-          </time>
-        </CardFooter>
       )}
 
       <Handle
@@ -168,7 +192,7 @@ const CustomNode = ({
         }}
         position={Position.Right}
       />
-    </Card>
+    </div>
   )
 }
 

@@ -330,6 +330,30 @@ export const Services: CollectionConfig = {
         }),
       ],
     },
+    {
+      type: 'array',
+      label: 'Volumes',
+      name: 'volumes',
+      fields: [
+        {
+          type: 'text',
+          name: 'hostPath',
+          label: 'Host Path',
+          required: true,
+        },
+        {
+          type: 'text',
+          name: 'containerPath',
+          label: 'Container Path',
+          required: true,
+        },
+        {
+          type: 'checkbox',
+          label: 'Created',
+          name: 'created',
+        },
+      ],
+    },
     encryptedField({
       name: 'populatedVariables',
       type: 'json',
@@ -348,10 +372,7 @@ export const Services: CollectionConfig = {
       defaultValue: 'railpack',
       admin: {
         condition: data => {
-          if (data.type === 'app' || data.type === 'docker') {
-            return true
-          }
-          return false
+          return data.type === 'app' || data.type === 'docker'
         },
       },
     },

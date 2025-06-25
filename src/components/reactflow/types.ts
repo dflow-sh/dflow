@@ -56,6 +56,12 @@ export interface ServiceNode {
         value: string
       }[]
     | null
+  volumes?:
+    | {
+        hostPath: string
+        containerPath: string
+      }[]
+    | null
   deployments?: {
     id: string
     status: Deployment['status']

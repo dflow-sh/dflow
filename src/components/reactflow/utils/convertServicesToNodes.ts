@@ -37,6 +37,7 @@ export function convertToGraph(
             })),
           }
         : {}),
+      volumes: 'volumes' in item ? item.volumes : undefined,
     }
 
     switch (item.type) {

@@ -286,6 +286,25 @@ export const Template: CollectionConfig = {
           label: 'Description',
         },
         {
+          type: 'array',
+          label: 'Volumes',
+          name: 'volumes',
+          fields: [
+            {
+              type: 'text',
+              name: 'hostPath',
+              label: 'Host Path',
+              required: true,
+            },
+            {
+              type: 'text',
+              name: 'containerPath',
+              label: 'Container Path',
+              required: true,
+            },
+          ],
+        },
+        {
           name: 'variables',
           type: 'array',
           fields: [

@@ -28,18 +28,22 @@ import { cn } from '@/lib/utils'
 
 import { EditServiceNameType, editServiceNameSchema } from './types'
 
+type type = 'contextMenu' | 'sideBar'
+
 const EditServiceName = ({
   service,
   edges,
-  className,
   nodes,
   setNodes,
+  type = 'sideBar',
+  onCloseContextMenu,
 }: {
   service: ServiceNode
   edges: Edge[]
   nodes: Node[]
-  className?: string
   setNodes: Function
+  type: type
+  onCloseContextMenu?: () => void
 }) => {
   const [ediServiceName, setEditServiceName] = useState<boolean>(false)
   const handleEditClick = useCallback(() => {
@@ -140,26 +144,36 @@ const EditServiceName = ({
 
     form.reset()
     setEditServiceName(false)
+    onCloseContextMenu?.()
   }
 
   return (
     <div>
-      <div
-        onClick={handleEditClick}
-        className={cn(
-          'group inline-flex cursor-pointer items-center gap-x-2 rounded px-2 py-1 hover:bg-muted-foreground/10',
-          className,
-        )}>
-        <p className='flex-grow truncate'>{service.name}</p>
-        <SquarePen
-          className='hidden flex-shrink-0 group-hover:block'
-          size={16}
-        />
+      <div onClick={handleEditClick} className='cursor-pointer'>
+        {type === 'sideBar' ? (
+          <div
+            className={cn(
+              'group inline-flex items-center gap-x-2 rounded px-2 py-1 hover:bg-muted-foreground/10',
+            )}>
+            <p className='flex-grow truncate'>{service.name}</p>
+            <SquarePen
+              className='hidden flex-shrink-0 group-hover:block'
+              size={16}
+            />
+          </div>
+        ) : (
+          <div
+            className={cn(
+              'rounded px-2 py-1 text-muted-foreground hover:bg-primary/10 hover:text-primary',
+            )}>
+            Update Name
+          </div>
+        )}
       </div>
 
       {/* Edit Service Name Dialog */}
       <Dialog modal open={ediServiceName} onOpenChange={setEditServiceName}>
-        <DialogContent>
+        <DialogContent onCloseAutoFocus={() => onCloseContextMenu?.()}>
           <DialogHeader>
             <DialogTitle>Edit Service</DialogTitle>
           </DialogHeader>

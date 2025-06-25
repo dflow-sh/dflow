@@ -17,6 +17,15 @@ export const servicesSchema = z.array(
       })
       .array()
       .optional(),
+    volumes: z
+      .object({
+        hostPath: z.string().min(1, 'Host path must be at-least 1 character'),
+        containerPath: z
+          .string()
+          .min(1, 'Container path must be at-least 1 character'),
+      })
+      .array()
+      .optional(),
     databaseDetails: z
       .object({
         type: z.enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb']),
