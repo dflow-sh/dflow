@@ -476,11 +476,21 @@ export const deployTemplateFromArchitectureAction = protectedClient
 
     const serviceNames = {} as Record<string, string>
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
@@ -686,6 +696,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
       projectDetails: projectData,
       projectId,
     } = clientInput
+
     if (isCreateNewProject) {
       const { version } = (await payload.findByID({
         collection: 'servers',
@@ -708,6 +719,7 @@ export const deployTemplateWithProjectCreateAction = protectedClient
           tenant,
         },
       })
+
       projectDetails = response
     } else {
       const project = await payload.findByID({
@@ -723,11 +735,21 @@ export const deployTemplateWithProjectCreateAction = protectedClient
 
     const serviceNames = {} as Record<string, string>
 
+    const projectServices = projectDetails?.services?.docs ?? []
+
     services.forEach(service => {
-      const serviceName = handleGenerateName()
+      const uniqueSuffix = generateRandomString({ length: 4 })
+
+      const nameExists = projectServices?.find(serviceDetails => {
+        return (
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === `${projectDetails.name}-${service.name}`
+        )
+      })
 
       if (service?.name) {
-        serviceNames[service?.name] = `${projectDetails.name}-${serviceName}`
+        serviceNames[service?.name] =
+          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
       }
     })
 
