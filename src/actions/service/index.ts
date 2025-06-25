@@ -507,14 +507,7 @@ export const exposeDatabasePortAction = protectedClient
     const { id, action } = clientInput
     const { payload, userTenant } = ctx
 
-    const {
-      project,
-      type,
-      // providerType,
-      githubSettings,
-      // provider,
-      ...serviceDetails
-    } = await payload.findByID({
+    const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       depth: 10,
       id,

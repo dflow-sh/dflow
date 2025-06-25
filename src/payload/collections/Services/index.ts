@@ -373,10 +373,7 @@ export const Services: CollectionConfig = {
       defaultValue: 'railpack',
       admin: {
         condition: data => {
-          if (data.type === 'app' || data.type === 'docker') {
-            return true
-          }
-          return false
+          return data.type === 'app' || data.type === 'docker'
         },
       },
     },

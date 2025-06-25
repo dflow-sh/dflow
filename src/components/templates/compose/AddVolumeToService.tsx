@@ -121,7 +121,7 @@ const AddVolumeToService = ({
   service: ServiceNode
   onCloseContextMenu?: () => void
   type: type
-  setOpenDialog?: Function
+  setOpenDialog?: (open: boolean) => void
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -182,7 +182,7 @@ const AddVolumeToService = ({
             <div className='flex items-center justify-between'>
               <div className='inline-flex items-center gap-x-2'>
                 {icon[service.type]}
-                <p>{service?.name}</p>
+                <p>{service.name}</p>
               </div>
             </div>
           </div>
@@ -222,7 +222,7 @@ const AddVolumeToService = ({
                       key={field.id}
                       id={index}
                       removeVariable={removeVariable}
-                      serviceName={service?.name!}
+                      serviceName={service.name}
                     />
                   )
                 })}
@@ -259,7 +259,7 @@ export const VolumeServicesList = ({
 }: {
   nodes: Node[]
   setNodes: Function
-  setOpen: Function
+  setOpen: (open: boolean) => void
 }) => {
   return (
     <motion.div

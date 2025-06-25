@@ -87,7 +87,10 @@ export const volumesSchema = z.object({
       volumes.forEach((item, index) => {
         const path = item.hostPath.trim()
         if (seen.has(path)) {
-          seen.get(path)!.push(index)
+          const indices = seen.get(path)
+          if (indices) {
+            indices.push(index)
+          }
         } else {
           seen.set(path, [index])
         }

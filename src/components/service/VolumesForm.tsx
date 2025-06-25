@@ -165,7 +165,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
                 id={index}
                 created={field?.created}
                 removeVariable={removeVariable}
-                serviceName={service?.name!}
+                serviceName={service.name}
               />
             )
           })}
