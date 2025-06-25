@@ -56,8 +56,6 @@ const AddVolumeToService = ({
   type: type
   setOpenDialog?: Function
 }) => {
-  console.log('nodes', { service, setNodes })
-
   const [open, setOpen] = useState(false)
 
   const form = useForm<VolumesType>({
@@ -84,9 +82,7 @@ const AddVolumeToService = ({
     name: 'volumes',
   })
 
-  console.log('errors', form.formState.errors)
   const onSubmit = (data: VolumesType) => {
-    console.log('data', data)
     setNodes((prevNodes: Node[]) =>
       prevNodes.map(node => {
         if (node.id === service?.id) {
