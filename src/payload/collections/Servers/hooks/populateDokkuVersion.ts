@@ -5,11 +5,6 @@ import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
-const extractValue = ({ key, data }: { key: string; data: string }) => {
-  const match = data.match(new RegExp(`${key}:\\t(.+)`))
-  return match ? match[1] : null
-}
-
 export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   doc,
   context,
@@ -28,7 +23,6 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   if (doc.hostname) {
     portIsOpen = true
-    // sshConnected = true
   } else {
     portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
   }
@@ -44,25 +38,18 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     server: doc,
   })
 
-  console.log('first', sshDetails)
+  console.dir({ sshDetails }, { depth: null })
 
   if (portIsOpen) {
     try {
       const ssh = await dynamicSSH(sshDetails)
 
       if (await ssh.isConnectedViaTailnet()) {
-        console.log('populate dokku', 'connecting with tailscale, 2 methods')
-        sshConnected = true
         console.log('populate dokku', 'connected with one of tailscale method')
-      } else {
-        console.log('populate dokku', 'both tailscale methods failed')
-        if (ssh.isConnected()) {
-          sshConnected = true
-        }
-        console.log(
-          'populate dokku',
-          'connection failed with both tailscale and node-ssh',
-        )
+        sshConnected = true
+      } else if (ssh.isConnected()) {
+        console.log('populate dokku', 'connected via pure node-ssh')
+        sshConnected = true
       }
 
       const {

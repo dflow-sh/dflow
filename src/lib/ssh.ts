@@ -45,7 +45,7 @@ export class NodeSSH extends OriginalNodeSSH {
     // Detect if we should use Tailscale
     const shouldUseTailscale = Boolean(config.hostname)
 
-    console.log(shouldUseTailscale, config)
+    console.log({ shouldUseTailscale })
 
     if (shouldUseTailscale) {
       this.useTailscale = true
@@ -55,25 +55,25 @@ export class NodeSSH extends OriginalNodeSSH {
       }
 
       // Test Tailscale connection - if it fails, fall back to regular SSH
-
       const result = await this.execCommand('echo "tailscale-test"')
+
       if (result.code === 0) {
         console.log('connected with tailscale ssh')
         return this
       } else {
         // Tailscale failed, fall back to regular SSH
-        console.warn(
-          'Tailscale SSH test failed, falling back to regular SSH, one',
-        )
+        console.warn('Tailscale SSH failed, retrying with NodeSSH')
 
         this.useTailscale = false
         this.tailscaleConfig = null
 
-        return await super.connect(config)
+        const { hostname, ...extractedConfig } = config
+        return await super.connect(extractedConfig)
       }
     } else {
       // Use original node-ssh for regular SSH connections
-      return await super.connect(config)
+      const { hostname, ...extractedConfig } = config
+      return await super.connect(extractedConfig)
     }
   }
 
@@ -81,12 +81,14 @@ export class NodeSSH extends OriginalNodeSSH {
     command: string,
     options: SSHExecCommandOptions = {},
   ): Promise<SSHExecCommandResponse> {
+    // Executing ssh commands via SSH
     if (this.useTailscale && this.tailscaleConfig) {
-      // Use Tailscale SSH
       const { host, username } = this.tailscaleConfig
       const target = username ? `${username}@${host}` : host
+
       const tailscaleCommand = `tailscale ssh ${target} "${command.replace(/"/g, '\\"')}"`
 
+      // executing with tailscale prefix
       try {
         const { stdout, stderr } = await execAsync(tailscaleCommand, {
           maxBuffer: 1024 * 1024 * 10,
@@ -101,29 +103,21 @@ export class NodeSSH extends OriginalNodeSSH {
       } catch (error: any) {
         // If Tailscale command fails, fall back to regular SSH
         console.warn(
-          `Tailscale SSH command failed, using 'tailscale ssh username@host'`,
-        )
-
-        this.useTailscale = false
-        console.log(
-          `connecting to ssh via tailscale, but without tailscale suffix`,
+          `Failed to execute SSH via 'tailscale ssh ${username}@${host}'`,
         )
 
         try {
-          // Try to reconnect via tailscale config, but without tailscale suffix
-          const config = {
-            host: this.tailscaleConfig.host,
-            username: this.tailscaleConfig.username,
-          }
-
-          await super.connect(config)
-          this.tailscaleConfig = null
+          // Try to reconnect via tailscale config, but without tailscale prefix
+          console.log(
+            `connecting to SSH via tailscale, but without tailscale prefix`,
+          )
 
           // Retry the command with regular SSH
-
           return await super.execCommand(command, options)
         } catch (fallbackError) {
-          console.log('error, unable to connect via tailscale')
+          this.useTailscale = false
+          console.log('Failed to execute SSH via tailscale without prefix')
+
           // If fallback also fails, return the original Tailscale error format
           return {
             stdout: error.stdout || '',
@@ -142,7 +136,6 @@ export class NodeSSH extends OriginalNodeSSH {
 
   async isConnectedViaTailnet() {
     const result = await this.execCommand('echo "tailscale-test"')
-
     return result.code === 0
   }
 
