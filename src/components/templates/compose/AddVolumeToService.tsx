@@ -43,6 +43,73 @@ const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   docker: <Docker className='size-4' />,
 }
 
+const HostContainerPair = memo(
+  ({
+    id,
+    removeVariable,
+  }: {
+    id: number
+    removeVariable: UseFieldArrayRemove
+    serviceName: string
+  }) => {
+    const { control, trigger } = useFormContext()
+
+    return (
+      <div className='grid w-full grid-cols-[1fr_min-content_1fr_auto] gap-2 font-mono'>
+        <FormField
+          control={control}
+          name={`volumes.${id}.hostPath`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  {...field}
+                  onChange={e => {
+                    field.onChange(slugify(e.target.value))
+                  }}
+                  placeholder='default'
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <span className='h-full text-center'>:</span>
+        <FormField
+          control={control}
+          name={`volumes.${id}.containerPath`}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className='relative'>
+                  <Input
+                    {...field}
+                    onChange={e => {
+                      field.onChange(slugifyWithSlash(e.target.value))
+                    }}
+                    placeholder='/data'
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          variant='ghost'
+          type='button'
+          size='icon'
+          onClick={async () => {
+            removeVariable(+id)
+            await trigger()
+          }}>
+          <Trash2 className='text-destructive' />
+        </Button>
+      </div>
+    )
+  },
+)
+
 const AddVolumeToService = ({
   service,
   setNodes,
@@ -151,7 +218,7 @@ const AddVolumeToService = ({
                 ) : null}
                 {fields.map((field, index) => {
                   return (
-                    <KeyValuePair
+                    <HostContainerPair
                       key={field.id}
                       id={index}
                       removeVariable={removeVariable}
@@ -184,73 +251,6 @@ const AddVolumeToService = ({
 }
 
 export default AddVolumeToService
-
-const KeyValuePair = memo(
-  ({
-    id,
-    removeVariable,
-  }: {
-    id: number
-    removeVariable: UseFieldArrayRemove
-    serviceName: string
-  }) => {
-    const { control, trigger } = useFormContext()
-
-    return (
-      <div className='grid w-full grid-cols-[1fr_min-content_1fr_auto] gap-2 font-mono'>
-        <FormField
-          control={control}
-          name={`volumes.${id}.hostPath`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input
-                  {...field}
-                  onChange={e => {
-                    field.onChange(slugify(e.target.value))
-                  }}
-                  placeholder='default'
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <span className='h-full text-center'>:</span>
-        <FormField
-          control={control}
-          name={`volumes.${id}.containerPath`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <div className='relative'>
-                  <Input
-                    {...field}
-                    onChange={e => {
-                      field.onChange(slugifyWithSlash(e.target.value))
-                    }}
-                    placeholder='/data'
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          variant='ghost'
-          type='button'
-          size='icon'
-          onClick={async () => {
-            removeVariable(+id)
-            await trigger()
-          }}>
-          <Trash2 className='text-destructive' />
-        </Button>
-      </div>
-    )
-  },
-)
 
 export const VolumeServicesList = ({
   nodes,

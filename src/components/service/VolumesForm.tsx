@@ -26,107 +26,7 @@ import {
 import { slugify, slugifyWithSlash } from '@/lib/slugify'
 import { Service } from '@/payload-types'
 
-const VolumesForm = ({ service }: { service: Service }) => {
-  const { execute: updateVolumes, isPending: isUpdateVolumePending } =
-    useAction(updateVolumesAction, {
-      onSuccess: () => {
-        toast.success(`Volumes updated Successfully`)
-      },
-      onError: () => {
-        toast.error(`Failed to update volumes`)
-      },
-    })
-  const form = useForm<VolumesType>({
-    resolver: zodResolver(volumesSchema),
-    defaultValues: {
-      volumes:
-        Array.isArray(service?.volumes) && service.volumes.length
-          ? service.volumes
-          : [
-              {
-                containerPath: '',
-                hostPath: '',
-              },
-            ],
-    },
-  })
-
-  const {
-    fields,
-    append: appendVariable,
-    remove: removeVariable,
-  } = useFieldArray({
-    control: form.control,
-    name: 'volumes',
-  })
-
-  const onSubmit = (data: VolumesType) => {
-    updateVolumes({
-      id: service.id,
-      volumes: data.volumes,
-    })
-  }
-
-  useEffect(() => {
-    if (Array.isArray(service?.volumes)) {
-      form.reset({
-        volumes: service.volumes.length
-          ? service.volumes
-          : [{ containerPath: '', hostPath: '' }],
-      })
-    }
-  }, [service?.volumes])
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='space-y-2'>
-          {fields.length ? (
-            <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
-              <p className='font-semibold'>Host Path</p>
-              <p />
-              <p className='font-semibold'>Container Path</p>
-            </div>
-          ) : null}
-          {fields.map((field, index) => {
-            return (
-              <KeyValuePair
-                key={field.id}
-                id={index}
-                created={field?.created}
-                removeVariable={removeVariable}
-                serviceName={service?.name!}
-              />
-            )
-          })}
-
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => {
-              appendVariable({
-                hostPath: '',
-                containerPath: '',
-              })
-            }}>
-            <Plus /> New Volume
-          </Button>
-        </div>
-        <div className='flex items-center justify-end'>
-          <Button
-            type='submit'
-            disabled={isUpdateVolumePending}
-            isLoading={isUpdateVolumePending}>
-            save
-          </Button>
-        </div>
-      </form>
-    </Form>
-  )
-}
-
-export default VolumesForm
-
-const KeyValuePair = memo(
+const HostContainerPair = memo(
   ({
     id,
     removeVariable,
@@ -196,3 +96,103 @@ const KeyValuePair = memo(
     )
   },
 )
+
+const VolumesForm = ({ service }: { service: Service }) => {
+  const { execute: updateVolumes, isPending: isUpdateVolumePending } =
+    useAction(updateVolumesAction, {
+      onSuccess: () => {
+        toast.success(`Volumes updated Successfully`)
+      },
+      onError: () => {
+        toast.error(`Failed to update volumes`)
+      },
+    })
+  const form = useForm<VolumesType>({
+    resolver: zodResolver(volumesSchema),
+    defaultValues: {
+      volumes:
+        Array.isArray(service?.volumes) && service.volumes.length
+          ? service.volumes
+          : [
+              {
+                containerPath: '',
+                hostPath: '',
+              },
+            ],
+    },
+  })
+
+  const {
+    fields,
+    append: appendVariable,
+    remove: removeVariable,
+  } = useFieldArray({
+    control: form.control,
+    name: 'volumes',
+  })
+
+  const onSubmit = (data: VolumesType) => {
+    updateVolumes({
+      id: service.id,
+      volumes: data.volumes,
+    })
+  }
+
+  useEffect(() => {
+    if (Array.isArray(service?.volumes)) {
+      form.reset({
+        volumes: service.volumes.length
+          ? service.volumes
+          : [{ containerPath: '', hostPath: '' }],
+      })
+    }
+  }, [service?.volumes])
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className='space-y-2'>
+          {fields.length ? (
+            <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
+              <p className='font-semibold'>Host Path</p>
+              <p />
+              <p className='font-semibold'>Container Path</p>
+            </div>
+          ) : null}
+          {fields.map((field, index) => {
+            return (
+              <HostContainerPair
+                key={field.id}
+                id={index}
+                created={field?.created}
+                removeVariable={removeVariable}
+                serviceName={service?.name!}
+              />
+            )
+          })}
+
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => {
+              appendVariable({
+                hostPath: '',
+                containerPath: '',
+              })
+            }}>
+            <Plus /> New Volume
+          </Button>
+        </div>
+        <div className='flex items-center justify-end'>
+          <Button
+            type='submit'
+            disabled={isUpdateVolumePending}
+            isLoading={isUpdateVolumePending}>
+            save
+          </Button>
+        </div>
+      </form>
+    </Form>
+  )
+}
+
+export default VolumesForm
