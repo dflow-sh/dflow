@@ -28,6 +28,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   if (doc.hostname) {
     portIsOpen = true
+    // sshConnected = true
   } else {
     portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
   }
@@ -43,32 +44,35 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     server: doc,
   })
 
-  if (sshKey && sshKey?.privateKey) {
-    if (portIsOpen) {
-      try {
-        const ssh = await dynamicSSH(sshDetails)
+  console.log('first', sshDetails)
 
-        if (ssh.isConnected()) {
-          sshConnected = true
-        }
+  if (portIsOpen) {
+    try {
+      const ssh = await dynamicSSH(sshDetails)
 
-        const {
-          dokkuVersion,
-          linuxDistributionType,
-          linuxDistributionVersion,
-          netdataVersion,
-          railpackVersion,
-        } = await server.info({ ssh })
+      if (ssh.isConnected()) {
+        sshConnected = true
+      }
 
-        dokku = dokkuVersion
-        netdata = netdataVersion
-        linuxVersion = linuxDistributionVersion
-        linuxType = linuxDistributionType
-        railpack = railpackVersion
+      const {
+        dokkuVersion,
+        linuxDistributionType,
+        linuxDistributionVersion,
+        netdataVersion,
+        railpackVersion,
+      } = await server.info({ ssh })
 
-        ssh.dispose()
-      } catch (error) {
-        console.log({ error })
+      dokku = dokkuVersion
+      netdata = netdataVersion
+      linuxVersion = linuxDistributionVersion
+      linuxType = linuxDistributionType
+      railpack = railpackVersion
+
+      ssh.dispose()
+    } catch (error) {
+      console.log({ error })
+      if (sshKey && sshKey?.privateKey) {
+        console.log('no ssh keys')
       }
     }
   }
