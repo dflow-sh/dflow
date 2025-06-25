@@ -10,7 +10,6 @@ export const list = async (ssh: NodeSSH, appName: string) => {
   }
 
   const volumes = JSON.parse(resultVolumes.stdout)
-  console.log('list', { volumes, resultVolumes })
 
   return volumes
 }

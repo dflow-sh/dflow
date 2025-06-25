@@ -206,7 +206,6 @@ export const deleteServiceAction = protectedClient
           })
 
           queueId = databaseDeletionQueueResponse.id
-          console.log({ databaseDeletionQueueResponse })
         }
 
         // handling service delete
@@ -222,7 +221,6 @@ export const deleteServiceAction = protectedClient
           })
 
           queueId = appDeletionQueueResponse.id
-          console.log({ appDeletionQueueResponse })
         }
 
         // If deleting of service is added to queue, update the service entry
@@ -289,7 +287,6 @@ export const deleteServiceAction = protectedClient
         deletedFromServer: deleteFromServer,
       }
     } else {
-      console.log('Project not found for service:', id)
       throw new Error('Failed to delete service: Project not found')
     }
   })

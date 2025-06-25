@@ -111,18 +111,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             ...serviceDetails
           } = createdService
 
-          console.log({
-            project,
-            type,
-            providerType,
-            githubSettings,
-            provider,
-            populatedVariables,
-            variables,
-            volumes,
-            ...serviceDetails,
-          })
-
           const deploymentResponse = await payload.create({
             collection: 'deployments',
             data: {
@@ -302,7 +290,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
               serviceDetails.dockerDetails &&
               serviceDetails.dockerDetails.url
             ) {
-              console.log('inside docker')
               let ssh: NodeSSH | null = null
               const { account, url, ports } = serviceDetails.dockerDetails
 
