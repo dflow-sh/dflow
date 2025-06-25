@@ -14,7 +14,7 @@ sleep 2
 # Join Tailscale as an ephemeral node
 tailscale up --authkey="${1}" --hostname "railway-container" --accept-dns
 
-/usr/sbin/sshd
+# /usr/sbin/sshd
 # On container stop, log out of Tailscale
 trap 'echo "Logging out of Tailscale..."; tailscale logout; exit 0' TERM INT
 
