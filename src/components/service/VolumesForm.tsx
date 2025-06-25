@@ -1,6 +1,7 @@
 'use client'
 
 import { VolumesType, volumesSchema } from '../templates/compose/types'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -53,7 +54,7 @@ const HostContainerPair = memo(
                   onChange={e => {
                     field.onChange(slugify(e.target.value))
                   }}
-                  placeholder='default'
+                  placeholder='eg: default'
                 />
               </FormControl>
               <FormMessage />
@@ -65,7 +66,7 @@ const HostContainerPair = memo(
           control={control}
           name={`volumes.${id}.containerPath`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className='relative'>
               <FormControl>
                 <div className='relative'>
                   <Input
@@ -74,10 +75,17 @@ const HostContainerPair = memo(
                     onChange={e => {
                       field.onChange(slugifyWithSlash(e.target.value))
                     }}
-                    placeholder='/data'
+                    placeholder='eg: /data'
                   />
                 </div>
               </FormControl>
+              <div className='absolute -right-1 -top-5'>
+                {created ? (
+                  <Badge>Mounted</Badge>
+                ) : (
+                  <Badge variant={'destructive'}>Not mounted</Badge>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -103,10 +111,14 @@ const VolumesForm = ({ service }: { service: Service }) => {
   const { execute: updateVolumes, isPending: isUpdateVolumePending } =
     useAction(updateVolumesAction, {
       onSuccess: () => {
-        toast.success(`Volumes updated Successfully`)
+        toast.success(`Volumes saved successfully`)
+
+        setTimeout(() => {
+          toast.info('Volumes started mounting,please wait')
+        }, 1500)
       },
       onError: () => {
-        toast.error(`Failed to update volumes`)
+        toast.error(`Failed to save volumes`)
       },
     })
   const form = useForm<VolumesType>({
@@ -152,7 +164,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='space-y-2'>
+        <div className='space-y-4'>
           {fields.length ? (
             <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
               <p className='font-semibold'>Host Path</p>
