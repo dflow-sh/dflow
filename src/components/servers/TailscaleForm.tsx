@@ -11,12 +11,23 @@ import {
   Shield,
   Terminal,
 } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import {
+  adjectives,
+  animals,
+  colors,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 import { z } from 'zod'
 
 import { createTailscaleServerSchema } from '@/actions/server/validator'
+import {
+  generateOAuthClientSecretAction,
+  getOAuthClientSecretAction,
+} from '@/actions/tailscale'
 import {
   Form,
   FormControl,
@@ -29,9 +40,7 @@ import {
 type TailscaleFormData = z.infer<typeof createTailscaleServerSchema>
 
 const TailscaleForm = () => {
-  const [isGenerating, setIsGenerating] = useState(false)
   const [isTestingConnection, setIsTestingConnection] = useState(false)
-  const [isGenerated, setIsGenerated] = useState(false)
   const [generatedCommands, setGeneratedCommands] = useState<string[]>([])
 
   const form = useForm<TailscaleFormData>({
@@ -39,27 +48,68 @@ const TailscaleForm = () => {
     defaultValues: {
       name: '',
       description: '',
-      hostname: '',
+      hostname: uniqueNamesGenerator({
+        dictionaries: [adjectives, colors, animals],
+        separator: '-',
+        length: 3,
+        style: 'lowerCase',
+      }),
       username: 'root',
     },
   })
 
-  const handleGenerate = async (values: TailscaleFormData) => {
-    setIsGenerating(true)
-    console.log('Tailscale form submitted:', values)
+  const {
+    execute: fetchOAuthClientSecret,
+    isPending: isFetchingOAuthClientSecret,
+  } = useAction(getOAuthClientSecretAction, {
+    onSuccess: ({ data }) => {
+      if (data?.success && data.data) {
+        generateAuthKey({ access_token: data.data.access_token })
+      } else {
+        toast.error('Failed to fetch Tailscale OAuth client secret')
+      }
+    },
+    onError: ({ error }) => {
+      console.error('Error fetching Tailscale OAuth client secret:', error)
+      toast.error(
+        'Failed to fetch Tailscale OAuth client secret. Please try again.',
+      )
+    },
+  })
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock generated commands - replace with actual API response
-      const commands = [
-        'curl -fsSL https://tailscale.com/install.sh | sh',
-        `sudo tailscale up --authkey=tskey-auth-${Math.random().toString(36).substring(2, 15)} --hostname=${values.hostname || 'server'}`,
-      ]
+  const { execute: generateAuthKey, isPending: isGenerating } = useAction(
+    generateOAuthClientSecretAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success && data.data) {
+          if (!data.data.key) {
+            toast.error('Unable to create Tailscale auth key')
+            return
+          }
 
-      setGeneratedCommands(commands)
-      setIsGenerating(false)
-      setIsGenerated(true)
-    }, 2000)
+          const hostname = form.getValues('hostname')
+          const commands = [
+            'sudo curl -fsSL https://tailscale.com/install.sh | sh',
+            `sudo tailscale up --authkey=${data.data.key} --hostname=${hostname || 'server'} --ssh --advertise-tags tag:customer-machine`,
+          ]
+
+          setGeneratedCommands(commands)
+          toast.success('Tailscale auth key generated successfully!')
+        } else {
+          toast.error('Failed to generate auth key')
+        }
+      },
+      onError: ({ error }) => {
+        console.error('Error generating Tailscale auth key:', error)
+        toast.error('Failed to generate Tailscale auth key. Please try again.')
+      },
+    },
+  )
+
+  const isGenerated = generatedCommands.length > 0
+
+  const handleGenerate = async () => {
+    fetchOAuthClientSecret()
   }
 
   const copyToClipboard = async (command: string, index: number) => {
@@ -120,15 +170,21 @@ const TailscaleForm = () => {
             name='hostname'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hostname</FormLabel>
+                <FormLabel>Hostname (Auto-generated)</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder='Enter hostname'
-                    className='rounded-sm'
+                    placeholder='Generating unique hostname...'
+                    className='cursor-not-allowed rounded-sm bg-muted'
+                    readOnly
+                    disabled
                   />
                 </FormControl>
                 <FormMessage />
+                <p className='mt-1 text-xs text-muted-foreground'>
+                  A unique hostname has been automatically generated for your
+                  server
+                </p>
               </FormItem>
             )}
           />
@@ -169,7 +225,9 @@ const TailscaleForm = () => {
               </div>
               <Button
                 type='submit'
-                disabled={isGenerating || isGenerated}
+                disabled={
+                  isFetchingOAuthClientSecret || isGenerating || isGenerated
+                }
                 className='shrink-0'>
                 {isGenerating ? (
                   <>

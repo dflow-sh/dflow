@@ -17,11 +17,11 @@ interface TailscaleConfig {
 }
 
 export type SSHType = {
-  ip: string
-  port: number
+  ip?: string
+  port?: number
   username: string
   hostname?: string | null
-  privateKey: string
+  privateKey?: string
 }
 
 type ExtractSSHDetails =
