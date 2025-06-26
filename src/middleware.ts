@@ -3,7 +3,7 @@ import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
 
 import { DFLOW_CONFIG } from './lib/constants'
 
-export function middleware(request: NextRequest) {
+export function middleware(request: NextRequest, event: NextFetchEvent) {
   const pathname = request.nextUrl.pathname
   const hostname = request.headers.get('host') || ''
   const segments = pathname.split('/') // ['', 'acme', 'dashboard']
