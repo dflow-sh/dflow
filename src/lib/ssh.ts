@@ -113,19 +113,19 @@ export class NodeSSH extends OriginalNodeSSH {
             `connecting to SSH via tailscale, but without tailscale prefix`,
           )
 
-          const { stdout, stderr } = await execAsync(tailscaleCommand, {
-            maxBuffer: 1024 * 1024 * 10,
-          })
+          // const { stdout, stderr } = await execAsync(tailscaleCommand, {
+          //   maxBuffer: 1024 * 1024 * 10,
+          // })
 
-          return {
-            stdout: stdout || '',
-            stderr: stderr || '',
-            code: 0,
-            signal: null,
-          }
+          // return {
+          //   stdout: stdout || '',
+          //   stderr: stderr || '',
+          //   code: 0,
+          //   signal: null,
+          // }
 
           // // Retry the command with regular SSH
-          // return await super.execCommand(command, options)
+          return await super.execCommand(command, options)
         } catch (fallbackError) {
           this.useTailscale = false
           console.log('Failed to execute SSH via tailscale without prefix')
