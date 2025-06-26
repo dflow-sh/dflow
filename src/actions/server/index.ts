@@ -365,6 +365,7 @@ export const checkServerConnection = protectedClient
   })
   .schema(checkServerConnectionSchema)
   .action(async ({ clientInput }) => {
+    console.log('triggered')
     if ('hostname' in clientInput) {
       const { hostname, username, port = 22 } = clientInput
 
@@ -387,13 +388,16 @@ export const checkServerConnection = protectedClient
 
         try {
           // Attempt Tailscale SSH connection
+          console.log('tailscale ssh attempt')
           ssh = await dynamicSSH({
             hostname,
             username,
-            port,
           })
 
+          console.log(ssh)
+
           if (await ssh.isConnectedViaTailnet()) {
+            console.log('connected bro')
             sshConnected = true
 
             // Get server information
@@ -476,6 +480,7 @@ export const checkServerConnection = protectedClient
           // Clean up SSH connection
           if (ssh) {
             try {
+              console.log('ssh connected successfully, and closing')
               ssh.dispose()
             } catch (disposeError) {
               console.error('Error disposing SSH connection:', disposeError)

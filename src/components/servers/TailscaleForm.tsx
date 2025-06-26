@@ -23,6 +23,7 @@ import {
 } from 'unique-names-generator'
 import { z } from 'zod'
 
+import { checkServerConnection } from '@/actions/server'
 import { createTailscaleServerSchema } from '@/actions/server/validator'
 import {
   generateOAuthClientSecretAction,
@@ -40,7 +41,6 @@ import {
 type TailscaleFormData = z.infer<typeof createTailscaleServerSchema>
 
 const TailscaleForm = () => {
-  const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [generatedCommands, setGeneratedCommands] = useState<string[]>([])
 
   const form = useForm<TailscaleFormData>({
@@ -121,14 +121,35 @@ const TailscaleForm = () => {
     }
   }
 
-  const handleTestConnection = async () => {
-    setIsTestingConnection(true)
-    console.log('Testing Tailscale connectivity...')
+  const { execute: testConnection, isExecuting: isTestingConnection } =
+    useAction(checkServerConnection, {
+      onSuccess: ({ data }) => {
+        console.log(data)
+      },
+      onError: ({ error }) => {
+        console.log(error)
+      },
+    })
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsTestingConnection(false)
-    }, 3000)
+  const handleTestConnection = () => {
+    const { hostname, username } = form.getValues()
+
+    console.log(hostname, username)
+
+    // Validate required fields
+    const errors: string[] = []
+    if (!hostname?.trim()) errors.push('Hostname')
+    if (!username?.trim()) errors.push('Username')
+
+    if (errors.length > 0) {
+      toast.error(`Please fill in required fields: ${errors.join(', ')}`)
+      return
+    }
+
+    testConnection({
+      hostname: 'fond-violet-gopher',
+      username,
+    })
   }
 
   return (
@@ -320,7 +341,8 @@ const TailscaleForm = () => {
                 type='button'
                 variant='outline'
                 onClick={handleTestConnection}
-                disabled={!isGenerated || isTestingConnection || isGenerating}
+                // disabled={!isGenerated || isTestingConnection || isGenerating}
+                disabled={isTestingConnection || isGenerating}
                 className='shrink-0'>
                 {isTestingConnection ? (
                   <>
@@ -330,7 +352,7 @@ const TailscaleForm = () => {
                 ) : (
                   <>
                     <Shield className='mr-2 h-3 w-3' />
-                    Test Connection
+                    Test Connection bro
                   </>
                 )}
               </Button>
