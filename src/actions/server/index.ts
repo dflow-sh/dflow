@@ -394,8 +394,6 @@ export const checkServerConnection = protectedClient
             username,
           })
 
-          console.log(ssh)
-
           if (await ssh.isConnectedViaTailnet()) {
             console.log('connected bro')
             sshConnected = true

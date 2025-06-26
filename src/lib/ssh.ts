@@ -45,8 +45,6 @@ export class NodeSSH extends OriginalNodeSSH {
     // Detect if we should use Tailscale
     const shouldUseTailscale = Boolean(config.hostname)
 
-    console.log({ shouldUseTailscale })
-
     if (shouldUseTailscale) {
       this.useTailscale = true
       this.tailscaleConfig = {

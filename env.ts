@@ -18,8 +18,8 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_SENDER_EMAIL: z.string().email().optional(),
     RESEND_SENDER_NAME: z.string().min(1).optional(),
-    TAILSCALE_OAUTH_CLIENT_SECRET: z.string().min(1),
-    TAILSCALE_TAILNET: z.string().min(1),
+    TAILSCALE_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
+    TAILSCALE_TAILNET: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
