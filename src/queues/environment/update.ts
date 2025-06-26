@@ -430,7 +430,7 @@ async function handleReferenceVariables({
                 databaseDetails: databaseExposureDetails.databaseDetails!,
                 variableName: databaseVariableName,
                 // todo: handle tailscale case
-                serverHost: 'ip' in sshDetails ? sshDetails?.ip : '',
+                serverHost: 'ip' in sshDetails ? sshDetails?.ip! : '',
               })
 
               return { [variable]: generatedValue }
@@ -492,7 +492,7 @@ async function handleReferenceVariables({
                             databaseDetails: databaseDetails!,
                             variableName: databaseVariableName,
                             serverHost:
-                              'ip' in sshDetails ? sshDetails?.ip : '',
+                              'ip' in sshDetails ? sshDetails?.ip! : '',
                           })
 
                         return { [variable]: generatedValue }
