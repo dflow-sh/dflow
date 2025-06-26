@@ -241,20 +241,87 @@ export interface Server {
    * Provide a brief description of the service.
    */
   description?: string | null;
-  sshKey: string | SshKey;
+  /**
+   * Select the preferred connection method for this server.
+   */
+  preferConnectionType?: ('ssh' | 'tailscale') | null;
+  /**
+   * Required when SSH is the preferred connection type.
+   */
+  sshKey?: (string | null) | SshKey;
   /**
    * Enter the IP address of the server.
    */
-  ip: string;
+  ip?: string | null;
   /**
    * Enter the Port of the server.
    */
-  port: number;
+  port?: number | null;
   /**
    * Enter the username of the server.
    */
   username: string;
+  /**
+   * Server hostname (required for Tailscale connections).
+   */
   hostname?: string | null;
+  /**
+   * Tailscale connection configuration. Fields are required when Tailscale is the preferred connection type.
+   */
+  tailscale?: {
+    /**
+     * Legacy identifier for the device
+     */
+    id?: string | null;
+    /**
+     * Preferred identifier for the device (e.g., n292kg92CNTRL)
+     */
+    nodeId?: string | null;
+    /**
+     * The MagicDNS name of the device (e.g., pangolin.tailfe8c.ts.net)
+     */
+    name?: string | null;
+    /**
+     * The machine name in Tailscale admin console
+     */
+    tailscaleHostname?: string | null;
+    /**
+     * List of Tailscale IP addresses (IPv4 and IPv6)
+     */
+    addresses?: string[] | null;
+    /**
+     * Whether device is not allowed to accept connections over Tailscale
+     */
+    blocksIncomingConnections?: boolean | null;
+    /**
+     * Operating system the device is running (e.g., linux)
+     */
+    os?: string | null;
+    /**
+     * When the device was added to the tailnet
+     */
+    created?: string | null;
+    /**
+     * Tailscale authentication key (one-time use)
+     */
+    authKey?: string | null;
+    /**
+     * Expiration date of the device auth key
+     */
+    expires?: string | null;
+    /**
+     * Store the complete JSON response from Tailscale API
+     */
+    completeApiResponse?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
   plugins?:
     | {
         name: string;
@@ -1193,11 +1260,27 @@ export interface ServersSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   description?: T;
+  preferConnectionType?: T;
   sshKey?: T;
   ip?: T;
   port?: T;
   username?: T;
   hostname?: T;
+  tailscale?:
+    | T
+    | {
+        id?: T;
+        nodeId?: T;
+        name?: T;
+        tailscaleHostname?: T;
+        addresses?: T;
+        blocksIncomingConnections?: T;
+        os?: T;
+        created?: T;
+        authKey?: T;
+        expires?: T;
+        completeApiResponse?: T;
+      };
   plugins?:
     | T
     | {
