@@ -12,7 +12,7 @@ tailscaled --tun=userspace-networking --socks5-server=0.0.0.0:1055 --state=/var/
 sleep 2
 
 # Join Tailscale as an ephemeral node
-tailscale up --authkey="${1}" --hostname "railway-container" --accept-dns
+tailscale up --authkey="${1}" --hostname "dflow" --accept-dns
 
 # /usr/sbin/sshd
 # On container stop, log out of Tailscale
