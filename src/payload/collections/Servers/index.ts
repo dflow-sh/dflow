@@ -85,8 +85,8 @@ export const Servers: CollectionConfig = {
       name: 'preferConnectionType',
       type: 'select',
       label: 'Preferred Connection Type',
-      // required: true,
-      defaultValue: 'ssh',
+      required: true,
+      defaultValue: 'tailscale',
       options: [
         {
           label: 'SSH',

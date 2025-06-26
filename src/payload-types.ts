@@ -244,7 +244,7 @@ export interface Server {
   /**
    * Select the preferred connection method for this server.
    */
-  preferConnectionType?: ('ssh' | 'tailscale') | null;
+  preferConnectionType: 'ssh' | 'tailscale';
   /**
    * Required when SSH is the preferred connection type.
    */
