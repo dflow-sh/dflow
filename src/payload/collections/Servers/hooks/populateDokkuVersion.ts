@@ -12,69 +12,90 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 }) => {
   const { payload } = req
 
-  // Sending a variable for populating server details
+  // Step 1: Check if we should populate server details
+  // If context flag is false, return the document as-is without any processing
   if (!context.populateServerDetails) {
     return doc
   }
 
+  const sshDetails = extractSSHDetails({ server: doc })
+
+  // Step 2: Extract connection parameters from the server document
+  // Get SSH key object, connection type, port, username, and host details
   const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
+  const isTailscale = doc.preferConnectionType === 'tailscale'
+  const port = doc.port ?? 22
+  const username = doc.username ?? 'root'
+  const host = isTailscale ? (doc.hostname ?? '') : (doc.ip ?? '')
 
-  let portIsOpen: boolean = false
-
-  if (doc.hostname) {
-    portIsOpen = true
-  } else {
-    portIsOpen = await isPortReachable(doc.port, { host: doc.ip })
+  // Step 3: Handle case where no host is available
+  // Return default values indicating failed connection attempts
+  if (!host) {
+    return {
+      ...doc,
+      version: undefined,
+      netdataVersion: undefined,
+      portIsOpen: false,
+      sshConnected: false,
+      os: {
+        type: undefined,
+        version: undefined,
+      },
+      railpack: undefined,
+    }
   }
 
-  let dokku: string | undefined
-  let netdata: string | undefined
+  // Step 4: Check if the port is reachable
+  // For Tailscale connections, assume port is open; for regular connections, test port connectivity
+  const portIsOpen = isTailscale ? true : await isPortReachable(port, { host })
+
+  // Step 5: Initialize variables to store server information
+  let dokku: string | undefined | null
+  let netdata: string | undefined | null
   let sshConnected = false
-  let linuxVersion
-  let linuxType
-  let railpack: string | undefined
+  let linuxVersion: string | undefined | null
+  let linuxType: string | undefined | null
+  let railpack: string | undefined | null
 
-  const sshDetails = extractSSHDetails({
-    server: doc,
-  })
+  // Step 6: Determine if we can attempt SSH connection
+  // Need either Tailscale connection OR (SSH private key AND open port)
+  const canAttemptConnection = isTailscale || (sshKey?.privateKey && portIsOpen)
 
-  console.dir({ sshDetails }, { depth: null })
+  // Step 7: Attempt SSH connection and gather server information
+  if (canAttemptConnection) {
+    const ssh = await dynamicSSH(sshDetails)
 
-  if (portIsOpen) {
     try {
-      const ssh = await dynamicSSH(sshDetails)
+      // Step 7c: If connected successfully, gather server information
+      if (ssh.isConnected()) {
+        sshConnected = true
 
-      if (await ssh.isConnectedViaTailnet()) {
-        console.log('populate dokku', 'connected with one of tailscale method')
-        sshConnected = true
-      } else if (ssh.isConnected()) {
-        console.log('populate dokku', 'connected via pure node-ssh')
-        sshConnected = true
+        // Get comprehensive server information (versions, OS details, etc.)
+        const serverInfo = await server.info({ ssh })
+
+        // Store server information directly without null conversion
+        dokku = serverInfo.dokkuVersion
+        netdata = serverInfo.netdataVersion
+        linuxVersion = serverInfo.linuxDistributionVersion
+        linuxType = serverInfo.linuxDistributionType
+        railpack = serverInfo.railpackVersion
       }
 
-      const {
-        dokkuVersion,
-        linuxDistributionType,
-        linuxDistributionVersion,
-        netdataVersion,
-        railpackVersion,
-      } = await server.info({ ssh })
-
-      dokku = dokkuVersion
-      netdata = netdataVersion
-      linuxVersion = linuxDistributionVersion
-      linuxType = linuxDistributionType
-      railpack = railpackVersion
-
+      // Step 7d: Clean up SSH connection
       ssh.dispose()
     } catch (error) {
-      console.log({ error })
-      if (sshKey && sshKey?.privateKey) {
-        console.log('no ssh keys')
+      // Step 7e: Handle connection errors gracefully
+      console.log(`Connection error for ${doc.name}:`, error)
+      try {
+        ssh.dispose()
+      } catch (disposeError) {
+        console.log('Error disposing SSH connection:', disposeError)
       }
     }
   }
 
+  // Step 8: Update the server document with connection status
+  // Store whether the connection was successful and when it was last checked
   try {
     await payload.update({
       collection: 'servers',
@@ -87,15 +108,17 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       },
     })
   } catch (error) {
-    console.log({ error })
+    console.log('Error updating server connection status:', error)
   }
 
+  // Step 9: Return the enriched server document
+  // Include all gathered information: versions, connection status, OS details
   return {
     ...doc,
-    version: dokku, // version of dokku
+    version: dokku,
     netdataVersion: netdata,
-    portIsOpen, // boolean indicating whether the server is running
-    sshConnected, // boolean indicating whether ssh is connected
+    portIsOpen,
+    sshConnected,
     os: {
       type: linuxType,
       version: linuxVersion,

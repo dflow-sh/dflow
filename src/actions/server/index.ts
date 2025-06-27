@@ -3,6 +3,7 @@
 import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
@@ -21,6 +22,7 @@ import {
   checkServerConnectionSchema,
   completeServerOnboardingSchema,
   createServerSchema,
+  createTailscaleServerSchema,
   deleteServerSchema,
   installDokkuSchema,
   updateServerDomainSchema,
@@ -45,6 +47,7 @@ export const createServerAction = protectedClient
     const response = await payload.create({
       collection: 'servers',
       data: {
+        preferConnectionType: 'ssh',
         name,
         description,
         ip,
@@ -61,6 +64,40 @@ export const createServerAction = protectedClient
       revalidatePath(`/${tenant.slug}/servers`)
     }
 
+    return { success: true, server: response }
+  })
+
+export const createTailscaleServerAction = protectedClient
+  .metadata({
+    actionName: 'createTailscaleServerAction',
+  })
+  .schema(createTailscaleServerSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { name, description, hostname, username } = clientInput
+
+    const {
+      userTenant: { tenant },
+      payload,
+      user,
+    } = ctx
+
+    const response = await payload.create({
+      collection: 'servers',
+      data: {
+        preferConnectionType: 'tailscale',
+        name,
+        description,
+        hostname,
+        username,
+        provider: 'other',
+        tenant,
+      },
+      user,
+    })
+
+    if (response) {
+      redirect(`/${tenant.slug}/servers`)
+    }
     return { success: true, server: response }
   })
 
@@ -365,9 +402,12 @@ export const checkServerConnection = protectedClient
   })
   .schema(checkServerConnectionSchema)
   .action(async ({ clientInput }) => {
+    const { connectionType } = clientInput
+
     console.log('triggered')
-    if ('hostname' in clientInput) {
-      const { hostname, username, port = 22 } = clientInput
+
+    if (connectionType === 'tailscale') {
+      const { hostname, username } = clientInput
 
       try {
         // Validate input parameters
@@ -390,12 +430,13 @@ export const checkServerConnection = protectedClient
           // Attempt Tailscale SSH connection
           console.log('tailscale ssh attempt')
           ssh = await dynamicSSH({
+            type: 'tailscale',
             hostname,
             username,
           })
 
-          if (await ssh.isConnectedViaTailnet()) {
-            console.log('connected bro')
+          if (ssh.isConnected()) {
+            console.log('connected to tailscale ssh')
             sshConnected = true
 
             // Get server information
@@ -574,7 +615,8 @@ export const checkServerConnection = protectedClient
         try {
           // Attempt SSH connection
           ssh = await dynamicSSH({
-            ip: ip,
+            type: 'ssh',
+            ip,
             port,
             privateKey,
             username,

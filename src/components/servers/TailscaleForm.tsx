@@ -23,7 +23,10 @@ import {
 } from 'unique-names-generator'
 import { z } from 'zod'
 
-import { checkServerConnection } from '@/actions/server'
+import {
+  checkServerConnection,
+  createTailscaleServerAction,
+} from '@/actions/server'
 import { createTailscaleServerSchema } from '@/actions/server/validator'
 import {
   generateOAuthClientSecretAction,
@@ -42,6 +45,7 @@ type TailscaleFormData = z.infer<typeof createTailscaleServerSchema>
 
 const TailscaleForm = () => {
   const [generatedCommands, setGeneratedCommands] = useState<string[]>([])
+  const [showCreateServer, setShowCreateServer] = useState<boolean>(false)
 
   const form = useForm<TailscaleFormData>({
     resolver: zodResolver(createTailscaleServerSchema),
@@ -124,7 +128,12 @@ const TailscaleForm = () => {
   const { execute: testConnection, isExecuting: isTestingConnection } =
     useAction(checkServerConnection, {
       onSuccess: ({ data }) => {
-        console.log(data)
+        if (data?.isConnected) {
+          setShowCreateServer(true)
+          toast.success('Connection test successful!')
+        } else {
+          toast.error('Connection test failed. Please check your settings.')
+        }
       },
       onError: ({ error }) => {
         console.log(error)
@@ -133,8 +142,6 @@ const TailscaleForm = () => {
 
   const handleTestConnection = () => {
     const { hostname, username } = form.getValues()
-
-    console.log(hostname, username)
 
     // Validate required fields
     const errors: string[] = []
@@ -147,7 +154,43 @@ const TailscaleForm = () => {
     }
 
     testConnection({
-      hostname: 'fond-violet-gopher',
+      connectionType: 'tailscale',
+      hostname,
+      username,
+    })
+  }
+
+  const { execute: createServer, isPending: isCreatingServer } = useAction(
+    createTailscaleServerAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success('Server created successfully!')
+      },
+      onError: ({ error }) => {
+        console.error('Error creating server:', error)
+        toast.error('Failed to create server. Please try again.')
+      },
+      onSettled: () => {
+        form.reset()
+        setGeneratedCommands([])
+      },
+    },
+  )
+
+  const handleCreateServer = () => {
+    const { name, description, hostname, username } = form.getValues()
+
+    console.log('Creating server with:', {
+      name,
+      description,
+      hostname,
+      username,
+    })
+
+    createServer({
+      name,
+      description,
+      hostname,
       username,
     })
   }
@@ -352,12 +395,21 @@ const TailscaleForm = () => {
                 ) : (
                   <>
                     <Shield className='mr-2 h-3 w-3' />
-                    Test Connection bro
+                    Test Connection
                   </>
                 )}
               </Button>
             </div>
           </div>
+        </div>
+
+        <div className='flex w-full items-center justify-end'>
+          <Button
+            type='button'
+            disabled={isCreatingServer || !showCreateServer}
+            onClick={handleCreateServer}>
+            Create Server
+          </Button>
         </div>
       </form>
     </Form>

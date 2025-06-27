@@ -50,7 +50,7 @@ export const installTerminalAction = protectedClient
       host: ip,
       port,
       username,
-      privateKey: sshKey.privateKey,
+      privateKey: sshKey?.privateKey,
     }
 
     // Add the job to the queue instead of executing directly

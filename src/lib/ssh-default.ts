@@ -1,5 +1,9 @@
 import { exec } from 'child_process'
-import { NodeSSH } from 'node-ssh'
+import {
+  NodeSSH,
+  SSHExecCommandOptions,
+  SSHExecCommandResponse,
+} from 'node-ssh'
 import { promisify } from 'util'
 
 import { Project, Server } from '@/payload-types'
@@ -32,29 +36,57 @@ type ExtractSSHDetails =
 // --- Main SSH/Tailscale Utility ---
 
 export const dynamicSSH = async (params: SSHType) => {
-  const ssh = new NodeSSH()
-
   // Step 1: SSH connection
   if (params.type === 'ssh') {
     const { ip, port, privateKey, username } = params
+    const ssh = new NodeSSH()
     await ssh.connect({
       host: ip,
       port,
       username,
       privateKey,
     })
-  } else if (params.type === 'tailscale') {
-    const { username, hostname } = params
-
-    await ssh.connect({
-      host: hostname,
-      username,
-    })
-
-    console.log('connected via tailscale')
+    return {
+      execCommand: (
+        command: string,
+        options: SSHExecCommandOptions = {},
+      ): Promise<SSHExecCommandResponse> => ssh.execCommand(command, options),
+      disconnect: () => ssh.dispose(),
+      ssh,
+    }
   }
 
-  return ssh
+  // Step 2: Tailscale connection (no persistent connection)
+  const { hostname, username } = params
+  return {
+    execCommand: async (
+      command: string,
+      _options: SSHExecCommandOptions = {},
+    ): Promise<SSHExecCommandResponse> => {
+      const target = `${username}@${hostname}`
+      const tailscaleCommand = `tailscale ssh ${target} "${command.replace(/"/g, '\\"')}"`
+      try {
+        const { stdout, stderr } = await execAsync(tailscaleCommand, {
+          maxBuffer: 1024 * 1024 * 10,
+        })
+        return {
+          stdout: stdout || '',
+          stderr: stderr || '',
+          code: 0,
+          signal: null,
+        }
+      } catch (error: any) {
+        return {
+          stdout: error.stdout || '',
+          stderr: error.stderr || error.message || '',
+          code: error.code || 1,
+          signal: null,
+        }
+      }
+    },
+    disconnect: async () => {}, // nothing to disconnect
+    ssh: null,
+  }
 }
 
 // --- Extract SSH Details Utility ---

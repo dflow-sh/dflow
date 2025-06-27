@@ -47,7 +47,10 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   const fetchServerStatus = useCallback(async () => {
     try {
       const response = await netdata.system.getServerDashboardStatus({
-        host: server.ip,
+        host:
+          server.preferConnectionType === 'ssh'
+            ? (server.ip ?? '')
+            : (server.tailscale?.addresses?.at(0) ?? ''),
       })
 
       if (response) {
@@ -72,7 +75,10 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   const fetchDashboardMetrics = useCallback(async () => {
     try {
       const response = await netdata.metrics.getDashboardMetrics({
-        host: server.ip,
+        host:
+          server.preferConnectionType === 'ssh'
+            ? (server.ip ?? '')
+            : (server.tailscale?.addresses?.at(0) ?? ''),
       })
 
       if (response.success) {

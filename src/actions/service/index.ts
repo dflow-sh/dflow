@@ -753,13 +753,14 @@ export const updateVolumesAction = protectedClient
       updatedService &&
       typeof project === 'object' &&
       typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
+      typeof project?.server?.sshKey === 'object' &&
+      project?.server?.preferConnectionType === 'ssh'
     ) {
       await updateVolumesQueue({
         restart: true,
         service: updatedService,
         serverDetails: {
-          id: project?.server?.sshKey?.privateKey,
+          id: project.server.id,
         },
         tenantDetails: {
           slug: tenant.slug,

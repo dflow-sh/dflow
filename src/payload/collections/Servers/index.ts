@@ -82,12 +82,40 @@ export const Servers: CollectionConfig = {
       },
     },
     {
+      name: 'preferConnectionType',
+      type: 'select',
+      label: 'Preferred Connection Type',
+      required: true,
+      defaultValue: 'tailscale',
+      options: [
+        {
+          label: 'SSH',
+          value: 'ssh',
+        },
+        {
+          label: 'Tailscale',
+          value: 'tailscale',
+        },
+      ],
+      admin: {
+        description: 'Select the preferred connection method for this server.',
+        position: 'sidebar',
+      },
+    },
+    // SSH Connection Fields
+    {
       name: 'sshKey',
       type: 'relationship',
       relationTo: 'sshKeys',
       hasMany: false,
-      required: true,
       maxDepth: 10,
+      required: true,
+      admin: {
+        condition: data => {
+          return data.preferConnectionType === 'ssh'
+        },
+        description: 'Required when SSH is the preferred connection type.',
+      },
     },
     {
       name: 'ip',
@@ -97,6 +125,9 @@ export const Servers: CollectionConfig = {
       admin: {
         description: 'Enter the IP address of the server.',
         placeholder: 'e.g: 0:0:0:0',
+        condition: data => {
+          return data.preferConnectionType === 'ssh'
+        },
       },
       hooks: {
         beforeValidate: [ensureUniqueIP],
@@ -109,7 +140,10 @@ export const Servers: CollectionConfig = {
       required: true,
       admin: {
         description: 'Enter the Port of the server.',
-        placeholder: 'e.g: 3000',
+        placeholder: 'e.g: 22',
+        condition: data => {
+          return data.preferConnectionType === 'ssh'
+        },
       },
     },
     {
@@ -122,10 +156,129 @@ export const Servers: CollectionConfig = {
         placeholder: 'e.g: root',
       },
     },
+    // Tailscale Connection Fields
     {
       name: 'hostname',
       type: 'text',
       label: 'Hostname',
+      required: true,
+      admin: {
+        description: 'Server hostname (required for Tailscale connections).',
+        condition: data => {
+          return data.preferConnectionType === 'tailscale'
+        },
+      },
+    },
+    {
+      name: 'tailscale',
+      type: 'group',
+      label: 'Tailscale Configuration',
+      admin: {
+        condition: data => data.preferConnectionType === 'tailscale',
+        description:
+          'Tailscale connection configuration. Fields are required when Tailscale is the preferred connection type.',
+      },
+      fields: [
+        {
+          name: 'id',
+          type: 'text',
+          label: 'Device ID (Legacy)',
+          admin: {
+            description: 'Legacy identifier for the device',
+          },
+        },
+        {
+          name: 'nodeId',
+          type: 'text',
+          label: 'Node ID',
+          admin: {
+            description:
+              'Preferred identifier for the device (e.g., n292kg92CNTRL)',
+          },
+        },
+        {
+          name: 'name',
+          type: 'text',
+          label: 'MagicDNS Name',
+          admin: {
+            description:
+              'The MagicDNS name of the device (e.g., pangolin.tailfe8c.ts.net)',
+          },
+        },
+        {
+          name: 'tailscaleHostname',
+          type: 'text',
+          label: 'Tailscale Hostname',
+          admin: {
+            description: 'The machine name in Tailscale admin console',
+          },
+        },
+        {
+          name: 'addresses',
+          type: 'text',
+          label: 'Tailscale IP Addresses',
+          hasMany: true,
+          admin: {
+            description: 'List of Tailscale IP addresses (IPv4 and IPv6)',
+          },
+        },
+        {
+          name: 'blocksIncomingConnections',
+          type: 'checkbox',
+          label: 'Blocks Incoming Connections',
+          defaultValue: false,
+          admin: {
+            description:
+              'Whether device is not allowed to accept connections over Tailscale',
+          },
+        },
+        {
+          name: 'os',
+          type: 'text',
+          label: 'Operating System',
+          admin: {
+            description: 'Operating system the device is running (e.g., linux)',
+          },
+        },
+        {
+          name: 'created',
+          type: 'date',
+          label: 'Created',
+          admin: {
+            description: 'When the device was added to the tailnet',
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
+        },
+        {
+          name: 'authKey',
+          type: 'text',
+          label: 'Auth Key',
+          admin: {
+            description: 'Tailscale authentication key (one-time use)',
+          },
+        },
+        {
+          name: 'expires',
+          type: 'date',
+          label: 'Key Expires',
+          admin: {
+            description: 'Expiration date of the device auth key',
+            date: {
+              pickerAppearance: 'dayAndTime',
+            },
+          },
+        },
+        {
+          name: 'completeApiResponse',
+          type: 'json',
+          label: 'Complete API Response',
+          admin: {
+            description: 'Store the complete JSON response from Tailscale API',
+          },
+        },
+      ],
     },
     {
       name: 'plugins',

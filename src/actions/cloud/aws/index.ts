@@ -207,6 +207,7 @@ export const createEC2InstanceAction = protectedClient
           ip,
           provider: 'aws',
           cloudProviderAccount: accountId,
+          preferConnectionType: 'tailscale',
           awsEc2Details: {
             instanceId: instanceDetails.InstanceId,
             region: region,

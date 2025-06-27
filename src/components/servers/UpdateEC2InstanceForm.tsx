@@ -404,7 +404,7 @@ const UpdateEC2InstanceForm = ({
                 <div className='mt-4'>
                   <FormLabel>SSH Port</FormLabel>
                   <Input
-                    value={server.port.toString() || '22'}
+                    value={server?.port?.toString() || '22'}
                     disabled
                     className='bg-muted'
                   />
