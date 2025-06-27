@@ -75,23 +75,25 @@ const ServerCard = ({
         <Card
           className={cn(
             'h-full min-h-36 border-l-4 transition-all duration-200',
-            !isOnboarded
-              ? 'border-l-amber-500 hover:border-l-amber-600'
-              : isConnected
+            isConnected
+              ? isOnboarded
                 ? 'border-l-green-500 hover:border-l-green-600'
-                : 'border-l-red-500 hover:border-l-red-600',
+                : 'border-l-amber-500 hover:border-l-amber-600'
+              : 'border-l-red-500 hover:border-l-red-600',
           )}>
           <CardHeader className='w-full flex-row items-start justify-between'>
             <div>
               <CardTitle className='flex items-center gap-2'>
                 <HardDrive />
                 {server.name}
-                {isOnboarded ? (
-                  <Badge variant={isConnected ? 'success' : 'destructive'}>
-                    {isConnected ? 'Connected' : 'Disconnected'}
-                  </Badge>
+                {isConnected ? (
+                  isOnboarded ? (
+                    <Badge variant='success'>Connected</Badge>
+                  ) : (
+                    <Badge variant='warning'>Onboarding Pending</Badge>
+                  )
                 ) : (
-                  <Badge variant='warning'>Onboarding Pending</Badge>
+                  <Badge variant='destructive'>Disconnected</Badge>
                 )}
               </CardTitle>
               <CardDescription className='line-clamp-1'>
