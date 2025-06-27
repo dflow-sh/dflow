@@ -2,7 +2,7 @@ import isPortReachable from 'is-port-reachable'
 import { CollectionAfterReadHook } from 'payload'
 
 import { server } from '@/lib/server'
-import { NodeSSH } from '@/lib/tailscale/ssh'
+import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
 export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
@@ -17,6 +17,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   if (!context.populateServerDetails) {
     return doc
   }
+
+  const sshDetails = extractSSHDetails({ server: doc })
 
   // Step 2: Extract connection parameters from the server document
   // Get SSH key object, connection type, port, username, and host details
@@ -61,22 +63,9 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   // Step 7: Attempt SSH connection and gather server information
   if (canAttemptConnection) {
-    const ssh = new NodeSSH()
+    const ssh = await dynamicSSH(sshDetails)
 
     try {
-      // Step 7a: Configure connection parameters based on connection type
-      const connectionConfig = {
-        host,
-        username,
-        readyTimeout: 20000,
-        useTailscale: isTailscale,
-        ...(isTailscale ? {} : { port }),
-        ...(sshKey?.privateKey && { privateKey: sshKey.privateKey }),
-      }
-
-      // Step 7b: Establish SSH connection
-      await ssh.connect(connectionConfig)
-
       // Step 7c: If connected successfully, gather server information
       if (ssh.isConnected()) {
         sshConnected = true
