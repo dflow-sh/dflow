@@ -9,7 +9,6 @@ import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { createSSH } from '@/lib/tailscale/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -390,6 +389,7 @@ export const checkServerConnection = protectedClient
         try {
           // Attempt Tailscale SSH connection
           console.log('tailscale ssh attempt')
+
           ssh = await dynamicSSH({
             type: 'tailscale',
             hostname,
@@ -464,8 +464,8 @@ export const checkServerConnection = protectedClient
         } finally {
           // Clean up SSH connection
           if (ssh) {
+            ssh.dispose()
             try {
-              await ssh.disconnect()
             } catch (disposeError) {
               console.error('Error disconnecting SSH connection:', disposeError)
             }
@@ -555,7 +555,7 @@ export const checkServerConnection = protectedClient
 
         let sshConnected = false
         let serverInfo = null
-        let ssh
+        let ssh: NodeSSH | null = null
 
         try {
           // Attempt SSH connection
@@ -567,16 +567,16 @@ export const checkServerConnection = protectedClient
             username,
           })
 
-          if (ssh.ssh && ssh.ssh.isConnected()) {
+          if (ssh.isConnected()) {
             sshConnected = true
-            if (ssh.ssh) {
+            if (ssh) {
               const {
                 dokkuVersion,
                 linuxDistributionType,
                 linuxDistributionVersion,
                 netdataVersion,
                 railpackVersion,
-              } = await server.info({ ssh: ssh.ssh })
+              } = await server.info({ ssh })
               serverInfo = {
                 dokku: dokkuVersion,
                 netdata: netdataVersion,
@@ -645,14 +645,7 @@ export const checkServerConnection = protectedClient
               'SSH connection failed. Please check your connection details.',
           }
         } finally {
-          // Clean up SSH connection
-          if (ssh) {
-            try {
-              await ssh.disconnect()
-            } catch (disposeError) {
-              console.error('Error disconnecting SSH connection:', disposeError)
-            }
-          }
+          ssh?.dispose()
         }
 
         const isFullyConnected = portIsOpen && sshConnected
@@ -729,12 +722,11 @@ export const checkHostnameConnection = protectedClient
     let ssh: NodeSSH | null = null
 
     try {
-      // ssh = await dynamicSSH({
-      //   username: server.username,
-      //   hostname: server.hostname,
-      // })
-
-      ssh = await createSSH(server.hostname, server.username)
+      ssh = await dynamicSSH({
+        username: server.username,
+        hostname: server.hostname,
+        type: 'tailscale',
+      })
 
       const appsList = await dokku.apps.list(ssh)
 
