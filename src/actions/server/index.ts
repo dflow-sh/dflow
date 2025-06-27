@@ -396,28 +396,13 @@ export const checkServerConnection = protectedClient
             username,
           })
 
-          if (await ssh.isConnectedViaTailnet()) {
+          // Check connectivity by running a simple command
+          const result = await ssh.execCommand('whoami')
+          if (result && result.code === 0) {
             console.log('connected bro')
             sshConnected = true
-
-            // Get server information
-            const {
-              dokkuVersion,
-              linuxDistributionType,
-              linuxDistributionVersion,
-              netdataVersion,
-              railpackVersion,
-            } = await server.info({ ssh })
-
-            serverInfo = {
-              dokku: dokkuVersion,
-              netdata: netdataVersion,
-              os: {
-                type: linuxDistributionType,
-                version: linuxDistributionVersion,
-              },
-              railpack: railpackVersion,
-            }
+            // Do not call server.info for Tailscale
+            serverInfo = null
           }
         } catch (sshError) {
           console.error('Tailscale SSH connection failed:', sshError)
@@ -480,10 +465,9 @@ export const checkServerConnection = protectedClient
           // Clean up SSH connection
           if (ssh) {
             try {
-              console.log('ssh connected successfully, and closing')
-              ssh.dispose()
+              await ssh.disconnect()
             } catch (disposeError) {
-              console.error('Error disposing SSH connection:', disposeError)
+              console.error('Error disconnecting SSH connection:', disposeError)
             }
           }
         }
@@ -583,26 +567,27 @@ export const checkServerConnection = protectedClient
             username,
           })
 
-          if (ssh.isConnected()) {
+          if (ssh.ssh && ssh.ssh.isConnected()) {
             sshConnected = true
-
-            // Get server information
-            const {
-              dokkuVersion,
-              linuxDistributionType,
-              linuxDistributionVersion,
-              netdataVersion,
-              railpackVersion,
-            } = await server.info({ ssh })
-
-            serverInfo = {
-              dokku: dokkuVersion,
-              netdata: netdataVersion,
-              os: {
-                type: linuxDistributionType,
-                version: linuxDistributionVersion,
-              },
-              railpack: railpackVersion,
+            if (ssh.ssh) {
+              const {
+                dokkuVersion,
+                linuxDistributionType,
+                linuxDistributionVersion,
+                netdataVersion,
+                railpackVersion,
+              } = await server.info({ ssh: ssh.ssh })
+              serverInfo = {
+                dokku: dokkuVersion,
+                netdata: netdataVersion,
+                os: {
+                  type: linuxDistributionType,
+                  version: linuxDistributionVersion,
+                },
+                railpack: railpackVersion,
+              }
+            } else {
+              serverInfo = null
             }
           }
         } catch (sshError) {
@@ -663,9 +648,9 @@ export const checkServerConnection = protectedClient
           // Clean up SSH connection
           if (ssh) {
             try {
-              ssh.dispose()
+              await ssh.disconnect()
             } catch (disposeError) {
-              console.error('Error disposing SSH connection:', disposeError)
+              console.error('Error disconnecting SSH connection:', disposeError)
             }
           }
         }
