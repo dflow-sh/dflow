@@ -16,13 +16,24 @@ interface TailscaleConfig {
   username: string
 }
 
-export type SSHType = {
-  ip?: string
-  port?: number
+// SSH connection type - requires IP, port, username, and private key
+export type SSHConnectionType = {
+  type: 'ssh'
+  ip: string
+  port: number
   username: string
-  hostname?: string | null
-  privateKey?: string
+  privateKey: string
 }
+
+// Tailscale connection type - requires hostname and username only
+export type TailscaleConnectionType = {
+  type: 'tailscale'
+  hostname: string
+  username: string
+}
+
+// Union type for both connection types
+export type SSHType = SSHConnectionType | TailscaleConnectionType
 
 type ExtractSSHDetails =
   | { project: Project | string; server?: never }
@@ -158,60 +169,71 @@ export class NodeSSH extends OriginalNodeSSH {
 export const dynamicSSH = async (params: SSHType) => {
   const ssh = new NodeSSH()
 
-  const { ip, port, privateKey, username, hostname } = params
-
-  await ssh.connect({
-    host: ip,
-    port,
-    username,
-    privateKey,
-    hostname,
-  })
+  if (params.type === 'ssh') {
+    const { ip, port, privateKey, username } = params
+    await ssh.connect({
+      host: ip,
+      port,
+      username,
+      privateKey,
+    })
+  } else {
+    // Tailscale connection
+    const { hostname, username } = params
+    await ssh.connect({
+      host: hostname, // Use hostname as host for Tailscale
+      username,
+      hostname, // Pass hostname for Tailscale detection
+    })
+  }
 
   return ssh
 }
 
 // common utility function to extract ssh details
-export const extractSSHDetails = ({ project, server }: ExtractSSHDetails) => {
-  // todo: handle both ssh, tailscale connection case
-  // 1. handle ssh case
-  // 2. handle tailscale case
-
+export const extractSSHDetails = ({
+  project,
+  server,
+}: ExtractSSHDetails): SSHType => {
+  let serverData: Server | undefined
   if (
     project &&
     typeof project === 'object' &&
     typeof project?.server === 'object'
   ) {
-    const { ip, port, username, sshKey, hostname } = project?.server
-
-    if (typeof sshKey === 'string') {
-      throw new Error('SSH details missing')
-    }
-
-    return {
-      ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-      hostname,
-    }
+    serverData = project.server as Server
   } else if (server && typeof server === 'object') {
-    const { ip, port, username, sshKey, hostname } = server
-
-    if (typeof sshKey === 'string') {
-      throw new Error('SSH details missing')
-    }
-
-    return {
-      ip,
-      port,
-      username,
-      privateKey: sshKey.privateKey,
-      hostname,
-    }
+    serverData = server as Server
   }
 
-  throw new Error(
-    'Please provide proper details to extract server connection details',
-  )
+  if (!serverData) {
+    throw new Error('No server data found')
+  }
+
+  if (serverData.preferConnectionType === 'ssh') {
+    if (!serverData.sshKey || typeof serverData.sshKey === 'string') {
+      throw new Error('SSH key is required for SSH connection type')
+    }
+    if (!serverData.ip || !serverData.port) {
+      throw new Error('IP and port are required for SSH connection type')
+    }
+    return {
+      type: 'ssh',
+      ip: serverData.ip,
+      port: serverData.port,
+      username: serverData.username,
+      privateKey: serverData.sshKey.privateKey,
+    }
+  } else if (serverData.preferConnectionType === 'tailscale') {
+    if (!serverData.hostname) {
+      throw new Error('Hostname is required for Tailscale connection type')
+    }
+    return {
+      type: 'tailscale',
+      hostname: serverData.hostname,
+      username: serverData.username,
+    }
+  } else {
+    throw new Error('Invalid connection type')
+  }
 }
