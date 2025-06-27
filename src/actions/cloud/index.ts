@@ -200,6 +200,7 @@ export const syncDflowServersAction = protectedClient
             name: `${order.instanceResponse.displayName}`,
             ip: `${order.instanceResponse.ipConfig.v4.ip}`,
             tenant: userTenant.tenant?.id,
+            preferConnectionType: 'tailscale',
             cloudProviderAccount: id,
             port: 22, // Default port for SSH
             provider: 'dflow',

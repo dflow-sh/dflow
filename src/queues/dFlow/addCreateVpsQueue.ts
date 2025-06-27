@@ -220,6 +220,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           provider: 'dflow',
           tenant: tenant.id,
           cloudProviderAccount: accountDetails.id,
+          preferConnectionType: 'tailscale',
           dflowVpsDetails: {
             id: createdVpsOrder.id,
             instanceId: createdVpsOrder.instanceId,

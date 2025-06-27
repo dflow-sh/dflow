@@ -45,6 +45,7 @@ export const createServerAction = protectedClient
     const response = await payload.create({
       collection: 'servers',
       data: {
+        preferConnectionType: 'tailscale',
         name,
         description,
         ip,
@@ -390,6 +391,7 @@ export const checkServerConnection = protectedClient
           // Attempt Tailscale SSH connection
           console.log('tailscale ssh attempt')
           ssh = await dynamicSSH({
+            type: 'tailscale',
             hostname,
             username,
           })
@@ -574,6 +576,7 @@ export const checkServerConnection = protectedClient
         try {
           // Attempt SSH connection
           ssh = await dynamicSSH({
+            type: 'ssh',
             ip: ip,
             port,
             privateKey,

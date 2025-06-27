@@ -159,7 +159,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       restart: false,
                       service: createdService,
                       serverDetails: {
-                        id: project?.server?.sshKey?.privateKey,
+                        id: project.server.id,
                       },
                       tenantDetails,
                     })
@@ -310,7 +310,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     restart: false,
                     service: createdService,
                     serverDetails: {
-                      id: project?.server?.sshKey?.privateKey,
+                      id: project.server.id,
                     },
                     tenantDetails,
                   })

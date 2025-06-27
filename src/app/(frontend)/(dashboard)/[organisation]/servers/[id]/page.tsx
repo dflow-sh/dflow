@@ -92,14 +92,21 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
   const securityGroups = generalTabDetails?.data?.securityGroups ?? []
   const projects = generalTabDetails?.data?.projects ?? []
   const serverDetails = server.netdataVersion
-    ? use(netdata.metrics.getServerDetails({ host: server.ip }))
+    ? use(
+        netdata.metrics.getServerDetails({
+          host:
+            server.preferConnectionType === 'ssh'
+              ? (server.ip ?? '')
+              : (server.tailscale?.addresses?.at(0) ?? ''),
+        }),
+      )
     : {}
 
   return (
     <div className='flex flex-col space-y-5'>
+      s
       <SSHConnectionAlert server={server} />
       <ServerDetails serverDetails={serverDetails} server={server} />
-
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
           <div className='space-y-4 rounded bg-muted/30 p-4'>
