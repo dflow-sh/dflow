@@ -365,180 +365,357 @@ export const checkServerConnection = protectedClient
   })
   .schema(checkServerConnectionSchema)
   .action(async ({ clientInput }) => {
-    const { ip, port, username, privateKey } = clientInput
-
-    try {
-      // Validate input parameters
-      if (!ip || !port || !username || !privateKey) {
-        return {
-          isConnected: false,
-          portIsOpen: false,
-          sshConnected: false,
-          serverInfo: null,
-          error: 'Missing required connection parameters',
-        }
-      }
-
-      // Check if port is reachable
-      const portIsOpen = await isPortReachable(port, {
-        host: ip,
-        timeout: 5000, // 5 second timeout for port check
-      })
-
-      if (!portIsOpen) {
-        return {
-          isConnected: false,
-          portIsOpen: false,
-          sshConnected: false,
-          serverInfo: null,
-          error: `Port ${port} is not reachable on ${ip}. Please check if the server is running and the port is open.`,
-        }
-      }
-
-      let sshConnected = false
-      let serverInfo = null
-      let ssh
+    console.log('triggered')
+    if ('hostname' in clientInput) {
+      const { hostname, username, port = 22 } = clientInput
 
       try {
-        // Attempt SSH connection
-        ssh = await dynamicSSH({
-          ip: ip,
-          port,
-          privateKey,
-          username,
-        })
-
-        if (ssh.isConnected()) {
-          sshConnected = true
-
-          // Get server information
-          const {
-            dokkuVersion,
-            linuxDistributionType,
-            linuxDistributionVersion,
-            netdataVersion,
-            railpackVersion,
-          } = await server.info({ ssh })
-
-          serverInfo = {
-            dokku: dokkuVersion,
-            netdata: netdataVersion,
-            os: {
-              type: linuxDistributionType,
-              version: linuxDistributionVersion,
-            },
-            railpack: railpackVersion,
+        // Validate input parameters
+        if (!hostname || !username) {
+          return {
+            isConnected: false,
+            portIsOpen: false,
+            sshConnected: false,
+            serverInfo: null,
+            error:
+              'Missing required connection parameters (hostname or username)',
           }
         }
-      } catch (sshError) {
-        console.error('SSH connection failed:', sshError)
 
-        // Handle specific SSH errors
-        if (sshError instanceof Error) {
-          const errorMessage = sshError.message.toLowerCase()
+        let sshConnected = false
+        let serverInfo = null
+        let ssh
 
-          if (errorMessage.includes('authentication')) {
+        try {
+          // Attempt Tailscale SSH connection
+          console.log('tailscale ssh attempt')
+          ssh = await dynamicSSH({
+            hostname,
+            username,
+          })
+
+          if (await ssh.isConnectedViaTailnet()) {
+            console.log('connected bro')
+            sshConnected = true
+
+            // Get server information
+            const {
+              dokkuVersion,
+              linuxDistributionType,
+              linuxDistributionVersion,
+              netdataVersion,
+              railpackVersion,
+            } = await server.info({ ssh })
+
+            serverInfo = {
+              dokku: dokkuVersion,
+              netdata: netdataVersion,
+              os: {
+                type: linuxDistributionType,
+                version: linuxDistributionVersion,
+              },
+              railpack: railpackVersion,
+            }
+          }
+        } catch (sshError) {
+          console.error('Tailscale SSH connection failed:', sshError)
+
+          // Handle specific SSH errors
+          if (sshError instanceof Error) {
+            const errorMessage = sshError.message.toLowerCase()
+
+            if (errorMessage.includes('authentication')) {
+              return {
+                isConnected: false,
+                portIsOpen: false,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'Tailscale SSH authentication failed. Please check if the device is authorized.',
+              }
+            } else if (errorMessage.includes('timeout')) {
+              return {
+                isConnected: false,
+                portIsOpen: false,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'Tailscale SSH connection timeout. The device may be offline or unreachable.',
+              }
+            } else if (errorMessage.includes('refused')) {
+              return {
+                isConnected: false,
+                portIsOpen: false,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'Tailscale SSH connection refused. Please check if SSH is enabled on the device.',
+              }
+            } else if (
+              errorMessage.includes('not found') ||
+              errorMessage.includes('unknown host')
+            ) {
+              return {
+                isConnected: false,
+                portIsOpen: false,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'Device not found in Tailscale network. Please ensure the device is connected to your tailnet.',
+              }
+            }
+          }
+
+          return {
+            isConnected: false,
+            portIsOpen: false,
+            sshConnected: false,
+            serverInfo: null,
+            error:
+              'Tailscale SSH connection failed. Please check your Tailscale configuration.',
+          }
+        } finally {
+          // Clean up SSH connection
+          if (ssh) {
+            try {
+              console.log('ssh connected successfully, and closing')
+              ssh.dispose()
+            } catch (disposeError) {
+              console.error('Error disposing SSH connection:', disposeError)
+            }
+          }
+        }
+
+        // For Tailscale, we don't check port reachability separately since it uses Tailscale's mesh network
+        // If SSH is connected, we consider the connection successful
+        return {
+          isConnected: sshConnected,
+          portIsOpen: sshConnected, // Set to same as sshConnected for Tailscale
+          sshConnected,
+          serverInfo,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Tailscale server connection check failed:', error)
+
+        // Handle different types of errors
+        if (error instanceof Error) {
+          const errorMessage = error.message.toLowerCase()
+
+          if (
+            errorMessage.includes('tailscale') ||
+            errorMessage.includes('not logged in')
+          ) {
             return {
               isConnected: false,
-              portIsOpen,
+              portIsOpen: false,
               sshConnected: false,
               serverInfo: null,
               error:
-                'SSH authentication failed. Please check your username and private key.',
+                'Tailscale not configured or not logged in. Please ensure Tailscale is installed and you are logged in.',
             }
           } else if (errorMessage.includes('timeout')) {
             return {
               isConnected: false,
-              portIsOpen,
+              portIsOpen: false,
               sshConnected: false,
               serverInfo: null,
               error:
-                'SSH connection timeout. The server may be slow to respond.',
-            }
-          } else if (errorMessage.includes('refused')) {
-            return {
-              isConnected: false,
-              portIsOpen,
-              sshConnected: false,
-              serverInfo: null,
-              error:
-                'SSH connection refused. Please check if SSH service is running on the server.',
-            }
-          } else if (errorMessage.includes('host key')) {
-            return {
-              isConnected: false,
-              portIsOpen,
-              sshConnected: false,
-              serverInfo: null,
-              error:
-                'SSH host key verification failed. The server key may have changed.',
+                'Connection timeout. The device may be offline or unreachable via Tailscale.',
             }
           }
         }
 
+        // Generic error fallback
         return {
           isConnected: false,
-          portIsOpen,
+          portIsOpen: false,
           sshConnected: false,
           serverInfo: null,
-          error: 'SSH connection failed. Please check your connection details.',
-        }
-      } finally {
-        // Clean up SSH connection
-        if (ssh) {
-          try {
-            ssh.dispose()
-          } catch (disposeError) {
-            console.error('Error disposing SSH connection:', disposeError)
-          }
+          error:
+            'Failed to connect to device via Tailscale. Please check your Tailscale configuration and try again.',
         }
       }
+    } else {
+      const { ip, port, username, privateKey } = clientInput
 
-      const isFullyConnected = portIsOpen && sshConnected
-
-      return {
-        isConnected: isFullyConnected,
-        portIsOpen,
-        sshConnected,
-        serverInfo,
-        error: null,
-      }
-    } catch (error) {
-      console.error('Server connection check failed:', error)
-
-      // Handle different types of errors
-      if (error instanceof Error) {
-        const errorMessage = error.message.toLowerCase()
-
-        if (errorMessage.includes('network') || errorMessage.includes('dns')) {
+      try {
+        // Validate input parameters
+        if (!ip || !port || !username || !privateKey) {
           return {
             isConnected: false,
             portIsOpen: false,
             sshConnected: false,
             serverInfo: null,
-            error:
-              'Network error. Please check your internet connection and server IP address.',
+            error: 'Missing required connection parameters',
           }
-        } else if (errorMessage.includes('timeout')) {
+        }
+
+        // Check if port is reachable
+        const portIsOpen = await isPortReachable(port, {
+          host: ip,
+          timeout: 5000, // 5 second timeout for port check
+        })
+
+        if (!portIsOpen) {
           return {
             isConnected: false,
             portIsOpen: false,
             sshConnected: false,
             serverInfo: null,
-            error:
-              'Connection timeout. The server may be unreachable or overloaded.',
+            error: `Port ${port} is not reachable on ${ip}. Please check if the server is running and the port is open.`,
           }
         }
-      }
 
-      // Generic error fallback
-      return {
-        isConnected: false,
-        portIsOpen: false,
-        sshConnected: false,
-        serverInfo: null,
-        error:
-          'Failed to connect to server. Please check your connection details and try again.',
+        let sshConnected = false
+        let serverInfo = null
+        let ssh
+
+        try {
+          // Attempt SSH connection
+          ssh = await dynamicSSH({
+            ip: ip,
+            port,
+            privateKey,
+            username,
+          })
+
+          if (ssh.isConnected()) {
+            sshConnected = true
+
+            // Get server information
+            const {
+              dokkuVersion,
+              linuxDistributionType,
+              linuxDistributionVersion,
+              netdataVersion,
+              railpackVersion,
+            } = await server.info({ ssh })
+
+            serverInfo = {
+              dokku: dokkuVersion,
+              netdata: netdataVersion,
+              os: {
+                type: linuxDistributionType,
+                version: linuxDistributionVersion,
+              },
+              railpack: railpackVersion,
+            }
+          }
+        } catch (sshError) {
+          console.error('SSH connection failed:', sshError)
+
+          // Handle specific SSH errors
+          if (sshError instanceof Error) {
+            const errorMessage = sshError.message.toLowerCase()
+
+            if (errorMessage.includes('authentication')) {
+              return {
+                isConnected: false,
+                portIsOpen,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'SSH authentication failed. Please check your username and private key.',
+              }
+            } else if (errorMessage.includes('timeout')) {
+              return {
+                isConnected: false,
+                portIsOpen,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'SSH connection timeout. The server may be slow to respond.',
+              }
+            } else if (errorMessage.includes('refused')) {
+              return {
+                isConnected: false,
+                portIsOpen,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'SSH connection refused. Please check if SSH service is running on the server.',
+              }
+            } else if (errorMessage.includes('host key')) {
+              return {
+                isConnected: false,
+                portIsOpen,
+                sshConnected: false,
+                serverInfo: null,
+                error:
+                  'SSH host key verification failed. The server key may have changed.',
+              }
+            }
+          }
+
+          return {
+            isConnected: false,
+            portIsOpen,
+            sshConnected: false,
+            serverInfo: null,
+            error:
+              'SSH connection failed. Please check your connection details.',
+          }
+        } finally {
+          // Clean up SSH connection
+          if (ssh) {
+            try {
+              ssh.dispose()
+            } catch (disposeError) {
+              console.error('Error disposing SSH connection:', disposeError)
+            }
+          }
+        }
+
+        const isFullyConnected = portIsOpen && sshConnected
+
+        return {
+          isConnected: isFullyConnected,
+          portIsOpen,
+          sshConnected,
+          serverInfo,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Server connection check failed:', error)
+
+        // Handle different types of errors
+        if (error instanceof Error) {
+          const errorMessage = error.message.toLowerCase()
+
+          if (
+            errorMessage.includes('network') ||
+            errorMessage.includes('dns')
+          ) {
+            return {
+              isConnected: false,
+              portIsOpen: false,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'Network error. Please check your internet connection and server IP address.',
+            }
+          } else if (errorMessage.includes('timeout')) {
+            return {
+              isConnected: false,
+              portIsOpen: false,
+              sshConnected: false,
+              serverInfo: null,
+              error:
+                'Connection timeout. The server may be unreachable or overloaded.',
+            }
+          }
+        }
+
+        // Generic error fallback
+        return {
+          isConnected: false,
+          portIsOpen: false,
+          sshConnected: false,
+          serverInfo: null,
+          error:
+            'Failed to connect to server. Please check your connection details and try again.',
+        }
       }
     }
   })

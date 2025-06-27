@@ -17,11 +17,11 @@ interface TailscaleConfig {
 }
 
 export type SSHType = {
-  ip: string
-  port: number
+  ip?: string
+  port?: number
   username: string
   hostname?: string | null
-  privateKey: string
+  privateKey?: string
 }
 
 type ExtractSSHDetails =
@@ -44,8 +44,6 @@ export class NodeSSH extends OriginalNodeSSH {
   async connect(config: ExtendedConfig): Promise<this> {
     // Detect if we should use Tailscale
     const shouldUseTailscale = Boolean(config.hostname)
-
-    console.log({ shouldUseTailscale })
 
     if (shouldUseTailscale) {
       this.useTailscale = true
@@ -86,13 +84,16 @@ export class NodeSSH extends OriginalNodeSSH {
       const { host, username } = this.tailscaleConfig
       const target = username ? `${username}@${host}` : host
 
-      const tailscaleCommand = `tailscale ssh ${target} "${command.replace(/"/g, '\\"')}"`
+      const tailscaleCommand = `ssh -o StrictHostKeyChecking=no ${target} "${command.replace(/"/g, '\\"')}"`
 
       // executing with tailscale prefix
       try {
-        const { stdout, stderr } = await execAsync(tailscaleCommand, {
-          maxBuffer: 1024 * 1024 * 10,
-        })
+        const { stdout, stderr } = await execAsync(
+          `tailscale ${tailscaleCommand}`,
+          {
+            maxBuffer: 1024 * 1024 * 10,
+          },
+        )
 
         return {
           stdout: stdout || '',
@@ -112,7 +113,18 @@ export class NodeSSH extends OriginalNodeSSH {
             `connecting to SSH via tailscale, but without tailscale prefix`,
           )
 
-          // Retry the command with regular SSH
+          // const { stdout, stderr } = await execAsync(tailscaleCommand, {
+          //   maxBuffer: 1024 * 1024 * 10,
+          // })
+
+          // return {
+          //   stdout: stdout || '',
+          //   stderr: stderr || '',
+          //   code: 0,
+          //   signal: null,
+          // }
+
+          // // Retry the command with regular SSH
           return await super.execCommand(command, options)
         } catch (fallbackError) {
           this.useTailscale = false
