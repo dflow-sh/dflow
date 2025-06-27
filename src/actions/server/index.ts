@@ -3,6 +3,7 @@
 import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
@@ -89,12 +90,13 @@ export const createTailscaleServerAction = protectedClient
         hostname,
         username,
         provider: 'other',
+        tenant,
       },
       user,
     })
 
     if (response) {
-      revalidatePath(`/${tenant.slug}/servers`)
+      redirect(`/${tenant.slug}/servers`)
     }
     return { success: true, server: response }
   })

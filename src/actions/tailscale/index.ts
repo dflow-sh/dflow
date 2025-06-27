@@ -85,7 +85,7 @@ export const generateOAuthClientSecretAction = protectedClient
 
       const { data } = await authSecret
 
-      console.log('Generated OAuth Client Secret:', data)
+      console.log('Generated OAuth Client Secret')
 
       return {
         success: true,
