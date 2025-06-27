@@ -218,6 +218,7 @@ const AttachCustomServerForm = ({
     setHasTestedConnection(false)
 
     testConnection({
+      connectionType: 'ssh',
       ip,
       port,
       username,

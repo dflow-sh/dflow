@@ -9,6 +9,7 @@ import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { createSSH } from '@/lib/tailscale/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -20,6 +21,7 @@ import {
   checkServerConnectionSchema,
   completeServerOnboardingSchema,
   createServerSchema,
+  createTailscaleServerSchema,
   deleteServerSchema,
   installDokkuSchema,
   updateServerDomainSchema,
@@ -44,7 +46,7 @@ export const createServerAction = protectedClient
     const response = await payload.create({
       collection: 'servers',
       data: {
-        preferConnectionType: 'tailscale',
+        preferConnectionType: 'ssh',
         name,
         description,
         ip,
@@ -61,6 +63,39 @@ export const createServerAction = protectedClient
       revalidatePath(`/${tenant.slug}/servers`)
     }
 
+    return { success: true, server: response }
+  })
+
+export const createTailscaleServerAction = protectedClient
+  .metadata({
+    actionName: 'createTailscaleServerAction',
+  })
+  .schema(createTailscaleServerSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { name, description, hostname, username } = clientInput
+
+    const {
+      userTenant: { tenant },
+      payload,
+      user,
+    } = ctx
+
+    const response = await payload.create({
+      collection: 'servers',
+      data: {
+        preferConnectionType: 'tailscale',
+        name,
+        description,
+        hostname,
+        username,
+        provider: 'other',
+      },
+      user,
+    })
+
+    if (response) {
+      revalidatePath(`/${tenant.slug}/servers`)
+    }
     return { success: true, server: response }
   })
 
@@ -365,9 +400,12 @@ export const checkServerConnection = protectedClient
   })
   .schema(checkServerConnectionSchema)
   .action(async ({ clientInput }) => {
+    const { connectionType } = clientInput
+
     console.log('triggered')
-    if ('hostname' in clientInput) {
-      const { hostname, username, port = 22 } = clientInput
+
+    if (connectionType === 'tailscale') {
+      const { hostname, username } = clientInput
 
       try {
         // Validate input parameters
@@ -389,20 +427,34 @@ export const checkServerConnection = protectedClient
         try {
           // Attempt Tailscale SSH connection
           console.log('tailscale ssh attempt')
-
           ssh = await dynamicSSH({
             type: 'tailscale',
             hostname,
             username,
           })
 
-          // Check connectivity by running a simple command
-          const result = await ssh.execCommand('whoami')
-          if (result && result.code === 0) {
-            console.log('connected bro')
+          if (ssh.isConnected()) {
+            console.log('connected to tailscale ssh')
             sshConnected = true
-            // Do not call server.info for Tailscale
-            serverInfo = null
+
+            // Get server information
+            const {
+              dokkuVersion,
+              linuxDistributionType,
+              linuxDistributionVersion,
+              netdataVersion,
+              railpackVersion,
+            } = await server.info({ ssh })
+
+            serverInfo = {
+              dokku: dokkuVersion,
+              netdata: netdataVersion,
+              os: {
+                type: linuxDistributionType,
+                version: linuxDistributionVersion,
+              },
+              railpack: railpackVersion,
+            }
           }
         } catch (sshError) {
           console.error('Tailscale SSH connection failed:', sshError)
@@ -464,10 +516,11 @@ export const checkServerConnection = protectedClient
         } finally {
           // Clean up SSH connection
           if (ssh) {
-            ssh.dispose()
             try {
+              console.log('ssh connected successfully, and closing')
+              ssh.dispose()
             } catch (disposeError) {
-              console.error('Error disconnecting SSH connection:', disposeError)
+              console.error('Error disposing SSH connection:', disposeError)
             }
           }
         }
@@ -555,13 +608,13 @@ export const checkServerConnection = protectedClient
 
         let sshConnected = false
         let serverInfo = null
-        let ssh: NodeSSH | null = null
+        let ssh
 
         try {
           // Attempt SSH connection
           ssh = await dynamicSSH({
             type: 'ssh',
-            ip: ip,
+            ip,
             port,
             privateKey,
             username,
@@ -569,25 +622,24 @@ export const checkServerConnection = protectedClient
 
           if (ssh.isConnected()) {
             sshConnected = true
-            if (ssh) {
-              const {
-                dokkuVersion,
-                linuxDistributionType,
-                linuxDistributionVersion,
-                netdataVersion,
-                railpackVersion,
-              } = await server.info({ ssh })
-              serverInfo = {
-                dokku: dokkuVersion,
-                netdata: netdataVersion,
-                os: {
-                  type: linuxDistributionType,
-                  version: linuxDistributionVersion,
-                },
-                railpack: railpackVersion,
-              }
-            } else {
-              serverInfo = null
+
+            // Get server information
+            const {
+              dokkuVersion,
+              linuxDistributionType,
+              linuxDistributionVersion,
+              netdataVersion,
+              railpackVersion,
+            } = await server.info({ ssh })
+
+            serverInfo = {
+              dokku: dokkuVersion,
+              netdata: netdataVersion,
+              os: {
+                type: linuxDistributionType,
+                version: linuxDistributionVersion,
+              },
+              railpack: railpackVersion,
             }
           }
         } catch (sshError) {
@@ -645,7 +697,14 @@ export const checkServerConnection = protectedClient
               'SSH connection failed. Please check your connection details.',
           }
         } finally {
-          ssh?.dispose()
+          // Clean up SSH connection
+          if (ssh) {
+            try {
+              ssh.dispose()
+            } catch (disposeError) {
+              console.error('Error disposing SSH connection:', disposeError)
+            }
+          }
         }
 
         const isFullyConnected = portIsOpen && sshConnected
@@ -722,11 +781,12 @@ export const checkHostnameConnection = protectedClient
     let ssh: NodeSSH | null = null
 
     try {
-      ssh = await dynamicSSH({
-        username: server.username,
-        hostname: server.hostname,
-        type: 'tailscale',
-      })
+      // ssh = await dynamicSSH({
+      //   username: server.username,
+      //   hostname: server.hostname,
+      // })
+
+      ssh = await createSSH(server.hostname, server.username)
 
       const appsList = await dokku.apps.list(ssh)
 
