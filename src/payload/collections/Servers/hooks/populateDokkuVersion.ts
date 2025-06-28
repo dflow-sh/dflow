@@ -48,7 +48,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   // Step 4: Check if the port is reachable
   // For Tailscale connections, assume port is open; for regular connections, test port connectivity
-  const portIsOpen = isTailscale ? true : await isPortReachable(port, { host })
+  const portIsOpen = await isPortReachable(port, { host })
 
   // Step 5: Initialize variables to store server information
   let dokku: string | undefined | null
@@ -63,7 +63,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   const canAttemptConnection = isTailscale || (sshKey?.privateKey && portIsOpen)
 
   // Step 7: Attempt SSH connection and gather server information
-  if (canAttemptConnection) {
+  if (portIsOpen) {
     let ssh: NodeSSH | null = null
     try {
       ssh = await dynamicSSH(sshDetails)
@@ -91,20 +91,23 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
   // Step 8: Update the server document with connection status
   // Store whether the connection was successful and when it was last checked
-  try {
-    await payload.update({
-      collection: 'servers',
-      id: doc.id,
-      data: {
-        connection: {
-          status: sshConnected ? 'success' : 'failed',
-          lastChecked: new Date().toString(),
+
+  setImmediate(() => {
+    payload
+      .update({
+        collection: 'servers',
+        id: doc.id,
+        data: {
+          connection: {
+            status: sshConnected ? 'success' : 'failed',
+            lastChecked: new Date().toString(),
+          },
         },
-      },
-    })
-  } catch (error) {
-    console.log('Error updating server connection status:', error)
-  }
+      })
+      .catch(error => {
+        console.log('Error updating server connection status:', error)
+      })
+  })
 
   // Step 9: Return the enriched server document
   // Include all gathered information: versions, connection status, OS details
