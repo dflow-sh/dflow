@@ -23,7 +23,6 @@ import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
-import { SshKeySection } from './form-fields/SshKeySection'
 import { StorageTypeField } from './form-fields/StorageTypeField'
 import { TermLengthSection } from './form-fields/TermLengthSection'
 import type { VpsFormData } from './schemas'
@@ -117,7 +116,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <ImageSelection />
           <ImageVersionField />
           {/* <LoginDetailsSection /> */}
-          <SshKeySection />
+          {/* <SshKeySection /> */}
           <BackupOptionsSection />
           <PriceSummarySection />
 
