@@ -443,6 +443,7 @@ export interface Server {
           | 'reset_password'
         )
       | null;
+    next_billing_date?: string | null;
   };
   /**
    * Connection details for the server
@@ -1327,6 +1328,7 @@ export interface ServersSelect<T extends boolean = true> {
         id?: T;
         instanceId?: T;
         status?: T;
+        next_billing_date?: T;
       };
   connection?:
     | T

@@ -3,6 +3,7 @@ import { CollectionConfig, Field } from 'payload'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 import { ensureUniqueIP } from './hooks/ensureUniqueIP'
+import { nextBillingDateAfterRead } from './hooks/nextBillingDate'
 import { populateDokkuVersion } from './hooks/populateDokkuVersion'
 
 const pluginFields: Field[] = [
@@ -59,7 +60,7 @@ export const Servers: CollectionConfig = {
     readVersions: isAdmin,
   },
   hooks: {
-    afterRead: [populateDokkuVersion],
+    afterRead: [populateDokkuVersion, nextBillingDateAfterRead],
   },
   fields: [
     {
@@ -552,6 +553,11 @@ export const Servers: CollectionConfig = {
             { label: 'Other', value: 'other' },
             { label: 'Reset Password', value: 'reset_password' },
           ],
+        },
+        {
+          name: 'next_billing_date',
+          type: 'date',
+          label: 'Next Billing Date',
         },
       ],
     },

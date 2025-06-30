@@ -8,7 +8,6 @@ import { protectedClient } from '@/lib/safe-action'
 
 import {
   cloudProviderAccountsSchema,
-  getVpsOrderByInstanceIdSchema,
   syncDflowServersSchema,
 } from './validator'
 
@@ -213,29 +212,4 @@ export const syncDflowServersAction = protectedClient
 
     revalidatePath(`${userTenant.tenant.slug}/servers`)
     return { success: true, message: 'Servers synced successfully.' }
-  })
-
-export const getVpsOrderByInstanceIdAction = protectedClient
-  .metadata({
-    actionName: 'getVpsOrderByInstanceIdAction',
-  })
-  .schema(getVpsOrderByInstanceIdSchema)
-  .action(async ({ clientInput }) => {
-    const { instanceId } = clientInput
-    const res = await fetch(
-      `${DFLOW_CONFIG.URL}/api/vpsOrders?instanceId=${instanceId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    )
-
-    if (!res.ok) {
-      throw new Error('Failed to fetch VPS Orders')
-    }
-
-    const data = await res.json()
-    return data
   })
