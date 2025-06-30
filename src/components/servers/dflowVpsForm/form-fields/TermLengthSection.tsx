@@ -27,6 +27,7 @@ export const TermLengthSection = () => {
       <h2 className='mb-3 text-lg font-semibold text-foreground'>
         Term Length <span className='text-destructive'>*</span>
       </h2>
+
       <RadioGroup
         value={selectedTerm}
         onValueChange={value => {
@@ -41,7 +42,7 @@ export const TermLengthSection = () => {
             setValue('pricing', newValue, { shouldValidate: true })
           }
         }}
-        className='flex w-full flex-col gap-4 sm:flex-row'>
+        className='flex flex-col gap-4 sm:flex-row'>
         {vpsPlan?.pricing?.map(plan => {
           const basePrice = plan.offerPrice ?? plan.price
           const totalPrice = basePrice * plan.period
@@ -51,7 +52,7 @@ export const TermLengthSection = () => {
           return (
             <div
               key={plan.id}
-              className={`relative flex-1 transition-transform duration-300 ${
+              className={`relative w-1/2 transition-transform duration-300 ${
                 plan.id === selectedTerm ? 'scale-100' : 'scale-95'
               }`}>
               <RadioGroupItem
