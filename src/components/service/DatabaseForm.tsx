@@ -62,7 +62,14 @@ const DatabaseForm = ({
 
   const publicUrl =
     isPublic && typeof server === 'object'
-      ? connectionUrl.replace(host, server.ip).replace(port, exposedPort)
+      ? connectionUrl
+          .replace(
+            host,
+            server.preferConnectionType === 'ssh'
+              ? (server.ip ?? '')
+              : (server.tailscale?.addresses?.at(0) ?? ''),
+          )
+          .replace(port, exposedPort)
       : ''
 
   return (

@@ -9,7 +9,10 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
-import { log } from './lib/logger'
+import { autoLogin } from '@/payload/endpoints/auto-login'
+import { logs } from '@/payload/endpoints/logs'
+import { serverEvents } from '@/payload/endpoints/server-events'
+
 import { Backups } from './payload/collections/Backups'
 import { Banners } from './payload/collections/Banners'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
@@ -24,9 +27,6 @@ import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Users } from './payload/collections/Users'
-import { autoLogin } from './payload/endpoints/auto-login'
-import { logs } from './payload/endpoints/logs'
-import { serverEvents } from './payload/endpoints/server-events'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 import {
   addBeforeOperationHook,
@@ -128,18 +128,6 @@ export default buildConfig({
       method: 'get',
       path: '/auto-login',
       handler: autoLogin,
-    },
-    {
-      method: 'get',
-      path: '/log/test',
-      handler: async () => {
-        log.info('test', { userId: 1234567 })
-
-        await log.flush() //use this to ensure, log is sent before function exits
-        return Response.json({
-          success: true,
-        })
-      },
     },
   ],
   jobs: {

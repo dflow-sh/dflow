@@ -71,7 +71,14 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       return (
         <DomainList
           domains={domains}
-          ip={typeof server === 'object' ? server.ip : ''}
+          // TODO: Domain list should be able to handle both ssh and tailscale
+          ip={
+            typeof server === 'object'
+              ? server.preferConnectionType === 'ssh'
+                ? `${server.ip}`
+                : `${server.tailscale?.addresses?.at(0)}`
+              : ''
+          }
         />
       )
 

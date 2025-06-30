@@ -72,11 +72,7 @@ export const internalBackupAction = protectedClient
 
     let queueResponseId: string | undefined = ''
 
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       const { id } = await addInternalBackupQueue({
@@ -120,11 +116,7 @@ export const internalRestoreAction = protectedClient
 
     let queueResponseId: string | undefined = ''
 
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       const { id } = await addInternalBackupQueue({
@@ -167,11 +159,7 @@ export const internalDbDeleteAction = protectedClient
 
     let queueResponseId: string | undefined = ''
 
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       const { id } = await deleteInternalBackupQueue({

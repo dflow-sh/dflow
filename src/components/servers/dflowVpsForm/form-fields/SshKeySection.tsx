@@ -20,7 +20,7 @@ export const SshKeySection = () => {
   return (
     <div className='mb-6'>
       <h2 className='mb-3 text-lg font-semibold text-foreground'>
-        SSH Key Details <span className='text-destructive'>*</span>
+        SSH Key Details
       </h2>
       <div className='space-y-4 rounded-lg border border-border p-4'>
         <div className='mb-2 flex items-center space-x-2'>
@@ -33,9 +33,7 @@ export const SshKeySection = () => {
           name='login.sshKeyIds'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                SSH Keys <span className='text-destructive'>*</span>
-              </FormLabel>
+              <FormLabel>SSH Keys</FormLabel>
               <div className='flex items-center space-x-2'>
                 <div className='flex-1'>
                   <MultiSelect

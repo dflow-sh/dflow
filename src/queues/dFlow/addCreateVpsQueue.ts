@@ -220,6 +220,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           provider: 'dflow',
           tenant: tenant.id,
           cloudProviderAccount: accountDetails.id,
+          preferConnectionType: 'tailscale',
           dflowVpsDetails: {
             id: createdVpsOrder.id,
             instanceId: createdVpsOrder.instanceId,
@@ -227,6 +228,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
               Server['dflowVpsDetails']
             >['status'],
           },
+          hostname: createdVpsOrder?.instanceResponse?.name,
         }
 
         const createdServer = await payload.create({
@@ -239,102 +241,102 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
         )
 
         // Step 5: Improved polling for public IP
-        const pollForPublicIP = async () => {
-          const maxAttempts = 10
-          const delayMs = 30000
-          let pollTimeout: NodeJS.Timeout | null = null
+        // const pollForPublicIP = async () => {
+        //   const maxAttempts = 10
+        //   const delayMs = 30000
+        //   let pollTimeout: NodeJS.Timeout | null = null
 
-          try {
-            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-              try {
-                console.log(
-                  `[${jobId}] Checking instance status (attempt ${attempt}/${maxAttempts})`,
-                )
+        //   try {
+        //     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        //       try {
+        //         console.log(
+        //           `[${jobId}] Checking instance status (attempt ${attempt}/${maxAttempts})`,
+        //         )
 
-                const { data: instanceStatusRes } = await axios.get(
-                  `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${createdVpsOrder.instanceId}`,
-                  {
-                    headers: {
-                      Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
-                    },
-                    timeout: 10000,
-                  },
-                )
+        //         const { data: instanceStatusRes } = await axios.get(
+        //           `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceId][equals]=${createdVpsOrder.instanceId}`,
+        //           {
+        //             headers: {
+        //               Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        //             },
+        //             timeout: 10000,
+        //           },
+        //         )
 
-                const orders = instanceStatusRes?.docs || []
-                if (orders.length === 0) {
-                  console.log(
-                    `[${jobId}] No orders found for instance ${createdVpsOrder.instanceId}`,
-                  )
-                  continue
-                }
+        //         const orders = instanceStatusRes?.docs || []
+        //         if (orders.length === 0) {
+        //           console.log(
+        //             `[${jobId}] No orders found for instance ${createdVpsOrder.instanceId}`,
+        //           )
+        //           continue
+        //         }
 
-                const order = orders[0]
-                const newStatus = order.instanceResponse.status
-                const newIp = order.instanceResponse?.ipConfig?.v4?.ip
+        //         const order = orders[0]
+        //         const newStatus = order.instanceResponse.status
+        //         const newIp = order.instanceResponse?.ipConfig?.v4?.ip
 
-                if (
-                  createdServer.dflowVpsDetails?.status !== newStatus ||
-                  createdServer.ip !== newIp
-                ) {
-                  const updateData: any = {
-                    dflowVpsDetails: {
-                      ...createdServer.dflowVpsDetails,
-                      status: newStatus,
-                    },
-                  }
+        //         if (
+        //           createdServer.dflowVpsDetails?.status !== newStatus ||
+        //           createdServer.ip !== newIp
+        //         ) {
+        //           const updateData: any = {
+        //             dflowVpsDetails: {
+        //               ...createdServer.dflowVpsDetails,
+        //               status: newStatus,
+        //             },
+        //           }
 
-                  if (newIp) updateData.ip = newIp
+        //           if (newIp) updateData.ip = newIp
 
-                  await payload.update({
-                    collection: 'servers',
-                    id: createdServer.id,
-                    data: updateData,
-                  })
+        //           await payload.update({
+        //             collection: 'servers',
+        //             id: createdServer.id,
+        //             data: updateData,
+        //           })
 
-                  console.log(
-                    `[${jobId}] Server updated - Status: ${newStatus}, IP: ${newIp || 'not assigned'}`,
-                  )
+        //           console.log(
+        //             `[${jobId}] Server updated - Status: ${newStatus}, IP: ${newIp || 'not assigned'}`,
+        //           )
 
-                  sendActionEvent({
-                    pub,
-                    action: 'refresh',
-                    tenantSlug: tenant.slug,
-                  })
+        //           sendActionEvent({
+        //             pub,
+        //             action: 'refresh',
+        //             tenantSlug: tenant.slug,
+        //           })
 
-                  if (newStatus === 'running' && newIp) {
-                    console.log(`[${jobId}] VPS is ready with IP: ${newIp}`)
-                    return { ip: newIp, status: newStatus }
-                  }
-                }
+        //           if (newStatus === 'running' && newIp) {
+        //             console.log(`[${jobId}] VPS is ready with IP: ${newIp}`)
+        //             return { ip: newIp, status: newStatus }
+        //           }
+        //         }
 
-                if (order.status === 'failed' || order.status === 'error') {
-                  throw new VpsCreationError(
-                    `VPS creation failed: ${order.message || 'No details provided'}`,
-                    { orderStatus: order.status },
-                  )
-                }
-              } catch (error) {
-                console.error(
-                  `[${jobId}] Error checking instance status:`,
-                  error,
-                )
-              }
+        //         if (order.status === 'failed' || order.status === 'error') {
+        //           throw new VpsCreationError(
+        //             `VPS creation failed: ${order.message || 'No details provided'}`,
+        //             { orderStatus: order.status },
+        //           )
+        //         }
+        //       } catch (error) {
+        //         console.error(
+        //           `[${jobId}] Error checking instance status:`,
+        //           error,
+        //         )
+        //       }
 
-              await new Promise(resolve => {
-                pollTimeout = setTimeout(resolve, delayMs)
-              })
-            }
+        //       await new Promise(resolve => {
+        //         pollTimeout = setTimeout(resolve, delayMs)
+        //       })
+        //     }
 
-            throw new VpsCreationError(
-              'VPS did not get a public IP within the expected time',
-            )
-          } finally {
-            if (pollTimeout) clearTimeout(pollTimeout)
-          }
-        }
+        //     throw new VpsCreationError(
+        //       'VPS did not get a public IP within the expected time',
+        //     )
+        //   } finally {
+        //     if (pollTimeout) clearTimeout(pollTimeout)
+        //   }
+        // }
 
-        const pollResult = await pollForPublicIP()
+        // const pollResult = await pollForPublicIP()
 
         sendActionEvent({
           pub,
@@ -347,7 +349,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           success: true,
           orderId: createdVpsOrder.id,
           serverId: createdServer.id,
-          ip: pollResult.ip,
+          // ip: pollResult.ip,
         }
       } catch (error) {
         console.error(`[${jobId}] VPS creation failed:`, error)

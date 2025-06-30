@@ -163,21 +163,43 @@ const AWSAccountForm = ({
     // Clear previous validation errors
     setValidationError(null)
 
-    if (!hasTestedConnection) {
-      handleTestConnection()
-      return
-    }
+    // If account prop exists, check if credentials changed
+    const initialAccessKeyId = account?.awsDetails?.accessKeyId ?? ''
+    const initialSecretAccessKey = account?.awsDetails?.secretAccessKey ?? ''
+    const accessKeyIdChanged = values.accessKeyId !== initialAccessKeyId
+    const secretAccessKeyChanged =
+      values.secretAccessKey !== initialSecretAccessKey
+    const credentialsChanged = accessKeyIdChanged || secretAccessKeyChanged
 
-    if (!connectionStatus?.isConnected) {
-      return
+    // Only require connection test if credentials changed
+    if (credentialsChanged) {
+      if (!hasTestedConnection) {
+        handleTestConnection()
+        return
+      }
+      if (!connectionStatus?.isConnected) {
+        return
+      }
     }
 
     connectAccount({ ...values, id: account?.id })
   }
 
-  const canSave = hasTestedConnection && connectionStatus?.isConnected
+  // Allow save if either:
+  // - credentials changed and connection is tested and successful
+  // - or only name changed (credentials not changed)
+  const initialAccessKeyId = account?.awsDetails?.accessKeyId ?? ''
+  const initialSecretAccessKey = account?.awsDetails?.secretAccessKey ?? ''
+  const currentValues = form.watch()
+  const accessKeyIdChanged = currentValues.accessKeyId !== initialAccessKeyId
+  const secretAccessKeyChanged =
+    currentValues.secretAccessKey !== initialSecretAccessKey
+  const credentialsChanged = accessKeyIdChanged || secretAccessKeyChanged
+  const canSave = credentialsChanged
+    ? hasTestedConnection && connectionStatus?.isConnected
+    : true
   const showConnectionError =
-    hasTestedConnection && !connectionStatus?.isConnected
+    credentialsChanged && hasTestedConnection && !connectionStatus?.isConnected
 
   return (
     <Dialog onOpenChange={handleDialogOpenChange}>
@@ -394,7 +416,7 @@ const AWSAccountForm = ({
                 disabled={connectingAccount || !canSave}>
                 {connectingAccount ? (
                   'Saving...'
-                ) : !hasTestedConnection ? (
+                ) : credentialsChanged && !hasTestedConnection ? (
                   'Test Connection First'
                 ) : canSave ? (
                   <>

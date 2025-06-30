@@ -2,6 +2,7 @@
 
 import { Tailscale } from '../icons'
 import TailscaleForm from '../servers/TailscaleForm'
+import UpdateTailscaleServerForm from '../servers/UpdateTailscaleServerForm'
 import { Globe } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
@@ -69,7 +70,15 @@ const ManualSetupTabs = ({ sshKeys, server, formType, onSuccess }: Props) => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <TailscaleForm />
+            {formType === 'create' ? (
+              <TailscaleForm />
+            ) : (
+              <UpdateTailscaleServerForm
+                server={server}
+                formType={formType}
+                onSuccess={onSuccess}
+              />
+            )}
           </CardContent>
         </Card>
       </TabsContent>

@@ -16,6 +16,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
+import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -45,13 +46,16 @@ interface PageProps {
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
   if (server.connection?.status === 'success') return null
 
+  const connectionTypeLabel =
+    server.preferConnectionType === 'tailscale' ? 'Tailscale' : 'SSH'
+
   return (
     <Alert variant='destructive'>
       <ScreenShareOff className='h-4 w-4' />
-      <AlertTitle>SSH connection failed</AlertTitle>
+      <AlertTitle>{connectionTypeLabel} connection failed</AlertTitle>
       <AlertDescription>
-        Failed to establish connection to server, please check the server
-        details
+        Failed to establish connection to server via {connectionTypeLabel}.
+        Please check the server details.
       </AlertDescription>
     </Alert>
   )
@@ -77,6 +81,10 @@ const UpdateServerForm = ({
     )
   }
 
+  if (server.preferConnectionType === 'tailscale') {
+    return <UpdateTailscaleServerForm server={server} formType='update' />
+  }
+
   return (
     <UpdateManualServerFrom
       server={server}
@@ -92,14 +100,20 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
   const securityGroups = generalTabDetails?.data?.securityGroups ?? []
   const projects = generalTabDetails?.data?.projects ?? []
   const serverDetails = server.netdataVersion
-    ? use(netdata.metrics.getServerDetails({ host: server.ip }))
+    ? use(
+        netdata.metrics.getServerDetails({
+          host:
+            server.preferConnectionType === 'ssh'
+              ? (server.ip ?? '')
+              : (server.tailscale?.addresses?.at(0) ?? ''),
+        }),
+      )
     : {}
 
   return (
     <div className='flex flex-col space-y-5'>
       <SSHConnectionAlert server={server} />
       <ServerDetails serverDetails={serverDetails} server={server} />
-
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
         <div className='md:col-span-2'>
           <div className='space-y-4 rounded bg-muted/30 p-4'>

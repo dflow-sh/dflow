@@ -20,9 +20,9 @@ export const createVpsOrderActionSchema = z.object({
   sshKeys: z.array(z.number()),
 })
 
-export const createSshKeysAndVpsActionSchema = z.object({
+export const createVPSOrderActionSchema = z.object({
   accountId: z.string(),
-  sshKeyIds: z.array(z.string()),
+  sshKeyIds: z.array(z.string()).optional(),
   vps: z.object({
     plan: z.string(),
     displayName: z.string(),

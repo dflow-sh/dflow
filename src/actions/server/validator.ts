@@ -24,6 +24,17 @@ export const createTailscaleServerSchema = z.object({
   username: z.string().min(1, 'Username is required'),
 })
 
+export const updateTailscaleServerSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'Server name is required' })
+    .max(50, { message: 'Server name should be less than 50 characters' }),
+  description: z.string().optional(),
+  hostname: z.string().min(1, 'Hostname is required'),
+  username: z.string().min(1, 'Username is required'),
+  id: z.string(),
+})
+
 export const updateServerSchema = z.object({
   name: z
     .string()
@@ -64,19 +75,23 @@ export const checkDNSConfigSchema = z.object({
   ip: z.string().ip({ message: 'Invalid IP address' }),
 })
 
-export const checkServerConnectionSchema = z.union([
-  z.object({
-    ip: z.string().min(1, 'Server IP is required'),
-    port: z.number().min(1).max(65535, 'Valid port number required'),
-    username: z.string().min(1, 'Username is required'),
-    privateKey: z.string().min(1, 'Private key is required'),
-  }),
-  z.object({
-    hostname: z.string().min(1, 'Hostname is required'),
-    username: z.string().min(1, 'Username is required'),
-    port: z.number().min(1).max(65535, 'Valid port number required').optional(),
-  }),
-])
+export const checkServerConnectionSchema = z.discriminatedUnion(
+  'connectionType',
+  [
+    z.object({
+      connectionType: z.literal('ssh'),
+      ip: z.string().min(1, 'Server IP is required'),
+      port: z.number().min(1).max(65535, 'Valid port number required'),
+      username: z.string().min(1, 'Username is required'),
+      privateKey: z.string().min(1, 'Private key is required'),
+    }),
+    z.object({
+      connectionType: z.literal('tailscale'),
+      hostname: z.string().min(1, 'Hostname is required'),
+      username: z.string().min(1, 'Username is required'),
+    }),
+  ],
+)
 
 export const checkHostnameConnectionSchema = z.object({
   serverId: z.string(),

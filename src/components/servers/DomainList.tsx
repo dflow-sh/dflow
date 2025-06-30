@@ -98,14 +98,14 @@ const DomainItem = ({
 
   useEffect(() => {
     if (!isWildCardDomain) {
-      checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+      checkDNSConfig({ ip: server.ip ?? '', domain: `*.${domain.domain}` })
     }
   }, [])
 
   useEffect(() => {
     if (result?.serverError && !checkingDNSConfig) {
       setTimeout(() => {
-        checkDNSConfig({ ip: server.ip, domain: `*.${domain.domain}` })
+        checkDNSConfig({ ip: server.ip ?? '', domain: `*.${domain.domain}` })
       }, 3000)
     }
   }, [result?.serverError, checkingDNSConfig, isPending])

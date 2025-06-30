@@ -45,10 +45,10 @@ const UpdateServerForm = ({
     defaultValues: {
       name: server.name,
       description: server.description ?? '',
-      ip: server.ip,
-      port: server.port,
+      ip: server.ip ?? '',
+      port: server.port ?? 22,
       sshKey:
-        typeof server.sshKey === 'object' ? server.sshKey.id : server.sshKey,
+        typeof server.sshKey === 'object' ? server.sshKey?.id : server.sshKey,
       username: server.username,
       id: server.id,
     },
