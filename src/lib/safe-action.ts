@@ -16,6 +16,10 @@ type UserTenant = {
   roles: ('tenant-admin' | 'tenant-user')[]
 }
 
+const loggingEnabled =
+  env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL &&
+  env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN
+
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
     return z.object({
@@ -23,15 +27,13 @@ export const publicClient = createSafeActionClient({
     })
   },
   // Can also be an async function.
-  handleServerError(error, utils) {
+  async handleServerError(error, utils) {
+    const headersList = await headers()
     // Log to console.
-    console.error('Action error:', error.message)
-    const { clientInput, metadata } = utils
+    console.error(`Action error: ${utils.metadata.actionName}`, error.message)
+    const { clientInput, metadata, ctx } = utils
 
-    if (
-      env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL &&
-      env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN
-    ) {
+    if (loggingEnabled) {
       log.error(error.message, {
         actionName: metadata?.actionName,
         clientInput,
@@ -45,7 +47,74 @@ export const publicClient = createSafeActionClient({
   },
 })
 
-export const protectedClient = publicClient.use(async ({ next, ctx }) => {
+export const protectedClient = publicClient.use(
+  async ({ next, ctx, metadata }) => {
+    const headersList = await headers()
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
+    // 1. checking for user
+    const { user } = await payload.auth({ headers: headersList })
+
+    if (!user) {
+      throw Error('Unauthenticated')
+    }
+
+    if (loggingEnabled) {
+      log.info(
+        `Running protected action: ${metadata?.actionName} by ${user?.username}`,
+        {
+          actionName: metadata?.actionName,
+          userId: user?.id,
+          userEmail: user?.email,
+          userName: user?.username,
+        },
+      )
+    }
+
+    // 2. checking for tenant slug
+    const tenantSlug = await getTenant()
+
+    if (!tenantSlug) {
+      forbidden()
+    }
+
+    // 3. validating the tenant slug
+    const { docs } = await payload.find({
+      collection: 'tenants',
+      where: { slug: { equals: tenantSlug } },
+    })
+
+    const tenant = docs[0]
+
+    if (!tenant) {
+      forbidden()
+    }
+
+    const matchedTenantEntry = user?.tenants?.find(entry => {
+      const tenantId =
+        typeof entry.tenant === 'string' ? entry.tenant : entry.tenant.id
+      return tenantId === tenant.id
+    })
+
+    if (!Boolean(matchedTenantEntry)) {
+      forbidden()
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        payload,
+        user,
+        userTenant: matchedTenantEntry as UserTenant,
+        isInTenant: Boolean(matchedTenantEntry),
+      },
+    })
+  },
+)
+
+export const userClient = publicClient.use(async ({ next, ctx, metadata }) => {
   const headersList = await headers()
   const payload = await getPayload({
     config: configPromise,
@@ -54,58 +123,18 @@ export const protectedClient = publicClient.use(async ({ next, ctx }) => {
   // 1. checking for user
   const { user } = await payload.auth({ headers: headersList })
 
-  if (!user) {
-    throw Error('Unauthenticated')
+  if (loggingEnabled) {
+    log.info(
+      `Running public action: ${metadata?.actionName} by ${user?.username}`,
+      {
+        actionName: metadata?.actionName,
+        userId: user?.id,
+        userEmail: user?.email,
+        userName: user?.username,
+        headers: Object.fromEntries(headersList.entries()),
+      },
+    )
   }
-
-  // 2. checking for tenant slug
-  const tenantSlug = await getTenant()
-
-  if (!tenantSlug) {
-    forbidden()
-  }
-
-  // 3. validating the tenant slug
-  const { docs } = await payload.find({
-    collection: 'tenants',
-    where: { slug: { equals: tenantSlug } },
-  })
-
-  const tenant = docs[0]
-
-  if (!tenant) {
-    forbidden()
-  }
-
-  const matchedTenantEntry = user?.tenants?.find(entry => {
-    const tenantId =
-      typeof entry.tenant === 'string' ? entry.tenant : entry.tenant.id
-    return tenantId === tenant.id
-  })
-
-  if (!Boolean(matchedTenantEntry)) {
-    forbidden()
-  }
-
-  return next({
-    ctx: {
-      ...ctx,
-      payload,
-      user,
-      userTenant: matchedTenantEntry as UserTenant,
-      isInTenant: Boolean(matchedTenantEntry),
-    },
-  })
-})
-
-export const userClient = publicClient.use(async ({ next, ctx }) => {
-  const headersList = await headers()
-  const payload = await getPayload({
-    config: configPromise,
-  })
-
-  // 1. checking for user
-  const { user } = await payload.auth({ headers: headersList })
 
   if (!user) {
     throw Error('Unauthenticated')
