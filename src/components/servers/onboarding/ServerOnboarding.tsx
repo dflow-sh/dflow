@@ -3,6 +3,7 @@
 import { DokkuInstallationStepContextProvider } from '@/components/onboarding/dokkuInstallation/DokkuInstallationStepContext'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
+import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SecurityGroup, SshKey } from '@/payload-types'
@@ -59,6 +60,11 @@ const ServerOnboarding = ({
                     sshKeys={sshKeys}
                     server={server}
                     securityGroups={securityGroups}
+                    formType='update'
+                  />
+                ) : server.preferConnectionType === 'tailscale' ? (
+                  <UpdateTailscaleServerForm
+                    server={server}
                     formType='update'
                   />
                 ) : (

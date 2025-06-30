@@ -24,6 +24,17 @@ export const createTailscaleServerSchema = z.object({
   username: z.string().min(1, 'Username is required'),
 })
 
+export const updateTailscaleServerSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: 'Server name is required' })
+    .max(50, { message: 'Server name should be less than 50 characters' }),
+  description: z.string().optional(),
+  hostname: z.string().min(1, 'Hostname is required'),
+  username: z.string().min(1, 'Username is required'),
+  id: z.string(),
+})
+
 export const updateServerSchema = z.object({
   name: z
     .string()

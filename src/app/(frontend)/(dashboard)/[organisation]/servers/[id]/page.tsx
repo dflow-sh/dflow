@@ -16,6 +16,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
+import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -45,13 +46,16 @@ interface PageProps {
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
   if (server.connection?.status === 'success') return null
 
+  const connectionTypeLabel =
+    server.preferConnectionType === 'tailscale' ? 'Tailscale' : 'SSH'
+
   return (
     <Alert variant='destructive'>
       <ScreenShareOff className='h-4 w-4' />
-      <AlertTitle>SSH connection failed</AlertTitle>
+      <AlertTitle>{connectionTypeLabel} connection failed</AlertTitle>
       <AlertDescription>
-        Failed to establish connection to server, please check the server
-        details
+        Failed to establish connection to server via {connectionTypeLabel}.
+        Please check the server details.
       </AlertDescription>
     </Alert>
   )
@@ -75,6 +79,10 @@ const UpdateServerForm = ({
         formType='update'
       />
     )
+  }
+
+  if (server.preferConnectionType === 'tailscale') {
+    return <UpdateTailscaleServerForm server={server} formType='update' />
   }
 
   return (

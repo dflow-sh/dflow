@@ -27,6 +27,7 @@ import {
   installDokkuSchema,
   updateServerDomainSchema,
   updateServerSchema,
+  updateTailscaleServerSchema,
 } from './validator'
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
@@ -98,6 +99,30 @@ export const createTailscaleServerAction = protectedClient
     if (response) {
       redirect(`/${tenant.slug}/servers`)
     }
+    return { success: true, server: response }
+  })
+
+export const updateTailscaleServerAction = protectedClient
+  .metadata({
+    actionName: 'updateTailscaleServerAction',
+  })
+  .schema(updateTailscaleServerSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, ...data } = clientInput
+    const { payload, user } = ctx
+
+    const response = await payload.update({
+      id,
+      data,
+      collection: 'servers',
+      user,
+    })
+
+    if (response) {
+      revalidatePath(`/servers/${id}`)
+      revalidatePath(`/onboarding/add-server`)
+    }
+
     return { success: true, server: response }
   })
 

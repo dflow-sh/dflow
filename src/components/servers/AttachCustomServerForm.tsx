@@ -227,16 +227,31 @@ const AttachCustomServerForm = ({
   }
 
   function onSubmit(values: z.infer<typeof createServerSchema>) {
-    // If connection hasn't been tested, test it first
-    if (!hasTestedConnection) {
-      handleTestConnection()
-      return
-    }
+    // If server prop exists, check if critical fields changed
+    const initialIp = server?.ip ?? ''
+    const initialPort = server?.port ?? 22
+    const initialUsername = server?.username ?? ''
+    const initialSshKey =
+      typeof server?.sshKey === 'object'
+        ? server?.sshKey?.id
+        : (server?.sshKey ?? '')
+    const ipChanged = values.ip !== initialIp
+    const portChanged = values.port !== initialPort
+    const usernameChanged = values.username !== initialUsername
+    const sshKeyChanged = values.sshKey !== initialSshKey
+    const criticalFieldsChanged =
+      ipChanged || portChanged || usernameChanged || sshKeyChanged
 
-    // If connection failed, don't proceed
-    if (!connectionStatus?.isConnected) {
-      toast.error('Please fix connection issues before saving')
-      return
+    // Only require connection test if critical fields changed
+    if (criticalFieldsChanged) {
+      if (!hasTestedConnection) {
+        handleTestConnection()
+        return
+      }
+      if (!connectionStatus?.isConnected) {
+        toast.error('Please fix connection issues before saving')
+        return
+      }
     }
 
     if (formType === 'create') {
@@ -247,9 +262,30 @@ const AttachCustomServerForm = ({
     }
   }
 
-  const canSave = hasTestedConnection && connectionStatus?.isConnected
+  // Allow save if either:
+  // - critical fields changed and connection is tested and successful
+  // - or only name/description changed (critical fields not changed)
+  const initialIp = server?.ip ?? ''
+  const initialPort = server?.port ?? 22
+  const initialUsername = server?.username ?? ''
+  const initialSshKey =
+    typeof server?.sshKey === 'object'
+      ? server?.sshKey?.id
+      : (server?.sshKey ?? '')
+  const currentValues = form.watch()
+  const ipChanged = currentValues.ip !== initialIp
+  const portChanged = currentValues.port !== initialPort
+  const usernameChanged = currentValues.username !== initialUsername
+  const sshKeyChanged = currentValues.sshKey !== initialSshKey
+  const criticalFieldsChanged =
+    ipChanged || portChanged || usernameChanged || sshKeyChanged
+  const canSave = criticalFieldsChanged
+    ? hasTestedConnection && connectionStatus?.isConnected
+    : true
   const showConnectionError =
-    hasTestedConnection && !connectionStatus?.isConnected
+    criticalFieldsChanged &&
+    hasTestedConnection &&
+    !connectionStatus?.isConnected
 
   return (
     <>
@@ -541,7 +577,7 @@ const AttachCustomServerForm = ({
                 ) : (
                   'Updating Server...'
                 )
-              ) : !hasTestedConnection ? (
+              ) : criticalFieldsChanged && !hasTestedConnection ? (
                 'Test Connection First'
               ) : canSave ? (
                 <>
