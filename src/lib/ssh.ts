@@ -1,10 +1,6 @@
-import { exec } from 'child_process'
 import { NodeSSH } from 'node-ssh'
-import { promisify } from 'util'
 
 import { Project, Server } from '@/payload-types'
-
-const execAsync = promisify(exec)
 
 // SSH connection type
 export type SSHConnectionType = {

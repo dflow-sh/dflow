@@ -12,7 +12,7 @@ import {
   checkConnectionSchema,
   checkPaymentMethodSchema,
   connectDFlowAccountSchema,
-  createSshKeysAndVpsActionSchema,
+  createVPSOrderActionSchema,
   deleteDFlowAccountSchema,
 } from './validator'
 
@@ -74,14 +74,14 @@ export const getDFlowPlansAction = protectedClient
     return vpsPlans
   })
 
-export const createSshKeysAndVpsAction = protectedClient
+export const createVPSOrderAction = protectedClient
   .metadata({
-    actionName: 'createSshKeysAndVpsAction',
+    actionName: 'createVPSOrderAction',
   })
-  .schema(createSshKeysAndVpsActionSchema)
+  .schema(createVPSOrderActionSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { accountId, sshKeyIds, vps } = clientInput
-    const { userTenant, payload, user } = ctx
+    const { accountId, sshKeyIds = [], vps } = clientInput
+    const { userTenant, payload } = ctx
     const { addCreateVpsQueue } = await import(
       '@/queues/dFlow/addCreateVpsQueue'
     )

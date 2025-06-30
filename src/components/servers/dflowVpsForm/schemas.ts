@@ -6,7 +6,7 @@ export const loginSchema = z.object({
     .min(1, { message: 'Username is required' })
     .default('root'),
   rootPassword: z.number().default(141086),
-  sshKeyIds: z.array(z.string()),
+  sshKeyIds: z.array(z.string()).optional(),
 })
 
 export const dflowVpsSchema = z.object({

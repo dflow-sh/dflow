@@ -186,10 +186,11 @@ export function ProjectCard({
 
           <CardFooter className='justify-between'>
             <div>{services.length} services</div>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+                  <time className='z-10 flex items-center gap-1.5 text-sm text-muted-foreground'>
                     <Clock size={14} />
                     {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
                   </time>

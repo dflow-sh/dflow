@@ -21,10 +21,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     const sshDetails = extractSSHDetails({ server: doc })
 
     // Extract connection parameters
-    const sshKey = typeof doc.sshKey === 'object' ? doc.sshKey : undefined
     const isTailscale = doc.preferConnectionType === 'tailscale'
     const port = doc.port ?? 22
-    const username = doc.username ?? 'root'
     const host = isTailscale ? (doc.hostname ?? '') : (doc.ip ?? '')
 
     // Return default values if no host is available

@@ -3,9 +3,10 @@ import jwt from 'jsonwebtoken'
 import { APIError, PayloadHandler, PayloadRequest } from 'payload'
 
 import { createSession } from '@/lib/createSession'
-import { createRedisClient } from '@/lib/redis'
 
 export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
+  const { createRedisClient } = await import('@/lib/redis')
+
   const { payload, searchParams } = req
   const token = searchParams.get('token') ?? ''
 

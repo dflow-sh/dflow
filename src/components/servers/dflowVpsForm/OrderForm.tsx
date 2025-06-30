@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { createSshKeysAndVpsAction } from '@/actions/cloud/dFlow'
+import { createVPSOrderAction } from '@/actions/cloud/dFlow'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,7 +21,6 @@ import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
 import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
-import { LoginDetailsSection } from './form-fields/LoginDetailsSection'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
 import { SshKeySection } from './form-fields/SshKeySection'
@@ -36,10 +35,10 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const { pricing, selectedAccount, vpsPlan } = useDflowVpsForm()
 
   const {
-    execute: executeCreateSshKeysAndVpsAction,
+    execute: executeCreateVPSOrderAction,
     isPending: isCreatingVpsOrder,
     hasSucceeded: triggeredVPSOrderCreation,
-  } = useAction(createSshKeysAndVpsAction, {
+  } = useAction(createVPSOrderAction, {
     onError: () => {
       toast.error('Failed to create server instance, try again')
     },
@@ -58,7 +57,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const onSubmit: SubmitHandler<VpsFormData> = data => {
     if (!isFormValid) return
 
-    executeCreateSshKeysAndVpsAction({
+    executeCreateVPSOrderAction({
       accountId: selectedAccount.id,
       sshKeyIds: data.login.sshKeyIds,
       vps: {
@@ -117,7 +116,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <StorageTypeField />
           <ImageSelection />
           <ImageVersionField />
-          <LoginDetailsSection />
+          {/* <LoginDetailsSection /> */}
           <SshKeySection />
           <BackupOptionsSection />
           <PriceSummarySection />
