@@ -57,6 +57,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     let railpack: string | undefined | null
 
     // Attempt SSH connection if possible
+    let shouldUpdateCloudInitStatus = false
     if (portIsOpen) {
       const ssh = await dynamicSSH(sshDetails)
 
@@ -72,6 +73,25 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           linuxVersion = serverInfo.linuxDistributionVersion
           linuxType = serverInfo.linuxDistributionType
           railpack = serverInfo.railpackVersion
+
+          // If cloudInitStatus was running, check and update if needed
+          if (doc.cloudInitStatus === 'running') {
+            try {
+              const { stdout: cloudInitStatusOut } =
+                await ssh.execCommand('cloud-init status')
+
+              console.log('cloudInitStatusOut:', cloudInitStatusOut)
+
+              const statusMatch = cloudInitStatusOut.match(/status:\s*(\w+)/)
+              const status = statusMatch ? statusMatch[1] : ''
+
+              if (status !== 'running') {
+                shouldUpdateCloudInitStatus = true
+              }
+            } catch (cloudInitError) {
+              console.log('Error checking cloud-init status:', cloudInitError)
+            }
+          }
         }
 
         ssh.dispose()
@@ -85,21 +105,30 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
     }
 
-    // Update connection status in database
+    // Update data for connection and cloudInitStatus
+    const updateData: Partial<Server> = {
+      connection: {
+        status: sshConnected ? 'success' : 'failed',
+        lastChecked: new Date().toString(),
+      },
+    }
+    if (shouldUpdateCloudInitStatus) {
+      updateData.cloudInitStatus = 'other'
+    }
+
+    // Update connection status and cloudInitStatus in database (single update)
     setImmediate(() => {
       payload
         .update({
           collection: 'servers',
           id: doc.id,
-          data: {
-            connection: {
-              status: sshConnected ? 'success' : 'failed',
-              lastChecked: new Date().toString(),
-            },
-          },
+          data: updateData,
         })
         .catch(error => {
-          console.log('Error updating server connection status:', error)
+          console.log(
+            'Error updating server connection status and/or cloudInitStatus:',
+            error,
+          )
         })
     })
 

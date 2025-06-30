@@ -445,6 +445,10 @@ export interface Server {
       | null;
   };
   /**
+   * Status of the cloud-init process for this server.
+   */
+  cloudInitStatus?: ('running' | 'other') | null;
+  /**
    * Connection details for the server
    */
   connection?: {
@@ -1328,6 +1332,7 @@ export interface ServersSelect<T extends boolean = true> {
         instanceId?: T;
         status?: T;
       };
+  cloudInitStatus?: T;
   connection?:
     | T
     | {

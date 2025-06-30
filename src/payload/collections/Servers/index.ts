@@ -556,6 +556,20 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
+      name: 'cloudInitStatus',
+      type: 'select',
+      label: 'Cloud Init Status',
+      options: [
+        { label: 'Running', value: 'running' },
+        { label: 'Other', value: 'other' },
+      ],
+      defaultValue: 'running',
+      admin: {
+        position: 'sidebar',
+        description: 'Status of the cloud-init process for this server.',
+      },
+    },
+    {
       name: 'connection',
       label: 'Connection',
       type: 'group',
