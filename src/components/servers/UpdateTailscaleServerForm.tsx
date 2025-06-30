@@ -154,24 +154,45 @@ const UpdateTailscaleServerForm = ({
   }
 
   function onSubmit(values: z.infer<typeof updateTailscaleServerSchema>) {
-    // If connection hasn't been tested, test it first
-    if (!hasTestedConnection) {
-      handleTestConnection()
-      return
-    }
+    // If server prop exists, check if hostname or username changed
+    const initialHostname = server?.hostname ?? ''
+    const initialUsername = server?.username ?? ''
+    const hostnameChanged = values.hostname !== initialHostname
+    const usernameChanged = values.username !== initialUsername
+    const criticalFieldsChanged = hostnameChanged || usernameChanged
 
-    // If connection failed, don't proceed
-    if (!connectionStatus?.isConnected) {
-      toast.error('Please fix connection issues before saving')
-      return
+    // Only require connection test if hostname or username changed
+    if (criticalFieldsChanged) {
+      if (!hasTestedConnection) {
+        handleTestConnection()
+        return
+      }
+      if (!connectionStatus?.isConnected) {
+        toast.error('Please fix connection issues before saving')
+        return
+      }
     }
 
     updateServer(values)
   }
 
-  const canSave = hasTestedConnection && connectionStatus?.isConnected
+  // Allow save if either:
+  // - critical fields changed and connection is tested and successful
+  // - or only name/description changed (critical fields not changed)
+  const initialHostname = server?.hostname ?? ''
+  const initialUsername = server?.username ?? ''
+  const currentValues = form.watch()
+  const hostnameChanged = currentValues.hostname !== initialHostname
+  const usernameChanged = currentValues.username !== initialUsername
+  const criticalFieldsChanged = hostnameChanged || usernameChanged
+  const canSave = criticalFieldsChanged
+    ? hasTestedConnection && connectionStatus?.isConnected
+    : true
+
   const showConnectionError =
-    hasTestedConnection && !connectionStatus?.isConnected
+    criticalFieldsChanged &&
+    hasTestedConnection &&
+    !connectionStatus?.isConnected
 
   return (
     <>
@@ -373,7 +394,7 @@ const UpdateTailscaleServerForm = ({
             <Button type='submit' disabled={isUpdatingServer || !canSave}>
               {isUpdatingServer ? (
                 'Updating Server...'
-              ) : !hasTestedConnection ? (
+              ) : criticalFieldsChanged && !hasTestedConnection ? (
                 'Test Connection First'
               ) : canSave ? (
                 <>
