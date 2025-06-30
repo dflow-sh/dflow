@@ -195,220 +195,215 @@ const UpdateTailscaleServerForm = ({
     !connectionStatus?.isConnected
 
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className='w-full space-y-6'>
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Name
-                  <SidebarToggleButton
-                    directory='servers'
-                    fileName='attach-server'
-                    sectionId='#name'
-                  />
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} className='rounded-sm' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
+        <FormField
+          control={form.control}
+          name='name'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Name
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='attach-server'
+                  sectionId='#name'
+                />
+              </FormLabel>
+              <FormControl>
+                <Input {...field} className='rounded-sm' />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name='description'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Description
-                  <SidebarToggleButton
-                    directory='servers'
-                    fileName='attach-server'
-                    sectionId='#description-optional'
-                  />
-                </FormLabel>
-                <FormControl>
-                  <Textarea {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name='description'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Description
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='attach-server'
+                  sectionId='#description-optional'
+                />
+              </FormLabel>
+              <FormControl>
+                <Textarea {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name='hostname'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Hostname
-                  <SidebarToggleButton
-                    directory='servers'
-                    fileName='attach-server'
-                    sectionId='#hostname'
-                  />
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    onChange={e => {
-                      field.onChange(e)
-                      handleFieldChange('hostname')
-                    }}
-                    disabled={formType === 'update'}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name='hostname'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Hostname
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='attach-server'
+                  sectionId='#hostname'
+                />
+              </FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onChange={e => {
+                    field.onChange(e)
+                    handleFieldChange('hostname')
+                  }}
+                  disabled={formType === 'update'}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name='username'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Username
-                  <SidebarToggleButton
-                    directory='servers'
-                    fileName='attach-server'
-                    sectionId='#username'
-                  />
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    onChange={e => {
-                      field.onChange(e)
-                      handleFieldChange('username')
-                    }}
-                    disabled={formType === 'update'}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name='username'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Username
+                <SidebarToggleButton
+                  directory='servers'
+                  fileName='attach-server'
+                  sectionId='#username'
+                />
+              </FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onChange={e => {
+                    field.onChange(e)
+                    handleFieldChange('username')
+                  }}
+                  disabled={formType === 'update'}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          {/* Connection Test Section */}
-          <div className='space-y-4 rounded-lg border p-4'>
-            <div className='flex items-center justify-between gap-3'>
-              <div className='flex-1'>
-                <p className='text-sm font-medium text-foreground'>
-                  Tailscale Connection Test
-                </p>
-                <p className='text-xs text-muted-foreground'>
-                  Verify Tailscale network connectivity before saving
-                </p>
-              </div>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={handleTestConnection}
-                disabled={isTestingConnection}
-                className='shrink-0'>
-                {isTestingConnection ? (
-                  <>
-                    <RefreshCw className='mr-2 h-3 w-3 animate-spin' />
-                    Testing...
-                  </>
-                ) : (
-                  'Test Connection'
-                )}
-              </Button>
+        {/* Connection Test Section */}
+        <div className='space-y-4 rounded-lg border p-4'>
+          <div className='flex items-center justify-between gap-3'>
+            <div className='flex-1'>
+              <p className='text-sm font-medium text-foreground'>
+                Tailscale Connection Test
+              </p>
+              <p className='text-xs text-muted-foreground'>
+                Verify Tailscale network connectivity before saving
+              </p>
             </div>
-
-            {/* Connection Status Display */}
-            {isTestingConnection && (
-              <Alert>
-                <RefreshCw className='h-4 w-4 animate-spin' />
-                <AlertDescription>
-                  Testing Tailscale network connectivity and SSH
-                  authentication...
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {connectionStatus?.isConnected && (
-              <Alert className='border-emerald-800 bg-emerald-950'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-full bg-emerald-900'>
-                    <CheckCircle className='h-4 w-4 text-emerald-400' />
-                  </div>
-                  <div className='flex-1'>
-                    <p className='text-sm font-medium text-emerald-300'>
-                      Tailscale connection successful
-                    </p>
-                    <div className='mt-1 space-y-1 text-xs text-emerald-400'>
-                      <p>✓ Tailscale network accessible</p>
-                      <p>✓ SSH authentication successful</p>
-                      {connectionStatus.serverInfo?.dokku && (
-                        <p>
-                          ✓ Dokku {connectionStatus.serverInfo.dokku} detected
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Alert>
-            )}
-
-            {showConnectionError && (
-              <Alert variant='destructive'>
-                <XCircle className='h-4 w-4' />
-                <AlertDescription>
-                  <div className='space-y-2'>
-                    <p className='font-medium'>Tailscale connection failed</p>
-                    <div className='space-y-1 text-xs'>
-                      <p>
-                        Network accessible:{' '}
-                        {connectionStatus?.portIsOpen ? '✓' : '✗'}
-                      </p>
-                      <p>
-                        SSH connection:{' '}
-                        {connectionStatus?.sshConnected ? '✓' : '✗'}
-                      </p>
-                    </div>
-                    <p className='text-sm opacity-90'>
-                      {connectionStatus?.error}
-                    </p>
-                    <p className='text-xs opacity-75'>
-                      Please verify your Tailscale configuration and try again
-                    </p>
-                  </div>
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
-
-          <div className='flex w-full items-center justify-end'>
-            <Button type='submit' disabled={isUpdatingServer || !canSave}>
-              {isUpdatingServer ? (
-                'Updating Server...'
-              ) : criticalFieldsChanged && !hasTestedConnection ? (
-                'Test Connection First'
-              ) : canSave ? (
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={handleTestConnection}
+              disabled={isTestingConnection}
+              className='shrink-0'>
+              {isTestingConnection ? (
                 <>
-                  <CheckCircle className='mr-2 h-4 w-4' />
-                  Update Server
+                  <RefreshCw className='mr-2 h-3 w-3 animate-spin' />
+                  Testing...
                 </>
               ) : (
-                'Fix Connection Issues'
+                'Test Connection'
               )}
             </Button>
           </div>
-        </form>
-      </Form>
-    </>
+
+          {/* Connection Status Display */}
+          {isTestingConnection && (
+            <Alert>
+              <RefreshCw className='h-4 w-4 animate-spin' />
+              <AlertDescription>
+                Testing Tailscale network connectivity and SSH authentication...
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {connectionStatus?.isConnected && (
+            <Alert className='border-emerald-800 bg-emerald-950'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-8 w-8 items-center justify-center rounded-full bg-emerald-900'>
+                  <CheckCircle className='h-4 w-4 text-emerald-400' />
+                </div>
+                <div className='flex-1'>
+                  <p className='text-sm font-medium text-emerald-300'>
+                    Tailscale connection successful
+                  </p>
+                  <div className='mt-1 space-y-1 text-xs text-emerald-400'>
+                    <p>✓ Tailscale network accessible</p>
+                    <p>✓ SSH authentication successful</p>
+                    {connectionStatus.serverInfo?.dokku && (
+                      <p>
+                        ✓ Dokku {connectionStatus.serverInfo.dokku} detected
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Alert>
+          )}
+
+          {showConnectionError && (
+            <Alert variant='destructive'>
+              <XCircle className='h-4 w-4' />
+              <AlertDescription>
+                <div className='space-y-2'>
+                  <p className='font-medium'>Tailscale connection failed</p>
+                  <div className='space-y-1 text-xs'>
+                    <p>
+                      Network accessible:{' '}
+                      {connectionStatus?.portIsOpen ? '✓' : '✗'}
+                    </p>
+                    <p>
+                      SSH connection:{' '}
+                      {connectionStatus?.sshConnected ? '✓' : '✗'}
+                    </p>
+                  </div>
+                  <p className='text-sm opacity-90'>
+                    {connectionStatus?.error}
+                  </p>
+                  <p className='text-xs opacity-75'>
+                    Please verify your Tailscale configuration and try again
+                  </p>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <div className='flex w-full items-center justify-end'>
+          <Button type='submit' disabled={isUpdatingServer || !canSave}>
+            {isUpdatingServer ? (
+              'Updating Server...'
+            ) : criticalFieldsChanged && !hasTestedConnection ? (
+              'Test Connection First'
+            ) : canSave ? (
+              <>
+                <CheckCircle className='mr-2 h-4 w-4' />
+                Update Server
+              </>
+            ) : (
+              'Fix Connection Issues'
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }
 
