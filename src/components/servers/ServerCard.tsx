@@ -6,7 +6,6 @@ import { format, formatDistanceToNow } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
-  Clock,
   Cloud,
   Ellipsis,
   HardDrive,
@@ -20,7 +19,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -202,7 +200,7 @@ const ServerCard = ({
           </CardContent>
 
           {/* Footer Section */}
-          {server.connection && (
+          {/* {server.connection && (
             <CardFooter className='pb-4 pt-0'>
               <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>
                 <Clock className='h-4 w-4' />
@@ -222,7 +220,7 @@ const ServerCard = ({
                 </TooltipProvider>
               </div>
             </CardFooter>
-          )}
+          )} */}
         </Card>
 
         {/* Clickable Overlay */}
