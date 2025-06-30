@@ -752,9 +752,7 @@ export const updateVolumesAction = protectedClient
     if (
       updatedService &&
       typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object' &&
-      project?.server?.preferConnectionType === 'ssh'
+      typeof project?.server === 'object'
     ) {
       await updateVolumesQueue({
         restart: true,
