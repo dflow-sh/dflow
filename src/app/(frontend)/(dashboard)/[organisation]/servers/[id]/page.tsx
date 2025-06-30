@@ -16,6 +16,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
+import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
 import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -75,6 +76,10 @@ const UpdateServerForm = ({
         formType='update'
       />
     )
+  }
+
+  if (server.preferConnectionType === 'tailscale') {
+    return <UpdateTailscaleServerForm server={server} formType='update' />
   }
 
   return (
