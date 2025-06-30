@@ -46,13 +46,16 @@ interface PageProps {
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
   if (server.connection?.status === 'success') return null
 
+  const connectionTypeLabel =
+    server.preferConnectionType === 'tailscale' ? 'Tailscale' : 'SSH'
+
   return (
     <Alert variant='destructive'>
       <ScreenShareOff className='h-4 w-4' />
-      <AlertTitle>SSH connection failed</AlertTitle>
+      <AlertTitle>{connectionTypeLabel} connection failed</AlertTitle>
       <AlertDescription>
-        Failed to establish connection to server, please check the server
-        details
+        Failed to establish connection to server via {connectionTypeLabel}.
+        Please check the server details.
       </AlertDescription>
     </Alert>
   )
