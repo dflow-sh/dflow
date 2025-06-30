@@ -41,6 +41,19 @@ import { Server } from '@/payload-types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
+const TooltipIcon = () => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Check server configuration or network status.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+)
+
 const ServerCard = ({
   server,
   organisationSlug,
@@ -121,16 +134,7 @@ const ServerCard = ({
                 <Badge
                   variant='destructive'
                   className='flex items-center gap-1.5 text-xs'>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Check server configuration or network status.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <TooltipIcon />
                   Disconnected
                 </Badge>
               )}

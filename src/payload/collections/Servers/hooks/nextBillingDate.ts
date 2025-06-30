@@ -25,7 +25,7 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
     return doc
   }
 
-  let token: string | undefined = undefined
+  let token: string | undefined
   try {
     if (typeof doc.cloudProviderAccount === 'object') {
       token = doc.cloudProviderAccount?.dFlowDetails?.accessToken
@@ -64,7 +64,6 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
           next_billing_date: updatedNextBillingDate,
         },
       },
-      draft: (doc as any)._status === 'draft',
     })
 
     if (!doc.dflowVpsDetails) {
