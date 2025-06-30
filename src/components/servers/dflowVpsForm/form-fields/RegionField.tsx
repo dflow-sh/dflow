@@ -72,7 +72,7 @@ export const RegionField = () => {
         render={({ field }) => {
           return (
             <FormItem>
-              <FormLabel>
+              <FormLabel className='mb-3 text-lg font-semibold text-foreground'>
                 Region <span className='text-destructive'>*</span>
               </FormLabel>
 
@@ -102,10 +102,9 @@ export const RegionField = () => {
                     )
 
                     return (
-                      <FormItem>
+                      <FormItem key={region.regionCode}>
                         <FormControl>
                           <div
-                            key={region.regionCode}
                             className={`relative flex items-start rounded-md border ${
                               field?.value === region.regionCode
                                 ? 'border-2 border-primary'

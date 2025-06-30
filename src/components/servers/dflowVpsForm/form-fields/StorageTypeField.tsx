@@ -26,7 +26,7 @@ export const StorageTypeField = () => {
         render={({ field }) => {
           return (
             <FormItem>
-              <FormLabel>
+              <FormLabel className='mb-3 text-lg font-semibold text-foreground'>
                 Storage <span className='text-destructive'>*</span>
               </FormLabel>
 
@@ -51,10 +51,9 @@ export const StorageTypeField = () => {
                   className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
                   {vpsPlan?.storageOptions?.map(storage => {
                     return (
-                      <FormItem>
+                      <FormItem key={storage.productId}>
                         <FormControl>
                           <div
-                            key={storage.productId}
                             className={`relative flex items-start rounded-md border ${
                               field?.value === storage.productId
                                 ? 'border-2 border-primary'
