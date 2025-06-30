@@ -19,7 +19,6 @@ import { Form } from '@/components/ui/form'
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
-import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
@@ -113,7 +112,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <TermLengthSection />
           <RegionField />
           <StorageTypeField />
-          <ImageSelection />
+          {/* <ImageSelection /> */}
           <ImageVersionField />
           {/* <LoginDetailsSection /> */}
           {/* <SshKeySection /> */}
