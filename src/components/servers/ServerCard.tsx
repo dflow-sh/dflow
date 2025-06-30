@@ -1,6 +1,5 @@
 'use client'
 
-import { Alert } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -13,13 +12,10 @@ import {
   HardDrive,
   Server as ServerIcon,
   Trash2,
-  WifiOff,
 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { getVpsOrderByInstanceIdAction } from '@/actions/cloud'
 import {
   Card,
   CardContent,
@@ -61,15 +57,6 @@ const ServerCard = ({
         addSuffix: true,
       })
     : 'unknown'
-  const instanceId = server?.dflowVpsDetails?.instanceId
-
-  const { execute, result } = useAction(getVpsOrderByInstanceIdAction)
-
-  useEffect(() => {
-    if (instanceId != null) {
-      execute({ instanceId })
-    }
-  }, [instanceId])
 
   return (
     <>
@@ -131,8 +118,19 @@ const ServerCard = ({
                   </Badge>
                 )
               ) : (
-                <Badge variant='destructive' className='text-xs'>
-                  <div className='mr-1.5 h-2 w-2 rounded-full bg-red-400' />
+                <Badge
+                  variant='destructive'
+                  className='flex items-center gap-1.5 text-xs'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Check server configuration or network status.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   Disconnected
                 </Badge>
               )}
@@ -167,18 +165,18 @@ const ServerCard = ({
 
               {/* Dflow Expiry Date */}
               {server?.provider.toLowerCase() === 'dflow' &&
-                result?.data?.next_billing_date && (
+                server?.dflowVpsDetails?.next_billing_date && (
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                       <Calendar className='h-4 w-4' />
-                      <span>Valid Until</span>
+                      <span>Next Billing</span>
                     </div>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className='cursor-help text-sm'>
                             {format(
-                              result?.data?.next_billing_date,
+                              server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
                             )}
                           </span>
@@ -187,7 +185,7 @@ const ServerCard = ({
                           <p>
                             Dflow instance expires on{' '}
                             {format(
-                              result?.data?.next_billing_date,
+                              server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
                             )}
                           </p>
@@ -196,28 +194,6 @@ const ServerCard = ({
                     </TooltipProvider>
                   </div>
                 )}
-
-              {/* Connection Error */}
-              {!isConnected && (
-                <Alert variant='destructive' className='px-2 py-2 text-xs'>
-                  <div className='flex flex-row items-center justify-between gap-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                      <WifiOff className='h-4 w-4' />
-                      <span>Connection Error</span>
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <AlertCircle className='h-4 w-4 cursor-help' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Check server configuration or network status.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Alert>
-              )}
             </div>
           </CardContent>
 
@@ -225,7 +201,7 @@ const ServerCard = ({
           {server.connection && (
             <CardFooter className='pb-4 pt-0'>
               <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>
-                <Clock className='h-3 w-3' />
+                <Clock className='h-4 w-4' />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
