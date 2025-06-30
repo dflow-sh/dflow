@@ -2,13 +2,25 @@
 
 set -e  # Exit on error
 
+# Arguments
+TAILSCALE_AUTH_KEY="$1"
+DOKKU_VERSION="$2"
+
 # Log everything to console + file + syslog
 exec > >(tee -a /var/log/dflow-bootstrap.log | logger -t dflow-init -s) 2>&1
 
-echo "[+] Installing Dokku v0.35.20"
+echo "[+] Installing Tailscale"
+curl -fsSL https://tailscale.com/install.sh | sh
+
+echo "[+] Starting Tailscale with tags"
+tailscale up \
+  --authkey "$TAILSCALE_AUTH_KEY" \
+  --ssh \
+  --advertise-tags=tag:customer-machine
+
+echo "[+] Installing Dokku $DOKKU_VERSION"
 wget -NP . https://dokku.com/bootstrap.sh --inet4-only
-DOKKU_TAG="v0.35.20"
-sudo DOKKU_TAG=$DOKKU_TAG bash bootstrap.sh
+sudo DOKKU_TAG="v$DOKKU_VERSION" bash bootstrap.sh
 
 echo "[+] Clearing global Dokku domain"
 dokku domains:clear-global
