@@ -104,7 +104,6 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='flex flex-col space-y-5'>
-      s
       <SSHConnectionAlert server={server} />
       <ServerDetails serverDetails={serverDetails} server={server} />
       <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
