@@ -204,21 +204,19 @@ export const installDokkuAction = protectedClient
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
 
-    if (typeof serverDetails.sshKey === 'object') {
-      const installationResponse = await addInstallDokkuQueue({
-        serverDetails: {
-          id: serverId,
-          provider: serverDetails.provider,
-        },
-        sshDetails,
-        tenant: {
-          slug: userTenant.tenant.slug,
-        },
-      })
+    const installationResponse = await addInstallDokkuQueue({
+      serverDetails: {
+        id: serverId,
+        provider: serverDetails.provider,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
 
-      if (installationResponse.id) {
-        return { success: true }
-      }
+    if (installationResponse.id) {
+      return { success: true }
     }
   })
 

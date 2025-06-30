@@ -47,11 +47,7 @@ export const triggerDeployment = async ({
     },
   })
 
-  if (
-    typeof project === 'object' &&
-    typeof project?.server === 'object' &&
-    typeof project?.server?.sshKey === 'object'
-  ) {
+  if (typeof project === 'object' && typeof project?.server === 'object') {
     const sshDetails = extractSSHDetails({ project })
 
     if (type === 'app') {

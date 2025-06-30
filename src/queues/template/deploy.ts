@@ -128,8 +128,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
 
           if (
             typeof project === 'object' &&
-            typeof project?.server === 'object' &&
-            typeof project?.server?.sshKey === 'object'
+            typeof project?.server === 'object'
           ) {
             const sshDetails = extractSSHDetails({ project })
 

@@ -64,20 +64,18 @@ export const uninstallNetdataAction = protectedClient
       depth: 10,
     })
 
-    if (typeof serverDetails.sshKey === 'object') {
-      const sshDetails = extractSSHDetails({ server: serverDetails })
-      const uninstallResponse = await addUninstallNetdataQueue({
-        serverDetails: {
-          id: serverId,
-        },
-        sshDetails,
-        tenant: {
-          slug: userTenant.tenant.slug,
-        },
-      })
+    const sshDetails = extractSSHDetails({ server: serverDetails })
+    const uninstallResponse = await addUninstallNetdataQueue({
+      serverDetails: {
+        id: serverId,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
 
-      if (uninstallResponse.id) {
-        return { success: true }
-      }
+    if (uninstallResponse.id) {
+      return { success: true }
     }
   })
