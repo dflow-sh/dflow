@@ -111,7 +111,7 @@ const SuspendedPage = async ({
               operations, including service creation and deployment, are
               unavailable until the connection is restored.{' '}
               <Link
-                href={`${organisation}/servers/${project.server.id}`}
+                href={`/${organisation}/servers/${project.server.id}`}
                 className='text-sm font-normal text-primary hover:text-primary hover:underline hover:underline-offset-4'>
                 Go to server settings
               </Link>
