@@ -11,7 +11,6 @@ import {
   Info,
   MemoryStick,
   Server,
-  Terminal,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
@@ -345,7 +344,7 @@ const ServerDetails = ({
               </DrawerContent>
             </Drawer>
           )}
-          {server.connection?.status === 'success' && (
+          {/* {server.connection?.status === 'success' && (
             <TerminalButton
               variant='outline'
               size='sm'
@@ -354,7 +353,7 @@ const ServerDetails = ({
               <Terminal className='mr-1 h-3 w-3' />
               <span className='text-xs'>Open Terminal</span>
             </TerminalButton>
-          )}
+          )} */}
         </div>
       </div>
 

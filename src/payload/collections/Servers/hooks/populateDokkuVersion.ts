@@ -99,7 +99,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
             }
           }
 
-          if (!doc.publicIp) {
+          if (!doc.publicIp || !doc.tailscalePrivateIp) {
             try {
               // Get public IP from external service
               const { stdout: publicIpOut } = await ssh.execCommand(
@@ -120,6 +120,9 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
               const tailscaleIp = ipJson
                 .find((iface: any) => iface.ifname === 'tailscale0')
                 ?.addr_info?.find((addr: any) => addr.family === 'inet')?.local
+
+              console.log('tailscaleIp:', tailscaleIp)
+
               if (tailscaleIp) {
                 newTailscaleIp = tailscaleIp
                 shouldUpdateTailscaleIp = true
