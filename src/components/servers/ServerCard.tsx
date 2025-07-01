@@ -2,11 +2,10 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
-  Clock,
   Cloud,
   Ellipsis,
   HardDrive,
@@ -22,7 +21,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -55,12 +53,6 @@ const ServerCard = ({
   const isConnected = connectionStatus === 'success'
   const isOnboarded = server.onboarded === true
   const isCloudInitRunning = server.cloudInitStatus === 'running'
-
-  const lastChecked = server.connection?.lastChecked
-    ? formatDistanceToNow(new Date(server.connection.lastChecked), {
-        addSuffix: true,
-      })
-    : 'unknown'
 
   // Check if server is in provisioning state (dFlow specific)
   const isProvisioning =
@@ -289,7 +281,7 @@ const ServerCard = ({
           </CardContent>
 
           {/* Footer Section */}
-          {server.connection && (
+          {/* {server.connection && (
             <CardFooter className='pb-4 pt-0'>
               <div className='z-10 flex w-full items-center gap-2 text-xs text-muted-foreground'>
                 <Clock className='h-3 w-3' />
@@ -309,7 +301,7 @@ const ServerCard = ({
                 </TooltipProvider>
               </div>
             </CardFooter>
-          )}
+          )} */}
         </Card>
 
         {/* Clickable Overlay */}

@@ -19,9 +19,10 @@ export const DisplayNameField = () => {
         name='displayName'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
+            <FormLabel className='mb-3 text-lg font-semibold text-foreground'>
               Display Name <span className='text-destructive'>*</span>
             </FormLabel>
+
             <FormControl>
               <Input {...field} className='w-full bg-background' type='text' />
             </FormControl>

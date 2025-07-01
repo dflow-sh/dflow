@@ -1,11 +1,5 @@
+import { handleGenerateName } from '../servers/dflowVpsForm/utils'
 import { Dices } from 'lucide-react'
-import {
-  Config,
-  NumberDictionary,
-  adjectives,
-  animals,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -26,19 +20,6 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { CloudProviderAccount } from '@/payload-types'
-
-export const handleGenerateName = (): string => {
-  const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
-
-  const nameConfig: Config = {
-    dictionaries: [['dFlow'], adjectives, animals, numberDictionary],
-    separator: '-',
-    length: 4,
-    style: 'lowerCase',
-  }
-
-  return uniqueNamesGenerator(nameConfig)
-}
 
 const BasicInfoSection = ({
   form,

@@ -1,11 +1,5 @@
 import { Skeleton } from '../../ui/skeleton'
-import {
-  AlertCircle,
-  CheckCircle,
-  RefreshCw,
-  Server,
-  XCircle,
-} from 'lucide-react'
+import { AlertCircle, CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 
@@ -82,7 +76,6 @@ export const AccountConnectionStatus = () => {
             <div className='flex-1 space-y-2'>
               <div className='flex items-center gap-4 text-sm'>
                 <div className='flex items-center gap-2'>
-                  <Server className='h-4 w-4' />
                   <span>
                     {connectionStatus.isConnected
                       ? 'Account connected successfully'

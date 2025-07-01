@@ -208,7 +208,7 @@ export const checkPaymentMethodAction = protectedClient
     )
 
     const cardsData = cardsResponse.data
-    const validCardCount = cardsData.totalDocs || []
+    const validCardCount = cardsData.totalDocs || 0
 
     return {
       walletBalance,

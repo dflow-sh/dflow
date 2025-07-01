@@ -2,13 +2,6 @@
 
 import axios from 'axios'
 import { revalidatePath } from 'next/cache'
-import {
-  Config,
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
 
 import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
@@ -29,17 +22,6 @@ import {
   publicTemplateSchema,
   updateTemplateSchema,
 } from './validator'
-
-const handleGenerateName = (): string => {
-  const nameConfig: Config = {
-    dictionaries: [adjectives, animals, colors],
-    separator: '-',
-    length: 3,
-    style: 'lowerCase',
-  }
-
-  return uniqueNamesGenerator(nameConfig)
-}
 
 // This function specify the variable-type
 function classifyVariableType(value: string) {
