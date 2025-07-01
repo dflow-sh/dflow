@@ -38,6 +38,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           version: undefined,
         },
         railpack: undefined,
+        publicIp: doc.publicIp ?? undefined,
         connection: {
           status: 'failed',
           lastChecked: new Date().toString(),
@@ -58,6 +59,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
     // Attempt SSH connection if possible
     let shouldUpdateCloudInitStatus = false
+    let shouldUpdatePublicIp = false
+    let newPublicIp: string | undefined = undefined
     if (portIsOpen) {
       const ssh = await dynamicSSH(sshDetails)
 
@@ -92,11 +95,50 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
               console.log('Error checking cloud-init status:', cloudInitError)
             }
           }
+
+          if (!doc.publicIp) {
+            try {
+              // Get public IP from external service
+              const { stdout: publicIpOut } = await ssh.execCommand(
+                'curl -4 ifconfig.me',
+              )
+              const publicIp = publicIpOut.trim()
+
+              // Get all local IPs in JSON
+              const { stdout: ipAddrOut } = await ssh.execCommand('ip -j addr')
+              let ipJson: any[] = []
+              try {
+                ipJson = JSON.parse(ipAddrOut)
+              } catch (jsonErr) {
+                ipJson = []
+              }
+
+              const allIps: string[] = []
+              for (const iface of ipJson) {
+                if (iface.addr_info) {
+                  for (const addr of iface.addr_info) {
+                    if (addr.local) allIps.push(addr.local)
+                  }
+                }
+              }
+
+              if (publicIp && allIps.includes(publicIp)) {
+                newPublicIp = publicIp
+              } else {
+                newPublicIp = '999.999.999.999'
+              }
+
+              shouldUpdatePublicIp = true
+            } catch (publicIpErr) {
+              console.log('Error fetching public IP:', publicIpErr)
+            }
+          }
         }
 
         ssh.dispose()
       } catch (error) {
         console.log(`Connection error for ${doc.name}:`, error)
+
         try {
           ssh.dispose()
         } catch (disposeError) {
@@ -109,7 +151,11 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     const connectionStatusChanged =
       doc.connection?.status !== newConnectionStatus
 
-    if (connectionStatusChanged || shouldUpdateCloudInitStatus) {
+    if (
+      connectionStatusChanged ||
+      shouldUpdateCloudInitStatus ||
+      shouldUpdatePublicIp
+    ) {
       const updateData: Partial<Server> = {}
 
       if (connectionStatusChanged) {
@@ -123,6 +169,10 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         updateData.cloudInitStatus = 'other'
       }
 
+      if (shouldUpdatePublicIp) {
+        updateData.publicIp = newPublicIp
+      }
+
       setImmediate(() => {
         payload
           .update({
@@ -132,14 +182,13 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           })
           .catch(error => {
             console.log(
-              'Error updating server connection status and/or cloudInitStatus:',
+              'Error updating server connection status and/or cloudInitStatus and/or publicIp:',
               error,
             )
           })
       })
     }
 
-    // Return enriched server document
     return {
       ...doc,
       version: dokku,
@@ -151,6 +200,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         version: linuxVersion,
       },
       railpack,
+      publicIp: newPublicIp ?? doc.publicIp ?? undefined,
       connection: {
         status: sshConnected ? 'success' : 'failed',
         lastChecked: new Date().toString(),
@@ -158,7 +208,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     }
   } catch (error) {
     console.error('populateDokkuVersion error:', error)
-    // Return document with failed connection status
+
     return {
       ...doc,
       version: undefined,
@@ -170,6 +220,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         version: undefined,
       },
       railpack: undefined,
+      publicIp: doc.publicIp ?? undefined,
       connection: {
         status: 'failed',
         lastChecked: new Date().toString(),

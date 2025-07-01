@@ -266,6 +266,10 @@ export interface Server {
    */
   hostname?: string | null;
   /**
+   * The public IP address of the server.
+   */
+  publicIp?: string | null;
+  /**
    * Tailscale connection configuration. Fields are required when Tailscale is the preferred connection type.
    */
   tailscale?: {
@@ -290,10 +294,6 @@ export interface Server {
      */
     addresses?: string[] | null;
     /**
-     * Whether device is not allowed to accept connections over Tailscale
-     */
-    blocksIncomingConnections?: boolean | null;
-    /**
      * Operating system the device is running (e.g., linux)
      */
     os?: string | null;
@@ -301,10 +301,6 @@ export interface Server {
      * When the device was added to the tailnet
      */
     created?: string | null;
-    /**
-     * Tailscale authentication key (one-time use)
-     */
-    authKey?: string | null;
     /**
      * Expiration date of the device auth key
      */
@@ -1271,6 +1267,7 @@ export interface ServersSelect<T extends boolean = true> {
   port?: T;
   username?: T;
   hostname?: T;
+  publicIp?: T;
   tailscale?:
     | T
     | {
@@ -1279,10 +1276,8 @@ export interface ServersSelect<T extends boolean = true> {
         name?: T;
         tailscaleHostname?: T;
         addresses?: T;
-        blocksIncomingConnections?: T;
         os?: T;
         created?: T;
-        authKey?: T;
         expires?: T;
         completeApiResponse?: T;
       };
