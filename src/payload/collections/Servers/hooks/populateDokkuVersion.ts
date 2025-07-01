@@ -60,7 +60,10 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     // Attempt SSH connection if possible
     let shouldUpdateCloudInitStatus = false
     let shouldUpdatePublicIp = false
+    let shouldUpdateTailscaleIp = false
     let newPublicIp: string | undefined = undefined
+    let newTailscaleIp: string | undefined = undefined
+
     if (portIsOpen) {
       const ssh = await dynamicSSH(sshDetails)
 
@@ -113,6 +116,15 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
                 ipJson = []
               }
 
+              // Extract Tailscale IP
+              const tailscaleIp = ipJson
+                .find((iface: any) => iface.ifname === 'tailscale0')
+                ?.addr_info?.find((addr: any) => addr.family === 'inet')?.local
+              if (tailscaleIp) {
+                newTailscaleIp = tailscaleIp
+                shouldUpdateTailscaleIp = true
+              }
+
               const allIps: string[] = []
               for (const iface of ipJson) {
                 if (iface.addr_info) {
@@ -154,7 +166,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     if (
       connectionStatusChanged ||
       shouldUpdateCloudInitStatus ||
-      shouldUpdatePublicIp
+      shouldUpdatePublicIp ||
+      shouldUpdateTailscaleIp
     ) {
       const updateData: Partial<Server> = {}
 
@@ -171,6 +184,13 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
       if (shouldUpdatePublicIp) {
         updateData.publicIp = newPublicIp
+      }
+
+      if (shouldUpdateTailscaleIp) {
+        updateData.tailscale = {
+          ...(doc.tailscale || {}),
+          tailnetPrivateIp: newTailscaleIp,
+        }
       }
 
       setImmediate(() => {
@@ -201,6 +221,10 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       },
       railpack,
       publicIp: newPublicIp ?? doc.publicIp ?? undefined,
+      tailscale: {
+        ...(doc.tailscale || {}),
+        tailnetPrivateIp: newTailscaleIp ?? doc.tailscale?.tailnetPrivateIp,
+      },
       connection: {
         status: sshConnected ? 'success' : 'failed',
         lastChecked: new Date().toString(),

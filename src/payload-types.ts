@@ -294,6 +294,10 @@ export interface Server {
      */
     addresses?: string[] | null;
     /**
+     * The primary Tailscale (tailnet) private IPv4 address of the device
+     */
+    tailnetPrivateIp?: string | null;
+    /**
      * Operating system the device is running (e.g., linux)
      */
     os?: string | null;
@@ -1276,6 +1280,7 @@ export interface ServersSelect<T extends boolean = true> {
         name?: T;
         tailscaleHostname?: T;
         addresses?: T;
+        tailnetPrivateIp?: T;
         os?: T;
         created?: T;
         expires?: T;

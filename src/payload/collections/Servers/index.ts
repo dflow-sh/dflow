@@ -235,6 +235,15 @@ export const Servers: CollectionConfig = {
           },
         },
         {
+          name: 'tailnetPrivateIp',
+          type: 'text',
+          label: 'Tailnet Private IP',
+          admin: {
+            description:
+              'The primary Tailscale (tailnet) private IPv4 address of the device',
+          },
+        },
+        {
           name: 'os',
           type: 'text',
           label: 'Operating System',
