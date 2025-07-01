@@ -110,7 +110,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             headers: {
               Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
-            timeout: 30000,
+            timeout: 200000, // 2 mins of timeout!
           },
         )
 
