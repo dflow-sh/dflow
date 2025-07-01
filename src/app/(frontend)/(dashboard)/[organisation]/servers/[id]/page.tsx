@@ -107,7 +107,7 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
           host:
             server.preferConnectionType === 'ssh'
               ? (server.ip ?? '')
-              : (server.tailscale?.addresses?.at(0) ?? ''),
+              : (server.publicIp ?? ''),
         }),
       )
     : {}

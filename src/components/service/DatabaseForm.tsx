@@ -67,7 +67,7 @@ const DatabaseForm = ({
             host,
             server.preferConnectionType === 'ssh'
               ? (server.ip ?? '')
-              : (server.tailscale?.addresses?.at(0) ?? ''),
+              : (server.publicIp ?? ''),
           )
           .replace(port, exposedPort)
       : ''

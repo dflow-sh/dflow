@@ -76,8 +76,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
           ip={
             typeof server === 'object'
               ? server.preferConnectionType === 'ssh'
-                ? `${server.ip}`
-                : `${server.tailscale?.addresses?.at(0)}`
+                ? (server.ip ?? '')
+                : (server.publicIp ?? '')
               : ''
           }
         />

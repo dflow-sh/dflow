@@ -50,7 +50,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         host:
           server.preferConnectionType === 'ssh'
             ? (server.ip ?? '')
-            : (server.tailscale?.addresses?.at(0) ?? ''),
+            : (server.publicIp ?? ''),
       })
 
       if (response) {
@@ -78,7 +78,7 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         host:
           server.preferConnectionType === 'ssh'
             ? (server.ip ?? '')
-            : (server.tailscale?.addresses?.at(0) ?? ''),
+            : (server.publicIp ?? ''),
       })
 
       if (response.success) {
