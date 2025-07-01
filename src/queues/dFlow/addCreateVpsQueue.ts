@@ -229,6 +229,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             >['status'],
           },
           hostname: createdVpsOrder?.instanceResponse?.name,
+          cloudInitStatus: 'running',
         }
 
         const createdServer = await payload.create({
