@@ -171,6 +171,26 @@ export const Servers: CollectionConfig = {
       },
     },
     {
+      name: 'publicIp',
+      type: 'text',
+      label: 'Public IP Address',
+      admin: {
+        description: 'The public IP address of the server.',
+        condition: data => {
+          return data.preferConnectionType === 'tailscale'
+        },
+      },
+    },
+    {
+      name: 'tailscalePrivateIp',
+      type: 'text',
+      label: 'Tailscale Private IP',
+      admin: {
+        description:
+          'The primary Tailscale (tailnet) private IPv4 address of the device',
+      },
+    },
+    {
       name: 'tailscale',
       type: 'group',
       label: 'Tailscale Configuration',
@@ -224,16 +244,6 @@ export const Servers: CollectionConfig = {
           },
         },
         {
-          name: 'blocksIncomingConnections',
-          type: 'checkbox',
-          label: 'Blocks Incoming Connections',
-          defaultValue: false,
-          admin: {
-            description:
-              'Whether device is not allowed to accept connections over Tailscale',
-          },
-        },
-        {
           name: 'os',
           type: 'text',
           label: 'Operating System',
@@ -250,14 +260,6 @@ export const Servers: CollectionConfig = {
             date: {
               pickerAppearance: 'dayAndTime',
             },
-          },
-        },
-        {
-          name: 'authKey',
-          type: 'text',
-          label: 'Auth Key',
-          admin: {
-            description: 'Tailscale authentication key (one-time use)',
           },
         },
         {
