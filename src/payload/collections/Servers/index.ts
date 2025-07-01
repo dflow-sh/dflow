@@ -182,6 +182,15 @@ export const Servers: CollectionConfig = {
       },
     },
     {
+      name: 'tailscalePrivateIp',
+      type: 'text',
+      label: 'Tailscale Private IP',
+      admin: {
+        description:
+          'The primary Tailscale (tailnet) private IPv4 address of the device',
+      },
+    },
+    {
       name: 'tailscale',
       type: 'group',
       label: 'Tailscale Configuration',
@@ -232,15 +241,6 @@ export const Servers: CollectionConfig = {
           hasMany: true,
           admin: {
             description: 'List of Tailscale IP addresses (IPv4 and IPv6)',
-          },
-        },
-        {
-          name: 'tailnetPrivateIp',
-          type: 'text',
-          label: 'Tailnet Private IP',
-          admin: {
-            description:
-              'The primary Tailscale (tailnet) private IPv4 address of the device',
           },
         },
         {

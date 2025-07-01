@@ -187,10 +187,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
 
       if (shouldUpdateTailscaleIp) {
-        updateData.tailscale = {
-          ...(doc.tailscale || {}),
-          tailnetPrivateIp: newTailscaleIp,
-        }
+        updateData.tailscalePrivateIp = newTailscaleIp
       }
 
       setImmediate(() => {
@@ -221,10 +218,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       },
       railpack,
       publicIp: newPublicIp ?? doc.publicIp ?? undefined,
-      tailscale: {
-        ...(doc.tailscale || {}),
-        tailnetPrivateIp: newTailscaleIp ?? doc.tailscale?.tailnetPrivateIp,
-      },
+      tailscalePrivateIp: newTailscaleIp ?? doc.tailscalePrivateIp,
       connection: {
         status: sshConnected ? 'success' : 'failed',
         lastChecked: new Date().toString(),
