@@ -80,6 +80,7 @@ export const servicesToTemplate = (
               ? service.provider
               : undefined,
         builder: service.builder || 'railpack',
+        volumes: service.volumes || [],
       }),
       ...(service.type === 'database' && {
         databaseDetails: service.databaseDetails
@@ -99,6 +100,7 @@ export const servicesToTemplate = (
               ports: service.dockerDetails.ports,
             }
           : undefined,
+        volumes: service.volumes || [],
       }),
     }
   })
