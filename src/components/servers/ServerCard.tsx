@@ -12,6 +12,7 @@ import {
   Ellipsis,
   HardDrive,
   Server as ServerIcon,
+  Settings,
   Trash2,
   WifiOff,
 } from 'lucide-react'
@@ -56,6 +57,8 @@ const ServerCard = ({
   const connectionStatus = server.connection?.status || 'unknown'
   const isConnected = connectionStatus === 'success'
   const isOnboarded = server.onboarded === true
+  const isCloudInitRunning = server.cloudInitStatus === 'running'
+
   const lastChecked = server.connection?.lastChecked
     ? formatDistanceToNow(new Date(server.connection.lastChecked), {
         addSuffix: true,
@@ -71,17 +74,72 @@ const ServerCard = ({
     }
   }, [instanceId])
 
+  // Determine status based on priority logic
+  const getServerStatus = () => {
+    // Priority 1: Connection failed
+    if (!isConnected) {
+      return {
+        type: 'disconnected',
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        badge: {
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          dotColor: 'bg-red-400',
+          icon: WifiOff,
+        },
+      }
+    }
+
+    // Priority 2: Connection success + CloudInit running
+    if (isConnected && isCloudInitRunning) {
+      return {
+        type: 'initializing',
+        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+        badge: {
+          variant: 'secondary' as const,
+          text: 'Initializing',
+          dotColor: 'bg-blue-400',
+          icon: Settings,
+        },
+      }
+    }
+
+    // Priority 3: Connection success + CloudInit done + Not onboarded
+    if (isConnected && !isCloudInitRunning && !isOnboarded) {
+      return {
+        type: 'onboarding',
+        borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+        badge: {
+          variant: 'warning' as const,
+          text: 'Onboarding Pending',
+          dotColor: 'bg-amber-400',
+          icon: AlertCircle,
+        },
+      }
+    }
+
+    // Priority 4: Connection success + CloudInit done + Onboarded
+    return {
+      type: 'connected',
+      borderColor: 'border-l-green-500 hover:border-l-green-600',
+      badge: {
+        variant: 'success' as const,
+        text: 'Connected',
+        dotColor: 'bg-green-400',
+        icon: null,
+      },
+    }
+  }
+
+  const serverStatus = getServerStatus()
+
   return (
     <>
       <div className='relative'>
         <Card
           className={cn(
             'h-full min-h-48 border-l-4 transition-all duration-200 hover:shadow-md',
-            isConnected
-              ? isOnboarded
-                ? 'border-l-green-500 hover:border-l-green-600'
-                : 'border-l-amber-500 hover:border-l-amber-600'
-              : 'border-l-red-500 hover:border-l-red-600',
+            serverStatus.borderColor,
           )}>
           {/* Header Section */}
           <CardHeader className='pb-4'>
@@ -118,24 +176,18 @@ const ServerCard = ({
 
             {/* Status Badge */}
             <div className='flex justify-start'>
-              {isConnected ? (
-                isOnboarded ? (
-                  <Badge variant='success' className='text-xs'>
-                    <div className='mr-1.5 h-2 w-2 rounded-full bg-green-400' />
-                    Connected
-                  </Badge>
-                ) : (
-                  <Badge variant='warning' className='text-xs'>
-                    <div className='mr-1.5 h-2 w-2 rounded-full bg-amber-400' />
-                    Onboarding Pending
-                  </Badge>
-                )
-              ) : (
-                <Badge variant='destructive' className='text-xs'>
-                  <div className='mr-1.5 h-2 w-2 rounded-full bg-red-400' />
-                  Disconnected
-                </Badge>
-              )}
+              <Badge variant={serverStatus.badge.variant} className='text-xs'>
+                <div
+                  className={cn(
+                    'mr-1.5 h-2 w-2 rounded-full',
+                    serverStatus.badge.dotColor,
+                  )}
+                />
+                {serverStatus.badge.icon && (
+                  <serverStatus.badge.icon className='mr-1 h-3 w-3' />
+                )}
+                {serverStatus.badge.text}
+              </Badge>
             </div>
           </CardHeader>
 
@@ -197,9 +249,9 @@ const ServerCard = ({
                   </div>
                 )}
 
-              {/* Connection Error */}
-              {!isConnected && (
-                <Alert variant='destructive' className='px-2 py-2 text-xs'>
+              {/* Status-specific alerts */}
+              {serverStatus.type === 'disconnected' && (
+                <Alert variant='destructive' className='z-10 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <WifiOff className='h-4 w-4' />
@@ -212,6 +264,57 @@ const ServerCard = ({
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>Check server configuration or network status.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </Alert>
+              )}
+
+              {serverStatus.type === 'initializing' && (
+                <Alert
+                  variant='default'
+                  className='z-10 border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
+                  <div className='flex flex-row items-center justify-between gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                      <Settings className='h-4 w-4 text-blue-600' />
+                      <span className='text-blue-700'>Server Initializing</span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <AlertCircle className='h-4 w-4 cursor-help text-blue-600' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Cloud-init is running. Please wait for
+                            initialization to complete.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </Alert>
+              )}
+
+              {serverStatus.type === 'onboarding' && (
+                <Alert
+                  variant='default'
+                  className='z-10 border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
+                  <div className='flex flex-row items-center justify-between gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                      <AlertCircle className='h-4 w-4 text-amber-600' />
+                      <span className='text-amber-700'>
+                        Onboarding Required
+                      </span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <AlertCircle className='h-4 w-4 cursor-help text-amber-600' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Server is connected but needs to be onboarded.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
