@@ -7,8 +7,10 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
+import RefreshButton from '@/components/RefreshButton'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
+import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
@@ -286,7 +288,31 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   return (
     <LayoutClient server={server} servers={servers}>
-      {server.onboarded ? renderTab() : <Onboarding />}
+      <div className='mb-5 flex items-center justify-between'>
+        <div className='flex items-center text-2xl font-semibold'>
+          Server Details
+        </div>
+        <div className='flex gap-2'>
+          <RefreshButton />
+        </div>
+      </div>
+      {/* If server connection fails, show tabs regardless of cloud-init status */}
+      {/* If server connection succeeds, show cloud-init banner if running, otherwise show tabs */}
+      {server.connection?.status !== 'success' ? (
+        server.onboarded ? (
+          renderTab()
+        ) : (
+          <Onboarding />
+        )
+      ) : server.cloudInitStatus === 'running' ? (
+        <CloudInitStatusBanner
+          cloudInitStatus={server.cloudInitStatus ?? undefined}
+        />
+      ) : server.onboarded ? (
+        renderTab()
+      ) : (
+        <Onboarding />
+      )}
     </LayoutClient>
   )
 }
