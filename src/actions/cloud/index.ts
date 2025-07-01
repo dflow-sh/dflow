@@ -65,7 +65,7 @@ export const syncDflowServersAction = protectedClient
 
       // 1. Fetching all servers
       const ordersResponse = await axios.get(
-        `${DFLOW_CONFIG.URL}/api/vpsOrders`,
+        `${DFLOW_CONFIG.URL}/api/vpsOrders?pagination=false`,
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
