@@ -1,6 +1,5 @@
 'use client'
 
-import { Alert } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -44,19 +43,6 @@ import { Server } from '@/payload-types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
-const TooltipIcon = () => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Check server configuration or network status.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-)
-
 const ServerCard = ({
   server,
   organisationSlug,
@@ -78,8 +64,7 @@ const ServerCard = ({
 
   // Check if server is in provisioning state (dFlow specific)
   const isProvisioning =
-    typeof server.cloudProviderAccount === 'object' &&
-    server.cloudProviderAccount?.type === 'dFlow' &&
+    server?.provider?.toLowerCase() === 'dflow' &&
     server.dflowVpsDetails?.status === 'provisioning'
 
   // Determine status based on priority logic
@@ -92,8 +77,8 @@ const ServerCard = ({
         badge: {
           variant: 'destructive' as const,
           text: 'Disconnected',
-          dotColor: 'bg-red-400',
           icon: WifiOff,
+          tooltip: 'Check server configuration or network status.',
         },
       }
     }
@@ -106,8 +91,9 @@ const ServerCard = ({
         badge: {
           variant: 'secondary' as const,
           text: 'Provisioning',
-          dotColor: 'bg-purple-400',
           icon: Cloud,
+          tooltip:
+            'dFlow server is being provisioned. This may take a few minutes.',
         },
       }
     }
@@ -120,8 +106,9 @@ const ServerCard = ({
         badge: {
           variant: 'secondary' as const,
           text: 'Initializing',
-          dotColor: 'bg-blue-400',
           icon: Settings,
+          tooltip:
+            'Cloud-init is running. Please wait for initialization to complete.',
         },
       }
     }
@@ -133,22 +120,36 @@ const ServerCard = ({
         borderColor: 'border-l-amber-500 hover:border-l-amber-600',
         badge: {
           variant: 'warning' as const,
-          text: 'Onboarding Pending',
-          dotColor: 'bg-amber-400',
+          text: 'Onboarding Required',
           icon: AlertCircle,
+          tooltip: 'Server is connected but needs to be onboarded.',
         },
       }
     }
 
     // Priority 5: Connection success + CloudInit done + Onboarded
+    if (isConnected && !isCloudInitRunning && isOnboarded) {
+      return {
+        type: 'connected',
+        borderColor: 'border-l-green-500 hover:border-l-green-600',
+        badge: {
+          variant: 'success' as const,
+          text: 'Connected',
+          icon: null,
+          tooltip: null,
+        },
+      }
+    }
+
+    // Default fallback for unknown states
     return {
-      type: 'connected',
-      borderColor: 'border-l-green-500 hover:border-l-green-600',
+      type: 'unknown',
+      borderColor: 'border-l-gray-500 hover:border-l-gray-600',
       badge: {
-        variant: 'success' as const,
-        text: 'Connected',
-        dotColor: 'bg-green-400',
-        icon: null,
+        variant: 'secondary' as const,
+        text: 'Unknown Status',
+        icon: AlertCircle,
+        tooltip: 'Unable to determine server status.',
       },
     }
   }
@@ -196,20 +197,34 @@ const ServerCard = ({
               </DropdownMenu>
             </div>
 
-            {/* Status Badge */}
-            <div className='flex justify-start'>
-              <Badge variant={serverStatus.badge.variant} className='text-xs'>
-                <div
-                  className={cn(
-                    'mr-1.5 h-2 w-2 rounded-full',
-                    serverStatus.badge.dotColor,
+            {/* Combined Status Badge with Tooltip */}
+            <div className='z-10 flex justify-start'>
+              {serverStatus.badge.tooltip ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant={serverStatus.badge.variant}
+                        className='cursor-help text-xs'>
+                        {serverStatus.badge.icon && (
+                          <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
+                        )}
+                        {serverStatus.badge.text}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{serverStatus.badge.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <Badge variant={serverStatus.badge.variant} className='text-xs'>
+                  {serverStatus.badge.icon && (
+                    <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
                   )}
-                />
-                {serverStatus.badge.icon && (
-                  <serverStatus.badge.icon className='mr-1 h-3 w-3' />
-                )}
-                {serverStatus.badge.text}
-              </Badge>
+                  {serverStatus.badge.text}
+                </Badge>
+              )}
             </div>
           </CardHeader>
 
@@ -270,107 +285,6 @@ const ServerCard = ({
                     </TooltipProvider>
                   </div>
                 )}
-
-              {/* Status-specific alerts */}
-              {serverStatus.type === 'disconnected' && (
-                <Alert variant='destructive' className='z-10 px-2 py-2 text-xs'>
-                  <div className='flex flex-row items-center justify-between gap-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                      <WifiOff className='h-4 w-4' />
-                      <span>Connection Error</span>
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <AlertCircle className='h-4 w-4 cursor-help' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Check server configuration or network status.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Alert>
-              )}
-
-              {serverStatus.type === 'provisioning' && (
-                <Alert
-                  variant='default'
-                  className='z-10 border-purple-200 bg-purple-50 px-2 py-2 text-xs'>
-                  <div className='flex flex-row items-center justify-between gap-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                      <Cloud className='h-4 w-4 text-purple-600' />
-                      <span className='text-purple-700'>
-                        Server Provisioning
-                      </span>
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <AlertCircle className='h-4 w-4 cursor-help text-purple-600' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            dFlow server is being provisioned. This may take a
-                            few minutes.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Alert>
-              )}
-
-              {serverStatus.type === 'initializing' && (
-                <Alert
-                  variant='default'
-                  className='z-10 border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
-                  <div className='flex flex-row items-center justify-between gap-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                      <Settings className='h-4 w-4 text-blue-600' />
-                      <span className='text-blue-700'>Server Initializing</span>
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <AlertCircle className='h-4 w-4 cursor-help text-blue-600' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            Cloud-init is running. Please wait for
-                            initialization to complete.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Alert>
-              )}
-
-              {serverStatus.type === 'onboarding' && (
-                <Alert
-                  variant='default'
-                  className='z-10 border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
-                  <div className='flex flex-row items-center justify-between gap-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                      <AlertCircle className='h-4 w-4 text-amber-600' />
-                      <span className='text-amber-700'>
-                        Onboarding Required
-                      </span>
-                    </div>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <AlertCircle className='h-4 w-4 cursor-help text-amber-600' />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Server is connected but needs to be onboarded.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                </Alert>
-              )}
             </div>
           </CardContent>
 
