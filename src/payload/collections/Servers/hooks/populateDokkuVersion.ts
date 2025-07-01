@@ -106,7 +106,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     }
 
     const newConnectionStatus = sshConnected ? 'success' : 'failed'
-    const connectionStatusChanged = doc.connection?.status !== newConnectionStatus
+    const connectionStatusChanged =
+      doc.connection?.status !== newConnectionStatus
 
     if (connectionStatusChanged || shouldUpdateCloudInitStatus) {
       const updateData: Partial<Server> = {}
@@ -152,7 +153,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       railpack,
       connection: {
         status: sshConnected ? 'success' : 'failed',
-        // lastChecked: new Date().toString(),
+        lastChecked: new Date().toString(),
       },
     }
   } catch (error) {

@@ -1,17 +1,20 @@
 'use client'
 
+import { Alert } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
+  Clock,
   Cloud,
   Ellipsis,
   HardDrive,
   Server as ServerIcon,
   Settings,
   Trash2,
+  WifiOff,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -20,6 +23,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -269,7 +273,7 @@ const ServerCard = ({
 
               {/* Status-specific alerts */}
               {serverStatus.type === 'disconnected' && (
-                <Alert variant='destructive' className='px-2 py-2 text-xs'>
+                <Alert variant='destructive' className='z-10 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <WifiOff className='h-4 w-4' />
@@ -292,7 +296,7 @@ const ServerCard = ({
               {serverStatus.type === 'provisioning' && (
                 <Alert
                   variant='default'
-                  className='border-purple-200 bg-purple-50 px-2 py-2 text-xs'>
+                  className='z-10 border-purple-200 bg-purple-50 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <Cloud className='h-4 w-4 text-purple-600' />
@@ -320,7 +324,7 @@ const ServerCard = ({
               {serverStatus.type === 'initializing' && (
                 <Alert
                   variant='default'
-                  className='border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
+                  className='z-10 border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <Settings className='h-4 w-4 text-blue-600' />
@@ -346,7 +350,7 @@ const ServerCard = ({
               {serverStatus.type === 'onboarding' && (
                 <Alert
                   variant='default'
-                  className='border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
+                  className='z-10 border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <AlertCircle className='h-4 w-4 text-amber-600' />
@@ -370,10 +374,10 @@ const ServerCard = ({
             </div>
           </CardContent>
 
-         {/* Footer Section */}
+          {/* Footer Section */}
           {server.connection && (
             <CardFooter className='pb-4 pt-0'>
-              <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>
+              <div className='z-10 flex w-full items-center gap-2 text-xs text-muted-foreground'>
                 <Clock className='h-3 w-3' />
                 <TooltipProvider>
                   <Tooltip>
