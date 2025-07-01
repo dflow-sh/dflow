@@ -1,5 +1,6 @@
 'use client'
 
+import { handleGenerateName } from '../servers/dflowVpsForm/utils'
 import SecretContent from '../ui/blur-reveal'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -26,8 +27,6 @@ import {
 } from '@/components/ui/form'
 import { slugify } from '@/lib/slugify'
 import { SshKey } from '@/payload-types'
-
-import { handleGenerateName } from './BasicInfoSection'
 
 // Helper function to determine key type from content
 const determineKeyType = (

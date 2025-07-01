@@ -94,7 +94,7 @@ export const RegionField = () => {
                       )
                     }
                   }}
-                  defaultValue={field?.value}
+                  value={field?.value}
                   className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
                   {vpsPlan?.regionOptions?.map(region => {
                     const flagDetails = flags.find(

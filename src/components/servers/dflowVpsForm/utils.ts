@@ -13,13 +13,13 @@ export const formatValue = (value: number, currency?: string): string =>
     maximumFractionDigits: 2,
   }).format(value)
 
-export const handleGenerateName = (): string => {
+export const handleGenerateName = (length: number = 4): string => {
   const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 })
 
   const nameConfig: Config = {
     dictionaries: [['dFlow'], adjectives, animals, numberDictionary],
     separator: '-',
-    length: 4,
+    length,
     style: 'lowerCase',
   }
 

@@ -273,7 +273,7 @@ export const DflowVpsFormProvider = ({
         backup => backup.price.type === 'included',
       )
 
-      const displayName = handleGenerateName()
+      const displayName = handleGenerateName(3)
 
       setValue('displayName', displayName, { shouldValidate: true })
       setValue(
@@ -361,10 +361,12 @@ export const DflowVpsFormProvider = ({
 
 export const useDflowVpsForm = () => {
   const context = useContext(DflowVpsFormContext)
+
   if (!context) {
     throw new Error(
       'useDflowVpsForm must be used within a DflowVpsFormProvider',
     )
   }
+
   return context
 }
