@@ -116,9 +116,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const { doc: createdVpsOrder } = createdVpsOrderRes
 
-        console.log(
-          `[${jobId}] VPS order created with ID: ${createdVpsOrder.id}`,
-        )
+        console.log(`[${jobId}] VPS order created: ${createdVpsOrder}`)
 
         // Step 2: Create server record in Payload
         const serverData: RequiredDataFromCollection<Server> = {
