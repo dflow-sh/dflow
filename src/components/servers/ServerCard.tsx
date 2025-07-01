@@ -6,11 +6,14 @@ import { format, formatDistanceToNow } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
+  Clock,
   Cloud,
   Ellipsis,
   HardDrive,
   Server as ServerIcon,
+  Settings,
   Trash2,
+  WifiOff,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -19,6 +22,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -39,19 +43,6 @@ import { Server } from '@/payload-types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
-const TooltipIcon = () => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Check server configuration or network status.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-)
-
 const ServerCard = ({
   server,
   organisationSlug,
@@ -63,11 +54,107 @@ const ServerCard = ({
   const connectionStatus = server.connection?.status || 'unknown'
   const isConnected = connectionStatus === 'success'
   const isOnboarded = server.onboarded === true
+  const isCloudInitRunning = server.cloudInitStatus === 'running'
+
   const lastChecked = server.connection?.lastChecked
     ? formatDistanceToNow(new Date(server.connection.lastChecked), {
         addSuffix: true,
       })
     : 'unknown'
+
+  // Check if server is in provisioning state (dFlow specific)
+  const isProvisioning =
+    server?.provider?.toLowerCase() === 'dflow' &&
+    server.dflowVpsDetails?.status === 'provisioning'
+
+  // Determine status based on priority logic
+  const getServerStatus = () => {
+    // Priority 1: Connection failed
+    if (!isConnected) {
+      return {
+        type: 'disconnected',
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        badge: {
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          icon: WifiOff,
+          tooltip: 'Check server configuration or network status.',
+        },
+      }
+    }
+
+    // Priority 2: Connection success + dFlow provisioning
+    if (isConnected && isProvisioning) {
+      return {
+        type: 'provisioning',
+        borderColor: 'border-l-purple-500 hover:border-l-purple-600',
+        badge: {
+          variant: 'secondary' as const,
+          text: 'Provisioning',
+          icon: Cloud,
+          tooltip:
+            'dFlow server is being provisioned. This may take a few minutes.',
+        },
+      }
+    }
+
+    // Priority 3: Connection success + CloudInit running
+    if (isConnected && isCloudInitRunning) {
+      return {
+        type: 'initializing',
+        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+        badge: {
+          variant: 'secondary' as const,
+          text: 'Initializing',
+          icon: Settings,
+          tooltip:
+            'Cloud-init is running. Please wait for initialization to complete.',
+        },
+      }
+    }
+
+    // Priority 4: Connection success + CloudInit done + Not onboarded
+    if (isConnected && !isCloudInitRunning && !isOnboarded) {
+      return {
+        type: 'onboarding',
+        borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+        badge: {
+          variant: 'warning' as const,
+          text: 'Onboarding Required',
+          icon: AlertCircle,
+          tooltip: 'Server is connected but needs to be onboarded.',
+        },
+      }
+    }
+
+    // Priority 5: Connection success + CloudInit done + Onboarded
+    if (isConnected && !isCloudInitRunning && isOnboarded) {
+      return {
+        type: 'connected',
+        borderColor: 'border-l-green-500 hover:border-l-green-600',
+        badge: {
+          variant: 'success' as const,
+          text: 'Connected',
+          icon: null,
+          tooltip: null,
+        },
+      }
+    }
+
+    // Default fallback for unknown states
+    return {
+      type: 'unknown',
+      borderColor: 'border-l-gray-500 hover:border-l-gray-600',
+      badge: {
+        variant: 'secondary' as const,
+        text: 'Unknown Status',
+        icon: AlertCircle,
+        tooltip: 'Unable to determine server status.',
+      },
+    }
+  }
+
+  const serverStatus = getServerStatus()
 
   return (
     <>
@@ -75,11 +162,7 @@ const ServerCard = ({
         <Card
           className={cn(
             'h-full min-h-48 border-l-4 transition-all duration-200 hover:shadow-md',
-            isConnected
-              ? isOnboarded
-                ? 'border-l-green-500 hover:border-l-green-600'
-                : 'border-l-amber-500 hover:border-l-amber-600'
-              : 'border-l-red-500 hover:border-l-red-600',
+            serverStatus.borderColor,
           )}>
           {/* Header Section */}
           <CardHeader className='pb-4'>
@@ -114,26 +197,32 @@ const ServerCard = ({
               </DropdownMenu>
             </div>
 
-            {/* Status Badge */}
-            <div className='flex justify-start'>
-              {isConnected ? (
-                isOnboarded ? (
-                  <Badge variant='success' className='text-xs'>
-                    <div className='mr-1.5 h-2 w-2 rounded-full bg-green-400' />
-                    Connected
-                  </Badge>
-                ) : (
-                  <Badge variant='warning' className='text-xs'>
-                    <div className='mr-1.5 h-2 w-2 rounded-full bg-amber-400' />
-                    Onboarding Pending
-                  </Badge>
-                )
+            {/* Combined Status Badge with Tooltip */}
+            <div className='z-10 flex justify-start'>
+              {serverStatus.badge.tooltip ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant={serverStatus.badge.variant}
+                        className='cursor-help text-xs'>
+                        {serverStatus.badge.icon && (
+                          <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
+                        )}
+                        {serverStatus.badge.text}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{serverStatus.badge.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               ) : (
-                <Badge
-                  variant='destructive'
-                  className='flex items-center gap-1.5 text-xs'>
-                  <TooltipIcon />
-                  Disconnected
+                <Badge variant={serverStatus.badge.variant} className='text-xs'>
+                  {serverStatus.badge.icon && (
+                    <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
+                  )}
+                  {serverStatus.badge.text}
                 </Badge>
               )}
             </div>
@@ -200,10 +289,10 @@ const ServerCard = ({
           </CardContent>
 
           {/* Footer Section */}
-          {/* {server.connection && (
+          {server.connection && (
             <CardFooter className='pb-4 pt-0'>
-              <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>
-                <Clock className='h-4 w-4' />
+              <div className='z-10 flex w-full items-center gap-2 text-xs text-muted-foreground'>
+                <Clock className='h-3 w-3' />
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -220,7 +309,7 @@ const ServerCard = ({
                 </TooltipProvider>
               </div>
             </CardFooter>
-          )} */}
+          )}
         </Card>
 
         {/* Clickable Overlay */}

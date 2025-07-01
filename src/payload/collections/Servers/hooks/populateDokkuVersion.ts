@@ -57,6 +57,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     let railpack: string | undefined | null
 
     // Attempt SSH connection if possible
+    let shouldUpdateCloudInitStatus = false
     if (portIsOpen) {
       const ssh = await dynamicSSH(sshDetails)
 
@@ -72,6 +73,25 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           linuxVersion = serverInfo.linuxDistributionVersion
           linuxType = serverInfo.linuxDistributionType
           railpack = serverInfo.railpackVersion
+
+          // If cloudInitStatus was running, check and update if needed
+          if (doc.cloudInitStatus === 'running') {
+            try {
+              const { stdout: cloudInitStatusOut } =
+                await ssh.execCommand('cloud-init status')
+
+              console.log('cloudInitStatusOut:', cloudInitStatusOut)
+
+              const statusMatch = cloudInitStatusOut.match(/status:\s*(\w+)/)
+              const status = statusMatch ? statusMatch[1] : ''
+
+              if (status !== 'running') {
+                shouldUpdateCloudInitStatus = true
+              }
+            } catch (cloudInitError) {
+              console.log('Error checking cloud-init status:', cloudInitError)
+            }
+          }
         }
 
         ssh.dispose()
@@ -85,22 +105,36 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
     }
 
-    if (doc.connection?.status !== (sshConnected ? 'success' : 'failed')) {
-      // Update connection status in database
+    const newConnectionStatus = sshConnected ? 'success' : 'failed'
+    const connectionStatusChanged =
+      doc.connection?.status !== newConnectionStatus
+
+    if (connectionStatusChanged || shouldUpdateCloudInitStatus) {
+      const updateData: Partial<Server> = {}
+
+      if (connectionStatusChanged) {
+        updateData.connection = {
+          status: newConnectionStatus,
+          lastChecked: new Date().toString(),
+        }
+      }
+
+      if (shouldUpdateCloudInitStatus) {
+        updateData.cloudInitStatus = 'other'
+      }
+
       setImmediate(() => {
         payload
           .update({
             collection: 'servers',
             id: doc.id,
-            data: {
-              connection: {
-                status: sshConnected ? 'success' : 'failed',
-                lastChecked: new Date().toString(),
-              },
-            },
+            data: updateData,
           })
           .catch(error => {
-            console.log('Error updating server connection status:', error)
+            console.log(
+              'Error updating server connection status and/or cloudInitStatus:',
+              error,
+            )
           })
       })
     }
@@ -119,7 +153,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       railpack,
       connection: {
         status: sshConnected ? 'success' : 'failed',
-        // lastChecked: new Date().toString(),
+        lastChecked: new Date().toString(),
       },
     }
   } catch (error) {

@@ -446,6 +446,10 @@ export interface Server {
     next_billing_date?: string | null;
   };
   /**
+   * Status of the cloud-init process for this server.
+   */
+  cloudInitStatus?: ('running' | 'other') | null;
+  /**
    * Connection details for the server
    */
   connection?: {
@@ -1330,6 +1334,7 @@ export interface ServersSelect<T extends boolean = true> {
         status?: T;
         next_billing_date?: T;
       };
+  cloudInitStatus?: T;
   connection?:
     | T
     | {
