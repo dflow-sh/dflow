@@ -2,7 +2,7 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
@@ -53,12 +53,6 @@ const ServerCard = ({
   const isConnected = connectionStatus === 'success'
   const isOnboarded = server.onboarded === true
   const isCloudInitRunning = server.cloudInitStatus === 'running'
-
-  const lastChecked = server.connection?.lastChecked
-    ? formatDistanceToNow(new Date(server.connection.lastChecked), {
-        addSuffix: true,
-      })
-    : 'unknown'
 
   // Check if server is in provisioning state (dFlow specific)
   const isProvisioning =
