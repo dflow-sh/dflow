@@ -1,5 +1,5 @@
 import configPromise from '@payload-config'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { RequiredDataFromCollection, getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
@@ -77,99 +77,11 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
       )
 
       try {
-        // Validate inputs
-        if (!sshKeys || sshKeys.length === 0) {
-          throw new VpsCreationError('At least one SSH key is required')
-        }
-
         if (!vps.plan || !vps.displayName) {
           throw new VpsCreationError('VPS plan and display name are required')
         }
 
-        // Step 1 & 2: Handle SSH keys and secrets
-        const secretsAndKeys = await Promise.all(
-          sshKeys.map(async key => {
-            try {
-              // Validate key
-              if (!key.name || !key.publicKey || !key.privateKey) {
-                throw new VpsCreationError(
-                  'SSH key is missing required fields',
-                  { keyId: key.id },
-                )
-              }
-
-              // Check for existing secret
-              const { data: existingSecretsRes } = await axios.get(
-                `${DFLOW_CONFIG.URL}/api/secrets?where[name][equals]=${encodeURIComponent(key.name)}`,
-                {
-                  headers: {
-                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
-                  },
-                  timeout: 10000,
-                },
-              )
-
-              const existingSecrets = existingSecretsRes?.docs || []
-              const matchingSecret = existingSecrets.find(
-                (secret: any) =>
-                  secret.name === key.name &&
-                  secret.publicKey === key.publicKey &&
-                  secret.privateKey === key.privateKey,
-              )
-
-              if (matchingSecret) {
-                console.log(
-                  `[${jobId}] Reusing existing secret for key ${key.name}: ${matchingSecret.details.secretId}`,
-                )
-                return {
-                  secretId: matchingSecret.details.secretId,
-                  sshKeyId: key.id,
-                }
-              }
-
-              // Create new secret if no match found
-              const { data: createdSecretRes } = await axios.post(
-                `${DFLOW_CONFIG.URL}/api/secrets`,
-                {
-                  name: key.name,
-                  type: 'ssh',
-                  publicKey: key.publicKey,
-                  privateKey: key.privateKey,
-                },
-                {
-                  headers: {
-                    Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
-                  },
-                  timeout: 10000,
-                },
-              )
-
-              const { doc: createdSecret } = createdSecretRes
-              console.log(
-                `[${jobId}] Created new secret for key ${key.name}: ${createdSecret.details.secretId}`,
-              )
-
-              return {
-                secretId: createdSecret.details.secretId,
-                sshKeyId: key.id,
-              }
-            } catch (error) {
-              if (error instanceof AxiosError) {
-                throw new VpsCreationError(
-                  `Failed to process SSH key ${key.name}: ${error.response?.data?.message || error.message}`,
-                  { keyId: key.id, status: error.response?.status },
-                )
-              }
-              throw new VpsCreationError(
-                `Failed to process SSH key ${key.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-              )
-            }
-          }),
-        )
-
-        const secretIds = secretsAndKeys.map(entry => entry.secretId)
-
-        // Step 3: Create VPS order
+        // Step 1: Create VPS order
         const vpsData = {
           plan: vps.plan,
           userData: {
@@ -181,7 +93,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             defaultUser: vps.defaultUser,
             rootPassword: vps.rootPassword,
             period: vps.period,
-            sshKeys: secretIds,
             plan: vps.plan,
             addOns: vps.addOns || {},
           },
@@ -209,14 +120,13 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           `[${jobId}] VPS order created with ID: ${createdVpsOrder.id}`,
         )
 
-        // Step 4: Create server record in Payload
+        // Step 2: Create server record in Payload
         const serverData: RequiredDataFromCollection<Server> = {
           name: vps.displayName,
           description: '',
           ip: '0.0.0.0',
           port: 22,
           username: 'root',
-          sshKey: secretsAndKeys[0]?.sshKeyId,
           provider: 'dflow',
           tenant: tenant.id,
           cloudProviderAccount: accountDetails.id,

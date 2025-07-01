@@ -156,7 +156,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
         </form>
       </Form>
 
-      <Dialog open={triggeredVPSOrderCreation}>
+      <Dialog open={isCreatingVpsOrder || triggeredVPSOrderCreation}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Processing Your Order</DialogTitle>
