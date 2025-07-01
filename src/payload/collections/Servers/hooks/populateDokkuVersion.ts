@@ -105,32 +105,38 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
     }
 
-    // Update data for connection and cloudInitStatus
-    const updateData: Partial<Server> = {
-      connection: {
-        status: sshConnected ? 'success' : 'failed',
-        lastChecked: new Date().toString(),
-      },
-    }
-    if (shouldUpdateCloudInitStatus) {
-      updateData.cloudInitStatus = 'other'
-    }
+    const newConnectionStatus = sshConnected ? 'success' : 'failed'
+    const connectionStatusChanged = doc.connection?.status !== newConnectionStatus
 
-    // Update connection status and cloudInitStatus in database (single update)
-    setImmediate(() => {
-      payload
-        .update({
-          collection: 'servers',
-          id: doc.id,
-          data: updateData,
-        })
-        .catch(error => {
-          console.log(
-            'Error updating server connection status and/or cloudInitStatus:',
-            error,
-          )
-        })
-    })
+    if (connectionStatusChanged || shouldUpdateCloudInitStatus) {
+      const updateData: Partial<Server> = {}
+
+      if (connectionStatusChanged) {
+        updateData.connection = {
+          status: newConnectionStatus,
+          lastChecked: new Date().toString(),
+        }
+      }
+
+      if (shouldUpdateCloudInitStatus) {
+        updateData.cloudInitStatus = 'other'
+      }
+
+      setImmediate(() => {
+        payload
+          .update({
+            collection: 'servers',
+            id: doc.id,
+            data: updateData,
+          })
+          .catch(error => {
+            console.log(
+              'Error updating server connection status and/or cloudInitStatus:',
+              error,
+            )
+          })
+      })
+    }
 
     // Return enriched server document
     return {
@@ -146,7 +152,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       railpack,
       connection: {
         status: sshConnected ? 'success' : 'failed',
-        lastChecked: new Date().toString(),
+        // lastChecked: new Date().toString(),
       },
     }
   } catch (error) {

@@ -165,11 +165,7 @@ export const deleteServiceAction = protectedClient
       })
 
       // Only delete from server if the option is enabled
-      if (
-        deleteFromServer &&
-        serverDetails.id &&
-        typeof serverDetails.sshKey === 'object'
-      ) {
+      if (deleteFromServer && serverDetails.id) {
         const sshDetails = extractSSHDetails({ server: serverDetails })
 
         let queueId: string | undefined = ''
@@ -312,8 +308,7 @@ export const updateServiceAction = protectedClient
     if (
       environmentVariablesChange &&
       typeof response?.project === 'object' &&
-      typeof response?.project?.server === 'object' &&
-      typeof response?.project?.server?.sshKey === 'object'
+      typeof response?.project?.server === 'object'
     ) {
       const sshDetails = extractSSHDetails({ project: response.project })
 
@@ -363,11 +358,7 @@ export const restartServiceAction = protectedClient
     })
 
     // A if check for getting all ssh keys & server details
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       let queueId: string | undefined
@@ -428,11 +419,7 @@ export const stopServerAction = protectedClient
     })
 
     // A if check for getting all ssh keys & server details
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
       let queueId: string | undefined
 
@@ -492,11 +479,7 @@ export const exposeDatabasePortAction = protectedClient
     })
 
     // A if check for getting all ssh keys & server details
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       if (type === 'database' && serviceDetails.databaseDetails?.type) {
@@ -610,8 +593,7 @@ export const updateServiceDomainAction = protectedClient
     if (operation !== 'add') {
       if (
         typeof updatedServiceDomainResponse.project === 'object' &&
-        typeof updatedServiceDomainResponse.project.server === 'object' &&
-        typeof updatedServiceDomainResponse.project.server.sshKey === 'object'
+        typeof updatedServiceDomainResponse.project.server === 'object'
       ) {
         const sshDetails = extractSSHDetails({ project })
 
@@ -659,11 +641,7 @@ export const regenerateSSLAction = protectedClient
       id,
     })
 
-    if (
-      typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project?.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       const response = await addLetsencryptRegenerateQueueQueue({
@@ -696,11 +674,7 @@ export const syncServiceDomainAction = protectedClient
       depth: 10,
     })
 
-    if (
-      typeof project === 'object' &&
-      typeof project.server === 'object' &&
-      typeof project.server.sshKey === 'object'
-    ) {
+    if (typeof project === 'object' && typeof project.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
 
       const queueResponse = await addManageServiceDomainQueue({
@@ -752,9 +726,7 @@ export const updateVolumesAction = protectedClient
     if (
       updatedService &&
       typeof project === 'object' &&
-      typeof project?.server === 'object' &&
-      typeof project?.server?.sshKey === 'object' &&
-      project?.server?.preferConnectionType === 'ssh'
+      typeof project?.server === 'object'
     ) {
       await updateVolumesQueue({
         restart: true,

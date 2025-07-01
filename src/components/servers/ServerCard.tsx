@@ -1,31 +1,25 @@
 'use client'
 
-import { Alert } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
   AlertCircle,
   Calendar,
-  Clock,
   Cloud,
   Ellipsis,
   HardDrive,
   Server as ServerIcon,
   Settings,
   Trash2,
-  WifiOff,
 } from 'lucide-react'
-import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { getVpsOrderByInstanceIdAction } from '@/actions/cloud'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
@@ -46,6 +40,19 @@ import { Server } from '@/payload-types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
+const TooltipIcon = () => (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <AlertCircle className='z-10 h-4 w-4 cursor-pointer text-destructive' />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Check server configuration or network status.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+)
+
 const ServerCard = ({
   server,
   organisationSlug,
@@ -64,15 +71,6 @@ const ServerCard = ({
         addSuffix: true,
       })
     : 'unknown'
-  const instanceId = server?.dflowVpsDetails?.instanceId
-
-  const { execute, result } = useAction(getVpsOrderByInstanceIdAction)
-
-  useEffect(() => {
-    if (instanceId != null) {
-      execute({ instanceId })
-    }
-  }, [instanceId])
 
   // Check if server is in provisioning state (dFlow specific)
   const isProvisioning =
@@ -239,18 +237,18 @@ const ServerCard = ({
 
               {/* Dflow Expiry Date */}
               {server?.provider.toLowerCase() === 'dflow' &&
-                result?.data?.next_billing_date && (
+                server?.dflowVpsDetails?.next_billing_date && (
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                       <Calendar className='h-4 w-4' />
-                      <span>Valid Until</span>
+                      <span>Next Billing</span>
                     </div>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className='cursor-help text-sm'>
                             {format(
-                              result?.data?.next_billing_date,
+                              server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
                             )}
                           </span>
@@ -259,7 +257,7 @@ const ServerCard = ({
                           <p>
                             Dflow instance expires on{' '}
                             {format(
-                              result?.data?.next_billing_date,
+                              server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
                             )}
                           </p>
@@ -372,7 +370,7 @@ const ServerCard = ({
             </div>
           </CardContent>
 
-          {/* Footer Section */}
+         {/* Footer Section */}
           {server.connection && (
             <CardFooter className='pb-4 pt-0'>
               <div className='flex w-full items-center gap-2 text-xs text-muted-foreground'>

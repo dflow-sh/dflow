@@ -443,6 +443,7 @@ export interface Server {
           | 'reset_password'
         )
       | null;
+    next_billing_date?: string | null;
   };
   /**
    * Status of the cloud-init process for this server.
@@ -1331,6 +1332,7 @@ export interface ServersSelect<T extends boolean = true> {
         id?: T;
         instanceId?: T;
         status?: T;
+        next_billing_date?: T;
       };
   cloudInitStatus?: T;
   connection?:

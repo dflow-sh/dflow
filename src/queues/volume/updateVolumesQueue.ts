@@ -45,8 +45,7 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
       try {
         if (
           typeof project === 'object' &&
-          typeof project?.server === 'object' &&
-          typeof project?.server?.sshKey === 'object'
+          typeof project?.server === 'object'
         ) {
           let ssh: NodeSSH | null = null
 
