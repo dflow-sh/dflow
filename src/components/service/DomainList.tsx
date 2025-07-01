@@ -137,6 +137,7 @@ const DomainCard = ({
             <a
               href={`//${domain.domain}`}
               target='_blank'
+              rel='noopener noreferrer'
               className='font-semibold hover:underline'>
               {domain.domain}
             </a>

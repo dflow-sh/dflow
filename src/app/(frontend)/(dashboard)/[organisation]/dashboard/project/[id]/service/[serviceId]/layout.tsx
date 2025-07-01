@@ -112,7 +112,10 @@ const SuspendedServicePageLayout = async ({
             {domains?.length ? (
               <>
                 <Globe size={16} />
-                <Link href={`//${domains[0].domain}`} target='_blank'>
+                <Link
+                  href={`//${domains[0].domain}`}
+                  target='_blank'
+                  rel='noopener noreferrer'>
                   <div className='flex items-center gap-x-1 text-sm hover:text-primary'>
                     {domains[0].domain}
                     <ExternalLink size={14} />
@@ -133,7 +136,10 @@ const SuspendedServicePageLayout = async ({
                       <div
                         key={index}
                         className='flex items-center gap-x-1 text-sm hover:text-primary'>
-                        <Link href={`//${domain.domain}`} target='_blank'>
+                        <Link
+                          href={`//${domain.domain}`}
+                          target='_blank'
+                          rel='noopener noreferrer'>
                           {domain.domain}
                         </Link>
                         <ExternalLink size={14} />

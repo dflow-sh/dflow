@@ -64,6 +64,7 @@ const DashboardLayoutInner = async ({
         <div className='flex items-center gap-x-4'>
           <Link
             target='_blank'
+            rel='noopener noreferrer'
             className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
             href='https://github.com/akhil-naidu/dflow'>
             <GithubSvg width='1.25em' height='1.25em' />{' '}

@@ -298,7 +298,8 @@ const ServerDetails = ({
               <Link
                 className='underline'
                 href='https://dokku.com/docs/getting-started/installation/#system-requirements'
-                target='_blank'>
+                target='_blank'
+                rel='noopener noreferrer'>
                 docs
               </Link>{' '}
               for more details.

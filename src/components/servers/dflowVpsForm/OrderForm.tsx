@@ -128,7 +128,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
                 <a
                   className='inline-block text-foreground underline'
                   href='https://dflow.sh/dashboard?onboarding=true'
-                  rel='no-referrer no-opener'
+                  rel='noopener noreferrer'
                   target='_blank'>
                   link
                 </a>

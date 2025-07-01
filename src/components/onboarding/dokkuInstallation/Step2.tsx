@@ -97,7 +97,7 @@ const Step2 = ({ server }: { server: ServerType }) => {
             <a
               href='https://dokku.com/docs/getting-started/upgrading/'
               target='_blank'
-              rel='noopener'
+              rel='noopener noreferrer'
               className='text-foreground underline'>
               docs
             </a>
