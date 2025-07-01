@@ -430,7 +430,9 @@ export const getAllTemplatesAction = protectedClient
     const { userTenant, payload } = ctx
 
     if (type === 'official') {
-      const res = await fetch('https://dflow.sh/api/templates')
+      const res = await fetch(
+        'https://dflow.sh/api/templates?where[type][equals]=official',
+      )
 
       if (!res.ok) {
         throw new Error('Failed to fetch official templates')
@@ -440,17 +442,32 @@ export const getAllTemplatesAction = protectedClient
       return (data.docs ?? []) as Template[]
     }
 
-    const { docs } = await payload.find({
-      collection: 'templates',
-      where: {
-        'tenant.slug': {
-          equals: userTenant.tenant.slug,
-        },
-      },
-      pagination: false,
-    })
+    if (type === 'community') {
+      const res = await fetch(
+        'https://dflow.sh/api/templates?where[type][equals]=community',
+      )
 
-    return docs
+      if (!res.ok) {
+        throw new Error('Failed to fetch official templates')
+      }
+
+      const data = await res.json()
+      return (data.docs ?? []) as Template[]
+    }
+
+    if (type === 'personal') {
+      const { docs } = await payload.find({
+        collection: 'templates',
+        where: {
+          'tenant.slug': {
+            equals: userTenant.tenant.slug,
+          },
+        },
+        pagination: false,
+      })
+
+      return docs
+    }
   })
 
 export const deployTemplateFromArchitectureAction = protectedClient

@@ -80,10 +80,10 @@ const TemplateDeploymentForm = ({
   type,
   server: { plugins, name: serverName, id: serverId },
 }: {
-  execute: ({ type }: { type: 'official' | 'personal' }) => void
+  execute: ({ type }: { type: 'official' | 'community' | 'personal' }) => void
   isPending: boolean
   templates?: Template[]
-  type: 'official' | 'personal'
+  type: 'official' | 'community' | 'personal'
   server: Server
 }) => {
   const dialogRef = useRef<HTMLButtonElement>(null)
@@ -143,7 +143,7 @@ const TemplateDeploymentForm = ({
   function onSubmit(values: z.infer<typeof deployTemplateSchema>) {
     if (type === 'personal') {
       deployTemplate(values)
-    } else if (type === 'official') {
+    } else if (type === 'official' || type === 'community') {
       const filteredTemplate = templates?.find(
         template => template?.id === values?.id,
       )
@@ -169,6 +169,7 @@ const TemplateDeploymentForm = ({
                 description,
                 dockerDetails: serviceDetails?.dockerDetails,
                 variables: serviceDetails?.variables,
+                volumes: serviceDetails?.volumes ?? [],
               }
             }
 
@@ -181,6 +182,7 @@ const TemplateDeploymentForm = ({
                 githubSettings: serviceDetails?.githubSettings,
                 providerType: serviceDetails?.providerType,
                 provider: serviceDetails?.provider,
+                volumes: serviceDetails?.volumes ?? [],
               }
             }
           },
@@ -334,6 +336,7 @@ const DeployTemplate = ({
   server: Server
 }) => {
   const { execute, result, isPending } = useAction(getAllTemplatesAction)
+
   const architectureContext = function useSafeArchitectureContext() {
     try {
       return useArchitectureContext()
@@ -377,6 +380,7 @@ const DeployTemplate = ({
         <Tabs defaultValue='official'>
           <TabsList>
             <TabsTrigger value='official'>Official</TabsTrigger>
+            <TabsTrigger value='community'>Community</TabsTrigger>
             <TabsTrigger value='personal'>Personal</TabsTrigger>
           </TabsList>
 
@@ -387,6 +391,16 @@ const DeployTemplate = ({
               isPending={isPending}
               server={server}
               type='official'
+            />
+          </TabsContent>
+
+          <TabsContent value='community'>
+            <TemplateDeploymentForm
+              execute={execute}
+              templates={result.data}
+              isPending={isPending}
+              server={server}
+              type='community'
             />
           </TabsContent>
 
