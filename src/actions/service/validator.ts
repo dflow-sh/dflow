@@ -1,17 +1,22 @@
 import { z } from 'zod'
 
-export const createServiceSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: 'Name should be at-least than 1 character' })
-    .max(10, { message: 'Name should be less than 10 characters' }),
-  description: z.string().optional(),
-  type: z.enum(['database', 'app', 'docker']),
-  databaseType: z
-    .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
-    .optional(),
-  projectId: z.string(),
-})
+export const createServiceSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, { message: 'Name should be at-least than 1 character' })
+      .max(10, { message: 'Name should be less than 10 characters' }),
+    description: z.string().optional(),
+    type: z.enum(['database', 'app', 'docker']),
+    databaseType: z
+      .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
+      .optional(),
+    projectId: z.string(),
+  })
+  .refine(data => data.type !== 'database' || !!data.databaseType, {
+    message: 'Please select a database type',
+    path: ['databaseType'],
+  })
 
 export const deleteServiceSchema = z.object({
   id: z.string(),
