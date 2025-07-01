@@ -15,6 +15,7 @@ import { loadServicePageTabs } from '@/lib/searchParams'
 
 interface PageProps {
   params: Promise<{
+    organisation: string
     id: string
     serviceId: string
   }>
@@ -22,7 +23,7 @@ interface PageProps {
 }
 
 const SuspendedPage = async ({ params, searchParams }: PageProps) => {
-  const { serviceId } = await params
+  const { serviceId, organisation } = await params
   const { tab } = await loadServicePageTabs(searchParams)
 
   const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
@@ -44,7 +45,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     const projectId =
       typeof service.project === 'object' ? service.project.id : service.project
 
-    redirect(`/dashboard/project/${projectId}`)
+    redirect(`/${organisation}/dashboard/project/${projectId}`)
   }
 
   const domains = service.domains ?? []
