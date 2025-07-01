@@ -74,6 +74,12 @@ const ServerCard = ({
     }
   }, [instanceId])
 
+  // Check if server is in provisioning state (dFlow specific)
+  const isProvisioning =
+    typeof server.cloudProviderAccount === 'object' &&
+    server.cloudProviderAccount?.type === 'dFlow' &&
+    server.dflowVpsDetails?.status === 'provisioning'
+
   // Determine status based on priority logic
   const getServerStatus = () => {
     // Priority 1: Connection failed
@@ -90,7 +96,21 @@ const ServerCard = ({
       }
     }
 
-    // Priority 2: Connection success + CloudInit running
+    // Priority 2: Connection success + dFlow provisioning
+    if (isConnected && isProvisioning) {
+      return {
+        type: 'provisioning',
+        borderColor: 'border-l-purple-500 hover:border-l-purple-600',
+        badge: {
+          variant: 'secondary' as const,
+          text: 'Provisioning',
+          dotColor: 'bg-purple-400',
+          icon: Cloud,
+        },
+      }
+    }
+
+    // Priority 3: Connection success + CloudInit running
     if (isConnected && isCloudInitRunning) {
       return {
         type: 'initializing',
@@ -104,7 +124,7 @@ const ServerCard = ({
       }
     }
 
-    // Priority 3: Connection success + CloudInit done + Not onboarded
+    // Priority 4: Connection success + CloudInit done + Not onboarded
     if (isConnected && !isCloudInitRunning && !isOnboarded) {
       return {
         type: 'onboarding',
@@ -118,7 +138,7 @@ const ServerCard = ({
       }
     }
 
-    // Priority 4: Connection success + CloudInit done + Onboarded
+    // Priority 5: Connection success + CloudInit done + Onboarded
     return {
       type: 'connected',
       borderColor: 'border-l-green-500 hover:border-l-green-600',
@@ -251,7 +271,7 @@ const ServerCard = ({
 
               {/* Status-specific alerts */}
               {serverStatus.type === 'disconnected' && (
-                <Alert variant='destructive' className='z-10 px-2 py-2 text-xs'>
+                <Alert variant='destructive' className='px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <WifiOff className='h-4 w-4' />
@@ -271,10 +291,38 @@ const ServerCard = ({
                 </Alert>
               )}
 
+              {serverStatus.type === 'provisioning' && (
+                <Alert
+                  variant='default'
+                  className='border-purple-200 bg-purple-50 px-2 py-2 text-xs'>
+                  <div className='flex flex-row items-center justify-between gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                      <Cloud className='h-4 w-4 text-purple-600' />
+                      <span className='text-purple-700'>
+                        Server Provisioning
+                      </span>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <AlertCircle className='h-4 w-4 cursor-help text-purple-600' />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            dFlow server is being provisioned. This may take a
+                            few minutes.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </Alert>
+              )}
+
               {serverStatus.type === 'initializing' && (
                 <Alert
                   variant='default'
-                  className='z-10 border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
+                  className='border-blue-200 bg-blue-50 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <Settings className='h-4 w-4 text-blue-600' />
@@ -300,7 +348,7 @@ const ServerCard = ({
               {serverStatus.type === 'onboarding' && (
                 <Alert
                   variant='default'
-                  className='z-10 border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
+                  className='border-amber-200 bg-amber-50 px-2 py-2 text-xs'>
                   <div className='flex flex-row items-center justify-between gap-2'>
                     <div className='flex flex-row items-center gap-2'>
                       <AlertCircle className='h-4 w-4 text-amber-600' />
