@@ -27,6 +27,21 @@ export const install = async ({
     }
   }
 
+  // Check if dpkg is locked before proceeding
+  const dpkgLockCheck = await ssh.execCommand(
+    'lsof /var/lib/dpkg/lock-frontend',
+    options,
+  )
+
+  if (dpkgLockCheck.code === 0) {
+    return {
+      success: false,
+      message:
+        'dpkg is currently locked. Please wait for any ongoing package operations to complete.',
+      error: 'dpkg lock detected',
+    }
+  }
+
   // Use the official one-line installer with minimal installation
   const installCommand =
     'wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh --non-interactive'

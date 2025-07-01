@@ -27,6 +27,21 @@ export const uninstall = async ({
     }
   }
 
+  // Check if dpkg is locked before proceeding
+  const dpkgLockCheck = await ssh.execCommand(
+    'lsof /var/lib/dpkg/lock-frontend',
+    options,
+  )
+
+  if (dpkgLockCheck.code === 0) {
+    return {
+      success: false,
+      message:
+        'dpkg is currently locked. Please wait for any ongoing package operations to complete.',
+      error: 'dpkg lock detected',
+    }
+  }
+
   // Stop and disable Netdata service
   const stopServiceCommands = [
     'sudo systemctl stop netdata || true',
