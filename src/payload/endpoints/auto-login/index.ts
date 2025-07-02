@@ -35,6 +35,7 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
   // Extracting user email and code from the decoded token
   const userEmail = decodedToken?.email
   const code = decodedToken?.code
+  const redirectUrl = decodedToken?.redirectUrl
 
   // querying the user by email
   const { docs: usersList } = await payload.find({
@@ -68,7 +69,9 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
   // Store the code in Redis with a TTL of 5 minutes to prevent reuse
   await redisClient.set(`auto-login-code:${code}`, code, 'EX', 60 * 5)
 
-  return Response.redirect(
-    new URL(`${user?.username}/dashboard`, env.NEXT_PUBLIC_WEBSITE_URL),
-  )
+  const finalRedirect = redirectUrl
+    ? `/${user?.username}${redirectUrl.startsWith('/') ? redirectUrl : `/${redirectUrl}`}`
+    : `/${user?.username}/dashboard`
+
+  return Response.redirect(new URL(finalRedirect, env.NEXT_PUBLIC_WEBSITE_URL))
 }
