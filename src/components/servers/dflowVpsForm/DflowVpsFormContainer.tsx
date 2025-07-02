@@ -42,12 +42,14 @@ export const DflowVpsFormContainer = ({
       selectedAccount={selectedAccount}
       onAccountChange={setSelectedAccount}>
       <div className='space-y-6'>
-        <HeaderSection vpsPlan={vpsPlan} />
-        <AccountSelectionSection
-          dFlowAccounts={dFlowAccounts}
-          selectedAccount={selectedAccount}
-          onAccountChange={setSelectedAccount}
-        />
+        <div className='flex flex-col sm:flex-row sm:items-start sm:justify-between'>
+          <HeaderSection vpsPlan={vpsPlan} />
+          <AccountSelectionSection
+            dFlowAccounts={dFlowAccounts}
+            selectedAccount={selectedAccount}
+            onAccountChange={setSelectedAccount}
+          />
+        </div>
         <div className='space-y-3'>
           <AccountConnectionStatus />
           <PaymentStatusSection />

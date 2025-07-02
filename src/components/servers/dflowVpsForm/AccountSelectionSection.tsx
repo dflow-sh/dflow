@@ -40,9 +40,6 @@ export const AccountSelectionSection = ({
 
   return (
     <div className='space-y-2'>
-      <label className='text-sm font-medium text-foreground'>
-        Select Account
-      </label>
       <Select value={selectedAccount.id} onValueChange={handleAccountChange}>
         <SelectTrigger className='bg-background'>
           <SelectValue placeholder='Choose a dFlow account' />
