@@ -45,7 +45,7 @@ export const createServiceAction = protectedClient
       user,
     } = ctx
 
-    const { server } = await payload.findByID({
+    const { server, name: projectName } = await payload.findByID({
       collection: 'projects',
       id: projectId,
       depth: 10,
@@ -58,9 +58,11 @@ export const createServiceAction = protectedClient
     try {
       ssh = await dynamicSSH(sshDetails)
 
+      const serviceName = `${projectName}-${name}`
+
       if (type === 'app' || type === 'docker') {
         // Creating app in dokku
-        const appsCreationResponse = await dokku.apps.create(ssh, name)
+        const appsCreationResponse = await dokku.apps.create(ssh, serviceName)
 
         // If app created adding db entry
         if (appsCreationResponse) {
