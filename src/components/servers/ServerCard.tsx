@@ -190,7 +190,7 @@ const ServerCard = ({
             </div>
 
             {/* Combined Status Badge with Tooltip */}
-            <div className='z-10 flex justify-start'>
+            <div className='flex justify-start'>
               {serverStatus.badge.tooltip ? (
                 <TooltipProvider>
                   <Tooltip>
@@ -210,7 +210,9 @@ const ServerCard = ({
                   </Tooltip>
                 </TooltipProvider>
               ) : (
-                <Badge variant={serverStatus.badge.variant} className='text-xs'>
+                <Badge
+                  variant={serverStatus.badge.variant}
+                  className='z-10 text-xs'>
                   {serverStatus.badge.icon && (
                     <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
                   )}

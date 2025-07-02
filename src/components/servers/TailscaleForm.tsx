@@ -385,7 +385,7 @@ const TailscaleForm = () => {
                 variant='outline'
                 onClick={handleTestConnection}
                 // disabled={!isGenerated || isTestingConnection || isGenerating}
-                disabled={isTestingConnection || isGenerating}
+                disabled={isTestingConnection || isGenerating || !isGenerated}
                 className='shrink-0'>
                 {isTestingConnection ? (
                   <>

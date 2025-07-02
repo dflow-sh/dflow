@@ -16,7 +16,6 @@ import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
-import RetryPrompt from '@/components/servers/RetryPrompt'
 import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import Monitoring from '@/components/servers/monitoring/Monitoring'
@@ -46,10 +45,15 @@ interface PageProps {
 }
 
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
-  if (server.connection?.status === 'success') return null
+  const isTailscale = server.preferConnectionType === 'tailscale'
+  const isConnected = server.connection?.status === 'success'
+  const hasRequiredFields = isTailscale
+    ? typeof server.hostname === 'string'
+    : typeof server.sshKey === 'object'
 
-  const connectionTypeLabel =
-    server.preferConnectionType === 'tailscale' ? 'Tailscale' : 'SSH'
+  if (isConnected && hasRequiredFields) return null
+
+  const connectionTypeLabel = isTailscale ? 'Tailscale' : 'SSH'
 
   return (
     <Alert variant='destructive'>
@@ -113,12 +117,15 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
     : {}
 
   return (
-    <div className='flex flex-col space-y-5'>
+    <div className='space-y-6'>
       <SSHConnectionAlert server={server} />
+
       <ServerDetails serverDetails={serverDetails} server={server} />
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+
+      <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         <div className='md:col-span-2'>
-          <div className='space-y-4 rounded bg-muted/30 p-4'>
+          <div className='space-y-4 rounded-lg border p-6'>
+            <h3 className='text-lg font-semibold'>Server Configuration</h3>
             <UpdateServerForm
               server={server}
               securityGroups={securityGroups}
@@ -140,20 +147,11 @@ const MonitoringTab = ({
   server: ServerType
   isSshConnected: boolean
 }) => {
-  if (
-    !server ||
-    typeof server !== 'object' ||
-    server.preferConnectionType === 'tailscale'
-      ? typeof server.hostname !== 'string'
-      : typeof server.sshKey !== 'object'
-  ) {
-    return <RetryPrompt />
-  }
-
   return (
-    <>
+    <div className='space-y-6'>
       <SSHConnectionAlert server={server} />
-      <div className='mt-2'>
+
+      <div className='space-y-4'>
         {!server.netdataVersion ? (
           <NetdataInstallPrompt
             server={server}
@@ -163,7 +161,7 @@ const MonitoringTab = ({
           <Monitoring server={server} />
         )}
       </div>
-    </>
+    </div>
   )
 }
 
@@ -174,40 +172,49 @@ const PluginsTab = ({ server }: { server: ServerType }) => {
     server.version
 
   return (
-    <div className='mt-2'>
+    <div className='space-y-6'>
       <SSHConnectionAlert server={server} />
-      {dokkuInstalled ? (
-        <PluginsList server={server} />
-      ) : (
-        <Alert variant='info'>
-          <TriangleAlert className='h-4 w-4' />
-          <AlertTitle>Dokku not found!</AlertTitle>
-          <AlertDescription className='flex w-full flex-col justify-between gap-2 md:flex-row'>
-            <p>
-              Either dokku is not installed on your server, or your OS
-              doesn&apos;t support it. Refer to{' '}
-              <a
-                className='underline'
-                href='https://dokku.com/docs/getting-started/installation/'>
-                the docs
-              </a>
-            </p>
-          </AlertDescription>
-        </Alert>
-      )}
+
+      <div className='space-y-4'>
+        {dokkuInstalled ? (
+          <PluginsList server={server} />
+        ) : (
+          <Alert variant='default'>
+            <TriangleAlert className='h-4 w-4' />
+            <AlertTitle>Dokku not found</AlertTitle>
+            <AlertDescription className='space-y-2'>
+              <p>
+                Either Dokku is not installed on your server, or your OS
+                doesn&apos;t support it.
+              </p>
+              <p>
+                Refer to{' '}
+                <a
+                  className='underline hover:no-underline'
+                  href='https://dokku.com/docs/getting-started/installation/'
+                  target='_blank'
+                  rel='noopener noreferrer'>
+                  the installation documentation
+                </a>{' '}
+                for setup instructions.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
     </div>
   )
 }
 
 const DomainsTab = ({ server }: { server: ServerType }) => {
   return (
-    <>
+    <div className='space-y-6'>
       <SSHConnectionAlert server={server} />
 
       <div className='space-y-4'>
         <div className='flex w-full items-center justify-between'>
-          <div className='flex items-center'>
-            <h4 className='text-lg font-semibold'>Domains</h4>
+          <div className='flex items-center gap-2'>
+            <h3 className='text-lg font-semibold'>Domains</h3>
             <SidebarToggleButton
               directory='servers'
               fileName='domains'
@@ -219,7 +226,7 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
 
         <DomainList server={server} />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -290,16 +297,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   return (
     <LayoutClient server={server} servers={servers}>
-      <div className='mb-5 flex items-center justify-between'>
-        <div className='flex items-center text-2xl font-semibold'>
-          Server Details
-        </div>
-        <div className='flex gap-2'>
-          <RefreshButton />
-        </div>
+      <div className='mb-6 flex justify-end'>
+        <RefreshButton showText={true} text='Refresh Server Status' />
       </div>
-      {/* If server connection fails, show tabs regardless of cloud-init status */}
-      {/* If server connection succeeds, show cloud-init banner if running, otherwise show tabs */}
+
       {server.connection?.status !== 'success' ? (
         server.onboarded ? (
           renderTab()
