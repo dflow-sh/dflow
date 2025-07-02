@@ -1,5 +1,5 @@
 import { Skeleton } from '../../ui/skeleton'
-import { AlertCircle, CheckCircle, RefreshCw, XCircle } from 'lucide-react'
+import { AlertCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 
@@ -38,21 +38,6 @@ export const AccountConnectionStatus = () => {
     }
   }, [selectedAccount?.id, checkConnection])
 
-  const getConnectionStatusIcon = () => {
-    if (!connectionStatus) return null
-
-    return connectionStatus.isConnected ? (
-      <CheckCircle className='mt-0.5 h-5 w-5 text-green-600' />
-    ) : (
-      <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
-    )
-  }
-
-  const getConnectionStatusVariant = () => {
-    if (!connectionStatus) return 'default'
-    return connectionStatus.isConnected ? 'default' : 'destructive'
-  }
-
   const handleRetry = () => {
     if (selectedAccount) {
       checkConnection({ token: selectedAccount.token })
@@ -70,21 +55,16 @@ export const AccountConnectionStatus = () => {
           </div>
         </div>
       ) : connectionStatus ? (
-        <Alert variant={getConnectionStatusVariant()}>
-          <div className='flex items-start gap-3'>
-            {getConnectionStatusIcon()}
-            <div className='flex-1 space-y-2'>
-              <div className='flex items-center gap-4 text-sm'>
-                <div className='flex items-center gap-2'>
-                  <span>
-                    {connectionStatus.isConnected
-                      ? 'Account connected successfully'
-                      : 'Account connection failed'}
-                  </span>
+        // Only show alert if connection failed
+        !connectionStatus.isConnected && (
+          <Alert variant='destructive'>
+            <div className='flex items-start gap-3'>
+              <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
+              <div className='flex-1 space-y-2'>
+                <div className='flex items-center gap-4 text-sm'>
+                  <span>Account connection failed</span>
                 </div>
-              </div>
 
-              {!connectionStatus.isConnected && (
                 <AlertDescription className='text-sm'>
                   <div className='mb-2'>{connectionStatus.error}</div>
                   <Button
@@ -96,10 +76,10 @@ export const AccountConnectionStatus = () => {
                     Retry Connection Check
                   </Button>
                 </AlertDescription>
-              )}
+              </div>
             </div>
-          </div>
-        </Alert>
+          </Alert>
+        )
       ) : (
         <Alert variant='destructive'>
           <AlertCircle className='h-4 w-4' />
