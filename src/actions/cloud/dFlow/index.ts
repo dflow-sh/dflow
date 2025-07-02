@@ -155,6 +155,7 @@ export const createVPSOrderAction = protectedClient
         accessToken: token,
       },
       tenant: userTenant.tenant,
+      preferConnectionType: 'tailscale',
     })
 
     if (createVPSresponse.id) {
