@@ -6,6 +6,7 @@ import { NodeSSH } from 'node-ssh'
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { generateRandomString } from '@/lib/utils'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStopAppQueue } from '@/queues/app/stop'
@@ -51,6 +52,28 @@ export const createServiceAction = protectedClient
       depth: 10,
     })
 
+    const slicedName = name.slice(0, 10)
+
+    let serviceName = `${projectName}-${slicedName}`
+
+    const { totalDocs } = await payload.find({
+      collection: 'services',
+      where: {
+        and: [
+          {
+            tenant: {
+              equals: tenant.id,
+            },
+          },
+          {
+            name: {
+              equals: serviceName,
+            },
+          },
+        ],
+      },
+    })
+
     let ssh: NodeSSH | null = null
 
     const sshDetails = extractSSHDetails({ server })
@@ -58,7 +81,10 @@ export const createServiceAction = protectedClient
     try {
       ssh = await dynamicSSH(sshDetails)
 
-      const serviceName = `${projectName}-${name}`
+      if (totalDocs > 0) {
+        const uniqueSuffix = generateRandomString({ length: 4 })
+        serviceName = `${serviceName}-${uniqueSuffix}`
+      }
 
       if (type === 'app' || type === 'docker') {
         // Creating app in dokku
@@ -70,7 +96,7 @@ export const createServiceAction = protectedClient
             collection: 'services',
             data: {
               project: projectId,
-              name,
+              name: serviceName,
               description,
               type,
               databaseDetails: {

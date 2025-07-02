@@ -14,11 +14,13 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
-  deployTemplateAction,
-  deployTemplateFromArchitectureAction,
   getAllTemplatesAction,
+  templateDeployAction,
 } from '@/actions/templates'
-import { deployTemplateSchema } from '@/actions/templates/validator'
+import {
+  ServicesSchemaType,
+  deployTemplateSchema,
+} from '@/actions/templates/validator'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -73,6 +75,45 @@ const databaseIcons: {
   redis: <Redis className='size-5' />,
 }
 
+export const formateServices = (services: Template['services']) => {
+  const formattedServices = services?.map(
+    ({ type, name, description = '', ...serviceDetails }) => {
+      if (type === 'database') {
+        return {
+          type,
+          name,
+          description,
+          databaseDetails: serviceDetails.databaseDetails,
+        }
+      }
+
+      if (type === 'docker') {
+        return {
+          type,
+          name,
+          description,
+          dockerDetails: serviceDetails?.dockerDetails,
+          variables: serviceDetails?.variables,
+          volumes: serviceDetails?.volumes ?? [],
+        }
+      }
+
+      if (type === 'app') {
+        return {
+          type,
+          name,
+          description,
+          variables: serviceDetails?.variables,
+          githubSettings: serviceDetails?.githubSettings,
+          providerType: serviceDetails?.providerType,
+          provider: serviceDetails?.provider,
+          volumes: serviceDetails?.volumes ?? [],
+        }
+      }
+    },
+  )
+  return formattedServices as ServicesSchemaType
+}
 const TemplateDeploymentForm = ({
   execute,
   isPending,
@@ -90,7 +131,7 @@ const TemplateDeploymentForm = ({
   const params = useParams<{ id: string; organisation: string }>()
 
   const { execute: deployTemplate, isPending: deployingTemplate } = useAction(
-    deployTemplateAction,
+    templateDeployAction,
     {
       onSuccess: ({ data }) => {
         if (data?.success) {
@@ -107,26 +148,6 @@ const TemplateDeploymentForm = ({
     },
   )
 
-  const {
-    execute: deployOfficialTemplate,
-    isPending: deployingOfficialTemplate,
-  } = useAction(deployTemplateFromArchitectureAction, {
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.success('Added to queue', {
-          description: 'Added template deploy to queue',
-        })
-
-        dialogRef.current?.click()
-      }
-    },
-    onError: ({ error }) => {
-      console.log({ error })
-
-      toast.error(`Failed to deploy official template: ${error?.serverError}`)
-    },
-  })
-
   const form = useForm<z.infer<typeof deployTemplateSchema>>({
     resolver: zodResolver(deployTemplateSchema),
     defaultValues: {
@@ -141,59 +162,16 @@ const TemplateDeploymentForm = ({
   }, [])
 
   function onSubmit(values: z.infer<typeof deployTemplateSchema>) {
-    if (type === 'personal') {
-      deployTemplate(values)
-    } else if (type === 'official' || type === 'community') {
-      const filteredTemplate = templates?.find(
-        template => template?.id === values?.id,
-      )
+    const filteredTemplate = templates?.find(
+      template => template?.id === values?.id,
+    )
 
-      if (filteredTemplate) {
-        const services = filteredTemplate.services ?? []
+    const services = formateServices(filteredTemplate?.services)
 
-        const formattedServices = services.map(
-          ({ type, name, description = '', ...serviceDetails }) => {
-            if (type === 'database') {
-              return {
-                type,
-                name,
-                description,
-                databaseDetails: serviceDetails.databaseDetails,
-              }
-            }
-
-            if (type === 'docker') {
-              return {
-                type,
-                name,
-                description,
-                dockerDetails: serviceDetails?.dockerDetails,
-                variables: serviceDetails?.variables,
-                volumes: serviceDetails?.volumes ?? [],
-              }
-            }
-
-            if (type === 'app') {
-              return {
-                type,
-                name,
-                description,
-                variables: serviceDetails?.variables,
-                githubSettings: serviceDetails?.githubSettings,
-                providerType: serviceDetails?.providerType,
-                provider: serviceDetails?.provider,
-                volumes: serviceDetails?.volumes ?? [],
-              }
-            }
-          },
-        ) as any[]
-
-        deployOfficialTemplate({
-          projectId: values?.projectId,
-          services: formattedServices,
-        })
-      }
-    }
+    deployTemplate({
+      projectId: values?.projectId,
+      services,
+    })
   }
 
   return (
@@ -316,8 +294,8 @@ const TemplateDeploymentForm = ({
 
           <Button
             type='submit'
-            disabled={deployingTemplate || deployingOfficialTemplate || !id}
-            isLoading={deployingTemplate || deployingOfficialTemplate}>
+            disabled={deployingTemplate || !id}
+            isLoading={deployingTemplate}>
             Deploy
           </Button>
         </DialogFooter>
