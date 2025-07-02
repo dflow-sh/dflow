@@ -23,6 +23,7 @@ const SuspendedAddNewServerPage = async () => {
         }
         vpsPlans={vpsPlans?.data ?? []}
         dFlowUser={dFlowDetails?.data?.user}
+        formType='create'
       />
 
       <DflowCloudDrawer />
