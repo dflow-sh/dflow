@@ -144,7 +144,7 @@ const MonitoringTab = ({
     !server ||
     typeof server !== 'object' ||
     server.preferConnectionType === 'tailscale'
-      ? typeof server.hostname === 'string'
+      ? typeof server.hostname !== 'string'
       : typeof server.sshKey !== 'object'
   ) {
     return <RetryPrompt />
