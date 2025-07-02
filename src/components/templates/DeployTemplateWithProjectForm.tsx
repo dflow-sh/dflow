@@ -44,17 +44,21 @@ import {
 } from 'unique-names-generator'
 
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
-import { deployTemplateWithProjectCreateAction } from '@/actions/templates'
+import { templateDeployAction } from '@/actions/templates'
 import {
   DeployTemplateWithProjectCreateType,
+  ServicesSchemaType,
   deployTemplateWithProjectCreateSchema,
 } from '@/actions/templates/validator'
 import { slugify } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
-import { Service } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
+const DeployTemplateWithProjectForm = ({
+  services,
+}: {
+  services: ServicesSchemaType
+}) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { organisation } = useParams()
@@ -78,7 +82,7 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
   })
 
   const { execute: templateDeploy, isPending } = useAction(
-    deployTemplateWithProjectCreateAction,
+    templateDeployAction,
     {
       onSuccess: ({ data }) => {
         toast.success('Template deployed successfully')
@@ -261,12 +265,11 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                                 const isOnboarded = onboarded === true
                                 const isAvailable = isConnected && isOnboarded
                                 const databasesList = services?.filter(
-                                  (service: Service) =>
-                                    service.type === 'database',
+                                  service => service.type === 'database',
                                 )
 
                                 const disabledDatabasesList =
-                                  databasesList?.filter((database: Service) => {
+                                  databasesList?.filter(database => {
                                     const databaseType =
                                       database?.databaseDetails?.type
 
@@ -284,18 +287,12 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                                 const disabledDatabasesListNames =
                                   disabledDatabasesList
                                     ?.map(
-                                      (database: Service) =>
+                                      database =>
                                         database?.databaseDetails?.type,
                                     )
-                                    ?.filter(
-                                      (
-                                        value: string,
-                                        index: number,
-                                        self: any,
-                                      ) => {
-                                        return self.indexOf(value) === index
-                                      },
-                                    )
+                                    ?.filter((value, index, self) => {
+                                      return self.indexOf(value) === index
+                                    })
                                 return (
                                   <Fragment key={id}>
                                     <SelectItem
@@ -393,11 +390,11 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                             } = server as ServerType
 
                             const databasesList = services?.filter(
-                              (service: Service) => service.type === 'database',
+                              service => service.type === 'database',
                             )
 
                             const disabledDatabasesList = databasesList?.filter(
-                              (database: Service) => {
+                              database => {
                                 const databaseType =
                                   database?.databaseDetails?.type
 
@@ -416,14 +413,11 @@ const DeployTemplateWithProjectForm = ({ services }: { services: any }) => {
                             const disabledDatabasesListNames =
                               disabledDatabasesList
                                 ?.map(
-                                  (database: Service) =>
-                                    database?.databaseDetails?.type,
+                                  database => database?.databaseDetails?.type,
                                 )
-                                ?.filter(
-                                  (value: string, index: number, self: any) => {
-                                    return self.indexOf(value) === index
-                                  },
-                                )
+                                ?.filter((value, index, self) => {
+                                  return self.indexOf(value) === index
+                                })
                             return (
                               <Fragment key={id}>
                                 <SelectItem

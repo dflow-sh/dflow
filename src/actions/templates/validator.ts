@@ -72,6 +72,8 @@ export const servicesSchema = z.array(
   }),
 )
 
+export type ServicesSchemaType = z.infer<typeof servicesSchema>
+
 export const createTemplateSchema = z.object({
   name: z
     .string({ message: 'Name is required' })
