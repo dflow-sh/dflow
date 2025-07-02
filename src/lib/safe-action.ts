@@ -1,5 +1,4 @@
 import configPromise from '@payload-config'
-import { env } from 'env'
 import { createSafeActionClient } from 'next-safe-action'
 import { headers } from 'next/headers'
 import { forbidden } from 'next/navigation'
@@ -15,10 +14,6 @@ type UserTenant = {
   tenant: Tenant
   roles: ('tenant-admin' | 'tenant-user')[]
 }
-
-const loggingEnabled =
-  env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL &&
-  env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN
 
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
@@ -41,9 +36,7 @@ export const publicClient = createSafeActionClient({
         stack: error.stack,
         errorType: error.constructor.name,
       },
-      {
-        hideInConsole: false,
-      },
+      { hideInConsole: false },
     )
 
     // Returning the error message instead of throwing it

@@ -15,7 +15,6 @@ const targets =
   isDev || !hasBetterStackToken
     ? [
         {
-          // Human-readable format when console is primary output
           target: 'pino-pretty',
           options: {
             colorize: isDev, // Only colorize in dev
@@ -27,7 +26,6 @@ const targets =
       ]
     : [
         {
-          // Raw JSON when Better Stack handles the logs
           target: 'pino/file',
           options: { destination: 1 },
           level: 'info',
@@ -51,9 +49,13 @@ const createLogMethod = (level: 'debug' | 'info' | 'warn' | 'error') => {
     data?: any,
     options?: { hideInConsole?: boolean },
   ) => {
-    const shouldShowConsole = !options?.hideInConsole
+    const shouldShowConsole = isDev
+      ? !options?.hideInConsole
+      : !hasBetterStackToken
+        ? !options?.hideInConsole
+        : options?.hideInConsole === false
 
-    if (shouldShowConsole && (isDev || !hasBetterStackToken)) {
+    if (shouldShowConsole) {
       logger[level](data, message)
     }
 
