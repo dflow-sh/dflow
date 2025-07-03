@@ -247,73 +247,123 @@ const GithubForm = ({
         {repoType === 'public' ? (
           <>
             <div className='grid gap-4 md:grid-cols-2'>
-              <div className='space-y-2'>
-                <Label>Repository URL</Label>
-                <Input
-                  type='text'
-                  name='repositoryURL'
-                  placeholder='ex: https://github.com/akhil-naidu/dflow'
-                  defaultValue={publicRepoURL}
-                  onChange={e => {
-                    const value = e.target.value
-                    const matched = value.match(githubURLRegex)
+              {/* Repository URL */}
+              <FormField
+                control={form.control}
+                name='githubSettings.repository'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Repository URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='text'
+                        name='repositoryURL'
+                        placeholder='ex: https://github.com/akhil-naidu/dflow'
+                        defaultValue={publicRepoURL}
+                        onChange={e => {
+                          const value = e.target.value
+                          const matched = value.match(githubURLRegex)
 
-                    if (matched) {
-                      const username = matched[1]
-                      const repository = matched[2]
+                          if (matched) {
+                            const username = matched[1]
+                            const repository = matched[2]
 
-                      form.setValue('githubSettings.owner', username)
-                      form.setValue('githubSettings.repository', repository)
-                    }
-                  }}
-                />
-              </div>
+                            form.setValue('githubSettings.owner', username)
+                            form.setValue(
+                              'githubSettings.repository',
+                              repository,
+                            )
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className='space-y-2'>
-                <Label>Branch</Label>
-                <Input
-                  type='text'
-                  name='branch'
-                  defaultValue={githubSettings?.branch ?? ''}
-                  placeholder='ex: main or commit-hash: 6492769'
-                  onChange={e => {
-                    const value = e.target.value
-                    form.setValue('githubSettings.branch', value)
-                  }}
-                />
-              </div>
+              {/* Branch */}
+              <FormField
+                control={form.control}
+                name='githubSettings.branch'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Branch</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='text'
+                        name='branch'
+                        defaultValue={githubSettings?.branch ?? ''}
+                        placeholder='ex: main or commit-hash: 6492769'
+                        onChange={e => {
+                          const value = e.target.value
+                          form.setValue('githubSettings.branch', value)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Port */}
+              <FormField
+                control={form.control}
+                name='githubSettings.port'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Port
+                      <SidebarToggleButton
+                        directory='services'
+                        fileName='app-service'
+                        sectionId='#port--editable'
+                      />
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        {...field}
+                        value={field.value || ''}
+                        onChange={e => {
+                          const value = e.target.value
+                            ? parseInt(e.target.value, 10)
+                            : ''
+                          field.onChange(value)
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Build path */}
+              <FormField
+                control={form.control}
+                name='githubSettings.buildPath'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Build path{' '}
+                      <SidebarToggleButton
+                        directory='services'
+                        fileName='app-service'
+                        sectionId='#build-path--editable'
+                      />
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value || ''}
+                        onChange={e => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-
-            <FormField
-              control={form.control}
-              name='githubSettings.port'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Port
-                    <SidebarToggleButton
-                      directory='services'
-                      fileName='app-service'
-                      sectionId='#port--editable'
-                    />
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      {...field}
-                      value={field.value || ''}
-                      onChange={e => {
-                        const value = e.target.value
-                          ? parseInt(e.target.value, 10)
-                          : ''
-                        field.onChange(value)
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </>
         ) : (
           <div className='space-y-6'>

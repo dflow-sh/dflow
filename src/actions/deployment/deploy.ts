@@ -132,6 +132,7 @@ export const triggerDeployment = async ({
                   : '3000',
               },
               tenantSlug,
+              buildPath: githubSettings.buildPath || '/',
             })
 
             queueResponseId = id
