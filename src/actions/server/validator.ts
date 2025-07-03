@@ -92,7 +92,3 @@ export const checkServerConnectionSchema = z.discriminatedUnion(
     }),
   ],
 )
-
-export const checkHostnameConnectionSchema = z.object({
-  serverId: z.string(),
-})

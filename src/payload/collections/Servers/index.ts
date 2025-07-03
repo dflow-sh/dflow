@@ -46,11 +46,6 @@ export const Servers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    components: {
-      edit: {
-        beforeDocumentControls: ['@/components/ServerHostConnectionCheck.tsx'],
-      },
-    },
   },
   access: {
     read: isAdmin,

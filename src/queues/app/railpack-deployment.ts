@@ -2,6 +2,7 @@ import { dokku } from '../../lib/dokku'
 import { SSHType, dynamicSSH } from '../../lib/ssh'
 import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
+import { env } from 'env'
 import { NodeSSH } from 'node-ssh'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
@@ -394,60 +395,19 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           throw new Error('❌ Failed to deploy app')
         }
 
-        // Step 7: Check for Let's Encrypt status & generate SSL
-        const letsencryptStatus = await dokku.letsencrypt.status({
-          appName,
-          ssh,
-        })
-
-        if (
-          letsencryptStatus.code === 0 &&
-          letsencryptStatus.stdout === 'true'
-        ) {
-          sendEvent({
-            message: `✅ SSL enabled, skipping SSL generation`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `Started generating SSL`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-
-          const letsencryptResponse = await dokku.letsencrypt.enable(
-            ssh,
+        // ? Step 7: Check for Let's Encrypt status & generate SSL only when NEXT_PUBLIC_PROXY_DOMAIN_URL is not attached
+        if (!env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
+          const letsencryptStatus = await dokku.letsencrypt.status({
             appName,
-            {
-              onStdout: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: serviceDetails.deploymentId,
-                })
-              },
-              onStderr: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: serviceDetails.deploymentId,
-                })
-              },
-            },
-          )
+            ssh,
+          })
 
-          if (letsencryptResponse.code === 0) {
+          if (
+            letsencryptStatus.code === 0 &&
+            letsencryptStatus.stdout === 'true'
+          ) {
             sendEvent({
-              message: `✅ Successfully generated SSL certificates`,
+              message: `✅ SSL enabled, skipping SSL generation`,
               pub,
               serverId,
               serviceId,
@@ -455,12 +415,55 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
             })
           } else {
             sendEvent({
-              message: `❌ Failed to generated SSL certificates`,
+              message: `Started generating SSL`,
               pub,
               serverId,
               serviceId,
               channelId: serviceDetails.deploymentId,
             })
+
+            const letsencryptResponse = await dokku.letsencrypt.enable(
+              ssh,
+              appName,
+              {
+                onStdout: async chunk => {
+                  sendEvent({
+                    message: chunk.toString(),
+                    pub,
+                    serverId,
+                    serviceId,
+                    channelId: serviceDetails.deploymentId,
+                  })
+                },
+                onStderr: async chunk => {
+                  sendEvent({
+                    message: chunk.toString(),
+                    pub,
+                    serverId,
+                    serviceId,
+                    channelId: serviceDetails.deploymentId,
+                  })
+                },
+              },
+            )
+
+            if (letsencryptResponse.code === 0) {
+              sendEvent({
+                message: `✅ Successfully generated SSL certificates`,
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            } else {
+              sendEvent({
+                message: `❌ Failed to generated SSL certificates`,
+                pub,
+                serverId,
+                serviceId,
+                channelId: serviceDetails.deploymentId,
+              })
+            }
           }
         }
 

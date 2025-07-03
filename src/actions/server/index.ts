@@ -4,13 +4,10 @@ import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { NodeSSH } from 'node-ssh'
 
-import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { createSSH } from '@/lib/tailscale/ssh'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -18,7 +15,6 @@ import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
 
 import {
   checkDNSConfigSchema,
-  checkHostnameConnectionSchema,
   checkServerConnectionSchema,
   completeServerOnboardingSchema,
   createServerSchema,
@@ -782,44 +778,5 @@ export const checkServerConnection = protectedClient
             'Failed to connect to server. Please check your connection details and try again.',
         }
       }
-    }
-  })
-
-export const checkHostnameConnection = protectedClient
-  .metadata({
-    actionName: 'checkHostnameConnection',
-  })
-  .schema(checkHostnameConnectionSchema)
-  .action(async ({ clientInput, ctx }) => {
-    const { serverId } = clientInput
-    const { payload } = ctx
-
-    const server = await payload.findByID({
-      collection: 'servers',
-      id: serverId,
-    })
-
-    if (!server.hostname || !server?.username) {
-      throw new Error('Missing hostname or username')
-    }
-
-    let ssh: NodeSSH | null = null
-
-    try {
-      // ssh = await dynamicSSH({
-      //   username: server.username,
-      //   hostname: server.hostname,
-      // })
-
-      ssh = await createSSH(server.hostname, server.username)
-
-      const appsList = await dokku.apps.list(ssh)
-
-      return appsList
-    } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      throw new Error(message)
-    } finally {
-      ssh?.dispose()
     }
   })
