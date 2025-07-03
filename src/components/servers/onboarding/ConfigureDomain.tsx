@@ -12,7 +12,7 @@ const ConfigureDomain = ({ server }: { server: ServerType }) => {
     <ServerOnboardingLayout
       server={server}
       cardTitle={'Configure Domain'}
-      cardDescription={`🚀 Pro Tip: Don't have a domain no worries use nip.io wildcard domain: ${server.ip}.nip.io`}
+      cardDescription={`🚀 Pro Tip: Don't have a domain no worries use nip.io wildcard domain: ${server.ip || server.publicIp}.nip.io`}
       disableNextStep={!domains.length}>
       <ConfigureDefaultDomain server={server} />
 

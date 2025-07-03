@@ -39,7 +39,7 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
         id: server.id,
         domains: env.NEXT_PUBLIC_PROXY_DOMAIN_URL
           ? [`${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`]
-          : [`${server.ip}.nip.io`],
+          : [`${server.publicIp}.nip.io`],
         operation: 'set',
       })
     }

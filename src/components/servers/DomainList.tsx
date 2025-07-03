@@ -182,7 +182,7 @@ const DomainItem = ({
                     <TableRow>
                       <TableCell className='font-medium'>A</TableCell>
                       <TableCell>{`*.${extractWildcard(domain.domain)}`}</TableCell>
-                      <TableCell>{server.ip}</TableCell>
+                      <TableCell>{server.ip ?? server.publicIp}</TableCell>
                       <TableCell className='text-right'>auto</TableCell>
                     </TableRow>
                   </TableBody>
