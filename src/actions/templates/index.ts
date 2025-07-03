@@ -569,21 +569,24 @@ export const templateDeployAction = protectedClient
     services.forEach(service => {
       const uniqueSuffix = generateRandomString({ length: 4 })
 
-      const nameExists = projectServices?.find(serviceDetails => {
-        return (
-          typeof serviceDetails === 'object' &&
-          serviceDetails?.name === `${projectDetails.name}-${service.name}`
-        )
-      })
+      let baseServiceName = service.name
 
+      // Special case for database services: slice to 10 characters
       if (service?.type === 'database') {
-        const slicedName = service.name.slice(0, 10)
-        serviceNames[service?.name] =
-          `${projectDetails.name}-${nameExists ? `${slicedName}-${uniqueSuffix}` : slicedName}`
-      } else {
-        serviceNames[service?.name] =
-          `${projectDetails.name}-${nameExists ? `${service.name}-${uniqueSuffix}` : service.name}`
+        baseServiceName = service.name.slice(0, 10)
       }
+
+      const baseName = `${projectDetails.name}-${baseServiceName}`
+
+      const nameExists = projectServices?.some(
+        serviceDetails =>
+          typeof serviceDetails === 'object' &&
+          serviceDetails?.name === baseName,
+      )
+
+      const finalName = nameExists ? `${baseName}-${uniqueSuffix}` : baseName
+
+      serviceNames[service.name] = finalName
     })
 
     // Step 1: update service names & reference variables name to unique
