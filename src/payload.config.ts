@@ -26,6 +26,7 @@ import { Servers } from './payload/collections/Servers'
 import { Services } from './payload/collections/Services'
 import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
+import { Traefik } from './payload/collections/Traefik'
 import { Users } from './payload/collections/Users'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 import {
@@ -50,6 +51,7 @@ const collectionsWithHook = addBeforeOperationHook([
   DockerRegistries,
   Tenants,
   Backups,
+  Traefik,
 ])
 
 export default buildConfig({

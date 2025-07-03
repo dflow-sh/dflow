@@ -37,6 +37,7 @@ export const softDeletePluginConfigCollections: SoftDeletePluginOptions['collect
     templates: commonCollectionConfig,
     tenants: commonCollectionConfig,
     users: commonCollectionConfig,
+    traefik: commonCollectionConfig,
   }
 
 export const addBeforeOperationHook = (

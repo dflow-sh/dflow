@@ -431,5 +431,17 @@ export const Services: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'traefikConfiguration',
+      type: 'join',
+      label: 'Traefik Configuration',
+      collection: 'traefik',
+      on: 'service',
+      where: {
+        deletedAt: {
+          exists: false,
+        },
+      },
+    },
   ],
 }

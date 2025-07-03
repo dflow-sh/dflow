@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { getServiceDeploymentsBackups } from '@/actions/pages/service'
 import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
-import DomainList from '@/components/service/DomainList'
+import DomainsTab from '@/components/service/DomainsTab'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTabClient from '@/components/service/LogsTabClient'
 import VariablesForm from '@/components/service/VariablesForm'
@@ -70,7 +70,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
 
     case 'domains':
       return (
-        <DomainList
+        <DomainsTab
           domains={domains}
           // TODO: Domain list should be able to handle both ssh and tailscale
           ip={
