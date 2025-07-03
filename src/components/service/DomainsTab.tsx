@@ -1,8 +1,6 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Service } from '@/payload-types'
 
 import DomainList from './DomainList'
-import TraefikConfiguration from './TraefikConfiguration'
 
 const DomainsTab = ({
   domains,
@@ -12,22 +10,24 @@ const DomainsTab = ({
   ip: string
 }) => {
   return (
-    <Tabs defaultValue='domains'>
-      <TabsList className='mb-2'>
-        <TabsTrigger value='domains'>Domains</TabsTrigger>
-        <TabsTrigger value='traefikConfiguration'>
-          Traefik Configuration
-        </TabsTrigger>
-      </TabsList>
+    <DomainList domains={domains} ip={ip} />
 
-      <TabsContent value='domains'>
-        <DomainList domains={domains} ip={ip} />
-      </TabsContent>
+    // <Tabs defaultValue='domains'>
+    //   <TabsList className='mb-2'>
+    //     <TabsTrigger value='domains'>Domains</TabsTrigger>
+    //     <TabsTrigger value='traefikConfiguration'>
+    //       Traefik Configuration
+    //     </TabsTrigger>
+    //   </TabsList>
 
-      <TabsContent value='traefikConfiguration'>
-        <TraefikConfiguration />
-      </TabsContent>
-    </Tabs>
+    //   <TabsContent value='domains'>
+    //     <DomainList domains={domains} ip={ip} />
+    //   </TabsContent>
+
+    //   <TabsContent value='traefikConfiguration'>
+    //     <TraefikConfiguration />
+    //   </TabsContent>
+    // </Tabs>
   )
 }
 
