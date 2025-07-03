@@ -18,7 +18,7 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
       return doc
     }
 
-    const forceRefresh = !!context.refreshServerDetails
+    const forceRefresh = Boolean(context.refreshServerDetails)
     const sshDetails = extractSSHDetails({ server: doc })
 
     // Extract connection parameters
