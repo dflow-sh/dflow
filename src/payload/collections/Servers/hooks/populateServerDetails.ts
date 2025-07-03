@@ -120,7 +120,10 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
 
               // Get all local IPs in JSON
               const { stdout: ipAddrOut } = await ssh.execCommand('ip -j addr')
-              let ipJson: any[] = []
+              let ipJson: {
+                ifname: string
+                addr_info: { family: string; local: string }[]
+              }[] = []
               try {
                 ipJson = JSON.parse(ipAddrOut)
               } catch (jsonErr) {
@@ -129,7 +132,9 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
 
               // Extract Tailscale IP (most readable approach)
               const tailscaleIp = ipJson
-                .find(iface => iface?.ifname === 'tailscale0')
+                .find(
+                  (iface: { ifname: string }) => iface?.ifname === 'tailscale0',
+                )
                 ?.addr_info?.find(
                   (addr: { family: string; local: string }) =>
                     addr?.family === 'inet',
@@ -139,8 +144,11 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
 
               // Extract all local IPs using flatMap
               const allIps = ipJson
-                .flatMap(iface => iface.addr_info || [])
-                .map(addr => addr.local)
+                .flatMap(
+                  (iface: { addr_info: { local: string }[] }) =>
+                    iface?.addr_info || [],
+                )
+                .map((addr: { local: string }) => addr?.local)
                 .filter(Boolean)
 
               // Update Tailscale IP if found
