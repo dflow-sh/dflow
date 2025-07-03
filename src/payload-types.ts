@@ -80,6 +80,7 @@ export interface Config {
     dockerRegistries: DockerRegistry;
     tenants: Tenant;
     backups: Backup;
+    traefik: Traefik;
     banners: Banner;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -92,6 +93,7 @@ export interface Config {
     };
     services: {
       deployments: 'deployments';
+      traefikConfiguration: 'traefik';
     };
   };
   collectionsSelect: {
@@ -108,6 +110,7 @@ export interface Config {
     dockerRegistries: DockerRegistriesSelect<false> | DockerRegistriesSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     backups: BackupsSelect<false> | BackupsSelect<true>;
+    traefik: TraefikSelect<false> | TraefikSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -714,6 +717,11 @@ export interface Service {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  traefikConfiguration?: {
+    docs?: (string | Traefik)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -787,6 +795,29 @@ export interface Deployment {
   service: string | Service;
   status: 'queued' | 'building' | 'failed' | 'success';
   logs?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  deletedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "traefik".
+ */
+export interface Traefik {
+  id: string;
+  /**
+   * Add the service for which traefik-configuration relates to
+   */
+  service: string | Service;
+  configuration:
     | {
         [k: string]: unknown;
       }
@@ -1082,6 +1113,10 @@ export interface PayloadLockedDocument {
         value: string | Backup;
       } | null)
     | ({
+        relationTo: 'traefik';
+        value: string | Traefik;
+      } | null)
+    | ({
         relationTo: 'banners';
         value: string | Banner;
       } | null)
@@ -1253,6 +1288,7 @@ export interface ServicesSelect<T extends boolean = true> {
         id?: T;
       };
   deployments?: T;
+  traefikConfiguration?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1593,6 +1629,17 @@ export interface BackupsSelect<T extends boolean = true> {
   type?: T;
   backupName?: T;
   status?: T;
+  deletedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "traefik_select".
+ */
+export interface TraefikSelect<T extends boolean = true> {
+  service?: T;
+  configuration?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
