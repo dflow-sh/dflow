@@ -19,6 +19,7 @@ import {
 import { useRouter } from '@bprogress/next'
 import { AlertCircle, EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Fragment, useState } from 'react'
 import { toast } from 'sonner'
@@ -100,10 +101,13 @@ const TemplateDetails = ({
       <Card>
         <CardContent className='relative flex h-56 flex-col justify-between p-6'>
           <div>
-            <img
+            <Image
               alt='Template Image'
               src={template?.imageUrl || '/images/favicon.ico'}
+              width={40}
+              height={40}
               className='h-10 w-10 rounded-md'
+              unoptimized
             />
 
             <div className='mt-4 space-y-1'>

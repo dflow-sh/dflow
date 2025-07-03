@@ -2,6 +2,7 @@
 
 import { Check, HelpCircle, LogOut } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -33,11 +34,14 @@ export function NavUser({ user }: { user: User }) {
             <div className='relative inline-block'>
               <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
                 {user?.avatarUrl ? (
-                  <img
+                  <Image
                     src={user.avatarUrl || ''}
                     alt='User avatar'
+                    width={32}
+                    height={32}
                     className='h-8 w-8 rounded-lg object-cover'
                     loading='lazy'
+                    unoptimized
                   />
                 ) : (
                   <AvatarFallback className='rounded-lg uppercase'>
