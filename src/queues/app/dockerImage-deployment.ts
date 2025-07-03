@@ -1,5 +1,6 @@
 import { dokku } from '../../lib/dokku'
 import configPromise from '@payload-config'
+import { env } from 'env'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
@@ -275,8 +276,9 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
 
         // Checking if http is enabled or not
         const httpEnabled = ports && ports.find(port => port.hostPort === 80)
+        // ? Step 7: Check for Let's Encrypt status & generate SSL only when NEXT_PUBLIC_PROXY_DOMAIN_URL is not attached
 
-        if (httpEnabled) {
+        if (httpEnabled && !env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
           // Step 4: Check for Let's Encrypt status & generate SSL
           const letsencryptStatus = await dokku.letsencrypt.status({
             appName,
