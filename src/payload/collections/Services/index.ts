@@ -4,6 +4,8 @@ import { CollectionConfig, Field } from 'payload'
 import { databaseOptions } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { handleTraefikConfiguration } from './hooks/handleTraefikConfiguration'
+
 const databaseField: Field = {
   label: 'Database Details',
   type: 'collapsible',
@@ -253,7 +255,10 @@ export const Services: CollectionConfig = {
     delete: isAdmin,
     readVersions: isAdmin,
   },
-
+  hooks: {
+    // add, remove traefik configuration
+    afterChange: [handleTraefikConfiguration],
+  },
   fields: [
     {
       name: 'project',
@@ -424,6 +429,18 @@ export const Services: CollectionConfig = {
       type: 'join',
       label: 'Deployments',
       collection: 'deployments',
+      on: 'service',
+      where: {
+        deletedAt: {
+          exists: false,
+        },
+      },
+    },
+    {
+      name: 'traefikConfiguration',
+      type: 'join',
+      label: 'Traefik Configuration',
+      collection: 'traefik',
       on: 'service',
       where: {
         deletedAt: {

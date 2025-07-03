@@ -64,7 +64,7 @@ export const DomainFormWithoutDialog = ({
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      domain: `${server.ip}.nip.io`,
+      domain: `${server.ip || server.publicIp}.nip.io`,
       defaultDomain: false,
     },
   })
@@ -150,7 +150,7 @@ export const DomainFormWithoutDialog = ({
               <TableRow>
                 <TableCell className='font-medium'>A</TableCell>
                 <TableCell>{`*.${parts?.splice(0, parts?.length - 2).join('.')}`}</TableCell>
-                <TableCell>{server.ip}</TableCell>
+                <TableCell>{server.ip || server.publicIp}</TableCell>
                 <TableCell className='text-right'>auto</TableCell>
               </TableRow>
             </TableBody>

@@ -9,7 +9,6 @@ import { BulkRestoreButton as BulkRestoreButton_dbef22401404dda2caddfae892201948
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TextField as TextField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { JSONField as JSONField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
-import { default as default_eeedb91ad69c0f93850dbd47f64b6aea } from '@/components/ServerHostConnectionCheck.tsx'
 import { TextareaField as TextareaField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TenantSelector as TenantSelector_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
@@ -28,7 +27,6 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/ui#TextField": TextField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui#JSONField": JSONField_3817bf644402e67bfe6577f60ef982de,
-  "@/components/ServerHostConnectionCheck.tsx#default": default_eeedb91ad69c0f93850dbd47f64b6aea,
   "@payloadcms/ui#TextareaField": TextareaField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/plugin-multi-tenant/client#TenantSelector": TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,

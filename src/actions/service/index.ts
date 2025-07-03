@@ -119,7 +119,7 @@ export const createServiceAction = protectedClient
         const databaseList = await dokku.database.list(ssh, databaseType)
 
         // Throwing a error if database is already created
-        if (databaseList.includes(name)) {
+        if (databaseList.includes(serviceName)) {
           throw new Error('Name is already taken!')
         }
 
@@ -127,7 +127,7 @@ export const createServiceAction = protectedClient
           collection: 'services',
           data: {
             project: projectId,
-            name,
+            name: serviceName,
             description,
             type,
             databaseDetails: {

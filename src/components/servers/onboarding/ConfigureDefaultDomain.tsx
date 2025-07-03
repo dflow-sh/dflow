@@ -1,4 +1,5 @@
 import { DomainFormWithoutDialog } from '../DomainForm'
+import { env } from 'env'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
@@ -33,10 +34,13 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
 
     if (!domainAlreadyConfigured && !hasSucceeded && !calledRef.current) {
       calledRef.current = true
+
       execute({
         id: server.id,
-        domains: [`${server.ip}.nip.io`],
-        operation: 'add',
+        domains: env.NEXT_PUBLIC_PROXY_DOMAIN_URL
+          ? [`${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`]
+          : [`${server.publicIp}.nip.io`],
+        operation: 'set',
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

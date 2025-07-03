@@ -2,6 +2,7 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
+import { env } from 'env'
 import {
   CircleCheckBig,
   CircleX,
@@ -92,9 +93,10 @@ const DomainItem = ({
     },
   })
 
-  const isWildCardDomain = WILD_CARD_DOMAINS.some(wildCardDomain =>
-    domain.domain.endsWith(wildCardDomain),
-  )
+  const isWildCardDomain =
+    WILD_CARD_DOMAINS.some(wildCardDomain =>
+      domain.domain.endsWith(wildCardDomain),
+    ) || domain.domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ')
 
   useEffect(() => {
     if (!isWildCardDomain) {
@@ -180,7 +182,7 @@ const DomainItem = ({
                     <TableRow>
                       <TableCell className='font-medium'>A</TableCell>
                       <TableCell>{`*.${extractWildcard(domain.domain)}`}</TableCell>
-                      <TableCell>{server.ip}</TableCell>
+                      <TableCell>{server.ip ?? server.publicIp}</TableCell>
                       <TableCell className='text-right'>auto</TableCell>
                     </TableRow>
                   </TableBody>
