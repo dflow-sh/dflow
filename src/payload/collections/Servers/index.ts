@@ -4,7 +4,7 @@ import { isAdmin } from '@/payload/access/isAdmin'
 
 import { ensureUniqueIP } from './hooks/ensureUniqueIP'
 import { nextBillingDateAfterRead } from './hooks/nextBillingDate'
-import { populateDokkuVersion } from './hooks/populateDokkuVersion'
+import { populateServerDetails } from './hooks/populateServerDetails'
 
 const pluginFields: Field[] = [
   {
@@ -60,7 +60,7 @@ export const Servers: CollectionConfig = {
     readVersions: isAdmin,
   },
   hooks: {
-    afterRead: [populateDokkuVersion, nextBillingDateAfterRead],
+    afterRead: [populateServerDetails, nextBillingDateAfterRead],
   },
   fields: [
     {

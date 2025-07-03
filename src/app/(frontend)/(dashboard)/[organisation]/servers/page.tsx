@@ -19,14 +19,22 @@ interface PageProps {
   params: Promise<{
     organisation: string
   }>
+  searchParams: Promise<{
+    refreshServerDetails?: boolean
+  }>
 }
 
 const SuspendedServers = async ({
   organisationSlug,
+  refreshServerDetails,
 }: {
   organisationSlug: string
+  refreshServerDetails: boolean
 }) => {
-  const result = await getServersDetails()
+  const result = await getServersDetails({
+    populateServerDetails: !refreshServerDetails,
+    refreshServerDetails,
+  })
   const servers = result?.data?.servers ?? []
 
   return (
@@ -76,8 +84,11 @@ const SuspendedServers = async ({
   )
 }
 
-const ServersPage = async ({ params }: PageProps) => {
-  const syncParams = await params
+const ServersPage = async ({ params, searchParams }: PageProps) => {
+  const [syncParams, syncSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ])
 
   return (
     <LayoutClient>
@@ -103,7 +114,12 @@ const ServersPage = async ({ params }: PageProps) => {
       </div>
 
       <Suspense fallback={<ServersSkeleton />}>
-        <SuspendedServers organisationSlug={syncParams.organisation} />
+        <SuspendedServers
+          organisationSlug={syncParams.organisation}
+          refreshServerDetails={
+            String(syncSearchParams.refreshServerDetails) === 'true'
+          }
+        />
       </Suspense>
     </LayoutClient>
   )

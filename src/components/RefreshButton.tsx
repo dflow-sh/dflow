@@ -1,8 +1,8 @@
 'use client'
 
 import { RefreshCw } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useTransition } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useTransition } from 'react'
 
 import { Button } from '@/components/ui/button'
 
@@ -17,6 +17,7 @@ interface RefreshButtonProps {
     | 'ghost'
     | 'link'
   size?: 'default' | 'sm' | 'lg' | 'icon'
+  onRefresh?: () => void | Promise<void>
 }
 
 export default function RefreshButton({
@@ -24,15 +25,32 @@ export default function RefreshButton({
   text = 'Refresh',
   variant = 'outline',
   size = 'icon',
+  onRefresh,
 }: RefreshButtonProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
   const handleRefresh = () => {
     startTransition(() => {
-      router.refresh()
+      if (onRefresh) {
+        Promise.resolve(onRefresh())
+      } else {
+        const params = new URLSearchParams(searchParams.toString())
+        params.set('refreshServerDetails', 'true')
+        router.push(`?${params.toString()}`)
+        // router.refresh()
+      }
     })
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (params.has('refreshServerDetails')) {
+      params.delete('refreshServerDetails')
+      router.replace(`?${params.toString()}`)
+    }
+  }, [searchParams, router])
 
   // If showing text, use default size instead of icon size
   const buttonSize = showText ? 'default' : size

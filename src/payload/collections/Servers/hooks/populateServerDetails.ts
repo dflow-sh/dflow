@@ -5,7 +5,7 @@ import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { Server } from '@/payload-types'
 
-export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
+export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
   doc,
   context,
   req,
@@ -13,11 +13,12 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
   const { payload } = req
 
   try {
-    // Skip processing if populateServerDetails flag is false
-    if (!context.populateServerDetails) {
+    // If neither populateServerDetails nor refreshServerDetails is true, skip processing
+    if (!context.populateServerDetails && !context.refreshServerDetails) {
       return doc
     }
 
+    const forceRefresh = Boolean(context.refreshServerDetails)
     const sshDetails = extractSSHDetails({ server: doc })
 
     // Extract connection parameters
@@ -39,6 +40,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
         },
         railpack: undefined,
         publicIp: doc.publicIp ?? undefined,
+        tailscalePrivateIp: doc.tailscalePrivateIp ?? undefined,
+        cloudInitStatus: doc.cloudInitStatus ?? undefined,
         connection: {
           status: 'failed',
           lastChecked: new Date().toString(),
@@ -61,6 +64,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
     let shouldUpdateCloudInitStatus = false
     let shouldUpdatePublicIp = false
     let shouldUpdateTailscaleIp = false
+    let cloudInitStatus: 'running' | 'other' | null | undefined = undefined
     let newPublicIp: string | undefined = undefined
     let newTailscaleIp: string | undefined = undefined
 
@@ -80,8 +84,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
           linuxType = serverInfo.linuxDistributionType
           railpack = serverInfo.railpackVersion
 
-          // If cloudInitStatus was running, check and update if needed
-          if (doc.cloudInitStatus === 'running') {
+          // If forceRefresh is true or cloudInitStatus is running, check and update if needed
+          if (forceRefresh || doc.cloudInitStatus === 'running') {
             try {
               const { stdout: cloudInitStatusOut } =
                 await ssh.execCommand('cloud-init status')
@@ -89,17 +93,24 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
               console.log('cloudInitStatusOut:', cloudInitStatusOut)
 
               const statusMatch = cloudInitStatusOut.match(/status:\s*(\w+)/)
-              const status = statusMatch ? statusMatch[1] : ''
+              let status: 'running' | 'other' | null | undefined = statusMatch
+                ? (statusMatch[1] as 'running' | 'other')
+                : undefined
 
-              if (status !== 'running') {
+              // Convert status to lowercase and set to running if it's running, otherwise set to other
+              status = status?.toLowerCase() === 'running' ? 'running' : 'other'
+
+              if (forceRefresh || (status && status !== doc.cloudInitStatus)) {
                 shouldUpdateCloudInitStatus = true
+                cloudInitStatus = status
               }
             } catch (cloudInitError) {
               console.log('Error checking cloud-init status:', cloudInitError)
             }
           }
 
-          if (!doc.publicIp || !doc.tailscalePrivateIp) {
+          // Only check IPs if missing or if forceRefresh is true
+          if (forceRefresh || !doc.publicIp || !doc.tailscalePrivateIp) {
             try {
               // Get public IP from external service
               const { stdout: publicIpOut } = await ssh.execCommand(
@@ -109,41 +120,56 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
               // Get all local IPs in JSON
               const { stdout: ipAddrOut } = await ssh.execCommand('ip -j addr')
-              let ipJson: any[] = []
+              let ipJson: {
+                ifname: string
+                addr_info: { family: string; local: string }[]
+              }[] = []
               try {
                 ipJson = JSON.parse(ipAddrOut)
               } catch (jsonErr) {
                 ipJson = []
               }
 
-              // Extract Tailscale IP
+              // Extract Tailscale IP (most readable approach)
               const tailscaleIp = ipJson
-                .find((iface: any) => iface.ifname === 'tailscale0')
-                ?.addr_info?.find((addr: any) => addr.family === 'inet')?.local
+                .find(
+                  (iface: { ifname: string }) => iface?.ifname === 'tailscale0',
+                )
+                ?.addr_info?.find(
+                  (addr: { family: string; local: string }) =>
+                    addr?.family === 'inet',
+                )?.local as string | undefined
 
               console.log('tailscaleIp:', tailscaleIp)
 
-              if (tailscaleIp) {
+              // Extract all local IPs using flatMap
+              const allIps = ipJson
+                .flatMap(
+                  (iface: { addr_info: { local: string }[] }) =>
+                    iface?.addr_info || [],
+                )
+                .map((addr: { local: string }) => addr?.local)
+                .filter(Boolean)
+
+              // Update Tailscale IP if found
+              if (
+                forceRefresh ||
+                (tailscaleIp && tailscaleIp !== doc.tailscalePrivateIp)
+              ) {
                 newTailscaleIp = tailscaleIp
                 shouldUpdateTailscaleIp = true
               }
 
-              const allIps: string[] = []
-              for (const iface of ipJson) {
-                if (iface.addr_info) {
-                  for (const addr of iface.addr_info) {
-                    if (addr.local) allIps.push(addr.local)
-                  }
-                }
-              }
-
-              if (publicIp && allIps.includes(publicIp)) {
+              // Update public IP based on validation
+              if (forceRefresh || (publicIp && allIps.includes(publicIp))) {
                 newPublicIp = publicIp
               } else {
                 newPublicIp = '999.999.999.999'
               }
 
-              shouldUpdatePublicIp = true
+              if (forceRefresh || (publicIp && publicIp !== doc.publicIp)) {
+                shouldUpdatePublicIp = true
+              }
             } catch (publicIpErr) {
               console.log('Error fetching public IP:', publicIpErr)
             }
@@ -164,7 +190,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
 
     const newConnectionStatus = sshConnected ? 'success' : 'failed'
     const connectionStatusChanged =
-      doc.connection?.status !== newConnectionStatus
+      forceRefresh || doc.connection?.status !== newConnectionStatus
 
     if (
       connectionStatusChanged ||
@@ -182,7 +208,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       }
 
       if (shouldUpdateCloudInitStatus) {
-        updateData.cloudInitStatus = 'other'
+        updateData.cloudInitStatus = cloudInitStatus
       }
 
       if (shouldUpdatePublicIp) {
@@ -222,6 +248,7 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       railpack,
       publicIp: newPublicIp ?? doc.publicIp ?? undefined,
       tailscalePrivateIp: newTailscaleIp ?? doc.tailscalePrivateIp,
+      cloudInitStatus: cloudInitStatus ?? doc.cloudInitStatus,
       connection: {
         status: sshConnected ? 'success' : 'failed',
         lastChecked: new Date().toString(),
@@ -242,6 +269,8 @@ export const populateDokkuVersion: CollectionAfterReadHook<Server> = async ({
       },
       railpack: undefined,
       publicIp: doc.publicIp ?? undefined,
+      tailscalePrivateIp: doc.tailscalePrivateIp ?? undefined,
+      cloudInitStatus: doc.cloudInitStatus ?? undefined,
       connection: {
         status: 'failed',
         lastChecked: new Date().toString(),
