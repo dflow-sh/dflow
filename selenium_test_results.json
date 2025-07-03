@@ -1,0 +1,23 @@
+[
+  {
+    "test": "Sign-In Page Loads",
+    "success": true
+  },
+  {
+    "test": "Login Works",
+    "success": true
+  },
+  {
+    "test": "Forgot Password Page Loads",
+    "success": false,
+    "error": "Waiting for element to be located By(xpath, //button[contains(., 'Reset Password')])\nWait timed out after 5069ms"
+  },
+  {
+    "test": "Sign-Up Page Loads",
+    "success": true
+  },
+  {
+    "test": "Dashboard Loads After Login",
+    "success": true
+  }
+]
