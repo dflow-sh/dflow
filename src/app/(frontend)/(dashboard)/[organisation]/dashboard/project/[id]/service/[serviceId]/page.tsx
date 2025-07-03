@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
@@ -37,16 +37,16 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     typeof service.project === 'object' ? service.project.server : ''
   const serverObject = typeof server === 'object' ? server : null
 
-  if (
-    serverObject &&
-    serverObject.connection &&
-    serverObject.connection.status !== 'success'
-  ) {
-    const projectId =
-      typeof service.project === 'object' ? service.project.id : service.project
+  // if (
+  //   serverObject &&
+  //   serverObject.connection &&
+  //   serverObject.connection.status !== 'success'
+  // ) {
+  //   const projectId =
+  //     typeof service.project === 'object' ? service.project.id : service.project
 
-    redirect(`/${organisation}/dashboard/project/${projectId}`)
-  }
+  //   redirect(`/${organisation}/dashboard/project/${projectId}`)
+  // }
 
   const domains = service.domains ?? []
   const databaseDetails = service.databaseDetails ?? {}

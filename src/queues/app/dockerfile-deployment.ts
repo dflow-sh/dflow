@@ -27,6 +27,7 @@ interface QueueArgs {
     serverId: string
   }
   tenantSlug: string
+  buildPath?: string
 }
 
 export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
@@ -76,7 +77,25 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
 
         ssh = await dynamicSSH(sshDetails)
 
-        // Step 1: Setting dokku port
+        // Step 1: Set dokku build-dir if buildPath is provided
+        const buildPath = job.data.buildPath
+        await dokku.builder.setBuildDir({
+          ssh,
+          appName,
+          buildDir: buildPath,
+        })
+        sendEvent({
+          message:
+            buildPath && buildPath !== '/'
+              ? `Set dokku build-dir to ${buildPath}`
+              : `Reset dokku build-dir to default`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+
+        // Step 2: Setting dokku port
         const port = serviceDetails.port ?? '3000'
 
         // validate weather port is set or not
@@ -151,7 +170,7 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
           }
         }
 
-        // Step 2: Setting environment variables & add build-args
+        // Step 3: Setting environment variables & add build-args
         if (variables.length) {
           sendEvent({
             message: `Stated setting environment variables`,
