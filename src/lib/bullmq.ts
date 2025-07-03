@@ -1,6 +1,27 @@
 import { Processor, Queue, Worker } from 'bullmq'
 import Redis from 'ioredis'
 
+import { log } from '@/lib/logger'
+
+const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
+
+// Async logging wrapper to avoid blocking queue operations
+const logAsync = (logFn: () => void) => {
+  if (isDev) {
+    // Sync in development for better debugging
+    logFn()
+  } else {
+    // Truly non-blocking in production for performance
+    process.nextTick(() => {
+      try {
+        logFn()
+      } catch (error) {
+        // Silent fail to avoid disrupting queue operations
+      }
+    })
+  }
+}
+
 // caching queues & workers in memory
 export const workers = new Map<string, Worker>()
 export const queues = new Map<string, Queue>()
@@ -27,6 +48,38 @@ export const getQueue = ({
     },
   })
 
+  logAsync(() => {
+    log.info('BullMQ queue created', {
+      component: 'bullmq',
+      queue: name,
+      event: 'queue-created',
+    })
+  })
+
+  newQueue.on('waiting', (job: any) => {
+    logAsync(() => {
+      log.info('Job added to queue', {
+        component: 'bullmq',
+        queue: name,
+        jobId: job.id,
+        jobName: job.name,
+        event: 'job-added',
+      })
+    })
+  })
+
+  newQueue.on('error', (err: Error) => {
+    logAsync(() => {
+      log.error('Queue error', {
+        component: 'bullmq',
+        queue: name,
+        event: 'queue-error',
+        error: err.message,
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
   queues.set(name, newQueue)
   return newQueue
 }
@@ -50,6 +103,111 @@ export const getWorker = <T = any>({
     connection,
   })
 
+  logAsync(() => {
+    log.info('BullMQ worker created', {
+      component: 'bullmq',
+      queue: name,
+      event: 'worker-created',
+    })
+  })
+
+  newWorker.on('ready', () => {
+    logAsync(() => {
+      log.info('Worker ready', {
+        component: 'bullmq',
+        queue: name,
+        event: 'worker-ready',
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('active', (job: any) => {
+    logAsync(() => {
+      log.debug('Job started processing', {
+        component: 'bullmq',
+        queue: name,
+        jobId: job.id,
+        jobName: job.name,
+        event: 'job-active',
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('completed', (job: any, result: any) => {
+    logAsync(() => {
+      const endTime = Date.now()
+      const duration = job.processedOn ? endTime - job.processedOn : undefined
+
+      log.info('Job completed successfully', {
+        component: 'bullmq',
+        queue: name,
+        jobId: job.id,
+        jobName: job.name,
+        event: 'job-completed',
+        duration,
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('failed', (job: any, err: Error) => {
+    logAsync(() => {
+      const endTime = Date.now()
+      const duration = job?.processedOn ? endTime - job.processedOn : undefined
+
+      log.error('Job failed', {
+        component: 'bullmq',
+        queue: name,
+        jobId: job?.id,
+        jobName: job?.name,
+        event: 'job-failed',
+        error: err.message,
+        stack: err.stack,
+        duration,
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('stalled', (job: any) => {
+    logAsync(() => {
+      log.warn('Job stalled (stuck processing)', {
+        component: 'bullmq',
+        queue: name,
+        jobId: job.id,
+        jobName: job.name,
+        event: 'job-stalled',
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('error', (err: Error) => {
+    logAsync(() => {
+      log.error('Worker error', {
+        component: 'bullmq',
+        queue: name,
+        event: 'worker-error',
+        error: err.message,
+        stack: err.stack,
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
+  newWorker.on('closed', () => {
+    logAsync(() => {
+      log.info('Worker closed', {
+        component: 'bullmq',
+        queue: name,
+        event: 'worker-closed',
+        timestamp: new Date().toISOString(),
+      })
+    })
+  })
+
   workers.set(name, newWorker)
   return newWorker
 }
@@ -61,9 +219,26 @@ const closeWorker = async (queueName: string) => {
     try {
       await worker.close()
       workers.delete(queueName)
-      console.log(`Worker for queue ${queueName} closed successfully`)
+
+      logAsync(() => {
+        log.info('Worker closed successfully', {
+          component: 'bullmq',
+          queue: queueName,
+          event: 'worker-cleanup',
+        })
+      })
     } catch (error) {
-      console.error(`Error closing worker for queue ${queueName}:`, error)
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
+
+      logAsync(() => {
+        log.error('Error closing worker', {
+          component: 'bullmq',
+          queue: queueName,
+          event: 'worker-cleanup-error',
+          error: errorMessage,
+        })
+      })
     }
   }
 }
@@ -78,8 +253,26 @@ export const closeQueue = async (queueName: string) => {
     try {
       await queue.close()
       queues.delete(queueName)
+
+      logAsync(() => {
+        log.info('Queue closed successfully', {
+          component: 'bullmq',
+          queue: queueName,
+          event: 'queue-cleanup',
+        })
+      })
     } catch (error) {
-      console.error(`Error closing queue ${queueName}:`, error)
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error'
+
+      logAsync(() => {
+        log.error('Error closing queue', {
+          component: 'bullmq',
+          queue: queueName,
+          event: 'queue-cleanup-error',
+          error: errorMessage,
+        })
+      })
     }
   }
 }
