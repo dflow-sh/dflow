@@ -2,34 +2,6 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-// {
-//     "http": {
-//       "routers": {
-//         "{serviceName}-{serverName}-router": {
-//           "rule": "Host(`{serviceName}.{serverName}.up.dflow.sh`)",
-//           "entryPoints": [
-//             "websecure"
-//           ],
-//           "tls": {
-//             "certResolver": "letsencrypt"
-//           },
-//           "service": "{serviceName}-{serverName}-service"
-//         }
-//       },
-//       "services": {
-//         "{serviceName}-{serverName}-service": {
-//           "loadBalancer": {
-//             "servers": [
-//               {
-//                 "url": "http://100.122.90.48:80"
-//               }
-//             ]
-//           }
-//         }
-//       }
-//     }
-//   }
-
 export const Traefik: CollectionConfig = {
   slug: 'traefik',
   access: {
