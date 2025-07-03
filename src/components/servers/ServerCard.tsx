@@ -233,7 +233,9 @@ const ServerCard = ({
                   <span>IP Address</span>
                 </div>
                 <span className='rounded bg-muted px-2 py-1 text-right font-mono text-sm'>
-                  {server.ip}
+                  {server.preferConnectionType === 'ssh'
+                    ? server.ip
+                    : server.publicIp}
                 </span>
               </div>
 

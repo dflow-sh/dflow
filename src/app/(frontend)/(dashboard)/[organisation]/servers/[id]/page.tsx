@@ -1,6 +1,5 @@
 import { ScreenShareOff, TriangleAlert } from 'lucide-react'
 import { notFound } from 'next/navigation'
-import type { SearchParams } from 'nuqs/server'
 import { Suspense, use } from 'react'
 
 import {
@@ -30,7 +29,6 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
-import { loadServerPageTabs } from '@/lib/searchParams'
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -41,7 +39,10 @@ interface PageProps {
     id: string
     organisation: string
   }>
-  searchParams: Promise<SearchParams>
+  searchParams: Promise<{
+    refreshServerDetails?: string
+    tab?: string
+  }>
 }
 
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
@@ -231,9 +232,20 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
 }
 
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
-  const { id } = use(params)
-  const { tab } = use(loadServerPageTabs(searchParams))
-  const result = use(getServerBreadcrumbs({ id }))
+  const [syncParams, syncSearchParams] = use(
+    Promise.all([params, searchParams]),
+  )
+  const { id } = syncParams
+  const { tab, refreshServerDetails } = syncSearchParams
+  const isRefreshServerDetails = refreshServerDetails === 'true'
+
+  const result = use(
+    getServerBreadcrumbs({
+      id,
+      populateServerDetails: !isRefreshServerDetails,
+      refreshServerDetails: isRefreshServerDetails,
+    }),
+  )
 
   if (!result?.data?.server?.id) return notFound()
 
