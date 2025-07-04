@@ -150,12 +150,11 @@ const SuspendedDashboard = async ({
                   </li>
                 ))}
               </ul>
-              {/* If you have a route for onboarding, add a link/button here. Example: */}
               <div>
                 <Link
                   href={`/${organisationSlug}/servers`}
                   className='font-semibold underline'>
-                  Go to Servers to complete onboarding
+                  Go to Servers page to complete onboarding
                 </Link>
               </div>
             </AlertDescription>
