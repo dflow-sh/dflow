@@ -10,7 +10,8 @@ import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Service } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
+import { ServerType } from '@/payload-types-overrides'
 
 interface PageProps {
   params: Promise<{
@@ -24,8 +25,8 @@ const Projects = ({
   organisationSlug,
   hasServers,
 }: {
-  servers: any[]
-  projects: any[]
+  servers: ServerType[]
+  projects: Project[]
   organisationSlug: string
   hasServers: boolean
 }) => {
@@ -174,7 +175,7 @@ const SuspendedDashboard = async ({
 
         {/* Server Alerts and Projects display */}
         <Projects
-          servers={servers}
+          servers={servers as ServerType[]}
           projects={projects}
           organisationSlug={organisationSlug}
           hasServers={hasServers}
