@@ -146,7 +146,42 @@ const ServerCard = ({
     }
   }
 
+  const getIpDetails = (server: Server) => {
+    // For SSH connections, prioritize the IP field
+    if (server.preferConnectionType === 'ssh') {
+      return {
+        label: 'IP Address',
+        value: server.ip || 'No IP available',
+        hasValue: !!server.ip,
+      }
+    }
+
+    // For tailscale connection, follow priority: publicIp > tailscalePrivateIp
+    if (server.publicIp) {
+      return {
+        label: 'Public IP',
+        value: server.publicIp,
+        hasValue: true,
+      }
+    }
+
+    if (server.tailscalePrivateIp) {
+      return {
+        label: 'Tailscale IP',
+        value: server.tailscalePrivateIp,
+        hasValue: true,
+      }
+    }
+
+    return {
+      label: 'IP Address',
+      value: 'No IP available',
+      hasValue: false,
+    }
+  }
+
   const serverStatus = getServerStatus()
+  const ipInfo = getIpDetails(server)
 
   return (
     <>
@@ -230,12 +265,16 @@ const ServerCard = ({
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-2 text-sm text-muted-foreground'>
                   <ServerIcon className='h-4 w-4' />
-                  <span>IP Address</span>
+                  <span>{ipInfo.label}</span>
                 </div>
-                <span className='rounded bg-muted px-2 py-1 text-right font-mono text-sm'>
-                  {server.preferConnectionType === 'ssh'
-                    ? server.ip
-                    : server.publicIp}
+                <span
+                  className={cn(
+                    'rounded px-2 py-1 text-right font-mono text-sm',
+                    ipInfo.hasValue
+                      ? 'bg-muted'
+                      : 'bg-muted/50 text-muted-foreground',
+                  )}>
+                  {ipInfo.value}
                 </span>
               </div>
 
