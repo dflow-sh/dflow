@@ -3,6 +3,7 @@
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { env } from 'env'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
@@ -64,7 +65,9 @@ export const DomainFormWithoutDialog = ({
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      domain: `${server.ip || server.publicIp}.nip.io`,
+      domain: env.NEXT_PUBLIC_PROXY_DOMAIN_URL
+        ? `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+        : `${server.ip || server.publicIp}.nip.io`,
       defaultDomain: false,
     },
   })
