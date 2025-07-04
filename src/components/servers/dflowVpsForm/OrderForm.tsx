@@ -94,7 +94,9 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   }
 
   const onboardingCompleted =
-    !!dFlowUser?.discord?.accountId && !!dFlowUser?.acceptedTermsDate
+    !!dFlowUser?.discord?.accountId &&
+    !!dFlowUser?.acceptedTermsDate &&
+    !!dFlowUser?.discord?.isEligible
 
   return (
     <>
