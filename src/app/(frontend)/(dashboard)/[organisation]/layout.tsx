@@ -1,14 +1,25 @@
+import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
+import { getDflowUser } from '@/actions/cloud/dFlow'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
 import { GithubSvg } from '@/components/icons/Github'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 import Provider from '@/providers/Provider'
 
@@ -37,6 +48,8 @@ const DashboardLayoutInner = async ({
   const organisationSlug = (await params).organisation
 
   const result = await getGithubStarsAction()
+  const dflowUser = await getDflowUser()
+  const hasClaimedCredits = dflowUser?.data?.user?.hasClaimedFreeCredits
 
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
@@ -70,6 +83,50 @@ const DashboardLayoutInner = async ({
             <GithubSvg width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
           </Link>
+
+          {!hasClaimedCredits && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant={'ghost'} size={'icon'} className='w-full p-1'>
+                  <Image
+                    src={'/images/gift.png'}
+                    width={100}
+                    height={100}
+                    alt='gift-credits'
+                    className='size-7'
+                  />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <div>
+                  <Image
+                    src={'/images/gift.png'}
+                    width={100}
+                    height={100}
+                    alt='gift-credits'
+                    className='mx-auto mb-2 size-14'
+                  />
+                  <DialogHeader>
+                    <DialogTitle className='text-center text-xl'>
+                      Claim your free credits!
+                    </DialogTitle>
+                    <DialogDescription className='mx-auto max-w-sm text-center'>
+                      You can claim rewards by joining our Discord community.
+                      Click on Claim Rewards to continue on{' '}
+                      <a
+                        className='inline-flex items-center text-foreground underline'
+                        href='https://dflow.sh/dashboard'
+                        target='_blank'
+                        rel='noopener noreferrer'>
+                        dflow.sh
+                        <ArrowUpRight size={16} />
+                      </a>
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
 
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended />
