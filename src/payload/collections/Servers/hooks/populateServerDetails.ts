@@ -161,10 +161,12 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
               }
 
               // Update public IP based on validation
-              if (forceRefresh || (publicIp && allIps.includes(publicIp))) {
-                newPublicIp = publicIp
-              } else {
-                newPublicIp = '999.999.999.999'
+              if (forceRefresh) {
+                if (publicIp && allIps.includes(publicIp)) {
+                  newPublicIp = publicIp
+                } else {
+                  newPublicIp = '999.999.999.999'
+                }
               }
 
               if (forceRefresh || (publicIp && publicIp !== doc.publicIp)) {
