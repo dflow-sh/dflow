@@ -306,8 +306,8 @@ const AddGithubService = ({
             </RadioGroup>
 
             <p className='text-[0.8rem] text-muted-foreground'>
-              Select private option to deploy public, private repositories from
-              your github-app
+              Select the GitHub App option to deploy any public or private
+              repository associated with your GitHub App.
             </p>
           </div>
 
