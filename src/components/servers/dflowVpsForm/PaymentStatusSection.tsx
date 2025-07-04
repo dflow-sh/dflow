@@ -84,7 +84,7 @@ export const PaymentStatusSection = () => {
       )
       recommendations.push(
         <span key='required-amount'>
-          Required amount: ${planCost.toFixed(2)}
+          Required amount: ${finalPrice.toFixed(2)}
         </span>,
       )
       recommendations.push(
@@ -105,7 +105,7 @@ export const PaymentStatusSection = () => {
                       •
                     </span>
                     <span className='font-semibold'>
-                      ${planCost.toFixed(2)} required
+                      ${finalPrice.toFixed(2)} required
                     </span>
                   </div>
                 </div>
@@ -191,7 +191,7 @@ export const PaymentStatusSection = () => {
                   </span>
 
                   {isCreditsUsed && (
-                    <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs'>
+                    <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs text-foreground'>
                       Credits Applied: -${walletCreditsApplied.toFixed(2)}
                     </span>
                   )}

@@ -71,6 +71,7 @@ interface ServerFormContentProps {
   dFlowAccounts?: CloudProviderAccount[]
   selectedDFlowAccount?: CloudProviderAccount
   dFlowUser: any
+  vpsPlans?: VpsPlan[]
 }
 interface ServerFormProps {
   sshKeys: SshKey[]
@@ -809,6 +810,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
   dFlowAccounts,
   selectedDFlowAccount,
   dFlowUser,
+  vpsPlans,
 }) => {
   const router = useRouter()
   const { organisation } = useParams()
@@ -949,7 +951,8 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
         case 'dFlow':
           return (
             <DflowVpsFormContainer
-              vpsPlan={vpsPlan as VpsPlan}
+              vpsPlan={vpsPlan}
+              vpsPlans={vpsPlans} // Now available from props
               dFlowAccounts={dFlowAccounts}
               selectedDFlowAccount={selectedDFlowAccount}
               sshKeys={sshKeys}
@@ -1129,6 +1132,7 @@ const ServerForm: React.FC<ServerFormProps> = ({
             acc => acc.id === selectedDFlowAccount.id,
           )}
           dFlowUser={dFlowUser}
+          vpsPlans={vpsPlans}
         />
       )}
     </div>
