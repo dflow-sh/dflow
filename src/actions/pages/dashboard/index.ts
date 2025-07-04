@@ -23,11 +23,11 @@ export const getProjectsAndServers = protectedClient
                 equals: tenant.slug,
               },
             },
-            {
-              onboarded: {
-                equals: true,
-              },
-            },
+            // {
+            //   onboarded: {
+            //     equals: true,
+            //   },
+            // },
           ],
         },
         select: {
