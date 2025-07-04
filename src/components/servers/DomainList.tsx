@@ -93,10 +93,14 @@ const DomainItem = ({
     },
   })
 
-  const isWildCardDomain =
-    WILD_CARD_DOMAINS.some(wildCardDomain =>
-      domain.domain.endsWith(wildCardDomain),
-    ) || domain.domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ')
+  const wildCardDomains = [
+    ...WILD_CARD_DOMAINS,
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? '',
+  ]
+
+  const isWildCardDomain = wildCardDomains.some(wildCardDomain =>
+    domain.domain.endsWith(wildCardDomain),
+  )
 
   useEffect(() => {
     if (!isWildCardDomain) {
@@ -150,7 +154,7 @@ const DomainItem = ({
             <p className='font-semibold'>{domain.domain}</p>
 
             <Dialog>
-              {!WILD_CARD_DOMAINS.some(wildcardDomain =>
+              {!wildCardDomains.some(wildcardDomain =>
                 domain.domain.endsWith(wildcardDomain),
               ) && (
                 <DialogTrigger asChild>

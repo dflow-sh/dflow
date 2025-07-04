@@ -1,4 +1,5 @@
 import { Job } from 'bullmq'
+import { env } from 'env'
 import { NodeSSH } from 'node-ssh'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
@@ -11,6 +12,7 @@ interface QueueArgs {
   sshDetails: SSHType
   serverDetails: {
     id: string
+    hostname: string
   }
   serviceDetails: {
     name: string
@@ -38,7 +40,7 @@ export const addLetsencryptRegenerateQueueQueue = async (data: QueueArgs) => {
 
         if (email) {
           // add letsencrypt generation through this email for app
-          const emailResponse = await dokku.letsencrypt.addEmail({
+          await dokku.letsencrypt.addEmail({
             ssh,
             email,
             appName: name,
@@ -59,6 +61,41 @@ export const addLetsencryptRegenerateQueueQueue = async (data: QueueArgs) => {
               },
             },
           })
+        }
+
+        // check domains before removing wildcard-domain
+        const domainsList = await dokku.domains.list({
+          ssh,
+          appName: serviceDetails.name,
+        })
+
+        const wildcardDomainExists = domainsList.some(domain =>
+          domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' '),
+        )
+
+        console.log({ domainsList, wildcardDomainExists })
+
+        // skipping letsencrypt enablement when there is single proxy domain
+        if (wildcardDomainExists && domainsList.length === 1) {
+          sendEvent({
+            pub,
+            message: `🔁 Skipping regenerated SSL certificates for service: ${name}`,
+            serverId: serverDetails.id,
+          })
+
+          return
+        }
+
+        if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL && serverDetails.hostname) {
+          // remove the wildcard-domain before generating letsencrypt
+          const domain = `${serviceDetails.name}.${serverDetails.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+          const removeResponse = await dokku.domains.remove(
+            ssh,
+            serviceDetails.name,
+            domain,
+          )
+
+          console.dir({ removeResponse }, { depth: null })
         }
 
         const letsencryptEmailResponse = await dokku.letsencrypt.enable(
@@ -91,7 +128,7 @@ export const addLetsencryptRegenerateQueueQueue = async (data: QueueArgs) => {
 
           // remove email from the letsencrypt config for service
           if (email) {
-            const removeEmailResponse = await dokku.letsencrypt.addEmail({
+            await dokku.letsencrypt.addEmail({
               ssh,
               email: '',
               appName: name,
@@ -113,6 +150,18 @@ export const addLetsencryptRegenerateQueueQueue = async (data: QueueArgs) => {
               },
             })
           }
+        }
+
+        // add the wildcard-domain after generating letsencrypt
+        if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL && serverDetails.hostname) {
+          const domain = `${serviceDetails.name}.${serverDetails.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+          const addResponse = await dokku.domains.add(
+            ssh,
+            serviceDetails.name,
+            domain,
+          )
+
+          console.dir({ addResponse }, { depth: null })
         }
       } catch (error) {
         let message = error instanceof Error ? error.message : ''

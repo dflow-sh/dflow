@@ -1,8 +1,9 @@
 'use client'
 
-import { CheckCircle, ChevronLeft, ChevronRight, Server } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Server } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -35,61 +36,6 @@ const ServerOnboardingLayout = ({
 
   const isLastStep = currentStep === totalSteps
 
-  // Check if Dokku is properly installed
-  const installationDone =
-    !!server && !!server.version && server.version !== 'not-installed'
-
-  // Check if Let's Encrypt plugin is installed and configured
-  const pluginsInstalled = (server?.plugins ?? []).find(
-    plugin => plugin.name === 'letsencrypt',
-  )
-
-  const emailConfirmationDone =
-    pluginsInstalled &&
-    pluginsInstalled.configuration &&
-    typeof pluginsInstalled.configuration === 'object' &&
-    !Array.isArray(pluginsInstalled.configuration) &&
-    pluginsInstalled.configuration.email
-
-  // Check if domain is configured
-  const isDomainConfigured = (server.domains ?? []).some(
-    domain => domain.synced,
-  )
-
-  // Only enable completion when all required steps are complete
-  const isFullyComplete =
-    installationDone &&
-    !!pluginsInstalled &&
-    Boolean(emailConfirmationDone) &&
-    isDomainConfigured
-
-  const { execute, isPending } = useAction(completeServerOnboardingAction, {
-    onExecute: () => {
-      toast.loading('Completing server setup...', { id: 'complete-server' })
-    },
-    onSuccess: ({ data }) => {
-      if (data?.success) {
-        toast.success('Server setup completed successfully', {
-          id: 'complete-server',
-        })
-        // Navigate to the server dashboard
-        router.push(`/${organisation}/servers/${server.id}`)
-      } else {
-        toast.error('Failed to complete server setup', {
-          id: 'complete-server',
-        })
-      }
-    },
-    onError: ({ error }) => {
-      toast.error(
-        `Error completing server setup: ${error.serverError || 'Unknown error'}`,
-        {
-          id: 'complete-server',
-        },
-      )
-    },
-  })
-
   const {
     execute: syncDomain,
     isPending: syncingDomains,
@@ -97,16 +43,48 @@ const ServerOnboardingLayout = ({
   } = useAction(syncServerDomainAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
-        toast.info('Added to queue', {
-          description: 'Added syncing domains to queue',
+        toast.loading('Syncing domains, please wait...', {
+          id: 'complete-server',
         })
       }
     },
   })
 
-  const handleComplete = () => {
-    execute({ serverId: server.id })
-  }
+  const { execute: executeCompleteOnboarding, isPending: isOnboardingSerer } =
+    useAction(completeServerOnboardingAction, {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          toast.success('Server setup completed successfully', {
+            id: 'complete-server',
+          })
+          // Navigate to the server dashboard
+          router.push(`/${organisation}/servers/${server.id}`)
+        } else {
+          toast.error('Failed to complete server setup', {
+            id: 'complete-server',
+          })
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(
+          `Error completing server setup: ${error.serverError || 'Unknown error'}`,
+          {
+            id: 'complete-server',
+          },
+        )
+      },
+    })
+
+  useEffect(() => {
+    // Check if domain is configured
+    const isDomainConfigured = (server.domains ?? []).some(
+      domain => domain.synced,
+    )
+
+    if (triggeredDomainsSync && isDomainConfigured) {
+      executeCompleteOnboarding({ serverId: server.id })
+    }
+  }, [server, triggeredDomainsSync])
 
   const handleSyncDomains = () => {
     const unsyncedDomains = (server?.domains ?? [])
@@ -164,28 +142,14 @@ const ServerOnboardingLayout = ({
                 disabled={
                   syncingDomains ||
                   triggeredDomainsSync ||
+                  isOnboardingSerer ||
                   !(server?.domains ?? []).length
                 }
                 className='mr-2'
                 onClick={() => {
                   handleSyncDomains()
                 }}>
-                Sync Domains
-              </Button>
-
-              <Button
-                variant={'default'}
-                className='flex items-center gap-2'
-                onClick={handleComplete}
-                disabled={!isFullyComplete || isPending}>
-                {isPending ? (
-                  'Processing...'
-                ) : (
-                  <>
-                    <CheckCircle size={18} />
-                    Complete Setup
-                  </>
-                )}
+                <Check /> Complete Setup
               </Button>
             </>
           ) : (
