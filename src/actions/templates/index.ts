@@ -539,10 +539,39 @@ export const templateDeployAction = protectedClient
         throw new Error('Dokku is not installed!')
       }
 
+      const slicedName = projectData?.name?.slice(0, 10) ?? 'project'
+
+      let uniqueName = slicedName
+
+      const { docs: duplicateProjects } = await payload.find({
+        collection: 'projects',
+        where: {
+          and: [
+            {
+              name: {
+                equals: slicedName,
+              },
+            },
+
+            {
+              tenant: {
+                equals: tenant.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (duplicateProjects.length > 0) {
+        // add a 4-random character generation
+        const uniqueSuffix = generateRandomString({ length: 4 })
+        uniqueName = `${slicedName}-${uniqueSuffix}`
+      }
+
       const response = await payload.create({
         collection: 'projects',
         data: {
-          name: projectData?.name!,
+          name: uniqueName,
           description: projectData?.description,
           server: projectData?.serverId!,
           tenant,

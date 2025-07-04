@@ -2,8 +2,6 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { ensureUniqueName } from './hooks/ensureUniqueName'
-
 export const Projects: CollectionConfig = {
   slug: 'projects',
   labels: {
@@ -32,9 +30,9 @@ export const Projects: CollectionConfig = {
         description: 'Enter the name of the project.',
         placeholder: 'e.g., ContentQL',
       },
-      hooks: {
-        beforeValidate: [ensureUniqueName],
-      },
+      // hooks: {
+      //   beforeValidate: [ensureUniqueName],
+      // },
     },
     {
       name: 'description',
