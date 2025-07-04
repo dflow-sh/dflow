@@ -157,7 +157,7 @@ const ServerCard = ({
     }
 
     // For tailscale connection, follow priority: publicIp > tailscalePrivateIp
-    if (server.publicIp) {
+    if (server.publicIp && server.publicIp !== '999.999.999.999') {
       return {
         label: 'Public IP',
         value: server.publicIp,
