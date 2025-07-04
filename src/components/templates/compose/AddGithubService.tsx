@@ -296,12 +296,12 @@ const AddGithubService = ({
               className='flex gap-6'>
               <div className='flex items-center space-x-2'>
                 <RadioGroupItem value='public' id='r2' />
-                <Label htmlFor='r2'>Public</Label>
+                <Label htmlFor='r2'>Manual</Label>
               </div>
 
               <div className='flex items-center space-x-2'>
                 <RadioGroupItem value='private' id='r3' />
-                <Label htmlFor='r3'>Private</Label>
+                <Label htmlFor='r3'>GitHub App</Label>
               </div>
             </RadioGroup>
 
