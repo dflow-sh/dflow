@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { generateRandomString } from '@/lib/utils'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
@@ -779,4 +780,31 @@ export const checkServerConnection = protectedClient
         }
       }
     }
+  })
+
+export const generateTailscaleHostname = protectedClient
+  .metadata({
+    actionName: 'generateTailscaleHostname',
+  })
+  .action(async ({ ctx }) => {
+    const { payload } = ctx
+
+    let unique = false
+    let hostname = ''
+    while (!unique) {
+      hostname = `dfi-${generateRandomString({ length: 7, charset: '0123456789' })}`
+      const response = await payload.count({
+        collection: 'servers',
+        where: {
+          hostname: {
+            equals: hostname,
+          },
+        },
+      })
+      if (response.totalDocs === 0) {
+        unique = true
+      }
+    }
+
+    return { hostname }
   })

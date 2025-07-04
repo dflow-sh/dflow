@@ -92,3 +92,7 @@ export const checkServerConnectionSchema = z.discriminatedUnion(
     }),
   ],
 )
+
+export const generateTailscaleHostnameSchema = z.object({
+  hostname: z.string(),
+})
