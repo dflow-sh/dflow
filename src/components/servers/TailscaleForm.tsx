@@ -12,20 +12,15 @@ import {
   Terminal,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import {
-  adjectives,
-  animals,
-  colors,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
 import { z } from 'zod'
 
 import {
   checkServerConnection,
   createTailscaleServerAction,
+  generateTailscaleHostname,
 } from '@/actions/server'
 import { createTailscaleServerSchema } from '@/actions/server/validator'
 import {
@@ -52,15 +47,28 @@ const TailscaleForm = () => {
     defaultValues: {
       name: '',
       description: '',
-      hostname: uniqueNamesGenerator({
-        dictionaries: [adjectives, colors, animals],
-        separator: '-',
-        length: 3,
-        style: 'lowerCase',
-      }),
       username: 'root',
     },
   })
+
+  const { executeAsync: generateHostName } = useAction(
+    generateTailscaleHostname,
+  )
+
+  useEffect(() => {
+    const fetchUniqueHostname = async () => {
+      try {
+        const result = await generateHostName()
+        if (result?.data?.hostname) {
+          form.setValue('hostname', result.data.hostname)
+        }
+      } catch (error) {
+        // Optionally, handle error
+      }
+    }
+
+    fetchUniqueHostname()
+  }, [])
 
   const {
     execute: fetchOAuthClientSecret,
