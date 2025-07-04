@@ -3,6 +3,7 @@ import { create } from '@/dokku/apps/create'
 import { destroy } from './apps/destroy'
 import { list as appList } from './apps/list'
 import { logs } from './apps/logs'
+import { setBuildDir, setGlobalBuildDir } from './builder'
 import { clear } from './config/clear'
 import { listVars } from './config/listVars'
 import { set } from './config/set'
@@ -152,5 +153,9 @@ export const dokku = {
     list: volumesList,
     mount: mount,
     unmount: unmount,
+  },
+  builder: {
+    setBuildDir,
+    setGlobalBuildDir,
   },
 }

@@ -26,6 +26,7 @@ interface QueueArgs {
     serverId: string
   }
   tenantSlug: string
+  buildPath?: string
 }
 
 export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
@@ -73,7 +74,25 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
 
         ssh = await dynamicSSH(sshDetails)
 
-        // Step 1: Setting dokku port
+        // Step 1: Set dokku build-dir if buildPath is provided
+        const buildPath = job.data.buildPath
+        await dokku.builder.setBuildDir({
+          ssh,
+          appName,
+          buildDir: buildPath,
+        })
+        sendEvent({
+          message:
+            buildPath && buildPath !== '/'
+              ? `Set dokku build-dir to ${buildPath}`
+              : `Reset dokku build-dir to default`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+
+        // Step 2: Setting dokku port
         const port = serviceDetails.port ?? '3000'
 
         // validate weather port is set or not
@@ -148,7 +167,7 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           }
         }
 
-        // Step 2: Clearing previous set docker-options
+        // Step 3: Clearing previous set docker-options
         const buildArgsResponse = await dokku.docker.options({
           action: 'clear',
           appName,
@@ -195,7 +214,7 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           })
         }
 
-        // Step 3: Cloning the repo
+        // Step 4: Cloning the repo
         // Generating github-app details for deployment
         sendEvent({
           message: `Stated cloning repository`,

@@ -29,6 +29,7 @@ interface QueueArgs {
     serverId: string
   }
   tenantSlug: string
+  buildPath?: string
 }
 
 export const addRailpackDeployQueue = async (data: QueueArgs) => {
@@ -79,7 +80,25 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
 
         ssh = await dynamicSSH(sshDetails)
 
-        // Step 1: Setting dokku port
+        // Step 1: Set dokku build-dir if buildPath is provided
+        const buildPath = job.data.buildPath
+        await dokku.builder.setBuildDir({
+          ssh,
+          appName,
+          buildDir: buildPath,
+        })
+        sendEvent({
+          message:
+            buildPath && buildPath !== '/'
+              ? `Set dokku build-dir to ${buildPath}`
+              : `Reset dokku build-dir to default`,
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+
+        // Step 2: Setting dokku port
         const port = serviceDetails.port ?? '3000'
 
         // validate weather port is set or not
@@ -154,7 +173,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           }
         }
 
-        // Step 2: Setting environment variables & add build-args
+        // Step 3: Setting environment variables & add build-args
         if (variables.length) {
           sendEvent({
             message: `Stated setting environment variables`,
@@ -165,7 +184,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           })
         }
 
-        // Step 3: Cloning the repo
+        // Step 4: Cloning the repo
         // Generating github-app details for deployment
         sendEvent({
           message: `Stated cloning repository`,
@@ -269,7 +288,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           channelId: serviceDetails.deploymentId,
         })
 
-        // Step 4: Creating a workspace from bare repository
+        // Step 5: Creating a workspace from bare repository
         const workspaceResponse = await server.git.createWorkspace({
           appName,
           options: {
@@ -309,7 +328,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           throw new Error('❌ Failed to create workspace, please try again!')
         }
 
-        // Step 5: Building the image with railpack
+        // Step 6: Building the image with railpack
         const imageCreationResponse = await server.docker.createImage({
           appName,
           options: {
@@ -351,7 +370,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           throw new Error('❌ Failed to create docker-image')
         }
 
-        // Step 6: Deploying the docker image
+        // Step 7: Deploying the docker image
         const deployImageResponse = await dokku.git.deployImage({
           ssh,
           appName,
@@ -474,7 +493,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           serviceId,
         })
 
-        // Step 8: updating the domain details
+        // Step 9: updating the domain details
         const domainsResponse = await dokku.domains.report(ssh, appName)
 
         if (domainsResponse.length) {
@@ -525,7 +544,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           }
         }
 
-        // Step 9: saving the deployment logs
+        // Step 10: saving the deployment logs
         const logs = (
           await pub.lrange(serviceDetails.deploymentId, 0, -1)
         ).reverse()

@@ -315,66 +315,109 @@ const AddGithubService = ({
             <>
               <div
                 className={`grid gap-4 ${type == 'update' ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                <div className='space-y-2'>
-                  <Label>Repository URL</Label>
-                  <Input
-                    type='text'
-                    name='repositoryURL'
-                    placeholder='ex: https://github.com/akhil-naidu/dflow'
-                    defaultValue={publicRepoURL}
-                    onChange={e => {
-                      const value = e.target.value
-                      const matched = value.match(githubURLRegex)
+                {/* Repository URL */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.repository'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Repository URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          name='repositoryURL'
+                          placeholder='ex: https://github.com/akhil-naidu/dflow'
+                          defaultValue={publicRepoURL}
+                          onChange={e => {
+                            const value = e.target.value
+                            const matched = value.match(githubURLRegex)
 
-                      if (matched) {
-                        const username = matched[1]
-                        const repository = matched[2]
+                            if (matched) {
+                              const username = matched[1]
+                              const repository = matched[2]
 
-                        form.setValue('githubSettings.owner', username)
-                        form.setValue('githubSettings.repository', repository)
-                      }
-                    }}
-                  />
-                </div>
+                              form.setValue('githubSettings.owner', username)
+                              form.setValue(
+                                'githubSettings.repository',
+                                repository,
+                              )
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <div className='space-y-2'>
-                  <Label>Branch</Label>
-                  <Input
-                    type='text'
-                    name='branch'
-                    defaultValue={githubSettings?.branch ?? ''}
-                    placeholder='ex: main or commit-hash: 6492769'
-                    onChange={e => {
-                      const value = e.target.value
-                      form.setValue('githubSettings.branch', value)
-                    }}
-                  />
-                </div>
+                {/* Branch */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.branch'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Branch</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          name='branch'
+                          defaultValue={githubSettings?.branch ?? ''}
+                          placeholder='ex: main or commit-hash: 6492769'
+                          onChange={e => {
+                            const value = e.target.value
+                            form.setValue('githubSettings.branch', value)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Port */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.port'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Port</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          {...field}
+                          value={field.value || ''}
+                          onChange={e => {
+                            const value = e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : ''
+                            field.onChange(value)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Build path */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.buildPath'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Build path</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value || ''}
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-
-              <FormField
-                control={form.control}
-                name='githubSettings.port'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Port</FormLabel>
-                    <FormControl>
-                      <Input
-                        type='number'
-                        {...field}
-                        value={field.value || ''}
-                        onChange={e => {
-                          const value = e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : ''
-                          field.onChange(value)
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </>
           ) : (
             <div className='space-y-6'>
@@ -385,12 +428,12 @@ const AddGithubService = ({
                   control={form.control}
                   name='provider'
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className='mt-[-0.5rem]'>
                       <FormControl>
                         <SelectSearch
                           fieldValue={field.value}
                           label='Account'
-                          inputPlaceholder='account'
+                          inputPlaceholder={'account'}
                           gitProviders={gitProviders?.data ?? []}
                           onSelect={(value: string) => {
                             field.onChange(value)
@@ -438,7 +481,11 @@ const AddGithubService = ({
                         <SelectSearch
                           fieldValue={field.value}
                           label='Repository'
-                          inputPlaceholder='repository'
+                          inputPlaceholder={
+                            repositoriesLoading
+                              ? 'fetching repositories...'
+                              : 'repository'
+                          }
                           gitProviders={repositoryOptions}
                           disabled={!provider || repositoriesLoading}
                           onSelect={(value: any) => {
@@ -493,7 +540,7 @@ const AddGithubService = ({
 
               <div
                 className={`grid gap-4 ${type === 'update' ? 'md:grid-cols-4' : 'grid-cols-2'} `}>
-                <div className='md:col-span-2'>
+                <div className='mt-2 md:col-span-2'>
                   {/* Branch field */}
                   <FormField
                     control={form.control}
@@ -504,7 +551,11 @@ const AddGithubService = ({
                           <SelectSearch
                             fieldValue={field.value}
                             label='Branch'
-                            inputPlaceholder='branch'
+                            inputPlaceholder={
+                              branchesLoading
+                                ? 'fetching branches...'
+                                : 'branch'
+                            }
                             gitProviders={branchOptions}
                             disabled={
                               !provider ||
@@ -616,10 +667,11 @@ const AddGithubService = ({
             <Button
               type='submit'
               disabled={
-                !githubSettings?.branch ||
-                !githubSettings?.owner ||
-                !githubSettings?.repository ||
-                (repoType === 'private' && isPending)
+                isPending ||
+                (repoType === 'public' &&
+                  (!githubSettings?.branch ||
+                    !githubSettings?.owner ||
+                    !githubSettings?.repository))
               }
               variant='outline'>
               Save
