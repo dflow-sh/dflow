@@ -33,11 +33,11 @@ const Projects = ({
   if (projects?.length) {
     return (
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {projects?.map((project, index) => {
+        {projects?.map(project => {
           const services = (project?.services?.docs ?? []) as Service[]
           return (
             <ProjectCard
-              key={index}
+              key={project.id}
               organisationSlug={organisationSlug}
               project={project}
               servers={servers}
@@ -86,7 +86,7 @@ const Projects = ({
           </div>
           <h2 className='text-2xl font-semibold'>No Projects Yet</h2>
           <p className='text-muted-foreground'>
-            It looks like you haven't created any projects yet. Start by
+            It looks like you haven&apos;t created any projects yet. Start by
             creating a new one using a connected server.
           </p>
         </div>
