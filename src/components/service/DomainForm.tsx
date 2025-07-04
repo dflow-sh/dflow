@@ -13,6 +13,7 @@ import {
 } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { env } from 'env'
 import { Info, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
@@ -39,7 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const DomainForm = () => {
+const DomainForm = ({ ip }: { ip: string }) => {
   const [open, setOpen] = useState(false)
   const params = useParams<{ id: string; serviceId: string }>()
 
@@ -73,7 +74,21 @@ const DomainForm = () => {
   })
 
   function onSubmit(values: z.infer<typeof updateServiceDomainSchema>) {
-    console.log(values)
+    const isWildCardDomain = values.domain.hostname.endsWith(
+      env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
+    )
+
+    // restricting domain addition when ip is 999.999.999.999
+    // and domain added shouldn't be proxy domain
+    if (ip === '999.999.999.999' && !isWildCardDomain) {
+      return toast.warning(
+        `server has no public-IP assigned, domain can't be attached`,
+        {
+          duration: 7000,
+        },
+      )
+    }
+
     execute(values)
   }
 

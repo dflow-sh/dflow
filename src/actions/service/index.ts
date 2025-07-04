@@ -1,5 +1,6 @@
 'use server'
 
+import { env } from 'env'
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
 
@@ -564,14 +565,27 @@ export const updateServiceDomainAction = protectedClient
 
     let updatedDomains = servicePreviousDomains ?? []
 
+    const proxyDomainExists = updatedDomains.find(({ domain }) =>
+      domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' '),
+    )
+
+    const duplicateWildCardDomain =
+      !!proxyDomainExists &&
+      domain.hostname.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ')
+
     // throwing error if duplicate domain was added again
+    // throwing error when more that 1 proxy domain is added!
     if (operation === 'add') {
       const domainExists = updatedDomains.find(
         updatedDomain => updatedDomain.domain === domain.hostname,
       )
 
-      if (domainExists) {
-        throw new Error(`${domain.hostname} already exists!`)
+      if (domainExists || duplicateWildCardDomain) {
+        throw new Error(
+          duplicateWildCardDomain
+            ? `Wildcard domain already attached`
+            : `${domain.hostname} already exists!`,
+        )
       }
     }
 
@@ -624,20 +638,25 @@ export const updateServiceDomainAction = protectedClient
         typeof updatedServiceDomainResponse.project.server === 'object'
       ) {
         const sshDetails = extractSSHDetails({ project })
+        const isProxyDomain = domain.hostname.endsWith(
+          env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
+        )
 
         await addManageServiceDomainQueue({
           serviceDetails: {
             action: operation,
             domain: domain.hostname,
             name: updatedServiceDomainResponse.name,
-            certificateType: domain.certificateType,
-            autoRegenerateSSL: domain.autoRegenerateSSL,
+            certificateType: isProxyDomain ? 'none' : domain.certificateType,
+            autoRegenerateSSL: isProxyDomain ? false : domain.autoRegenerateSSL,
             id,
             variables: updatedServiceDomainResponse.variables ?? [],
           },
           sshDetails,
           serverDetails: {
             id: updatedServiceDomainResponse.project.server.id,
+            hostname:
+              updatedServiceDomainResponse.project.server.hostname ?? '',
           },
           tenantDetails: {
             slug: tenant.slug,
@@ -674,7 +693,10 @@ export const regenerateSSLAction = protectedClient
 
       const response = await addLetsencryptRegenerateQueueQueue({
         sshDetails,
-        serverDetails: { id: project?.server?.id },
+        serverDetails: {
+          id: project?.server?.id,
+          hostname: project.server.hostname ?? '',
+        },
         serviceDetails: {
           name: serviceDetails.name,
           email,
@@ -704,20 +726,24 @@ export const syncServiceDomainAction = protectedClient
 
     if (typeof project === 'object' && typeof project.server === 'object') {
       const sshDetails = extractSSHDetails({ project })
+      const isProxyDomain = domain.hostname.endsWith(
+        env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
+      )
 
       const queueResponse = await addManageServiceDomainQueue({
         serviceDetails: {
           action: operation,
           domain: domain.hostname,
           name: serviceDetails.name,
-          certificateType: domain.certificateType,
-          autoRegenerateSSL: domain.autoRegenerateSSL,
+          certificateType: isProxyDomain ? 'none' : domain.certificateType,
+          autoRegenerateSSL: isProxyDomain ? false : domain.autoRegenerateSSL,
           id,
           variables,
         },
         sshDetails,
         serverDetails: {
           id: project.server.id,
+          hostname: project.server.hostname ?? '',
         },
         updateEnvironmentVariables: domain.default,
         tenantDetails: {

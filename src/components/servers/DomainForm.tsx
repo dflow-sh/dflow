@@ -67,7 +67,7 @@ export const DomainFormWithoutDialog = ({
     defaultValues: {
       domain: env.NEXT_PUBLIC_PROXY_DOMAIN_URL
         ? `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
-        : `${server.ip || server.publicIp}.nip.io`,
+        : '',
       defaultDomain: false,
     },
   })
@@ -93,6 +93,27 @@ export const DomainFormWithoutDialog = ({
   })
 
   function onSubmit(values: z.infer<typeof subdomainSchema>) {
+    const isWildCardDomain = values.domain.endsWith(
+      env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
+    )
+
+    // domain validation when connectionType=tailscale & ip shouldn't be 999.999.999.999
+    // and domain added shouldn't be proxy domain
+    if (
+      server.preferConnectionType === 'tailscale' &&
+      server.publicIp === '999.999.999.999' &&
+      !isWildCardDomain
+    ) {
+      toast.warning(
+        `${server.name} server has no public-IP assigned, domain can't be attached`,
+        {
+          duration: 7000,
+        },
+      )
+
+      return
+    }
+
     execute({
       operation: values.defaultDomain ? 'set' : 'add',
       id: server.id,
