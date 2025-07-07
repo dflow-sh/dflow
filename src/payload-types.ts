@@ -426,7 +426,7 @@ export interface Server {
    * dFlow Vps details
    */
   dflowVpsDetails?: {
-    id?: string | null;
+    orderId?: string | null;
     instanceId?: number | null;
     status?:
       | (
@@ -459,6 +459,10 @@ export interface Server {
     status?: ('success' | 'failed' | 'not-checked-yet') | null;
     lastChecked?: string | null;
   };
+  /**
+   * Number of times connection to the server has been attempted (DFlow only).
+   */
+  connectionAttempts?: number | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1365,7 +1369,7 @@ export interface ServersSelect<T extends boolean = true> {
   dflowVpsDetails?:
     | T
     | {
-        id?: T;
+        orderId?: T;
         instanceId?: T;
         status?: T;
         next_billing_date?: T;
@@ -1377,6 +1381,7 @@ export interface ServersSelect<T extends boolean = true> {
         status?: T;
         lastChecked?: T;
       };
+  connectionAttempts?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;

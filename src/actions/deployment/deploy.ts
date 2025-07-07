@@ -90,6 +90,7 @@ export const triggerDeployment = async ({
                 variables: variables ?? [],
               },
               tenantSlug,
+              buildPath: githubSettings.buildPath || '/',
             })
 
             queueResponseId = id
@@ -112,6 +113,7 @@ export const triggerDeployment = async ({
                 variables: variables ?? [],
               },
               tenantSlug,
+              buildPath: githubSettings.buildPath || '/',
             })
 
             queueResponseId = id
