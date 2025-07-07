@@ -5,6 +5,7 @@ interface Args {
   appName: string
   options: SSHExecOptions
   environmentVariables?: Record<string, unknown>
+  buildPath?: string
 }
 
 export const createImage = async ({
@@ -12,6 +13,7 @@ export const createImage = async ({
   options,
   ssh,
   environmentVariables,
+  buildPath,
 }: Args) => {
   const variables = Object.entries(environmentVariables ?? {})
     .map(([key, value]) => {
@@ -30,8 +32,8 @@ export const createImage = async ({
 
   const resultCreateImage = await ssh.execCommand(
     `
-    sudo BUILDKIT_HOST=docker-container://buildkitd railpack prepare /home/dokku/${appName}-docker --plan-out railpack-plan.json --info-out railpack-info.json ${variables} && \
-    sudo BUILDKIT_HOST=docker-container://buildkitd railpack build /home/dokku/${appName}-docker ${variables}
+    sudo BUILDKIT_HOST=docker-container://buildkitd railpack prepare /home/dokku/${appName}-docker${buildPath ? `/${buildPath}` : ''} --plan-out railpack-plan.json --info-out railpack-info.json ${variables} && \
+    sudo BUILDKIT_HOST=docker-container://buildkitd railpack build /home/dokku/${appName}-docker${buildPath ? `/${buildPath}` : ''} ${variables}
     `,
     options,
   )

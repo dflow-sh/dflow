@@ -353,6 +353,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           },
           ssh,
           environmentVariables: formattedVariables,
+          buildPath: buildPath === '/' ? undefined : buildPath,
         })
 
         if (imageCreationResponse.code === 0) {
