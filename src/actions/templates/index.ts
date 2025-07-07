@@ -545,6 +545,7 @@ export const templateDeployAction = protectedClient
 
       const { docs: duplicateProjects } = await payload.find({
         collection: 'projects',
+        pagination: false,
         where: {
           and: [
             {
@@ -583,6 +584,11 @@ export const templateDeployAction = protectedClient
       const project = await payload.findByID({
         collection: 'projects',
         id: projectId!,
+        joins: {
+          services: {
+            limit: 1000,
+          },
+        },
       })
       projectDetails = project
     }

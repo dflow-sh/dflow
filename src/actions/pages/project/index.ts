@@ -19,6 +19,7 @@ export const getProjectDetails = protectedClient
     const [{ docs: services }, { docs: Projects }] = await Promise.all([
       payload.find({
         collection: 'services',
+        pagination: false,
         where: {
           and: [
             {

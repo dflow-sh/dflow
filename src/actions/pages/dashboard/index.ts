@@ -47,6 +47,11 @@ export const getProjectsAndServers = protectedClient
         },
         pagination: false,
         sort: '-createdAt',
+        joins: {
+          services: {
+            limit: 1000,
+          },
+        },
       }),
     ])
 
