@@ -69,6 +69,7 @@ export const getServiceDeploymentsBackups = protectedClient
         }),
         payload.find({
           collection: 'deployments',
+          pagination: false,
           where: {
             service: {
               equals: id,

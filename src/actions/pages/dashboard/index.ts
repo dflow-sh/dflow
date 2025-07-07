@@ -23,11 +23,11 @@ export const getProjectsAndServers = protectedClient
                 equals: tenant.slug,
               },
             },
-            {
-              onboarded: {
-                equals: true,
-              },
-            },
+            // {
+            //   onboarded: {
+            //     equals: true,
+            //   },
+            // },
           ],
         },
         select: {
@@ -47,6 +47,11 @@ export const getProjectsAndServers = protectedClient
         },
         pagination: false,
         sort: '-createdAt',
+        joins: {
+          services: {
+            limit: 1000,
+          },
+        },
       }),
     ])
 

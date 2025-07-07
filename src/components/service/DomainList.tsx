@@ -3,7 +3,7 @@
 import SidebarToggleButton from '../SidebarToggleButton'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Switch } from '../ui/switch'
+import { env } from 'env'
 import {
   CircleCheckBig,
   CircleX,
@@ -94,8 +94,19 @@ const DomainCard = ({
     },
   })
 
+  const wildCardDomains = [
+    ...WILD_CARD_DOMAINS,
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? '',
+  ]
+
+  const isWildCardDomain = wildCardDomains.some(wildCardDomain =>
+    domain.domain.endsWith(wildCardDomain),
+  )
+
   useEffect(() => {
-    checkDNSConfig({ ip, domain: domain.domain })
+    if (!isWildCardDomain) {
+      checkDNSConfig({ ip, domain: domain.domain })
+    }
   }, [])
 
   const StatusBadge = () => {
@@ -108,7 +119,7 @@ const DomainCard = ({
       )
     }
 
-    if (result?.data) {
+    if (result?.data || isWildCardDomain) {
       return (
         <Badge variant='success' className='gap-1 [&_svg]:size-4'>
           <CircleCheckBig />
@@ -130,69 +141,67 @@ const DomainCard = ({
   return (
     <Card className='text-sm'>
       <CardContent className='flex w-full flex-col justify-between gap-4 pt-4 md:flex-row'>
-        <div className='space-y-1'>
-          <div className='flex items-center gap-3'>
-            <Globe size={20} className='text-green-600' />
+        <div className='flex items-center gap-3'>
+          <Globe size={20} className='text-green-600' />
 
-            <a
-              href={`//${domain.domain}`}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='font-semibold hover:underline'>
-              {domain.domain}
-            </a>
+          <a
+            href={`//${domain.domain}`}
+            target='_blank'
+            rel='noopener noreferrer'
+            className='font-semibold hover:underline'>
+            {domain.domain}
+          </a>
 
-            <Dialog>
-              {!WILD_CARD_DOMAINS.some(wildcardDomain =>
-                domain.domain.endsWith(wildcardDomain),
-              ) && (
-                <DialogTrigger asChild>
-                  <Button size='icon' variant='ghost'>
-                    <Info />
-                  </Button>
-                </DialogTrigger>
-              )}
+          <Dialog>
+            {!wildCardDomains.some(wildcardDomain =>
+              domain.domain.endsWith(wildcardDomain),
+            ) && (
+              <DialogTrigger asChild>
+                <Button size='icon' variant='ghost'>
+                  <Info />
+                </Button>
+              </DialogTrigger>
+            )}
 
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Domain Configuration</DialogTitle>
-                  <DialogDescription>
-                    Add the records in your domain provider, This step can be
-                    skipped for wildcard domains ex: nip.io, sslip.io
-                  </DialogDescription>
-                </DialogHeader>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Domain Configuration</DialogTitle>
+                <DialogDescription>
+                  Add the records in your domain provider, This step can be
+                  skipped for wildcard domains ex: nip.io, sslip.io
+                </DialogDescription>
+              </DialogHeader>
 
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className='w-[100px]'>Type</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Content</TableHead>
-                      <TableHead className='text-right'>TTL</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className='font-medium'>A</TableCell>
-                      <TableCell>{getRecordName(domain.domain)}</TableCell>
-                      <TableCell>{ip}</TableCell>
-                      <TableCell className='text-right'>auto</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <StatusBadge />
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='w-[100px]'>Type</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Content</TableHead>
+                    <TableHead className='text-right'>TTL</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className='font-medium'>A</TableCell>
+                    <TableCell>{getRecordName(domain.domain)}</TableCell>
+                    <TableCell>{ip}</TableCell>
+                    <TableCell className='text-right'>auto</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className='flex items-center space-x-4 self-end md:self-center'>
-          <Switch
+          {/* <Switch
             checked={domain.default ?? false}
             disabled
             title={domain.default ? 'Default Domain' : ''}
-          />
+          /> */}
+
+          <StatusBadge />
 
           <Button
             disabled={
@@ -257,7 +266,7 @@ const DomainList = ({
   return (
     <section className='space-y-6'>
       <div className='flex items-center gap-3'>
-        <DomainForm />
+        <DomainForm ip={ip} />
         <RegenerateSSLForm />
         <SidebarToggleButton
           directory='servers'

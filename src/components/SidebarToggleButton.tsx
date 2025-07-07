@@ -1,5 +1,7 @@
 'use client'
 
+import { Info } from 'lucide-react'
+
 import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
 
 import { Button } from './ui/button'
@@ -19,10 +21,10 @@ const SidebarToggleButton = ({
     <Button
       onClick={() => openWith({ directory, fileName, sectionId })}
       variant='link'
-      size='sm'
+      size='icon'
       type='button'
       className='text-sm text-primary'>
-      info
+      <Info />
     </Button>
   )
 }

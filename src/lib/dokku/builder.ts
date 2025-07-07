@@ -23,6 +23,7 @@ export async function setBuildDir({
     !buildDir || buildDir === '/'
       ? `dokku builder:set ${appName} build-dir`
       : `dokku builder:set ${appName} build-dir ${buildDir}`
+
   return ssh.execCommand(cmd, options)
 }
 
@@ -45,5 +46,6 @@ export async function setGlobalBuildDir({
     !buildDir || buildDir === '/'
       ? `dokku builder:set --global build-dir`
       : `dokku builder:set --global build-dir ${buildDir}`
+
   return ssh.execCommand(cmd, options)
 }

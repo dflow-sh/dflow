@@ -12,7 +12,7 @@ import { ServerType } from '@/payload-types-overrides'
 const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
   const domains = server.domains ?? []
   const calledRef = useRef(false)
-  const { execute, isPending, hasSucceeded } = useAction(
+  const { execute, isPending, hasSucceeded, input } = useAction(
     updateServerDomainAction,
     {
       onSuccess: ({ data }) => {
@@ -26,14 +26,30 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
     },
   )
 
+  const wildcardDomains = [
+    ...WILD_CARD_DOMAINS,
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? '',
+  ]
+
   // create a domain with nip.io by default
   useEffect(() => {
     const domainAlreadyConfigured = domains?.some(({ domain }) =>
-      WILD_CARD_DOMAINS.some(wildcardDomain => domain.endsWith(wildcardDomain)),
+      wildcardDomains.some(wildcardDomain => domain.endsWith(wildcardDomain)),
     )
 
     if (!domainAlreadyConfigured && !hasSucceeded && !calledRef.current) {
       calledRef.current = true
+
+      // not adding a default domain in these conditions
+      // 1. preferConnectionType is tailscale
+      // 2. user has no publicIp assigned or publicIp === 999.999.999.999
+      if (
+        server.preferConnectionType === 'tailscale' &&
+        (!server.publicIp ||
+          (server.publicIp && server.publicIp === '999.999.999.999'))
+      ) {
+        return
+      }
 
       execute({
         id: server.id,
@@ -47,11 +63,15 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
   }, [])
 
   if (isPending) {
+    const ip =
+      server.preferConnectionType === 'ssh' ? server.ip : server.publicIp
+
     return (
       <div className='flex items-center gap-2'>
         <Loader className='h-min w-min' />
+
         <p>
-          Configuring default domain <code>({`${server.ip}.nip.io`})</code>
+          Configuring default domain <code>{input?.domains}</code>
         </p>
       </div>
     )

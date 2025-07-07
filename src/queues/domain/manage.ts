@@ -1,6 +1,7 @@
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
+import { env } from 'env'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
@@ -24,6 +25,7 @@ interface QueueArgs {
   }
   serverDetails: {
     id: string
+    hostname: string
   }
   updateEnvironmentVariables?: boolean
   tenantDetails: {
@@ -164,7 +166,6 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
 
           const domains = await dokku.domains.list({ ssh, appName: name })
 
-          // todo: in add operation change domain status to synced
           try {
             const service = await payload.findByID({
               collection: 'services',
@@ -205,6 +206,35 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
             serverId: serverDetails.id,
           })
 
+          // check domains before removing wildcard-domain
+          const domainsList = await dokku.domains.list({
+            ssh,
+            appName: name,
+          })
+
+          const wildcardDomainExists = domainsList.some(domain =>
+            domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' '),
+          )
+
+          // skipping letsencrypt enablement when there is single proxy domain
+          if (wildcardDomainExists && domainsList.length === 1) {
+            sendEvent({
+              pub,
+              message: `🔁 Skipping regenerated SSL certificates for service: ${name}`,
+              serverId: serverDetails.id,
+            })
+
+            return
+          }
+
+          // remove the wildcard-domain before generating letsencrypt
+          if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL && serverDetails.hostname) {
+            const domain = `${name}.${serverDetails.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+            const removeResponse = await dokku.domains.remove(ssh, name, domain)
+
+            console.dir({ removeResponse }, { depth: null })
+          }
+
           const letsencryptResponse = await dokku.letsencrypt.enable(
             ssh,
             name,
@@ -239,6 +269,14 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
               message: `✅ Successfully added SSL Certificate to domain ${domain}`,
               serverId: serverDetails.id,
             })
+          }
+
+          // add the wildcard-domain after generating letsencrypt
+          if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL && serverDetails.hostname) {
+            const domain = `${name}.${serverDetails.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+            const addResponse = await dokku.domains.add(ssh, name, domain)
+
+            console.dir({ addResponse }, { depth: null })
           }
         }
 

@@ -10,7 +10,6 @@ import {
   Cloud,
   Ellipsis,
   Globe,
-  HardDrive,
   Server as ServerIcon,
   Settings,
   Shield,
@@ -375,7 +374,7 @@ const ServerCard = ({
             <div className='flex items-start justify-between'>
               <div className='min-w-0 flex-1'>
                 <CardTitle className='mb-2 flex items-center gap-2'>
-                  <HardDrive className='h-5 w-5 flex-shrink-0' />
+                  <ServerIcon className='h-5 w-5 flex-shrink-0' />
                   <span className='truncate'>{server.name}</span>
                 </CardTitle>
                 <CardDescription className='line-clamp-2 text-sm'>

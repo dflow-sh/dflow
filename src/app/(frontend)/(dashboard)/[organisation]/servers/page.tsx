@@ -93,10 +93,12 @@ const ServersPage = async ({ params, searchParams }: PageProps) => {
   return (
     <LayoutClient>
       <div className='mb-5 flex items-center justify-between'>
-        <div className='flex items-center text-2xl font-semibold'>
+        <div className='flex items-center gap-1.5 text-2xl font-semibold'>
+          <Server />
           Servers
           <SidebarToggleButton directory='servers' fileName='server-overview' />
         </div>
+
         <div className='flex gap-2'>
           <RefreshButton />
 

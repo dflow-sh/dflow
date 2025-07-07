@@ -3,6 +3,7 @@
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { env } from 'env'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
@@ -64,7 +65,7 @@ export const DomainFormWithoutDialog = ({
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      domain: `${server.ip || server.publicIp}.nip.io`,
+      domain: '',
       defaultDomain: false,
     },
   })
@@ -90,6 +91,53 @@ export const DomainFormWithoutDialog = ({
   })
 
   function onSubmit(values: z.infer<typeof subdomainSchema>) {
+    const isWildCardDomain = values.domain.endsWith(
+      env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
+    )
+
+    const domains = server.domains || []
+    const hasWildcardDomain = domains.some(({ domain }) => {
+      return domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ')
+    })
+
+    // single wildcard domain validation
+    if (isWildCardDomain && hasWildcardDomain) {
+      toast.warning(`Wildcard domain already exists!`, {
+        duration: 7000,
+      })
+
+      return
+    }
+
+    // wildcard format validation
+    if (
+      isWildCardDomain &&
+      values.domain !== `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+    ) {
+      toast.warning(`Invalid wildcard domain format`, {
+        duration: 7000,
+      })
+
+      return
+    }
+
+    // domain validation when connectionType=tailscale & ip shouldn't be 999.999.999.999
+    // and domain added shouldn't be proxy domain
+    if (
+      server.preferConnectionType === 'tailscale' &&
+      server.publicIp === '999.999.999.999' &&
+      !isWildCardDomain
+    ) {
+      toast.warning(
+        `${server.name} server has no public-IP assigned, domain can't be attached`,
+        {
+          duration: 7000,
+        },
+      )
+
+      return
+    }
+
     execute({
       operation: values.defaultDomain ? 'set' : 'add',
       id: server.id,
@@ -112,7 +160,7 @@ export const DomainFormWithoutDialog = ({
               <FormItem>
                 <FormLabel>Domain</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder='server1.example.com' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,6 +168,21 @@ export const DomainFormWithoutDialog = ({
           />
 
           <DialogFooter>
+            {env.NEXT_PUBLIC_PROXY_DOMAIN_URL && (
+              <Button
+                type='button'
+                disabled={isPending}
+                variant='outline'
+                onClick={() => {
+                  form.setValue(
+                    'domain',
+                    `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`,
+                  )
+                }}>
+                Generate Default Domain
+              </Button>
+            )}
+
             <Button type='submit' isLoading={isPending} disabled={isPending}>
               Add
             </Button>
