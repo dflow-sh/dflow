@@ -342,6 +342,21 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 2. DFlow connecting state (attempting to connect) - only after status becomes 'running'
     if (isDflow && dflowStatus === 'running' && connectionAttempts < 30) {
+      if (isConnected && !isCloudInitRunning && !isOnboarded) {
+        return {
+          type: 'onboarding' as const,
+          title: 'Onboarding Required',
+          subtitle: 'Server is connected but needs to be onboarded.',
+          badge: {
+            variant: 'warning' as const,
+            text: 'Onboarding Required',
+            tooltip: 'Server is connected but needs to be onboarded.',
+          },
+          borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+          showBanner: false,
+        }
+      }
+
       // If the server is connected mid-attempt, show connected status
       if (isConnected) {
         return {
@@ -397,6 +412,21 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 3. Connection error state (30+ attempts failed) - but if connected after 30 attempts, show connected
     if (isDflow && dflowStatus === 'running' && connectionAttempts >= 30) {
+      if (isConnected && !isCloudInitRunning && !isOnboarded) {
+        return {
+          type: 'onboarding' as const,
+          title: 'Onboarding Required',
+          subtitle: 'Server is connected but needs to be onboarded.',
+          badge: {
+            variant: 'warning' as const,
+            text: 'Onboarding Required',
+            tooltip: 'Server is connected but needs to be onboarded.',
+          },
+          borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+          showBanner: false,
+        }
+      }
+
       // If the server is connected after 30 attempts, show connected status
       if (isConnected) {
         return {
