@@ -190,9 +190,10 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
       }
     }
 
+    const prevStatus = doc.connection?.status
     const newConnectionStatus = sshConnected ? 'success' : 'failed'
     const connectionStatusChanged =
-      forceRefresh || doc.connection?.status !== newConnectionStatus
+      forceRefresh || prevStatus !== newConnectionStatus
 
     if (
       connectionStatusChanged ||
@@ -202,10 +203,19 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
     ) {
       const updateData: Partial<Server> = {}
 
+      // If previous status is 'not-checked-yet', only update to 'success' if connected
+      // If previous status is 'failed' or 'success', always update to the new result (success or failed)
       if (connectionStatusChanged) {
-        updateData.connection = {
-          status: newConnectionStatus,
-          lastChecked: new Date().toString(),
+        if (prevStatus === 'not-checked-yet' && sshConnected) {
+          updateData.connection = {
+            status: 'success',
+            lastChecked: new Date().toString(),
+          }
+        } else if (prevStatus === 'failed' || prevStatus === 'success') {
+          updateData.connection = {
+            status: newConnectionStatus,
+            lastChecked: new Date().toString(),
+          }
         }
       }
 
@@ -252,7 +262,12 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
       tailscalePrivateIp: newTailscaleIp ?? doc.tailscalePrivateIp,
       cloudInitStatus: cloudInitStatus ?? doc.cloudInitStatus,
       connection: {
-        status: sshConnected ? 'success' : 'failed',
+        status:
+          prevStatus === 'not-checked-yet'
+            ? sshConnected
+              ? 'success'
+              : 'not-checked-yet'
+            : newConnectionStatus,
         lastChecked: new Date().toString(),
       },
     }

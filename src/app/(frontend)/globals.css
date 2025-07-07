@@ -163,3 +163,16 @@
   margin: 0.25rem 0;
   border-bottom: 2px solid rgb(113, 112, 112) !important;
 }
+
+.animate-progress {
+  animation: progress-slide 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}

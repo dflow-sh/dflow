@@ -39,24 +39,11 @@ const BannerBase = ({
     <AlertDescription>
       {progress && (
         <div className='mb-3'>
-          {progressValue !== undefined ? (
-            <>
-              <Progress value={progressValue} />
-              {progressLabel && (
-                <div className='mt-1 text-right text-xs text-muted-foreground'>
-                  {progressLabel}
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className='relative h-2 w-full overflow-hidden rounded-full bg-primary/20'>
-                <div className='animate-progress absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent' />
-              </div>
-              <div className='mt-1 animate-pulse text-right text-xs text-muted-foreground'>
-                Initializing...
-              </div>
-            </>
+          <Progress value={progressValue} />
+          {progressLabel && (
+            <div className='mt-1 text-right text-xs text-muted-foreground'>
+              {progressLabel}
+            </div>
           )}
         </div>
       )}
@@ -72,37 +59,48 @@ const BannerBase = ({
   </Alert>
 )
 
-const CloudInitStatusBanner = ({
-  cloudInitStatus,
+const ProvisioningStatusBanner = ({
+  attempts,
+  maxAttempts = 30,
+  message,
   serverName,
 }: {
-  cloudInitStatus: string
+  attempts: number
+  maxAttempts?: number
+  message?: string
   serverName?: string
 }) => {
-  // You can adjust the progress value and label as needed
+  const percent = Math.round(((attempts + 1) / maxAttempts) * 100)
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
-      title='Server Initialization Running'
-      subtitle={`${serverName ? `"${serverName}"` : 'Your server'} is being initialized. This may take a few minutes.`}
+      title='Provisioning Server'
+      subtitle={
+        message ||
+        `${serverName ? `"${serverName}"` : 'Your dFlow server'} is being provisioned. This may take a few minutes.`
+      }
       progress={true}
       tasks={[
-        'Installing system packages and dependencies',
-        'Configuring network and security settings',
-        'Setting up SSH keys and user accounts',
-        'Applying Tailscale configuration',
+        'Waiting for server to become ready',
+        'Polling for public IP and hostname',
+        'Preparing for initial connection',
       ]}
       footer={
-        <span>
-          Tip: You can safely refresh this page or click the refresh button to
-          check for updates. Actions will be available once initialization is
-          complete.
-        </span>
+        <>
+          <span className='font-medium'>
+            Attempt {attempts + 1} of {maxAttempts}
+          </span>
+          <span className='ml-2'>
+            Tip: You can safely refresh this page or click the refresh button to
+            check for updates. Actions will be available once provisioning is
+            complete.
+          </span>
+        </>
       }
-      progressValue={undefined}
-      progressLabel={undefined}
+      progressValue={percent}
+      progressLabel={`${percent}%`}
     />
   )
 }
 
-export default CloudInitStatusBanner
+export default ProvisioningStatusBanner

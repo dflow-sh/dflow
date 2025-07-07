@@ -17,7 +17,7 @@ import {
   WifiOff,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import {
   Card,
@@ -61,92 +61,212 @@ const ServerCard = ({
     server?.provider?.toLowerCase() === 'dflow' &&
     server.dflowVpsDetails?.status === 'provisioning'
 
-  // Determine status based on priority logic
-  const getServerStatus = () => {
-    // Priority 1: Connection failed
-    if (!isConnected) {
-      return {
-        type: 'disconnected',
-        borderColor: 'border-l-red-500 hover:border-l-red-600',
-        badge: {
-          variant: 'destructive' as const,
-          text: 'Disconnected',
-          icon: WifiOff,
-          tooltip: 'Check server configuration or network status.',
-        },
-      }
-    }
+  // Get complete server status logic
+  const getServerStatus = (server: Server) => {
+    const isDflow = server?.provider?.toLowerCase() === 'dflow'
+    const dflowStatus = server.dflowVpsDetails?.status
+    const connectionAttempts = server.connectionAttempts ?? 0
+    const connectionStatus = server.connection?.status || 'unknown'
+    const isConnected = connectionStatus === 'success'
+    const isOnboarded = server.onboarded === true
+    const isCloudInitRunning = server.cloudInitStatus === 'running'
 
-    // Priority 2: Connection success + dFlow provisioning
-    if (isConnected && isProvisioning) {
+    // 1. DFlow provisioning state
+    if (isDflow && dflowStatus === 'provisioning') {
       return {
-        type: 'provisioning',
-        borderColor: 'border-l-purple-500 hover:border-l-purple-600',
+        type: 'provisioning' as const,
+        title: 'Server Provisioning',
+        subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being provisioned. This may take a few minutes.`,
         badge: {
           variant: 'secondary' as const,
           text: 'Provisioning',
-          icon: Cloud,
           tooltip:
             'dFlow server is being provisioned. This may take a few minutes.',
         },
+        borderColor: 'border-l-purple-500 hover:border-l-purple-600',
+        showBanner: true,
+        bannerProps: {
+          serverName: server.name,
+        },
       }
     }
 
-    // Priority 3: Connection success + CloudInit running
+    // 2. DFlow connecting state (attempting to connect) - only after status becomes 'running'
+    if (isDflow && dflowStatus === 'running' && connectionAttempts < 30) {
+      // If the server is connected mid-attempt, show connected status
+      if (isConnected) {
+        return {
+          type: 'connected' as const,
+          title: 'Server Connected',
+          subtitle: 'Server is connected and ready for use.',
+          badge: {
+            variant: 'success' as const,
+            text: 'Connected',
+            tooltip: undefined,
+          },
+          borderColor: 'border-l-green-500 hover:border-l-green-600',
+          showBanner: false,
+        }
+      }
+
+      // Show connecting if status is 'not-checked-yet'
+      if (connectionStatus === 'not-checked-yet') {
+        return {
+          type: 'connecting' as const,
+          title: 'Connecting to Server',
+          subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
+          badge: {
+            variant: 'secondary' as const,
+            text: 'Connecting',
+            tooltip:
+              'Attempting to connect to the server. This may take a few minutes.',
+          },
+          borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+          showBanner: true,
+          bannerProps: {
+            attempts: connectionAttempts,
+            maxAttempts: 30,
+            serverName: server.name,
+          },
+        }
+      }
+
+      // If not connected and not connecting, show disconnected
+      return {
+        type: 'disconnected' as const,
+        title: 'Server Disconnected',
+        subtitle: 'Unable to connect to the server.',
+        badge: {
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          tooltip: 'Check server configuration or network status.',
+        },
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        showBanner: false,
+      }
+    }
+
+    // 3. Connection error state (30+ attempts failed) - but if connected after 30 attempts, show connected
+    if (isDflow && dflowStatus === 'running' && connectionAttempts >= 30) {
+      // If the server is connected after 30 attempts, show connected status
+      if (isConnected) {
+        return {
+          type: 'connected' as const,
+          title: 'Server Connected',
+          subtitle: 'Server is connected and ready for use.',
+          badge: {
+            variant: 'success' as const,
+            text: 'Connected',
+            tooltip: undefined,
+          },
+          borderColor: 'border-l-green-500 hover:border-l-green-600',
+          showBanner: false,
+        }
+      }
+
+      // If not connected after 30 attempts, show connection error
+      return {
+        type: 'connection-error' as const,
+        title: 'Connection Issue Detected',
+        subtitle: `${server.name ? `"${server.name}"` : 'Your server'} could not be connected after multiple attempts.`,
+        badge: {
+          variant: 'destructive' as const,
+          text: 'Connection Error',
+          tooltip:
+            'Server could not be connected after multiple attempts. Please contact support.',
+        },
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        showBanner: true,
+        bannerProps: {
+          serverName: server.name,
+        },
+      }
+    }
+
+    // 4. Disconnected state (non-DFlow or general connection failure)
+    if (!isConnected) {
+      return {
+        type: 'disconnected' as const,
+        title: 'Server Disconnected',
+        subtitle: 'Unable to connect to the server.',
+        badge: {
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          tooltip: 'Check server configuration or network status.',
+        },
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        showBanner: false,
+      }
+    }
+
+    // 5. Cloud-init running state
     if (isConnected && isCloudInitRunning) {
       return {
-        type: 'initializing',
-        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+        type: 'cloud-init' as const,
+        title: 'Server Initialization Running',
+        subtitle: `${server.name ? `"${server.name}"` : 'Your server'} is being initialized. This may take a few minutes.`,
         badge: {
           variant: 'secondary' as const,
           text: 'Initializing',
-          icon: Settings,
           tooltip:
             'Cloud-init is running. Please wait for initialization to complete.',
         },
+        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+        showBanner: true,
+        bannerProps: {
+          serverName: server.name,
+        },
       }
     }
 
-    // Priority 4: Connection success + CloudInit done + Not onboarded
+    // 6. Onboarding required state
     if (isConnected && !isCloudInitRunning && !isOnboarded) {
       return {
-        type: 'onboarding',
-        borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+        type: 'onboarding' as const,
+        title: 'Onboarding Required',
+        subtitle: 'Server is connected but needs to be onboarded.',
         badge: {
           variant: 'warning' as const,
           text: 'Onboarding Required',
-          icon: AlertCircle,
           tooltip: 'Server is connected but needs to be onboarded.',
         },
+        borderColor: 'border-l-amber-500 hover:border-l-amber-600',
+        showBanner: false,
       }
     }
 
-    // Priority 5: Connection success + CloudInit done + Onboarded
+    // 7. Connected and ready state
     if (isConnected && !isCloudInitRunning && isOnboarded) {
       return {
-        type: 'connected',
-        borderColor: 'border-l-green-500 hover:border-l-green-600',
+        type: 'connected' as const,
+        title: 'Server Connected',
+        subtitle: 'Server is connected and ready for use.',
         badge: {
           variant: 'success' as const,
           text: 'Connected',
-          icon: null,
-          tooltip: null,
+          tooltip: undefined,
         },
+        borderColor: 'border-l-green-500 hover:border-l-green-600',
+        showBanner: false,
       }
     }
 
-    // Default fallback for unknown states
+    // Default fallback
     return {
-      type: 'unknown',
-      borderColor: 'border-l-gray-500 hover:border-l-gray-600',
+      type: 'disconnected' as const,
+      title: 'Unknown Status',
+      subtitle: 'Unable to determine server status.',
       badge: {
         variant: 'secondary' as const,
         text: 'Unknown Status',
-        icon: AlertCircle,
         tooltip: 'Unable to determine server status.',
       },
+      borderColor: 'border-l-gray-500 hover:border-l-gray-600',
+      showBanner: false,
     }
   }
+
+  const serverStatus = getServerStatus(server)
 
   const getIpDetails = (server: Server) => {
     // For SSH connections, prioritize the IP field
@@ -207,18 +327,48 @@ const ServerCard = ({
     )
   }
 
-  const serverStatus = getServerStatus()
   const ipInfo = getIpDetails(server)
   const showNoPublicIpBadge = shouldShowNoPublicIpBadge(server)
+
+  // Get appropriate icon for the status badge
+  const getStatusIcon = () => {
+    switch (serverStatus.type) {
+      case 'provisioning':
+      case 'connecting':
+        return Cloud
+      case 'cloud-init':
+        return Settings
+      case 'onboarding':
+        return AlertCircle
+      case 'disconnected':
+      case 'connection-error':
+        return WifiOff
+      case 'connected':
+        return null
+      default:
+        return AlertCircle
+    }
+  }
+
+  const statusIcon = getStatusIcon()
+
+  // Get connection attempts info for DFlow servers
+  const getConnectionAttemptsInfo = () => {
+    if (
+      server?.provider?.toLowerCase() === 'dflow' &&
+      serverStatus.type === 'connecting'
+    ) {
+      const attempts = server.connectionAttempts ?? 0
+      return ` (${attempts + 1}/30)`
+    }
+    return ''
+  }
 
   return (
     <>
       <div className='relative'>
         <Card
-          className={cn(
-            'h-full min-h-48 border-l-4 transition-all duration-200 hover:shadow-md',
-            serverStatus.borderColor,
-          )}>
+          className={`h-full min-h-48 border-b-0 border-l-4 border-r-0 border-t-0 transition-all duration-200 hover:shadow-md ${serverStatus.borderColor}`}>
           {/* Header Section */}
           <CardHeader className='pb-4'>
             <div className='flex items-start justify-between'>
@@ -261,7 +411,7 @@ const ServerCard = ({
                     <TooltipTrigger asChild>
                       <Badge
                         variant='secondary'
-                        className='cursor-help text-xs'>
+                        className='z-10 cursor-help text-xs'>
                         <AlertTriangle className='mr-1.5 h-3 w-3' />
                         No Public IP
                       </Badge>
@@ -282,11 +432,13 @@ const ServerCard = ({
                     <TooltipTrigger asChild>
                       <Badge
                         variant={serverStatus.badge.variant}
-                        className='cursor-help text-xs'>
-                        {serverStatus.badge.icon && (
-                          <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
-                        )}
+                        className='z-10 cursor-help text-xs'>
+                        {statusIcon &&
+                          React.createElement(statusIcon, {
+                            className: 'mr-1.5 h-3 w-3',
+                          })}
                         {serverStatus.badge.text}
+                        {getConnectionAttemptsInfo()}
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -298,10 +450,12 @@ const ServerCard = ({
                 <Badge
                   variant={serverStatus.badge.variant}
                   className='z-10 text-xs'>
-                  {serverStatus.badge.icon && (
-                    <serverStatus.badge.icon className='mr-1.5 h-3 w-3' />
-                  )}
+                  {statusIcon &&
+                    React.createElement(statusIcon, {
+                      className: 'mr-1.5 h-3 w-3',
+                    })}
                   {serverStatus.badge.text}
+                  {getConnectionAttemptsInfo()}
                 </Badge>
               )}
             </div>
@@ -350,7 +504,7 @@ const ServerCard = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className='cursor-help text-sm'>
+                          <span className='z-10 cursor-help text-sm text-muted-foreground'>
                             {format(
                               server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
@@ -372,29 +526,6 @@ const ServerCard = ({
                 )}
             </div>
           </CardContent>
-
-          {/* Footer Section */}
-          {/* {server.connection && (
-            <CardFooter className='pb-4 pt-0'>
-              <div className='z-10 flex w-full items-center gap-2 text-xs text-muted-foreground'>
-                <Clock className='h-3 w-3' />
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className='cursor-help'>
-                        {lastChecked !== 'unknown'
-                          ? `Last checked ${lastChecked}`
-                          : 'Status unknown'}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Connection status last updated: {lastChecked}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            </CardFooter>
-          )} */}
         </Card>
 
         {/* Clickable Overlay */}

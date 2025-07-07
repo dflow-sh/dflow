@@ -8,6 +8,8 @@ import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent } from '@/lib/sendEvent'
 import { Server, SshKey, Tenant } from '@/payload-types'
 
+import { addCheckDflowServerConnectionQueue } from './checkDflowServerConnectionQueue'
+
 class VpsCreationError extends Error {
   constructor(
     message: string,
@@ -136,13 +138,14 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             cloudProviderAccount: accountDetails.id,
             preferConnectionType: 'ssh',
             dflowVpsDetails: {
-              id: createdVpsOrder.id,
+              orderId: createdVpsOrder.id,
               instanceId: createdVpsOrder.instanceId,
               status: createdVpsOrder.instanceResponse.status as NonNullable<
                 Server['dflowVpsDetails']
               >['status'],
             },
             cloudInitStatus: 'running',
+            connectionAttempts: 0,
           }
         } else {
           serverData = {
@@ -157,13 +160,14 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             cloudProviderAccount: accountDetails.id,
             preferConnectionType: 'tailscale',
             dflowVpsDetails: {
-              id: createdVpsOrder.id,
+              orderId: createdVpsOrder.id,
               instanceId: createdVpsOrder.instanceId,
               status: createdVpsOrder.instanceResponse.status as NonNullable<
                 Server['dflowVpsDetails']
               >['status'],
             },
             cloudInitStatus: 'running',
+            connectionAttempts: 0,
           }
         }
 
@@ -234,7 +238,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                 // Build updateData based on preferConnectionType
                 const updateData: any = {
                   dflowVpsDetails: {
-                    ...createdServer.dflowVpsDetails,
                     status: newStatus,
                   },
                 }
@@ -335,6 +338,19 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
 
         const pollResult = await pollForPublicIPAndHostname()
 
+        // Trigger connection attempts queue if server is ready (status running, has publicIp/hostname)
+        if (
+          pollResult.status === 'running' &&
+          ((preferConnectionType === 'ssh' && pollResult.ip) ||
+            (preferConnectionType === 'tailscale' &&
+              pollResult.publicIp &&
+              pollResult.hostname))
+        ) {
+          await addCheckDflowServerConnectionQueue({
+            serverId: createdServer.id,
+          })
+        }
+
         sendActionEvent({
           pub,
           action: 'redirect',
@@ -356,6 +372,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           result.hostname = pollResult.hostname
         }
 
+        console.log(`[${jobId}] VPS creation completed successfully`)
         return result
       } catch (error) {
         console.error(`[${jobId}] VPS creation failed:`, error)
