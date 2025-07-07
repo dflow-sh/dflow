@@ -1,5 +1,6 @@
 'use client'
 
+import RefreshButton from '../RefreshButton'
 import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
@@ -255,7 +256,10 @@ const PluginsList = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='space-y-4'>
-      <h4 className='text-lg font-semibold'>Plugins</h4>
+      <div className='flex items-center justify-between'>
+        <h4 className='text-lg font-semibold'>Plugins</h4>
+        <RefreshButton showText={true} text='Refresh Server Status' />
+      </div>
 
       <Alert variant='info'>
         <RefreshCcw className='h-4 w-4' />

@@ -167,9 +167,10 @@ const Monitoring = ({ server }: { server: ServerType }) => {
     <div>
       <div className='mb-6 flex items-start justify-between'>
         <div>
-          <h1 className='mb-2 text-lg font-bold'>
+          <h4 className='mb-2 text-lg font-bold'>
             Server Monitoring Dashboard
-          </h1>
+          </h4>
+
           <p className='text-muted-foreground'>
             Real-time performance metrics and server status
           </p>

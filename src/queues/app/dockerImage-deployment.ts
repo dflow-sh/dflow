@@ -278,61 +278,20 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
         const httpEnabled = ports && ports.find(port => port.hostPort === 80)
         // ? Step 7: Check for Let's Encrypt status & generate SSL only when NEXT_PUBLIC_PROXY_DOMAIN_URL is not attached
 
-        if (httpEnabled && !env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
-          // Step 4: Check for Let's Encrypt status & generate SSL
-          const letsencryptStatus = await dokku.letsencrypt.status({
-            appName,
-            ssh,
-          })
-
-          if (
-            letsencryptStatus.code === 0 &&
-            letsencryptStatus.stdout === 'true'
-          ) {
-            sendEvent({
-              message: `✅ SSL enabled, skipping SSL generation`,
-              pub,
-              serverId,
-              serviceId,
-              channelId: deploymentId,
-            })
-          } else {
-            sendEvent({
-              message: `Started generating SSL`,
-              pub,
-              serverId,
-              serviceId,
-              channelId: deploymentId,
-            })
-
-            const letsencryptResponse = await dokku.letsencrypt.enable(
-              ssh,
+        if (!env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
+          if (httpEnabled) {
+            // Step 4: Check for Let's Encrypt status & generate SSL
+            const letsencryptStatus = await dokku.letsencrypt.status({
               appName,
-              {
-                onStdout: async chunk => {
-                  sendEvent({
-                    message: chunk.toString(),
-                    pub,
-                    serverId,
-                    serviceId,
-                    channelId: deploymentId,
-                  })
-                },
-                onStderr: async chunk => {
-                  sendEvent({
-                    message: chunk.toString(),
-                    pub,
-                    serverId,
-                    serviceId,
-                    channelId: deploymentId,
-                  })
-                },
-              },
-            )
+              ssh,
+            })
 
-            if (letsencryptResponse.code === 0) {
+            if (
+              letsencryptStatus.code === 0 &&
+              letsencryptStatus.stdout === 'true'
+            ) {
               sendEvent({
-                message: `✅ Successfully generated SSL certificates`,
+                message: `✅ SSL enabled, skipping SSL generation`,
                 pub,
                 serverId,
                 serviceId,
@@ -340,22 +299,65 @@ export const addDockerImageDeploymentQueue = async (data: QueueArgs) => {
               })
             } else {
               sendEvent({
-                message: `❌ Failed to generated SSL certificates`,
+                message: `Started generating SSL`,
                 pub,
                 serverId,
                 serviceId,
                 channelId: deploymentId,
               })
+
+              const letsencryptResponse = await dokku.letsencrypt.enable(
+                ssh,
+                appName,
+                {
+                  onStdout: async chunk => {
+                    sendEvent({
+                      message: chunk.toString(),
+                      pub,
+                      serverId,
+                      serviceId,
+                      channelId: deploymentId,
+                    })
+                  },
+                  onStderr: async chunk => {
+                    sendEvent({
+                      message: chunk.toString(),
+                      pub,
+                      serverId,
+                      serviceId,
+                      channelId: deploymentId,
+                    })
+                  },
+                },
+              )
+
+              if (letsencryptResponse.code === 0) {
+                sendEvent({
+                  message: `✅ Successfully generated SSL certificates`,
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: deploymentId,
+                })
+              } else {
+                sendEvent({
+                  message: `❌ Failed to generated SSL certificates`,
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: deploymentId,
+                })
+              }
             }
+          } else {
+            sendEvent({
+              message: 'No HTTP port found, skipping SSL generation',
+              pub,
+              serverId,
+              serviceId,
+              channelId: deploymentId,
+            })
           }
-        } else {
-          sendEvent({
-            message: 'No HTTP port found, skipping SSL generation',
-            pub,
-            serverId,
-            serviceId,
-            channelId: deploymentId,
-          })
         }
 
         sendEvent({

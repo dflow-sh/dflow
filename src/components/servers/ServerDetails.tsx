@@ -1,5 +1,6 @@
 'use client'
 
+import RefreshButton from '../RefreshButton'
 import { Dokku, Ubuntu } from '../icons'
 import {
   AlertCircle,
@@ -14,7 +15,6 @@ import {
   X,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -198,8 +198,6 @@ const ServerDetails = ({
   serverDetails: ServerDetails | null
   server: ServerType
 }) => {
-  const router = useRouter()
-
   // Function to handle opening terminal in new window
   const handleOpenTerminal = () => {
     // Open terminal in a new window - adjust the URL as needed based on your setup
@@ -309,12 +307,18 @@ const ServerDetails = ({
 
       {/* Server Information */}
       <div className='flex items-center justify-between'>
-        <h4 className='text-lg font-semibold'>Server Details</h4>
+        <div className='flex items-center gap-1.5'>
+          <Server />
+          <h4 className='text-lg font-semibold'>{server.name}</h4>
+        </div>
+
         <div className='flex items-center space-x-2'>
+          <RefreshButton showText={true} text='Refresh Server Status' />
+
           {isNetdataAvailable && (
             <Drawer>
               <DrawerTrigger asChild>
-                <Button variant='outline' size='sm'>
+                <Button variant='outline'>
                   <Info className='mr-2 h-4 w-4' /> View Complete Details
                 </Button>
               </DrawerTrigger>
@@ -346,6 +350,7 @@ const ServerDetails = ({
               </DrawerContent>
             </Drawer>
           )}
+
           {/* {server.connection?.status === 'success' && (
             <TerminalButton
               variant='outline'
