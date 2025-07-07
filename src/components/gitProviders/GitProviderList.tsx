@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
 import {
-  Download,
+  ArrowDownToLine,
   Github,
   GithubIcon,
   Trash2,
@@ -57,7 +57,10 @@ const GithubCard = ({
           {!provider?.github?.installationId && (
             <Link
               href={`${provider.github?.appUrl}/installations/new?state=${installState}`}>
-              <Download size={20} />
+              <Button variant={'outline'} size={'sm'}>
+                <ArrowDownToLine />
+                Install
+              </Button>
             </Link>
           )}
 

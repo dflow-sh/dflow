@@ -2,13 +2,15 @@
 
 import SidebarToggleButton from '../SidebarToggleButton'
 import { Docker, Heroku } from '../icons'
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import SelectSearch from '../ui/select-search'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Hammer } from 'lucide-react'
+import { Hammer, Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -63,6 +65,7 @@ const GithubForm = ({
   gitProviders: GitProvider[]
   service: Service
 }) => {
+  const { organisation } = useParams<{ organisation: string }>()
   const [repoType, setRepoType] = useState(
     service?.provider ? 'private' : 'public',
   )
@@ -177,7 +180,7 @@ const GithubForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='w-full space-y-6'>
-        <div className='space-y-2'>
+        <div className='space-y-4'>
           <RadioGroup
             value={repoType}
             onValueChange={value => {
@@ -238,10 +241,22 @@ const GithubForm = ({
             </div>
           </RadioGroup>
 
-          <p className='text-[0.8rem] text-muted-foreground'>
-            Select the GitHub App option to deploy any public or private
-            repository associated with your GitHub App.
-          </p>
+          {repoType === 'public' && (
+            <Alert variant={'info'} className='mt-2'>
+              <Workflow className='h-4 w-4' />
+              <AlertTitle>
+                Auto deployments are not supported with manual setup.
+              </AlertTitle>
+              <AlertDescription>
+                To enable automatic deployments on code pushes, configure your{' '}
+                <Link
+                  className='underline'
+                  href={`/${organisation}/integrations?active=github`}>
+                  GitHub App.
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
 
         {repoType === 'public' ? (

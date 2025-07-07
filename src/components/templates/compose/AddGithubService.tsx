@@ -1,8 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
-import { Hammer } from 'lucide-react'
+import { Hammer, Workflow } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -20,6 +22,7 @@ import {
 } from '@/actions/gitProviders'
 import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -75,6 +78,7 @@ const AddGithubService = ({
   type: 'create' | 'update'
   handleOnClick?: ({ serviceId }: { serviceId: string }) => void
 }) => {
+  const { organisation } = useParams()
   const { fitView } = useReactFlow()
   const [repoType, setRepoType] = useState(
     service?.provider ? 'private' : 'public',
@@ -252,7 +256,7 @@ const AddGithubService = ({
         <form
           onSubmit={form.handleSubmit(addGithubNode)}
           className='w-full space-y-6'>
-          <div className='space-y-2'>
+          <div className='space-y-4'>
             <RadioGroup
               value={repoType}
               onValueChange={value => {
@@ -305,10 +309,22 @@ const AddGithubService = ({
               </div>
             </RadioGroup>
 
-            <p className='text-[0.8rem] text-muted-foreground'>
-              Select the GitHub App option to deploy any public or private
-              repository associated with your GitHub App.
-            </p>
+            {repoType === 'public' && (
+              <Alert variant={'info'} className='mt-2'>
+                <Workflow className='h-4 w-4' />
+                <AlertTitle>
+                  Auto deployments are not supported with manual setup.
+                </AlertTitle>
+                <AlertDescription>
+                  To enable automatic deployments on code pushes, configure your{' '}
+                  <Link
+                    className='underline'
+                    href={`/${organisation}/integrations?active=github`}>
+                    GitHub App.
+                  </Link>
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           {repoType === 'public' ? (
