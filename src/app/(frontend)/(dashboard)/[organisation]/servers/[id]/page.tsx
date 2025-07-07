@@ -122,8 +122,6 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='space-y-6'>
-      <SSHConnectionAlert server={server} />
-
       <ServerDetails serverDetails={serverDetails} server={server} />
 
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
@@ -153,8 +151,6 @@ const MonitoringTab = ({
 }) => {
   return (
     <div className='space-y-6'>
-      <SSHConnectionAlert server={server} />
-
       <div className='space-y-4'>
         {!server.netdataVersion ? (
           <NetdataInstallPrompt
@@ -177,8 +173,6 @@ const PluginsTab = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='space-y-6'>
-      <SSHConnectionAlert server={server} />
-
       <div className='space-y-4'>
         {dokkuInstalled ? (
           <PluginsList server={server} />
@@ -213,8 +207,6 @@ const PluginsTab = ({ server }: { server: ServerType }) => {
 const DomainsTab = ({ server }: { server: ServerType }) => {
   return (
     <div className='space-y-6'>
-      <SSHConnectionAlert server={server} />
-
       <div className='space-y-4'>
         <div className='flex w-full items-center justify-between'>
           <div className='flex items-center gap-2'>
@@ -358,24 +350,40 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         }
       }
 
-      // If not connected, show connecting status
+      // Show connecting if status is 'not-checked-yet'
+      if (connectionStatus === 'not-checked-yet') {
+        return {
+          type: 'connecting' as const,
+          title: 'Connecting to Server',
+          subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
+          badge: {
+            variant: 'secondary' as const,
+            text: 'Connecting',
+            tooltip:
+              'Attempting to connect to the server. This may take a few minutes.',
+          },
+          borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+          showBanner: true,
+          bannerProps: {
+            attempts: connectionAttempts,
+            maxAttempts: 30,
+            serverName: server.name,
+          },
+        }
+      }
+
+      // If not connected and not connecting, show disconnected
       return {
-        type: 'connecting' as const,
-        title: 'Connecting to Server',
-        subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
+        type: 'disconnected' as const,
+        title: 'Server Disconnected',
+        subtitle: 'Unable to connect to the server.',
         badge: {
-          variant: 'secondary' as const,
-          text: 'Connecting',
-          tooltip:
-            'Attempting to connect to the server. This may take a few minutes.',
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          tooltip: 'Check server configuration or network status.',
         },
-        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
-        showBanner: true,
-        bannerProps: {
-          attempts: connectionAttempts,
-          maxAttempts: 30,
-          serverName: server.name,
-        },
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        showBanner: false,
       }
     }
 
@@ -502,6 +510,15 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverStatus = getServerStatus(server)
 
   const renderContent = () => {
+    // Check if there's a connection issue that should show SSHConnectionAlert
+    const isConnected = server.connection?.status === 'success'
+    const isTailscale = server.preferConnectionType === 'tailscale'
+    const hasRequiredFields = isTailscale
+      ? typeof server.hostname === 'string'
+      : typeof server.sshKey === 'object'
+    const shouldShowSSHAlert =
+      !isConnected || (isConnected && !hasRequiredFields)
+
     // 1. Show provisioning banner for DFlow provisioning state
     if (serverStatus.type === 'provisioning') {
       return (
@@ -512,36 +529,50 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     // 2. Show connection attempts banner for DFlow connecting state
     if (serverStatus.type === 'connecting') {
       return (
-        <ProvisioningStatusBanner
-          attempts={serverStatus.bannerProps?.attempts || 0}
-          maxAttempts={serverStatus.bannerProps?.maxAttempts || 30}
-          serverName={serverStatus.bannerProps?.serverName}
-        />
+        <div className='space-y-6'>
+          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          <ProvisioningStatusBanner
+            attempts={serverStatus.bannerProps?.attempts || 0}
+            maxAttempts={serverStatus.bannerProps?.maxAttempts || 30}
+            serverName={serverStatus.bannerProps?.serverName}
+          />
+        </div>
       )
     }
 
     // 3. Show connection error banner for connection error state
     if (serverStatus.type === 'connection-error') {
       return (
-        <ConnectionErrorBanner
-          serverName={serverStatus.bannerProps?.serverName}
-        />
+        <div className='space-y-6'>
+          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          <ConnectionErrorBanner
+            serverName={serverStatus.bannerProps?.serverName}
+          />
+        </div>
       )
     }
 
     // 4. Show cloud-init banner for cloud-init running state
     if (serverStatus.type === 'cloud-init') {
       return (
-        <CloudInitStatusBanner
-          cloudInitStatus={server.cloudInitStatus ?? 'running'}
-          serverName={serverStatus.bannerProps?.serverName}
-        />
+        <div className='space-y-6'>
+          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          <CloudInitStatusBanner
+            cloudInitStatus={server.cloudInitStatus ?? 'running'}
+            serverName={serverStatus.bannerProps?.serverName}
+          />
+        </div>
       )
     }
 
     // 5. Show onboarding for onboarding required state
     if (serverStatus.type === 'onboarding') {
-      return <Onboarding />
+      return (
+        <div className='space-y-6'>
+          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          <Onboarding />
+        </div>
+      )
     }
 
     // 6. Show disconnected state with connection error alert
@@ -556,11 +587,21 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 7. Show connected and ready state
     if (serverStatus.type === 'connected') {
-      return renderTab()
+      return (
+        <div className='space-y-6'>
+          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          {renderTab()}
+        </div>
+      )
     }
 
     // Default fallback
-    return renderTab()
+    return (
+      <div className='space-y-6'>
+        {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+        {renderTab()}
+      </div>
+    )
   }
 
   return (

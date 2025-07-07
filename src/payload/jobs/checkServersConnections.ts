@@ -76,6 +76,7 @@ export const checkServersConnectionsTask: TaskConfig<any> = {
       })
 
       for (const server of servers.docs) {
+        const prevStatus = server.connection?.status
         try {
           const sshDetails = extractSSHDetails({ server })
           const ssh = await dynamicSSH(sshDetails)
@@ -83,41 +84,52 @@ export const checkServersConnectionsTask: TaskConfig<any> = {
           const isConnected = ssh.isConnected()
 
           if (isConnected) {
-            successCount++
-            checkedServers.push({
-              id: server.id,
-              name: server.name,
-              status: 'success',
-            })
+            if (
+              prevStatus === 'not-checked-yet' ||
+              prevStatus === 'failed' ||
+              prevStatus === 'success'
+            ) {
+              successCount++
+              checkedServers.push({
+                id: server.id,
+                name: server.name,
+                status: 'success',
+              })
 
-            await payload.update({
-              collection: 'servers',
-              id: server.id,
-              data: {
-                connection: {
-                  status: 'success',
-                  lastChecked: new Date().toISOString(),
+              await payload.update({
+                collection: 'servers',
+                id: server.id,
+                data: {
+                  connection: {
+                    status: 'success',
+                    lastChecked: new Date().toISOString(),
+                  },
                 },
-              },
-            })
+              })
+            }
           } else {
-            failedCount++
-            checkedServers.push({
-              id: server.id,
-              name: server.name,
-              status: 'failed',
-            })
+            if (
+              typeof prevStatus === 'string' &&
+              prevStatus !== 'not-checked-yet'
+            ) {
+              failedCount++
+              checkedServers.push({
+                id: server.id,
+                name: server.name,
+                status: 'failed',
+              })
 
-            await payload.update({
-              collection: 'servers',
-              id: server.id,
-              data: {
-                connection: {
-                  status: 'failed',
-                  lastChecked: new Date().toISOString(),
+              await payload.update({
+                collection: 'servers',
+                id: server.id,
+                data: {
+                  connection: {
+                    status: 'failed',
+                    lastChecked: new Date().toISOString(),
+                  },
                 },
-              },
-            })
+              })
+            }
           }
         } catch (error) {
           const connectionError = error as Error

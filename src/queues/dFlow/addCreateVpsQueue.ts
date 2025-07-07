@@ -372,6 +372,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           result.hostname = pollResult.hostname
         }
 
+        console.log(`[${jobId}] VPS creation completed successfully`)
         return result
       } catch (error) {
         console.error(`[${jobId}] VPS creation failed:`, error)

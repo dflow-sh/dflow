@@ -31,70 +31,101 @@ export const addCheckDflowServerConnectionQueue = async (
       let connected = false
       let server: Server | null = null
 
-      while (attempt < maxAttempts && !connected) {
-        server = await payload.findByID({ collection: 'servers', id: serverId })
+      try {
+        while (attempt < maxAttempts && !connected) {
+          server = await payload.findByID({
+            collection: 'servers',
+            id: serverId,
+          })
 
-        if (!server) break
+          if (!server) break
 
-        // Only run if dflow, status is running, and not already connected
-        if (
-          server.provider !== 'dflow' ||
-          server.connection?.status === 'success'
-        )
-          break
+          // Only run if dflow, status is running, and not already connected
+          if (
+            server.provider !== 'dflow' ||
+            server.connection?.status === 'success'
+          )
+            break
 
-        // Only run if dflow, status is running, and not already connected
-        if (server.dflowVpsDetails?.status !== 'running') break
+          // Only run if dflow, status is running, and not already connected
+          if (server.dflowVpsDetails?.status !== 'running') break
 
-        try {
-          const sshDetails = extractSSHDetails({ server })
+          const prevStatus = server.connection?.status
 
-          const ssh = await dynamicSSH(sshDetails)
+          try {
+            const sshDetails = extractSSHDetails({ server })
 
-          if (ssh.isConnected()) {
-            connected = true
+            const ssh = await dynamicSSH(sshDetails)
 
-            console.log(`[${job.id}] Server ${serverId} connected`)
+            if (ssh.isConnected()) {
+              // If previous status is 'not-checked-yet', only update to 'success' if connected
+              // If previous status is 'failed' or 'success', always update to 'success' if connected
+              if (
+                typeof prevStatus === 'string' &&
+                (prevStatus === 'not-checked-yet' ||
+                  prevStatus === 'failed' ||
+                  prevStatus === 'success')
+              ) {
+                connected = true
+                console.log(`[${job.id}] Server ${serverId} connected`)
+                await payload.update({
+                  collection: 'servers',
+                  id: serverId,
+                  data: {
+                    cloudInitStatus: 'running',
+                    connection: {
+                      status: 'success',
+                      lastChecked: new Date().toISOString(),
+                    },
+                    connectionAttempts: attempt,
+                  },
+                })
+              }
+              break
+            }
+          } catch (e) {
+            // ignore, will retry
+            console.log(`[${job.id}] Error connecting to server ${serverId}`, e)
+          }
 
+          attempt = (server.connectionAttempts ?? 0) + 1
+
+          // If previous status is 'not-checked-yet', do not update on failure
+          // If previous status is 'failed' or 'success', update to 'failed' on failure
+          if (
+            typeof prevStatus === 'string' &&
+            prevStatus !== 'not-checked-yet'
+          ) {
             await payload.update({
               collection: 'servers',
               id: serverId,
               data: {
                 cloudInitStatus: 'running',
                 connection: {
-                  status: 'success',
+                  status: attempt >= maxAttempts ? 'failed' : 'not-checked-yet',
                   lastChecked: new Date().toISOString(),
                 },
                 connectionAttempts: attempt,
               },
             })
-            break
           }
-        } catch (e) {
-          // ignore, will retry
-          console.log(`[${job.id}] Error connecting to server ${serverId}`, e)
+
+          if (attempt >= maxAttempts) break
+
+          console.log(
+            `[${job.id}] Server ${serverId} not connected, retrying...`,
+          )
+
+          await new Promise(res => setTimeout(res, delayMs))
         }
 
-        attempt = (server.connectionAttempts ?? 0) + 1
-
-        await payload.update({
-          collection: 'servers',
-          id: serverId,
-          data: {
-            cloudInitStatus: 'running',
-            connection: {
-              status: attempt >= maxAttempts ? 'failed' : 'not-checked-yet',
-              lastChecked: new Date().toISOString(),
-            },
-            connectionAttempts: attempt,
-          },
-        })
-
-        if (attempt >= maxAttempts) break
-
-        console.log(`[${job.id}] Server ${serverId} not connected, retrying...`)
-
-        await new Promise(res => setTimeout(res, delayMs))
+        console.log(
+          `[${job.id}] Connection check completed for server ${serverId}`,
+        )
+        return { connected, attempt }
+      } catch (error) {
+        console.error(`[${job.id}] Error checking server connection`, error)
+        throw error
       }
     },
 

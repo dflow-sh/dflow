@@ -110,24 +110,40 @@ const ServerCard = ({
         }
       }
 
-      // If not connected, show connecting status
+      // Show connecting if status is 'not-checked-yet'
+      if (connectionStatus === 'not-checked-yet') {
+        return {
+          type: 'connecting' as const,
+          title: 'Connecting to Server',
+          subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
+          badge: {
+            variant: 'secondary' as const,
+            text: 'Connecting',
+            tooltip:
+              'Attempting to connect to the server. This may take a few minutes.',
+          },
+          borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+          showBanner: true,
+          bannerProps: {
+            attempts: connectionAttempts,
+            maxAttempts: 30,
+            serverName: server.name,
+          },
+        }
+      }
+
+      // If not connected and not connecting, show disconnected
       return {
-        type: 'connecting' as const,
-        title: 'Connecting to Server',
-        subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
+        type: 'disconnected' as const,
+        title: 'Server Disconnected',
+        subtitle: 'Unable to connect to the server.',
         badge: {
-          variant: 'secondary' as const,
-          text: 'Connecting',
-          tooltip:
-            'Attempting to connect to the server. This may take a few minutes.',
+          variant: 'destructive' as const,
+          text: 'Disconnected',
+          tooltip: 'Check server configuration or network status.',
         },
-        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
-        showBanner: true,
-        bannerProps: {
-          attempts: connectionAttempts,
-          maxAttempts: 30,
-          serverName: server.name,
-        },
+        borderColor: 'border-l-red-500 hover:border-l-red-600',
+        showBanner: false,
       }
     }
 
@@ -396,7 +412,7 @@ const ServerCard = ({
                     <TooltipTrigger asChild>
                       <Badge
                         variant='secondary'
-                        className='cursor-help text-xs'>
+                        className='z-10 cursor-help text-xs'>
                         <AlertTriangle className='mr-1.5 h-3 w-3' />
                         No Public IP
                       </Badge>
@@ -417,7 +433,7 @@ const ServerCard = ({
                     <TooltipTrigger asChild>
                       <Badge
                         variant={serverStatus.badge.variant}
-                        className='cursor-help text-xs'>
+                        className='z-10 cursor-help text-xs'>
                         {statusIcon &&
                           React.createElement(statusIcon, {
                             className: 'mr-1.5 h-3 w-3',
@@ -489,7 +505,7 @@ const ServerCard = ({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className='cursor-help text-sm'>
+                          <span className='z-10 cursor-help text-sm text-muted-foreground'>
                             {format(
                               server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',

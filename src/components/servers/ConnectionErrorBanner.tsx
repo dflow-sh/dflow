@@ -1,9 +1,35 @@
-import { TriangleAlert } from 'lucide-react'
+'use client'
+
+import { Mail, MessageSquare, TriangleAlert } from 'lucide-react'
+import { useState } from 'react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 
 const ConnectionErrorBanner = ({ serverName }: { serverName?: string }) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleEmailContact = () => {
+    window.open(
+      'mailto:support@dflow.sh?subject=Server Connection Issue',
+      '_blank',
+    )
+    setIsOpen(false)
+  }
+
+  const handleDiscordContact = () => {
+    window.open('https://discord.gg/dflow', '_blank')
+    setIsOpen(false)
+  }
+
   return (
     <Alert
       variant={'destructive'}
@@ -41,11 +67,47 @@ const ConnectionErrorBanner = ({ serverName }: { serverName?: string }) => {
         <div className='border-t pt-2 text-xs text-muted-foreground'>
           <span>
             Please{' '}
-            <a
-              href='mailto:support@dflow.sh'
-              className='text-primary underline hover:text-primary/80'>
-              contact our support team
-            </a>{' '}
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant='link'
+                  className='h-auto p-0 text-primary underline hover:text-primary/80'>
+                  contact our support team
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-md'>
+                <DialogHeader>
+                  <DialogTitle className='text-xl font-semibold'>
+                    Contact Support
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div className='space-y-4'>
+                  <p className='text-sm text-muted-foreground'>
+                    Get help with your server connection issue through one of
+                    these channels:
+                  </p>
+
+                  <div className='space-y-3'>
+                    <Button
+                      onClick={handleEmailContact}
+                      className='w-full justify-start gap-3'
+                      variant='outline'>
+                      <Mail className='h-4 w-4' />
+                      Email Support
+                    </Button>
+
+                    <Button
+                      onClick={handleDiscordContact}
+                      className='w-full justify-start gap-3'
+                      variant='outline'>
+                      <MessageSquare className='h-4 w-4' />
+                      Join Discord
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>{' '}
             for assistance. We'll help you diagnose and resolve the issue.
           </span>
         </div>
