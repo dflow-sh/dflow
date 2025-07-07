@@ -75,32 +75,47 @@ const BannerBase = ({
 const CloudInitStatusBanner = ({
   cloudInitStatus,
   serverName,
+  title = 'Server Initialization Running',
+  subtitle,
+  tasks = [
+    'Installing system packages and dependencies',
+    'Configuring network and security settings',
+    'Setting up SSH keys and user accounts',
+    'Applying Tailscale configuration',
+  ],
+  footer,
+  ...props
 }: {
   cloudInitStatus: string
   serverName?: string
+  title?: string
+  subtitle?: string
+  tasks?: string[]
+  footer?: React.ReactNode
+  [key: string]: any
 }) => {
-  // You can adjust the progress value and label as needed
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
-      title='Server Initialization Running'
-      subtitle={`${serverName ? `"${serverName}"` : 'Your server'} is being initialized. This may take a few minutes.`}
+      title={title}
+      subtitle={
+        subtitle ||
+        `${serverName ? `"${serverName}"` : 'Your server'} is being initialized. This may take a few minutes.`
+      }
       progress={true}
-      tasks={[
-        'Installing system packages and dependencies',
-        'Configuring network and security settings',
-        'Setting up SSH keys and user accounts',
-        'Applying Tailscale configuration',
-      ]}
+      tasks={tasks}
       footer={
-        <span>
-          Tip: You can safely refresh this page or click the refresh button to
-          check for updates. Actions will be available once initialization is
-          complete.
-        </span>
+        footer || (
+          <span>
+            Tip: You can safely refresh this page or click the refresh button to
+            check for updates. Actions will be available once initialization is
+            complete.
+          </span>
+        )
       }
       progressValue={undefined}
       progressLabel={undefined}
+      {...props}
     />
   )
 }

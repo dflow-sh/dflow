@@ -19,6 +19,7 @@ import {
 import Link from 'next/link'
 import React, { useState } from 'react'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Card,
   CardContent,
@@ -51,15 +52,6 @@ const ServerCard = ({
   organisationSlug: string
 }) => {
   const [open, setOpen] = useState(false)
-  const connectionStatus = server.connection?.status || 'unknown'
-  const isConnected = connectionStatus === 'success'
-  const isOnboarded = server.onboarded === true
-  const isCloudInitRunning = server.cloudInitStatus === 'running'
-
-  // Check if server is in provisioning state (dFlow specific)
-  const isProvisioning =
-    server?.provider?.toLowerCase() === 'dflow' &&
-    server.dflowVpsDetails?.status === 'provisioning'
 
   // Get complete server status logic
   const getServerStatus = (server: Server) => {
@@ -91,80 +83,40 @@ const ServerCard = ({
       }
     }
 
-    // 2. DFlow connecting state (attempting to connect) - only after status becomes 'running'
-    if (isDflow && dflowStatus === 'running' && connectionAttempts < 30) {
-      // If the server is connected mid-attempt, show connected status
-      if (isConnected) {
-        return {
-          type: 'connected' as const,
-          title: 'Server Connected',
-          subtitle: 'Server is connected and ready for use.',
-          badge: {
-            variant: 'success' as const,
-            text: 'Connected',
-            tooltip: undefined,
-          },
-          borderColor: 'border-l-green-500 hover:border-l-green-600',
-          showBanner: false,
-        }
-      }
-
-      // Show connecting if status is 'not-checked-yet'
-      if (connectionStatus === 'not-checked-yet') {
-        return {
-          type: 'connecting' as const,
-          title: 'Connecting to Server',
-          subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
-          badge: {
-            variant: 'secondary' as const,
-            text: 'Connecting',
-            tooltip:
-              'Attempting to connect to the server. This may take a few minutes.',
-          },
-          borderColor: 'border-l-blue-500 hover:border-l-blue-600',
-          showBanner: true,
-          bannerProps: {
-            attempts: connectionAttempts,
-            maxAttempts: 30,
-            serverName: server.name,
-          },
-        }
-      }
-
-      // If not connected and not connecting, show disconnected
+    // 2. DFlow connecting state (attempting to connect)
+    if (
+      isDflow &&
+      dflowStatus === 'running' &&
+      connectionAttempts < 30 &&
+      connectionStatus === 'not-checked-yet'
+    ) {
       return {
-        type: 'disconnected' as const,
-        title: 'Server Disconnected',
-        subtitle: 'Unable to connect to the server.',
+        type: 'connecting' as const,
+        title: 'Connecting to Server',
+        subtitle: `${server.name ? `"${server.name}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`,
         badge: {
-          variant: 'destructive' as const,
-          text: 'Disconnected',
-          tooltip: 'Check server configuration or network status.',
+          variant: 'secondary' as const,
+          text: 'Connecting',
+          tooltip:
+            'Attempting to connect to the server. This may take a few minutes.',
         },
-        borderColor: 'border-l-red-500 hover:border-l-red-600',
-        showBanner: false,
+        borderColor: 'border-l-blue-500 hover:border-l-blue-600',
+        showBanner: true,
+        bannerProps: {
+          attempts: connectionAttempts,
+          maxAttempts: 30,
+          serverName: server.name,
+        },
       }
     }
 
-    // 3. Connection error state (30+ attempts failed) - but if connected after 30 attempts, show connected
-    if (isDflow && dflowStatus === 'running' && connectionAttempts >= 30) {
-      // If the server is connected after 30 attempts, show connected status
-      if (isConnected) {
-        return {
-          type: 'connected' as const,
-          title: 'Server Connected',
-          subtitle: 'Server is connected and ready for use.',
-          badge: {
-            variant: 'success' as const,
-            text: 'Connected',
-            tooltip: undefined,
-          },
-          borderColor: 'border-l-green-500 hover:border-l-green-600',
-          showBanner: false,
-        }
-      }
-
-      // If not connected after 30 attempts, show connection error
+    // 3. Connection error state (30+ attempts failed)
+    if (
+      isDflow &&
+      dflowStatus === 'running' &&
+      connectionAttempts >= 30 &&
+      connectionStatus === 'not-checked-yet'
+    ) {
       return {
         type: 'connection-error' as const,
         title: 'Connection Issue Detected',
@@ -196,6 +148,9 @@ const ServerCard = ({
         },
         borderColor: 'border-l-red-500 hover:border-l-red-600',
         showBanner: false,
+        bannerProps: {
+          serverName: server.name,
+        },
       }
     }
 
@@ -232,6 +187,9 @@ const ServerCard = ({
         },
         borderColor: 'border-l-amber-500 hover:border-l-amber-600',
         showBanner: false,
+        bannerProps: {
+          serverName: server.name,
+        },
       }
     }
 
@@ -248,12 +206,15 @@ const ServerCard = ({
         },
         borderColor: 'border-l-green-500 hover:border-l-green-600',
         showBanner: false,
+        bannerProps: {
+          serverName: server.name,
+        },
       }
     }
 
     // Default fallback
     return {
-      type: 'disconnected' as const,
+      type: 'unknown' as const,
       title: 'Unknown Status',
       subtitle: 'Unable to determine server status.',
       badge: {
@@ -263,6 +224,9 @@ const ServerCard = ({
       },
       borderColor: 'border-l-gray-500 hover:border-l-gray-600',
       showBanner: false,
+      bannerProps: {
+        serverName: server.name,
+      },
     }
   }
 
@@ -370,7 +334,7 @@ const ServerCard = ({
         <Card
           className={`h-full min-h-48 border-b-0 border-l-4 border-r-0 border-t-0 transition-all duration-200 hover:shadow-md ${serverStatus.borderColor}`}>
           {/* Header Section */}
-          <CardHeader className='pb-4'>
+          <CardHeader className='pb-0'>
             <div className='flex items-start justify-between'>
               <div className='min-w-0 flex-1'>
                 <CardTitle className='mb-2 flex items-center gap-2'>
@@ -401,6 +365,21 @@ const ServerCard = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {/* Unknown status prominent alert */}
+            {serverStatus.type === 'unknown' && (
+              <div className='mt-2'>
+                <Alert variant='warning'>
+                  <AlertCircle className='h-4 w-4' />
+                  <AlertTitle>Unknown Server Status</AlertTitle>
+                  <AlertDescription>
+                    Unable to determine server status. Please refresh or check
+                    your server configuration. If the issue persists, contact
+                    support.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
 
             {/* Combined Status Badge with Tooltip */}
             <div className='flex justify-start gap-2'>

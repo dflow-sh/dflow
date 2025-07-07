@@ -23,7 +23,7 @@ export const addCheckDflowServerConnectionQueue = async (
     name: QUEUE_NAME,
 
     processor: async job => {
-      const { serverId, maxAttempts = 30, delayMs = 5000 } = job.data
+      const { serverId, maxAttempts = 30, delayMs = 10000 } = job.data
 
       const payload = await getPayload({ config: configPromise })
 

@@ -59,48 +59,58 @@ const BannerBase = ({
   </Alert>
 )
 
-const ProvisioningStatusBanner = ({
-  attempts,
+const ConnectingStatusBanner = ({
+  attempts = 0,
   maxAttempts = 30,
-  message,
+  title = 'Connecting to Server',
+  subtitle,
+  tasks = [
+    'Waiting for server to become ready',
+    'Attempting to establish connection',
+  ],
+  footer,
   serverName,
+  ...props
 }: {
-  attempts: number
+  attempts?: number
   maxAttempts?: number
-  message?: string
+  title?: string
+  subtitle?: string
+  tasks?: string[]
+  footer?: React.ReactNode
   serverName?: string
+  [key: string]: any
 }) => {
   const percent = Math.round(((attempts + 1) / maxAttempts) * 100)
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
-      title='Provisioning Server'
+      title={title}
       subtitle={
-        message ||
-        `${serverName ? `"${serverName}"` : 'Your dFlow server'} is being provisioned. This may take a few minutes.`
+        subtitle ||
+        `${serverName ? `"${serverName}"` : 'Your dFlow server'} is being connected. This may take a few minutes.`
       }
       progress={true}
-      tasks={[
-        'Waiting for server to become ready',
-        'Polling for public IP and hostname',
-        'Preparing for initial connection',
-      ]}
+      tasks={tasks}
       footer={
-        <>
-          <span className='font-medium'>
-            Attempt {attempts + 1} of {maxAttempts}
-          </span>
-          <span className='ml-2'>
-            Tip: You can safely refresh this page or click the refresh button to
-            check for updates. Actions will be available once provisioning is
-            complete.
-          </span>
-        </>
+        footer || (
+          <>
+            <span className='font-medium'>
+              Attempt {attempts + 1} of {maxAttempts}
+            </span>
+            <span className='ml-2'>
+              Tip: You can safely refresh this page or click the refresh button
+              to check for updates. Actions will be available once connection is
+              established.
+            </span>
+          </>
+        )
       }
       progressValue={percent}
       progressLabel={`${percent}%`}
+      {...props}
     />
   )
 }
 
-export default ProvisioningStatusBanner
+export default ConnectingStatusBanner

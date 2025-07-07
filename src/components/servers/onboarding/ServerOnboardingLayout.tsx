@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, ChevronLeft, ChevronRight, Server } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -99,71 +99,63 @@ const ServerOnboardingLayout = ({
   }
 
   return (
-    <div className='mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4'>
-      <div className='flex w-full items-center justify-start gap-2 text-2xl font-semibold'>
-        <Server />
-
-        <p>{server.name}</p>
-      </div>
-
-      <Card className='w-full'>
-        <CardHeader>
-          <div className='flex items-center gap-2 text-sm font-extralight tracking-wide text-foreground'>
-            <div>
-              STEP <span className='font-medium'>{currentStep}</span> OF{' '}
-              <span className='font-medium'>{totalSteps}</span>
-            </div>
+    <Card className='w-full'>
+      <CardHeader>
+        <div className='flex items-center gap-2 text-sm font-extralight tracking-wide text-foreground'>
+          <div>
+            STEP <span className='font-medium'>{currentStep}</span> OF{' '}
+            <span className='font-medium'>{totalSteps}</span>
           </div>
-          <div className='mt-1.5 text-3xl font-semibold tracking-wide'>
-            {cardTitle}
-          </div>
-          <div className='text-sm text-muted-foreground'>{cardDescription}</div>
-        </CardHeader>
+        </div>
+        <div className='mt-1.5 text-3xl font-semibold tracking-wide'>
+          {cardTitle}
+        </div>
+        <div className='text-sm text-muted-foreground'>{cardDescription}</div>
+      </CardHeader>
 
-        <CardContent>{children}</CardContent>
+      <CardContent>{children}</CardContent>
 
-        <CardFooter className='mt-4 flex justify-between border-t pt-4'>
+      <CardFooter className='mt-4 flex justify-between border-t pt-4'>
+        <Button
+          variant={'outline'}
+          size={'icon'}
+          onClick={() => {
+            previousStep()
+          }}
+          disabled={currentStep === 1}>
+          <ChevronLeft size={24} />
+        </Button>
+
+        <div className='flex-1' />
+        {isLastStep ? (
+          <>
+            <Button
+              variant='outline'
+              isLoading={syncingDomains}
+              disabled={
+                syncingDomains ||
+                triggeredDomainsSync ||
+                isOnboardingSerer ||
+                !(server?.domains ?? []).length
+              }
+              className='mr-2'
+              onClick={() => {
+                handleSyncDomains()
+              }}>
+              <Check /> Complete Setup
+            </Button>
+          </>
+        ) : (
           <Button
             variant={'outline'}
             size={'icon'}
-            onClick={() => {
-              previousStep()
-            }}
-            disabled={currentStep === 1}>
-            <ChevronLeft size={24} />
+            onClick={nextStep}
+            disabled={!disableNextStep || currentStep === totalSteps}>
+            <ChevronRight size={24} />
           </Button>
-
-          <div className='flex-1' />
-          {isLastStep ? (
-            <>
-              <Button
-                variant='outline'
-                isLoading={syncingDomains}
-                disabled={
-                  syncingDomains ||
-                  triggeredDomainsSync ||
-                  isOnboardingSerer ||
-                  !(server?.domains ?? []).length
-                }
-                className='mr-2'
-                onClick={() => {
-                  handleSyncDomains()
-                }}>
-                <Check /> Complete Setup
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant={'outline'}
-              size={'icon'}
-              onClick={nextStep}
-              disabled={!disableNextStep || currentStep === totalSteps}>
-              <ChevronRight size={24} />
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
-    </div>
+        )}
+      </CardFooter>
+    </Card>
   )
 }
 

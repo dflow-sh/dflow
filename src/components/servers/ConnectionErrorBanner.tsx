@@ -14,7 +14,26 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 
-const ConnectionErrorBanner = ({ serverName }: { serverName?: string }) => {
+const ConnectionErrorBanner = ({
+  serverName,
+  title = 'Connection Issue Detected',
+  subtitle,
+  tasks = [
+    'Network connectivity issues',
+    'Server configuration problems',
+    'SSH key or authentication issues',
+    'Temporary infrastructure problems',
+  ],
+  footer,
+  ...props
+}: {
+  serverName?: string
+  title?: string
+  subtitle?: string
+  tasks?: string[]
+  footer?: React.ReactNode
+  [key: string]: any
+}) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleEmailContact = () => {
@@ -39,12 +58,10 @@ const ConnectionErrorBanner = ({ serverName }: { serverName?: string }) => {
           <TriangleAlert className='h-5 w-5 text-destructive' />
         </span>
         <div>
-          <AlertTitle className='text-lg font-bold'>
-            Connection Issue Detected
-          </AlertTitle>
+          <AlertTitle className='text-lg font-bold'>{title}</AlertTitle>
           <div className='text-sm text-muted-foreground'>
-            {serverName ? `"${serverName}"` : 'Your server'} could not be
-            connected after multiple attempts.
+            {subtitle ||
+              `${serverName ? `"${serverName}"` : 'Your server'} could not be connected after multiple attempts.`}
           </div>
         </div>
         <Badge variant='destructive' className='ml-auto'>
@@ -58,58 +75,59 @@ const ConnectionErrorBanner = ({ serverName }: { serverName?: string }) => {
             attempts. This could be due to:
           </p>
           <ul className='list-disc space-y-1 pl-6 text-xs'>
-            <li>Network connectivity issues</li>
-            <li>Server configuration problems</li>
-            <li>SSH key or authentication issues</li>
-            <li>Temporary infrastructure problems</li>
+            {tasks.map((task, i) => (
+              <li key={i}>{task}</li>
+            ))}
           </ul>
         </div>
         <div className='border-t pt-2 text-xs text-muted-foreground'>
-          <span>
-            Please{' '}
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant='link'
-                  className='h-auto p-0 text-primary underline hover:text-primary/80'>
-                  contact our support team
-                </Button>
-              </DialogTrigger>
-              <DialogContent className='sm:max-w-md'>
-                <DialogHeader>
-                  <DialogTitle className='text-xl font-semibold'>
-                    Contact Support
-                  </DialogTitle>
-                </DialogHeader>
+          {footer || (
+            <span>
+              Please{' '}
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant='link'
+                    className='h-auto p-0 text-primary underline hover:text-primary/80'>
+                    contact our support team
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className='sm:max-w-md'>
+                  <DialogHeader>
+                    <DialogTitle className='text-xl font-semibold'>
+                      Contact Support
+                    </DialogTitle>
+                  </DialogHeader>
 
-                <div className='space-y-4'>
-                  <p className='text-sm text-muted-foreground'>
-                    Get help with your server connection issue through one of
-                    these channels:
-                  </p>
+                  <div className='space-y-4'>
+                    <p className='text-sm text-muted-foreground'>
+                      Get help with your server connection issue through one of
+                      these channels:
+                    </p>
 
-                  <div className='space-y-3'>
-                    <Button
-                      onClick={handleEmailContact}
-                      className='w-full justify-start gap-3'
-                      variant='outline'>
-                      <Mail className='h-4 w-4' />
-                      Email Support
-                    </Button>
+                    <div className='space-y-3'>
+                      <Button
+                        onClick={handleEmailContact}
+                        className='w-full justify-start gap-3'
+                        variant='outline'>
+                        <Mail className='h-4 w-4' />
+                        Email Support
+                      </Button>
 
-                    <Button
-                      onClick={handleDiscordContact}
-                      className='w-full justify-start gap-3'
-                      variant='outline'>
-                      <MessageSquare className='h-4 w-4' />
-                      Join Discord
-                    </Button>
+                      <Button
+                        onClick={handleDiscordContact}
+                        className='w-full justify-start gap-3'
+                        variant='outline'>
+                        <MessageSquare className='h-4 w-4' />
+                        Join Discord
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </DialogContent>
-            </Dialog>{' '}
-            for assistance. We'll help you diagnose and resolve the issue.
-          </span>
+                </DialogContent>
+              </Dialog>{' '}
+              for assistance. We'll help you diagnose and resolve the issue.
+            </span>
+          )}
         </div>
       </AlertDescription>
     </Alert>

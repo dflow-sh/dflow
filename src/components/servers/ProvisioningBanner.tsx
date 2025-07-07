@@ -42,25 +42,46 @@ const BannerBase = ({
   </Alert>
 )
 
-const ProvisioningBanner = ({ serverName }: { serverName?: string }) => {
+const ProvisioningBanner = ({
+  serverName,
+  title = 'Server Provisioning',
+  subtitle,
+  tasks = [
+    'Creating virtual machine instance',
+    'Allocating resources and storage',
+    'Configuring network settings',
+    'Polling for public IP and hostname',
+    'Preparing for initial connection',
+  ],
+  footer,
+  ...props
+}: {
+  serverName?: string
+  title?: string
+  subtitle?: string
+  tasks?: string[]
+  footer?: React.ReactNode
+  [key: string]: any
+}) => {
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
-      title='Server Provisioning'
-      subtitle={`${serverName ? `"${serverName}"` : 'Your dFlow server'} is being provisioned. This may take a few minutes.`}
-      tasks={[
-        'Creating virtual machine instance',
-        'Allocating resources and storage',
-        'Configuring network settings',
-        'Preparing for initial connection',
-      ]}
-      footer={
-        <span>
-          Tip: You can safely refresh this page or click the refresh button to
-          check for updates. Actions will be available once provisioning is
-          complete.
-        </span>
+      title={title}
+      subtitle={
+        subtitle ||
+        `${serverName ? `"${serverName}"` : 'Your dFlow server'} is being provisioned. This may take a few minutes.`
       }
+      tasks={tasks}
+      footer={
+        footer || (
+          <span>
+            Tip: You can safely refresh this page or click the refresh button to
+            check for updates. Actions will be available once provisioning is
+            complete.
+          </span>
+        )
+      }
+      {...props}
     />
   )
 }
