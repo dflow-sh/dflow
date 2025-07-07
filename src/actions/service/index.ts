@@ -788,6 +788,7 @@ export const updateVolumesAction = protectedClient
         serverDetails: {
           id: project.server.id,
         },
+        project,
         tenantDetails: {
           slug: tenant.slug,
         },
