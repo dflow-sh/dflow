@@ -76,13 +76,11 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
 
         // Step 1: Set dokku build-dir if buildPath is provided
         const buildPath = job.data.buildPath
-        console.log('buildPath: ', buildPath)
-        const buildDirResponse = await dokku.builder.setBuildDir({
+        await dokku.builder.setBuildDir({
           ssh,
           appName,
           buildDir: buildPath,
         })
-        console.log('buildDirResponse: ', buildDirResponse)
         sendEvent({
           message:
             buildPath && buildPath !== '/'
