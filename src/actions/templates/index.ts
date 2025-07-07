@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { generateRandomString } from '@/lib/utils'
-import { Project, Service, Template } from '@/payload-types'
+import { Project, Server, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
@@ -577,6 +577,7 @@ export const templateDeployAction = protectedClient
           server: projectData?.serverId!,
           tenant,
         },
+        depth: 10,
       })
 
       projectDetails = response
@@ -725,7 +726,7 @@ export const templateDeployAction = protectedClient
             project: projectDetails?.id,
             tenant,
           },
-          depth: 10,
+          depth: 3,
         })
 
         createdServices.push(serviceResponse)
@@ -741,7 +742,7 @@ export const templateDeployAction = protectedClient
             volumes: service?.volumes,
             tenant,
           },
-          depth: 10,
+          depth: 3,
         })
 
         createdServices.push(serviceResponse)
@@ -762,7 +763,7 @@ export const templateDeployAction = protectedClient
               volumes: service?.volumes,
               tenant,
             },
-            depth: 10,
+            depth: 3,
           })
 
           createdServices.push(serviceResponse)
@@ -770,15 +771,17 @@ export const templateDeployAction = protectedClient
       }
     }
 
+    const lightweightServices = createdServices.map(
+      ({ project, ...rest }) => rest,
+    )
+
     // Step 3: trigger template-deploy queue with services
     const response = await addTemplateDeployQueue({
-      services: createdServices,
+      services: lightweightServices,
       serverDetails: {
-        id:
-          typeof projectDetails?.server === 'object'
-            ? projectDetails?.server?.id
-            : projectDetails?.server,
+        id: (projectDetails.server as Server).id,
       },
+      project: projectDetails,
       tenantDetails: {
         slug: tenant.slug,
       },

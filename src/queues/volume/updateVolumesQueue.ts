@@ -13,7 +13,8 @@ interface QueueArgs {
   serverDetails: {
     id: string
   }
-  service: Service
+  project: Project
+  service: Omit<Service, 'project'>
   restart: boolean
   tenantDetails: {
     slug: string
@@ -38,8 +39,8 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { service, tenantDetails, restart = false } = job.data
-      const project = service.project as Project
+      const { service, tenantDetails, restart = false, project } = job.data
+
       const payload = await getPayload({ config: configPromise })
 
       try {

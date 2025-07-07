@@ -16,13 +16,14 @@ import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent } from '@/lib/sendEvent'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { Service } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 interface QueueArgs {
-  services: Service[]
+  services: Omit<Service, 'project'>[]
   serverDetails: {
     id: string
   }
+  project: Project
   tenantDetails: {
     slug: string
   }
@@ -89,7 +90,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { services, tenantDetails } = job.data
+      const { services, tenantDetails, project } = job.data
       const payload = await getPayload({ config: configPromise })
 
       try {
@@ -100,7 +101,6 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
         // 2.4 use waitUntilFinished and go-to next step anything
         for await (const createdService of services) {
           const {
-            project,
             type,
             providerType,
             githubSettings,
@@ -157,6 +157,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     await updateVolumesQueue({
                       restart: false,
                       service: createdService,
+                      project: project,
                       serverDetails: {
                         id: project.server.id,
                       },
@@ -308,6 +309,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                   await updateVolumesQueue({
                     restart: false,
                     service: createdService,
+                    project: project,
                     serverDetails: {
                       id: project.server.id,
                     },
