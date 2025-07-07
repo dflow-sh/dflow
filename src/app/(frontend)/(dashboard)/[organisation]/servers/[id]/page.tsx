@@ -614,9 +614,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   return (
     <LayoutClient server={server} servers={servers}>
-      <div className='mb-2 flex justify-end'>
+      {/* <div className='mb-2 flex justify-end'>
         <RefreshButton showText={true} text='Refresh Server Status' />
-      </div>
+      </div> */}
 
       {renderContent()}
     </LayoutClient>
