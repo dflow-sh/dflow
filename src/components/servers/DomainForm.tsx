@@ -65,9 +65,7 @@ export const DomainFormWithoutDialog = ({
   const form = useForm<z.infer<typeof subdomainSchema>>({
     resolver: zodResolver(subdomainSchema),
     defaultValues: {
-      domain: env.NEXT_PUBLIC_PROXY_DOMAIN_URL
-        ? `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
-        : '',
+      domain: '',
       defaultDomain: false,
     },
   })
@@ -96,6 +94,32 @@ export const DomainFormWithoutDialog = ({
     const isWildCardDomain = values.domain.endsWith(
       env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
     )
+
+    const domains = server.domains || []
+    const hasWildcardDomain = domains.some(({ domain }) => {
+      return domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ')
+    })
+
+    // single wildcard domain validation
+    if (isWildCardDomain && hasWildcardDomain) {
+      toast.warning(`Wildcard domain already exists!`, {
+        duration: 7000,
+      })
+
+      return
+    }
+
+    // wildcard format validation
+    if (
+      isWildCardDomain &&
+      values.domain !== `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+    ) {
+      toast.warning(`Invalid wildcard domain format`, {
+        duration: 7000,
+      })
+
+      return
+    }
 
     // domain validation when connectionType=tailscale & ip shouldn't be 999.999.999.999
     // and domain added shouldn't be proxy domain
@@ -136,7 +160,7 @@ export const DomainFormWithoutDialog = ({
               <FormItem>
                 <FormLabel>Domain</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder='server1.example.com' />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -144,6 +168,21 @@ export const DomainFormWithoutDialog = ({
           />
 
           <DialogFooter>
+            {env.NEXT_PUBLIC_PROXY_DOMAIN_URL && (
+              <Button
+                type='button'
+                disabled={isPending}
+                variant='outline'
+                onClick={() => {
+                  form.setValue(
+                    'domain',
+                    `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`,
+                  )
+                }}>
+                Generate Default Domain
+              </Button>
+            )}
+
             <Button type='submit' isLoading={isPending} disabled={isPending}>
               Add
             </Button>

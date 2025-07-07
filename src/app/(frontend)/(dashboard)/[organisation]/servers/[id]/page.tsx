@@ -127,6 +127,7 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
         <div className='md:col-span-2'>
           <div className='space-y-4 rounded-lg border p-6'>
             <h3 className='text-lg font-semibold'>Server Configuration</h3>
+
             <UpdateServerForm
               server={server}
               securityGroups={securityGroups}
@@ -222,7 +223,11 @@ const DomainsTab = ({ server }: { server: ServerType }) => {
               sectionId='#️-server-level-domains'
             />
           </div>
-          <DomainForm server={server} />
+
+          <div className='flex items-center gap-2'>
+            <RefreshButton showText={true} text='Refresh Server Status' />
+            <DomainForm server={server} />
+          </div>
         </div>
 
         <DomainList server={server} />
@@ -299,20 +304,19 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     const securityGroups = generalTabDetails?.data?.securityGroups ?? []
 
     return (
-      <ServerOnboarding
-        server={server}
-        securityGroups={securityGroups}
-        sshKeys={sshKeys}
-      />
+      <div>
+        <RefreshButton showText={true} text='Refresh Server Status' />
+        <ServerOnboarding
+          server={server}
+          securityGroups={securityGroups}
+          sshKeys={sshKeys}
+        />
+      </div>
     )
   }
 
   return (
     <LayoutClient server={server} servers={servers}>
-      <div className='mb-2 flex justify-end'>
-        <RefreshButton showText={true} text='Refresh Server Status' />
-      </div>
-
       {server.connection?.status !== 'success' ? (
         server.onboarded ? (
           renderTab()
