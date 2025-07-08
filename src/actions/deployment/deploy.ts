@@ -69,7 +69,7 @@ export const triggerDeployment = async ({
 
         queueResponseId = id
       } else {
-        const builder = serviceDetails.builder ?? 'railpack'
+        const builder = serviceDetails.builder ?? 'buildPacks'
 
         if (builder === 'railpack') {
           const { id } = await addRailpackDeployQueue({
