@@ -81,6 +81,13 @@ const options = [
   },
 ]
 
+const handleBuildPathInputChange =
+  (onChange: (value: string) => void) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/^\/+/, '')
+    onChange(value)
+  }
+
 const AddGithubService = ({
   setNodes,
   nodes,
@@ -178,7 +185,7 @@ const AddGithubService = ({
     ) {
       getBranches({
         page: 1,
-        limit: 10,
+        limit: 100,
         appId: `${provider.github.appId}`,
         installationId: `${provider.github.installationId}`,
         privateKey: provider.github.privateKey,
@@ -447,7 +454,9 @@ const AddGithubService = ({
                           <Input
                             {...field}
                             value={field.value || ''}
-                            onChange={e => field.onChange(e.target.value)}
+                            onChange={handleBuildPathInputChange(
+                              field.onChange,
+                            )}
                           />
                         </FormControl>
                         <FormMessage />
@@ -620,7 +629,7 @@ const AddGithubService = ({
                         <Input
                           {...field}
                           value={field.value || ''}
-                          onChange={e => field.onChange(e.target.value)}
+                          onChange={handleBuildPathInputChange(field.onChange)}
                         />
                       </FormControl>
                       <FormMessage />

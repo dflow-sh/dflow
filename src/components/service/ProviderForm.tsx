@@ -74,6 +74,13 @@ const options = [
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
+const handleBuildPathInputChange =
+  (onChange: (value: string) => void) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/^\/+/, '')
+    onChange(value)
+  }
+
 const GithubForm = ({
   gitProviders,
   service,
@@ -387,7 +394,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -569,7 +576,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
