@@ -638,5 +638,16 @@ export const Servers: CollectionConfig = {
         ],
       },
     },
+    {
+      name: 'globalBuildPath',
+      type: 'text',
+      label: 'Global Build Path',
+      defaultValue: '/',
+      admin: {
+        description:
+          'Default build directory for all Dokku applications on this server. Leave empty to use repository root.',
+        placeholder: 'e.g. app, dist, build (leave empty for repository root)',
+      },
+    },
   ],
 }

@@ -25,6 +25,7 @@ const tabsList = [
   { label: 'Plugins', slug: 'plugins', disabled: false },
   { label: 'Domains', slug: 'domains', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: false },
+  { label: 'Settings', slug: 'settings', disabled: false },
 ] as const
 
 const LayoutClient = ({
@@ -44,6 +45,7 @@ const LayoutClient = ({
       'monitoring',
       'plugins',
       'domains',
+      'settings',
     ]).withDefault('general'),
   )
 
