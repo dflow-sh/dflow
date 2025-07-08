@@ -12,6 +12,7 @@ import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
+import { addUninstallDokkuQueue } from '@/queues/dokku/uninstall'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
 
@@ -24,6 +25,7 @@ import {
   createTailscaleServerSchema,
   deleteServerSchema,
   installDokkuSchema,
+  uninstallDokkuSchema,
   updateServerDomainSchema,
   updateServerSchema,
   updateTailscaleServerSchema,
@@ -215,6 +217,39 @@ export const installDokkuAction = protectedClient
     })
 
     if (installationResponse.id) {
+      return { success: true }
+    }
+  })
+
+export const uninstallDokkuAction = protectedClient
+  .metadata({
+    actionName: 'uninstallDokkuAction',
+  })
+  .schema(uninstallDokkuSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { serverId } = clientInput
+    const { payload, userTenant } = ctx
+
+    const serverDetails = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ server: serverDetails })
+
+    const uninstallResponse = await addUninstallDokkuQueue({
+      serverDetails: {
+        id: serverId,
+        provider: serverDetails.provider,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
+
+    if (uninstallResponse.id) {
       return { success: true }
     }
   })
