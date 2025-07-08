@@ -1,8 +1,11 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
-import { Hammer, Workflow } from 'lucide-react'
+import { Workflow } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -23,6 +26,7 @@ import {
 import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -44,10 +48,17 @@ const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
 const options = [
   {
-    label: 'Default',
-    value: 'railpack',
-    icon: <Hammer size={20} />,
-    description: 'Build app using railpack',
+    label: (
+      <div className='flex items-center gap-2'>
+        BuildPacks
+        <Badge variant='secondary' className='text-xs'>
+          Default
+        </Badge>
+      </div>
+    ),
+    value: 'buildPacks',
+    icon: <Heroku width={18} height={18} />,
+    description: 'Build app using buildpacks',
   },
   {
     label: 'Dockerfile',
@@ -56,10 +67,17 @@ const options = [
     description: 'Build app using Docker',
   },
   {
-    label: 'Buildpacks',
-    value: 'buildPacks',
-    icon: <Heroku fontSize={20} />,
-    description: 'Build app using Herokuish buildpacks',
+    label: 'Railpack',
+    value: 'railpack',
+    icon: (
+      <Image
+        src={'/images/railpack.png'}
+        alt='railpack'
+        width={32}
+        height={32}
+      />
+    ),
+    description: 'Build app using railpack',
   },
 ]
 
@@ -108,7 +126,7 @@ const AddGithubService = ({
     resolver: zodResolver(GithubServiceSchema),
     defaultValues: {
       providerType: 'github',
-      builder: service?.builder ?? 'railpack',
+      builder: service?.builder ?? 'buildPacks',
       provider:
         typeof service?.provider === 'object'
           ? service?.provider?.id
@@ -331,108 +349,112 @@ const AddGithubService = ({
             <>
               <div
                 className={`grid gap-4 ${type == 'update' ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                {/* Repository URL */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.repository'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Repository URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='text'
-                          name='repositoryURL'
-                          placeholder='ex: https://github.com/akhil-naidu/dflow'
-                          defaultValue={publicRepoURL}
-                          onChange={e => {
-                            const value = e.target.value
-                            const matched = value.match(githubURLRegex)
+                <div className='grid gap-4 md:grid-cols-2'>
+                  {/* Repository URL */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.repository'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Repository URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='text'
+                            name='repositoryURL'
+                            placeholder='ex: https://github.com/akhil-naidu/dflow'
+                            defaultValue={publicRepoURL}
+                            onChange={e => {
+                              const value = e.target.value
+                              const matched = value.match(githubURLRegex)
 
-                            if (matched) {
-                              const username = matched[1]
-                              const repository = matched[2]
+                              if (matched) {
+                                const username = matched[1]
+                                const repository = matched[2]
 
-                              form.setValue('githubSettings.owner', username)
-                              form.setValue(
-                                'githubSettings.repository',
-                                repository,
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                form.setValue('githubSettings.owner', username)
+                                form.setValue(
+                                  'githubSettings.repository',
+                                  repository,
+                                )
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                {/* Branch */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.branch'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Branch</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='text'
-                          name='branch'
-                          defaultValue={githubSettings?.branch ?? ''}
-                          placeholder='ex: main or commit-hash: 6492769'
-                          onChange={e => {
-                            const value = e.target.value
-                            form.setValue('githubSettings.branch', value)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* Branch */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.branch'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Branch</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='text'
+                            name='branch'
+                            defaultValue={githubSettings?.branch ?? ''}
+                            placeholder='ex: main or commit-hash: 6492769'
+                            onChange={e => {
+                              const value = e.target.value
+                              form.setValue('githubSettings.branch', value)
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                {/* Port */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.port'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Port</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={e => {
-                            const value = e.target.value
-                              ? parseInt(e.target.value, 10)
-                              : ''
-                            field.onChange(value)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className='grid gap-4 md:grid-cols-2'>
+                  {/* Port */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.port'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Port</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            {...field}
+                            value={field.value || ''}
+                            onChange={e => {
+                              const value = e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : ''
+                              field.onChange(value)
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                {/* Build path */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.buildPath'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Build path</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value || ''}
-                          onChange={e => field.onChange(e.target.value)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* Build path */}
+                  <FormField
+                    control={form.control}
+                    name='githubSettings.buildPath'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Build path</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            onChange={e => field.onChange(e.target.value)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </>
           ) : (
@@ -658,7 +680,9 @@ const AddGithubService = ({
                               className='order-1 after:absolute after:inset-0'
                             />
                             <div className='flex grow items-start gap-3'>
-                              {icon}
+                              <div className='flex h-8 w-8 items-center justify-center'>
+                                {icon}
+                              </div>
 
                               <div className='grid grow gap-2'>
                                 <Label htmlFor={value}>{label}</Label>

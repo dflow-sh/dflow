@@ -228,7 +228,9 @@ const ChooseService: React.FC<ChooseServiceType> = ({
 
         {/* service creation */}
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent onCloseAutoFocus={resetDialog}>
+          <DialogContent
+            onCloseAutoFocus={resetDialog}
+            className='sm:max-w-3xl'>
             <DialogHeader>
               <DialogTitle>
                 {showOptions && showVolumeServices

@@ -67,7 +67,7 @@ export const servicesSchema = z.array(
         'herokuBuildPacks',
         'nixpacks',
       ])
-      .default('railpack')
+      .default('buildPacks')
       .optional(),
   }),
 )

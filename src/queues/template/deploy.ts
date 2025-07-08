@@ -135,7 +135,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             if (type === 'app') {
               if (providerType === 'github' && githubSettings) {
                 let ssh: NodeSSH | null = null
-                const builder = serviceDetails.builder ?? 'railpack'
+                const builder = serviceDetails.builder ?? 'buildPacks'
 
                 try {
                   ssh = await dynamicSSH(sshDetails)
