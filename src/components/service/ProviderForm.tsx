@@ -1,22 +1,13 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import {
-  Bitbucket,
-  Docker,
-  GitLab,
-  Github,
-  Heroku,
-  MicrosoftAzure,
-} from '../icons'
-import { Badge } from '../ui/badge'
+import { Bitbucket, GitLab, Github, MicrosoftAzure } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import SelectSearch from '../ui/select-search'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -39,44 +30,10 @@ import {
 } from '@/components/ui/form'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { buildOptions } from '@/lib/buildOptions'
 import { GitProvider, Service } from '@/payload-types'
 
 import AzureDevopsForm from './AzureDevopsForm'
-
-const options = [
-  {
-    label: (
-      <div className='flex items-center gap-2'>
-        BuildPacks
-        <Badge variant='secondary' className='text-xs'>
-          Default
-        </Badge>
-      </div>
-    ),
-    value: 'buildPacks',
-    icon: <Heroku width={18} height={18} />,
-    description: 'Build app using buildpacks',
-  },
-  {
-    label: 'Dockerfile',
-    value: 'dockerfile',
-    icon: <Docker fontSize={20} />,
-    description: 'Build app using Dockerfile',
-  },
-  {
-    label: 'Railpack',
-    value: 'railpack',
-    icon: (
-      <Image
-        src={'/images/railpack.png'}
-        alt='railpack'
-        width={32}
-        height={32}
-      />
-    ),
-    description: 'Build app using railpack',
-  },
-]
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
@@ -649,7 +606,7 @@ const GithubForm = ({
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   className='flex w-full flex-col gap-4 md:flex-row'>
-                  {options.map(({ value, label, icon, description }) => (
+                  {buildOptions.map(({ value, label, icon, description }) => (
                     <FormItem
                       className='flex w-full items-center space-x-3 space-y-0'
                       key={value}>
@@ -712,6 +669,7 @@ const ProviderForm = ({
   service: Service
 }) => {
   const { providerType } = service
+  console.log({ service })
 
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
@@ -721,24 +679,28 @@ const ProviderForm = ({
       </div>
 
       <Tabs defaultValue={providerType ?? 'github'}>
-        <TabsList className='mb-4 grid w-max grid-cols-4'>
-          <TabsTrigger value='github' className='flex gap-1.5'>
-            <Github className='size-4' />
-            Github
-          </TabsTrigger>
-          <TabsTrigger value='azureDevOps' className='flex gap-1.5'>
-            <MicrosoftAzure className='size-4' />
-            Azure DevOps
-          </TabsTrigger>
-          <TabsTrigger value='gitlab' className='flex gap-1.5' disabled>
-            <GitLab className='size-4' />
-            Gitlab
-          </TabsTrigger>
-          <TabsTrigger value='bitbucket' className='flex gap-1.5' disabled>
-            <Bitbucket className='size-4' />
-            Bitbucket
-          </TabsTrigger>
-        </TabsList>
+        <div
+          className='w-full overflow-y-hidden overflow-x-scroll'
+          style={{ scrollbarWidth: 'none' }}>
+          <TabsList className='mb-4 grid w-max grid-cols-4'>
+            <TabsTrigger value='github' className='flex gap-1.5'>
+              <Github className='size-4' />
+              Github
+            </TabsTrigger>
+            <TabsTrigger value='azureDevOps' className='flex gap-1.5'>
+              <MicrosoftAzure className='size-4' />
+              Azure DevOps
+            </TabsTrigger>
+            <TabsTrigger value='gitlab' className='flex gap-1.5' disabled>
+              <GitLab className='size-4' />
+              Gitlab
+            </TabsTrigger>
+            <TabsTrigger value='bitbucket' className='flex gap-1.5' disabled>
+              <Bitbucket className='size-4' />
+              Bitbucket
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value='github'>
           <GithubForm gitProviders={gitProviders} service={service} />

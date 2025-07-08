@@ -39,7 +39,7 @@ export const getProjectDetails = protectedClient
             limit: 1,
           },
         },
-        depth: 10,
+        depth: 1,
       }),
       payload.find({
         collection: 'projects',

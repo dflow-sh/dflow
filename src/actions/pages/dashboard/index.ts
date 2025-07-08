@@ -39,7 +39,7 @@ export const getProjectsAndServers = protectedClient
       }),
       payload.find({
         collection: 'projects',
-        depth: 5,
+        depth: 1,
         where: {
           'tenant.slug': {
             equals: tenant.slug,

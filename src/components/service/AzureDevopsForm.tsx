@@ -242,7 +242,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
                       className='flex w-full items-center space-x-3 space-y-0'
                       key={value}>
                       <FormControl>
-                        <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                        <div className='has-data-[state=checked]:border-ring shadow-xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
                           <RadioGroupItem
                             value={value}
                             id={value}
