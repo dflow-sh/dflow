@@ -2,11 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
-import { Workflow } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -25,7 +23,6 @@ import {
 } from '@/actions/gitProviders'
 import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -322,100 +319,104 @@ const AddGithubService = ({
                   )
                 }
               }}
-              className='flex gap-6'>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='public' id='r2' />
-                <Label htmlFor='r2'>Manual</Label>
-              </div>
+              className='flex gap-4'>
+              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                <RadioGroupItem
+                  value='public'
+                  id='r2'
+                  className='order-1 after:absolute after:inset-0'
+                />
+                <div className='flex grow items-start gap-3'>
+                  <div className='grid grow gap-2'>
+                    <Label>open source</Label>
 
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='private' id='r3' />
-                <Label htmlFor='r3'>GitHub App</Label>
+                    <p className='text-xs text-muted-foreground'>
+                      Automatic deployment is not available.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                <RadioGroupItem
+                  value='private'
+                  id='r3'
+                  className='order-1 after:absolute after:inset-0'
+                />
+                <div className='flex grow items-start gap-3'>
+                  <div className='grid grow gap-2'>
+                    <Label>personal/organisation</Label>
+
+                    <p className='text-xs text-muted-foreground'>
+                      Automatic deployment is enabled
+                    </p>
+                  </div>
+                </div>
               </div>
             </RadioGroup>
-
-            {repoType === 'public' && (
-              <Alert variant={'info'} className='mt-2'>
-                <Workflow className='h-4 w-4' />
-                <AlertTitle>
-                  Auto deployments are not supported with manual setup.
-                </AlertTitle>
-                <AlertDescription>
-                  To enable automatic deployments on code pushes, configure your{' '}
-                  <Link
-                    className='underline'
-                    href={`/${organisation}/integrations?active=github`}>
-                    GitHub App.
-                  </Link>
-                </AlertDescription>
-              </Alert>
-            )}
           </div>
 
           {repoType === 'public' ? (
             <>
               <div
                 className={`grid gap-4 ${type == 'update' ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                <div className='grid gap-4 md:grid-cols-2'>
-                  {/* Repository URL */}
-                  <FormField
-                    control={form.control}
-                    name='githubSettings.repository'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Repository URL</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='text'
-                            name='repositoryURL'
-                            placeholder='ex: https://github.com/akhil-naidu/dflow'
-                            defaultValue={publicRepoURL}
-                            onChange={e => {
-                              const value = e.target.value
-                              const matched = value.match(githubURLRegex)
+                {/* Repository URL */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.repository'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Repository URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          name='repositoryURL'
+                          placeholder='ex: https://github.com/akhil-naidu/dflow'
+                          defaultValue={publicRepoURL}
+                          onChange={e => {
+                            const value = e.target.value
+                            const matched = value.match(githubURLRegex)
 
-                              if (matched) {
-                                const username = matched[1]
-                                const repository = matched[2]
+                            if (matched) {
+                              const username = matched[1]
+                              const repository = matched[2]
 
-                                form.setValue('githubSettings.owner', username)
-                                form.setValue(
-                                  'githubSettings.repository',
-                                  repository,
-                                )
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                              form.setValue('githubSettings.owner', username)
+                              form.setValue(
+                                'githubSettings.repository',
+                                repository,
+                              )
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  {/* Branch */}
-                  <FormField
-                    control={form.control}
-                    name='githubSettings.branch'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Branch</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='text'
-                            name='branch'
-                            defaultValue={githubSettings?.branch ?? ''}
-                            placeholder='ex: main or commit-hash: 6492769'
-                            onChange={e => {
-                              const value = e.target.value
-                              form.setValue('githubSettings.branch', value)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                {/* Branch */}
+                <FormField
+                  control={form.control}
+                  name='githubSettings.branch'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Branch</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          name='branch'
+                          defaultValue={githubSettings?.branch ?? ''}
+                          placeholder='ex: main or commit-hash: 6492769'
+                          onChange={e => {
+                            const value = e.target.value
+                            form.setValue('githubSettings.branch', value)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className='grid gap-4 md:grid-cols-2'>
                   {/* Port */}

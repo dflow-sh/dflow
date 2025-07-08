@@ -9,17 +9,14 @@ import {
   Heroku,
   MicrosoftAzure,
 } from '../icons'
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import SelectSearch from '../ui/select-search'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -261,34 +258,40 @@ const GithubForm = ({
                 )
               }
             }}
-            className='flex gap-6'>
-            <div className='flex items-center space-x-2'>
-              <RadioGroupItem value='public' id='r2' />
-              <Label htmlFor='r2'>Manual</Label>
-            </div>
+            className='flex gap-4'>
+            <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <RadioGroupItem
+                value='public'
+                id='r2'
+                className='order-1 after:absolute after:inset-0'
+              />
+              <div className='flex grow items-start gap-3'>
+                <div className='grid grow gap-2'>
+                  <Label>open source</Label>
 
-            <div className='flex items-center space-x-2'>
-              <RadioGroupItem value='private' id='r3' />
-              <Label htmlFor='r3'>GitHub App</Label>
+                  <p className='text-xs text-muted-foreground'>
+                    Automatic deployment is not available.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <RadioGroupItem
+                value='private'
+                id='r3'
+                className='order-1 after:absolute after:inset-0'
+              />
+              <div className='flex grow items-start gap-3'>
+                <div className='grid grow gap-2'>
+                  <Label>personal/organisation</Label>
+
+                  <p className='text-xs text-muted-foreground'>
+                    Automatic deployment is enabled
+                  </p>
+                </div>
+              </div>
             </div>
           </RadioGroup>
-
-          {repoType === 'public' && (
-            <Alert variant={'info'} className='mt-2'>
-              <Workflow className='h-4 w-4' />
-              <AlertTitle>
-                Automatic deployments are not supported with manual setup.
-              </AlertTitle>
-              <AlertDescription>
-                To enable automatic deployments on code pushes, configure your{' '}
-                <Link
-                  className='underline'
-                  href={`/${organisation}/integrations?active=github`}>
-                  GitHub App.
-                </Link>
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {repoType === 'public' ? (
