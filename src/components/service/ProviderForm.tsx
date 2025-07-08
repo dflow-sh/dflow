@@ -224,7 +224,7 @@ const GithubForm = ({
               />
               <div className='flex grow items-start gap-3'>
                 <div className='grid grow gap-2'>
-                  <Label>open source</Label>
+                  <Label>Open source</Label>
 
                   <p className='text-xs text-muted-foreground'>
                     Automatic deployment is not available.
@@ -240,7 +240,7 @@ const GithubForm = ({
               />
               <div className='flex grow items-start gap-3'>
                 <div className='grid grow gap-2'>
-                  <Label>personal/organisation</Label>
+                  <Label>Personal/Organisation</Label>
 
                   <p className='text-xs text-muted-foreground'>
                     Automatic deployment is enabled
