@@ -1,34 +1,31 @@
 import { dokku } from '../../lib/dokku'
 import { SSHType, dynamicSSH } from '../../lib/ssh'
-import { createAppAuth } from '@octokit/auth-app'
 import configPromise from '@payload-config'
 import { env } from 'env'
 import { NodeSSH } from 'node-ssh'
-import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { getBuildDetails } from '@/lib/getBuildDetails'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { GitProvider, Service } from '@/payload-types'
+import { Service } from '@/payload-types'
 
 interface QueueArgs {
   appName: string
-  userName: string
-  repoName: string
-  branch: string
   sshDetails: SSHType
   serviceDetails: {
     deploymentId: string
     serviceId: string
-    provider: string | GitProvider | null | undefined
-    port?: string
+    provider: Service['provider']
+    providerType: Service['providerType']
+    githubSettings?: Service['githubSettings']
+    azureSettings?: Service['azureSettings']
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
   }
   tenantSlug: string
-  buildPath?: string
 }
 
 export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
@@ -44,17 +41,17 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
     processor: async job => {
       const payload = await getPayload({ config: configPromise })
       let ssh: NodeSSH | null = null
+      const { appName, sshDetails, serviceDetails, tenantSlug } = job.data
       const {
-        appName,
-        userName: repoOwner,
-        repoName,
-        branch,
-        sshDetails,
-        serviceDetails,
-        tenantSlug,
-      } = job.data
-      const { serverId, serviceId, variables, populatedVariables } =
-        serviceDetails
+        serverId,
+        serviceId,
+        variables,
+        populatedVariables,
+        provider,
+        providerType,
+        azureSettings,
+        githubSettings,
+      } = serviceDetails
       const formattedVariables = JSON.parse(populatedVariables)
 
       try {
@@ -77,9 +74,15 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
         })
 
         ssh = await dynamicSSH(sshDetails)
+        const buildDetails = await getBuildDetails({
+          providerType,
+          azureSettings,
+          githubSettings,
+          provider,
+        })
 
         // Step 1: Set dokku build-dir if buildPath is provided
-        const buildPath = job.data.buildPath
+        const buildPath = buildDetails.buildPath
         await dokku.builder.setBuildDir({
           ssh,
           appName,
@@ -97,7 +100,7 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
         })
 
         // Step 2: Setting dokku port
-        const port = serviceDetails.port ?? '3000'
+        const port = buildDetails.port ? buildDetails.port.toString() : '3000'
 
         // validate weather port is set or not
         const exposedPorts = (await dokku.ports.report(ssh, appName)) ?? []
@@ -252,46 +255,11 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
           channelId: serviceDetails.deploymentId,
         })
 
-        let token = ''
-
-        // todo: currently logic is purely related to github-app deployment need to make generic for bitbucket & gitlab
-        const branchName = branch
-
-        // Generating a git clone token
-        if (
-          typeof serviceDetails.provider === 'object' &&
-          serviceDetails.provider?.github
-        ) {
-          const { appId, privateKey, installationId } =
-            serviceDetails.provider.github
-
-          const octokit = new Octokit({
-            authStrategy: createAppAuth,
-            auth: {
-              appId,
-              privateKey,
-              installationId,
-            },
-          })
-
-          const response = (await octokit.auth({
-            type: 'installation',
-          })) as {
-            token: string
-          }
-
-          token = response.token
-        }
-
         const cloningResponse = await dokku.git.sync({
           ssh,
           appName: appName,
-          gitRepoUrl:
-            serviceDetails.provider &&
-            typeof serviceDetails.provider === 'object'
-              ? `https://oauth2:${token}@github.com/${repoOwner}/${repoName}.git`
-              : `https://github.com/${repoOwner}/${repoName}`,
-          branchName,
+          gitRepoUrl: buildDetails.url,
+          branchName: buildDetails.branch,
           options: {
             onStdout: async chunk => {
               sendEvent({

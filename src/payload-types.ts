@@ -676,11 +676,19 @@ export interface Service {
   populatedVariables?: string | null;
   builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
   provider?: (string | null) | GitProvider;
-  providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
+  providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps') | null;
   githubSettings?: {
     repository: string;
     owner: string;
     branch: string;
+    buildPath: string;
+    port?: number | null;
+  };
+  azureSettings?: {
+    repository: string;
+    branch: string;
+    gitToken: string;
+    username: string;
     buildPath: string;
     port?: number | null;
   };
@@ -1255,6 +1263,16 @@ export interface ServicesSelect<T extends boolean = true> {
         repository?: T;
         owner?: T;
         branch?: T;
+        buildPath?: T;
+        port?: T;
+      };
+  azureSettings?:
+    | T
+    | {
+        repository?: T;
+        branch?: T;
+        gitToken?: T;
+        username?: T;
         buildPath?: T;
         port?: T;
       };

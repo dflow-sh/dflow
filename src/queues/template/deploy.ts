@@ -106,6 +106,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             githubSettings,
             provider,
             populatedVariables,
+            azureSettings,
             variables,
             volumes,
             ...serviceDetails
@@ -204,20 +205,17 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                   if (builder === 'railpack') {
                     const railpackDeployQueue = await addRailpackDeployQueue({
                       appName: serviceDetails.name,
-                      userName: githubSettings.owner,
-                      repoName: githubSettings.repository,
-                      branch: githubSettings.branch,
                       sshDetails: sshDetails,
                       serviceDetails: {
                         deploymentId: deploymentResponse.id,
                         serviceId: serviceDetails.id,
                         provider,
                         serverId: project.server.id,
-                        port: githubSettings.port
-                          ? githubSettings.port.toString()
-                          : '3000',
-                        populatedVariables: updatedPopulatedVariables ?? '{}',
-                        variables: updatedVariables ?? [],
+                        providerType,
+                        azureSettings,
+                        githubSettings,
+                        populatedVariables: populatedVariables ?? '{}',
+                        variables: variables ?? [],
                       },
                       tenantSlug: tenantDetails.slug,
                     })
@@ -227,20 +225,17 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     const dockerFileDeploymentQueue =
                       await addDockerFileDeploymentQueue({
                         appName: serviceDetails.name,
-                        userName: githubSettings.owner,
-                        repoName: githubSettings.repository,
-                        branch: githubSettings.branch,
                         sshDetails: sshDetails,
                         serviceDetails: {
                           deploymentId: deploymentResponse.id,
                           serviceId: serviceDetails.id,
                           provider,
                           serverId: project.server.id,
-                          port: githubSettings.port
-                            ? githubSettings.port.toString()
-                            : '3000',
-                          populatedVariables: updatedPopulatedVariables ?? '{}',
-                          variables: updatedVariables ?? [],
+                          providerType,
+                          azureSettings,
+                          githubSettings,
+                          populatedVariables: populatedVariables ?? '{}',
+                          variables: variables ?? [],
                         },
                         tenantSlug: tenantDetails.slug,
                       })
@@ -250,18 +245,17 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     const buildPacksDeploymentQueue =
                       await addBuildpacksDeploymentQueue({
                         appName: serviceDetails.name,
-                        userName: githubSettings.owner,
-                        repoName: githubSettings.repository,
-                        branch: githubSettings.branch,
                         sshDetails: sshDetails,
                         serviceDetails: {
                           deploymentId: deploymentResponse.id,
                           serviceId: serviceDetails.id,
                           provider,
                           serverId: project.server.id,
-                          port: githubSettings.port
-                            ? githubSettings.port.toString()
-                            : '3000',
+                          providerType,
+                          azureSettings,
+                          githubSettings,
+                          populatedVariables: populatedVariables ?? '{}',
+                          variables: variables ?? [],
                         },
                         tenantSlug: tenantDetails.slug,
                       })

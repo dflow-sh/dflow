@@ -7,6 +7,7 @@ import { getServiceDetails } from '@/actions/pages/service'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import {
   Docker,
+  Git,
   MariaDB,
   MongoDB,
   MySQL,
@@ -40,7 +41,7 @@ const iconMapping: {
   mongo: MongoDB,
   mysql: MySQL,
   redis: Redis,
-  app: props => <Github {...props} />,
+  app: props => <Git {...props} />,
   docker: Docker,
 }
 

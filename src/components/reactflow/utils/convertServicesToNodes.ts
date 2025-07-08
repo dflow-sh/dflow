@@ -6,6 +6,7 @@ import { GitProvider, Service, Template } from '@/payload-types'
 interface ServiceWithDisplayName extends Service {
   displayName: string
 }
+
 export function convertToGraph(
   services: Service[] | Template['services'] | ServiceWithDisplayName[],
 ) {

@@ -27,6 +27,7 @@ export const triggerDeployment = async ({
     type,
     providerType,
     githubSettings,
+    azureSettings,
     provider,
     populatedVariables,
     variables,
@@ -68,77 +69,65 @@ export const triggerDeployment = async ({
 
         queueResponseId = id
       } else {
-        if (providerType === 'github' && githubSettings) {
-          const builder = serviceDetails.builder ?? 'buildPacks'
+        const builder = serviceDetails.builder ?? 'buildPacks'
 
-          if (builder === 'railpack') {
-            const { id } = await addRailpackDeployQueue({
-              appName: serviceDetails.name,
-              userName: githubSettings.owner,
-              repoName: githubSettings.repository,
-              branch: githubSettings.branch,
-              sshDetails: sshDetails,
-              serviceDetails: {
-                deploymentId: deploymentResponse.id,
-                serviceId: serviceDetails.id,
-                provider,
-                serverId: project.server.id,
-                port: githubSettings.port
-                  ? githubSettings.port.toString()
-                  : '3000',
-                populatedVariables: populatedVariables ?? '{}',
-                variables: variables ?? [],
-              },
-              tenantSlug,
-              buildPath: githubSettings.buildPath || '/',
-            })
+        if (builder === 'railpack') {
+          const { id } = await addRailpackDeployQueue({
+            appName: serviceDetails.name,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              serverId: project.server.id,
+              providerType,
+              azureSettings,
+              githubSettings,
+              populatedVariables: populatedVariables ?? '{}',
+              variables: variables ?? [],
+            },
+            tenantSlug,
+          })
 
-            queueResponseId = id
-          } else if (builder === 'dockerfile') {
-            const { id } = await addDockerFileDeploymentQueue({
-              appName: serviceDetails.name,
-              userName: githubSettings.owner,
-              repoName: githubSettings.repository,
-              branch: githubSettings.branch,
-              sshDetails: sshDetails,
-              serviceDetails: {
-                deploymentId: deploymentResponse.id,
-                serviceId: serviceDetails.id,
-                provider,
-                serverId: project.server.id,
-                port: githubSettings.port
-                  ? githubSettings.port.toString()
-                  : '3000',
-                populatedVariables: populatedVariables ?? '{}',
-                variables: variables ?? [],
-              },
-              tenantSlug,
-              buildPath: githubSettings.buildPath || '/',
-            })
+          queueResponseId = id
+        } else if (builder === 'dockerfile') {
+          const { id } = await addDockerFileDeploymentQueue({
+            appName: serviceDetails.name,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              serverId: project.server.id,
+              providerType,
+              azureSettings,
+              githubSettings,
+              populatedVariables: populatedVariables ?? '{}',
+              variables: variables ?? [],
+            },
+            tenantSlug,
+          })
 
-            queueResponseId = id
-          } else if (builder === 'buildPacks') {
-            const { id } = await addBuildpacksDeploymentQueue({
-              appName: serviceDetails.name,
-              userName: githubSettings.owner,
-              repoName: githubSettings.repository,
-              branch: githubSettings.branch,
-              sshDetails: sshDetails,
-              serviceDetails: {
-                deploymentId: deploymentResponse.id,
-                serviceId: serviceDetails.id,
-                provider,
-                serverId: project.server.id,
-                port: githubSettings.port
-                  ? githubSettings.port.toString()
-                  : '3000',
-              },
-              tenantSlug,
-              buildPath: githubSettings.buildPath || '/',
-            })
+          queueResponseId = id
+        } else if (builder === 'buildPacks') {
+          const { id } = await addBuildpacksDeploymentQueue({
+            appName: serviceDetails.name,
+            sshDetails: sshDetails,
+            serviceDetails: {
+              deploymentId: deploymentResponse.id,
+              serviceId: serviceDetails.id,
+              provider,
+              serverId: project.server.id,
+              providerType,
+              azureSettings,
+              githubSettings,
+              populatedVariables: populatedVariables ?? '{}',
+              variables: variables ?? [],
+            },
+            tenantSlug,
+          })
 
-            queueResponseId = id
-          }
+          queueResponseId = id
         }
       }
     }

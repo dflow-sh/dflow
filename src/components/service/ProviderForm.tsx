@@ -1,7 +1,14 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import { Docker, Heroku } from '../icons'
+import {
+  Bitbucket,
+  Docker,
+  GitLab,
+  Github,
+  Heroku,
+  MicrosoftAzure,
+} from '../icons'
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -36,6 +43,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GitProvider, Service } from '@/payload-types'
+
+import AzureDevopsForm from './AzureDevopsForm'
 
 const options = [
   {
@@ -268,7 +277,7 @@ const GithubForm = ({
             <Alert variant={'info'} className='mt-2'>
               <Workflow className='h-4 w-4' />
               <AlertTitle>
-                Auto deployments are not supported with manual setup.
+                Automatic deployments are not supported with manual setup.
               </AlertTitle>
               <AlertDescription>
                 To enable automatic deployments on code pushes, configure your{' '}
@@ -699,6 +708,8 @@ const ProviderForm = ({
   gitProviders: GitProvider[]
   service: Service
 }) => {
+  const { providerType } = service
+
   return (
     <div className='space-y-4 rounded bg-muted/30 p-4'>
       <div>
@@ -706,19 +717,32 @@ const ProviderForm = ({
         <p className='text-muted-foreground'>Select the source of your code</p>
       </div>
 
-      <Tabs defaultValue='github'>
-        <TabsList className='mb-4 grid w-max grid-cols-3'>
-          <TabsTrigger value='github'>Github</TabsTrigger>
-          <TabsTrigger value='gitlab' disabled>
+      <Tabs defaultValue={providerType ?? 'github'}>
+        <TabsList className='mb-4 grid w-max grid-cols-4'>
+          <TabsTrigger value='github' className='flex gap-1.5'>
+            <Github className='size-4' />
+            Github
+          </TabsTrigger>
+          <TabsTrigger value='azureDevOps' className='flex gap-1.5'>
+            <MicrosoftAzure className='size-4' />
+            Azure DevOps
+          </TabsTrigger>
+          <TabsTrigger value='gitlab' className='flex gap-1.5' disabled>
+            <GitLab className='size-4' />
             Gitlab
           </TabsTrigger>
-          <TabsTrigger value='bitbucket' disabled>
+          <TabsTrigger value='bitbucket' className='flex gap-1.5' disabled>
+            <Bitbucket className='size-4' />
             Bitbucket
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value='github'>
           <GithubForm gitProviders={gitProviders} service={service} />
+        </TabsContent>
+
+        <TabsContent value='azureDevOps'>
+          <AzureDevopsForm service={service} />
         </TabsContent>
       </Tabs>
     </div>
