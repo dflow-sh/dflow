@@ -1,11 +1,19 @@
 'use client'
 
-import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import {
+  Docker,
+  Git,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Database, Github, Plus } from 'lucide-react'
+import { Database, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -233,7 +241,7 @@ const CreateService = ({
                       <SelectContent>
                         <SelectItem value='app'>
                           <div className='flex items-center gap-1.5'>
-                            <Github size={16} />
+                            <Git className='size-4' />
                             App (Git based application)
                           </div>
                         </SelectItem>

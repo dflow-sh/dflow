@@ -27,7 +27,7 @@ export interface ServiceNode {
     | 'buildPacks'
     | null
   provider?: string | GitProvider | null
-  providerType?: 'github' | 'gitlab' | 'bitbucket' | null
+  providerType?: 'github' | 'gitlab' | 'bitbucket' | 'azureDevOps' | null
   githubSettings?: {
     repository: string
     owner: string

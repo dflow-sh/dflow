@@ -810,7 +810,8 @@ export const Tailscale = (props: SVGProps<SVGSVGElement>) => (
     height='18'
     viewBox='0 0 80 80'
     width='18'
-    xmlns='http://www.w3.org/2000/svg'>
+    xmlns='http://www.w3.org/2000/svg'
+    {...props}>
     <g fill='currentColor'>
       <circle cx='20' cy='40' r='6' />
       <circle cx='40' cy='40' r='6' />
@@ -822,5 +823,163 @@ export const Tailscale = (props: SVGProps<SVGSVGElement>) => (
       <circle cx='40' cy='20' opacity='.3' r='6' />
       <circle cx='60' cy='20' opacity='.3' r='6' />
     </g>
+  </svg>
+)
+
+export const Github = (props: SVGProps<SVGSVGElement>) => {
+  return (
+    <svg
+      height='48'
+      aria-hidden='true'
+      viewBox='0 0 24 24'
+      version='1.1'
+      width='48'
+      data-view-component='true'
+      className='octicon octicon-mark-github v-align-middle'
+      {...props}>
+      <path
+        fill='currentColor'
+        d='M12 1C5.9225 1 1 5.9225 1 12C1 16.8675 4.14875 20.9787 8.52125 22.4362C9.07125 22.5325 9.2775 22.2025 9.2775 21.9137C9.2775 21.6525 9.26375 20.7862 9.26375 19.865C6.5 20.3737 5.785 19.1912 5.565 18.5725C5.44125 18.2562 4.905 17.28 4.4375 17.0187C4.0525 16.8125 3.5025 16.3037 4.42375 16.29C5.29 16.2762 5.90875 17.0875 6.115 17.4175C7.105 19.0812 8.68625 18.6137 9.31875 18.325C9.415 17.61 9.70375 17.1287 10.02 16.8537C7.5725 16.5787 5.015 15.63 5.015 11.4225C5.015 10.2262 5.44125 9.23625 6.1425 8.46625C6.0325 8.19125 5.6475 7.06375 6.2525 5.55125C6.2525 5.55125 7.17375 5.2625 9.2775 6.67875C10.1575 6.43125 11.0925 6.3075 12.0275 6.3075C12.9625 6.3075 13.8975 6.43125 14.7775 6.67875C16.8813 5.24875 17.8025 5.55125 17.8025 5.55125C18.4075 7.06375 18.0225 8.19125 17.9125 8.46625C18.6138 9.23625 19.04 10.2125 19.04 11.4225C19.04 15.6437 16.4688 16.5787 14.0213 16.8537C14.42 17.1975 14.7638 17.8575 14.7638 18.8887C14.7638 20.36 14.75 21.5425 14.75 21.9137C14.75 22.2025 14.9563 22.5462 15.5063 22.4362C19.8513 20.9787 23 16.8537 23 12C23 5.9225 18.0775 1 12 1Z'></path>
+    </svg>
+  )
+}
+
+export const MicrosoftAzure = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox='0 0 96 96'
+    xmlns='http://www.w3.org/2000/svg'
+    width='1em'
+    height='1em'
+    {...props}>
+    <defs>
+      <linearGradient
+        id='a'
+        x1={-1032.17}
+        x2={-1059.21}
+        y1={145.31}
+        y2={65.43}
+        gradientTransform='matrix(1 0 0 -1 1075 158)'
+        gradientUnits='userSpaceOnUse'>
+        <stop offset={0} stopColor='#114a8b' />
+        <stop offset={1} stopColor='#0669bc' />
+      </linearGradient>
+      <linearGradient
+        id='b'
+        x1={-1023.73}
+        x2={-1029.98}
+        y1={108.08}
+        y2={105.97}
+        gradientTransform='matrix(1 0 0 -1 1075 158)'
+        gradientUnits='userSpaceOnUse'>
+        <stop offset={0} stopOpacity={0.3} />
+        <stop offset={0.07} stopOpacity={0.2} />
+        <stop offset={0.32} stopOpacity={0.1} />
+        <stop offset={0.62} stopOpacity={0.05} />
+        <stop offset={1} stopOpacity={0} />
+      </linearGradient>
+      <linearGradient
+        id='c'
+        x1={-1027.16}
+        x2={-997.48}
+        y1={147.64}
+        y2={68.56}
+        gradientTransform='matrix(1 0 0 -1 1075 158)'
+        gradientUnits='userSpaceOnUse'>
+        <stop offset={0} stopColor='#3ccbf4' />
+        <stop offset={1} stopColor='#2892df' />
+      </linearGradient>
+    </defs>
+    <path
+      fill='url(#a)'
+      d='M33.34 6.54h26.04l-27.03 80.1a4.15 4.15 0 0 1-3.94 2.81H8.15a4.14 4.14 0 0 1-3.93-5.47L29.4 9.38a4.15 4.15 0 0 1 3.94-2.83z'
+    />
+    <path
+      fill='#0078d4'
+      d='M71.17 60.26H29.88a1.91 1.91 0 0 0-1.3 3.31l26.53 24.76a4.17 4.17 0 0 0 2.85 1.13h23.38z'
+    />
+    <path
+      fill='url(#b)'
+      d='M33.34 6.54a4.12 4.12 0 0 0-3.95 2.88L4.25 83.92a4.14 4.14 0 0 0 3.91 5.54h20.79a4.44 4.44 0 0 0 3.4-2.9l5.02-14.78 17.91 16.7a4.24 4.24 0 0 0 2.67.97h23.29L71.02 60.26H41.24L59.47 6.55z'
+    />
+    <path
+      fill='url(#c)'
+      d='M66.6 9.36a4.14 4.14 0 0 0-3.93-2.82H33.65a4.15 4.15 0 0 1 3.93 2.82l25.18 74.62a4.15 4.15 0 0 1-3.93 5.48h29.02a4.15 4.15 0 0 0 3.93-5.48z'
+    />
+  </svg>
+)
+
+export const GitLab = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox='0 0 32 32'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+    aria-labelledby='tanukiHomeDesktop'
+    width='1em'
+    height='1em'
+    {...props}>
+    <path
+      d='m31.46 12.78-.04-.12-4.35-11.35A1.14 1.14 0 0 0 25.94.6c-.24 0-.47.1-.66.24-.19.15-.33.36-.39.6l-2.94 9h-11.9l-2.94-9A1.14 1.14 0 0 0 6.07.58a1.15 1.15 0 0 0-1.14.72L.58 12.68l-.05.11a8.1 8.1 0 0 0 2.68 9.34l.02.01.04.03 6.63 4.97 3.28 2.48 2 1.52a1.35 1.35 0 0 0 1.62 0l2-1.52 3.28-2.48 6.67-5h.02a8.09 8.09 0 0 0 2.7-9.36Z'
+      fill='#E24329'
+    />
+    <path
+      d='m31.46 12.78-.04-.12a14.75 14.75 0 0 0-5.86 2.64l-9.55 7.24 6.09 4.6 6.67-5h.02a8.09 8.09 0 0 0 2.67-9.36Z'
+      fill='#FC6D26'
+    />
+    <path
+      d='m9.9 27.14 3.28 2.48 2 1.52a1.35 1.35 0 0 0 1.62 0l2-1.52 3.28-2.48-6.1-4.6-6.07 4.6Z'
+      fill='#FCA326'
+    />
+    <path
+      d='M6.44 15.3a14.71 14.71 0 0 0-5.86-2.63l-.05.12a8.1 8.1 0 0 0 2.68 9.34l.02.01.04.03 6.63 4.97 6.1-4.6-9.56-7.24Z'
+      fill='#FC6D26'
+    />
+  </svg>
+)
+
+export const Bitbucket = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    width='800px'
+    height='800px'
+    viewBox='0 0 32 32'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+    {...props}>
+    <path
+      d='M2.9087 3.00008C2.64368 2.99655 2.3907 3.11422 2.21764 3.32152C2.04458 3.52883 1.96915 3.80455 2.01158 4.07472L5.81987 27.9484C5.91782 28.5515 6.42093 28.9949 7.01305 28.9999H25.283C25.7274 29.0058 26.109 28.6748 26.1801 28.2217L29.9884 4.07935C30.0309 3.80918 29.9554 3.53346 29.7824 3.32615C29.6093 3.11885 29.3563 3.00118 29.0913 3.00471L2.9087 3.00008ZM18.9448 20.2546H13.1135L11.5346 11.7362H20.3578L18.9448 20.2546Z'
+      fill='#2684FF'
+    />
+    <path
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M28.7778 11.7363H20.3582L18.9453 20.2547H13.114L6.22852 28.6944C6.44675 28.8892 6.725 28.9976 7.0135 29.0001H25.2879C25.7324 29.006 26.114 28.675 26.1851 28.2219L28.7778 11.7363Z'
+      fill='url(#paint0_linear_87_7932)'
+    />
+    <defs>
+      <linearGradient
+        id='paint0_linear_87_7932'
+        x1='30.7245'
+        y1='14.1218'
+        x2='20.5764'
+        y2='28.0753'
+        gradientUnits='userSpaceOnUse'>
+        <stop offset='0.18' stop-color='#0052CC' />
+        <stop offset='1' stop-color='#2684FF' />
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
+export const Git = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    preserveAspectRatio='xMidYMid'
+    viewBox='0 0 256 256'
+    width='1em'
+    height='1em'
+    {...props}>
+    <path
+      d='M251.17 116.6 139.4 4.82a16.49 16.49 0 0 0-23.31 0l-23.21 23.2 29.44 29.45a19.57 19.57 0 0 1 24.8 24.96l28.37 28.38a19.61 19.61 0 1 1-11.75 11.06L137.28 95.4v69.64a19.62 19.62 0 1 1-16.13-.57V94.2a19.61 19.61 0 0 1-10.65-25.73L81.46 39.44 4.83 116.08a16.49 16.49 0 0 0 0 23.32L116.6 251.17a16.49 16.49 0 0 0 23.32 0l111.25-111.25a16.5 16.5 0 0 0 0-23.33'
+      fill='#DE4C36'
+    />
   </svg>
 )
