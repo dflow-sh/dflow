@@ -62,6 +62,7 @@ import { start } from './process/start'
 import { stop } from './process/stop'
 import { info as dokkuVersionInfo } from './version/info'
 import { install as dokkuInstall } from './version/install'
+import { uninstall as dokkuUninstall } from './version/uninstall'
 import { list as volumesList } from './volumes/list'
 import { mount } from './volumes/mount'
 import { unmount } from './volumes/unmount'
@@ -145,6 +146,7 @@ export const dokku = {
   version: {
     info: dokkuVersionInfo,
     install: dokkuInstall,
+    uninstall: dokkuUninstall,
   },
   distro: {
     info: distroInfo,
