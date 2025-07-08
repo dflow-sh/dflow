@@ -60,6 +60,10 @@ export const installDokkuSchema = z.object({
   serverId: z.string(),
 })
 
+export const uninstallDokkuSchema = z.object({
+  serverId: z.string(),
+})
+
 export const updateServerDomainSchema = z.object({
   domains: z.array(z.string()),
   operation: z.enum(['add', 'remove', 'set']),
