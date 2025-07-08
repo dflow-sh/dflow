@@ -96,3 +96,8 @@ export const checkServerConnectionSchema = z.discriminatedUnion(
 export const generateTailscaleHostnameSchema = z.object({
   hostname: z.string(),
 })
+
+export const configureGlobalBuildDirSchema = z.object({
+  serverId: z.string(),
+  buildDir: z.string().optional(),
+})

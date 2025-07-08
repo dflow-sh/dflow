@@ -2,6 +2,7 @@ import {
   AlertCircle,
   ScreenShareOff,
   Server,
+  Settings2,
   TriangleAlert,
 } from 'lucide-react'
 import { notFound } from 'next/navigation'
@@ -20,6 +21,7 @@ import ConnectionErrorBanner from '@/components/servers/ConnectionErrorBanner'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
+import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
@@ -275,6 +277,26 @@ const BannerLayout = ({
   )
 }
 
+const ServerSettingsTab = ({ server }: { server: ServerType }) => {
+  return (
+    <div className='space-y-6'>
+      <SSHConnectionAlert server={server} />
+
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-1.5'>
+            <Settings2 />
+            <h4 className='text-lg font-semibold'>Server Settings</h4>
+          </div>
+
+          <RefreshButton showText={true} text='Refresh Server Status' />
+        </div>
+        <GlobalBuildDirForm server={server} />
+      </div>
+    </div>
+  )
+}
+
 const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const [syncParams, syncSearchParams] = use(
     Promise.all([params, searchParams]),
@@ -327,6 +349,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
             />
           </Suspense>
         )
+
+      case 'settings':
+        return <ServerSettingsTab server={server} />
 
       default:
         return (

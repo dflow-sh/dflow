@@ -463,6 +463,10 @@ export interface Server {
    * Number of times connection to the server has been attempted (DFlow only).
    */
   connectionAttempts?: number | null;
+  /**
+   * Default build directory for all Dokku applications on this server. Leave empty to use repository root.
+   */
+  globalBuildPath?: string | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1382,6 +1386,7 @@ export interface ServersSelect<T extends boolean = true> {
         lastChecked?: T;
       };
   connectionAttempts?: T;
+  globalBuildPath?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;

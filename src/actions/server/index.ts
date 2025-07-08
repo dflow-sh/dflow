@@ -5,6 +5,7 @@ import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
@@ -18,6 +19,7 @@ import {
   checkDNSConfigSchema,
   checkServerConnectionSchema,
   completeServerOnboardingSchema,
+  configureGlobalBuildDirSchema,
   createServerSchema,
   createTailscaleServerSchema,
   deleteServerSchema,
@@ -807,4 +809,39 @@ export const generateTailscaleHostname = protectedClient
     }
 
     return { hostname }
+  })
+
+export const configureGlobalBuildDirAction = protectedClient
+  .metadata({
+    actionName: 'configureGlobalBuildDirAction',
+  })
+  .schema(configureGlobalBuildDirSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { serverId, buildDir } = clientInput
+    const { payload } = ctx
+
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ server })
+    const ssh = await dynamicSSH(sshDetails)
+
+    const result = await dokku.builder.setGlobalBuildDir({ ssh, buildDir })
+
+    // Save the buildDir value to the server record
+    await payload.update({
+      collection: 'servers',
+      id: serverId,
+      data: {
+        globalBuildPath: buildDir || null,
+      },
+    })
+
+    return {
+      success: result.code === 0,
+      message: result.stdout || result.stderr,
+    }
   })
