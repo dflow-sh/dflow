@@ -79,7 +79,7 @@ export const servicesToTemplate = (
             : typeof service.provider === 'string'
               ? service.provider
               : undefined,
-        builder: service.builder || 'railpack',
+        builder: service.builder || 'buildPacks',
         volumes: service.volumes || [],
       }),
       ...(service.type === 'database' && {

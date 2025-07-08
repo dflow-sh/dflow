@@ -674,7 +674,7 @@ export interface Service {
       }[]
     | null;
   populatedVariables?: string | null;
-  builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
   githubSettings?: {
@@ -860,7 +860,7 @@ export interface Template {
           buildPath: string;
           port?: number | null;
         };
-        builder?: ('railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'buildPacks') | null;
+        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
         /**
          * select database you want
          */

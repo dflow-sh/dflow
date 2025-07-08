@@ -11,7 +11,7 @@ export const GithubServiceSchema = z.object({
       'buildPacks',
       'railpack',
     ])
-    .default('railpack')
+    .default('buildPacks')
     .optional(),
   githubSettings: z
     .object({

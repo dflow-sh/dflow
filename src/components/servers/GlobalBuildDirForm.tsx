@@ -24,6 +24,8 @@ import { Server } from '@/payload-types'
 const GlobalBuildDirForm = ({ server }: { server: Server }) => {
   const [buildDir, setBuildDir] = useState(server.globalBuildPath || '')
 
+  const isServerConnected = server.connection?.status === 'success'
+
   const { execute, isPending } = useAction(configureGlobalBuildDirAction, {
     onSuccess: result => {
       if (result?.data?.success) {
@@ -41,21 +43,20 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
     },
   })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove leading slash if present
-    const value = e.target.value.replace(/^\/+/, '')
-    setBuildDir(value)
-  }
-
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
-
     execute({ serverId: server.id, buildDir })
   }
 
   const handleReset = () => {
     setBuildDir('/')
     execute({ serverId: server.id, buildDir: '/' })
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove leading slash if present
+    const value = e.target.value.replace(/^\/+/, '')
+    setBuildDir(value)
   }
 
   const displayValue = buildDir || '/'
@@ -67,7 +68,7 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
         <div className='flex items-center gap-2'>
           <FolderOpen className='h-5 w-5' />
           <CardTitle>Global Build Directory</CardTitle>
-          {!isDefaultPath && (
+          {!isDefaultPath && buildDir !== '/' && (
             <Badge variant='secondary' className='ml-auto'>
               Custom Path
             </Badge>
@@ -77,6 +78,12 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
           Set the global default build directory for all Dokku applications on
           this server. Individual apps can override this with app-specific
           settings.
+          {!isServerConnected && (
+            <span className='mt-1 block text-destructive'>
+              You cannot update the global build path while the server is
+              disconnected.
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-6'>
@@ -112,7 +119,7 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
                 value={buildDir}
                 onChange={handleInputChange}
                 placeholder='e.g. app2, dist, build, apps/backend (leave empty for repository root)'
-                disabled={isPending}
+                disabled={isPending || !isServerConnected}
               />
               {isDefaultPath && (
                 <div className='absolute right-3 top-1/2 -translate-y-1/2'>
@@ -120,6 +127,12 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
                 </div>
               )}
             </div>
+            {!isServerConnected && (
+              <div className='mt-1 text-xs text-muted-foreground'>
+                You can only update the global build path when the server is
+                connected.
+              </div>
+            )}
           </div>
 
           <div className='flex justify-end gap-2'>
@@ -129,6 +142,7 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
               onClick={handleReset}
               disabled={
                 isPending ||
+                !isServerConnected ||
                 (!buildDir && !server.globalBuildPath) ||
                 (buildDir === '/' &&
                   (!server.globalBuildPath || server.globalBuildPath === '/'))
@@ -139,7 +153,9 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
             <Button
               type='submit'
               disabled={
-                isPending || buildDir === (server.globalBuildPath || '')
+                isPending ||
+                !isServerConnected ||
+                buildDir === (server.globalBuildPath || '')
               }>
               {isPending ? 'Saving...' : 'Save Configuration'}
             </Button>
@@ -157,7 +173,8 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
               </code>
               <span>
                 Uses the entire repository as the build context. This is the
-                default behavior for most applications.
+                default behavior and preserves all top-level repository
+                properties.
               </span>
             </div>
             <div className='flex items-start gap-2'>
@@ -166,7 +183,8 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
               </code>
               <span>
                 Uses only the app2 subdirectory as the build context. Useful
-                when your application code is in a specific folder.
+                when your application code is in a specific folder within a
+                monorepo.
               </span>
             </div>
             <div className='flex items-start gap-2'>
@@ -175,7 +193,7 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
               </code>
               <span>
                 Uses the apps/backend subdirectory for monorepo setups where
-                different applications are in separate folders.
+                different applications are in separate nested folders.
               </span>
             </div>
             <div className='flex items-start gap-2'>
@@ -190,10 +208,13 @@ const GlobalBuildDirForm = ({ server }: { server: Server }) => {
           </div>
           <div className='mt-4 rounded-lg bg-muted/50 p-3'>
             <p className='text-xs text-muted-foreground'>
-              <strong>Note:</strong> Individual apps can override this global
-              setting using app-specific build directory configuration. If the
-              specified directory doesn't exist in the repository, the build
-              will fail.
+              <strong>Important:</strong> Setting a custom build directory will
+              result in loss of any changes to the top-level directory, such as
+              the{' '}
+              <code className='rounded bg-muted px-1'>git.keep-git-dir</code>{' '}
+              property. This global setting applies to all apps on this server
+              unless overridden by app-specific configuration. If the specified
+              directory doesn't exist in the repository, the build will fail.
             </p>
           </div>
         </div>

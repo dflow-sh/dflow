@@ -366,13 +366,13 @@ export const Services: CollectionConfig = {
       name: 'builder',
       type: 'select',
       options: [
+        { label: 'Build packs (Default)', value: 'buildPacks' },
         { label: 'Railpack', value: 'railpack' },
         { label: 'Nixpacks', value: 'nixpacks' },
         { label: 'Dockerfile', value: 'dockerfile' },
         { label: 'Heroku build packs', value: 'herokuBuildPacks' },
-        { label: 'Build packs', value: 'buildPacks' },
       ],
-      defaultValue: 'railpack',
+      defaultValue: 'buildPacks',
       admin: {
         condition: data => {
           return data.type === 'app' || data.type === 'docker'

@@ -3,13 +3,15 @@
 import SidebarToggleButton from '../SidebarToggleButton'
 import { Docker, Heroku } from '../icons'
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import SelectSearch from '../ui/select-search'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Hammer, Workflow } from 'lucide-react'
+import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -37,10 +39,17 @@ import { GitProvider, Service } from '@/payload-types'
 
 const options = [
   {
-    label: 'Default',
-    value: 'railpack',
-    icon: <Hammer size={20} />,
-    description: 'Build app using railpack',
+    label: (
+      <div className='flex items-center gap-2'>
+        BuildPacks
+        <Badge variant='secondary' className='text-xs'>
+          Default
+        </Badge>
+      </div>
+    ),
+    value: 'buildPacks',
+    icon: <Heroku width={18} height={18} />,
+    description: 'Build app using buildpacks',
   },
   {
     label: 'Dockerfile',
@@ -49,14 +58,28 @@ const options = [
     description: 'Build app using Dockerfile',
   },
   {
-    label: 'Buildpacks',
-    value: 'buildPacks',
-    icon: <Heroku fontSize={20} />,
-    description: 'Build app using Herokuish buildpacks',
+    label: 'Railpack',
+    value: 'railpack',
+    icon: (
+      <Image
+        src={'/images/railpack.png'}
+        alt='railpack'
+        width={32}
+        height={32}
+      />
+    ),
+    description: 'Build app using railpack',
   },
 ]
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
+
+const handleBuildPathInputChange =
+  (onChange: (value: string) => void) =>
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/^\/+/, '')
+    onChange(value)
+  }
 
 const GithubForm = ({
   gitProviders,
@@ -86,7 +109,7 @@ const GithubForm = ({
         repository: service?.githubSettings?.repository,
         port: service?.githubSettings?.port ?? 3000,
       },
-      builder: service?.builder ?? 'railpack',
+      builder: service?.builder ?? 'buildPacks',
     },
   })
 
@@ -371,7 +394,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -553,7 +576,7 @@ const GithubForm = ({
                       <Input
                         {...field}
                         value={field.value || ''}
-                        onChange={e => field.onChange(e.target.value)}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -627,7 +650,9 @@ const GithubForm = ({
                             className='order-1 after:absolute after:inset-0'
                           />
                           <div className='flex grow items-start gap-3'>
-                            {icon}
+                            <div className='flex h-8 w-8 items-center justify-center'>
+                              {icon}
+                            </div>
 
                             <div className='grid grow gap-2'>
                               <Label htmlFor={value}>{label}</Label>
