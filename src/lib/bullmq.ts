@@ -3,22 +3,16 @@ import Redis from 'ioredis'
 
 import { log } from '@/lib/logger'
 
+import { getUserContext } from './userContext'
+
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
 
 // Async logging wrapper to avoid blocking queue operations
 const logAsync = (logFn: () => void) => {
   if (isDev) {
-    // Sync in development for better debugging
     logFn()
   } else {
-    // Truly non-blocking in production for performance
-    process.nextTick(() => {
-      try {
-        logFn()
-      } catch (error) {
-        // Silent fail to avoid disrupting queue operations
-      }
-    })
+    process.nextTick(logFn)
   }
 }
 
@@ -49,33 +43,35 @@ export const getQueue = ({
   })
 
   logAsync(() => {
-    log.info('BullMQ queue created', {
-      component: 'bullmq',
-      queue: name,
-      event: 'queue-created',
-    })
+    log.info(`Queue ${name} created`, { queue: name })
   })
 
   newQueue.on('waiting', (job: any) => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.info('Job added to queue', {
-        component: 'bullmq',
-        queue: name,
-        jobId: job.id,
-        jobName: job.name,
-        event: 'job-added',
-      })
+      log.info(
+        `Job ${job.id} added to queue ${name} by ${userContext.userName}`,
+        {
+          jobId: job.id,
+          queue: name,
+          ...userContext, // Include user context (userId, userEmail, userName)
+        },
+      )
     })
   })
 
   newQueue.on('error', (err: Error) => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.error('Queue error', {
-        component: 'bullmq',
+      log.error(`Queue ${name} error: ${err.message}`, {
         queue: name,
-        event: 'queue-error',
         error: err.message,
-        timestamp: new Date().toISOString(),
+        stack: err.stack,
+        ...userContext, // Include user context
       })
     })
   })
@@ -96,7 +92,7 @@ export const getWorker = <T = any>({
   const worker = workers.get(name)
 
   if (worker) {
-    return worker as Worker<T>
+    return worker
   }
 
   const newWorker = new Worker<T>(name, processor, {
@@ -104,106 +100,98 @@ export const getWorker = <T = any>({
   })
 
   logAsync(() => {
-    log.info('BullMQ worker created', {
-      component: 'bullmq',
-      queue: name,
-      event: 'worker-created',
-    })
+    log.info(`Worker ${name} created`, { worker: name })
   })
 
   newWorker.on('ready', () => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.info('Worker ready', {
-        component: 'bullmq',
-        queue: name,
-        event: 'worker-ready',
-        timestamp: new Date().toISOString(),
+      log.info(`Worker ${name} ready`, {
+        worker: name,
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('active', (job: any) => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.debug('Job started processing', {
-        component: 'bullmq',
-        queue: name,
+      log.info(`Job ${job.id} started processing on ${name}`, {
         jobId: job.id,
-        jobName: job.name,
-        event: 'job-active',
-        timestamp: new Date().toISOString(),
+        worker: name,
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('completed', (job: any, result: any) => {
-    logAsync(() => {
-      const endTime = Date.now()
-      const duration = job.processedOn ? endTime - job.processedOn : undefined
+    // Get user context to include in logs
+    const userContext = getUserContext()
 
-      log.info('Job completed successfully', {
-        component: 'bullmq',
-        queue: name,
+    logAsync(() => {
+      log.info(`Job ${job.id} completed on ${name}`, {
         jobId: job.id,
-        jobName: job.name,
-        event: 'job-completed',
-        duration,
-        timestamp: new Date().toISOString(),
+        worker: name,
+        result: typeof result === 'object' ? JSON.stringify(result) : result,
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('failed', (job: any, err: Error) => {
-    logAsync(() => {
-      const endTime = Date.now()
-      const duration = job?.processedOn ? endTime - job.processedOn : undefined
+    // Get user context to include in logs
+    const userContext = getUserContext()
 
-      log.error('Job failed', {
-        component: 'bullmq',
-        queue: name,
+    logAsync(() => {
+      log.error(`Job ${job?.id} failed on ${name}: ${err.message}`, {
         jobId: job?.id,
-        jobName: job?.name,
-        event: 'job-failed',
+        worker: name,
         error: err.message,
         stack: err.stack,
-        duration,
-        timestamp: new Date().toISOString(),
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('stalled', (job: any) => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.warn('Job stalled (stuck processing)', {
-        component: 'bullmq',
-        queue: name,
+      log.warn(`Job ${job.id} stalled on ${name}`, {
         jobId: job.id,
-        jobName: job.name,
-        event: 'job-stalled',
-        timestamp: new Date().toISOString(),
+        worker: name,
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('error', (err: Error) => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.error('Worker error', {
-        component: 'bullmq',
-        queue: name,
-        event: 'worker-error',
+      log.error(`Worker ${name} error: ${err.message}`, {
+        worker: name,
         error: err.message,
         stack: err.stack,
-        timestamp: new Date().toISOString(),
+        ...userContext, // Include user context
       })
     })
   })
 
   newWorker.on('closed', () => {
+    // Get user context to include in logs
+    const userContext = getUserContext()
+
     logAsync(() => {
-      log.info('Worker closed', {
-        component: 'bullmq',
-        queue: name,
-        event: 'worker-closed',
-        timestamp: new Date().toISOString(),
+      log.info(`Worker ${name} closed`, {
+        worker: name,
+        ...userContext, // Include user context
       })
     })
   })
@@ -278,19 +266,23 @@ export const closeQueue = async (queueName: string) => {
 }
 
 const gracefulShutdown = async (signal: string) => {
-  console.log(`\n${signal} received. Starting graceful shutdown...`)
+  logAsync(() =>
+    log.info(`\n${signal} received. Starting graceful shutdown...`),
+  )
 
   try {
     // Close all BullMQ resources
-    console.log('Closing all BullMQ workers, queues and schedulers...')
+    logAsync(() =>
+      log.info('Closing all BullMQ workers, queues and schedulers...'),
+    )
     for (const queueName of queues.keys()) {
       await closeQueue(queueName) // this calls both closeWorker and closeQueue
     }
 
-    console.log('Graceful shutdown completed.')
+    logAsync(() => log.info('Graceful shutdown completed.'))
     process.exit(0)
   } catch (error) {
-    console.error('Error during graceful shutdown:', error)
+    logAsync(() => log.error('Error during graceful shutdown:', error))
     process.exit(1)
   }
 }

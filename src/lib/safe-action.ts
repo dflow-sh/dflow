@@ -9,6 +9,7 @@ import { log } from '@/lib/logger'
 import { Tenant } from '@/payload-types'
 
 import { getTenant } from './get-tenant'
+import { withUserContext } from './userContext'
 
 type UserTenant = {
   tenant: Tenant
@@ -98,15 +99,24 @@ export const protectedClient = publicClient.use(
       forbidden()
     }
 
-    return next({
-      ctx: {
-        ...ctx,
-        payload,
-        user,
-        userTenant: matchedTenantEntry as UserTenant,
-        isInTenant: Boolean(matchedTenantEntry),
-      },
-    })
+    // Set user context for the duration of this action
+    const userContextData = {
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.username ?? undefined,
+    }
+
+    return withUserContext(userContextData, () =>
+      next({
+        ctx: {
+          ...ctx,
+          payload,
+          user,
+          userTenant: matchedTenantEntry as UserTenant,
+          isInTenant: Boolean(matchedTenantEntry),
+        },
+      }),
+    )
   },
 )
 
@@ -135,11 +145,20 @@ export const userClient = publicClient.use(async ({ next, ctx, metadata }) => {
     throw Error('Unauthenticated')
   }
 
-  return next({
-    ctx: {
-      ...ctx,
-      payload,
-      user,
-    },
-  })
+  // Set user context for the duration of this action
+  const userContextData = {
+    userId: user?.id,
+    userEmail: user?.email,
+    userName: user?.username ?? undefined,
+  }
+
+  return withUserContext(userContextData, () =>
+    next({
+      ctx: {
+        ...ctx,
+        payload,
+        user,
+      },
+    }),
+  )
 })
