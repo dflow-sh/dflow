@@ -1,10 +1,6 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-export const uninstall = async (
-  ssh: NodeSSH,
-  options?: SSHExecOptions,
-  fullCleanup: boolean = false,
-) => {
+export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   const dpkgLockCheck = await ssh.execCommand(
     'lsof /var/lib/dpkg/lock-frontend',
     options,
@@ -17,7 +13,7 @@ export const uninstall = async (
   }
 
   const dokkuUninstallResult = await ssh.execCommand(
-    'sudo apt-get remove --purge dokku -y',
+    'sudo apt-get purge dokku herokuish -y',
     options,
   )
 
@@ -25,19 +21,7 @@ export const uninstall = async (
     throw new Error(dokkuUninstallResult.stderr)
   }
 
-  let cleanupResults: any = null
-  if (fullCleanup) {
-    const cleanupCommands = [
-      'sudo deluser --remove-home dokku || true',
-      'sudo delgroup dokku || true',
-      'sudo rm -rf /var/lib/dokku /home/dokku /etc/dokku /var/log/dokku /var/cache/dokku',
-    ].join(' && ')
-
-    cleanupResults = await ssh.execCommand(cleanupCommands, options)
-  }
-
   return {
     dokkuUninstallResult,
-    cleanupResults,
   }
 }
