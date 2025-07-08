@@ -174,7 +174,7 @@ export const getServerGeneralTabDetails = protectedClient
         }),
         payload.find({
           collection: 'projects',
-
+          pagination: false,
           where: {
             and: [
               {
@@ -186,6 +186,11 @@ export const getServerGeneralTabDetails = protectedClient
                 server: { equals: id },
               },
             ],
+          },
+          joins: {
+            services: {
+              limit: 1000,
+            },
           },
         }),
         payload.find({
