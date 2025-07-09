@@ -861,8 +861,9 @@ export const resetOnboardingAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
+
     const sshDetails = extractSSHDetails({ server: serverDetails })
 
     const [dokkuResult, railpackResult] = await Promise.all([
@@ -874,6 +875,7 @@ export const resetOnboardingAction = protectedClient
         sshDetails,
         tenant: { slug: userTenant.tenant.slug },
       }),
+
       addUninstallRailpackQueue({
         serverDetails: { id: serverId },
         sshDetails,
@@ -887,10 +889,12 @@ export const resetOnboardingAction = protectedClient
         data: { onboarded: false },
         collection: 'servers',
       })
+
       if (updateResponse) {
         return { success: true }
       }
     }
+
     throw new Error(
       'Failed to reset onboarding. One or both uninstallations failed.',
     )
