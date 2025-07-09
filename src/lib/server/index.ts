@@ -8,6 +8,7 @@ import { available as portsAvailability } from './ports/available'
 import { status } from './ports/status'
 import { infoRailpack } from './railpack/info'
 import { installRailpack } from './railpack/install'
+import { uninstallRailpack } from './railpack/uninstall'
 
 export const server = {
   ports: {
@@ -25,6 +26,7 @@ export const server = {
   railpack: {
     install: installRailpack,
     info: infoRailpack,
+    uninstall: uninstallRailpack,
   },
   info: serverInfo,
   echo,
