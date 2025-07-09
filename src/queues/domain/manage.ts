@@ -5,6 +5,7 @@ import { env } from 'env'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
+import traefik from '@/lib/axios/traefik'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { dokku } from '@/lib/dokku'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
@@ -26,6 +27,7 @@ interface QueueArgs {
   serverDetails: {
     id: string
     hostname: string
+    tailscalePrivateIp: string
   }
   updateEnvironmentVariables?: boolean
   tenantDetails: {
@@ -196,6 +198,33 @@ export const addManageServiceDomainQueue = async (data: QueueArgs) => {
             console.log(
               `Service missing ${serviceId}, failed to update domain details: ${message}`,
             )
+          }
+
+          if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
+            try {
+              console.log('domains', domains)
+              const filteredDomains = domains.filter(
+                domain =>
+                  !domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ''),
+              )
+              console.log('filteredDomains', filteredDomains)
+
+              const response = await traefik.post('/configuration', {
+                username: tenantDetails.slug,
+                serviceName: name,
+                tls: false,
+                targetIP: serverDetails.tailscalePrivateIp,
+                serverName: serverDetails.hostname,
+                domains: filteredDomains,
+              })
+
+              console.log(response.data)
+            } catch (error) {
+              console.log({
+                message: 'Failed to create traefik configuration',
+                error: error instanceof Error ? error.message : '',
+              })
+            }
           }
         }
 

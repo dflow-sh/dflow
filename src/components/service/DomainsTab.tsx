@@ -1,16 +1,20 @@
-import { Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
 import DomainList from './DomainList'
 
 const DomainsTab = ({
   domains,
   ip,
+  server,
+  service,
 }: {
   domains: NonNullable<Service['domains']>
   ip: string
+  server: Server | null
+  service: Service
 }) => {
   return (
-    <DomainList domains={domains} ip={ip} />
+    <DomainList domains={domains} ip={ip} server={server} service={service} />
 
     // <Tabs defaultValue='domains'>
     //   <TabsList className='mb-2'>
