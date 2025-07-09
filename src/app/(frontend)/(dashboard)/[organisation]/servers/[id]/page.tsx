@@ -532,7 +532,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     if (serverStatus.type === 'disconnected') {
       return (
         <div className='space-y-6'>
-          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
+          {shouldShowSSHAlert && server.onboarded && (
+            <SSHConnectionAlert server={server} />
+          )}
           {server.onboarded ? (
             renderTab()
           ) : (

@@ -1,6 +1,6 @@
 'use client'
 
-import { Hammer, HardDrive, Lock, Plug2 } from 'lucide-react'
+import { Hammer, HardDrive, Plug2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useMemo } from 'react'
 
@@ -14,13 +14,13 @@ import Step1 from '@/components/onboarding/dokkuInstallation/Step1'
 import Step2 from '@/components/onboarding/dokkuInstallation/Step2'
 import Step3 from '@/components/onboarding/dokkuInstallation/Step3'
 import Step4 from '@/components/onboarding/dokkuInstallation/Step4'
-import Step5 from '@/components/onboarding/dokkuInstallation/Step5'
 import { ServerType } from '@/payload-types-overrides'
 
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
 const DokkuInstallation = ({ server }: { server: ServerType }) => {
-  const { dokkuInstallationStep } = useDokkuInstallationStep()
+  const { dokkuInstallationStep, isDokkuInstallationStepsComplete } =
+    useDokkuInstallationStep()
 
   const {
     execute: getUser,
@@ -63,15 +63,6 @@ const DokkuInstallation = ({ server }: { server: ServerType }) => {
         content: <Step4 server={server} />,
         icon: <Hammer size={20} />,
         disabled: dokkuInstallationStep < 4,
-        highlighted: dokkuInstallationStep > 4,
-      },
-      {
-        title: 'SSL & Security',
-        description:
-          'Configuring SSL certificates and security settings for this server',
-        content: <Step5 server={server} user={user} isServerOnboarding />,
-        icon: <Lock size={16} />,
-        disabled: dokkuInstallationStep < 5,
       },
     ]
   }, [dokkuInstallationStep, server])
@@ -95,7 +86,9 @@ const DokkuInstallation = ({ server }: { server: ServerType }) => {
 
   // Server onboarding is complete when all components are properly configured
   const isServerOnboardingComplete =
-    installationDone && !!pluginsInstalled && Boolean(emailConfirmationDone)
+    installationDone &&
+    Boolean(pluginsInstalled) &&
+    Boolean(emailConfirmationDone)
 
   const getCardTitle = () => {
     const serverIdentifier =
@@ -107,7 +100,9 @@ const DokkuInstallation = ({ server }: { server: ServerType }) => {
     <ServerOnboardingLayout
       server={server}
       cardTitle={getCardTitle()}
-      disableNextStep={isServerOnboardingComplete}>
+      disableNextStep={
+        !isServerOnboardingComplete || !isDokkuInstallationStepsComplete
+      }>
       <TimeLineComponent list={list} />
     </ServerOnboardingLayout>
   )

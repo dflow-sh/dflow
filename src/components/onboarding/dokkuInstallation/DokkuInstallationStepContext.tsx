@@ -5,6 +5,8 @@ import React, { createContext, useContext, useState } from 'react'
 type DokkuInstallationStepContextType = {
   dokkuInstallationStep: number
   setDokkuInstallationStep: React.Dispatch<React.SetStateAction<number>>
+  totalDokkuInstallationSteps: number
+  isDokkuInstallationStepsComplete: boolean
 }
 
 const DokkuInstallationStepContext = createContext<
@@ -17,10 +19,18 @@ export const DokkuInstallationStepContextProvider = ({
   children: React.ReactNode
 }) => {
   const [dokkuInstallationStep, setDokkuInstallationStep] = useState<number>(1)
+  const totalDokkuInstallationSteps = 4
+  const isDokkuInstallationStepsComplete =
+    dokkuInstallationStep === totalDokkuInstallationSteps
 
   return (
     <DokkuInstallationStepContext.Provider
-      value={{ dokkuInstallationStep, setDokkuInstallationStep }}>
+      value={{
+        dokkuInstallationStep,
+        setDokkuInstallationStep,
+        totalDokkuInstallationSteps,
+        isDokkuInstallationStepsComplete,
+      }}>
       {children}
     </DokkuInstallationStepContext.Provider>
   )

@@ -11,7 +11,6 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { configureLetsencryptPluginAction } from '@/actions/plugin'
-import { configureLetsencryptPluginSchema } from '@/actions/plugin/validator'
 import {
   Dialog,
   DialogContent,
@@ -31,6 +30,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { ServerType } from '@/payload-types-overrides'
+
+const letsencryptPluginSchema = z.object({
+  email: z.string().email({
+    message: 'Email is invalid',
+  }),
+  autoGenerateSSL: z.boolean().default(false),
+  serverId: z.string(),
+})
 
 export const LetsencryptForm = ({
   plugin,
@@ -57,8 +64,8 @@ export const LetsencryptForm = ({
           autoGenerateSSL: true,
         }
 
-  const form = useForm<z.infer<typeof configureLetsencryptPluginSchema>>({
-    resolver: zodResolver(configureLetsencryptPluginSchema),
+  const form = useForm<z.infer<typeof letsencryptPluginSchema>>({
+    resolver: zodResolver(letsencryptPluginSchema),
     defaultValues: {
       email:
         (typeof defaultValues?.email === 'string' ? defaultValues.email : '') ||
@@ -95,7 +102,7 @@ export const LetsencryptForm = ({
     },
   )
 
-  function onSubmit(values: z.infer<typeof configureLetsencryptPluginSchema>) {
+  function onSubmit(values: z.infer<typeof letsencryptPluginSchema>) {
     execute(values)
   }
 

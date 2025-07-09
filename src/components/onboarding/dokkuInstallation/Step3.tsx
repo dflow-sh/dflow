@@ -4,7 +4,11 @@ import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 
-import { installPluginAction, syncPluginAction } from '@/actions/plugin'
+import {
+  configureLetsencryptPluginAction,
+  installPluginAction,
+  syncPluginAction,
+} from '@/actions/plugin'
 import Loader from '@/components/Loader'
 import { pluginList } from '@/components/plugins'
 import { ServerType } from '@/payload-types-overrides'
@@ -15,8 +19,10 @@ const Step3 = ({ server }: { server: ServerType }) => {
   const [skipPluginsSync, setSkipPluginsSync] = useState(false)
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
+
   const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
     useAction(installPluginAction)
+
   const {
     execute: syncPlugins,
     isPending: isSyncingPlugins,
@@ -24,11 +30,22 @@ const Step3 = ({ server }: { server: ServerType }) => {
     result: syncPluginResult,
   } = useAction(syncPluginAction)
 
-  const plugins = (syncPluginResult?.data?.plugins || server?.plugins) ?? []
+  const { execute: configureLetsencrypt } = useAction(
+    configureLetsencryptPluginAction,
+  )
+
+  const plugins = syncPluginResult?.data?.plugins || server?.plugins || []
   const letsEncryptPluginInstalled = plugins.find(
     plugin => plugin.name === 'letsencrypt',
   )
+  const letsEncryptPluginConfigurationEmail =
+    letsEncryptPluginInstalled &&
+    letsEncryptPluginInstalled.configuration &&
+    typeof letsEncryptPluginInstalled.configuration === 'object' &&
+    !Array.isArray(letsEncryptPluginInstalled.configuration) &&
+    letsEncryptPluginInstalled.configuration.email
 
+  // Sync plugins
   useEffect(() => {
     if (dokkuInstallationStep === 3) {
       // 1. if all plugins are already installed skipping plugin installation dokkuInstallationStep
@@ -42,6 +59,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
     }
   }, [dokkuInstallationStep, server])
 
+  // Check letsencrypt plugin status
   useEffect(() => {
     const plugins = syncPluginResult.data?.plugins
 
@@ -67,6 +85,29 @@ const Step3 = ({ server }: { server: ServerType }) => {
       }
     }
   }, [syncPluginResult, server])
+
+  // Configure letsencrypt plugin
+  useEffect(() => {
+    if (
+      dokkuInstallationStep === 3 &&
+      (isSyncingPlugins || letsEncryptPluginInstalled) &&
+      !letsEncryptPluginConfigurationEmail
+    ) {
+      console.log('Configuring letsencrypt')
+      console.log('letsEncryptPluginInstalled', letsEncryptPluginInstalled)
+
+      configureLetsencrypt({
+        serverId: server.id,
+        autoGenerateSSL: true,
+      })
+    }
+  }, [
+    dokkuInstallationStep,
+    isSyncingPlugins,
+    letsEncryptPluginInstalled,
+    letsEncryptPluginConfigurationEmail,
+    server.id,
+  ])
 
   if (dokkuInstallationStep < 3) {
     return null

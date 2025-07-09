@@ -118,12 +118,13 @@ const ServerOnboardingLayout = ({
       <CardFooter className='mt-4 flex justify-between border-t pt-4'>
         <Button
           variant={'outline'}
-          size={'icon'}
+          size={currentStep === 1 ? 'icon' : 'default'}
           onClick={() => {
             previousStep()
           }}
           disabled={currentStep === 1}>
           <ChevronLeft size={24} />
+          {currentStep !== 1 && 'Prev'}
         </Button>
 
         <div className='flex-1' />
@@ -148,9 +149,10 @@ const ServerOnboardingLayout = ({
         ) : (
           <Button
             variant={'outline'}
-            size={'icon'}
+            size={disableNextStep ? 'icon' : 'default'}
             onClick={nextStep}
-            disabled={!disableNextStep || currentStep === totalSteps}>
+            disabled={disableNextStep}>
+            {disableNextStep ? '' : 'Next'}
             <ChevronRight size={24} />
           </Button>
         )}

@@ -210,6 +210,8 @@ export const configureLetsencryptPluginAction = protectedClient
     const { payload, userTenant } = ctx
     const { email, autoGenerateSSL = false, serverId } = clientInput
 
+    const userEmail = email || ctx.user.email
+
     // Fetching server details instead of passing from client
     const server = await payload.findByID({
       collection: 'servers',
@@ -224,7 +226,7 @@ export const configureLetsencryptPluginAction = protectedClient
       },
       pluginDetails: {
         autoGenerateSSL,
-        email,
+        email: userEmail,
       },
       sshDetails,
       tenant: {
