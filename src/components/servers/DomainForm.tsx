@@ -160,7 +160,11 @@ export const DomainFormWithoutDialog = ({
               <FormItem>
                 <FormLabel>Domain</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='server1.example.com' />
+                  <Input
+                    {...field}
+                    placeholder='server1.example.com'
+                    disabled={isPending}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -174,10 +178,10 @@ export const DomainFormWithoutDialog = ({
                 disabled={isPending}
                 variant='outline'
                 onClick={() => {
-                  form.setValue(
-                    'domain',
-                    `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`,
-                  )
+                  const generatedDomain = `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+                  form.setValue('domain', generatedDomain)
+                  // Immediately submit the generated domain
+                  onSubmit({ domain: generatedDomain, defaultDomain: true })
                 }}>
                 Generate Default Domain
               </Button>

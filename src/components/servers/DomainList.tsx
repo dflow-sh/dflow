@@ -145,6 +145,13 @@ const DomainItem = ({
     }
   }
 
+  // if proxy domain url is set, and tailscale is preferred, and hostname is set, and domain is the proxy domain url, then disable delete button
+  const disableDeleteButton =
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL &&
+    server.preferConnectionType === 'tailscale' &&
+    server.hostname &&
+    domain.domain === `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+
   return (
     <>
       <Card className='text-sm'>
@@ -226,19 +233,21 @@ const DomainItem = ({
               </Button>
             )}
 
-            <Button
-              size='icon'
-              onClick={() => {
-                execute({
-                  operation: 'remove',
-                  domains: [domain.domain],
-                  id: server.id,
-                })
-              }}
-              disabled={isPending}
-              variant='outline'>
-              <Trash2 />
-            </Button>
+            {!disableDeleteButton && (
+              <Button
+                size='icon'
+                onClick={() => {
+                  execute({
+                    operation: 'remove',
+                    domains: [domain.domain],
+                    id: server.id,
+                  })
+                }}
+                disabled={isPending}
+                variant='outline'>
+                <Trash2 />
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
