@@ -77,6 +77,7 @@ export const completeServerOnboardingSchema = z.object({
 export const checkDNSConfigSchema = z.object({
   domain: z.string().min(1, 'Domain is required'),
   ip: z.string().ip({ message: 'Invalid IP address' }),
+  proxyDomain: z.string().optional(),
 })
 
 export const checkServerConnectionSchema = z.discriminatedUnion(

@@ -112,8 +112,14 @@ const DomainCard = ({
   )
 
   useEffect(() => {
-    if (!isWildCardDomain) {
-      checkDNSConfig({ ip, domain: domain.domain })
+    if (!isWildCardDomain && !domain.synced) {
+      // Pass proxyDomain for CNAME check if this is a proxy domain
+      checkDNSConfig({
+        ip,
+        domain: domain.domain,
+        proxyDomain:
+          isProxyDomainExists && proxyDomain ? proxyDomain.domain : undefined,
+      })
     }
   }, [])
 
@@ -134,7 +140,7 @@ const DomainCard = ({
       )
     }
 
-    if (result?.data || isWildCardDomain) {
+    if (result?.data || isWildCardDomain || domain.synced) {
       return (
         <Badge variant='success' className='gap-1 [&_svg]:size-4'>
           <CircleCheckBig />
@@ -143,7 +149,7 @@ const DomainCard = ({
       )
     }
 
-    if (result?.serverError) {
+    if (result?.serverError || result?.data === false) {
       return (
         <Badge variant='destructive' className='gap-1 [&_svg]:size-4'>
           <CircleX />
