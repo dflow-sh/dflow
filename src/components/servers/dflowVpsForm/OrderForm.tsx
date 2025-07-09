@@ -93,10 +93,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
     })
   }
 
-  const onboardingCompleted =
-    !!dFlowUser?.discord?.accountId &&
-    !!dFlowUser?.acceptedTermsDate &&
-    !!dFlowUser?.discord?.isEligible
+  const onboardingCompleted = !!dFlowUser?.acceptedTermsDate
 
   return (
     <>
@@ -129,7 +126,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
                 attach Discord account & accept our Terms of Service{' '}
                 <a
                   className='inline-block text-foreground underline'
-                  href='https://dflow.sh/dashboard?onboarding=true'
+                  href='https://dflow.sh/dashboard?terms-of-service=true'
                   rel='noopener noreferrer'
                   target='_blank'>
                   link
