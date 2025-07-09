@@ -73,7 +73,7 @@
     "ioredis": "^5.4.2",
     "is-port-reachable": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
-    "lucide-react": "^0.474.0",
+    "lucide-react": "^0.525.0",
     "motion": "^12.9.2",
     "next": "15.2.3",
     "next-safe-action": "^7.10.3",
