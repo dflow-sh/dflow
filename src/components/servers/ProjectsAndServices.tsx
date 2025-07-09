@@ -153,7 +153,7 @@ export const ProjectsAndServicesSection = ({
   projects: Project[]
 }) => {
   return (
-    <div className='grid grid-cols-1 gap-4'>
+    <div className='scrollbar-hide grid max-h-[42rem] grid-cols-1 gap-4 overflow-y-scroll'>
       <ProjectsCard projects={projects} />
     </div>
   )
