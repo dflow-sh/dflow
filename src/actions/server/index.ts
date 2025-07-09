@@ -905,6 +905,7 @@ export const resetOnboardingAction = protectedClient
       })
 
       if (updateResponse) {
+        revalidatePath(`${userTenant.tenant}/servers/${serverId}`)
         return { success: true }
       }
     }
