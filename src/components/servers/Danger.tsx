@@ -1,20 +1,21 @@
 'use client'
 
-import { Dokku } from '../icons'
+import Loader from '../Loader'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Cog } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { uninstallDokkuAction } from '@/actions/server'
+import { resetOnboardingAction } from '@/actions/server'
 
 const Danger = ({ serverId }: { serverId: string }) => {
-  const { execute: uninstallDokku, isPending: isUninstallingDokku } = useAction(
-    uninstallDokkuAction,
+  const { execute: resetOnboarding, isPending: isResetting } = useAction(
+    resetOnboardingAction,
     {
       onSuccess: data => {
         if (data.data?.success) {
-          toast.success('Dokku uninstalled successfully')
+          toast.success('Onboarding reset successfully')
         }
       },
       onError: error => {
@@ -31,20 +32,21 @@ const Danger = ({ serverId }: { serverId: string }) => {
       <CardContent>
         <div className='flex items-center justify-between'>
           <div className='flex items-start gap-1.5'>
-            <Dokku className='mt-1.5 h-5 w-5' />
+            <Cog className='mt-1.5 h-5 w-5' />
             <div className='flex flex-col gap-0.5'>
-              <div className='text-lg font-semibold'>Uninstall Dokku</div>
+              <div className='text-lg font-semibold'>Reset Onboarding</div>
               <p className='text-sm'>
-                This will remove Dokku from your server.
+                This will uninstall Dokku and Railpack, and reset onboarding for
+                this server.
               </p>
             </div>
           </div>
 
           <Button
             variant='destructive'
-            disabled={isUninstallingDokku}
-            onClick={() => uninstallDokku({ serverId })}>
-            {isUninstallingDokku ? 'Uninstalling...' : 'Uninstall'}
+            disabled={isResetting}
+            onClick={() => resetOnboarding({ serverId })}>
+            {isResetting ? <Loader className='h-4 w-4' /> : 'Reset Onboarding'}
           </Button>
         </div>
       </CardContent>
