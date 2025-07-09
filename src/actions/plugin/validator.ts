@@ -28,9 +28,12 @@ export const togglePluginStatusSchema = z.object({
 })
 
 export const configureLetsencryptPluginSchema = z.object({
-  email: z.string().email({
-    message: 'Email is invalid',
-  }),
+  email: z
+    .string()
+    .email({
+      message: 'Email is invalid',
+    })
+    .optional(),
   autoGenerateSSL: z.boolean().default(false),
   serverId: z.string(),
 })
