@@ -1,7 +1,6 @@
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { installRailpackAction } from '@/actions/server'
@@ -17,7 +16,9 @@ const Step4 = ({ server }: { server: ServerType }) => {
   const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
   const { execute, isPending, hasSucceeded } = useAction(installRailpackAction)
   const { setCurrentStep } = useServerOnboarding()
-  const router = useRouter()
+
+  const hasRedirected = useRef(false)
+  const previousStep = useRef(dokkuInstallationStep)
 
   const railpackVersion = server?.railpack
 
@@ -36,15 +37,32 @@ const Step4 = ({ server }: { server: ServerType }) => {
   }
 
   useEffect(() => {
+    // Only redirect if we're progressing normally (step 3 -> 4) and haven't redirected yet
+    const isNormalProgression =
+      previousStep.current === 3 && dokkuInstallationStep === 4
+    const shouldRedirect = isNormalProgression && !hasRedirected.current
+
     if (dokkuInstallationStep === 4) {
       if (railpackVersion && railpackVersion !== 'not-installed') {
         setSkipRailpackInstall(true)
-        redirectToNextStep()
+        if (shouldRedirect) {
+          hasRedirected.current = true
+          redirectToNextStep()
+        }
       } else {
         execute({ serverId: server.id })
       }
     }
+
+    previousStep.current = dokkuInstallationStep
   }, [dokkuInstallationStep, server, railpackVersion, execute, setCurrentStep])
+
+  // Reset hasRedirected when step changes (manual navigation)
+  useEffect(() => {
+    return () => {
+      hasRedirected.current = false
+    }
+  }, [dokkuInstallationStep])
 
   return (
     <div className='space-y-2'>
