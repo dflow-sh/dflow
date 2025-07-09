@@ -3,7 +3,7 @@
 import Loader from '../Loader'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Cog } from 'lucide-react'
+import { BrushCleaning } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
@@ -15,7 +15,10 @@ const Danger = ({ serverId }: { serverId: string }) => {
     {
       onSuccess: data => {
         if (data.data?.success) {
-          toast.success('Onboarding reset successfully')
+          toast.success('Onboarding reset triggered', {
+            description:
+              'This will uninstall both Dokku and Railpack, and reset onboarding for this server.',
+          })
         }
       },
       onError: error => {
@@ -27,12 +30,14 @@ const Danger = ({ serverId }: { serverId: string }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className='text-destructive'>Danger Zone</CardTitle>
+        <CardTitle className='font-medium text-destructive'>
+          Danger Zone
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className='flex items-center justify-between'>
           <div className='flex items-start gap-1.5'>
-            <Cog className='mt-1.5 h-5 w-5' />
+            <BrushCleaning className='mt-1.5 h-5 w-5' />
             <div className='flex flex-col gap-0.5'>
               <div className='text-lg font-semibold'>Reset Onboarding</div>
               <p className='text-sm'>
