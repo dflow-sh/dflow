@@ -40,7 +40,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { WILD_CARD_DOMAINS } from '@/lib/constants'
-import { Service } from '@/payload-types'
+import { Server, Service } from '@/payload-types'
 
 import DomainForm from './DomainForm'
 import RegenerateSSLForm from './RegenerateSSLForm'
@@ -55,9 +55,17 @@ const getRecordName = (domain: string) => {
 const DomainCard = ({
   domain,
   ip,
+  server,
+  service,
+  isProxyDomainExists,
+  proxyDomain,
 }: {
   domain: NonNullable<Service['domains']>[number]
   ip: string
+  server: Server | null
+  service: Service
+  isProxyDomainExists: boolean
+  proxyDomain: NonNullable<Service['domains']>[number] | undefined | ''
 }) => {
   const { serviceId } = useParams<{ id: string; serviceId: string }>()
 
@@ -108,6 +116,13 @@ const DomainCard = ({
       checkDNSConfig({ ip, domain: domain.domain })
     }
   }, [])
+
+  const disableDeleteButton =
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL &&
+    server &&
+    server.hostname &&
+    domain.domain ===
+      `${service.name}.${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
 
   const StatusBadge = () => {
     if (checkingDNSConfig) {
@@ -182,12 +197,21 @@ const DomainCard = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell className='font-medium'>A</TableCell>
-                    <TableCell>{getRecordName(domain.domain)}</TableCell>
-                    <TableCell>{ip}</TableCell>
-                    <TableCell className='text-right'>auto</TableCell>
-                  </TableRow>
+                  {isProxyDomainExists && proxyDomain ? (
+                    <TableRow>
+                      <TableCell className='font-medium'>CNAME</TableCell>
+                      <TableCell>{getRecordName(domain.domain)}</TableCell>
+                      <TableCell>{proxyDomain?.domain}</TableCell>
+                      <TableCell className='text-right'>auto</TableCell>
+                    </TableRow>
+                  ) : (
+                    <TableRow>
+                      <TableCell className='font-medium'>A</TableCell>
+                      <TableCell>{getRecordName(domain.domain)}</TableCell>
+                      <TableCell>{ip}</TableCell>
+                      <TableCell className='text-right'>auto</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </DialogContent>
@@ -232,24 +256,26 @@ const DomainCard = ({
                 : 'Sync Domain'}
           </Button>
 
-          <Button
-            size='icon'
-            onClick={() => {
-              execute({
-                operation: 'remove',
-                domain: {
-                  hostname: domain.domain,
-                  autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
-                  certificateType: domain.certificateType ?? 'none',
-                  default: domain.default,
-                },
-                id: serviceId,
-              })
-            }}
-            disabled={isPending}
-            variant='outline'>
-            <Trash2 />
-          </Button>
+          {!disableDeleteButton && (
+            <Button
+              size='icon'
+              onClick={() => {
+                execute({
+                  operation: 'remove',
+                  domain: {
+                    hostname: domain.domain,
+                    autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
+                    certificateType: domain.certificateType ?? 'none',
+                    default: domain.default,
+                  },
+                  id: serviceId,
+                })
+              }}
+              disabled={isPending}
+              variant='outline'>
+              <Trash2 />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -259,10 +285,24 @@ const DomainCard = ({
 const DomainList = ({
   domains,
   ip,
+  server,
+  service,
 }: {
   domains: NonNullable<Service['domains']>
   ip: string
+  server: Server | null
+  service: Service
 }) => {
+  const isProxyDomainExists =
+    env.NEXT_PUBLIC_PROXY_DOMAIN_URL &&
+    domains.some(domain =>
+      domain.domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ''),
+    )
+
+  const proxyDomain = domains.find(domain =>
+    domain.domain.endsWith(env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ''),
+  )
+
   return (
     <section className='space-y-6'>
       <div className='flex items-center gap-3'>
@@ -282,6 +322,10 @@ const DomainList = ({
               key={domainDetails.domain}
               domain={domainDetails}
               ip={ip}
+              server={server}
+              service={service}
+              isProxyDomainExists={Boolean(isProxyDomainExists)}
+              proxyDomain={proxyDomain}
             />
           ))
         ) : (

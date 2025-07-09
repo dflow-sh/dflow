@@ -49,7 +49,7 @@ const DomainForm = ({ ip }: { ip: string }) => {
     defaultValues: {
       id: params.serviceId,
       domain: {
-        certificateType: 'letsencrypt',
+        certificateType: 'none',
         autoRegenerateSSL: false,
         hostname: '',
         default: false,
@@ -166,8 +166,8 @@ const DomainForm = ({ ip }: { ip: string }) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='letsencrypt'>Letsencrypt</SelectItem>
                         <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='letsencrypt'>Letsencrypt</SelectItem>
                       </SelectContent>
                     </Select>
 

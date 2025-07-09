@@ -657,6 +657,9 @@ export const updateServiceDomainAction = protectedClient
             id: updatedServiceDomainResponse.project.server.id,
             hostname:
               updatedServiceDomainResponse.project.server.hostname ?? '',
+            tailscalePrivateIp:
+              updatedServiceDomainResponse.project.server.tailscalePrivateIp ??
+              '',
           },
           tenantDetails: {
             slug: tenant.slug,
@@ -744,6 +747,7 @@ export const syncServiceDomainAction = protectedClient
         serverDetails: {
           id: project.server.id,
           hostname: project.server.hostname ?? '',
+          tailscalePrivateIp: project.server.tailscalePrivateIp ?? '',
         },
         updateEnvironmentVariables: domain.default,
         tenantDetails: {

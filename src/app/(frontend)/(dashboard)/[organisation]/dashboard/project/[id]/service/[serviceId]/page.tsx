@@ -80,6 +80,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
                 : (server.publicIp ?? '')
               : ''
           }
+          server={serverObject}
+          service={service}
         />
       )
 
