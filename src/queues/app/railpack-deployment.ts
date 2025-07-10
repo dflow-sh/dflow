@@ -22,6 +22,7 @@ interface QueueArgs {
     providerType: Service['providerType']
     githubSettings?: Service['githubSettings']
     azureSettings?: Service['azureSettings']
+    giteaSettings?: Service['giteaSettings']
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
@@ -52,6 +53,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
         providerType,
         azureSettings,
         githubSettings,
+        giteaSettings,
       } = serviceDetails
       console.dir({ provider }, { depth: null })
 
@@ -81,6 +83,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           providerType,
           azureSettings,
           githubSettings,
+          giteaSettings,
           provider,
         })
 

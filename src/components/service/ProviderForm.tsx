@@ -1,7 +1,7 @@
 'use client'
 
 import SidebarToggleButton from '../SidebarToggleButton'
-import { Bitbucket, GitLab, Github, MicrosoftAzure } from '../icons'
+import { Bitbucket, GitLab, Gitea, Github, MicrosoftAzure } from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
@@ -34,6 +34,7 @@ import { buildOptions } from '@/lib/buildOptions'
 import { GitProvider, Service } from '@/payload-types'
 
 import AzureDevopsForm from './AzureDevopsForm'
+import GiteaForm from './GiteaForm'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
@@ -682,19 +683,29 @@ const ProviderForm = ({
         <div
           className='w-full overflow-y-hidden overflow-x-scroll'
           style={{ scrollbarWidth: 'none' }}>
-          <TabsList className='mb-4 grid w-max grid-cols-4'>
+          <TabsList className='mb-4 grid w-max grid-cols-5'>
             <TabsTrigger value='github' className='flex gap-1.5'>
               <Github className='size-4' />
               Github
             </TabsTrigger>
+
             <TabsTrigger value='azureDevOps' className='flex gap-1.5'>
               <MicrosoftAzure className='size-4' />
               Azure DevOps
             </TabsTrigger>
+
+            <TabsTrigger value='gitea' className='flex'>
+              <div className='relative mr-2 size-4'>
+                <Gitea className='absolute -left-1 -top-1 size-6' />
+              </div>
+              Gitea
+            </TabsTrigger>
+
             <TabsTrigger value='gitlab' className='flex gap-1.5' disabled>
               <GitLab className='size-4' />
               Gitlab
             </TabsTrigger>
+
             <TabsTrigger value='bitbucket' className='flex gap-1.5' disabled>
               <Bitbucket className='size-4' />
               Bitbucket
@@ -708,6 +719,10 @@ const ProviderForm = ({
 
         <TabsContent value='azureDevOps'>
           <AzureDevopsForm service={service} />
+        </TabsContent>
+
+        <TabsContent value='gitea'>
+          <GiteaForm service={service} />
         </TabsContent>
       </Tabs>
     </div>

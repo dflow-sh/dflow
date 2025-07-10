@@ -8,11 +8,13 @@ export const getBuildDetails = async ({
   azureSettings,
   githubSettings,
   provider,
+  giteaSettings,
 }: {
   provider: Service['provider']
   providerType: Service['providerType']
   githubSettings?: Service['githubSettings']
   azureSettings?: Service['azureSettings']
+  giteaSettings?: Service['giteaSettings']
 }) => {
   if (providerType === 'github' && githubSettings) {
     const { branch, owner, repository, buildPath, port } = githubSettings
@@ -62,6 +64,24 @@ export const getBuildDetails = async ({
       port,
       token: gitToken,
       hostname: 'dev.azure.com',
+      username,
+    }
+  }
+
+  if (providerType === 'gitea' && giteaSettings) {
+    const { branch, repository, buildPath, port, gitToken, username } =
+      giteaSettings
+    const match = repository.match(/^(?:https?:\/\/)?([^\/?#]+)/)
+
+    const hostname = match ? match[1] : 'gitea.com'
+
+    return {
+      url: repository,
+      branch,
+      buildPath,
+      port,
+      token: gitToken,
+      hostname,
       username,
     }
   }

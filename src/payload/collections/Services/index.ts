@@ -121,6 +121,10 @@ const applicationField: Field = {
           label: 'Azure DevOps',
           value: 'azureDevOps',
         },
+        {
+          label: 'Gitea',
+          value: 'gitea',
+        },
       ],
     },
     {
@@ -171,6 +175,52 @@ const applicationField: Field = {
         // App settings field will be considered if service-type is app
         condition: data => {
           if (data.providerType === 'azureDevOps') {
+            return true
+          }
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'repository',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'branch',
+          type: 'text',
+          required: true,
+        },
+        encryptedField({
+          name: 'gitToken',
+          type: 'text',
+          required: true,
+        }),
+        {
+          name: 'username',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'buildPath',
+          type: 'text',
+          required: true,
+          defaultValue: '/',
+        },
+        {
+          name: 'port',
+          type: 'number',
+          defaultValue: 3000,
+        },
+      ],
+    },
+    {
+      name: 'giteaSettings',
+      type: 'group',
+      admin: {
+        // App settings field will be considered if service-type is app
+        condition: data => {
+          if (data.providerType === 'gitea') {
             return true
           }
           return false
