@@ -69,8 +69,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
   getWorker<CreateVpsQueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshKeys, vps, accountDetails, tenant, preferConnectionType } =
-        job.data
+      const { vps, accountDetails, tenant, preferConnectionType } = job.data
       const token = accountDetails.accessToken
       const jobId = job.id
 

@@ -37,8 +37,8 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
     isPending: isCreatingVpsOrder,
     hasSucceeded: triggeredVPSOrderCreation,
   } = useAction(createVPSOrderAction, {
-    onError: () => {
-      toast.error('Failed to create server instance, try again')
+    onError: ({ error }) => {
+      toast.error(`Failed to create server instance: ${error.serverError}`)
     },
   })
 
