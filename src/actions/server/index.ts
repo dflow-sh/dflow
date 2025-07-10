@@ -5,6 +5,7 @@ import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+import updateRailpack from '@/lib/axios/updateRailpack'
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
@@ -27,6 +28,7 @@ import {
   deleteServerSchema,
   installDokkuSchema,
   uninstallDokkuSchema,
+  updateRailpackSchema,
   updateServerDomainSchema,
   updateServerSchema,
   updateTailscaleServerSchema,
@@ -327,6 +329,42 @@ export const installRailpackAction = protectedClient
     if (installationResponse.id) {
       return { success: true }
     }
+  })
+
+export const updateRailpackAction = protectedClient
+  .metadata({
+    actionName: 'updateRailpackAction',
+  })
+  .schema(updateRailpackSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { serverId, railpackVersion } = clientInput
+    const { payload, userTenant } = ctx
+
+    const latestRelease = await updateRailpack()
+
+    if (+latestRelease > +railpackVersion) {
+      const serverDetails = await payload.findByID({
+        collection: 'servers',
+        id: serverId,
+        depth: 1,
+      })
+
+      const sshDetails = extractSSHDetails({ server: serverDetails })
+
+      await addInstallRailpackQueue({
+        serverDetails: {
+          id: serverId,
+        },
+        sshDetails,
+        tenant: {
+          slug: userTenant.tenant.slug,
+        },
+      })
+
+      return { success: true, message: 'Railpack updated' }
+    }
+
+    return { success: false, message: 'Railpack is already up to date' }
   })
 
 export const completeServerOnboardingAction = protectedClient
