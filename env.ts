@@ -28,6 +28,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: z.string().min(1).optional(),
     NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: z.string().min(1).optional(),
     NEXT_PUBLIC_PROXY_DOMAIN_URL: z.string().optional(),
+    NEXT_PUBLIC_PROXY_CNAME: z.string().optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -49,6 +50,7 @@ export const env = createEnv({
     TAILSCALE_OAUTH_CLIENT_SECRET: process.env.TAILSCALE_OAUTH_CLIENT_SECRET,
     TAILSCALE_TAILNET: process.env.TAILSCALE_TAILNET,
     NEXT_PUBLIC_PROXY_DOMAIN_URL: process.env.NEXT_PUBLIC_PROXY_DOMAIN_URL,
+    NEXT_PUBLIC_PROXY_CNAME: process.env.NEXT_PUBLIC_PROXY_CNAME,
   },
   emptyStringAsUndefined: true,
 })
