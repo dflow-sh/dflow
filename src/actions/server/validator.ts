@@ -106,3 +106,8 @@ export const configureGlobalBuildDirSchema = z.object({
   serverId: z.string(),
   buildDir: z.string().optional(),
 })
+
+export const updateRailpackSchema = z.object({
+  serverId: z.string(),
+  railpackVersion: z.string(),
+})

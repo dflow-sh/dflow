@@ -23,6 +23,7 @@ import Danger from '@/components/servers/Danger'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
+import Packages from '@/components/servers/Packages'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
@@ -293,7 +294,9 @@ const ServerSettingsTab = ({ server }: { server: ServerType }) => {
         <GlobalBuildDirForm server={server} />
       </div>
 
-      <Danger serverId={server.id} />
+      <Packages railpack={server.railpack} serverId={server.id} />
+
+      <Danger server={server} />
     </div>
   )
 }
