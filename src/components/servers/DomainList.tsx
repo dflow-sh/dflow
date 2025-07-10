@@ -68,6 +68,9 @@ const DomainItem = ({
         })
       }
     },
+    onError: ({ error, input }) => {
+      toast.error(`Failed to ${input.operation} domain: ${error.serverError}`)
+    },
   })
 
   const {
@@ -137,7 +140,10 @@ const DomainItem = ({
     if (shouldCheck) {
       // Check DNS config
       checkDNSConfig({
-        ip: server.ip ?? '',
+        ip:
+          server.preferConnectionType === 'tailscale'
+            ? (server.publicIp ?? '')
+            : (server.ip ?? ''),
         domain: `*.${domain.domain}`,
         proxyDomain: isProxyDomainExists
           ? env.NEXT_PUBLIC_PROXY_CNAME
@@ -147,7 +153,10 @@ const DomainItem = ({
       // Show failure badge for 30 seconds, then retry
       const timeoutId = setTimeout(() => {
         checkDNSConfig({
-          ip: server.ip ?? '',
+          ip:
+            server.preferConnectionType === 'tailscale'
+              ? (server.publicIp ?? '')
+              : (server.ip ?? ''),
           domain: `*.${domain.domain}`,
           proxyDomain: isProxyDomainExists
             ? env.NEXT_PUBLIC_PROXY_CNAME
@@ -164,7 +173,7 @@ const DomainItem = ({
     checkingDNSConfig,
     result?.serverError,
     result?.data,
-    server.ip,
+    server.ip ?? server.publicIp,
     isProxyDomainExists,
   ])
 
@@ -212,7 +221,10 @@ const DomainItem = ({
   // Manual refresh function
   const handleRefresh = () => {
     checkDNSConfig({
-      ip: server.ip ?? '',
+      ip:
+        server.preferConnectionType === 'tailscale'
+          ? (server.publicIp ?? '')
+          : (server.ip ?? ''),
       domain: `*.${domain.domain}`,
       proxyDomain: isProxyDomainExists
         ? env.NEXT_PUBLIC_PROXY_CNAME
@@ -226,7 +238,7 @@ const DomainItem = ({
   return (
     <>
       <Card
-        className={`hover:shadow-m text-sm transition-all hover:bg-muted/20`}>
+        className={`text-sm transition-all hover:bg-muted/20 hover:shadow-md`}>
         <CardContent className='pb-4 pt-6'>
           {/* Top section with domain info and actions */}
           <div className='mb-4 flex items-start justify-between'>
@@ -241,7 +253,13 @@ const DomainItem = ({
               </div>
               <div>
                 <div className='flex items-center gap-2'>
-                  <p className='font-semibold'>{domain.domain}</p>
+                  <a
+                    href={`//${domain.domain}`}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='font-semibold hover:underline'>
+                    {domain.domain}
+                  </a>
                   {isDefaultDomain && (
                     <Badge variant='outline' className='text-xs'>
                       Default
