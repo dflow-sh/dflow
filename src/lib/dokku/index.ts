@@ -60,6 +60,7 @@ import { rebuild } from './process/rebuild'
 import { restart } from './process/restart'
 import { start } from './process/start'
 import { stop } from './process/stop'
+import { stopAll } from './process/stopAll'
 import { info as dokkuVersionInfo } from './version/info'
 import { install as dokkuInstall } from './version/install'
 import { uninstall as dokkuUninstall } from './version/uninstall'
@@ -118,6 +119,7 @@ export const dokku = {
     restart,
     stop,
     rebuild,
+    stopAll,
   },
   domains: {
     report,
