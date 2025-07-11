@@ -36,6 +36,25 @@ export const addUninstallDokkuQueue = async (data: QueueArgs) => {
       try {
         ssh = await dynamicSSH(sshDetails)
 
+        // Stop all applications
+        const stopAllResponse = await dokku.process.stopAll(ssh, {
+          onStdout: async chunk => {
+            sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
+          },
+          onStderr: async chunk => {
+            sendEvent({
+              pub,
+              message: chunk.toString(),
+              serverId: serverDetails.id,
+            })
+          },
+        })
+
+        // Uninstall dokku
         const uninstallResponse = await dokku.version.uninstall(ssh, {
           onStdout: async chunk => {
             sendEvent({
@@ -53,7 +72,10 @@ export const addUninstallDokkuQueue = async (data: QueueArgs) => {
           },
         })
 
-        if (uninstallResponse.dokkuUninstallResult.code === 0) {
+        if (
+          stopAllResponse &&
+          uninstallResponse.dokkuUninstallResult.code === 0
+        ) {
           sendEvent({
             pub,
             message: `✅ Successfully uninstalled dokku`,
