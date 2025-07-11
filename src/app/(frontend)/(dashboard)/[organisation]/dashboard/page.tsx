@@ -164,7 +164,7 @@ const SuspendedDashboard = async ({
           </Alert>
         )}
 
-        {true && (
+        {servers.length > 0 && allServersFailed && (
           <Alert variant='warning'>
             <AlertCircle className='h-4 w-4' />
             <AlertTitle>SSH Connection Issue</AlertTitle>
