@@ -390,8 +390,6 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return {
         type: 'connecting' as const,
         bannerProps: {
-          attempts: connectionAttempts,
-          maxAttempts: 30,
           serverName: server.name,
         },
       }

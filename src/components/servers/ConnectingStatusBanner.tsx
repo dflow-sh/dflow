@@ -41,11 +41,24 @@ const BannerBase = ({
     <AlertDescription>
       {progress && (
         <div className='mb-3'>
-          <Progress value={progressValue} />
-          {progressLabel && (
-            <div className='mt-1 text-right text-xs text-muted-foreground'>
-              {progressLabel}
-            </div>
+          {progressValue !== undefined ? (
+            <>
+              <Progress value={progressValue} />
+              {progressLabel && (
+                <div className='mt-1 text-right text-xs text-muted-foreground'>
+                  {progressLabel}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className='relative h-2 w-full overflow-hidden rounded-full bg-primary/20'>
+                <div className='animate-progress absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent' />
+              </div>
+              <div className='mt-1 animate-pulse text-right text-xs text-muted-foreground'>
+                Connecting...
+              </div>
+            </>
           )}
         </div>
       )}
@@ -62,8 +75,8 @@ const BannerBase = ({
 )
 
 const ConnectingStatusBanner = ({
-  attempts = 0,
-  maxAttempts = 30,
+  attempts,
+  maxAttempts,
   title = 'Connecting to Server',
   subtitle,
   tasks = [
@@ -90,7 +103,10 @@ const ConnectingStatusBanner = ({
     subtitle,
     tasks,
   })
-  const percent = Math.round((attempts / maxAttempts) * 100)
+  const percent =
+    attempts !== undefined && maxAttempts !== undefined
+      ? Math.round((attempts / maxAttempts) * 100)
+      : undefined
 
   return (
     <BannerBase
