@@ -29,6 +29,7 @@ export const env = createEnv({
     NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: z.string().min(1).optional(),
     NEXT_PUBLIC_PROXY_DOMAIN_URL: z.string().optional(),
     NEXT_PUBLIC_PROXY_CNAME: z.string().optional(),
+    NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -51,6 +52,7 @@ export const env = createEnv({
     TAILSCALE_TAILNET: process.env.TAILSCALE_TAILNET,
     NEXT_PUBLIC_PROXY_DOMAIN_URL: process.env.NEXT_PUBLIC_PROXY_DOMAIN_URL,
     NEXT_PUBLIC_PROXY_CNAME: process.env.NEXT_PUBLIC_PROXY_CNAME,
+    NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
   },
   emptyStringAsUndefined: true,
 })

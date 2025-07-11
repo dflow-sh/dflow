@@ -1,3 +1,5 @@
+'use client'
+
 import { Cloud } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -81,7 +83,15 @@ const ConnectingStatusBanner = ({
   serverName?: string
   [key: string]: any
 }) => {
-  const percent = Math.round(((attempts + 1) / maxAttempts) * 100)
+  console.log('ConnectingStatusBanner', {
+    attempts,
+    maxAttempts,
+    title,
+    subtitle,
+    tasks,
+  })
+  const percent = Math.round((attempts / maxAttempts) * 100)
+
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
@@ -96,7 +106,7 @@ const ConnectingStatusBanner = ({
         footer || (
           <>
             <span className='font-medium'>
-              Attempt {attempts + 1} of {maxAttempts}
+              Attempt {attempts} of {maxAttempts}
             </span>
             <span className='ml-2'>
               Tip: You can safely refresh this page or click the refresh button
