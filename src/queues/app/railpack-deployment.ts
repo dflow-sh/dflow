@@ -26,6 +26,8 @@ interface QueueArgs {
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
+    bitbucketSettings?: Service['bitbucketSettings']
+    gitlabSettings?: Service['gitlabSettings']
   }
   tenantSlug: string
 }
@@ -54,6 +56,8 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
         azureSettings,
         githubSettings,
         giteaSettings,
+        bitbucketSettings,
+        gitlabSettings,
       } = serviceDetails
       console.dir({ provider }, { depth: null })
 
@@ -85,6 +89,8 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           githubSettings,
           giteaSettings,
           provider,
+          bitbucketSettings,
+          gitlabSettings,
         })
 
         // Step 1: Set dokku build-dir if buildPath is provided
@@ -188,7 +194,7 @@ export const addRailpackDeployQueue = async (data: QueueArgs) => {
           await dokku.git.auth({
             ssh,
             token: buildDetails.token,
-            username: buildDetails.username,
+            username: buildDetails.owner,
             hostname: buildDetails.hostname,
             options: {
               onStdout: async chunk => {

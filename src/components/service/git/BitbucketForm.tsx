@@ -1,5 +1,7 @@
-import SidebarToggleButton from '../SidebarToggleButton'
-import SecretContent from '../ui/blur-reveal'
+'use client'
+
+import SidebarToggleButton from '../../SidebarToggleButton'
+import SecretContent from '../../ui/blur-reveal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -26,22 +28,22 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { buildOptions } from '@/lib/buildOptions'
 import { Service } from '@/payload-types'
 
-const GiteaForm = ({ service }: { service: Service }) => {
+const BitbucketForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
 
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
       id: params.serviceId,
-      providerType: 'gitea',
+      providerType: 'bitbucket',
       builder: service?.builder ?? 'buildPacks',
-      giteaSettings: {
-        repository: service?.giteaSettings?.repository || '',
-        branch: service?.giteaSettings?.branch || '',
-        username: service?.giteaSettings?.username || '',
-        gitToken: service?.giteaSettings?.gitToken || '',
-        port: service?.giteaSettings?.port || 3000,
-        buildPath: service?.giteaSettings?.buildPath || '/',
+      bitbucketSettings: {
+        repository: service?.bitbucketSettings?.repository || '',
+        branch: service?.bitbucketSettings?.branch || '',
+        owner: service?.bitbucketSettings?.owner || 'x-token-auth',
+        gitToken: service?.bitbucketSettings?.gitToken || '',
+        port: service?.bitbucketSettings?.port || 3000,
+        buildPath: service?.bitbucketSettings?.buildPath || '/',
       },
     },
   })
@@ -77,7 +79,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
 
           <AlertTitle>Automatic deployments are coming soon!</AlertTitle>
           <AlertDescription>
-            For now, you can set up your Gitea service with the following
+            For now, you can set up your Azure DevOps service with the following
             details. Make sure to trigger a deployment after saving the changes.
           </AlertDescription>
         </Alert>
@@ -86,7 +88,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='giteaSettings.repository'
+            name='bitbucketSettings.repository'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Repository URL</FormLabel>
@@ -106,7 +108,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Branch */}
           <FormField
             control={form.control}
-            name='giteaSettings.branch'
+            name='bitbucketSettings.branch'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Branch</FormLabel>
@@ -125,7 +127,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='giteaSettings.username'
+            name='bitbucketSettings.owner'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
@@ -134,7 +136,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
                     type='text'
                     placeholder='ex: your-username'
                     {...field}
-                    value={field.value || ''}
+                    disabled
                   />
                 </FormControl>
                 <FormMessage />
@@ -145,7 +147,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Branch */}
           <FormField
             control={form.control}
-            name='giteaSettings.gitToken'
+            name='bitbucketSettings.gitToken'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Git Token</FormLabel>
@@ -162,7 +164,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Port */}
           <FormField
             control={form.control}
-            name='giteaSettings.port'
+            name='bitbucketSettings.port'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -195,7 +197,7 @@ const GiteaForm = ({ service }: { service: Service }) => {
           {/* Build path */}
           <FormField
             control={form.control}
-            name='giteaSettings.buildPath'
+            name='bitbucketSettings.buildPath'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -285,4 +287,4 @@ const GiteaForm = ({ service }: { service: Service }) => {
   )
 }
 
-export default GiteaForm
+export default BitbucketForm

@@ -22,6 +22,8 @@ interface QueueArgs {
     githubSettings?: Service['githubSettings']
     azureSettings?: Service['azureSettings']
     giteaSettings?: Service['giteaSettings']
+    bitbucketSettings?: Service['bitbucketSettings']
+    gitlabSettings?: Service['gitlabSettings']
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
@@ -53,6 +55,8 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
         azureSettings,
         githubSettings,
         giteaSettings,
+        bitbucketSettings,
+        gitlabSettings,
       } = serviceDetails
       const formattedVariables = JSON.parse(populatedVariables)
 
@@ -82,6 +86,8 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
           githubSettings,
           giteaSettings,
           provider,
+          bitbucketSettings,
+          gitlabSettings,
         })
 
         // Step 1: Set dokku build-dir if buildPath is provided
@@ -257,6 +263,37 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
           serviceId,
           channelId: serviceDetails.deploymentId,
         })
+
+        // Step 3: Cloning the repo
+        if (buildDetails.token) {
+          // authenticating the git provider
+          await dokku.git.auth({
+            ssh,
+            token: buildDetails.token,
+            username: buildDetails.owner,
+            hostname: buildDetails.hostname,
+            options: {
+              onStdout: async chunk => {
+                sendEvent({
+                  message: chunk.toString(),
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: serviceDetails.deploymentId,
+                })
+              },
+              onStderr: async chunk => {
+                sendEvent({
+                  message: chunk.toString(),
+                  pub,
+                  serverId,
+                  serviceId,
+                  channelId: serviceDetails.deploymentId,
+                })
+              },
+            },
+          })
+        }
 
         const cloningResponse = await dokku.git.sync({
           ssh,

@@ -4,10 +4,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import { extractSSHDetails } from '@/lib/ssh'
-import { addBuildpacksDeploymentQueue } from '@/queues/app/buildpacks-deployment'
+import { addDeployQueue } from '@/queues/app/deploy'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
-import { addDockerFileDeploymentQueue } from '@/queues/app/dockerfile-deployment'
-import { addRailpackDeployQueue } from '@/queues/app/railpack-deployment'
 import { addRebuildAppQueue } from '@/queues/app/rebuilt'
 import { addCreateDatabaseQueue } from '@/queues/database/create'
 
@@ -29,6 +27,8 @@ export const triggerDeployment = async ({
     githubSettings,
     azureSettings,
     giteaSettings,
+    bitbucketSettings,
+    gitlabSettings,
     provider,
     populatedVariables,
     variables,
@@ -72,8 +72,12 @@ export const triggerDeployment = async ({
       } else {
         const builder = serviceDetails.builder ?? 'buildPacks'
 
-        if (builder === 'railpack') {
-          const { id } = await addRailpackDeployQueue({
+        if (
+          builder === 'railpack' ||
+          builder === 'dockerfile' ||
+          builder === 'buildPacks'
+        ) {
+          const { id } = await addDeployQueue({
             appName: serviceDetails.name,
             sshDetails: sshDetails,
             serviceDetails: {
@@ -85,48 +89,11 @@ export const triggerDeployment = async ({
               azureSettings,
               githubSettings,
               giteaSettings,
+              bitbucketSettings,
+              gitlabSettings,
               populatedVariables: populatedVariables ?? '{}',
               variables: variables ?? [],
-            },
-            tenantSlug,
-          })
-
-          queueResponseId = id
-        } else if (builder === 'dockerfile') {
-          const { id } = await addDockerFileDeploymentQueue({
-            appName: serviceDetails.name,
-            sshDetails: sshDetails,
-            serviceDetails: {
-              deploymentId: deploymentResponse.id,
-              serviceId: serviceDetails.id,
-              provider,
-              serverId: project.server.id,
-              providerType,
-              azureSettings,
-              githubSettings,
-              giteaSettings,
-              populatedVariables: populatedVariables ?? '{}',
-              variables: variables ?? [],
-            },
-            tenantSlug,
-          })
-
-          queueResponseId = id
-        } else if (builder === 'buildPacks') {
-          const { id } = await addBuildpacksDeploymentQueue({
-            appName: serviceDetails.name,
-            sshDetails: sshDetails,
-            serviceDetails: {
-              deploymentId: deploymentResponse.id,
-              serviceId: serviceDetails.id,
-              provider,
-              serverId: project.server.id,
-              providerType,
-              azureSettings,
-              githubSettings,
-              giteaSettings,
-              populatedVariables: populatedVariables ?? '{}',
-              variables: variables ?? [],
+              builder,
             },
             tenantSlug,
           })

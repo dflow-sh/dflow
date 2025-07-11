@@ -1,5 +1,7 @@
-import SidebarToggleButton from '../SidebarToggleButton'
-import SecretContent from '../ui/blur-reveal'
+'use client'
+
+import SidebarToggleButton from '../../SidebarToggleButton'
+import SecretContent from '../../ui/blur-reveal'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -26,22 +28,22 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { buildOptions } from '@/lib/buildOptions'
 import { Service } from '@/payload-types'
 
-const AzureDevopsForm = ({ service }: { service: Service }) => {
+const GitlabForm = ({ service }: { service: Service }) => {
   const params = useParams<{ id: string; serviceId: string }>()
 
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
       id: params.serviceId,
-      providerType: 'azureDevOps',
+      providerType: 'gitlab',
       builder: service?.builder ?? 'buildPacks',
-      azureSettings: {
-        repository: service?.azureSettings?.repository || '',
-        branch: service?.azureSettings?.branch || '',
-        username: service?.azureSettings?.username || '',
-        gitToken: service?.azureSettings?.gitToken || '',
-        port: service?.azureSettings?.port || 3000,
-        buildPath: service?.azureSettings?.buildPath || '/',
+      gitlabSettings: {
+        repository: service?.gitlabSettings?.repository || '',
+        branch: service?.gitlabSettings?.branch || '',
+        owner: service?.gitlabSettings?.owner || 'oauth2',
+        gitToken: service?.gitlabSettings?.gitToken || '',
+        port: service?.gitlabSettings?.port || 3000,
+        buildPath: service?.gitlabSettings?.buildPath || '/',
       },
     },
   })
@@ -86,7 +88,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='azureSettings.repository'
+            name='gitlabSettings.repository'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Repository URL</FormLabel>
@@ -106,7 +108,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Branch */}
           <FormField
             control={form.control}
-            name='azureSettings.branch'
+            name='gitlabSettings.branch'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Branch</FormLabel>
@@ -125,7 +127,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Repository URL */}
           <FormField
             control={form.control}
-            name='azureSettings.username'
+            name='gitlabSettings.owner'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Username</FormLabel>
@@ -134,7 +136,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
                     type='text'
                     placeholder='ex: your-username'
                     {...field}
-                    value={field.value || ''}
+                    disabled
                   />
                 </FormControl>
                 <FormMessage />
@@ -145,7 +147,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Branch */}
           <FormField
             control={form.control}
-            name='azureSettings.gitToken'
+            name='gitlabSettings.gitToken'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Git Token</FormLabel>
@@ -162,7 +164,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Port */}
           <FormField
             control={form.control}
-            name='azureSettings.port'
+            name='gitlabSettings.port'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -195,7 +197,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
           {/* Build path */}
           <FormField
             control={form.control}
-            name='azureSettings.buildPath'
+            name='gitlabSettings.buildPath'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
@@ -285,4 +287,4 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
   )
 }
 
-export default AzureDevopsForm
+export default GitlabForm

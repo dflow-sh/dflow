@@ -150,6 +150,10 @@ const applicationField: Field = {
           type: 'text',
           required: true,
         },
+        encryptedField({
+          name: 'gitToken',
+          type: 'text',
+        }),
         {
           name: 'branch',
           type: 'text',
@@ -197,7 +201,7 @@ const applicationField: Field = {
           required: true,
         }),
         {
-          name: 'username',
+          name: 'owner',
           type: 'text',
           required: true,
         },
@@ -240,10 +244,99 @@ const applicationField: Field = {
         encryptedField({
           name: 'gitToken',
           type: 'text',
-          required: true,
         }),
         {
-          name: 'username',
+          name: 'owner',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'buildPath',
+          type: 'text',
+          required: true,
+          defaultValue: '/',
+        },
+        {
+          name: 'port',
+          type: 'number',
+          defaultValue: 3000,
+        },
+      ],
+    },
+    {
+      name: 'gitlabSettings',
+      type: 'group',
+      admin: {
+        // App settings field will be considered if service-type is app
+        condition: data => {
+          if (data.providerType === 'gitlab') {
+            return true
+          }
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'repository',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'branch',
+          type: 'text',
+          required: true,
+        },
+        encryptedField({
+          name: 'gitToken',
+          type: 'text',
+        }),
+        {
+          name: 'owner',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'buildPath',
+          type: 'text',
+          required: true,
+          defaultValue: '/',
+        },
+        {
+          name: 'port',
+          type: 'number',
+          defaultValue: 3000,
+        },
+      ],
+    },
+    {
+      name: 'bitbucketSettings',
+      type: 'group',
+      admin: {
+        // App settings field will be considered if service-type is app
+        condition: data => {
+          if (data.providerType === 'bitbucket') {
+            return true
+          }
+          return false
+        },
+      },
+      fields: [
+        {
+          name: 'repository',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'owner',
+          type: 'text',
+          required: true,
+        },
+        encryptedField({
+          name: 'gitToken',
+          type: 'text',
+        }),
+        {
+          name: 'branch',
           type: 'text',
           required: true,
         },

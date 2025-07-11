@@ -680,6 +680,7 @@ export interface Service {
   githubSettings?: {
     repository: string;
     owner: string;
+    gitToken?: string | null;
     branch: string;
     buildPath: string;
     port?: number | null;
@@ -688,15 +689,31 @@ export interface Service {
     repository: string;
     branch: string;
     gitToken: string;
-    username: string;
+    owner: string;
     buildPath: string;
     port?: number | null;
   };
   giteaSettings?: {
     repository: string;
     branch: string;
-    gitToken: string;
-    username: string;
+    gitToken?: string | null;
+    owner: string;
+    buildPath: string;
+    port?: number | null;
+  };
+  gitlabSettings?: {
+    repository: string;
+    branch: string;
+    gitToken?: string | null;
+    owner: string;
+    buildPath: string;
+    port?: number | null;
+  };
+  bitbucketSettings?: {
+    repository: string;
+    owner: string;
+    gitToken?: string | null;
+    branch: string;
     buildPath: string;
     port?: number | null;
   };
@@ -1270,6 +1287,7 @@ export interface ServicesSelect<T extends boolean = true> {
     | {
         repository?: T;
         owner?: T;
+        gitToken?: T;
         branch?: T;
         buildPath?: T;
         port?: T;
@@ -1280,7 +1298,7 @@ export interface ServicesSelect<T extends boolean = true> {
         repository?: T;
         branch?: T;
         gitToken?: T;
-        username?: T;
+        owner?: T;
         buildPath?: T;
         port?: T;
       };
@@ -1290,7 +1308,27 @@ export interface ServicesSelect<T extends boolean = true> {
         repository?: T;
         branch?: T;
         gitToken?: T;
-        username?: T;
+        owner?: T;
+        buildPath?: T;
+        port?: T;
+      };
+  gitlabSettings?:
+    | T
+    | {
+        repository?: T;
+        branch?: T;
+        gitToken?: T;
+        owner?: T;
+        buildPath?: T;
+        port?: T;
+      };
+  bitbucketSettings?:
+    | T
+    | {
+        repository?: T;
+        owner?: T;
+        gitToken?: T;
+        branch?: T;
         buildPath?: T;
         port?: T;
       };
