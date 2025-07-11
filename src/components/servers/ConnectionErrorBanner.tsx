@@ -115,13 +115,15 @@ const ConnectionErrorBanner = ({
                         Email Support
                       </Button>
 
-                      <Button
-                        onClick={handleDiscordContact}
-                        className='w-full justify-start gap-3'
-                        variant='outline'>
-                        <MessageSquare className='h-4 w-4' />
-                        Join Discord
-                      </Button>
+                      {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
+                        <Button
+                          onClick={handleDiscordContact}
+                          className='w-full justify-start gap-3'
+                          variant='outline'>
+                          <MessageSquare className='h-4 w-4' />
+                          Join Discord
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </DialogContent>
