@@ -63,7 +63,7 @@ export const serverEvents: PayloadHandler = async ({
             keepAliveInterval = null
           }
         }
-      }, 30000)
+      }, 29000)
 
       // Subscribe to a Redis channel
       duplicateSubscriber.subscribe(channel, err => {

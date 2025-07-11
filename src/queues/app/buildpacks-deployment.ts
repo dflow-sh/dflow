@@ -21,6 +21,7 @@ interface QueueArgs {
     providerType: Service['providerType']
     githubSettings?: Service['githubSettings']
     azureSettings?: Service['azureSettings']
+    giteaSettings?: Service['giteaSettings']
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
@@ -49,6 +50,7 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
         providerType,
         azureSettings,
         githubSettings,
+        giteaSettings,
       } = serviceDetails
 
       try {
@@ -75,6 +77,7 @@ export const addBuildpacksDeploymentQueue = async (data: QueueArgs) => {
           providerType,
           azureSettings,
           githubSettings,
+          giteaSettings,
           provider,
         })
 

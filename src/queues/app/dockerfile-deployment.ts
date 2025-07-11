@@ -21,6 +21,7 @@ interface QueueArgs {
     providerType: Service['providerType']
     githubSettings?: Service['githubSettings']
     azureSettings?: Service['azureSettings']
+    giteaSettings?: Service['giteaSettings']
     variables: NonNullable<Service['variables']>
     populatedVariables: string
     serverId: string
@@ -51,6 +52,7 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
         providerType,
         azureSettings,
         githubSettings,
+        giteaSettings,
       } = serviceDetails
       const formattedVariables = JSON.parse(populatedVariables)
 
@@ -78,6 +80,7 @@ export const addDockerFileDeploymentQueue = async (data: QueueArgs) => {
           providerType,
           azureSettings,
           githubSettings,
+          giteaSettings,
           provider,
         })
 

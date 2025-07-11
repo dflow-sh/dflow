@@ -676,7 +676,7 @@ export interface Service {
   populatedVariables?: string | null;
   builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
   provider?: (string | null) | GitProvider;
-  providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps') | null;
+  providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps' | 'gitea') | null;
   githubSettings?: {
     repository: string;
     owner: string;
@@ -685,6 +685,14 @@ export interface Service {
     port?: number | null;
   };
   azureSettings?: {
+    repository: string;
+    branch: string;
+    gitToken: string;
+    username: string;
+    buildPath: string;
+    port?: number | null;
+  };
+  giteaSettings?: {
     repository: string;
     branch: string;
     gitToken: string;
@@ -1267,6 +1275,16 @@ export interface ServicesSelect<T extends boolean = true> {
         port?: T;
       };
   azureSettings?:
+    | T
+    | {
+        repository?: T;
+        branch?: T;
+        gitToken?: T;
+        username?: T;
+        buildPath?: T;
+        port?: T;
+      };
+  giteaSettings?:
     | T
     | {
         repository?: T;

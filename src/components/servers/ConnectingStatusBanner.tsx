@@ -1,3 +1,5 @@
+'use client'
+
 import { Cloud } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -39,11 +41,24 @@ const BannerBase = ({
     <AlertDescription>
       {progress && (
         <div className='mb-3'>
-          <Progress value={progressValue} />
-          {progressLabel && (
-            <div className='mt-1 text-right text-xs text-muted-foreground'>
-              {progressLabel}
-            </div>
+          {progressValue !== undefined ? (
+            <>
+              <Progress value={progressValue} />
+              {progressLabel && (
+                <div className='mt-1 text-right text-xs text-muted-foreground'>
+                  {progressLabel}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className='relative h-2 w-full overflow-hidden rounded-full bg-primary/20'>
+                <div className='animate-progress absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent' />
+              </div>
+              <div className='mt-1 animate-pulse text-right text-xs text-muted-foreground'>
+                Connecting...
+              </div>
+            </>
           )}
         </div>
       )}
@@ -60,8 +75,8 @@ const BannerBase = ({
 )
 
 const ConnectingStatusBanner = ({
-  attempts = 0,
-  maxAttempts = 30,
+  attempts,
+  maxAttempts,
   title = 'Connecting to Server',
   subtitle,
   tasks = [
@@ -81,7 +96,18 @@ const ConnectingStatusBanner = ({
   serverName?: string
   [key: string]: any
 }) => {
-  const percent = Math.round(((attempts + 1) / maxAttempts) * 100)
+  console.log('ConnectingStatusBanner', {
+    attempts,
+    maxAttempts,
+    title,
+    subtitle,
+    tasks,
+  })
+  const percent =
+    attempts !== undefined && maxAttempts !== undefined
+      ? Math.round((attempts / maxAttempts) * 100)
+      : undefined
+
   return (
     <BannerBase
       icon={<Cloud className='h-5 w-5 text-primary' />}
@@ -96,7 +122,7 @@ const ConnectingStatusBanner = ({
         footer || (
           <>
             <span className='font-medium'>
-              Attempt {attempts + 1} of {maxAttempts}
+              Attempt {attempts} of {maxAttempts}
             </span>
             <span className='ml-2'>
               Tip: You can safely refresh this page or click the refresh button

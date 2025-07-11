@@ -83,7 +83,7 @@ export const addInstallDokkuQueue = async (data: QueueArgs) => {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : ''
-        throw new Error(`❌ failed to install plugin: ${message}`)
+        throw new Error(`❌ failed to install dokku: ${message}`)
       } finally {
         if (ssh) {
           ssh.dispose()

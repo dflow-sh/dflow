@@ -36,7 +36,7 @@ export const updateServiceSchema = z.object({
     .optional(),
   provider: z.string().optional(),
   providerType: z
-    .enum(['github', 'gitlab', 'bitbucket', 'azureDevOps'])
+    .enum(['github', 'gitlab', 'bitbucket', 'azureDevOps', 'gitea'])
     .optional(),
   githubSettings: z
     .object({
@@ -48,6 +48,16 @@ export const updateServiceSchema = z.object({
     })
     .optional(),
   azureSettings: z
+    .object({
+      repository: z.string(),
+      branch: z.string(),
+      gitToken: z.string(),
+      username: z.string(),
+      buildPath: z.string(),
+      port: z.number().default(3000),
+    })
+    .optional(),
+  giteaSettings: z
     .object({
       repository: z.string(),
       branch: z.string(),

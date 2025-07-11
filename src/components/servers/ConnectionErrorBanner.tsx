@@ -1,5 +1,6 @@
 'use client'
 
+import { env } from 'env'
 import { Mail, MessageSquare, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
@@ -38,14 +39,14 @@ const ConnectionErrorBanner = ({
 
   const handleEmailContact = () => {
     window.open(
-      'mailto:support@dflow.sh?subject=Server Connection Issue',
+      'mailto:hello@dflow.sh?subject=Server Connection Issue',
       '_blank',
     )
     setIsOpen(false)
   }
 
   const handleDiscordContact = () => {
-    window.open('https://discord.gg/dflow', '_blank')
+    window.open(env.NEXT_PUBLIC_DISCORD_INVITE_URL, '_blank')
     setIsOpen(false)
   }
 

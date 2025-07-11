@@ -416,11 +416,25 @@ export const checkDNSConfigAction = protectedClient
   })
   .schema(checkDNSConfigSchema)
   .action(async ({ clientInput }) => {
-    const { domain, ip } = clientInput
+    const { domain, ip, proxyDomain } = clientInput
 
-    const addresses = await dns.resolve4(domain)
+    try {
+      // Try to resolve CNAME first if proxyDomain is provided
+      if (proxyDomain) {
+        const cnames = await dns.resolveCname(domain).catch(() => [])
+        if (cnames.length > 0) {
+          // Compare the CNAME target to the expected proxy domain (strict match)
+          return cnames.some(cname => cname === proxyDomain)
+        }
+      }
 
-    return addresses.includes(ip)
+      // Fallback: check A record
+      const addresses = await dns.resolve4(domain)
+
+      return addresses.includes(ip)
+    } catch (e) {
+      return false
+    }
   })
 
 export const syncServerDomainAction = protectedClient
