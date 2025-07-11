@@ -9,17 +9,22 @@ export const getBuildDetails = async ({
   githubSettings,
   provider,
   giteaSettings,
+  bitbucketSettings,
+  gitlabSettings,
 }: {
   provider: Service['provider']
   providerType: Service['providerType']
-  githubSettings?: Service['githubSettings']
-  azureSettings?: Service['azureSettings']
-  giteaSettings?: Service['giteaSettings']
+  githubSettings: Service['githubSettings'] | undefined
+  azureSettings: Service['azureSettings'] | undefined
+  giteaSettings: Service['giteaSettings'] | undefined
+  bitbucketSettings: Service['bitbucketSettings'] | undefined
+  gitlabSettings: Service['gitlabSettings'] | undefined
 }) => {
   if (providerType === 'github' && githubSettings) {
-    const { branch, owner, repository, buildPath, port } = githubSettings
+    const { branch, owner, repository, buildPath, port, gitToken } =
+      githubSettings
     let url = `https://github.com/${owner}/${repository}`
-    let token = ''
+    let token = gitToken ?? ''
 
     if (provider && typeof provider === 'object' && provider.github) {
       const { appId, privateKey, installationId } = provider.github
@@ -49,12 +54,12 @@ export const getBuildDetails = async ({
       port,
       token,
       hostname: 'github.com',
-      username: owner,
+      owner,
     }
   }
 
   if (providerType === 'azureDevOps' && azureSettings) {
-    const { branch, repository, buildPath, port, gitToken, username } =
+    const { branch, repository, buildPath, port, gitToken, owner } =
       azureSettings
 
     return {
@@ -64,12 +69,12 @@ export const getBuildDetails = async ({
       port,
       token: gitToken,
       hostname: 'dev.azure.com',
-      username,
+      owner,
     }
   }
 
   if (providerType === 'gitea' && giteaSettings) {
-    const { branch, repository, buildPath, port, gitToken, username } =
+    const { branch, repository, buildPath, port, gitToken, owner } =
       giteaSettings
     const match = repository.match(/^(?:https?:\/\/)?([^\/?#]+)/)
 
@@ -82,7 +87,40 @@ export const getBuildDetails = async ({
       port,
       token: gitToken,
       hostname,
-      username,
+      owner,
+    }
+  }
+
+  if (providerType === 'bitbucket' && bitbucketSettings) {
+    const { branch, repository, buildPath, port, gitToken, owner } =
+      bitbucketSettings
+
+    return {
+      url: repository,
+      branch,
+      buildPath,
+      port,
+      token: gitToken,
+      hostname: 'bitbucket.org',
+      owner,
+    }
+  }
+
+  if (providerType === 'gitlab' && gitlabSettings) {
+    const { branch, repository, buildPath, port, gitToken, owner } =
+      gitlabSettings
+    const match = repository.match(/^(?:https?:\/\/)?([^\/?#]+)/)
+
+    const hostname = match ? match[1] : 'gitlab.com'
+
+    return {
+      url: repository,
+      branch,
+      buildPath,
+      port,
+      token: gitToken,
+      hostname,
+      owner,
     }
   }
 

@@ -1,7 +1,5 @@
-import { addBuildpacksDeploymentQueue } from '../app/buildpacks-deployment'
+import { addDeployQueue } from '../app/deploy'
 import { addDockerImageDeploymentQueue } from '../app/dockerImage-deployment'
-import { addDockerFileDeploymentQueue } from '../app/dockerfile-deployment'
-import { addRailpackDeployQueue } from '../app/railpack-deployment'
 import { addCreateDatabaseQueue } from '../database/create'
 import { addExposeDatabasePortQueue } from '../database/expose'
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
@@ -110,6 +108,8 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             giteaSettings,
             variables,
             volumes,
+            bitbucketSettings,
+            gitlabSettings,
             ...serviceDetails
           } = createdService
 
@@ -204,7 +204,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
 
                   // triggering queue with latest values
                   if (builder === 'railpack') {
-                    const railpackDeployQueue = await addRailpackDeployQueue({
+                    const railpackDeployQueue = await addDeployQueue({
                       appName: serviceDetails.name,
                       sshDetails: sshDetails,
                       serviceDetails: {
@@ -216,55 +216,16 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                         azureSettings,
                         githubSettings,
                         giteaSettings,
-                        populatedVariables: populatedVariables ?? '{}',
-                        variables: variables ?? [],
+                        bitbucketSettings,
+                        gitlabSettings,
+                        populatedVariables: updatedPopulatedVariables ?? '{}',
+                        variables: updatedVariables ?? [],
+                        builder,
                       },
                       tenantSlug: tenantDetails.slug,
                     })
 
                     await waitForJobCompletion(railpackDeployQueue)
-                  } else if (builder === 'dockerfile') {
-                    const dockerFileDeploymentQueue =
-                      await addDockerFileDeploymentQueue({
-                        appName: serviceDetails.name,
-                        sshDetails: sshDetails,
-                        serviceDetails: {
-                          deploymentId: deploymentResponse.id,
-                          serviceId: serviceDetails.id,
-                          provider,
-                          serverId: project.server.id,
-                          providerType,
-                          azureSettings,
-                          githubSettings,
-                          giteaSettings,
-                          populatedVariables: populatedVariables ?? '{}',
-                          variables: variables ?? [],
-                        },
-                        tenantSlug: tenantDetails.slug,
-                      })
-
-                    await waitForJobCompletion(dockerFileDeploymentQueue)
-                  } else if (builder === 'buildPacks') {
-                    const buildPacksDeploymentQueue =
-                      await addBuildpacksDeploymentQueue({
-                        appName: serviceDetails.name,
-                        sshDetails: sshDetails,
-                        serviceDetails: {
-                          deploymentId: deploymentResponse.id,
-                          serviceId: serviceDetails.id,
-                          provider,
-                          serverId: project.server.id,
-                          providerType,
-                          azureSettings,
-                          githubSettings,
-                          giteaSettings,
-                          populatedVariables: populatedVariables ?? '{}',
-                          variables: variables ?? [],
-                        },
-                        tenantSlug: tenantDetails.slug,
-                      })
-
-                    await waitForJobCompletion(buildPacksDeploymentQueue)
                   }
                 } catch (error) {
                   let message = error instanceof Error ? error.message : ''
