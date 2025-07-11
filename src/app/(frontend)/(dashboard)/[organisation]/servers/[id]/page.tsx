@@ -59,12 +59,9 @@ interface PageProps {
 
 const SSHConnectionAlert = ({ server }: { server: ServerType }) => {
   const isTailscale = server.preferConnectionType === 'tailscale'
-  const isConnected = server.connection?.status === 'success'
-  const hasRequiredFields = isTailscale
-    ? typeof server.hostname === 'string'
-    : typeof server.sshKey === 'object'
+  const isFailed = server.connection?.status === 'failed'
 
-  if (isConnected && hasRequiredFields) return null
+  if (!isFailed) return null
 
   const connectionTypeLabel = isTailscale ? 'Tailscale' : 'SSH'
 
@@ -257,15 +254,12 @@ const Onboarding = ({ server }: { server: ServerType }) => {
 const BannerLayout = ({
   children,
   server,
-  shouldShowSSHAlert,
 }: {
   children: React.ReactNode
   server: ServerType
-  shouldShowSSHAlert: boolean
 }) => {
   return (
     <div className='space-y-6'>
-      {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-1.5'>
           <Server />
@@ -396,8 +390,6 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return {
         type: 'connecting' as const,
         bannerProps: {
-          attempts: connectionAttempts,
-          maxAttempts: 30,
           serverName: server.name,
         },
       }
@@ -470,19 +462,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const serverStatus = getServerStatus(server)
 
   const renderContent = () => {
-    // Check if there's a connection issue that should show SSHConnectionAlert
-    const isConnected = server.connection?.status === 'success'
-    const isTailscale = server.preferConnectionType === 'tailscale'
-    const hasRequiredFields = isTailscale
-      ? typeof server.hostname === 'string'
-      : typeof server.sshKey === 'object' && server.ip
-    const shouldShowSSHAlert =
-      !isConnected || (isConnected && !hasRequiredFields)
-
     // 1. Show provisioning banner for DFlow provisioning state
     if (serverStatus.type === 'provisioning') {
       return (
-        <BannerLayout server={server} shouldShowSSHAlert={shouldShowSSHAlert}>
+        <BannerLayout server={server}>
           <ProvisioningBanner
             serverName={serverStatus.bannerProps?.serverName}
           />
@@ -493,7 +476,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     // 2. Show connection attempts banner for DFlow connecting state
     if (serverStatus.type === 'connecting') {
       return (
-        <BannerLayout server={server} shouldShowSSHAlert={shouldShowSSHAlert}>
+        <BannerLayout server={server}>
           <ConnectingStatusBanner {...serverStatus.bannerProps} />
         </BannerLayout>
       )
@@ -502,7 +485,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     // 3. Show connection error banner for connection error state
     if (serverStatus.type === 'connection-error') {
       return (
-        <BannerLayout server={server} shouldShowSSHAlert={shouldShowSSHAlert}>
+        <BannerLayout server={server}>
           <ConnectionErrorBanner
             serverName={serverStatus.bannerProps?.serverName}
           />
@@ -513,7 +496,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     // 4. Show cloud-init banner for cloud-init running state
     if (serverStatus.type === 'cloud-init') {
       return (
-        <BannerLayout server={server} shouldShowSSHAlert={shouldShowSSHAlert}>
+        <BannerLayout server={server}>
           <CloudInitStatusBanner
             cloudInitStatus={server.cloudInitStatus ?? 'running'}
             serverName={serverStatus.bannerProps?.serverName}
@@ -525,7 +508,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     // 5. Show onboarding for onboarding required state
     if (serverStatus.type === 'onboarding') {
       return (
-        <BannerLayout server={server} shouldShowSSHAlert={shouldShowSSHAlert}>
+        <BannerLayout server={server}>
           <Onboarding server={server} />
         </BannerLayout>
       )
@@ -535,15 +518,10 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
     if (serverStatus.type === 'disconnected') {
       return (
         <div className='space-y-6'>
-          {shouldShowSSHAlert && server.onboarded && (
-            <SSHConnectionAlert server={server} />
-          )}
           {server.onboarded ? (
             renderTab()
           ) : (
-            <BannerLayout
-              server={server}
-              shouldShowSSHAlert={shouldShowSSHAlert}>
+            <BannerLayout server={server}>
               <Onboarding server={server} />
             </BannerLayout>
           )}
@@ -553,12 +531,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
     // 7. Show connected and ready state
     if (serverStatus.type === 'connected') {
-      return (
-        <div className='space-y-6'>
-          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
-          {renderTab()}
-        </div>
-      )
+      return <div className='space-y-6'>{renderTab()}</div>
     }
 
     // 8. Show unknown status with warning alert
@@ -573,28 +546,21 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
               server configuration. If the issue persists, contact support.
             </AlertDescription>
           </Alert>
-          {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
           {renderTab()}
         </div>
       )
     }
 
     // Default fallback
-    return (
-      <div className='space-y-6'>
-        {shouldShowSSHAlert && <SSHConnectionAlert server={server} />}
-        {renderTab()}
-      </div>
-    )
+    return <div className='space-y-6'>{renderTab()}</div>
   }
 
   return (
     <LayoutClient server={server} servers={servers}>
-      {/* <div className='mb-2 flex justify-end'>
-        <RefreshButton showText={true} text='Refresh Server Status' />
-      </div> */}
-
-      {renderContent()}
+      <div className='space-y-6'>
+        <SSHConnectionAlert server={server} />
+        {renderContent()}
+      </div>
     </LayoutClient>
   )
 }

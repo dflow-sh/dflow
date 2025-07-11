@@ -108,12 +108,14 @@ const SuspendedDashboard = async ({
   // Check if there are any servers available
   const hasServers = servers.length > 0
 
-  // Check if there are any connected servers
-  const hasConnectedServers = servers.some(
-    server => server.connection?.status === 'success',
+  // Check if there are any connection fail servers
+  const allServersFailed = servers?.every(
+    server => server.connection?.status === 'failed',
   )
 
-  const notOnboardedServers = servers.filter(server => !server.onboarded)
+  const notOnboardedServers = servers.filter(
+    server => !server.onboarded && server.connection?.status === 'success',
+  )
 
   return (
     <>
@@ -162,13 +164,19 @@ const SuspendedDashboard = async ({
           </Alert>
         )}
 
-        {!hasConnectedServers && (
+        {true && (
           <Alert variant='warning'>
             <AlertCircle className='h-4 w-4' />
             <AlertTitle>SSH Connection Issue</AlertTitle>
             <AlertDescription>
               None of your servers have an active SSH connection. Projects may
               not function properly until SSH connections are established.
+              <br />
+              Go to{' '}
+              <a href={`servers`} className='text-primary underline'>
+                servers page
+              </a>{' '}
+              to check connection and refresh connections.
             </AlertDescription>
           </Alert>
         )}
