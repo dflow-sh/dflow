@@ -1,43 +1,79 @@
-version: '3'
-
 services:
-  payload:
-    image: node:18-alpine
-    ports:
-      - '3000:3000'
-    volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
-    working_dir: /home/node/app/
-    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm dev"
-    depends_on:
-      - mongo
-      # - postgres
-    env_file:
-      - .env
-
-  # Ensure your DATABASE_URI uses 'mongo' as the hostname ie. mongodb://mongo/my-db-name
-  mongo:
-    image: mongo:latest
-    ports:
-      - '27017:27017'
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.4
+    container_name: traefik
+    restart: always
+    network_mode: host # So it can use tailscale0 + bind 80/443
     command:
-      - --storageEngine=wiredTiger
+      - --configFile=/etc/traefik/traefik.yaml
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     volumes:
-      - data:/data/db
-    logging:
-      driver: none
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+      - ./acme.json:/etc/traefik/acme.json
+      - ./dynamic:/etc/traefik/dynamic
 
-  # Uncomment the following to use postgres
-  # postgres:
-  #   restart: always
-  #   image: postgres:latest
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
+  # Dynamic Config Generator
+  config-generator:
+    image: ghcr.io/akhil-naidu/dflow-traefik:latest
+    container_name: config-generator
+    restart: on-failure
+    network_mode: host
+    environment:
+      - JWT_TOKEN=${JWT_TOKEN}
+      - WILD_CARD_DOMAIN=${WILD_CARD_DOMAIN}
+    volumes:
+      - ./dynamic:/app/output
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  # MongoDB
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+
+  # Payload CMS App (from your custom Dockerfile)
+  payload-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: payload-app
+    restart: always
+    depends_on:
+      - redis
+      - mongodb
+    environment:
+      NEXT_PUBLIC_WEBSITE_URL: ${NEXT_PUBLIC_WEBSITE_URL}
+      DATABASE_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      REDIS_URI: redis://redis:6379
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY}
+      TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
+      NEXT_PUBLIC_PROXY_DOMAIN_URL: ${NEXT_PUBLIC_PROXY_DOMAIN_URL}
+      NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: ${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}
+      NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: ${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      RESEND_SENDER_EMAIL: ${RESEND_SENDER_EMAIL}
+      RESEND_SENDER_NAME: ${RESEND_SENDER_NAME}
+      NEXT_PUBLIC_PROXY_CNAME: ${NEXT_PUBLIC_PROXY_CNAME}
+      NEXT_PUBLIC_DISCORD_INVITE_URL: ${NEXT_PUBLIC_DISCORD_INVITE_URL}
+    network_mode: host # To expose to Traefik via localhost/tailscale
+    volumes:
+      - ./scripts:/app/scripts
 
 volumes:
-  data:
-  # pgdata:
-  node_modules:
+  mongo-data:
+  redis-data:
