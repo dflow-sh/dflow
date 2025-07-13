@@ -1,16 +1,10 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
-  const dpkgLockCheck = await ssh.execCommand(
-    'lsof /var/lib/dpkg/lock-frontend',
-    options,
-  )
+import checkDpkgLock from '@/lib/utils/checkDpkgLock'
 
-  if (dpkgLockCheck.code === 0) {
-    throw new Error(
-      'dpkg is currently locked. Please wait for any ongoing package operations to complete.',
-    )
-  }
+export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
+  // Check if dpkg is locked before proceeding
+  await checkDpkgLock(ssh, options) // returns exec result if not locked
 
   const dokkuUninstallResult = await ssh.execCommand(
     'sudo apt-get purge dokku herokuish -y',

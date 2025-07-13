@@ -1,5 +1,7 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
+import checkDpkgLock from '@/lib/utils/checkDpkgLock'
+
 import { getVersion } from './getVersion'
 
 /**
@@ -28,16 +30,12 @@ export const install = async ({
   }
 
   // Check if dpkg is locked before proceeding
-  const dpkgLockCheck = await ssh.execCommand(
-    'lsof /var/lib/dpkg/lock-frontend',
-    options,
-  )
-
-  if (dpkgLockCheck.code === 0) {
+  try {
+    await checkDpkgLock(ssh, options) // returns exec result if not locked
+  } catch (err) {
     return {
       success: false,
-      message:
-        'dpkg is currently locked. Please wait for any ongoing package operations to complete.',
+      message: err instanceof Error ? err.message : String(err),
       error: 'dpkg lock detected',
     }
   }
