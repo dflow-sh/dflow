@@ -10,4 +10,5 @@ export interface ServerType extends Server {
     version: string | null
   }
   railpack: string | undefined
+  dpkgLocked?: boolean
 }

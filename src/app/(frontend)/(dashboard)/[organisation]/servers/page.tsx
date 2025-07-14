@@ -14,6 +14,7 @@ import {
   ServersSkeleton,
 } from '@/components/skeletons/ServersSkeleton'
 import { Button } from '@/components/ui/button'
+import { ServerType } from '@/payload-types-overrides'
 
 interface PageProps {
   params: Promise<{
@@ -44,7 +45,7 @@ const SuspendedServers = async ({
           {servers.map(server => (
             <ServerCard
               organisationSlug={organisationSlug}
-              server={server}
+              server={server as ServerType}
               key={server.id}
             />
           ))}
