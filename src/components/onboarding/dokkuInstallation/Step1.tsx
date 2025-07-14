@@ -205,7 +205,11 @@ const Step1 = ({ server }: { server: ServerType }) => {
             <div className='flex flex-col gap-2'>
               <Button
                 onClick={handleStartProcess}
-                disabled={!isServerReady || dokkuInstallationStep !== 1}
+                disabled={
+                  !isServerReady ||
+                  dokkuInstallationStep !== 1 ||
+                  server.dpkgLocked
+                }
                 className='w-full'
                 size='lg'>
                 <Play size={16} className='mr-2' />
