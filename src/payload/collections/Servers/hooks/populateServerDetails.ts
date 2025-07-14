@@ -3,6 +3,7 @@ import { CollectionAfterReadHook } from 'payload'
 
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import checkDpkgLock from '@/lib/utils/checkDpkgLock'
 import { Server } from '@/payload-types'
 
 export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
@@ -59,6 +60,7 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
     let linuxVersion: string | undefined | null
     let linuxType: string | undefined | null
     let railpack: string | undefined | null
+    let dpkgLocked: boolean | undefined = undefined
 
     // Attempt SSH connection if possible
     let shouldUpdateCloudInitStatus = false
@@ -74,6 +76,14 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
       try {
         if (ssh.isConnected()) {
           sshConnected = true
+
+          // Check dpkg lock status
+          try {
+            await checkDpkgLock(ssh)
+            dpkgLocked = false
+          } catch (err) {
+            dpkgLocked = true
+          }
 
           // Gather server information
           const serverInfo = await server.info({ ssh })
@@ -270,6 +280,7 @@ export const populateServerDetails: CollectionAfterReadHook<Server> = async ({
             : newConnectionStatus,
         lastChecked: new Date().toString(),
       },
+      dpkgLocked,
     }
   } catch (error) {
     console.error('populateDokkuVersion error:', error)
