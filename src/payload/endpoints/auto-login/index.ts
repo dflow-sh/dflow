@@ -49,6 +49,7 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
   })
 
   if (usersList.length === 0) {
+    // TODO: If no user is found, create a user with the provided email and random password (cuid)
     throw new APIError('User not found', 404)
   }
 
