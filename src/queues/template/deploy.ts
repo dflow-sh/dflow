@@ -203,30 +203,28 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                     updatedServiceDetails?.variables || variables
 
                   // triggering queue with latest values
-                  if (builder === 'railpack') {
-                    const railpackDeployQueue = await addDeployQueue({
-                      appName: serviceDetails.name,
-                      sshDetails: sshDetails,
-                      serviceDetails: {
-                        deploymentId: deploymentResponse.id,
-                        serviceId: serviceDetails.id,
-                        provider,
-                        serverId: project.server.id,
-                        providerType,
-                        azureSettings,
-                        githubSettings,
-                        giteaSettings,
-                        bitbucketSettings,
-                        gitlabSettings,
-                        populatedVariables: updatedPopulatedVariables ?? '{}',
-                        variables: updatedVariables ?? [],
-                        builder,
-                      },
-                      tenantSlug: tenantDetails.slug,
-                    })
+                  const deployAppQueue = await addDeployQueue({
+                    appName: serviceDetails.name,
+                    sshDetails: sshDetails,
+                    serviceDetails: {
+                      deploymentId: deploymentResponse.id,
+                      serviceId: serviceDetails.id,
+                      provider,
+                      serverId: project.server.id,
+                      providerType,
+                      azureSettings,
+                      githubSettings,
+                      giteaSettings,
+                      bitbucketSettings,
+                      gitlabSettings,
+                      populatedVariables: updatedPopulatedVariables ?? '{}',
+                      variables: updatedVariables ?? [],
+                      builder,
+                    },
+                    tenantSlug: tenantDetails.slug,
+                  })
 
-                    await waitForJobCompletion(railpackDeployQueue)
-                  }
+                  await waitForJobCompletion(deployAppQueue)
                 } catch (error) {
                   let message = error instanceof Error ? error.message : ''
                   throw new Error(message)
