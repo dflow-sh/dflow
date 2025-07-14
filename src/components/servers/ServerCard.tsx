@@ -1,5 +1,6 @@
 'use client'
 
+import { Kubernetes } from '../icons'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format } from 'date-fns'
@@ -427,11 +428,17 @@ const ServerCard = ({
                     <Ellipsis className='h-4 w-4' />
                   </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align='end'>
+                  <DropdownMenuItem className='cursor-pointer' disabled>
+                    <Kubernetes />
+                    Create K3 cluster
+                  </DropdownMenuItem>
+
                   <DropdownMenuItem
-                    className='cursor-pointer text-red-600 focus:text-red-600'
+                    className='cursor-pointer text-destructive'
                     onClick={() => setOpen(true)}>
-                    <Trash2 className='mr-2 h-4 w-4' />
+                    <Trash2 className='h-4 w-4' />
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
