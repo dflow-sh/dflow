@@ -81,6 +81,7 @@ export interface Config {
     tenants: Tenant;
     backups: Backup;
     traefik: Traefik;
+    roles: Role;
     banners: Banner;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
@@ -111,6 +112,7 @@ export interface Config {
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     backups: BackupsSelect<false> | BackupsSelect<true>;
     traefik: TraefikSelect<false> | TraefikSelect<true>;
+    roles: RolesSelect<false> | RolesSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -943,6 +945,39 @@ export interface Template {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Enter the name of the role.
+   */
+  name: string;
+  projects?: {
+    create?: boolean | null;
+    update?: boolean | null;
+    read?: boolean | null;
+    delete?: boolean | null;
+  };
+  services?: {
+    create?: boolean | null;
+    update?: boolean | null;
+    read?: boolean | null;
+    delete?: boolean | null;
+  };
+  Servers?: {
+    create?: boolean | null;
+    update?: boolean | null;
+    read?: boolean | null;
+    delete?: boolean | null;
+  };
+  deletedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "banners".
  */
 export interface Banner {
@@ -1156,6 +1191,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'traefik';
         value: string | Traefik;
+      } | null)
+    | ({
+        relationTo: 'roles';
+        value: string | Role;
       } | null)
     | ({
         relationTo: 'banners';
@@ -1724,6 +1763,41 @@ export interface BackupsSelect<T extends boolean = true> {
 export interface TraefikSelect<T extends boolean = true> {
   service?: T;
   configuration?: T;
+  deletedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles_select".
+ */
+export interface RolesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  projects?:
+    | T
+    | {
+        create?: T;
+        update?: T;
+        read?: T;
+        delete?: T;
+      };
+  services?:
+    | T
+    | {
+        create?: T;
+        update?: T;
+        read?: T;
+        delete?: T;
+      };
+  Servers?:
+    | T
+    | {
+        create?: T;
+        update?: T;
+        read?: T;
+        delete?: T;
+      };
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
