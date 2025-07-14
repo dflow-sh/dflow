@@ -17,15 +17,15 @@ export const handleTraefikConfiguration: CollectionAfterChangeHook<
   // creating traefik configuration during server creation time when proxy domain is added
   if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
     if (operation === 'create') {
-      const { server } = await payload.findByID({
+      const { server, tenant } = await payload.findByID({
         collection: 'projects',
         id: typeof doc.project === 'object' ? doc.project.id : doc.project,
         depth: 1,
       })
 
       if (typeof server === 'object') {
-        const tenantSlug =
-          typeof server.tenant === 'object' ? server.tenant?.slug : ''
+        const tenantSlug = typeof tenant === 'object' ? tenant?.slug : ''
+
         const domains =
           server.domains
             ?.filter(
@@ -61,15 +61,14 @@ export const handleTraefikConfiguration: CollectionAfterChangeHook<
       doc.deletedAt &&
       !previousDoc.deletedAt
     ) {
-      const { server } = await payload.findByID({
+      const { server, tenant } = await payload.findByID({
         collection: 'projects',
         id: typeof doc.project === 'object' ? doc.project.id : doc.project,
         depth: 1,
       })
 
       if (typeof server === 'object') {
-        const tenantSlug =
-          typeof server.tenant === 'object' ? server.tenant?.slug : ''
+        const tenantSlug = typeof tenant === 'object' ? tenant?.slug : ''
 
         try {
           const response = await traefik.delete('/configuration', {
