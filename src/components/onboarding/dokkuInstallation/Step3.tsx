@@ -20,24 +20,30 @@ const Step3 = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
 
-  const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
-    useAction(installPluginAction)
+  const {
+    execute: installPlugin,
+    hasSucceeded: triggedInstallingPlugin,
+    isPending: triggeringLetsencryptPlugin,
+  } = useAction(installPluginAction)
 
   const {
-    execute: syncPlugins,
     isPending: isSyncingPlugins,
     hasSucceeded: syncedPlugins,
     result: syncPluginResult,
+    executeAsync: syncPlugins,
   } = useAction(syncPluginAction)
 
-  const { execute: configureLetsencrypt } = useAction(
-    configureLetsencryptPluginAction,
-  )
+  const {
+    execute: configureLetsencrypt,
+    isPending: triggeringLetsencryptPluginConfiguration,
+    hasSucceeded: triggeredLetsencryptPluginConfiguration,
+  } = useAction(configureLetsencryptPluginAction)
 
   const plugins = syncPluginResult?.data?.plugins || server?.plugins || []
   const letsEncryptPluginInstalled = plugins.find(
     plugin => plugin.name === 'letsencrypt',
   )
+
   const letsEncryptPluginConfigurationEmail =
     letsEncryptPluginInstalled &&
     letsEncryptPluginInstalled.configuration &&
@@ -45,69 +51,58 @@ const Step3 = ({ server }: { server: ServerType }) => {
     !Array.isArray(letsEncryptPluginInstalled.configuration) &&
     letsEncryptPluginInstalled.configuration.email
 
-  // Sync plugins
+  const pluginsSynced = (syncedPlugins || skipPluginsSync) && !!plugins.length
+
+  const handlePluginsSync = async () => {
+    // syncing plugins
+    const pluginsData = await syncPlugins({ serverId: server.id })
+
+    const letsEncryptPluginInstalled = pluginsData?.data?.plugins?.find(
+      plugin => plugin.name === 'letsencrypt',
+    )
+
+    // if letsencrypt plugin not-installed installing it!
+    if (!letsEncryptPluginInstalled) {
+      installPlugin({
+        pluginName: 'letsencrypt',
+        serverId: server?.id,
+        pluginURL:
+          pluginList.find(plugin => plugin.value === 'letsencrypt')
+            ?.githubURL ?? '',
+      })
+    }
+  }
+
+  // sync plugins & configure letsencrypt global-email
   useEffect(() => {
     if (dokkuInstallationStep === 3) {
-      // 1. if all plugins are already installed skipping plugin installation dokkuInstallationStep
-      if (letsEncryptPluginInstalled) {
-        setSkipPluginsSync(true)
+      // 1. check if plugins synced or not
+      if (!letsEncryptPluginInstalled) {
+        handlePluginsSync()
+        return
+      }
+
+      if (letsEncryptPluginConfigurationEmail) {
         setDokkuInstallationStep(4)
-      } else {
-        // 2. if not installed syncing plugins
-        syncPlugins({ serverId: server.id })
+      }
+
+      // 2. check letsencrypt plugin installed
+      // 3. check if letsencrypt email-configuration not done
+      if (
+        letsEncryptPluginInstalled &&
+        !letsEncryptPluginConfigurationEmail &&
+        !triggeringLetsencryptPluginConfiguration &&
+        !triggeredLetsencryptPluginConfiguration
+      ) {
+        setSkipPluginsSync(true)
+
+        configureLetsencrypt({
+          serverId: server.id,
+          autoGenerateSSL: true,
+        })
       }
     }
   }, [dokkuInstallationStep, server])
-
-  // Check letsencrypt plugin status
-  useEffect(() => {
-    const plugins = syncPluginResult.data?.plugins
-
-    if (dokkuInstallationStep === 3) {
-      if (plugins) {
-        const letsEncryptPluginInstalled = plugins.filter(
-          plugin => plugin.name === 'letsencrypt',
-        )[0]
-
-        // 3. Once plugin are synced checking letsencrypt plugin status if not installed then installing
-        if (!letsEncryptPluginInstalled) {
-          installPlugin({
-            pluginName: 'letsencrypt',
-            serverId: server?.id,
-            pluginURL:
-              pluginList.find(plugin => plugin.value === 'letsencrypt')
-                ?.githubURL ?? '',
-          })
-        } else {
-          // 4. If letsencrypt plugin is installed go to the next dokkuInstallationStep
-          setDokkuInstallationStep(4)
-        }
-      }
-    }
-  }, [syncPluginResult, server])
-
-  // Configure letsencrypt plugin
-  useEffect(() => {
-    if (
-      dokkuInstallationStep === 3 &&
-      (isSyncingPlugins || letsEncryptPluginInstalled) &&
-      !letsEncryptPluginConfigurationEmail
-    ) {
-      console.log('Configuring letsencrypt')
-      console.log('letsEncryptPluginInstalled', letsEncryptPluginInstalled)
-
-      configureLetsencrypt({
-        serverId: server.id,
-        autoGenerateSSL: true,
-      })
-    }
-  }, [
-    dokkuInstallationStep,
-    isSyncingPlugins,
-    letsEncryptPluginInstalled,
-    letsEncryptPluginConfigurationEmail,
-    server.id,
-  ])
 
   if (dokkuInstallationStep < 3) {
     return null
@@ -121,14 +116,14 @@ const Step3 = ({ server }: { server: ServerType }) => {
         </div>
       )}
 
-      {(syncedPlugins || skipPluginsSync) && !!plugins.length && (
+      {pluginsSynced && (
         <div className='flex items-center gap-2'>
           <CircleCheck size={24} className='text-primary' />
           {`${plugins.length} Synced plugins`}
         </div>
       )}
 
-      {triggedInstallingPlugin && (
+      {(triggeringLetsencryptPlugin || triggedInstallingPlugin) && (
         <div className='flex items-center gap-2'>
           {letsEncryptPluginInstalled ? (
             <>
@@ -139,6 +134,23 @@ const Step3 = ({ server }: { server: ServerType }) => {
             <>
               <Loader className='h-max w-max' />
               Installing letsencrypt plugin...
+            </>
+          )}
+        </div>
+      )}
+
+      {(triggeredLetsencryptPluginConfiguration ||
+        triggeredLetsencryptPluginConfiguration) && (
+        <div className='flex items-center gap-2'>
+          {letsEncryptPluginConfigurationEmail ? (
+            <>
+              <CircleCheck size={24} className='text-primary' />
+              Configured letsencrypt global email
+            </>
+          ) : (
+            <>
+              <Loader className='h-max w-max' />
+              Configuring letsencrypt global email...
             </>
           )}
         </div>

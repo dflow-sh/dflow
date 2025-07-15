@@ -9,8 +9,6 @@ export const portsReport = async (ssh: NodeSSH, appName: string) => {
     throw new Error(resultPortsReport.stderr)
   }
 
-  console.log({ resultPortsReport })
-
   // Cleanup the output
   const ports = resultPortsReport.stdout
     .split(' ')
