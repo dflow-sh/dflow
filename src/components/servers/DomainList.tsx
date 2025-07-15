@@ -79,11 +79,11 @@ const DomainItem = ({
     result,
   } = useAction(checkDNSConfigAction, {
     onSuccess: ({ data }) => {
-      if (data) {
-        toast.info('Added to queue', {
-          description: 'Added syncing domain to queue',
-        })
-      }
+      // if (data) {
+      // toast.info('Added to queue', {
+      //   description: 'Added syncing domain to queue',
+      // })
+      // }
     },
     onError: ({ error, input }) => {
       toast.error(
