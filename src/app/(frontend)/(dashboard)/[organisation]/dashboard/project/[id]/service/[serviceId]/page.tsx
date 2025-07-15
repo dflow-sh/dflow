@@ -3,11 +3,16 @@ import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
 import { getServiceDeploymentsBackups } from '@/actions/pages/service'
+import {
+  fetchServiceResourceStatusAction,
+  fetchServiceScaleStatusAction,
+} from '@/actions/service'
 import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainsTab from '@/components/service/DomainsTab'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTabClient from '@/components/service/LogsTabClient'
+import ScalingTab from '@/components/service/ScalingTab'
 import VariablesForm from '@/components/service/VariablesForm'
 import VolumesForm from '@/components/service/VolumesForm'
 import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
@@ -92,6 +97,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
           serverId={typeof server === 'object' ? server.id : server}
         />
       )
+
     case 'backup':
       return (
         <Backup
@@ -100,6 +106,18 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
           backups={backupsDocs}
         />
       )
+
+    case 'scaling': {
+      const [scaleRes, resourceRes] = await Promise.all([
+        fetchServiceScaleStatusAction({ id: service.id }),
+        fetchServiceResourceStatusAction({ id: service.id }),
+      ])
+
+      const scale = scaleRes?.data?.scale ?? {}
+      const resource = resourceRes?.data?.resource ?? {}
+
+      return <ScalingTab service={service} scale={scale} resource={resource} />
+    }
 
     default:
       return <GeneralTab service={service} server={server} />

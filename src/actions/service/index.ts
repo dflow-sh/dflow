@@ -9,7 +9,9 @@ import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
+import { addResourceAppQueue } from '@/queues/app/resource'
 import { addRestartAppQueue } from '@/queues/app/restart'
+import { addScaleAppQueue } from '@/queues/app/scale'
 import { addStopAppQueue } from '@/queues/app/stop'
 import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
 import { addExposeDatabasePortQueue } from '@/queues/database/expose'
@@ -21,16 +23,32 @@ import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regener
 import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
+  clearServiceResourceLimitSchema,
+  clearServiceResourceReserveSchema,
   createServiceSchema,
   deleteServiceSchema,
   exposeDatabasePortSchema,
+  fetchServiceResourceStatusSchema,
+  fetchServiceScaleStatusSchema,
   regenerateSSLSchema,
   restartServiceSchema,
+  scaleServiceSchema,
+  setServiceResourceLimitSchema,
+  setServiceResourceReserveSchema,
   stopServiceSchema,
   updateServiceDomainSchema,
   updateServiceSchema,
   updateVolumesSchema,
 } from './validator'
+
+function getServerIdFromProject(project: any): string {
+  if (!project) return ''
+  if (typeof project === 'string') return project
+  if (typeof project.server === 'string') return project.server
+  if (typeof project.server === 'object' && project.server !== null)
+    return project.server.id
+  return ''
+}
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServiceAction = protectedClient
@@ -798,4 +816,224 @@ export const updateVolumesAction = protectedClient
         },
       })
     }
+  })
+
+// Horizontal scaling: set process scale (replicas)
+export const scaleServiceAction = protectedClient
+  .metadata({ actionName: 'scaleServiceAction' })
+  .schema(scaleServiceSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, scaleArgs } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+    const serverId = getServerIdFromProject(project)
+    const tenantSlug =
+      typeof userTenant?.tenant?.slug === 'string' ? userTenant.tenant.slug : ''
+
+    const queueResponse = await addScaleAppQueue({
+      sshDetails,
+      appName: name,
+      scaleArgs,
+      serverId,
+      tenantSlug,
+    })
+
+    return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+// Fetch current process scale/status
+export const fetchServiceScaleStatusAction = protectedClient
+  .metadata({ actionName: 'fetchServiceScaleStatusAction' })
+  .schema(fetchServiceScaleStatusSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, parse = true } = clientInput
+    const { payload } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+
+    let ssh: NodeSSH | null = null
+
+    try {
+      ssh = await dynamicSSH(sshDetails)
+
+      const result = await dokku.process.psScale(ssh, name, undefined, parse)
+
+      if (parse) {
+        return { success: true, scale: result.parsed }
+      } else {
+        return { success: true, output: result.stdout }
+      }
+    } finally {
+      if (ssh) ssh.dispose()
+    }
+  })
+
+// Vertical scaling: set resource limits
+export const setServiceResourceLimitAction = protectedClient
+  .metadata({ actionName: 'setServiceResourceLimitAction' })
+  .schema(setServiceResourceLimitSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, resourceArgs, processType } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+    const serverId = getServerIdFromProject(project)
+    const tenantSlug =
+      typeof userTenant?.tenant?.slug === 'string' ? userTenant.tenant.slug : ''
+
+    const queueResponse = await addResourceAppQueue({
+      sshDetails,
+      appName: name,
+      resourceArgs,
+      processType,
+      serverId,
+      tenantSlug,
+      action: 'limit',
+    })
+
+    return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+// Vertical scaling: set resource reservations
+export const setServiceResourceReserveAction = protectedClient
+  .metadata({ actionName: 'setServiceResourceReserveAction' })
+  .schema(setServiceResourceReserveSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, resourceArgs, processType } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+    const serverId = getServerIdFromProject(project)
+    const tenantSlug =
+      typeof userTenant?.tenant?.slug === 'string' ? userTenant.tenant.slug : ''
+
+    const queueResponse = await addResourceAppQueue({
+      sshDetails,
+      appName: name,
+      resourceArgs,
+      processType,
+      serverId,
+      tenantSlug,
+      action: 'reserve',
+    })
+
+    return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+// Fetch current resource status
+export const fetchServiceResourceStatusAction = protectedClient
+  .metadata({ actionName: 'fetchServiceResourceStatusAction' })
+  .schema(fetchServiceResourceStatusSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const { payload } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+
+    let ssh: NodeSSH | null = null
+
+    try {
+      ssh = await dynamicSSH(sshDetails)
+
+      const result = await dokku.resource.report(ssh, name)
+
+      return { success: true, resource: result.parsed }
+    } finally {
+      if (ssh) ssh.dispose()
+    }
+  })
+
+// Clear resource limits
+export const clearServiceResourceLimitAction = protectedClient
+  .metadata({ actionName: 'clearServiceResourceLimitAction' })
+  .schema(clearServiceResourceLimitSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, processType } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+    const serverId = getServerIdFromProject(project)
+    const tenantSlug =
+      typeof userTenant?.tenant?.slug === 'string' ? userTenant.tenant.slug : ''
+
+    const queueResponse = await addResourceAppQueue({
+      sshDetails,
+      appName: name,
+      resourceArgs: [],
+      processType,
+      serverId,
+      tenantSlug,
+      action: 'limitClear',
+    })
+
+    return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+// Clear resource reservations
+export const clearServiceResourceReserveAction = protectedClient
+  .metadata({ actionName: 'clearServiceResourceReserveAction' })
+  .schema(clearServiceResourceReserveSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, processType } = clientInput
+    const { payload, userTenant } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 10,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+    const serverId = getServerIdFromProject(project)
+    const tenantSlug =
+      typeof userTenant?.tenant?.slug === 'string' ? userTenant.tenant.slug : ''
+
+    const queueResponse = await addResourceAppQueue({
+      sshDetails,
+      appName: name,
+      resourceArgs: [],
+      processType,
+      serverId,
+      tenantSlug,
+      action: 'reserveClear',
+    })
+
+    return { success: true, queued: true, jobId: queueResponse.id }
   })
