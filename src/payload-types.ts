@@ -171,6 +171,7 @@ export interface User {
     | {
         tenant: string | Tenant;
         roles: ('tenant-admin' | 'tenant-user')[];
+        role?: (string | null) | Role;
         id?: string | null;
       }[]
     | null;
@@ -198,6 +199,46 @@ export interface Tenant {
   name: string;
   slug: string;
   subdomain: string;
+  deletedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Enter the name of the role.
+   */
+  name: string;
+  /**
+   * Enter description for the role.
+   */
+  description?: string | null;
+  projects: {
+    create: boolean;
+    update: boolean;
+    read: boolean;
+    delete: boolean;
+  };
+  services: {
+    create: boolean;
+    update: boolean;
+    read: boolean;
+    delete: boolean;
+  };
+  Servers: {
+    create: boolean;
+    update: boolean;
+    read: boolean;
+    delete: boolean;
+  };
+  type?: ('engineering' | 'management' | 'marketing' | 'finance' | 'sales') | null;
+  createdUser?: (string | null) | User;
+  tags?: string[] | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -945,39 +986,6 @@ export interface Template {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "roles".
- */
-export interface Role {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  /**
-   * Enter the name of the role.
-   */
-  name: string;
-  projects?: {
-    create?: boolean | null;
-    update?: boolean | null;
-    read?: boolean | null;
-    delete?: boolean | null;
-  };
-  services?: {
-    create?: boolean | null;
-    update?: boolean | null;
-    read?: boolean | null;
-    delete?: boolean | null;
-  };
-  Servers?: {
-    create?: boolean | null;
-    update?: boolean | null;
-    read?: boolean | null;
-    delete?: boolean | null;
-  };
-  deletedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "banners".
  */
 export interface Banner {
@@ -1260,6 +1268,7 @@ export interface UsersSelect<T extends boolean = true> {
     | {
         tenant?: T;
         roles?: T;
+        role?: T;
         id?: T;
       };
   deletedAt?: T;
@@ -1774,6 +1783,7 @@ export interface TraefikSelect<T extends boolean = true> {
 export interface RolesSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
+  description?: T;
   projects?:
     | T
     | {
@@ -1798,6 +1808,9 @@ export interface RolesSelect<T extends boolean = true> {
         read?: T;
         delete?: T;
       };
+  type?: T;
+  createdUser?: T;
+  tags?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
