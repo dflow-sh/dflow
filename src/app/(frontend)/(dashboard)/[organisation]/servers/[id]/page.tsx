@@ -1,7 +1,6 @@
 import {
   AlertCircle,
   Lock,
-  Plus,
   ScreenShareOff,
   Server,
   Settings2,
@@ -14,10 +13,8 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
-import ActionPlaceholder from '@/components/ActionPlaceholder'
 import RefreshButton from '@/components/RefreshButton'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
-import { Kubernetes } from '@/components/icons'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
 import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
 import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
@@ -28,6 +25,7 @@ import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import DpkgLockBanner from '@/components/servers/DpkgLockBanner'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
+import KubernetesTab from '@/components/servers/KubernetesTab'
 import Packages from '@/components/servers/Packages'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
@@ -44,7 +42,6 @@ import {
   PluginsTabSkeleton,
 } from '@/components/skeletons/ServerSkeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
 import { SecurityGroup, SshKey } from '@/payload-types'
@@ -358,19 +355,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
         return <ServerSettingsTab server={server} />
 
       case 'kubernetes':
-        return (
-          <ActionPlaceholder
-            icon={<Kubernetes />}
-            title='Setup your kubernetes'
-            description='Attach your worker nodes and deploy your services using control-plane'
-            action={
-              <Button disabled>
-                <Plus />
-                Attach worker node
-              </Button>
-            }
-          />
-        )
+        return <KubernetesTab />
 
       default:
         return (
