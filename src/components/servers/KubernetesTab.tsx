@@ -14,10 +14,7 @@ const KubernetesTab = () => {
             <h4 className='text-lg font-semibold'>Kubernetes</h4>
           </div>
 
-          <Button disabled>
-            <Plus />
-            Attach worker node
-          </Button>
+          <Button disabled>Make as master node</Button>
         </div>
       </div>
 
@@ -25,7 +22,12 @@ const KubernetesTab = () => {
         icon={<Kubernetes />}
         title='Setup your kubernetes'
         description='Attach your worker nodes and deploy your services using control-plane'
-        action={<Button disabled>Make as master node</Button>}
+        action={
+          <Button disabled>
+            <Plus />
+            Attach worker node
+          </Button>
+        }
       />
     </div>
   )
