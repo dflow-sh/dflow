@@ -230,7 +230,13 @@ export interface Role {
     read: boolean;
     delete: boolean;
   };
-  Servers: {
+  servers: {
+    create: boolean;
+    update: boolean;
+    read: boolean;
+    delete: boolean;
+  };
+  templates: {
     create: boolean;
     update: boolean;
     read: boolean;
@@ -1800,7 +1806,15 @@ export interface RolesSelect<T extends boolean = true> {
         read?: T;
         delete?: T;
       };
-  Servers?:
+  servers?:
+    | T
+    | {
+        create?: T;
+        update?: T;
+        read?: T;
+        delete?: T;
+      };
+  templates?:
     | T
     | {
         create?: T;

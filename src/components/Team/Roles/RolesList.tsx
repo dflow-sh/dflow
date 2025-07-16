@@ -1,4 +1,5 @@
 import { Eye, LockKeyhole, Users } from 'lucide-react'
+import { useState } from 'react'
 
 import {
   Accordion,
@@ -11,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Role, User } from '@/payload-types'
 
+import CreateNewRole from './CreateNewRole'
 import RoleOverview from './RoleOverview'
 import RolePermissions from './RolePermissions'
 import RoleUsers from './RoleUsers'
@@ -32,36 +34,6 @@ export const getBadgeVariant = (type: Role['type']) => {
   }
 }
 
-const RolesList = ({
-  roles,
-  teamMembers,
-  isPending,
-}: {
-  roles: Role[]
-  teamMembers: User[] | undefined
-  isPending: boolean
-}) => {
-  return isPending ? (
-    <div className='mt-8 w-full space-y-4'>
-      <Skeleton className='h-24 w-full' />
-      <Skeleton className='h-24 w-full' />
-      <Skeleton className='h-24 w-full' />
-    </div>
-  ) : (
-    <Accordion
-      type='single'
-      className='mt-8 w-full space-y-4'
-      collapsible
-      defaultValue='item-1'>
-      {roles?.map(role => (
-        <RoleDetails key={role.id} role={role} teamMembers={teamMembers} />
-      ))}
-    </Accordion>
-  )
-}
-
-export default RolesList
-
 const RoleDetails = ({
   role,
   teamMembers,
@@ -77,7 +49,8 @@ const RoleDetails = ({
   return (
     <AccordionItem
       className='rounded-md border border-border px-4'
-      value={role.id}>
+      value={role.id}
+      key={role.id}>
       <AccordionTrigger className='flex w-full cursor-pointer items-center justify-between hover:no-underline'>
         <div className='max-w-[60%]'>
           <h3 className='text-lg font-semibold'> {role?.name} </h3>
@@ -97,7 +70,7 @@ const RoleDetails = ({
       <AccordionContent className='flex flex-col gap-4 text-balance'>
         <Tabs defaultValue='overview'>
           <div
-            className='w-full overflow-x-auto'
+            className='flex w-full gap-x-2 overflow-x-auto'
             style={{ scrollbarWidth: 'none' }}>
             <TabsList className='flex w-full min-w-max justify-around'>
               <TabsTrigger className='flex w-full gap-x-2' value='overview'>
@@ -128,3 +101,37 @@ const RoleDetails = ({
     </AccordionItem>
   )
 }
+
+const RolesList = ({
+  roles,
+  teamMembers,
+  isPending,
+}: {
+  roles: Role[]
+  teamMembers: User[] | undefined
+  isPending: boolean
+}) => {
+  const [openItem, setOpenItem] = useState<string | undefined>(undefined)
+
+  return isPending ? (
+    <div className='mt-8 w-full space-y-4'>
+      <Skeleton className='h-24 w-full' />
+      <Skeleton className='h-24 w-full' />
+      <Skeleton className='h-24 w-full' />
+    </div>
+  ) : (
+    <Accordion
+      type='single'
+      value={openItem}
+      onValueChange={setOpenItem}
+      collapsible
+      className='mt-8 w-full space-y-4'>
+      <CreateNewRole setOpenItem={setOpenItem} />
+      {roles?.map(role => (
+        <RoleDetails key={role.id} role={role} teamMembers={teamMembers} />
+      ))}
+    </Accordion>
+  )
+}
+
+export default RolesList

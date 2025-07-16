@@ -124,7 +124,47 @@ export const Roles: CollectionConfig = {
     {
       type: 'group',
       label: 'Servers',
-      name: 'Servers',
+      name: 'servers',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Templates',
+      name: 'templates',
       fields: [
         {
           type: 'row',

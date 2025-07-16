@@ -33,8 +33,9 @@ const RolePermissions = ({ role }: { role: Role }) => {
     defaultValues: {
       id: role.id,
       projects: role.projects,
-      Servers: role.Servers,
+      servers: role.servers,
       services: role.services,
+      templates: role.templates,
     },
   })
 
@@ -54,8 +55,9 @@ const RolePermissions = ({ role }: { role: Role }) => {
     updateRolePermissions({
       id: role.id,
       projects: data.projects,
-      Servers: data.Servers,
+      servers: data.servers,
       services: data.services,
+      templates: data.templates,
     })
   }
   return (
@@ -155,7 +157,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name='Servers.create'
+                    name='servers.create'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -173,7 +175,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name='Servers.read'
+                    name='servers.read'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -191,7 +193,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name='Servers.update'
+                    name='servers.update'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -209,7 +211,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
                 <TableCell>
                   <FormField
                     control={form.control}
-                    name='Servers.delete'
+                    name='servers.delete'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -287,6 +289,83 @@ const RolePermissions = ({ role }: { role: Role }) => {
                   <FormField
                     control={form.control}
                     name='services.delete'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='text-md font-semibold'>
+                  Templates
+                </TableCell>
+                <TableCell>
+                  <FormField
+                    control={form.control}
+                    name='templates.create'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <FormField
+                    control={form.control}
+                    name='templates.read'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <FormField
+                    control={form.control}
+                    name='templates.update'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <FormField
+                    control={form.control}
+                    name='templates.delete'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
