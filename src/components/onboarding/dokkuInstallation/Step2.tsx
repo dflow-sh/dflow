@@ -1,6 +1,6 @@
 import { CircleCheck, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { installDokkuAction } from '@/actions/server'
@@ -13,7 +13,6 @@ import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step2 = ({ server }: { server: ServerType }) => {
   const [outdatedDokku, setOutdatedDokku] = useState(false)
-  const installationAttemptedRef = useRef<string | null>(null)
   const { setDokkuInstallationStep, dokkuInstallationStep } =
     useDokkuInstallationStep()
 
@@ -26,8 +25,6 @@ const Step2 = ({ server }: { server: ServerType }) => {
       toast.loading('Adding dokku installation to queue', {
         id: input.serverId,
       })
-      // Mark as attempted for this server
-      installationAttemptedRef.current = input.serverId
     },
     onSuccess: ({ data, input }) => {
       if (data?.success) {
@@ -39,18 +36,8 @@ const Step2 = ({ server }: { server: ServerType }) => {
     },
   })
 
-  // Reset attempt tracking when server changes or step resets
   useEffect(() => {
-    if (
-      dokkuInstallationStep !== 2 ||
-      installationAttemptedRef.current !== server?.id
-    ) {
-      installationAttemptedRef.current = null
-    }
-  }, [dokkuInstallationStep, server?.id])
-
-  useEffect(() => {
-    if (dokkuInstallationStep === 2 && server && !isInstallingDokku) {
+    if (dokkuInstallationStep === 2) {
       if (
         server.version &&
         server.version !== 'not-installed' &&
@@ -72,18 +59,12 @@ const Step2 = ({ server }: { server: ServerType }) => {
         server.portIsOpen &&
         server.connection?.status === 'success' &&
         supportedLinuxVersions.includes(server.os.version ?? '') &&
-        installationAttemptedRef.current !== server.id
+        !hasSucceeded
       ) {
         installDokku({ serverId: server.id })
       }
     }
-  }, [
-    server,
-    dokkuInstallationStep,
-    isInstallingDokku,
-    installDokku,
-    setDokkuInstallationStep,
-  ])
+  }, [server, dokkuInstallationStep])
 
   if (outdatedDokku) {
     return (
@@ -107,11 +88,7 @@ const Step2 = ({ server }: { server: ServerType }) => {
     )
   }
 
-  if (dokkuInstallationStep < 2) {
-    return null
-  }
-
-  return (
+  return dokkuInstallationStep >= 2 ? (
     <div className='space-y-2'>
       {(isInstallingDokku || hasSucceeded) &&
         (server?.version === 'not-installed' || !server?.version) && (
@@ -130,7 +107,7 @@ const Step2 = ({ server }: { server: ServerType }) => {
         </div>
       )}
     </div>
-  )
+  ) : null
 }
 
 export default Step2

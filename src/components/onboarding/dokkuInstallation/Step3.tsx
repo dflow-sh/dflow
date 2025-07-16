@@ -2,7 +2,7 @@
 
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import {
   configureLetsencryptPluginAction,
@@ -16,22 +16,17 @@ import { ServerType } from '@/payload-types-overrides'
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step3 = ({ server }: { server: ServerType }) => {
-  const [skipPluginsSync, setSkipPluginsSync] = useState(false)
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
 
   const {
     execute: installPlugin,
     hasSucceeded: triggedInstallingPlugin,
-    isPending: triggeringLetsencryptPlugin,
+    isPending: triggeringInstallingPlugin,
   } = useAction(installPluginAction)
 
-  const {
-    isPending: isSyncingPlugins,
-    hasSucceeded: syncedPlugins,
-    result: syncPluginResult,
-    executeAsync: syncPlugins,
-  } = useAction(syncPluginAction)
+  const { isPending: isSyncingPlugins, executeAsync: syncPlugins } =
+    useAction(syncPluginAction)
 
   const {
     execute: configureLetsencrypt,
@@ -39,7 +34,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
     hasSucceeded: triggeredLetsencryptPluginConfiguration,
   } = useAction(configureLetsencryptPluginAction)
 
-  const plugins = syncPluginResult?.data?.plugins || server?.plugins || []
+  const plugins = server?.plugins || []
   const letsEncryptPluginInstalled = plugins.find(
     plugin => plugin.name === 'letsencrypt',
   )
@@ -50,8 +45,6 @@ const Step3 = ({ server }: { server: ServerType }) => {
     typeof letsEncryptPluginInstalled.configuration === 'object' &&
     !Array.isArray(letsEncryptPluginInstalled.configuration) &&
     letsEncryptPluginInstalled.configuration.email
-
-  const pluginsSynced = (syncedPlugins || skipPluginsSync) && !!plugins.length
 
   const handlePluginsSync = async () => {
     // syncing plugins
@@ -94,36 +87,30 @@ const Step3 = ({ server }: { server: ServerType }) => {
         !triggeringLetsencryptPluginConfiguration &&
         !triggeredLetsencryptPluginConfiguration
       ) {
-        setSkipPluginsSync(true)
-
         configureLetsencrypt({
           serverId: server.id,
           autoGenerateSSL: true,
         })
       }
     }
-  }, [dokkuInstallationStep, server])
+  }, [dokkuInstallationStep, JSON.stringify(server)])
 
-  if (dokkuInstallationStep < 3) {
-    return null
-  }
-
-  return (
+  return dokkuInstallationStep >= 3 ? (
     <div className='space-y-2'>
-      {isSyncingPlugins && !letsEncryptPluginInstalled && (
+      {isSyncingPlugins ? (
         <div className='flex items-center gap-2'>
           <Loader className='h-max w-max' /> Syncing plugins...
         </div>
-      )}
-
-      {pluginsSynced && (
+      ) : !!plugins.length ? (
         <div className='flex items-center gap-2'>
           <CircleCheck size={24} className='text-primary' />
           {`${plugins.length} Synced plugins`}
         </div>
-      )}
+      ) : null}
 
-      {(triggeringLetsencryptPlugin || triggedInstallingPlugin) && (
+      {(triggeringInstallingPlugin ||
+        triggedInstallingPlugin ||
+        letsEncryptPluginInstalled) && (
         <div className='flex items-center gap-2'>
           {letsEncryptPluginInstalled ? (
             <>
@@ -140,7 +127,8 @@ const Step3 = ({ server }: { server: ServerType }) => {
       )}
 
       {(triggeredLetsencryptPluginConfiguration ||
-        triggeredLetsencryptPluginConfiguration) && (
+        triggeredLetsencryptPluginConfiguration ||
+        !!letsEncryptPluginConfigurationEmail) && (
         <div className='flex items-center gap-2'>
           {letsEncryptPluginConfigurationEmail ? (
             <>
@@ -156,7 +144,7 @@ const Step3 = ({ server }: { server: ServerType }) => {
         </div>
       )}
     </div>
-  )
+  ) : null
 }
 
 export default Step3
