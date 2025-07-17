@@ -31,3 +31,7 @@ export const createRoleSchema = z.object({
 })
 
 export type createRoleType = z.infer<typeof createRoleSchema>
+
+export const deleteRoleSchema = z.object({
+  id: z.string(),
+})

@@ -1,11 +1,84 @@
 import { format } from 'date-fns'
-import { CalendarRange, Settings } from 'lucide-react'
+import { CalendarRange, EllipsisVertical, Settings } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
+import { deleteRoleAction } from '@/actions/roles'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Role, User } from '@/payload-types'
 
 import { getBadgeVariant } from './RolesList'
+
+const RoleActions = ({ role }: { role: Role }) => {
+  const [deleteRoleOpen, setDeleteRoleOpen] = useState<boolean>(false)
+  const { execute: deleteRole, isPending: isDeleteRolePending } = useAction(
+    deleteRoleAction,
+    {
+      onSuccess: () => {
+        toast.success('Role deleted successfully')
+        setDeleteRoleOpen(false)
+      },
+      onError: () => {
+        toast.error('Failed to delete role.')
+      },
+    },
+  )
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger className='rounded-md border p-2 hover:bg-muted'>
+          <EllipsisVertical className='size-5 text-muted-foreground' />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeleteRoleOpen(true)}>
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* delete role */}
+      <Dialog open={deleteRoleOpen} onOpenChange={setDeleteRoleOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Role</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this role? This action cannot be
+              undone and may affect user access permissions.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => deleteRole({ id: role.id })}
+              variant={'destructive'}
+              disabled={isDeleteRolePending}
+              isLoading={isDeleteRolePending}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
 
 const RoleOverview = ({
   role,
@@ -17,9 +90,12 @@ const RoleOverview = ({
   return (
     <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
       <div className='space-y-4 rounded-2xl border bg-muted/10 p-4 text-center shadow-md'>
-        <div className='flex gap-x-2'>
-          <Settings className='size-6' />
-          <h3 className='text-xl font-medium'>Basic Information</h3>
+        <div className='flex justify-between'>
+          <div className='flex gap-x-2'>
+            <Settings className='size-6' />
+            <h3 className='text-xl font-medium'>Basic Information</h3>
+          </div>
+          <RoleActions role={role} />
         </div>
         <div className='flex justify-between gap-6'>
           <p className='text-muted-foreground'>Name:</p>

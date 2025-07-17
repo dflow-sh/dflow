@@ -6,6 +6,7 @@ import { protectedClient } from '@/lib/safe-action'
 
 import {
   createRoleSchema,
+  deleteRoleSchema,
   permissionsSchema,
   updatePermissionsSchema,
 } from './validator'
@@ -108,6 +109,29 @@ export const createRoleAction = protectedClient
         type,
         tenant: tenant,
       },
+    })
+
+    if (response) {
+      revalidatePath(`/${tenant.slug}/team`)
+    }
+    return response
+  })
+
+export const deleteRoleAction = protectedClient
+  .metadata({
+    actionName: 'deleteRoleAction',
+  })
+  .schema(deleteRoleSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const {
+      payload,
+      userTenant: { tenant },
+    } = ctx
+    const { id } = clientInput
+
+    const response = await payload.delete({
+      collection: 'roles',
+      id,
     })
 
     if (response) {
