@@ -98,7 +98,7 @@ Setup DNS records with your provider:
   JWT_TOKEN=your-jwt-token
 
   # dFlow app
-  NEXT_PUBLIC_WEBSITE_URL=https://dflow.up.example.com
+  NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
   DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
   PAYLOAD_SECRET=your-secret
 
@@ -123,6 +123,7 @@ Setup DNS records with your provider:
 #### 5. Build the Docker image
 
 ```
+source .env
 docker build \
   --build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
   --build-arg DATABASE_URI=$DATABASE_URI \
@@ -149,7 +150,7 @@ docker build \
    ```
    entryPoints:
      web:
-       address: ":90"
+       address: ":80"
      websecure:
        address: ":443"
 
