@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+export const createGitHubAppSchema = z.object({
+  onboarding: z.boolean().default(false),
+})
+
+export const installGitHubAppSchema = z.object({
+  onboarding: z.boolean().default(false),
+  id: z.string(),
+})
+
 export const deleteGitProviderSchema = z.object({
   id: z.string({ message: 'Git-Provider id is required' }),
 })
