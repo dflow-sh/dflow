@@ -238,9 +238,9 @@ main() {
     # Run setup steps
     install_tailscale
     configure_tailscale "$tailscale_auth_key"
-    install_dokku "$dokku_version"
-    install_dokku_hooks
-    configure_dokku
+    # install_dokku "$dokku_version"
+    # install_dokku_hooks
+    # configure_dokku
     setup_motd
     
     log_info "✅ dFlow bootstrap completed successfully!"
