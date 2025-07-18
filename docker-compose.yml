@@ -17,13 +17,13 @@ services:
   # Dynamic Config Generator
   config-generator:
     image: ghcr.io/akhil-naidu/dflow-traefik:latest
-    ports:
-      - '9999:3000'
+    network_mode: host
     container_name: config-generator
     restart: on-failure
     environment:
       - JWT_TOKEN=${JWT_TOKEN}
       - WILD_CARD_DOMAIN=${WILD_CARD_DOMAIN}
+      - PROXY_PORT=${PROXY_PORT}
     volumes:
       - ./dynamic:/app/output
 
