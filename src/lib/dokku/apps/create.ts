@@ -10,8 +10,6 @@ export const create = async (
     options,
   )
 
-  console.log({ resultAppsCreate })
-
   if (resultAppsCreate.code === 1) {
     throw new Error(resultAppsCreate.stderr)
   }

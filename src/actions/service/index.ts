@@ -6,6 +6,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
+import { checkServerResources } from '@/lib/server/resourceCheck'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
@@ -99,6 +100,24 @@ export const createServiceAction = protectedClient
 
     try {
       ssh = await dynamicSSH(sshDetails)
+
+      // Determine serviceType for resource check
+      let serviceType: 'app' | 'docker' | 'database' = 'app'
+      if (type === 'docker') {
+        serviceType = 'docker'
+      } else if (type === 'database' || databaseType) {
+        serviceType = 'database'
+      }
+
+      // Resource check before proceeding
+      const resourceCheck = await checkServerResources(ssh, { serviceType })
+
+      if (!resourceCheck.capable) {
+        console.log('Unable to create service')
+        throw new Error(
+          `Server is not capable of handling a new service: ${resourceCheck.reason}`,
+        )
+      }
 
       if (totalDocs > 0) {
         const uniqueSuffix = generateRandomString({ length: 4 })
