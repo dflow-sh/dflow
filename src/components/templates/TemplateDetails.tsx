@@ -66,8 +66,8 @@ const TemplateDetails = ({
           setOpenPublish(false)
         }
       },
-      onError: () => {
-        toast.error('Failed to unpublish template')
+      onError: ({ error }) => {
+        toast.error(`Failed to unpublish template ${error.serverError}`)
       },
     })
 
@@ -78,8 +78,10 @@ const TemplateDetails = ({
     onSuccess: () => {
       toast.success('Successfully synced with community template')
     },
-    onError: () => {
-      toast.error('Failed to sync with community template')
+    onError: ({ error }) => {
+      toast.error(
+        `Failed to sync with community template ${error?.serverError}`,
+      )
     },
   })
 

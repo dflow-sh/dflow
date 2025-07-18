@@ -136,8 +136,8 @@ const CreateTemplateFromProject = ({
       setOpen(false)
       form.reset()
     },
-    onError: () => {
-      toast.error('Failed to create template')
+    onError: ({ error }) => {
+      toast.error(`Failed to create template ${error.serverError}`)
     },
   })
 

@@ -92,7 +92,7 @@ const CreateNewTemplate = () => {
         }
       },
       onError: ({ error }) => {
-        toast.error(`Failed to create template`)
+        toast.error(`Failed to create template ${error.serverError}`)
       },
     })
 
@@ -107,7 +107,7 @@ const CreateNewTemplate = () => {
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to update template`)
+      toast.error(`Failed to update template ${error?.serverError}`)
     },
   })
 
