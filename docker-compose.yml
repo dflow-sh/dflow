@@ -17,9 +17,10 @@ services:
   # Dynamic Config Generator
   config-generator:
     image: ghcr.io/akhil-naidu/dflow-traefik:latest
+    ports:
+      - '9999:3000'
     container_name: config-generator
     restart: on-failure
-    network_mode: host
     environment:
       - JWT_TOKEN=${JWT_TOKEN}
       - WILD_CARD_DOMAIN=${WILD_CARD_DOMAIN}
@@ -48,8 +49,6 @@ services:
   # Payload CMS App (from your custom Dockerfile)
   payload-app:
     image: dflow
-    ports:
-      - '9999:3000'
     cap_add:
       - NET_ADMIN
     devices:
@@ -66,6 +65,7 @@ services:
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       TAILSCALE_AUTH_KEY: ${TAILSCALE_AUTH_KEY}
       TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
+      TAILSCALE_TAILNET: ${TAILSCALE_TAILNET}
       NEXT_PUBLIC_PROXY_DOMAIN_URL: ${NEXT_PUBLIC_PROXY_DOMAIN_URL}
       NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN: ${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}
       NEXT_PUBLIC_BETTER_STACK_INGESTING_URL: ${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}
@@ -74,6 +74,7 @@ services:
       RESEND_SENDER_NAME: ${RESEND_SENDER_NAME}
       NEXT_PUBLIC_PROXY_CNAME: ${NEXT_PUBLIC_PROXY_CNAME}
       NEXT_PUBLIC_DISCORD_INVITE_URL: ${NEXT_PUBLIC_DISCORD_INVITE_URL}
+    network_mode: host
     volumes:
       - ./scripts:/app/scripts
 
