@@ -10,6 +10,7 @@ import { z } from 'zod'
 import {
   connectDockerRegistryAction,
   testDockerRegistryConnectionAction,
+  updateDockerRegistryAction,
 } from '@/actions/dockerRegistry'
 import { connectDockerRegistrySchema } from '@/actions/dockerRegistry/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -85,6 +86,38 @@ const DockerRegistryForm = ({
 
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
     connectDockerRegistryAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.id) {
+          refetch()
+          dialogFooterRef.current?.click()
+        }
+      },
+      onError: ({ error }) => {
+        if (error?.serverError) {
+          setValidationError(error.serverError)
+        }
+
+        if (error?.validationErrors) {
+          Object.entries(error.validationErrors).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                form.setError(
+                  field as keyof z.infer<typeof connectDockerRegistrySchema>,
+                  {
+                    message: messages[0],
+                  },
+                )
+              }
+            },
+          )
+        }
+      },
+    },
+  )
+
+  const { execute: updateAccount, isPending: updatingAccount } = useAction(
+    updateDockerRegistryAction,
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
@@ -211,7 +244,14 @@ const DockerRegistryForm = ({
       return
     }
 
-    connectAccount({ ...values, id: account?.id })
+    if (account) {
+      updateAccount({
+        id: account.id,
+        ...values,
+      })
+    } else {
+      connectAccount({ ...values })
+    }
   }
 
   const canSave = hasTestedConnection && connectionStatus?.isConnected
@@ -516,8 +556,8 @@ const DockerRegistryForm = ({
               <Button
                 ref={dialogFooterRef}
                 type='submit'
-                disabled={connectingAccount || !canSave}>
-                {connectingAccount ? (
+                disabled={connectingAccount || updatingAccount || !canSave}>
+                {updatingAccount || connectingAccount ? (
                   'Saving...'
                 ) : !hasTestedConnection ? (
                   'Test Connection First'

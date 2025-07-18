@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { toast } from 'sonner'
 
 import { deleteDockerRegistryAction } from '@/actions/dockerRegistry'
 import { Button } from '@/components/ui/button'
@@ -39,6 +40,9 @@ const DockerRegistryCard = ({
         if (data?.id) {
           refetch()
         }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to delete docker registry ${error?.serverError}`)
       },
     },
   )
