@@ -202,6 +202,326 @@ export const Roles: CollectionConfig = {
       ],
     },
     {
+      type: 'group',
+      label: 'SshKeys',
+      name: 'sshKeys',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Roles',
+      name: 'roles',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Backups',
+      name: 'backups',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'SecurityGroups',
+      name: 'securityGroups',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'CloudProviderAccounts',
+      name: 'cloudProviderAccounts',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'DockerRegistries',
+      name: 'dockerRegistries',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'GitProviders',
+      name: 'gitProviders',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'group',
+      label: 'Team',
+      name: 'team',
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              label: 'Create',
+              type: 'checkbox',
+              name: 'create',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Update',
+              type: 'checkbox',
+              name: 'update',
+              defaultValue: false,
+              required: true,
+            },
+            {
+              label: 'Read',
+              type: 'checkbox',
+              name: 'read',
+              defaultValue: true,
+              required: true,
+            },
+            {
+              label: 'Delete',
+              type: 'checkbox',
+              name: 'delete',
+              defaultValue: false,
+              required: true,
+            },
+          ],
+        },
+      ],
+    },
+    {
       type: 'select',
       name: 'type',
       options: [
