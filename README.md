@@ -96,6 +96,7 @@ Setup DNS records with your provider:
   # config-generator
   WILD_CARD_DOMAIN=up.example.com
   JWT_TOKEN=your-jwt-token
+  PROXY_PORT=9999
 
   # dFlow app
   NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
