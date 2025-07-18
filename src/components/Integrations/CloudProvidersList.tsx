@@ -5,6 +5,7 @@ import { Card, CardContent } from '../ui/card'
 import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { toast } from 'sonner'
 
 import { deleteAWSAccountAction } from '@/actions/cloud/aws'
 import { CloudProviderAccount } from '@/payload-types'
@@ -47,6 +48,9 @@ const CloudProviderCard = ({
         if (data?.id) {
           refetch?.({ type: 'aws' })
         }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to delete account ${error?.serverError}`)
       },
     },
   )
