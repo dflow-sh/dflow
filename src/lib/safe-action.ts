@@ -6,9 +6,10 @@ import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { log } from '@/lib/logger'
-import { Tenant } from '@/payload-types'
+import { Role, Tenant } from '@/payload-types'
 
 import { getTenant } from './get-tenant'
+import { assertRolePermission } from './permissions/utils'
 
 type UserTenant = {
   tenant: Tenant
@@ -97,6 +98,10 @@ export const protectedClient = publicClient.use(
     if (!Boolean(matchedTenantEntry)) {
       forbidden()
     }
+
+    const role = matchedTenantEntry?.role
+
+    assertRolePermission(role as Role, metadata.actionName as any)
 
     return next({
       ctx: {
