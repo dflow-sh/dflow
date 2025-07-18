@@ -4,7 +4,7 @@ import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient, publicClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
 import { VpsPlan } from './types'
@@ -14,51 +14,66 @@ import {
   connectDFlowAccountSchema,
   createVPSOrderActionSchema,
   deleteDFlowAccountSchema,
+  updateDFlowAccountSchema,
 } from './validator'
 
 export const connectDFlowAccountAction = protectedClient
   .metadata({
-    actionName: 'connectAWSAccountAction',
+    actionName: 'connectDFlowAccountAction',
   })
   .schema(connectDFlowAccountSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { accessToken, name, id } = clientInput
+    const { accessToken, name } = clientInput
 
     const { userTenant, payload } = ctx
     let response: CloudProviderAccount
 
-    if (id) {
-      response = await payload.update({
-        collection: 'cloudProviderAccounts',
-        id,
-        data: {
-          type: 'dFlow',
-          dFlowDetails: {
-            accessToken,
-          },
-          name,
+    response = await payload.create({
+      collection: 'cloudProviderAccounts',
+      data: {
+        type: 'dFlow',
+        dFlowDetails: {
+          accessToken,
         },
-      })
-    } else {
-      response = await payload.create({
-        collection: 'cloudProviderAccounts',
-        data: {
-          type: 'dFlow',
-          dFlowDetails: {
-            accessToken,
-          },
-          tenant: userTenant.tenant,
-          name,
-        },
-      })
-    }
+        tenant: userTenant.tenant,
+        name,
+      },
+    })
 
     revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
     console.log(response)
     return response
   })
 
-export const getDFlowPlansAction = protectedClient
+export const updateDFlowAccountAction = protectedClient
+  .metadata({
+    actionName: 'updateDFlowAccountAction',
+  })
+  .schema(updateDFlowAccountSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id, accessToken, name } = clientInput
+
+    const { userTenant, payload } = ctx
+    let response: CloudProviderAccount
+
+    response = await payload.update({
+      collection: 'cloudProviderAccounts',
+      id,
+      data: {
+        type: 'dFlow',
+        dFlowDetails: {
+          accessToken,
+        },
+        name,
+      },
+    })
+
+    revalidatePath(`${userTenant.tenant.slug}/servers/add-new-server`)
+    console.log(response)
+    return response
+  })
+
+export const getDFlowPlansAction = publicClient
   .metadata({
     actionName: 'getDFlowPlansAction',
   })
@@ -349,7 +364,7 @@ export const checkAccountConnection = protectedClient
 
 export const deleteDFlowAccountAction = protectedClient
   .metadata({
-    actionName: 'deleteDFlowAccountSchema',
+    actionName: 'deleteDFlowAccountAction',
   })
   .schema(deleteDFlowAccountSchema)
   .action(async ({ clientInput, ctx }) => {

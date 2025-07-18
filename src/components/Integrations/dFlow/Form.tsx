@@ -10,6 +10,7 @@ import { z } from 'zod'
 import {
   checkAccountConnection,
   connectDFlowAccountAction,
+  updateDFlowAccountAction,
 } from '@/actions/cloud/dFlow'
 import { connectDFlowAccountSchema } from '@/actions/cloud/dFlow/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -66,6 +67,38 @@ const DFlowForm = ({
 
   const { execute: connectAccount, isPending: connectingAccount } = useAction(
     connectDFlowAccountAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.id) {
+          refetch?.({ type: 'dFlow' })
+          dialogFooterRef.current?.click()
+        }
+      },
+      onError: ({ error }) => {
+        if (error?.serverError) {
+          setValidationError(error.serverError)
+        }
+
+        if (error?.validationErrors) {
+          Object.entries(error.validationErrors).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                form.setError(
+                  field as keyof z.infer<typeof connectDFlowAccountSchema>,
+                  {
+                    message: messages[0],
+                  },
+                )
+              }
+            },
+          )
+        }
+      },
+    },
+  )
+
+  const { execute: updateDFlowAccount, isPending: updatingAccount } = useAction(
+    updateDFlowAccountAction,
     {
       onSuccess: ({ data }) => {
         if (data?.id) {
@@ -160,7 +193,16 @@ const DFlowForm = ({
       return
     }
 
-    connectAccount({ ...values, id: account?.id })
+    if (account) {
+      updateDFlowAccount({
+        id: account.id,
+        ...values,
+      })
+    } else {
+      connectAccount({
+        ...values,
+      })
+    }
   }
 
   const canSave = hasTestedConnection && connectionStatus?.isConnected
@@ -349,8 +391,8 @@ const DFlowForm = ({
               <Button
                 type='submit'
                 isLoading={connectingAccount}
-                disabled={connectingAccount || !canSave}>
-                {connectingAccount ? (
+                disabled={updatingAccount || connectingAccount || !canSave}>
+                {updatingAccount || connectingAccount ? (
                   'Saving...'
                 ) : !hasTestedConnection ? (
                   'Test Connection First'
