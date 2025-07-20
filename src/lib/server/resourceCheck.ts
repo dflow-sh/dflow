@@ -1,3 +1,5 @@
+'use server'
+
 import { NodeSSH } from 'node-ssh'
 
 export interface ResourceStatus {
@@ -140,6 +142,8 @@ export const checkServerResources = async (
       reason: `Server at container capacity. Current: ${currentContainers}, Max estimated: ${maxAllowedContainers} (based on ${totalMemory}MB total memory)`,
     }
   }
+
+  console.log({ status })
 
   return { capable: true, status }
 }

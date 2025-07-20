@@ -24,6 +24,7 @@ import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regener
 import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
+  checkServerResourcesSchema,
   clearServiceResourceLimitSchema,
   clearServiceResourceReserveSchema,
   createServiceSchema,
@@ -1055,4 +1056,26 @@ export const clearServiceResourceReserveAction = protectedClient
     })
 
     return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+export const checkServerResourcesAction = protectedClient
+  .metadata({ actionName: 'checkServerResourcesAction' })
+  .schema(checkServerResourcesSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { payload } = ctx
+    const { serverId, serviceType } = clientInput
+
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+    })
+
+    const sshDetails = extractSSHDetails({ server })
+    const ssh = await dynamicSSH(sshDetails)
+
+    const result = await checkServerResources(ssh, { serviceType })
+
+    ssh.dispose()
+
+    return result
   })

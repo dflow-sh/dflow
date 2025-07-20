@@ -179,3 +179,8 @@ export const clearServiceResourceReserveSchema = z.object({
   id: z.string(),
   processType: z.string().optional(),
 })
+
+export const checkServerResourcesSchema = z.object({
+  serverId: z.string(),
+  serviceType: z.enum(['app', 'docker', 'database']).optional(),
+})
