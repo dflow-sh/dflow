@@ -127,7 +127,7 @@ const TemplateCard = ({
   serverName: string
   organisationName: string
 }) => {
-  const { id, name, services = [], description } = template
+  const { id, name, services = [], description, imageUrl } = template
 
   const card = (
     <div
@@ -144,11 +144,25 @@ const TemplateCard = ({
       )}
 
       <div className='space-y-3'>
-        <div>
-          <h4 className='text-sm font-semibold'>{name}</h4>
-          {description && (
-            <p className='mt-1 text-xs text-muted-foreground'>{description}</p>
-          )}
+        <div className='flex items-center gap-3'>
+          {/* Template Image */}
+          <div className='flex-shrink-0'>
+            <img
+              src={imageUrl || '/images/favicon.ico'}
+              alt={`${name} template`}
+              className='size-10 rounded-md object-cover'
+            />
+          </div>
+
+          {/* Title and Description */}
+          <div className='min-w-0 flex-1'>
+            <h4 className='text-sm font-semibold'>{name}</h4>
+            {description && (
+              <p className='mt-1 line-clamp-2 text-xs text-muted-foreground'>
+                {description}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className='flex flex-wrap gap-1'>
@@ -203,7 +217,6 @@ const TemplateCard = ({
 
   return card
 }
-
 const TemplateDeploymentForm = ({
   execute,
   isPending,
