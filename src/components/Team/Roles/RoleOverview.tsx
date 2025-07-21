@@ -35,8 +35,8 @@ const RoleActions = ({ role }: { role: Role }) => {
         toast.success('Role deleted successfully')
         setDeleteRoleOpen(false)
       },
-      onError: () => {
-        toast.error('Failed to delete role.')
+      onError: ({ error }) => {
+        toast.error(`Failed to delete role ${error?.serverError}`)
       },
     },
   )

@@ -1,7 +1,37 @@
 export const getActionAccess = {
-  createProjectAction: ['projects.create'],
-  readServerAction: ['Servers.read'],
-  updateServiceAction: ['services.update'],
+  // Servers actions
+  createServerAction: ['servers.create'],
+  createTailscaleServerAction: ['servers.create'],
+  updateTailscaleServerAction: ['servers.update'],
+  updateServerAction: ['servers.update'],
+  deleteServerAction: ['servers.delete'],
+  installDokkuAction: ['servers.read'],
+  updateServerDomainAction: ['servers.update'],
+  installRailpackAction: ['servers.update'],
+  updateRailpackAction: ['servers.update'],
+  completeServerOnboardingAction: ['servers.read'],
+  getServersAction: ['servers.read'],
+  checkDNSConfigAction: ['servers.read'],
+  syncServerDomainAction: ['servers.read', 'servers.update'],
+  checkServerConnection: ['servers.read'],
+  configureGlobalBuildDirAction: ['servers.update'],
+  resetOnboardingAction: ['servers.update'],
+  getServersDetails: ['servers.read'],
+  getAddServerDetails: ['sshKeys.read', 'securityGroups.read'],
+  getServerBreadcrumbs: ['servers.read'],
+  getServerProjects: ['projects.read'],
+  getServerGeneralTabDetails: [
+    'sshKeys.read',
+    'projects.read',
+    'securityGroups.read',
+  ],
+
+  // Plugin actions
+  installPluginAction: ['servers.update'],
+  syncPluginAction: ['servers.update'],
+  togglePluginStatusAction: ['servers.update'],
+  deletePluginAction: ['servers.update'],
+  configureLetsencryptPluginAction: ['servers.update'],
 
   // Templates actions
   getTemplates: ['templates.read'],
@@ -88,6 +118,17 @@ export const getActionAccess = {
   syncSecurityGroupAction: ['securityGroups.update'],
   getSecurityGroupsAction: ['securityGroups.read'],
 
+  // Projects actions
+  createProjectAction: ['projects.create'],
+  updateProjectAction: ['projects.update'],
+  deleteProjectAction: ['projects.delete', 'services.delete'],
+  getProjectDatabasesAction: ['services.read'],
+  getProjectBreadcrumbs: ['projects.read'],
+
+  // Services actions
+  getServiceDetails: ['services.read'],
+  getServiceDeploymentsBackups: ['services.read', 'backups.read'],
+
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],
   getProjectsAndServers: ['servers.read', 'projects.read'],
@@ -97,6 +138,10 @@ export const getActionAccess = {
     'servers.read',
     'cloudProviderAccounts.read',
   ],
+
+  // tailscale Actions
+  getOAuthClientSecretAction: ['servers.create'],
+  generateOAuthClientSecretAction: ['servers.create'],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

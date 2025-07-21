@@ -84,7 +84,7 @@ const TailscaleForm = () => {
     onError: ({ error }) => {
       console.error('Error fetching Tailscale OAuth client secret:', error)
       toast.error(
-        'Failed to fetch Tailscale OAuth client secret. Please try again.',
+        `Failed to fetch Tailscale OAuth client secret ${error.serverError}`,
       )
     },
   })

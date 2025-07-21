@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 
 import updateRailpack from '@/lib/axios/updateRailpack'
 import { dokku } from '@/lib/dokku'
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient, userClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
@@ -839,7 +839,7 @@ export const checkServerConnection = protectedClient
     }
   })
 
-export const generateTailscaleHostname = protectedClient
+export const generateTailscaleHostname = userClient
   .metadata({
     actionName: 'generateTailscaleHostname',
   })
