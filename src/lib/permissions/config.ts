@@ -142,6 +142,12 @@ export const getActionAccess = {
   // tailscale Actions
   getOAuthClientSecretAction: ['servers.create'],
   generateOAuthClientSecretAction: ['servers.create'],
+
+  //  Backup actions
+  getAllBackups: ['backups.read'],
+  internalBackupAction: ['backups.create', 'services.read'],
+  internalRestoreAction: ['services.update', 'services.read'],
+  internalDbDeleteAction: ['backups.delete'],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
