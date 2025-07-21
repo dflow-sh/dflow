@@ -48,7 +48,21 @@ export const updateRolePermissionsAction = protectedClient
       payload,
     } = ctx
 
-    const { id, servers, templates, projects, services } = clientInput
+    const {
+      id,
+      servers,
+      templates,
+      projects,
+      services,
+      backups,
+      cloudProviderAccounts,
+      dockerRegistries,
+      gitProviders,
+      roles,
+      securityGroups,
+      sshKeys,
+      team,
+    } = clientInput
 
     const response = await payload.update({
       collection: 'roles',
@@ -58,6 +72,14 @@ export const updateRolePermissionsAction = protectedClient
         servers,
         projects,
         templates,
+        backups,
+        cloudProviderAccounts,
+        roles,
+        securityGroups,
+        gitProviders,
+        dockerRegistries,
+        sshKeys,
+        team,
       },
     })
 
@@ -85,25 +107,41 @@ export const createRoleAction = protectedClient
       services,
       servers,
       templates,
+      roles,
+      backups,
+      securityGroups,
+      gitProviders,
+      cloudProviderAccounts,
+      dockerRegistries,
+      sshKeys,
+      team,
       description,
       tags,
       type,
     } = clientInput
 
-    const parsedProjects = permissionsSchema.parse(projects)
-    const parsedServices = permissionsSchema.parse(services)
-    const parsedServers = permissionsSchema.parse(servers)
-    const parsedTemplates = permissionsSchema.parse(templates)
+    // const parsedProjects = permissionsSchema.parse(projects)
+    // const parsedServices = permissionsSchema.parse(services)
+    // const parsedServers = permissionsSchema.parse(servers)
+    // const parsedTemplates = permissionsSchema.parse(templates)
 
     const response = await payload.create({
       collection: 'roles',
       data: {
         name,
         description,
-        projects: parsedProjects,
-        servers: parsedServers,
-        services: parsedServices,
-        templates: parsedTemplates,
+        projects: permissionsSchema.parse(projects),
+        servers: permissionsSchema.parse(services),
+        services: permissionsSchema.parse(servers),
+        templates: permissionsSchema.parse(templates),
+        roles: permissionsSchema.parse(roles),
+        backups: permissionsSchema.parse(backups),
+        gitProviders: permissionsSchema.parse(gitProviders),
+        cloudProviderAccounts: permissionsSchema.parse(cloudProviderAccounts),
+        dockerRegistries: permissionsSchema.parse(dockerRegistries),
+        securityGroups: permissionsSchema.parse(securityGroups),
+        sshKeys: permissionsSchema.parse(sshKeys),
+        team: permissionsSchema.parse(team),
         tags,
         createdUser: user?.id,
         type,

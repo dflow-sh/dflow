@@ -13,17 +13,33 @@ export const updatePermissionsSchema = z.object({
   services: permissionsSchema,
   servers: permissionsSchema,
   templates: permissionsSchema,
+  roles: permissionsSchema,
+  backups: permissionsSchema,
+  securityGroups: permissionsSchema,
+  sshKeys: permissionsSchema,
+  cloudProviderAccounts: permissionsSchema,
+  dockerRegistries: permissionsSchema,
+  gitProviders: permissionsSchema,
+  team: permissionsSchema,
 })
 
 export type updatePermissionsType = z.infer<typeof updatePermissionsSchema>
 
 export const createRoleSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.string().nullable().optional(),
+  description: z.string().min(1, 'Description is required'),
   projects: permissionsSchema,
   services: permissionsSchema,
   servers: permissionsSchema,
   templates: permissionsSchema,
+  roles: permissionsSchema,
+  backups: permissionsSchema,
+  securityGroups: permissionsSchema,
+  sshKeys: permissionsSchema,
+  cloudProviderAccounts: permissionsSchema,
+  dockerRegistries: permissionsSchema,
+  gitProviders: permissionsSchema,
+  team: permissionsSchema,
   type: z
     .enum(['engineering', 'management', 'marketing', 'finance', 'sales'])
     .default('engineering'),

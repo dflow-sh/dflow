@@ -9,9 +9,8 @@ import {
   Settings,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createRoleAction } from '@/actions/roles'
@@ -65,8 +64,6 @@ const CreateNewRole = ({
   const [createStep, setCreateStep] = useState(1)
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
 
-  const router = useRouter()
-
   const [tags, setTags] = useState<Tag[]>([
     {
       id: '1',
@@ -81,22 +78,96 @@ const CreateNewRole = ({
       description: '',
       type: 'engineering',
       tags: ['Custom'],
+      projects: {
+        create: true,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      services: {
+        create: true,
+        read: true,
+        delete: false,
+        update: true,
+      },
+      servers: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      roles: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      templates: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      backups: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      cloudProviderAccounts: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      dockerRegistries: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      gitProviders: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      sshKeys: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      securityGroups: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
+      team: {
+        create: false,
+        read: true,
+        delete: false,
+        update: false,
+      },
     },
   })
-  const { control, setValue, formState } = form
+
+  const { control, setValue } = form
+
+  const { name, description, type } = useWatch({ control: control })
 
   const { execute: createRole, isPending: isRoleCreatePending } = useAction(
     createRoleAction,
     {
       onSuccess: () => {
-        router.refresh()
         toast.success('Role created Successfully')
         form.reset()
         setCreateStep(1)
         setOpenItem('')
       },
-      onError: () => {
-        toast.error('Failed to create role')
+      onError: ({ error }) => {
+        toast.error(`Failed to create role ${error.serverError}`)
       },
     },
   )
@@ -176,7 +247,10 @@ const CreateNewRole = ({
                           control={control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Role Name</FormLabel>
+                              <FormLabel>
+                                Role Name{' '}
+                                <span className='text-destructive'>*</span>
+                              </FormLabel>
                               <FormControl>
                                 <Input placeholder='Admin' {...field} />
                               </FormControl>
@@ -190,7 +264,10 @@ const CreateNewRole = ({
                           control={control}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Department</FormLabel>
+                              <FormLabel>
+                                Department{' '}
+                                <span className='text-destructive'>*</span>
+                              </FormLabel>
                               <FormControl>
                                 <Select
                                   onValueChange={field.onChange}
@@ -257,9 +334,13 @@ const CreateNewRole = ({
                         control={control}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Role Description</FormLabel>
+                            <FormLabel>
+                              Role Description{' '}
+                              <span className='text-destructive'>*</span>
+                            </FormLabel>
                             <FormControl>
                               <Textarea
+                                {...field}
                                 placeholder='Complete access to applications'
                                 onChange={field.onChange}
                               />
@@ -606,6 +687,622 @@ const CreateNewRole = ({
                               />
                             </TableCell>
                           </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Roles
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='roles.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='roles.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='roles.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='roles.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Backups
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='backups.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='backups.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='backups.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='backups.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Security Groups
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='securityGroups.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='securityGroups.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='securityGroups.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='securityGroups.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              SSH Keys
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='sshKeys.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='sshKeys.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='sshKeys.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='sshKeys.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Cloud Provider Accounts
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='cloudProviderAccounts.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='cloudProviderAccounts.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='cloudProviderAccounts.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='cloudProviderAccounts.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Docker Registries
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='dockerRegistries.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='dockerRegistries.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='dockerRegistries.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='dockerRegistries.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Git Providers
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='gitProviders.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='gitProviders.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='gitProviders.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='gitProviders.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell className='text-md font-semibold'>
+                              Team
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='team.create'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='team.read'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='team.update'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name='team.delete'
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value}
+                                        onCheckedChange={field.onChange}
+                                        ref={field.ref}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </TableCell>
+                          </TableRow>
                         </TableBody>
                       </Table>
                     </div>
@@ -642,9 +1339,9 @@ const CreateNewRole = ({
                     <Button
                       type='button'
                       onClick={() => {
-                        // e.stopPropagation()
                         setCreateStep(createStep + 1)
                       }}
+                      disabled={!name || !description || !type}
                       className='gap-2'>
                       Next Step
                       <ChevronDown className='h-4 w-4 -rotate-90' />

@@ -1,3 +1,5 @@
+'use client'
+
 import { Eye, LockKeyhole, Users } from 'lucide-react'
 import { useState } from 'react'
 
@@ -8,7 +10,6 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Role, User } from '@/payload-types'
 
@@ -105,21 +106,13 @@ const RoleDetails = ({
 const RolesList = ({
   roles,
   teamMembers,
-  isPending,
 }: {
   roles: Role[]
   teamMembers: User[] | undefined
-  isPending: boolean
 }) => {
   const [openItem, setOpenItem] = useState<string | undefined>(undefined)
 
-  return isPending ? (
-    <div className='mt-8 w-full space-y-4'>
-      <Skeleton className='h-24 w-full' />
-      <Skeleton className='h-24 w-full' />
-      <Skeleton className='h-24 w-full' />
-    </div>
-  ) : (
+  return (
     <Accordion
       type='single'
       value={openItem}
