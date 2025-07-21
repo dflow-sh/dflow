@@ -4,7 +4,7 @@ import { protectedClient } from '@/lib/safe-action'
 
 export const getSecurityDetails = protectedClient
   .metadata({
-    actionName: 'getProjectDetails',
+    actionName: 'getSecurityDetails',
   })
   .action(async ({ ctx }) => {
     const {

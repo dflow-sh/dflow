@@ -75,6 +75,21 @@ export const getActionAccess = {
   connectDockerRegistryAction: ['dockerRegistries.create'],
   updateDockerRegistryAction: ['dockerRegistries.update'],
   deleteDockerRegistryAction: ['dockerRegistries.delete'],
+
+  // sshKeys actions
+  createSSHKeyAction: ['sshKeys.create'],
+  updateSSHKeyAction: ['sshKeys.update'],
+  deleteSSHKeyAction: ['sshKeys.delete'],
+
+  // combined read access
+  getProjectDetails: ['projects.read', 'services.read'],
+  getProjectsAndServers: ['servers.read', 'projects.read'],
+  getSecurityDetails: [
+    'sshKeys.read',
+    'securityGroups.read',
+    'servers.read',
+    'cloudProviderAccounts.read',
+  ],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
