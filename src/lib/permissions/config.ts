@@ -81,6 +81,13 @@ export const getActionAccess = {
   updateSSHKeyAction: ['sshKeys.update'],
   deleteSSHKeyAction: ['sshKeys.delete'],
 
+  // SecurityGroup actions
+  createSecurityGroupAction: ['securityGroups.create'],
+  updateSecurityGroupAction: ['securityGroups.update'],
+  deleteSecurityGroupAction: ['securityGroups.delete'],
+  syncSecurityGroupAction: ['securityGroups.update'],
+  getSecurityGroupsAction: ['securityGroups.read'],
+
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],
   getProjectsAndServers: ['servers.read', 'projects.read'],
