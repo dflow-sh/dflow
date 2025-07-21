@@ -82,6 +82,39 @@ export const Servers: CollectionConfig = {
       },
     },
     {
+      name: 'defaultResourceLimits',
+      type: 'group',
+      label: 'Default Resource Limits',
+      admin: {
+        description:
+          'Default CPU and Memory limits to apply to new services created on this server. These can be overridden per service after creation.',
+      },
+      fields: [
+        {
+          name: 'cpu',
+          type: 'text',
+          label: 'Default CPU Limit',
+          defaultValue: '500m',
+          admin: {
+            placeholder: 'e.g. 500m, 1, 2',
+            description:
+              'Set the default CPU limit for new services (e.g., 500m, 1, 2).',
+          },
+        },
+        {
+          name: 'memory',
+          type: 'text',
+          label: 'Default Memory Limit',
+          defaultValue: '512M',
+          admin: {
+            placeholder: 'e.g. 512M, 1G',
+            description:
+              'Set the default memory limit for new services (e.g., 512M, 1G).',
+          },
+        },
+      ],
+    },
+    {
       name: 'preferConnectionType',
       type: 'select',
       label: 'Preferred Connection Type',

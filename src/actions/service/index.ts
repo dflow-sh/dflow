@@ -146,6 +146,30 @@ export const createServiceAction = protectedClient
             user,
           })
 
+          // Apply default resource limits if configured on the server
+          if (
+            server &&
+            typeof server === 'object' &&
+            'defaultResourceLimits' in server &&
+            server.defaultResourceLimits &&
+            (server.defaultResourceLimits.cpu ||
+              server.defaultResourceLimits.memory)
+          ) {
+            const resourceArgs = []
+            if (server.defaultResourceLimits.cpu)
+              resourceArgs.push(`--cpu ${server.defaultResourceLimits.cpu}`)
+            if (server.defaultResourceLimits.memory)
+              resourceArgs.push(
+                `--memory ${server.defaultResourceLimits.memory}`,
+              )
+            try {
+              await dokku.resource.limit(ssh, serviceName, resourceArgs)
+            } catch (e) {
+              console.error('Failed to apply default resource limits:', e)
+              // Do not throw, allow service creation to succeed
+            }
+          }
+
           if (response?.id) {
             revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
             return {

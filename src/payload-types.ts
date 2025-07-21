@@ -245,6 +245,19 @@ export interface Server {
    */
   description?: string | null;
   /**
+   * Default CPU and Memory limits to apply to new services created on this server. These can be overridden per service after creation.
+   */
+  defaultResourceLimits?: {
+    /**
+     * Set the default CPU limit for new services (e.g., 500m, 1, 2).
+     */
+    cpu?: string | null;
+    /**
+     * Set the default memory limit for new services (e.g., 512M, 1G).
+     */
+    memory?: string | null;
+  };
+  /**
    * Select the preferred connection method for this server.
    */
   preferConnectionType: 'ssh' | 'tailscale';
@@ -1383,6 +1396,12 @@ export interface ServersSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
   description?: T;
+  defaultResourceLimits?:
+    | T
+    | {
+        cpu?: T;
+        memory?: T;
+      };
   preferConnectionType?: T;
   sshKey?: T;
   ip?: T;

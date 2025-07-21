@@ -544,6 +544,66 @@ const CreateService = ({
                 )}
               />
 
+              {/* Default Resource Limits (only for app/docker) */}
+              {(type === 'app' || type === 'docker') && (
+                <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                  <FormField
+                    control={form.control}
+                    name='cpuLimit'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CPU Limit</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder={
+                              server.defaultResourceLimits?.cpu ||
+                              'e.g. 500m, 1, 2'
+                            }
+                            defaultValue={
+                              server.defaultResourceLimits?.cpu || ''
+                            }
+                          />
+                        </FormControl>
+                        <p className='text-xs text-muted-foreground'>
+                          Default:{' '}
+                          {server.defaultResourceLimits?.cpu || 'Not set'} (from
+                          server settings)
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name='memoryLimit'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Memory Limit</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder={
+                              server.defaultResourceLimits?.memory ||
+                              'e.g. 512M, 1G'
+                            }
+                            defaultValue={
+                              server.defaultResourceLimits?.memory || ''
+                            }
+                          />
+                        </FormControl>
+                        <p className='text-xs text-muted-foreground'>
+                          Default:{' '}
+                          {server.defaultResourceLimits?.memory || 'Not set'}{' '}
+                          (from server settings)
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+
               <DialogFooter>
                 <Button
                   type='submit'

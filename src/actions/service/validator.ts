@@ -12,6 +12,8 @@ export const createServiceSchema = z
       .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
       .optional(),
     projectId: z.string(),
+    cpuLimit: z.string().optional(),
+    memoryLimit: z.string().optional(),
   })
   .refine(data => data.type !== 'database' || !!data.databaseType, {
     message: 'Please select a database type',
