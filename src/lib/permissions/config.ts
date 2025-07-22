@@ -43,7 +43,7 @@ export const getActionAccess = {
   publishTemplateAction: ['templates.update'],
   unPublishTemplateAction: ['templates.update'],
   syncWithPublicTemplateAction: ['templates.update'],
-  templateDeployAction: ['projects.create', 'service.create'],
+  templateDeployAction: ['projects.create', 'services.create'],
 
   // roles actions
   getRolesAction: ['roles.read'],
@@ -129,6 +129,16 @@ export const getActionAccess = {
   // Services actions
   getServiceDetails: ['services.read'],
   getServiceDeploymentsBackups: ['services.read', 'backups.read'],
+  createServiceAction: ['services.create', 'projects.read', 'services.read'],
+  deleteServiceAction: ['services.delete', 'services.read'],
+  updateServiceAction: ['services.read', 'services.update'],
+  restartServiceAction: ['services.read', 'services.update'],
+  stopServerAction: ['services.read', 'services.update'],
+  exposeDatabasePortAction: ['services.read', 'services.update'],
+  updateServiceDomainAction: ['services.read', 'services.update'],
+  regenerateSSLAction: ['services.read'],
+  syncServiceDomainAction: ['services.read', 'services.update'],
+  updateVolumesAction: ['services.read', 'services.update'],
 
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],
