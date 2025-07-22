@@ -24,7 +24,7 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form'
-import { slugifyWithSlash, slugifyWithUnderscore } from '@/lib/slugify'
+import { slugifyWithUnderscore } from '@/lib/slugify'
 import { Service } from '@/payload-types'
 
 const HostContainerPair = memo(
@@ -73,7 +73,7 @@ const HostContainerPair = memo(
                     disabled={Boolean(created)}
                     {...field}
                     onChange={e => {
-                      field.onChange(slugifyWithSlash(e.target.value))
+                      field.onChange(slugifyWithUnderscore(e.target.value))
                     }}
                     placeholder='eg: /data'
                   />
