@@ -143,6 +143,7 @@ export const getActionAccess = {
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],
   getProjectsAndServers: ['servers.read', 'projects.read'],
+
   getSecurityDetails: [
     'sshKeys.read',
     'securityGroups.read',
@@ -159,6 +160,9 @@ export const getActionAccess = {
   internalBackupAction: ['backups.create', 'services.read'],
   internalRestoreAction: ['services.update', 'services.read'],
   internalDbDeleteAction: ['backups.delete'],
+
+  // Deployment actions
+  createDeploymentAction: ['services.update'],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
