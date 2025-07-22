@@ -112,6 +112,11 @@ export async function POST(request: Request) {
             equals: repositoryName,
           },
         },
+        {
+          provider: {
+            equals: githubAppDetails.id,
+          },
+        },
       ],
     },
   })
@@ -122,7 +127,7 @@ export async function POST(request: Request) {
       await triggerDeployment({
         serviceId: service.id,
         cache: 'no-cache',
-        tenantSlug, // Assuming tenantSlug is not needed for this action
+        tenantSlug,
       })
     }
   }
