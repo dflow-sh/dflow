@@ -67,8 +67,8 @@ export const volumesSchema = z.object({
         hostPath: z
           .string()
           .min(1, 'Host path is required')
-          .refine(val => !val.includes('/'), {
-            message: 'Host path should not contain "/"',
+          .refine(val => !val.startsWith('/'), {
+            message: 'Host path should not start with "/"',
           }),
 
         containerPath: z

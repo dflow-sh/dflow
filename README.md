@@ -193,7 +193,7 @@ docker compose --env-file .env up -d
 Make a `POST` request to complete initial setup:
 
 ```
-http://<YOUR_SERVER_IP>:9999/configuration
+http://<YOUR_SERVER_IP>:9999/configuration/default
 ```
 
 ## 🤝 Contributors

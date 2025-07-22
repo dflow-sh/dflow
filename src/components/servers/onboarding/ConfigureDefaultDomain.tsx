@@ -39,33 +39,23 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
 
     if (!domainAlreadyConfigured && !hasSucceeded && !calledRef.current) {
       calledRef.current = true
-
-      // not adding a default domain in these conditions
-      // 1. preferConnectionType is tailscale
-      // 2. user has no publicIp assigned or publicIp === 999.999.999.999
-      // if (
-      //   server.preferConnectionType === 'tailscale' &&
-      //   (!server.publicIp ||
-      //     (server.publicIp && server.publicIp === '999.999.999.999'))
-      // ) {
-      //   return
-      // }
-
       let domain: string | undefined = undefined
 
       // if proxy domain url is set, we need to add a domain with the proxy domain url
       // if tailscale is preferred and hostname is set, we need to add a domain with the hostname and proxy domain url
       // if publicIp is set, we need to add a domain with the publicIp and nip.io
       // if publicIp is not set, we need to add a domain with the publicIp and nip.io
+      const publicIp = server.publicIp || server.ip
+
       if (env.NEXT_PUBLIC_PROXY_DOMAIN_URL) {
         if (server.preferConnectionType === 'tailscale' && server.hostname) {
           domain = `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
-        } else if (server.publicIp) {
-          domain = `${server.publicIp}.nip.io`
+        } else if (publicIp) {
+          domain = `${publicIp}.nip.io`
         }
       } else {
-        if (server.publicIp) {
-          domain = `${server.publicIp}.nip.io`
+        if (publicIp) {
+          domain = `${publicIp}.nip.io`
         }
       }
 
@@ -79,13 +69,9 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
         operation: 'set',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (isPending) {
-    const ip =
-      server.preferConnectionType === 'ssh' ? server.ip : server.publicIp
-
     return (
       <div className='flex items-center gap-2'>
         <Loader className='h-min w-min' />
