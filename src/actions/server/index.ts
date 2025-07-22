@@ -938,7 +938,7 @@ export const resetOnboardingAction = protectedClient
     if (dokkuResult.id && railpackResult.id) {
       const updateResponse = await payload.update({
         id: serverId,
-        data: { onboarded: false },
+        data: { onboarded: false, domains: [], plugins: [] },
         collection: 'servers',
       })
 

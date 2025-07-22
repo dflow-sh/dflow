@@ -39,7 +39,7 @@ const Danger = ({ server }: { server: ServerType }) => {
   })
 
   return (
-    <Card>
+    <Card className='border-destructive/50 bg-destructive/30 hover:border-destructive/70'>
       <CardHeader>
         <CardTitle className='font-medium'>Danger Zone</CardTitle>
       </CardHeader>
@@ -50,8 +50,9 @@ const Danger = ({ server }: { server: ServerType }) => {
             <div className='flex flex-col gap-0.5'>
               <div className='text-lg font-semibold'>Reset Onboarding</div>
               <p className='text-sm text-muted-foreground'>
-                This will uninstall Dokku and Railpack, and reset onboarding for
-                this server.
+                This resets the onboarding process for this server, uninstalls
+                Dokku and Railpack, clears associated data, removes attached
+                domains, and plugins.
               </p>
             </div>
           </div>
@@ -59,7 +60,8 @@ const Danger = ({ server }: { server: ServerType }) => {
           <Dialog>
             <DialogTrigger asChild>
               <Button
-                variant='destructive'
+                className='border-destructive/50 bg-destructive/70 text-destructive-foreground hover:bg-destructive/80'
+                variant='outline'
                 disabled={
                   isResetting || !server.sshConnected || hasResetOnboarded
                 }>

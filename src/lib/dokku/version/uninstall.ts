@@ -38,10 +38,19 @@ export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
 
   // Removes the dokku home directory
   const removeDokku = [
-    'sudo rm -rf /home/dokku',
+    'sudo rm -rf ~dokku',
     'sudo rm -rf /var/lib/dokku',
     'sudo rm -rf /var/log/dokku',
+    'sudo rm -rf bootstrap.sh',
   ]
+
+  // Not parallel execution, so we can handle errors sequentially
+  for (const command of removeDokku) {
+    const result = await ssh.execCommand(command, options)
+    if (result.code !== 0) {
+      throw new Error(result.stderr)
+    }
+  }
 
   const removeDokkuResult = await ssh.execCommand(
     removeDokku.join(' && '),
