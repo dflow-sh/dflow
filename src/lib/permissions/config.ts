@@ -53,6 +53,7 @@ export const getActionAccess = {
 
   // teams actions
   getTeamMembersAction: ['team.read'],
+  getTenantAction: ['team.read'],
   updateUserTenantRoles: ['team.update'],
   removeUserFromTeamAction: ['team.delete'],
 

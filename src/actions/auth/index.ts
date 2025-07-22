@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { protectedClient, publicClient } from '@/lib/safe-action'
+import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
 
 import {
   forgotPasswordSchema,
@@ -198,7 +198,7 @@ export const logoutAction = publicClient
     redirect('/sign-in')
   })
 
-export const getUserAction = protectedClient
+export const getUserAction = userClient
   .metadata({ actionName: 'getUserAction' })
   .action(async ({ ctx }) => {
     return ctx.user
