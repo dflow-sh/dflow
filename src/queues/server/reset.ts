@@ -1,3 +1,4 @@
+import { addUninstallRailpackQueue } from '../builder/uninstallRailpack'
 import { addUninstallDokkuQueue } from '../dokku/uninstall'
 import { addUninstallNetdataQueue } from '../netdata/uninstall'
 import { Job } from 'bullmq'
@@ -62,6 +63,15 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           tenant,
         })
 
+        // Uninstall railpack
+        const uninstallRailpackJob = await addUninstallRailpackQueue({
+          sshDetails,
+          serverDetails: {
+            id: serverDetails.id,
+          },
+          tenant,
+        })
+
         // Uninstall netdata
         const isNetdataAvailable =
           server.netdataVersion &&
@@ -71,6 +81,8 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           serverDetails.kernel
 
         await waitForJobCompletion(uninstallDokkuJob)
+
+        await waitForJobCompletion(uninstallRailpackJob)
 
         if (isNetdataAvailable) {
           const uninstallNetdataJob = await addUninstallNetdataQueue({
