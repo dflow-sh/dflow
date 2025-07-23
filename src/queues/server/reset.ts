@@ -19,7 +19,6 @@ interface QueueArgs {
     slug: string
     id: string
   }
-  server: ServerType
   serverDetails: ServerType
 }
 
@@ -36,7 +35,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { sshDetails, serverDetails, tenant, server } = job.data
+      const { sshDetails, serverDetails, tenant } = job.data
       let ssh: NodeSSH | null = null
 
       try {
@@ -63,7 +62,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
 
         // Uninstall netdata
         // Do we need to check the commented lines?
-        const isNetdataAvailable = server.netdataVersion && serverDetails
+        const isNetdataAvailable = serverDetails.netdataVersion
         // serverDetails.hardware &&
         // serverDetails.network &&
         // serverDetails.kernel
@@ -86,7 +85,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
         }
 
         await payload.update({
-          id: server.id,
+          id: serverDetails.id,
           data: { onboarded: false, domains: [], plugins: [] },
           collection: 'servers',
         })
@@ -97,7 +96,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
             and: [
               {
                 server: {
-                  equals: server.id,
+                  equals: serverDetails.id,
                 },
               },
               {
@@ -185,7 +184,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
 
   const id = `reset-server:${new Date().getTime()}`
 
-  return await resetServerQueue.add(id, {
+  return await resetServerQueue.add(id, data, {
     jobId: id,
     ...jobOptions,
   })

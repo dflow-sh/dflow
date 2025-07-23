@@ -923,7 +923,6 @@ export const resetOnboardingAction = protectedClient
 
     const resetServerResult = await addResetServerQueue({
       sshDetails,
-      server: serverDetails,
       serverDetails: serverDetails,
       tenant: {
         slug: userTenant.tenant.slug,
@@ -934,5 +933,6 @@ export const resetOnboardingAction = protectedClient
     if (resetServerResult.id) {
       return { success: true }
     }
+
     return { success: false }
   })
