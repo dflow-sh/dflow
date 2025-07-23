@@ -70,7 +70,7 @@ cd dflow
       1. Generate auth key
    3. Navigate to Tailnet Settings > OAuth clients
       1. Generate OAuth client with all read permissions and write permission
-         for auth keys.
+         for auth keys with customer-machine tag.
 
 #### 3. DNS Configuration
 
@@ -92,6 +92,9 @@ Setup DNS records with your provider:
   MONGO_INITDB_ROOT_USERNAME=admin
   MONGO_INITDB_ROOT_PASSWORD=password
   MONGO_DB_NAME=dFlow
+
+  # redis
+  REDIS_URI="redis://localhost:6379"
 
   # config-generator
   WILD_CARD_DOMAIN=up.example.com
