@@ -17,8 +17,8 @@ async function TeamView({
 
   return (
     <div className='mt-4 space-y-10'>
-      <Invitation tenant={tenant} />
-      <TeamMembers teamMembers={teamMembers} />
+      <Invitation roles={roles} tenant={tenant} />
+      <TeamMembers roles={roles} teamMembers={teamMembers} />
       <Roles roles={roles} teamMembers={teamMembers} />
     </div>
   )

@@ -56,6 +56,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
     },
     onError: ({ error }) => {
       toast.error(`Failed to update permissions ${error?.serverError}`)
+      form.reset()
     },
   })
 

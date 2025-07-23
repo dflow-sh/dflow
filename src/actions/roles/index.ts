@@ -167,9 +167,12 @@ export const deleteRoleAction = protectedClient
     } = ctx
     const { id } = clientInput
 
-    const response = await payload.delete({
+    const response = await payload.update({
       collection: 'roles',
       id,
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
     })
 
     if (response) {

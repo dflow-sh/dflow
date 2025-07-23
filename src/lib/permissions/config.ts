@@ -54,8 +54,9 @@ export const getActionAccess = {
   // teams actions
   getTeamMembersAction: ['team.read'],
   getTenantAction: ['team.read'],
-  updateUserTenantRoles: ['team.update'],
+  updateUserTenantRolesAction: ['team.update'],
   removeUserFromTeamAction: ['team.delete'],
+  generateInviteLinkAction: ['team.update'],
 
   // dFlow cloud actions
   getCloudProvidersAccountsAction: ['cloudProviderAccounts.read'],

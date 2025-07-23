@@ -1,6 +1,7 @@
 'use server'
 
 import { env } from 'env'
+import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 
 import { TeamInvitation } from '@/emails/team-invitation'
@@ -8,6 +9,7 @@ import { protectedClient, userClient } from '@/lib/safe-action'
 import { Tenant } from '@/payload-types'
 
 import {
+  generateInviteLinkSchema,
   joinTeamSchema,
   sendInvitationLinkSchema,
   updateTenantRolesSchema,
@@ -36,9 +38,9 @@ export const getTeamMembersAction = protectedClient
     return response.docs
   })
 
-export const updateUserTenantRoles = protectedClient
+export const updateUserTenantRolesAction = protectedClient
   .metadata({
-    actionName: 'updateUserTenantRoles',
+    actionName: 'updateUserTenantRolesAction',
   })
   .schema(updateTenantRolesSchema)
   .action(async ({ ctx, clientInput }) => {
@@ -46,7 +48,7 @@ export const updateUserTenantRoles = protectedClient
       payload,
       userTenant: { tenant },
     } = ctx
-    const { roles, user } = clientInput
+    const { role, user } = clientInput
     const response = await payload.update({
       collection: 'users',
       id: user.id,
@@ -54,7 +56,7 @@ export const updateUserTenantRoles = protectedClient
         tenants: [
           ...(user?.tenants || [])?.map((tenantData: any) => {
             if ((tenantData.tenant as Tenant).slug == tenant.slug) {
-              return { ...tenantData, roles: roles }
+              return { ...tenantData, role: role }
             }
             return tenantData
           }),
@@ -82,6 +84,8 @@ export const removeUserFromTeamAction = protectedClient
     const updatedTenants = (user?.tenants || []).filter((tenantData: any) => {
       return (tenantData.tenant as Tenant).slug !== tenant.slug
     })
+    console.dir(user?.tenants, 10)
+    console.log(updatedTenants?.at(0)?.tenant)
     const response = await payload.update({
       collection: 'users',
       id: user.id,
@@ -103,7 +107,7 @@ export const joinTeamAction = userClient
   .schema(joinTeamSchema)
   .action(async ({ ctx, clientInput }) => {
     const { payload, user } = ctx
-    const { roles, tenantId } = clientInput
+    const { role, tenantId } = clientInput
 
     const tenant = await payload.findByID({
       collection: 'tenants',
@@ -128,7 +132,7 @@ export const joinTeamAction = userClient
           ...(user?.tenants || []),
           {
             tenant: tenant,
-            roles,
+            role,
           },
         ],
       },
@@ -145,6 +149,8 @@ export const sendInvitationLinkAction = userClient
     const { email, link } = clientInput
     const { payload } = ctx
 
+    console.log({ email, link })
+
     await payload.sendEmail({
       to: email,
       from: `"Team dFlow" <${env.RESEND_SENDER_EMAIL}>`,
@@ -155,4 +161,21 @@ export const sendInvitationLinkAction = userClient
         href: link,
       }),
     })
+  })
+
+export const generateInviteLinkAction = protectedClient
+  .metadata({
+    actionName: 'generateInviteLinkAction',
+  })
+  .schema(generateInviteLinkSchema)
+  .action(async ({ clientInput }) => {
+    const { tenantId, role } = clientInput
+
+    const token = jwt.sign({ tenantId, role }, env.PAYLOAD_SECRET, {
+      expiresIn: '1d',
+    })
+
+    const inviteLink = `${env.NEXT_PUBLIC_WEBSITE_URL}/invite?token=${token}`
+
+    return { inviteLink }
   })

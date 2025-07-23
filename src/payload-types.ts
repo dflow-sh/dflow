@@ -170,8 +170,7 @@ export interface User {
   tenants?:
     | {
         tenant: string | Tenant;
-        roles: ('tenant-admin' | 'tenant-user')[];
-        role?: (string | null) | Role;
+        role: string | Role;
         id?: string | null;
       }[]
     | null;
@@ -1321,7 +1320,6 @@ export interface UsersSelect<T extends boolean = true> {
     | T
     | {
         tenant?: T;
-        roles?: T;
         role?: T;
         id?: T;
       };

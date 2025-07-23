@@ -24,21 +24,12 @@ const defaultTenantArrayField = tenantsArrayField({
   },
   rowFields: [
     {
-      name: 'roles',
-      type: 'select',
-      defaultValue: ['tenant-user'],
-      hasMany: true,
-      options: ['tenant-admin', 'tenant-user'],
-      label: 'Tenant Roles',
-      required: true,
-    },
-    {
       name: 'role',
       type: 'relationship',
       relationTo: 'roles',
       hasMany: false,
       label: 'Tenant Role',
-      // required: true,
+      required: true,
     },
   ],
 })

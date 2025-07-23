@@ -48,7 +48,6 @@ const RoleActions = ({ role }: { role: Role }) => {
           <EllipsisVertical className='size-5 text-muted-foreground' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDeleteRoleOpen(true)}>
             Delete
           </DropdownMenuItem>
@@ -95,7 +94,7 @@ const RoleOverview = ({
             <Settings className='size-6' />
             <h3 className='text-xl font-medium'>Basic Information</h3>
           </div>
-          <RoleActions role={role} />
+          {/* <RoleActions role={role} /> */}
         </div>
         <div className='flex justify-between gap-6'>
           <p className='text-muted-foreground'>Name:</p>
@@ -141,19 +140,21 @@ const RoleOverview = ({
             {format(new Date(role?.updatedAt), 'd MMM yy')}
           </p>
         </div>
-        <div className='flex justify-between gap-6'>
-          <p className='text-muted-foreground'>Created by:</p>
-          <div className='flex items-center gap-x-2'>
-            <Avatar className='size-6'>
-              <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
-                {(role?.createdUser as User).email.slice(0, 1)}
-              </AvatarFallback>
-            </Avatar>
-            <p className='text-md capitalize'>
-              {(role?.createdUser as User)?.username}
-            </p>
+        {role?.createdUser && (
+          <div className='flex justify-between gap-6'>
+            <p className='text-muted-foreground'>Created by:</p>
+            <div className='flex items-center gap-x-2'>
+              <Avatar className='size-6'>
+                <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
+                  {(role?.createdUser as User).email.slice(0, 1)}
+                </AvatarFallback>
+              </Avatar>
+              <p className='text-md capitalize'>
+                {(role?.createdUser as User)?.username}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
