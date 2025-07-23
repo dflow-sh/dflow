@@ -47,19 +47,12 @@ export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   // Not parallel execution, so we can handle errors sequentially
   for (const command of removeDokku) {
     const result = await ssh.execCommand(command, options)
+    console.log('Remove Dokku Command Result:', result.stdout, command)
     if (result.code !== 0) {
       throw new Error(result.stderr)
     }
   }
 
-  const removeDokkuResult = await ssh.execCommand(
-    removeDokku.join(' && '),
-    options,
-  )
-
-  if (removeDokkuResult.code !== 0) {
-    throw new Error(removeDokkuResult.stderr)
-  }
   return {
     dokkuUninstallResult,
   }
