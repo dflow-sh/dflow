@@ -61,7 +61,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
         })
 
         // Uninstall netdata
-        // Do we need to check the commented lines?
+        // todo: Do we need to check the commented lines?
         const isNetdataAvailable = serverDetails.netdataVersion
         // serverDetails.hardware &&
         // serverDetails.network &&
@@ -74,6 +74,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           await waitForJobCompletion(uninstallRailpackJob)
 
         let uninstallNetdataResult: { success: boolean } = { success: true }
+
         if (isNetdataAvailable) {
           const uninstallNetdataJob = await addUninstallNetdataQueue({
             serverDetails,
@@ -154,6 +155,7 @@ export const addResetServerQueue = async (data: QueueArgs) => {
         ) {
           return { success: true }
         }
+
         return { success: false }
       } catch (error) {
         // Handle errors and log them
