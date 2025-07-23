@@ -13,7 +13,7 @@ import { assertRolePermission } from './permissions/utils'
 
 type UserTenant = {
   tenant: Tenant
-  roles: ('tenant-admin' | 'tenant-user')[]
+  role: Role
 }
 
 export const publicClient = createSafeActionClient({

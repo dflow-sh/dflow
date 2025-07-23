@@ -8,19 +8,16 @@ import { extractID } from './extractID'
  * @param user - User object with tenants field
  * @param role - Optional role to filter by
  */
-export const getUserTenantIDs = (
-  user: null | User,
-  role?: NonNullable<User['tenants']>[number]['roles'][number],
-): Tenant['id'][] => {
+export const getUserTenantIDs = (user: null | User): Tenant['id'][] => {
   if (!user) {
     return []
   }
 
   return (
-    user?.tenants?.reduce<Tenant['id'][]>((acc, { roles, tenant }) => {
-      if (role && !roles.includes(role)) {
-        return acc
-      }
+    user?.tenants?.reduce<Tenant['id'][]>((acc, { tenant }) => {
+      // if (role && !roles.includes(role)) {
+      //   return acc
+      // }
 
       if (tenant) {
         acc.push(extractID(tenant))
