@@ -50,9 +50,8 @@ const Danger = ({ server }: { server: ServerType }) => {
             <div className='flex flex-col gap-0.5'>
               <div className='text-lg font-semibold'>Reset Onboarding</div>
               <p className='text-sm text-muted-foreground'>
-                This resets the onboarding process for this server, uninstalls
-                Dokku and Railpack, clears associated data, removes attached
-                domains, and plugins.
+                Uninstalls Dokku and Railpack, clears associated data, removes
+                attached domains, and plugins.
               </p>
             </div>
           </div>
