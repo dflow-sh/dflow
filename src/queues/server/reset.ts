@@ -61,6 +61,15 @@ export const addResetServerQueue = async (data: QueueArgs) => {
           tenant,
         })
 
+        // Uninstall railpack
+        const uninstallRailpackJob = await addUninstallRailpackQueue({
+          sshDetails,
+          serverDetails: {
+            id: serverDetails.id,
+          },
+          tenant,
+        })
+
         // Uninstall netdata
         // Do we need to check the commented lines?
         const isNetdataAvailable = server.netdataVersion && serverDetails
