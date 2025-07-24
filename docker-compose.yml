@@ -1,10 +1,18 @@
+networks:
+  custom-tailnet:
+    driver: bridge
+
 services:
   # Traefik Reverse Proxy
   traefik:
     image: traefik:v3.4
     container_name: traefik
     restart: always
-    network_mode: host # So it can use tailscale0 + bind 80/443
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - custom-tailnet
     command:
       - --configFile=/etc/traefik/traefik.yaml
     environment:
@@ -17,7 +25,8 @@ services:
   # Dynamic Config Generator
   config-generator:
     image: ghcr.io/akhil-naidu/dflow-traefik:latest
-    network_mode: host
+    networks:
+      - custom-tailnet
     container_name: config-generator
     restart: on-failure
     environment:
@@ -32,6 +41,8 @@ services:
     image: redis:7
     container_name: redis
     restart: unless-stopped
+    networks:
+      - custom-tailnet
     volumes:
       - redis-data:/data
 
@@ -40,6 +51,8 @@ services:
     image: mongo:7
     container_name: mongodb
     restart: unless-stopped
+    networks:
+      - custom-tailnet
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -54,6 +67,8 @@ services:
     devices:
       - /dev/net/tun
     container_name: payload-app
+    networks:
+      - custom-tailnet
     restart: always
     depends_on:
       - redis
@@ -74,7 +89,6 @@ services:
       RESEND_SENDER_NAME: ${RESEND_SENDER_NAME}
       NEXT_PUBLIC_PROXY_CNAME: ${NEXT_PUBLIC_PROXY_CNAME}
       NEXT_PUBLIC_DISCORD_INVITE_URL: ${NEXT_PUBLIC_DISCORD_INVITE_URL}
-    network_mode: host
     volumes:
       - ./scripts:/app/scripts
 
