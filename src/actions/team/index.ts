@@ -18,7 +18,7 @@ import {
 export const getTeamMembersAction = protectedClient
   .metadata({ actionName: 'getTeamMembersAction' })
   .action(async ({ ctx }) => {
-    const { payload, user } = ctx
+    const { payload } = ctx
     const { userTenant } = ctx
 
     const response = await payload.find({
