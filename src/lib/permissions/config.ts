@@ -158,22 +158,23 @@ export const getActionAccess = {
   getProjectDetails: ['projects.read', 'services.read'],
   getProjectsAndServers: ['servers.read', 'projects.read'],
 
-  getSecurityDetails: [
-    'sshKeys.read',
+  getSecurityDetailsAction: [
     'securityGroups.read',
     'servers.read',
     'cloudProviderAccounts.read',
   ],
+
+  getSshKeysAction: ['sshKeys.read', 'servers.read'],
 
   // tailscale Actions
   getOAuthClientSecretAction: ['servers.create'],
   generateOAuthClientSecretAction: ['servers.create'],
 
   //  Backup actions
-  getAllBackups: ['backups.read'],
+  getAllBackupsAction: ['backups.read'],
   internalBackupAction: ['backups.create', 'services.read'],
-  internalRestoreAction: ['services.update', 'services.read'],
-  internalDbDeleteAction: ['backups.delete'],
+  internalRestoreAction: ['backups.read', 'services.read', 'backups.update'],
+  internalDbDeleteAction: ['services.read', 'backups.delete', 'backups.read'],
 
   // Deployment actions
   createDeploymentAction: ['services.update'],
