@@ -71,7 +71,7 @@ const TeamMembers = ({
               teamMembers?.map((teamMember, index) => (
                 <TeamMember
                   availableRoles={roles}
-                  key={index}
+                  key={teamMember.id}
                   organisation={organisation as string}
                   teamMember={teamMember}
                 />
