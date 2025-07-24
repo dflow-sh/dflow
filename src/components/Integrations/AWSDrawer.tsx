@@ -1,5 +1,6 @@
 'use client'
 
+import AccessDeniedAlert from '../AccessDeniedAlert'
 import { Button } from '../ui/button'
 import { ScrollArea } from '../ui/scroll-area'
 import { Link } from 'lucide-react'
@@ -69,13 +70,17 @@ const AWSDrawer = () => {
           </SheetDescription>
         </SheetHeader>
 
-        {isPending && <GithubIntegrationsLoading />}
-
-        {!isPending && result.data && (
+        {isPending ? (
+          <GithubIntegrationsLoading />
+        ) : result?.serverError ? (
+          <ScrollArea className='flex-grow'>
+            <AccessDeniedAlert error={result?.serverError} />
+          </ScrollArea>
+        ) : result.data ? (
           <ScrollArea className='flex-grow'>
             <CloudProvidersList accounts={result.data} refetch={execute} />
           </ScrollArea>
-        )}
+        ) : null}
 
         <SheetFooter>
           <AWSAccountForm refetch={execute}>

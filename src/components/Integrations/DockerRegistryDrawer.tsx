@@ -1,5 +1,6 @@
 'use client'
 
+import AccessDeniedAlert from '../AccessDeniedAlert'
 import { Button } from '../ui/button'
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -67,13 +68,17 @@ const DockerRegistryDrawer = () => {
           </SheetDescription>
         </SheetHeader>
 
-        {isPending && <GithubIntegrationsLoading />}
-
-        {!isPending && result.data && (
+        {isPending ? (
+          <GithubIntegrationsLoading />
+        ) : result.serverError ? (
+          <ScrollArea className='flex-grow'>
+            <AccessDeniedAlert error={result?.serverError} />
+          </ScrollArea>
+        ) : result?.data ? (
           <ScrollArea className='flex-grow'>
             <DockerRegistryList accounts={result.data} refetch={execute} />
           </ScrollArea>
-        )}
+        ) : null}
 
         <SheetFooter>
           <DockerRegistryForm refetch={execute}>
