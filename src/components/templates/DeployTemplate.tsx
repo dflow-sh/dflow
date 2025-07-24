@@ -14,7 +14,8 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
-  getAllTemplatesAction,
+  getAllOfficialTemplatesAction,
+  getPersonalTemplatesAction,
   templateDeployAction,
 } from '@/actions/templates'
 import {
@@ -313,7 +314,14 @@ const DeployTemplate = ({
   disableReason?: string
   server: Server
 }) => {
-  const { execute, result, isPending } = useAction(getAllTemplatesAction)
+  const { execute, result, isPending } = useAction(
+    getAllOfficialTemplatesAction,
+  )
+  const {
+    execute: getPersonalTemplates,
+    result: personalTemplates,
+    isPending: isGetTemplatesPending,
+  } = useAction(getPersonalTemplatesAction)
 
   const architectureContext = function useSafeArchitectureContext() {
     try {
@@ -384,9 +392,9 @@ const DeployTemplate = ({
 
           <TabsContent value='personal'>
             <TemplateDeploymentForm
-              execute={execute}
-              templates={result.data}
-              isPending={isPending}
+              execute={getPersonalTemplates}
+              templates={personalTemplates.data}
+              isPending={isGetTemplatesPending}
               server={server}
               type='personal'
             />
