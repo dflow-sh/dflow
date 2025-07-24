@@ -3,8 +3,9 @@ import { Plus, Puzzle } from 'lucide-react'
 import Link from 'next/link'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
-import { getTemplates } from '@/actions/pages/Template'
+import { getTemplatesAction } from '@/actions/pages/Template'
 import { getPublicTemplatesAction } from '@/actions/templates'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import TemplateCard from '@/components/templates/TemplateCard'
 import TemplateDetails from '@/components/templates/TemplateDetails'
 import { Button } from '@/components/ui/button'
@@ -17,8 +18,7 @@ interface PageProps {
 
 const page = async ({ params }: PageProps) => {
   const syncParams = await params
-  const templates = await getTemplates()
-
+  const templates = await getTemplatesAction()
   const publicTemplates = await getPublicTemplatesAction()
 
   const accounts = await getCloudProvidersAccountsAction({
@@ -92,7 +92,9 @@ const page = async ({ params }: PageProps) => {
           </TabsContent>
           {/* Personal Templates */}
           <TabsContent value='personal'>
-            {templates?.data?.length! > 0 ? (
+            {templates?.serverError ? (
+              <AccessDeniedAlert error={templates?.serverError} />
+            ) : templates?.data?.length! > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
                 {templates?.data?.map(template => (
                   <TemplateDetails

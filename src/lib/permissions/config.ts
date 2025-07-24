@@ -34,16 +34,28 @@ export const getActionAccess = {
   configureLetsencryptPluginAction: ['servers.update'],
 
   // Templates actions
-  getTemplates: ['templates.read'],
-  getTemplateById: ['templates.read'],
-  createTemplate: ['templates.create'],
-  deleteTemplate: ['templates.delete'],
-  updateTemplate: ['templates.update'],
+  getTemplatesAction: ['templates.read'],
+  getTemplateByIdAction: ['templates.read'],
+  createTemplateAction: ['templates.create'],
+  deleteTemplateAction: ['templates.delete', 'cloudProviderAccounts.read'],
+  updateTemplateAction: ['templates.update'],
   getAllTemplatesAction: ['templates.read'],
-  publishTemplateAction: ['templates.update'],
-  unPublishTemplateAction: ['templates.update'],
-  syncWithPublicTemplateAction: ['templates.update'],
-  templateDeployAction: ['projects.create', 'services.create'],
+  publishTemplateAction: [
+    'templates.update',
+    'cloudProviderAccounts.read',
+    'templates.read',
+  ],
+  unPublishTemplateAction: [
+    'templates.update',
+    'cloudProviderAccounts.read',
+    'templates.read',
+  ],
+  syncWithPublicTemplateAction: [
+    'templates.update',
+    'cloudProviderAccounts.read',
+    'templates.read',
+  ],
+  templateDeployAction: ['projects.create', 'services.create', 'servers.read'],
 
   // roles actions
   getRolesAction: ['roles.read'],

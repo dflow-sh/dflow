@@ -52,10 +52,10 @@ type PublicTemplate = Omit<
   type: 'community' | 'official'
 }
 
-export const createTemplate = protectedClient
+export const createTemplateAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'createTemplate',
+    actionName: 'createTemplateAction',
   })
   .schema(createTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -75,10 +75,10 @@ export const createTemplate = protectedClient
     return response
   })
 
-export const deleteTemplate = protectedClient
+export const deleteTemplateAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'deleteTemplate',
+    actionName: 'deleteTemplateAction',
   })
   .schema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -134,8 +134,8 @@ export const deleteTemplate = protectedClient
     }
   })
 
-export const getTemplateById = protectedClient
-  .metadata({ actionName: 'getTemplateById' })
+export const getTemplateByIdAction = protectedClient
+  .metadata({ actionName: 'getTemplateByIdAction' })
   .schema(getPersonalTemplateByIdSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
@@ -162,9 +162,9 @@ export const getTemplateById = protectedClient
     return response?.docs[0]
   })
 
-export const updateTemplate = protectedClient
+export const updateTemplateAction = protectedClient
   .metadata({
-    actionName: 'updateTemplate',
+    actionName: 'updateTemplateAction',
   })
   .schema(updateTemplateSchema)
   .action(async ({ clientInput, ctx }) => {

@@ -2,16 +2,16 @@
 
 import { protectedClient } from '@/lib/safe-action'
 
-export const getTemplates = protectedClient
+export const getTemplatesAction = protectedClient
   .metadata({
-    actionName: 'getTemplates',
+    actionName: 'getTemplatesAction',
   })
   .action(async ({ ctx }) => {
     const {
       userTenant: { tenant },
       payload,
     } = ctx
-    const { docs: templates, totalDocs } = await payload.find({
+    const { docs: templates } = await payload.find({
       collection: 'templates',
       pagination: false,
       sort: '-isPublished',
