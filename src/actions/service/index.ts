@@ -6,6 +6,7 @@ import { NodeSSH } from 'node-ssh'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
+import { checkServerResources } from '@/lib/server/resourceCheck'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
 import { addDestroyApplicationQueue } from '@/queues/app/destroy'
@@ -23,6 +24,7 @@ import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regener
 import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
+  checkServerResourcesSchema,
   clearServiceResourceLimitSchema,
   clearServiceResourceReserveSchema,
   createServiceSchema,
@@ -100,6 +102,24 @@ export const createServiceAction = protectedClient
     try {
       ssh = await dynamicSSH(sshDetails)
 
+      // Determine serviceType for resource check
+      let serviceType: 'app' | 'docker' | 'database' = 'app'
+      if (type === 'docker') {
+        serviceType = 'docker'
+      } else if (type === 'database' || databaseType) {
+        serviceType = 'database'
+      }
+
+      // Resource check before proceeding
+      const resourceCheck = await checkServerResources(ssh, { serviceType })
+
+      if (!resourceCheck.capable) {
+        console.log('Unable to create service')
+        throw new Error(
+          `Server is not capable of handling a new service: ${resourceCheck.reason}`,
+        )
+      }
+
       if (totalDocs > 0) {
         const uniqueSuffix = generateRandomString({ length: 4 })
         serviceName = `${serviceName}-${uniqueSuffix}`
@@ -125,6 +145,30 @@ export const createServiceAction = protectedClient
             },
             user,
           })
+
+          // Apply default resource limits if configured on the server
+          if (
+            server &&
+            typeof server === 'object' &&
+            'defaultResourceLimits' in server &&
+            server.defaultResourceLimits &&
+            (server.defaultResourceLimits.cpu ||
+              server.defaultResourceLimits.memory)
+          ) {
+            const resourceArgs = []
+            if (server.defaultResourceLimits.cpu)
+              resourceArgs.push(`--cpu ${server.defaultResourceLimits.cpu}`)
+            if (server.defaultResourceLimits.memory)
+              resourceArgs.push(
+                `--memory ${server.defaultResourceLimits.memory}`,
+              )
+            try {
+              await dokku.resource.limit(ssh, serviceName, resourceArgs)
+            } catch (e) {
+              console.error('Failed to apply default resource limits:', e)
+              // Do not throw, allow service creation to succeed
+            }
+          }
 
           if (response?.id) {
             revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
@@ -1036,4 +1080,26 @@ export const clearServiceResourceReserveAction = protectedClient
     })
 
     return { success: true, queued: true, jobId: queueResponse.id }
+  })
+
+export const checkServerResourcesAction = protectedClient
+  .metadata({ actionName: 'checkServerResourcesAction' })
+  .schema(checkServerResourcesSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { payload } = ctx
+    const { serverId, serviceType } = clientInput
+
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+    })
+
+    const sshDetails = extractSSHDetails({ server })
+    const ssh = await dynamicSSH(sshDetails)
+
+    const result = await checkServerResources(ssh, { serviceType })
+
+    ssh.dispose()
+
+    return result
   })

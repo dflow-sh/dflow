@@ -124,6 +124,44 @@ const UpdateServerForm = ({
             )}
           />
 
+          {/* Default Resource Limits */}
+          <div className='grid grid-cols-2 gap-4'>
+            <FormField
+              control={form.control}
+              name='defaultResourceLimits.cpu'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default CPU Limit</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder='e.g. 500m, 1, 2' />
+                  </FormControl>
+                  <p className='text-xs text-muted-foreground'>
+                    Set the default CPU limit for new services (e.g., 500m, 1,
+                    2).
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='defaultResourceLimits.memory'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Memory Limit</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder='e.g. 512M, 1G' />
+                  </FormControl>
+                  <p className='text-xs text-muted-foreground'>
+                    Set the default memory limit for new services (e.g., 512M,
+                    1G).
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <div className='grid grid-cols-2 gap-4'>
             <FormField
               control={form.control}

@@ -48,6 +48,12 @@ export const updateServerSchema = z.object({
   username: z.string({ message: 'Username is required' }),
   sshKey: z.string({ message: 'SSH key is required' }),
   id: z.string(),
+  defaultResourceLimits: z
+    .object({
+      cpu: z.string().optional(),
+      memory: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const deleteServerSchema = z.object({

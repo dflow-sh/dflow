@@ -12,6 +12,8 @@ export const createServiceSchema = z
       .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
       .optional(),
     projectId: z.string(),
+    cpuLimit: z.string().optional(),
+    memoryLimit: z.string().optional(),
   })
   .refine(data => data.type !== 'database' || !!data.databaseType, {
     message: 'Please select a database type',
@@ -179,4 +181,9 @@ export const clearServiceResourceLimitSchema = z.object({
 export const clearServiceResourceReserveSchema = z.object({
   id: z.string(),
   processType: z.string().optional(),
+})
+
+export const checkServerResourcesSchema = z.object({
+  serverId: z.string(),
+  serviceType: z.enum(['app', 'docker', 'database']).optional(),
 })
