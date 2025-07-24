@@ -3,6 +3,12 @@
 import { ServiceNode } from '../reactflow/types'
 import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
 import { Button } from '../ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -11,13 +17,14 @@ import {
   useEdgesState,
   useNodesState,
 } from '@xyflow/react'
-import { Trash2 } from 'lucide-react'
+import { MoreVertical, Repeat, Trash2 } from 'lucide-react'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Server, Service } from '@/payload-types'
 
 import DeleteServiceDialog from './DeleteServiceDialog'
+import SwitchServiceProjectDialog from './SwitchServiceProjectDialog'
 
 interface ServiceWithDisplayName extends Service {
   displayName: string
@@ -80,6 +87,9 @@ const ServiceList = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedService, setSelectedService] =
     useState<ServiceWithDisplayName | null>(null)
+  const [switchDialogOpen, setSwitchDialogOpen] = useState(false)
+  const [switchService, setSwitchService] =
+    useState<ServiceWithDisplayName | null>(null)
   const router = useRouter()
 
   const onNodeContextMenu = useCallback(
@@ -106,6 +116,19 @@ const ServiceList = ({
         setDeleteDialogOpen(true)
       }
       setMenu(null) // Close context menu
+    },
+    [services],
+  )
+
+  // Add handler for switch project
+  const handleSwitchProject = useCallback(
+    (service: ServiceNode) => {
+      const fullService = services.find(s => s.id === service.id)
+      if (fullService) {
+        setSwitchService(fullService)
+        setSwitchDialogOpen(true)
+      }
+      setMenu(null)
     },
     [services],
   )
@@ -137,6 +160,8 @@ const ServiceList = ({
             project.server.connection?.status !== 'success',
         ),
         onClick: () => handleRedirectToService(node.id),
+        onSwitchProject: () => handleSwitchProject(node),
+        onDeleteService: () => handleDeleteService(node),
       },
       type: 'custom',
     }))
@@ -154,6 +179,42 @@ const ServiceList = ({
     setEdges(initialEdges)
   }, [services])
 
+  // Define menuOptions for nodes
+  const menuOptions = (node: any) => (
+    <div className='absolute right-2 top-2 z-20'>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type='button'
+            className='rounded-full p-1 hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary'
+            onClick={e => e.stopPropagation()}
+            aria-label='Open menu'>
+            <MoreVertical size={18} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem
+            onClick={e => {
+              e.stopPropagation()
+              handleSwitchProject(node)
+            }}>
+            <Repeat className='mr-2' size={16} />
+            Switch Project
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={e => {
+              e.stopPropagation()
+              handleDeleteService(node)
+            }}
+            className='text-destructive'>
+            <Trash2 className='mr-2' size={16} />
+            Delete Service
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  )
+
   return (
     <>
       <div
@@ -166,24 +227,37 @@ const ServiceList = ({
           onNodeContextMenu={onNodeContextMenu}
           onEdgesChange={onEdgesChange}
           onNodesChange={onNodesChange}
-          className='h-full w-full'>
+          className='h-full w-full'
+          menuOptions={menuOptions}>
           {menu && (
             <ContextMenu
               onClick={onPaneClick}
               edges={edges}
               onDeleteService={handleDeleteService}
+              onSwitchProject={handleSwitchProject}
               {...menu}
             />
           )}
         </ReactFlowConfig>
       </div>
 
+      {/* Delete Service Dialog */}
       {selectedService && (
         <DeleteServiceDialog
           service={selectedService}
           project={project}
           open={deleteDialogOpen}
           setOpen={setDeleteDialogOpen}
+        />
+      )}
+
+      {/* Switch Project Dialog */}
+      {switchService && (
+        <SwitchServiceProjectDialog
+          open={switchDialogOpen}
+          setOpen={setSwitchDialogOpen}
+          service={switchService}
+          project={project}
         />
       )}
     </>
@@ -199,6 +273,7 @@ interface ContextMenuProps {
   edges: Edge[]
   onClick: () => void
   onDeleteService: (service: ServiceNode) => void
+  onSwitchProject: (service: ServiceNode) => void
 }
 
 const ContextMenu: FC<ContextMenuProps> = ({
@@ -207,6 +282,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   service,
   onClick,
   onDeleteService,
+  onSwitchProject,
 }) => {
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -216,6 +292,12 @@ const ContextMenu: FC<ContextMenuProps> = ({
       className='fixed z-10 w-48 rounded-md border border-border bg-card/30 shadow-md'
       style={{ top, left }}>
       <ul className='space-y-1 p-2'>
+        <Button
+          variant='secondary'
+          className='w-full'
+          onClick={() => onSwitchProject(service)}>
+          Switch Project
+        </Button>
         <Button
           variant='destructive'
           className='w-full'

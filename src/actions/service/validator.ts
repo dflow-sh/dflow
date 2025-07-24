@@ -58,6 +58,7 @@ export const updateServiceSchema = z
     environmentVariables: z.record(z.string(), z.unknown()).optional(),
     noRestart: z.boolean().optional(),
     id: z.string(),
+    project: z.string().optional(),
     dockerDetails: z
       .object({
         url: z.string(),
