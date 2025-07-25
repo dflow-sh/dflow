@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import { ProjectCard } from '@/components/ProjectCard'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
@@ -136,58 +137,64 @@ const SuspendedDashboard = async ({
           )}
         </div>
 
-        {/* Complete Onboarding */}
-        {notOnboardedServers.length > 0 && (
-          <Alert variant='warning' className='mb-4'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertTitle>Some servers are not fully onboarded</AlertTitle>
-            <AlertDescription>
-              <div className='mb-2'>
-                The following servers need to complete onboarding before they
-                can be used for deployments:
-              </div>
-              <ul className='mb-2 list-inside list-disc'>
-                {notOnboardedServers.map(server => (
-                  <li key={server.id} className='font-medium'>
-                    {server.name || server.id}
-                  </li>
-                ))}
-              </ul>
-              <div>
-                <Link
-                  href={`/${organisationSlug}/servers`}
-                  className='font-semibold underline'>
-                  Go to Servers page to complete onboarding
-                </Link>
-              </div>
-            </AlertDescription>
-          </Alert>
+        {result?.serverError ? (
+          <AccessDeniedAlert error={result?.serverError} />
+        ) : (
+          <>
+            {' '}
+            {/* Complete Onboarding */}
+            {notOnboardedServers.length > 0 && (
+              <Alert variant='warning' className='mb-4'>
+                <AlertCircle className='h-4 w-4' />
+                <AlertTitle>Some servers are not fully onboarded</AlertTitle>
+                <AlertDescription>
+                  <div className='mb-2'>
+                    The following servers need to complete onboarding before
+                    they can be used for deployments:
+                  </div>
+                  <ul className='mb-2 list-inside list-disc'>
+                    {notOnboardedServers.map(server => (
+                      <li key={server.id} className='font-medium'>
+                        {server.name || server.id}
+                      </li>
+                    ))}
+                  </ul>
+                  <div>
+                    <Link
+                      href={`/${organisationSlug}/servers`}
+                      className='font-semibold underline'>
+                      Go to Servers page to complete onboarding
+                    </Link>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+            {servers.length > 0 && allServersFailed && (
+              <Alert variant='warning'>
+                <AlertCircle className='h-4 w-4' />
+                <AlertTitle>SSH Connection Issue</AlertTitle>
+                <AlertDescription>
+                  None of your servers have an active SSH connection. Projects
+                  may not function properly until SSH connections are
+                  established.
+                  <br />
+                  Go to{' '}
+                  <a href={`servers`} className='text-primary underline'>
+                    servers page
+                  </a>{' '}
+                  to check connection and refresh connections.
+                </AlertDescription>
+              </Alert>
+            )}
+            {/* Server Alerts and Projects display */}
+            <Projects
+              servers={servers as ServerType[]}
+              projects={projects}
+              organisationSlug={organisationSlug}
+              hasServers={hasServers}
+            />
+          </>
         )}
-
-        {servers.length > 0 && allServersFailed && (
-          <Alert variant='warning'>
-            <AlertCircle className='h-4 w-4' />
-            <AlertTitle>SSH Connection Issue</AlertTitle>
-            <AlertDescription>
-              None of your servers have an active SSH connection. Projects may
-              not function properly until SSH connections are established.
-              <br />
-              Go to{' '}
-              <a href={`servers`} className='text-primary underline'>
-                servers page
-              </a>{' '}
-              to check connection and refresh connections.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Server Alerts and Projects display */}
-        <Projects
-          servers={servers as ServerType[]}
-          projects={projects}
-          organisationSlug={organisationSlug}
-          hasServers={hasServers}
-        />
       </section>
 
       <ServerTerminalClient servers={servers} />

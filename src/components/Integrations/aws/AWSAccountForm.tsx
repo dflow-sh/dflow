@@ -5,11 +5,13 @@ import { CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
   checkAWSAccountConnection,
   connectAWSAccountAction,
+  updateAWSAccountAction,
 } from '@/actions/cloud/aws'
 import { connectAWSAccountSchema } from '@/actions/cloud/aws/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -63,6 +65,40 @@ const AWSAccountForm = ({
     connectAWSAccountAction,
     {
       onSuccess: ({ data }) => {
+        toast.success(`AWS account created successfully`)
+        if (data?.id) {
+          refetch?.({ type: 'aws' })
+          dialogFooterRef.current?.click()
+        }
+      },
+      onError: ({ error }) => {
+        if (error?.serverError) {
+          setValidationError(error.serverError)
+        }
+
+        if (error?.validationErrors) {
+          Object.entries(error.validationErrors).forEach(
+            ([field, messages]) => {
+              if (Array.isArray(messages) && messages.length > 0) {
+                form.setError(
+                  field as keyof z.infer<typeof connectAWSAccountSchema>,
+                  {
+                    message: messages[0],
+                  },
+                )
+              }
+            },
+          )
+        }
+      },
+    },
+  )
+
+  const { execute: updateAccount, isPending: updatingAccount } = useAction(
+    updateAWSAccountAction,
+    {
+      onSuccess: ({ data }) => {
+        toast.success(`AWS account updated successfully`)
         if (data?.id) {
           refetch?.({ type: 'aws' })
           dialogFooterRef.current?.click()
@@ -182,7 +218,14 @@ const AWSAccountForm = ({
       }
     }
 
-    connectAccount({ ...values, id: account?.id })
+    if (account) {
+      updateAccount({
+        id: account.id,
+        ...values,
+      })
+    } else {
+      connectAccount({ ...values })
+    }
   }
 
   // Allow save if either:
@@ -412,9 +455,9 @@ const AWSAccountForm = ({
             <DialogFooter className='flex-col gap-4 sm:flex-row sm:justify-end'>
               <Button
                 type='submit'
-                isLoading={connectingAccount}
-                disabled={connectingAccount || !canSave}>
-                {connectingAccount ? (
+                isLoading={connectingAccount || updatingAccount}
+                disabled={connectingAccount || !canSave || updatingAccount}>
+                {connectingAccount || updatingAccount ? (
                   'Saving...'
                 ) : credentialsChanged && !hasTestedConnection ? (
                   'Test Connection First'

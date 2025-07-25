@@ -10,6 +10,7 @@ import {
   connectDockerRegistrySchema,
   deleteDockerRegistrySchema,
   testDockerRegistryConnectionSchema,
+  updateDockerRegistrySchema,
 } from './validator'
 
 export const getDockerRegistries = protectedClient
@@ -42,34 +43,46 @@ export const connectDockerRegistryAction = protectedClient
   })
   .schema(connectDockerRegistrySchema)
   .action(async ({ clientInput, ctx }) => {
+    const { password, username, type, name } = clientInput
+    const payload = await getPayload({ config: configPromise })
+
+    let response: DockerRegistry
+
+    response = await payload.create({
+      collection: 'dockerRegistries',
+      data: {
+        type,
+        name,
+        username,
+        password,
+        tenant: ctx.userTenant.tenant,
+      },
+    })
+
+    return response
+  })
+
+export const updateDockerRegistryAction = protectedClient
+  .metadata({
+    actionName: 'updateDockerRegistryAction',
+  })
+  .schema(updateDockerRegistrySchema)
+  .action(async ({ clientInput, ctx }) => {
     const { password, username, type, name, id } = clientInput
     const payload = await getPayload({ config: configPromise })
 
     let response: DockerRegistry
 
-    if (id) {
-      response = await payload.update({
-        collection: 'dockerRegistries',
-        id,
-        data: {
-          type,
-          name,
-          username,
-          password,
-        },
-      })
-    } else {
-      response = await payload.create({
-        collection: 'dockerRegistries',
-        data: {
-          type,
-          name,
-          username,
-          password,
-          tenant: ctx.userTenant.tenant,
-        },
-      })
-    }
+    response = await payload.update({
+      collection: 'dockerRegistries',
+      id,
+      data: {
+        type,
+        name,
+        username,
+        password,
+      },
+    })
 
     return response
   })

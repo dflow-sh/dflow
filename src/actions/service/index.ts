@@ -365,7 +365,7 @@ export const deleteServiceAction = protectedClient
 
 export const updateServiceAction = protectedClient
   .metadata({
-    actionName: 'updateServerAction',
+    actionName: 'updateServiceAction',
   })
   .schema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {

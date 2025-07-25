@@ -13,7 +13,14 @@ import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 const Step4 = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep } = useDokkuInstallationStep()
   const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
-  const { execute, isPending, hasSucceeded } = useAction(installRailpackAction)
+  const { execute, isPending, hasSucceeded } = useAction(
+    installRailpackAction,
+    {
+      onError: ({ error }) => {
+        toast.error(`Failed to install railpack: ${error?.serverError}`)
+      },
+    },
+  )
   const { setCurrentStep } = useServerOnboarding()
 
   const railpackVersion = server?.railpack

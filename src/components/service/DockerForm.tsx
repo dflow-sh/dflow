@@ -56,6 +56,9 @@ const DockerForm = ({
           })
         }
       },
+      onError: ({ error }) => {
+        toast.error(`Failed to update details: ${error?.serverError}`)
+      },
     },
   )
 

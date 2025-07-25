@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { toast } from 'sonner'
 
 import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,9 @@ const CloudProviderCard = ({
     {
       onSuccess: ({ data }: any) => {
         if (data?.id) refetch?.({ type: account.type })
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to delete account ${error.serverError}`)
       },
     },
   )

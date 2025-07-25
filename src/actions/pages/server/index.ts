@@ -5,9 +5,9 @@ import { ServerType } from '@/payload-types-overrides'
 
 import { getServerDetailsSchema, getServersDetailsSchema } from './validator'
 
-export const getServersDetails = protectedClient
+export const getServersDetailsAction = protectedClient
   .metadata({
-    actionName: 'getServersDetails',
+    actionName: 'getServersDetailsAction',
   })
   .schema(getServersDetailsSchema)
   .action(async ({ clientInput, ctx }) => {

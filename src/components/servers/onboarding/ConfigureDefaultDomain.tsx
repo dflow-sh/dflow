@@ -23,6 +23,9 @@ const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
           })
         }
       },
+      onError: ({ error, input }) => {
+        toast.error(`Failed to ${input.operation} domain: ${error.serverError}`)
+      },
     },
   )
 

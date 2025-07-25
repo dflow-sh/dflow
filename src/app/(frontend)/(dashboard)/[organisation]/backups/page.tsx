@@ -1,12 +1,12 @@
 import LayoutClient from '../layout.client'
 import { History } from 'lucide-react'
 
-import { getAllBackups } from '@/actions/dbBackup'
+import { getAllBackupsAction } from '@/actions/dbBackup'
 import { IndividualBackup } from '@/components/service/Backup'
 import { Backup } from '@/payload-types'
 
 const BackupsPage = async () => {
-  const result = await getAllBackups()
+  const result = await getAllBackupsAction()
   const data = result?.data as Backup[]
 
   const grouped = data.reduce(

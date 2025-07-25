@@ -12,12 +12,14 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteGitProviderAction } from '@/actions/gitProviders'
+import {
+  deleteGitProviderAction,
+  installGithubAppAction,
+} from '@/actions/gitProviders'
 import { GitProvider } from '@/payload-types'
 
 const GithubCard = ({
@@ -32,12 +34,22 @@ const GithubCard = ({
   const { execute, isPending } = useAction(deleteGitProviderAction, {
     onSuccess: () => {
       trigger()
+      toast.success('Github app deleted successfully')
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to delete github app ${error.serverError}`)
     },
   })
 
-  const installState = onboarding
-    ? `gh_install:${provider.id}:onboarding`
-    : `gh_install:${provider.id}`
+  const { execute: installGithubApp, isPending: isInstallGithubAppPending } =
+    useAction(installGithubAppAction, {
+      onSuccess: ({ data }) => {
+        window.location.href = `${provider.github?.appUrl}/installations/new?state=${data?.installState}`
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to install github app ${error.serverError}`)
+      },
+    })
 
   return (
     <Card key={provider.id}>
@@ -55,13 +67,20 @@ const GithubCard = ({
 
         <div className='flex items-center gap-4'>
           {!provider?.github?.installationId && (
-            <Link
-              href={`${provider.github?.appUrl}/installations/new?state=${installState}`}>
-              <Button variant={'outline'} size={'sm'}>
-                <ArrowDownToLine />
-                Install
-              </Button>
-            </Link>
+            <Button
+              variant={'outline'}
+              size={'sm'}
+              onClick={() =>
+                installGithubApp({
+                  id: provider.id,
+                  onboarding: onboarding,
+                })
+              }
+              isLoading={isInstallGithubAppPending}
+              disabled={isInstallGithubAppPending}>
+              <ArrowDownToLine />
+              Install
+            </Button>
           )}
 
           <Button

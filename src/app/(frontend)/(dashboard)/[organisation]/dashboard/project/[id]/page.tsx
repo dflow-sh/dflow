@@ -1,10 +1,10 @@
 import TabsLayout from '../../../layout.client'
 import { ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { getProjectDetails } from '@/actions/pages/project'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateTemplateFromProject from '@/components/project/CreateTemplateFromProject'
 import CreateService from '@/components/service/CreateService'
@@ -33,7 +33,7 @@ const SuspendedPage = async ({
   const project = data?.Projects?.[0]
 
   if (!project) {
-    notFound()
+    return <AccessDeniedAlert error={result?.serverError!} />
   }
 
   const { services } = data

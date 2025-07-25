@@ -5,7 +5,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { protectedClient, publicClient } from '@/lib/safe-action'
+import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
 
 import {
   forgotPasswordSchema,
@@ -102,17 +102,111 @@ export const signUpAction = publicClient
         subdomain: username,
       },
     })
-    const response = await payload.create({
+
+    const user = await payload.create({
       collection: 'users',
       data: {
         username,
         email,
         password,
         onboarded: false,
-        tenants: [{ tenant: tenant.id, roles: ['tenant-admin'] }],
       },
     })
-    return response
+
+    const role = await payload.create({
+      collection: 'roles',
+      data: {
+        name: 'Admin',
+        backups: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        cloudProviderAccounts: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        dockerRegistries: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        gitProviders: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        projects: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        roles: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        securityGroups: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        servers: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        services: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        sshKeys: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        team: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        templates: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        type: 'management',
+        description:
+          'Full access to manage projects, services, and all other features.',
+        tags: ['Admin', 'Full Access'],
+        tenant: tenant,
+        createdUser: user,
+      },
+    })
+
+    const updatedUser = await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
+        tenants: [{ tenant: tenant, role }],
+      },
+    })
+
+    return updatedUser
   })
 
 // export const verifyEmailAction = publicClient
@@ -198,7 +292,7 @@ export const logoutAction = publicClient
     redirect('/sign-in')
   })
 
-export const getUserAction = protectedClient
+export const getUserAction = userClient
   .metadata({ actionName: 'getUserAction' })
   .action(async ({ ctx }) => {
     return ctx.user

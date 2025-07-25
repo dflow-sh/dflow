@@ -14,7 +14,8 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
-  getAllTemplatesAction,
+  getAllOfficialTemplatesAction,
+  getPersonalTemplatesAction,
   templateDeployAction,
 } from '@/actions/templates'
 import {
@@ -385,7 +386,14 @@ const DeployTemplate = ({
   disableReason?: string
   server: Server
 }) => {
-  const { execute, result, isPending } = useAction(getAllTemplatesAction)
+  const { execute, result, isPending } = useAction(
+    getAllOfficialTemplatesAction,
+  )
+  const {
+    execute: getPersonalTemplates,
+    result: personalTemplates,
+    isPending: isGetTemplatesPending,
+  } = useAction(getPersonalTemplatesAction)
 
   const architectureContext = function useSafeArchitectureContext() {
     try {
@@ -428,7 +436,6 @@ const DeployTemplate = ({
             Choose a template to deploy to your project
           </DialogDescription>
         </DialogHeader>
-
         <div className='flex-1 overflow-hidden'>
           <Tabs defaultValue='official' className='flex h-full flex-col'>
             <TabsList className='grid w-full grid-cols-3'>
@@ -460,12 +467,12 @@ const DeployTemplate = ({
 
               <TabsContent value='personal' className='h-full'>
                 <TemplateDeploymentForm
-                  execute={execute}
-                  templates={result.data}
-                  isPending={isPending}
-                  server={server}
-                  type='personal'
-                />
+              execute={getPersonalTemplates}
+              templates={personalTemplates.data}
+              isPending={isGetTemplatesPending}
+              server={server}
+              type='personal'
+            />
               </TabsContent>
             </div>
           </Tabs>

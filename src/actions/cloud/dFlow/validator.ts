@@ -3,7 +3,12 @@ import { z } from 'zod'
 export const connectDFlowAccountSchema = z.object({
   accessToken: z.string().min(1),
   name: z.string().min(1),
-  id: z.string().optional(),
+})
+
+export const updateDFlowAccountSchema = z.object({
+  accessToken: z.string().min(1),
+  name: z.string().min(1),
+  id: z.string(),
 })
 
 export const getDFlowPlansActionSchema = z.object({ accessToken: z.string() })

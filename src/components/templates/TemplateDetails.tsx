@@ -21,11 +21,12 @@ import { AlertCircle, EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { Fragment, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
-  deleteTemplate,
+  deleteTemplateAction,
   publishTemplateAction,
   syncWithPublicTemplateAction,
   unPublishTemplateAction,
@@ -44,6 +45,7 @@ const TemplateDetails = ({
   const [openPublish, setOpenPublish] = useState(false)
 
   const router = useRouter()
+  const { organisation } = useParams()
 
   const { execute: publishTemplate, isPending: isPublishTemplatePending } =
     useAction(publishTemplateAction, {
@@ -66,8 +68,8 @@ const TemplateDetails = ({
           setOpenPublish(false)
         }
       },
-      onError: () => {
-        toast.error('Failed to unpublish template')
+      onError: ({ error }) => {
+        toast.error(`Failed to unpublish template ${error.serverError}`)
       },
     })
 
@@ -78,14 +80,16 @@ const TemplateDetails = ({
     onSuccess: () => {
       toast.success('Successfully synced with community template')
     },
-    onError: () => {
-      toast.error('Failed to sync with community template')
+    onError: ({ error }) => {
+      toast.error(
+        `Failed to sync with community template ${error?.serverError}`,
+      )
     },
   })
 
   const isPublished = template.isPublished
 
-  const { execute, isPending } = useAction(deleteTemplate, {
+  const { execute, isPending } = useAction(deleteTemplateAction, {
     onSuccess: ({ data }) => {
       if (data) {
         toast.success(`Template deleted successfully`)
@@ -200,7 +204,9 @@ const TemplateDetails = ({
               <AlertDescription>
                 To {isPublished ? 'unpublish' : 'publish'} this template, you
                 must first connect your{' '}
-                <Link href='/dashboard/integrations' className='underline'>
+                <Link
+                  href={`/${organisation}/integrations?active=dflow`}
+                  className='underline'>
                   dFlow
                 </Link>{' '}
                 account in the Integrations section.

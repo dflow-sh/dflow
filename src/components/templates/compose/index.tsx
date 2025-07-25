@@ -22,10 +22,10 @@ import {
 } from 'unique-names-generator'
 
 import {
-  createTemplate,
+  createTemplateAction,
   getOfficialTemplateByIdAction,
-  getTemplateById,
-  updateTemplate,
+  getTemplateByIdAction,
+  updateTemplateAction,
 } from '@/actions/templates'
 import {
   CreateTemplateSchemaType,
@@ -84,7 +84,7 @@ const CreateNewTemplate = () => {
 
   //create template api
   const { execute: createNewTemplate, isPending: isCreateNewTemplatePending } =
-    useAction(createTemplate, {
+    useAction(createTemplateAction, {
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Template created successfully`)
@@ -92,14 +92,14 @@ const CreateNewTemplate = () => {
         }
       },
       onError: ({ error }) => {
-        toast.error(`Failed to create template`)
+        toast.error(`Failed to create template ${error.serverError}`)
       },
     })
 
   const {
     execute: updateExistingTemplate,
     isPending: isUpdateTemplatePending,
-  } = useAction(updateTemplate, {
+  } = useAction(updateTemplateAction, {
     onSuccess: ({ data, input }) => {
       if (data) {
         toast.success(`Template updated successfully`)
@@ -107,16 +107,16 @@ const CreateNewTemplate = () => {
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to update template`)
+      toast.error(`Failed to update template ${error?.serverError}`)
     },
   })
 
   //getTemplateBYId api for personal templates
   const {
-    execute: getTemplateByIdAction,
+    execute: getTemplateById,
     isPending: isGetTemplateByIdPending,
     result: personalTemplate,
-  } = useAction(getTemplateById, {
+  } = useAction(getTemplateByIdAction, {
     onError: ({ error }) => {
       toast.error(`Failed to get template: ${error.serverError}`)
     },
@@ -158,7 +158,7 @@ const CreateNewTemplate = () => {
   useEffect(() => {
     if (!templateId) return
     if (type === 'personal') {
-      getTemplateByIdAction({ id: templateId })
+      getTemplateById({ id: templateId })
     } else if (type === 'official') {
       getOfficialTemplateById({ templateId })
     }

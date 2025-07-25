@@ -8,8 +8,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { Form, FormField, FormItem, FormMessage } from '../ui/form'
-import { MultiSelect } from '../ui/multi-select'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EllipsisVertical } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -17,7 +23,10 @@ import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { removeUserFromTeamAction, updateUserTenantRoles } from '@/actions/team'
+import {
+  removeUserFromTeamAction,
+  updateUserTenantRolesAction,
+} from '@/actions/team'
 import {
   updateTenantRolesSchema,
   updateTenantRolesType,
@@ -30,9 +39,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Tenant, User } from '@/payload-types'
+import { Role, Tenant, User } from '@/payload-types'
 
-const TeamMembers = ({ teamMembers }: { teamMembers: User[] | undefined }) => {
+const TeamMembers = ({
+  teamMembers,
+  roles,
+}: {
+  teamMembers: User[] | undefined
+  roles: Role[]
+}) => {
   const { organisation } = useParams()
 
   return (
@@ -55,7 +70,8 @@ const TeamMembers = ({ teamMembers }: { teamMembers: User[] | undefined }) => {
             {teamMembers && teamMembers?.length > 0 ? (
               teamMembers?.map((teamMember, index) => (
                 <TeamMember
-                  key={index}
+                  availableRoles={roles}
+                  key={teamMember.id}
                   organisation={organisation as string}
                   teamMember={teamMember}
                 />
@@ -77,19 +93,35 @@ export default TeamMembers
 const TeamMember = ({
   teamMember,
   organisation,
+  availableRoles,
 }: {
   teamMember: User
   organisation: string
+  availableRoles: Role[]
 }) => {
+  const role = teamMember.tenants?.find(
+    tenant => (tenant.tenant as Tenant)?.slug === organisation,
+  )?.role
+
+  const form = useForm<updateTenantRolesType>({
+    resolver: zodResolver(updateTenantRolesSchema),
+    defaultValues: {
+      role: (role as Role)?.id,
+      user: teamMember,
+    },
+  })
+
   const { execute: updateTenantRoles, isPending: isUpdateTenantRolesPending } =
-    useAction(updateUserTenantRoles, {
+    useAction(updateUserTenantRolesAction, {
       onSuccess: () => {
-        toast.success('Roles updated successfully')
+        toast.success('Role updated successfully')
       },
-      onError: () => {
-        toast.error('Failed to updated roles')
+      onError: ({ error }) => {
+        toast.error(`Failed to updated role ${error?.serverError}`)
+        form.reset()
       },
     })
+
   const {
     execute: removeUserFromTeam,
     isPending: isRemoveUserFromTeamPending,
@@ -97,25 +129,14 @@ const TeamMember = ({
     onSuccess: () => {
       toast.success('Team member removed successfully')
     },
-    onError: () => {
-      toast.error('Failed to remove team member')
-    },
-  })
-  const roles = teamMember.tenants?.find(
-    tenant => (tenant.tenant as Tenant)?.slug === organisation,
-  )?.roles
-
-  const form = useForm<updateTenantRolesType>({
-    resolver: zodResolver(updateTenantRolesSchema),
-    defaultValues: {
-      roles: roles,
-      user: teamMember,
+    onError: ({ error }) => {
+      toast.error(`Failed to remove team member ${error?.serverError}`)
     },
   })
 
   const onSubmit = (data: updateTenantRolesType) => {
     updateTenantRoles({
-      roles: data.roles,
+      role: data.role,
       user: data.user,
     })
   }
@@ -142,56 +163,39 @@ const TeamMember = ({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name='roles'
+              name='role'
               render={({ field }) => (
                 <FormItem>
-                  <MultiSelect
-                    options={[
-                      {
-                        label: 'Member',
-                        value: 'tenant-user',
-                      },
-                      {
-                        label: 'Admin',
-                        value: 'tenant-admin',
-                      },
-                    ]}
+                  <Select
                     disabled={isUpdateTenantRolesPending}
-                    onValueChange={(value: string[]) => {
-                      form.setValue(
-                        'roles',
-                        value as ('tenant-user' | 'tenant-admin')[],
-                      )
+                    onValueChange={(value: string) => {
+                      form.setValue('role', value)
                       form.handleSubmit(onSubmit)()
                     }}
-                    defaultValue={field.value || []}
-                    placeholder='Select Roles'
-                    variant='inverted'
-                    maxCount={3}
-                    className='w-72'
-                  />
+                    {...field}>
+                    <FormControl>
+                      <SelectTrigger className='w-56'>
+                        <SelectValue placeholder='Select role' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableRoles.length > 0 ? (
+                        availableRoles.map(role => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value={form.getValues('role')}>
+                          {(role as Role)?.name}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage className='my-0 py-0' />
                 </FormItem>
               )}
             />
-            {/* <MultiSelect
-          options={[
-            {
-              label: 'Member',
-              value: 'tenant-user',
-            },
-            {
-              label: 'Admin',
-              value: 'tenant-admin',
-            },
-          ]}
-          onValueChange={() => {}}
-          defaultValue={roles}
-          placeholder='Select Roles'
-          variant='inverted'
-          maxCount={1}
-          className='w-72'
-        /> */}
           </form>
         </Form>
       </TableCell>
@@ -209,7 +213,10 @@ const TeamMember = ({
             <DropdownMenuGroup>
               <DropdownMenuItem
                 onClick={() =>
-                  removeUserFromTeam({ user: teamMember, roles: roles! })
+                  removeUserFromTeam({
+                    user: teamMember,
+                    role: (role as Role)?.id,
+                  })
                 }>
                 {isRemoveUserFromTeamPending
                   ? ' Removing'

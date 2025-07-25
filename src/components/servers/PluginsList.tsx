@@ -91,6 +91,9 @@ const PluginCard = ({
         })
       }
     },
+    onError: ({ error }) => {
+      toast.error(`Failed to install plugin: ${error.serverError}`)
+    },
   })
 
   const { execute: deletePlugin, isPending: isDeletingPlugin } = useAction(
@@ -103,6 +106,9 @@ const PluginCard = ({
           })
         }
       },
+      onError: ({ error }) => {
+        toast.error(`Faqiled to delete plugin: ${error?.serverError}`)
+      },
     },
   )
 
@@ -114,6 +120,9 @@ const PluginCard = ({
             description: `Added ${input.pluginName} update to queue`,
           })
         }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to update plugin: ${error?.serverError}`)
       },
     })
 
@@ -239,6 +248,9 @@ const PluginsList = ({ server }: { server: ServerType }) => {
       if (data?.success) {
         toast.success('Successfully synced plugins')
       }
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to sync plugins: ${error?.serverError}`)
     },
   })
 

@@ -23,6 +23,7 @@ import {
   connectAWSAccountSchema,
   createEC2InstanceSchema,
   deleteAWSAccountSchema,
+  updateAWSAccountSchema,
   updateEC2InstanceSchema,
 } from './validator'
 
@@ -243,38 +244,48 @@ export const connectAWSAccountAction = protectedClient
   })
   .schema(connectAWSAccountSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { accessKeyId, secretAccessKey, name, id } = clientInput
-    const payload = await getPayload({ config: configPromise })
-    const { userTenant } = ctx
+    const { accessKeyId, secretAccessKey, name } = clientInput
+    const { userTenant, payload } = ctx
     let response: CloudProviderAccount
 
-    if (id) {
-      response = await payload.update({
-        collection: 'cloudProviderAccounts',
-        id,
-        data: {
-          type: 'aws',
-          awsDetails: {
-            accessKeyId,
-            secretAccessKey,
-          },
-          name,
+    response = await payload.create({
+      collection: 'cloudProviderAccounts',
+      data: {
+        type: 'aws',
+        awsDetails: {
+          accessKeyId,
+          secretAccessKey,
         },
-      })
-    } else {
-      response = await payload.create({
-        collection: 'cloudProviderAccounts',
-        data: {
-          type: 'aws',
-          awsDetails: {
-            accessKeyId,
-            secretAccessKey,
-          },
-          tenant: userTenant.tenant,
-          name,
+        tenant: userTenant.tenant,
+        name,
+      },
+    })
+
+    return response
+  })
+
+export const updateAWSAccountAction = protectedClient
+  .metadata({
+    actionName: 'updateAWSAccountAction',
+  })
+  .schema(updateAWSAccountSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { accessKeyId, secretAccessKey, name, id } = clientInput
+    const { userTenant, payload } = ctx
+    let response: CloudProviderAccount
+
+    response = await payload.update({
+      collection: 'cloudProviderAccounts',
+      id,
+      data: {
+        type: 'aws',
+        awsDetails: {
+          accessKeyId,
+          secretAccessKey,
         },
-      })
-    }
+        name,
+      },
+    })
 
     return response
   })

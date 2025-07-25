@@ -7,6 +7,7 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
@@ -40,7 +41,7 @@ const DflowDrawer = () => {
     if (activeSlide === 'dflow' && !result?.data) {
       execute({ type: 'dFlow' })
     }
-  }, [activeSlide, result])
+  }, [activeSlide, result?.data])
 
   const icon = integration ? (
     <div className='mb-2 flex size-14 items-center justify-center rounded-md border'>
@@ -73,13 +74,17 @@ const DflowDrawer = () => {
           </SheetDescription>
         </SheetHeader>
 
-        {isPending && <GithubIntegrationsLoading />}
-
-        {!isPending && result.data && (
+        {isPending ? (
+          <GithubIntegrationsLoading />
+        ) : result?.serverError ? (
+          <ScrollArea className='flex-grow'>
+            <AccessDeniedAlert error={result?.serverError} />
+          </ScrollArea>
+        ) : result.data ? (
           <ScrollArea className='flex-grow'>
             <CloudProvidersList accounts={result.data} refetch={execute} />
           </ScrollArea>
-        )}
+        ) : null}
 
         <SheetFooter>
           {canAddNewAccount ? (
