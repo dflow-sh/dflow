@@ -37,6 +37,9 @@ const Step2 = ({ server }: { server: ServerType }) => {
         })
       }
     },
+    onError: ({ error }) => {
+      toast.error(`Failed to install dokku: ${error?.serverError}`)
+    },
   })
 
   // Reset attempt tracking when server changes or step resets

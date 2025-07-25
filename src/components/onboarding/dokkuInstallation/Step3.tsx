@@ -3,6 +3,7 @@
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import {
   configureLetsencryptPluginAction,
@@ -21,17 +22,30 @@ const Step3 = ({ server }: { server: ServerType }) => {
     useDokkuInstallationStep()
 
   const { execute: installPlugin, hasSucceeded: triggedInstallingPlugin } =
-    useAction(installPluginAction)
+    useAction(installPluginAction, {
+      onError: ({ error }) => {
+        toast.error(`Failed to install plugin: ${error.serverError}`)
+      },
+    })
 
   const {
     execute: syncPlugins,
     isPending: isSyncingPlugins,
     hasSucceeded: syncedPlugins,
     result: syncPluginResult,
-  } = useAction(syncPluginAction)
+  } = useAction(syncPluginAction, {
+    onError: ({ error }) => {
+      toast.error(`Failed to sync plugins: ${error?.serverError}`)
+    },
+  })
 
   const { execute: configureLetsencrypt } = useAction(
     configureLetsencryptPluginAction,
+    {
+      onError: ({ error }) => {
+        toast.error(`Failed to update config: ${error?.serverError}`)
+      },
+    },
   )
 
   const plugins = syncPluginResult?.data?.plugins || server?.plugins || []

@@ -166,7 +166,7 @@ export const togglePluginStatusAction = protectedClient
 
 export const deletePluginAction = protectedClient
   .metadata({
-    actionName: 'uninstallPluginAction',
+    actionName: 'deletePluginAction',
   })
   .schema(installPluginSchema)
   .action(async ({ clientInput, ctx }) => {

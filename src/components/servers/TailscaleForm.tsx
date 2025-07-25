@@ -176,7 +176,7 @@ const TailscaleForm = () => {
       },
       onError: ({ error }) => {
         console.error('Error creating server:', error)
-        toast.error('Failed to create server. Please try again.')
+        toast.error(`Failed to create server: ${error?.serverError}`)
       },
       onSettled: () => {
         form.reset()

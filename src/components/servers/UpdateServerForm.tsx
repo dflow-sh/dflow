@@ -78,6 +78,9 @@ const UpdateServerForm = ({
           })
         }
       },
+      onError: ({ error }) => {
+        toast.error(`Failed to install dokku: ${error?.serverError}`)
+      },
     },
   )
 

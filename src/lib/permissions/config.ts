@@ -5,18 +5,18 @@ export const getActionAccess = {
   updateTailscaleServerAction: ['servers.update'],
   updateServerAction: ['servers.update'],
   deleteServerAction: ['servers.delete'],
-  installDokkuAction: ['servers.read'],
-  updateServerDomainAction: ['servers.update'],
-  installRailpackAction: ['servers.update'],
+  installDokkuAction: ['servers.read', 'servers.update'],
+  updateServerDomainAction: ['servers.read', 'servers.update'],
+  installRailpackAction: ['servers.read', 'servers.update'],
   updateRailpackAction: ['servers.update'],
-  completeServerOnboardingAction: ['servers.read'],
+  completeServerOnboardingAction: ['servers.read', 'servers.update'],
   getServersAction: ['servers.read'],
   checkDNSConfigAction: ['servers.read'],
   syncServerDomainAction: ['servers.read', 'servers.update'],
   checkServerConnection: ['servers.read'],
-  configureGlobalBuildDirAction: ['servers.update'],
-  resetOnboardingAction: ['servers.update'],
-  getServersDetails: ['servers.read'],
+  configureGlobalBuildDirAction: ['servers.read', 'servers.update'],
+  resetOnboardingAction: ['servers.read', 'servers.update'],
+  getServersDetailsAction: ['servers.read'],
   getAddServerDetails: ['sshKeys.read', 'securityGroups.read'],
   getServerBreadcrumbs: ['servers.read'],
   getServerProjects: ['projects.read'],
@@ -28,7 +28,7 @@ export const getActionAccess = {
 
   // Plugin actions
   installPluginAction: ['servers.update'],
-  syncPluginAction: ['servers.update'],
+  syncPluginAction: ['servers.read', 'servers.update'],
   togglePluginStatusAction: ['servers.update'],
   deletePluginAction: ['servers.update'],
   configureLetsencryptPluginAction: ['servers.update'],
@@ -80,7 +80,11 @@ export const getActionAccess = {
   ],
   connectDFlowAccountAction: ['cloudProviderAccounts.create'],
   checkAccountConnection: ['cloudProviderAccounts.read'],
-  createVPSOrderAction: ['servers.created', 'cloudProviderAccounts.read'],
+  createVPSOrderAction: [
+    'servers.created',
+    'cloudProviderAccounts.read',
+    'sshKeys.read',
+  ],
   checkPaymentMethodAction: ['cloudProviderAccounts.read'],
   deleteDFlowAccountAction: ['cloudProviderAccounts.delete'],
   getDflowUser: ['cloudProviderAccounts.read'],
@@ -91,16 +95,16 @@ export const getActionAccess = {
     'cloudProviderAccounts.read',
     'sshKeys.read',
     'securityGroups.read',
+    'securityGroups.update',
     'servers.create',
   ],
   updateEC2InstanceAction: [
     'servers.read',
     'cloudProviderAccounts.read',
     'securityGroups.read',
-    'securityGroups.create',
     'servers.update',
   ],
-  checkAWSAccountConnection: ['servers.read', 'cloudProviderAccounts.read'],
+  checkAWSAccountConnection: ['servers.read'],
   connectAWSAccountAction: ['cloudProviderAccounts.create'],
   updateAWSAccountAction: ['cloudProviderAccounts.update'],
   deleteAWSAccountAction: ['cloudProviderAccounts.delete'],
@@ -134,7 +138,7 @@ export const getActionAccess = {
   getSecurityGroupsAction: ['securityGroups.read'],
 
   // Projects actions
-  createProjectAction: ['projects.create'],
+  createProjectAction: ['servers.read', 'projects.create'],
   updateProjectAction: ['projects.update'],
   deleteProjectAction: ['projects.delete', 'services.delete'],
   getProjectDatabasesAction: ['services.read'],
@@ -150,7 +154,7 @@ export const getActionAccess = {
   stopServerAction: ['services.read', 'services.update'],
   exposeDatabasePortAction: ['services.read', 'services.update'],
   updateServiceDomainAction: ['services.read', 'services.update'],
-  regenerateSSLAction: ['services.read'],
+  regenerateSSLAction: ['services.read', 'services.update'],
   syncServiceDomainAction: ['services.read', 'services.update'],
   updateVolumesAction: ['services.read', 'services.update'],
 
@@ -167,8 +171,8 @@ export const getActionAccess = {
   getSshKeysAction: ['sshKeys.read', 'servers.read'],
 
   // tailscale Actions
-  getOAuthClientSecretAction: ['servers.create'],
-  generateOAuthClientSecretAction: ['servers.create'],
+  getOAuthClientSecretAction: ['servers.read'],
+  generateOAuthClientSecretAction: ['servers.read'],
 
   //  Backup actions
   getAllBackupsAction: ['backups.read'],
@@ -177,7 +181,18 @@ export const getActionAccess = {
   internalDbDeleteAction: ['services.read', 'backups.delete', 'backups.read'],
 
   // Deployment actions
-  createDeploymentAction: ['services.update'],
+  createDeploymentAction: ['services.read', 'services.update'],
+
+  //install net data
+  installNetdataAction: ['servers.read', 'servers.update'],
+  uninstallNetdataAction: ['servers.read', 'servers.update'],
+
+  // Terminal Actions
+  installTerminalAction: ['servers.read'],
+  uninstallTerminalAction: ['servers.read'],
+  startTerminalAction: ['servers.read'],
+  stopTerminalAction: ['servers.read'],
+  restartTerminalAction: ['servers.read'],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
