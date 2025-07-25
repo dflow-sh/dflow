@@ -2,12 +2,17 @@ import LayoutClient from '../layout.client'
 import { History } from 'lucide-react'
 
 import { getAllBackupsAction } from '@/actions/dbBackup'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import { IndividualBackup } from '@/components/service/Backup'
 import { Backup } from '@/payload-types'
 
 const BackupsPage = async () => {
   const result = await getAllBackupsAction()
   const data = result?.data as Backup[]
+
+  if (result?.serverError) {
+    return <AccessDeniedAlert error={result?.serverError} />
+  }
 
   const grouped = data.reduce(
     (acc, backup) => {
