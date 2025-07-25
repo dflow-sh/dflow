@@ -55,5 +55,5 @@ export const env = createEnv({
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
   },
   emptyStringAsUndefined: true,
-  skipValidation: !!process.env.SKIP_VALIDATION || false,
+  skipValidation: !!process.env.SKIP_VALIDATION,
 })
