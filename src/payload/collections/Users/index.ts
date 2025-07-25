@@ -30,6 +30,18 @@ const defaultTenantArrayField = tenantsArrayField({
       hasMany: false,
       label: 'Tenant Role',
       required: true,
+      filterOptions: ({ siblingData }: { siblingData: any }) => {
+        const tenantId = siblingData?.tenant
+        if (!tenantId) {
+          return false
+        }
+        // Filter roles where 'tenant' field equals selected tenantId
+        return {
+          tenant: {
+            equals: tenantId,
+          },
+        }
+      },
     },
   ],
 })
