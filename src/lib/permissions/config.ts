@@ -157,6 +157,14 @@ export const getActionAccess = {
   regenerateSSLAction: ['services.read', 'services.update'],
   syncServiceDomainAction: ['services.read', 'services.update'],
   updateVolumesAction: ['services.read', 'services.update'],
+  scaleServiceAction: ['services.read'],
+  fetchServiceScaleStatusAction: ['services.read'],
+  setServiceResourceLimitAction: ['services.read'],
+  setServiceResourceReserveAction: ['services.read'],
+  fetchServiceResourceStatusAction: ['services.read'],
+  clearServiceResourceLimitAction: ['services.read'],
+  clearServiceResourceReserveAction: ['services.read'],
+  checkServerResourcesAction: ['services.read'],
 
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],

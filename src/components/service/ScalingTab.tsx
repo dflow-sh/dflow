@@ -164,7 +164,7 @@ const ScalingTab = ({
       })
       toast.success(`Scaling updated for ${proc}`)
     } catch (error) {
-      toast.error('Failed to update scaling')
+      toast.error(`Failed to update scaling ${error}`)
     } finally {
       setLoading(prev => ({ ...prev, [`scale-${proc}`]: false }))
     }
