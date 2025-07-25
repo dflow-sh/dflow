@@ -185,10 +185,10 @@ const Backup = ({
           })
         }
       },
-      onError: () => {
+      onError: ({ error }) => {
         toast.error('Backup Failed', {
           id: 'create-backup',
-          description: 'There was an error creating the backup',
+          description: error?.serverError,
         })
       },
     })
