@@ -19,8 +19,14 @@ export const createSession = async ({
 }) => {
   const cookieStore = await cookies()
 
+  const tenants = user.tenants ?? []
   const userWithCollection: UserWithCollection = {
     ...user,
+    tenants: tenants.map(({ id, role, tenant }) => ({
+      id,
+      tenant: typeof tenant === 'object' ? tenant.id : tenant,
+      role: typeof role === 'object' ? role.id : role,
+    })),
     collection: 'users',
   }
 

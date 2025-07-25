@@ -60,13 +60,29 @@ readonly NC='\033[0m'
     '' \
     '        🌐 Website:    https://dflow.sh  ' \
     '        🧪 Dashboard:  https://app.dflow.sh  '
-
-    # Print Tailscale device count here
-    tailscale status | awk '{ s=($NF=="-" ? "online" : "offline"); count[s]++ } END { printf "\n        🟢 Online devices:  %d\n        🔴 Offline devices: %d\n", count["online"], count["offline"] }'
-
     printf '%b\n' \
     '====================================================='
 }
+
+tailscale status | awk '
+{
+  status = ($NF == "-" ? "online" : "offline")
+  if ($2 ~ /^vmi/) {
+    dflow[status]++
+  } else if ($2 ~ /^dfi/) {
+    custom[status]++
+  }
+}
+END {
+  printf "\ndFlow servers:\n"
+  printf "🟢 Online devices:  %d\n", dflow["online"] + 0
+  printf "🔴 Offline devices: %d\n", dflow["offline"] + 0
+
+  printf "\ncustom servers:\n"
+  printf "🟢 Online devices:  %d\n", custom["online"] + 0
+  printf "🔴 Offline devices: %d\n", custom["offline"] + 0
+}'
+
 
 # Run your Next.js app
 exec node server.js
