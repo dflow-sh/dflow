@@ -11,12 +11,12 @@ import { protectedClient, userClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
+import { ServerType } from '@/payload-types-overrides'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
-import { addUninstallRailpackQueue } from '@/queues/builder/uninstallRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
-import { addUninstallDokkuQueue } from '@/queues/dokku/uninstall'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
+import { addResetServerQueue } from '@/queues/server/reset'
 
 import {
   checkDNSConfigSchema,
@@ -910,45 +910,29 @@ export const resetOnboardingAction = protectedClient
     const { serverId } = clientInput
     const { payload, userTenant } = ctx
 
-    const serverDetails = await payload.findByID({
+    const serverDetails = (await payload.findByID({
       collection: 'servers',
       id: serverId,
       depth: 1,
-    })
+      context: {
+        populateServerDetails: true,
+      },
+    })) as ServerType
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
 
-    const [dokkuResult, railpackResult] = await Promise.all([
-      addUninstallDokkuQueue({
-        serverDetails: {
-          id: serverId,
-          provider: serverDetails.provider,
-        },
-        sshDetails,
-        tenant: { slug: userTenant.tenant.slug },
-      }),
+    const resetServerResult = await addResetServerQueue({
+      sshDetails,
+      serverDetails: serverDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+        id: userTenant.tenant.id,
+      },
+    })
 
-      addUninstallRailpackQueue({
-        serverDetails: { id: serverId },
-        sshDetails,
-        tenant: { slug: userTenant.tenant.slug },
-      }),
-    ])
-
-    if (dokkuResult.id && railpackResult.id) {
-      const updateResponse = await payload.update({
-        id: serverId,
-        data: { onboarded: false },
-        collection: 'servers',
-      })
-
-      if (updateResponse) {
-        revalidatePath(`${userTenant.tenant}/servers/${serverId}`)
-        return { success: true }
-      }
+    if (resetServerResult.id) {
+      return { success: true }
     }
 
-    throw new Error(
-      'Failed to reset onboarding. One or both uninstallations failed.',
-    )
+    return { success: false }
   })

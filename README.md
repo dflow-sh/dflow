@@ -5,115 +5,235 @@ to Vercel, Railway, or Heroku. dFlow provides automated deployment workflows,
 container orchestration, and infrastructure management capabilities while giving
 you full control over your infrastructure and data.
 
-## Self Hosting
+## 🚀 Self-Hosting dFlow with Docker Compose
 
-### Railway
+This guide walks you through setting up and running your own self-hosted
+instance of dFlow, a powerful workflow management platform, using Docker Compose
+and Tailscale.
 
-You can deploy dFlow on Railway using the button below.
+### ✅ Prerequisites
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/NNuPfr?referralCode=I9okFq)
+- Docker
+- Tailscale account
+- Domain
+- Server (recommended 2VPC, 8GB RAM)
 
-### Docker
+### 🧭 Setup Instructions
 
-You can deploy dFlow as docker-image on your server, follow this guide👇
-
-#### Requirements
-
-1. git
-2. docker
-3. mongodb
-4. redis
-
-#### Process
-
-1. clone dflow
+#### 1. Clone the repository
 
 ```bash
-git clone https://github.com/akhil-naidu/dflow dflow
-```
-
-2. change into directory
-
-```bash
+git clone https://github.com/akhil-naidu/dflow/
 cd dflow
 ```
 
-3. create a mongodb instance
+#### 2. Tailscale Setup
 
-- create mongodb instance on
-  [Atlas](https://www.mongodb.com/products/platform/atlas-database),
-  [Railway](https://railway.com/dashboard) or
-  [ContentQL](https://contentql.io/dashboard/create-new-project) and copy the
-  url
-- or run mongodb docker-image
+1. Login to [tailscale](https://tailscale.com) and go to the Admin Console.
+2. Update Access controls
+   ```json
+   {
+     "tagOwners": {
+       "tag:customer-machine": ["autogroup:admin"],
+       "tag:dflow-proxy":      ["autogroup:admin"],
+       "tag:dflow-support":    ["autogroup:admin"],
+     },
+     "grants": [
+       {
+         "src": ["autogroup:admin"],
+         "dst": ["tag:customer-machine"],
+         "ip":  ["*"],
+       },
+       {
+         "src": ["tag:dflow-proxy"],
+         "dst": ["tag:customer-machine"],
+         "ip":  ["*"],
+       },
+       {
+         "src": ["tag:dflow-support"],
+         "dst": ["tag:customer-machine"],
+         "ip":  ["*"],
+       },
+     ],
+     "ssh": [
+       {
+         "action": "accept",
+         "src":    ["autogroup:admin", "tag:dflow-support"],
+         "dst":    ["tag:customer-machine"],
+         "users":  ["autogroup:admin", "root"],
+       },
+     ],
+   }
+   ```
+3. Create Keys
+   1. Go to settings.
+   2. Navigate to Personal Settings > Keys
+      1. Generate reusable auth key.
+   3. Navigate to Tailnet Settings > OAuth clients
+      1. Generate OAuth client key with all read permissions and write permission
+         for `auth keys` with `customer-machine` tag.
 
-```bash
-# pull the mongodb docker image
-docker pull mongo
+#### 3. DNS Configuration
 
-# run mongodb with a attached volume & exposing port so we can connect locally
-# change the username, password by changing MONGO_INITDB_ROOT_USERNAME, MONGO_INITDB_ROOT_PASSWORD as per your need
-docker run -d \
-  -v mongo-data:/data/db \
-  -p 27017:27017 \
-  --name my-mongo \
-  -e MONGO_INITDB_ROOT_USERNAME=admin \
-  -e MONGO_INITDB_ROOT_PASSWORD=secretpassword \
-  mongo
+Setup DNS records with your provider:
+
+```
+  Type: A,
+  Name: *.up
+  Value: <your-server-ip>
+  Proxy: OFF
 ```
 
-4. create a redis instance
+#### 4. Configure Environment Variables
 
-- create redis instance on
-  [Atlas](https://www.mongodb.com/products/platform/atlas-database),
-  [Railway](https://railway.com/dashboard) or
-  [ContentQL](https://contentql.io/dashboard/create-new-project) and copy the
-  url
-- or run redis docker-image
+Create .env file & add the requried variables.
 
-> Note: Upstash is not recommended as we're using redis pub/sub & message queues
+  ```
+  # mongodb
+  MONGO_INITDB_ROOT_USERNAME=admin
+  MONGO_INITDB_ROOT_PASSWORD=password
+  MONGO_DB_NAME=dFlow
+
+  # redis
+  REDIS_URI="redis://localhost:6379"
+
+  # config-generator
+  WILD_CARD_DOMAIN=up.example.com
+  JWT_TOKEN=your-jwt-token
+  PROXY_PORT=9999
+
+  # dFlow app
+  NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
+  DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+  PAYLOAD_SECRET=your-secret
+
+  NEXT_PUBLIC_PROXY_DOMAIN_URL=https://dflow-traefik.up.example.com
+  NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
+
+  # tailscale
+  TAILSCALE_AUTH_KEY=tskey-auth-xxxx
+  TAILSCALE_OAUTH_CLIENT_SECRET=tskey-client-xxxx
+  TAILSCALE_TAILNET=your-tailnet-name
+
+  # (Optional variables) Better stack - For telemetry 
+  NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=bstk-xxx
+  NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=https://logs.betterstack.com
+
+  # (Optional variables) resend - For email configurations
+  RESEND_API_KEY=re_12345
+  RESEND_SENDER_EMAIL=no-reply@up.example.com
+  RESEND_SENDER_NAME=dFlow System
+  ```
+
+#### 5. Build the Docker image
 
 ```bash
-# pull the redis docker image
-docker pull redis
+source .env
 
-# run redis with a attached volume & exposing port so we can connect locally
-# change password as per your need using the --requirepass flag
-docker run -d \
-  -v redis-data:/data \
-  -p 6379:6379 \
-  --name my-redis \
-  redis redis-server --requirepass your-password
-```
-
-5. trigger docker-image build
-
-> Note: we use PAYLOAD_SECRET to encrypt fields in database, make sure you don't
-> lose it.
-
-> Note: NEXT_PUBLIC_WEBSITE_URL should be in this format -> ✅ `mydomain.com`.
-> don't use this format ❌ `https://mydomain.com/`
-
-```bash
-# pass the mongodb, redis database-url's as build-arguments
-# replace NEXT_PUBLIC_WEBSITE_URL with your domain
 docker build \
-  --build-arg DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
-  --build-arg REDIS_URI="redis://:password@localhost:6379" \
-  --build-arg PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7" \
-  --build-arg NEXT_PUBLIC_WEBSITE_URL="localhost:3000" \
-  -t dflow .
+--build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
+--build-arg DATABASE_URI=$DATABASE_URI \
+--build-arg REDIS_URI=$REDIS_URI \
+--build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
+--build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
+--build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
+--build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
+--build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
+--build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
+--build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
+--build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
+--build-arg RESEND_API_KEY=$RESEND_API_KEY \
+--build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
+--build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
+-t dflow .
 ```
 
-4. Run the docker-image
+#### 6. Traefik Setup
+
+1. Create `traefik.yaml` file at the root directory.
+2. Change the email
+
+   ```yaml
+   entryPoints:
+     web:
+       address: ":80"
+     websecure:
+       address: ":443"
+
+   providers:
+     file:
+       directory: /etc/traefik/dynamic
+       watch: true
+
+   certificatesResolvers:
+     letsencrypt:
+       acme:
+         email: johndoe@example.com
+         storage: /etc/traefik/acme.json
+         httpChallenge:
+           entryPoint: web  # Used for app-specific domains
+
+   api:
+     dashboard: false
+     insecure: false  # ⚠️ Secure this in production
+
+   log:
+     level: INFO
+   ```
+
+3. Create and secure `acme.json`:
+
+   ```bash
+   touch acme.json
+   chmod 600 acme.json
+   ```
+
+4. create `dynamic/dflow-app.yaml` file
+
+```yaml
+http:
+  routers:
+    dflow-app-router:
+      rule: Host(`dflow.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: dflow-app-service
+  services:
+    dflow-app-service:
+      loadBalancer:
+        servers:
+          - url: http://payload-app:3000
+```
+
+5. create `dynamic/dflow-traefik.yaml` file
+
+```yaml
+http:
+  routers:
+    dflow-traefik-router:
+      rule: Host(`dflow-traefik.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: dflow-traefik-service
+  services:
+    dflow-traefik-service:
+      loadBalancer:
+        servers:
+          - url: http://config-generator:9999
+```
+
+#### 7. Start the Docker Compose Stack
 
 ```bash
-# pass the mongodb, redis database-url's as environment variables
-# replace NEXT_PUBLIC_WEBSITE_URL with your domain
-docker run -d -p 3000:3000 \
-  -e DATABASE_URI="mongodb://username:password@localhost:27017/dflow?authSource=admin" \
-  -e REDIS_URI="redis://:password@localhost:6379" \
-  -e PAYLOAD_SECRET="1781c9a00336ffa7fdf27ce7"
-  -e NEXT_PUBLIC_WEBSITE_URL="localhost:3000"
-  dflow
+docker compose --env-file .env up -d
 ```
+
+## 🤝 Contributors
+
+<a href="https://github.com/akhil-naidu/dflow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=akhil-naidu/dflow" />
+</a>

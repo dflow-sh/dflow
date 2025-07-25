@@ -31,7 +31,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { slugify, slugifyWithSlash } from '@/lib/slugify'
+import { slugifyWithUnderscore } from '@/lib/slugify'
 
 import { VolumesType, volumesSchema } from './types'
 
@@ -65,7 +65,7 @@ const HostContainerPair = memo(
                 <Input
                   {...field}
                   onChange={e => {
-                    field.onChange(slugify(e.target.value))
+                    field.onChange(slugifyWithUnderscore(e.target.value))
                   }}
                   placeholder='default'
                 />
@@ -85,7 +85,7 @@ const HostContainerPair = memo(
                   <Input
                     {...field}
                     onChange={e => {
-                      field.onChange(slugifyWithSlash(e.target.value))
+                      field.onChange(slugifyWithUnderscore(e.target.value))
                     }}
                     placeholder='/data'
                   />

@@ -57,7 +57,15 @@ import { portsRemove } from './ports/remove'
 import { portsReport } from './ports/report'
 import { portsSet } from './ports/set'
 import { rebuild } from './process/rebuild'
+import {
+  resourceLimit,
+  resourceLimitClear,
+  resourceReport,
+  resourceReserve,
+  resourceReserveClear,
+} from './process/resource'
 import { restart } from './process/restart'
+import { psReport, psScale, scale } from './process/scale'
 import { start } from './process/start'
 import { stop } from './process/stop'
 import { stopAll } from './process/stopAll'
@@ -120,6 +128,16 @@ export const dokku = {
     stop,
     rebuild,
     stopAll,
+    scale,
+    psReport,
+    psScale,
+  },
+  resource: {
+    limit: resourceLimit,
+    reserve: resourceReserve,
+    limitClear: resourceLimitClear,
+    reserveClear: resourceReserveClear,
+    report: resourceReport,
   },
   domains: {
     report,

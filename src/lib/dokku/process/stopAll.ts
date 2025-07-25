@@ -8,7 +8,7 @@ export const stopAll = async (ssh: NodeSSH, options?: SSHExecOptions) => {
 
   console.log({ resultAllAppsStop })
 
-  if (resultAllAppsStop.code === 1) {
+  if (resultAllAppsStop.code !== 0) {
     throw new Error(resultAllAppsStop.stderr)
   }
 

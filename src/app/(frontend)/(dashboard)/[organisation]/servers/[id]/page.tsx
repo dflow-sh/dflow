@@ -21,10 +21,12 @@ import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
 import ConnectionErrorBanner from '@/components/servers/ConnectionErrorBanner'
 import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
 import Danger from '@/components/servers/Danger'
+import DefaultResourceLimitsForm from '@/components/servers/DefaultResourceLimitsForm'
 import DomainForm from '@/components/servers/DomainForm'
 import DomainList from '@/components/servers/DomainList'
 import DpkgLockBanner from '@/components/servers/DpkgLockBanner'
 import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
+import KubernetesTab from '@/components/servers/KubernetesTab'
 import Packages from '@/components/servers/Packages'
 import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
@@ -288,6 +290,7 @@ const ServerSettingsTab = ({ server }: { server: ServerType }) => {
           <RefreshButton showText={true} text='Refresh Server Status' />
         </div>
         <GlobalBuildDirForm server={server} />
+        <DefaultResourceLimitsForm server={server} />
       </div>
 
       <Packages railpack={server.railpack} serverId={server.id} />
@@ -352,6 +355,9 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
       case 'settings':
         return <ServerSettingsTab server={server} />
+
+      case 'kubernetes':
+        return <KubernetesTab />
 
       default:
         return (

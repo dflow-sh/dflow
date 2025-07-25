@@ -11,6 +11,7 @@ import { getBuildDetails } from '@/lib/getBuildDetails'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
+import { updatePorts } from '@/lib/updatePorts'
 import { Service } from '@/payload-types'
 
 type BuildDetailsType = Awaited<ReturnType<typeof getBuildDetails>>
@@ -606,76 +607,88 @@ export const addDeployQueue = async (data: QueueArgs) => {
         const port = buildDetails.port ? buildDetails.port.toString() : '3000'
 
         // validate weather port is set or not
-        const exposedPorts = (await dokku.ports.report(ssh, appName)) ?? []
-        const hasPortExposed = exposedPorts?.includes(`http:80:${port}`)
+        // const exposedPorts = (await dokku.ports.report(ssh, appName)) ?? []
+        // const hasPortExposed = exposedPorts?.includes(`http:80:${port}`)
 
-        if (hasPortExposed) {
-          sendEvent({
-            message: `${port} already exposed skipping exposure!`,
+        // if (hasPortExposed) {
+        //   sendEvent({
+        //     message: `${port} already exposed skipping exposure!`,
+        //     pub,
+        //     serverId,
+        //     serviceId,
+        //     channelId: serviceDetails.deploymentId,
+        //   })
+        // } else {
+        //   sendEvent({
+        //     message: `Stated exposing port ${port}`,
+        //     pub,
+        //     serverId,
+        //     serviceId,
+        //     channelId: serviceDetails.deploymentId,
+        //   })
+
+        //   const portResponse = await dokku.ports.set({
+        //     ssh,
+        //     appName,
+        //     options: {
+        //       onStdout: async chunk => {
+        //         sendEvent({
+        //           message: chunk.toString(),
+        //           pub,
+        //           serverId,
+        //           serviceId,
+        //           channelId: serviceDetails.deploymentId,
+        //         })
+        //       },
+        //       onStderr: async chunk => {
+        //         sendEvent({
+        //           message: chunk.toString(),
+        //           pub,
+        //           serverId,
+        //           serviceId,
+        //           channelId: serviceDetails.deploymentId,
+        //         })
+        //       },
+        //     },
+        //     ports: [
+        //       {
+        //         scheme: 'http',
+        //         host: '80',
+        //         container: port,
+        //       },
+        //     ],
+        //   })
+
+        //   if (portResponse) {
+        //     sendEvent({
+        //       message: `✅ Successfully exposed port ${port}`,
+        //       pub,
+        //       serverId,
+        //       serviceId,
+        //       channelId: serviceDetails.deploymentId,
+        //     })
+        //   } else {
+        //     sendEvent({
+        //       message: `❌ Failed to exposed port ${port}`,
+        //       pub,
+        //       serverId,
+        //       serviceId,
+        //       channelId: serviceDetails.deploymentId,
+        //     })
+        //   }
+        // }
+
+        await updatePorts({
+          ssh,
+          appName,
+          ports: [`http:80:${port}`],
+          logOptions: {
             pub,
             serverId,
             serviceId,
             channelId: serviceDetails.deploymentId,
-          })
-        } else {
-          sendEvent({
-            message: `Stated exposing port ${port}`,
-            pub,
-            serverId,
-            serviceId,
-            channelId: serviceDetails.deploymentId,
-          })
-
-          const portResponse = await dokku.ports.set({
-            ssh,
-            appName,
-            options: {
-              onStdout: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: serviceDetails.deploymentId,
-                })
-              },
-              onStderr: async chunk => {
-                sendEvent({
-                  message: chunk.toString(),
-                  pub,
-                  serverId,
-                  serviceId,
-                  channelId: serviceDetails.deploymentId,
-                })
-              },
-            },
-            ports: [
-              {
-                scheme: 'http',
-                host: '80',
-                container: port,
-              },
-            ],
-          })
-
-          if (portResponse) {
-            sendEvent({
-              message: `✅ Successfully exposed port ${port}`,
-              pub,
-              serverId,
-              serviceId,
-              channelId: serviceDetails.deploymentId,
-            })
-          } else {
-            sendEvent({
-              message: `❌ Failed to exposed port ${port}`,
-              pub,
-              serverId,
-              serviceId,
-              channelId: serviceDetails.deploymentId,
-            })
-          }
-        }
+          },
+        })
 
         // 7. doing git-auth in-case of private repositories
         if (buildDetails.token) {

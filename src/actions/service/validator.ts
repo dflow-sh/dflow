@@ -12,6 +12,8 @@ export const createServiceSchema = z
       .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
       .optional(),
     projectId: z.string(),
+    cpuLimit: z.string().optional(),
+    memoryLimit: z.string().optional(),
   })
   .refine(data => data.type !== 'database' || !!data.databaseType, {
     message: 'Please select a database type',
@@ -58,6 +60,7 @@ export const updateServiceSchema = z
     environmentVariables: z.record(z.string(), z.unknown()).optional(),
     noRestart: z.boolean().optional(),
     id: z.string(),
+    project: z.string().optional(),
     dockerDetails: z
       .object({
         url: z.string(),
@@ -136,4 +139,51 @@ export const updateVolumesSchema = z.object({
     })
     .array()
     .optional(),
+})
+
+export const scaleServiceSchema = z.object({
+  id: z.string(),
+  scaleArgs: z
+    .array(z.string())
+    .min(1, 'At least one scale argument is required'), // e.g. ["web=2", "worker=1"]
+})
+
+export const fetchServiceScaleStatusSchema = z.object({
+  id: z.string(),
+  parse: z.boolean().optional(), // allow parse control
+})
+
+export const setServiceResourceLimitSchema = z.object({
+  id: z.string(),
+  resourceArgs: z
+    .array(z.string())
+    .min(1, 'At least one resource argument is required'), // e.g. ["--cpu 100", "--memory 100"]
+  processType: z.string().optional(),
+})
+
+export const setServiceResourceReserveSchema = z.object({
+  id: z.string(),
+  resourceArgs: z
+    .array(z.string())
+    .min(1, 'At least one resource argument is required'),
+  processType: z.string().optional(),
+})
+
+export const fetchServiceResourceStatusSchema = z.object({
+  id: z.string(),
+})
+
+export const clearServiceResourceLimitSchema = z.object({
+  id: z.string(),
+  processType: z.string().optional(),
+})
+
+export const clearServiceResourceReserveSchema = z.object({
+  id: z.string(),
+  processType: z.string().optional(),
+})
+
+export const checkServerResourcesSchema = z.object({
+  serverId: z.string(),
+  serviceType: z.enum(['app', 'docker', 'database']).optional(),
 })

@@ -43,6 +43,8 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
 
       const payload = await getPayload({ config: configPromise })
 
+      const DOKKU_STORAGE_PATH = '/var/lib/dokku/data/storage/'
+
       try {
         if (
           typeof project === 'object' &&
@@ -61,10 +63,25 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
 
           const volumesList = service.volumes ?? []
 
+          const extractHostPath = (fullPath: string) => {
+            if (typeof fullPath !== 'string') return ''
+
+            const parts = fullPath.split('/')
+
+            if (parts.length >= 8) {
+              return parts.slice(7).join('/')
+            }
+
+            return ''
+          }
+
           const isSameVolume = (
             a: { hostPath: string },
             b: { host_path: string },
-          ) => a.hostPath === b.host_path.split('/').at(-1)
+          ): boolean => {
+            const expected = `${DOKKU_STORAGE_PATH}${service.name}/${a.hostPath}`
+            return b.host_path === expected
+          }
 
           const addedVolumes = volumesList?.filter(
             volume => !list.some(existing => isSameVolume(volume, existing)),
@@ -116,7 +133,7 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
           )
 
           const availableDokkuVolumes = updatedDokkuVolumes?.map(volume => ({
-            hostPath: volume.host_path?.split('/')?.at(-1),
+            hostPath: extractHostPath(volume.host_path),
             containerPath: volume.container_path,
             created: true,
           }))

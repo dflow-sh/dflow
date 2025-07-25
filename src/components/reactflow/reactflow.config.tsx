@@ -33,6 +33,7 @@ const ReactFlowConfig = ({
   className,
   onPaneClick,
   onNodeContextMenu,
+  menuOptions,
 }: {
   children?: React.ReactNode
   nodes: Node[]
@@ -42,10 +43,11 @@ const ReactFlowConfig = ({
   className?: string
   onPaneClick?: () => void
   onNodeContextMenu?: (event: React.MouseEvent, node: Node) => void
+  menuOptions?: (node: Node) => React.ReactNode
 }) => {
   //custom nodes
   const nodeTypes = {
-    custom: CustomNode,
+    custom: (props: any) => <CustomNode {...props} menuOptions={menuOptions} />,
   }
 
   //floating edges

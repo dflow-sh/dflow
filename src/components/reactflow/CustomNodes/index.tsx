@@ -60,8 +60,10 @@ const statusMapping = {
 
 const CustomNode = ({
   data,
+  menuOptions,
 }: {
   data: ServiceNode & { onClick?: () => void; disableNode?: boolean }
+  menuOptions?: (node: any) => React.ReactNode
 }) => {
   const deployment = data?.deployments?.[0]
   const createdAt = data?.createdAt
@@ -125,6 +127,7 @@ const CustomNode = ({
             ? 'cursor-not-allowed'
             : 'cursor-pointer hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
         }`}>
+        {menuOptions && menuOptions(data)}
         <CardHeader className='w-64 flex-row justify-between pb-2'>
           <div className='flex items-center gap-x-3'>
             {data.type === 'database' && data.databaseDetails?.type
