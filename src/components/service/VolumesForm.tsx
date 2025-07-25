@@ -117,8 +117,8 @@ const VolumesForm = ({ service }: { service: Service }) => {
           toast.info('Volumes started mounting,please wait')
         }, 1500)
       },
-      onError: () => {
-        toast.error(`Failed to save volumes`)
+      onError: ({ error }) => {
+        toast.error(`Failed to save volumes: ${error?.serverError} `)
       },
     })
   const form = useForm<VolumesType>({

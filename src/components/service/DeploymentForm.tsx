@@ -195,6 +195,9 @@ const DeploymentForm = ({ service }: { service: Service }) => {
           })
         }
       },
+      onError: ({ error }) => {
+        toast.error(`Failed to restart: ${error?.serverError}`)
+      },
     },
   )
 
@@ -207,6 +210,9 @@ const DeploymentForm = ({ service }: { service: Service }) => {
             description: `Added stopping ${service.type === 'database' ? 'database' : 'app'} to queue`,
           })
         }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to stop: ${error?.serverError}`)
       },
     },
   )
