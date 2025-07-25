@@ -152,9 +152,9 @@ const Monitoring = ({ server }: { server: ServerType }) => {
         description: 'added uninstall Monitoring Tools to queue',
       })
     },
-    onError: (error: any) => {
+    onError: ({ error }) => {
       toast.error(
-        `Failed to queue Monitoring Tools uninstall: ${error.message || 'Unknown error'}`,
+        `Failed to queue Monitoring Tools uninstall: ${error.serverError || 'Unknown error'}`,
       )
     },
   })

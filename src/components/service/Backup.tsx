@@ -66,10 +66,10 @@ export const IndividualBackup = ({
         })
       }
     },
-    onError: () => {
+    onError: ({ error }) => {
       toast.error('Restore Failed', {
         id: 'restore-backup',
-        description: 'There was an error restoring the backup',
+        description: error?.serverError,
       })
     },
   })
@@ -91,10 +91,10 @@ export const IndividualBackup = ({
         })
       }
     },
-    onError: () => {
+    onError: ({ error }) => {
       toast.error('Delete Failed', {
         id: 'delete-backup',
-        description: 'There was an error deleting the backup',
+        description: error?.serverError,
       })
     },
   })
