@@ -19,6 +19,7 @@ export const servicePageTabs = {
     'scaling',
     'backup',
     'volumes',
+    'settings',
   ]).withDefault('general'),
 }
 

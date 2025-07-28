@@ -82,7 +82,7 @@ const SuspendedServicePageLayout = async ({
   return (
     <LayoutClient
       type={serviceDetails.type}
-      services={services}
+      services={services as Service[]}
       serviceName={serviceDetails.name}
       service={service?.data}>
       <div className='mb-6 md:flex md:justify-between md:gap-x-2'>

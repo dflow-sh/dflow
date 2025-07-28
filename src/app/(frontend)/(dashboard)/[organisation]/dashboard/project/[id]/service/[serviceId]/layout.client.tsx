@@ -43,6 +43,7 @@ const LayoutClient = ({
       'backup',
       'volumes',
       'scaling',
+      'settings',
     ]).withDefault('general'),
   )
   const [mounted, setMounted] = useState(false)
@@ -81,6 +82,7 @@ const LayoutClient = ({
           { label: 'Logs', slug: 'logs', disabled: false },
           { label: 'Deployments', slug: 'deployments', disabled: false },
           { label: 'Backup', slug: 'backup', disabled: false },
+          { label: 'Settings', slug: 'settings', disabled: false },
         ] as const)
       : ([
           { label: 'General', slug: 'general', disabled: false },
@@ -90,6 +92,7 @@ const LayoutClient = ({
           { label: 'Scaling', slug: 'scaling', disabled: false },
           { label: 'Domains', slug: 'domains', disabled: false },
           { label: 'Volumes', slug: 'volumes', disabled: false },
+          { label: 'Settings', slug: 'settings', disabled: false },
         ] as const)
   }, [type])
 
