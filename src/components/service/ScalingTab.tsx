@@ -518,6 +518,10 @@ const ScalingTab = ({
 
   return (
     <div className='space-y-8 pb-12'>
+      <div className='flex items-center gap-1.5 mb-4'>
+        <BarChart3 />
+        <h4 className='text-lg font-semibold'>Scaling</h4>
+      </div>
       {/* Horizontal Scaling Section */}
       <Card className='rounded-lg border shadow-sm'>
         <CardHeader className='pb-6'>
