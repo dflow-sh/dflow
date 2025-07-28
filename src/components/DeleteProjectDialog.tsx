@@ -27,7 +27,7 @@ const DeleteProjectContent = ({
   services = [],
   setOpen,
 }: {
-  project: Project
+  project: Partial<Project>
   services?: Service[]
   setOpen: Dispatch<SetStateAction<boolean>>
 }) => {
@@ -37,7 +37,9 @@ const DeleteProjectContent = ({
   const hasServices = services.length > 0
   const serverName = (project.server as Server)?.name
   const serverId =
-    typeof project.server === 'string' ? project.server : project.server?.id
+    typeof project.server === 'string'
+      ? project.server
+      : (project.server?.id as string)
 
   const { execute, isPending } = useAction(deleteProjectAction, {
     onSuccess: ({ data }) => {
@@ -56,7 +58,7 @@ const DeleteProjectContent = ({
 
   const handleDelete = () => {
     execute({
-      id: project.id,
+      id: project.id!,
       serverId,
       deleteBackups,
       deleteFromServer,
@@ -218,7 +220,7 @@ const DeleteProjectDialog = ({
   setOpen,
   services = [],
 }: {
-  project: Project
+  project: Partial<Project>
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
   services?: Service[]

@@ -21,7 +21,7 @@ import { MoreVertical, Repeat, Trash2 } from 'lucide-react'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { Server, Service } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 import DeleteServiceDialog from './DeleteServiceDialog'
 import SwitchServiceProjectDialog from './SwitchServiceProjectDialog'
@@ -73,12 +73,7 @@ const ServiceList = ({
 }: {
   services: ServiceWithDisplayName[]
   organisationSlug: string
-  project: {
-    id: string
-    name: string
-    description?: string | null | undefined
-    server: string | Server
-  }
+  project: Partial<Project>
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])

@@ -470,70 +470,76 @@ const VariablesForm = ({ service }: { service: Service }) => {
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className='w-full space-y-6'>
-        <div className='space-y-2'>
-          {fields.length ? (
-            <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
-              <p className='font-semibold'>Key</p>
-              <p className='font-semibold'>
-                Value{' '}
-                <SidebarToggleButton
-                  directory='services'
-                  fileName='environment-variables'
+    <>
+      <div className='flex items-center gap-1.5 mb-4'>
+        <Braces />
+        <h4 className='text-lg font-semibold'>Variables</h4>
+      </div>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className='w-full space-y-6'>
+          <div className='space-y-2'>
+            {fields.length ? (
+              <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+                <p className='font-semibold'>Key</p>
+                <p className='font-semibold'>
+                  Value{' '}
+                  <SidebarToggleButton
+                    directory='services'
+                    fileName='environment-variables'
+                  />
+                </p>
+              </div>
+            ) : null}
+
+            {fields.map((field, index) => {
+              return (
+                <KeyValuePair
+                  key={index}
+                  id={index}
+                  databaseList={databaseList?.data ?? []}
+                  gettingDatabases={gettingDatabases}
+                  parsedValues={parsedValues}
+                  removeVariable={removeVariable}
+                  serviceName={service.name}
                 />
-              </p>
-            </div>
-          ) : null}
+              )
+            })}
 
-          {fields.map((field, index) => {
-            return (
-              <KeyValuePair
-                key={index}
-                id={index}
-                databaseList={databaseList?.data ?? []}
-                gettingDatabases={gettingDatabases}
-                parsedValues={parsedValues}
-                removeVariable={removeVariable}
-                serviceName={service.name}
-              />
-            )
-          })}
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => {
+                appendVariable({
+                  key: '',
+                  value: '',
+                })
+              }}>
+              <Plus /> New Variable
+            </Button>
+          </div>
 
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => {
-              appendVariable({
-                key: '',
-                value: '',
-              })
-            }}>
-            <Plus /> New Variable
-          </Button>
-        </div>
+          <div className='flex w-full justify-end gap-3'>
+            <Button
+              type='submit'
+              variant='outline'
+              disabled={savingEnvironmentVariables}
+              onClick={() => (noRestartRef.current = true)}>
+              Save
+            </Button>
 
-        <div className='flex w-full justify-end gap-3'>
-          <Button
-            type='submit'
-            variant='outline'
-            disabled={savingEnvironmentVariables}
-            onClick={() => (noRestartRef.current = true)}>
-            Save
-          </Button>
-
-          <Button
-            type='submit'
-            variant='secondary'
-            disabled={savingEnvironmentVariables}
-            onClick={() => (noRestartRef.current = false)}>
-            Save & Restart
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <Button
+              type='submit'
+              variant='secondary'
+              disabled={savingEnvironmentVariables}
+              onClick={() => (noRestartRef.current = false)}>
+              Save & Restart
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }
 

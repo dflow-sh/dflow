@@ -69,7 +69,7 @@ import {
 } from '@/components/ui/tooltip'
 import { ServiceType } from '@/lib/server/resourceCheck'
 import { slugify } from '@/lib/slugify'
-import { Server as ServerType } from '@/payload-types'
+import { Project, Server } from '@/payload-types'
 
 const databaseOptions = [
   {
@@ -241,8 +241,8 @@ const CreateService = ({
   disableCreateButton = false,
   disableReason = 'Cannot create service at this time',
 }: {
-  server: ServerType
-  project: { name: string }
+  server: Server
+  project: Partial<Project>
   disableCreateButton?: boolean
   disableReason?: string
 }) => {

@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, HardDrive } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { memo, useEffect } from 'react'
 import {
@@ -162,50 +162,56 @@ const VolumesForm = ({ service }: { service: Service }) => {
     }
   }, [service?.volumes])
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='space-y-4'>
-          {fields.length ? (
-            <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
-              <p className='font-semibold'>Host Path</p>
-              <p />
-              <p className='font-semibold'>Container Path</p>
-            </div>
-          ) : null}
-          {fields.map((field, index) => {
-            return (
-              <HostContainerPair
-                key={field.id}
-                id={index}
-                created={field?.created}
-                removeVariable={removeVariable}
-                serviceName={service.name}
-              />
-            )
-          })}
+    <>
+      <div className='flex items-center gap-1.5 mb-4'>
+        <HardDrive />
+        <h4 className='text-lg font-semibold'>Volumes</h4>
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className='space-y-4'>
+            {fields.length ? (
+              <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
+                <p className='font-semibold'>Host Path</p>
+                <p />
+                <p className='font-semibold'>Container Path</p>
+              </div>
+            ) : null}
+            {fields.map((field, index) => {
+              return (
+                <HostContainerPair
+                  key={field.id}
+                  id={index}
+                  created={field?.created}
+                  removeVariable={removeVariable}
+                  serviceName={service.name}
+                />
+              )
+            })}
 
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => {
-              appendVariable({
-                hostPath: '',
-                containerPath: '',
-              })
-            }}>
-            <Plus /> New Volume
-          </Button>
-        </div>
-        <div className='flex items-center justify-end'>
-          <Button
-            type='submit'
-            disabled={isUpdateVolumePending}
-            isLoading={isUpdateVolumePending}>
-            save
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => {
+                appendVariable({
+                  hostPath: '',
+                  containerPath: '',
+                })
+              }}>
+              <Plus /> New Volume
+            </Button>
+          </div>
+          <div className='flex items-center justify-end'>
+            <Button
+              type='submit'
+              disabled={isUpdateVolumePending}
+              isLoading={isUpdateVolumePending}>
+              save
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }
 

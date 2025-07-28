@@ -5,6 +5,10 @@ export const onboardingSelectedServer = {
   server: parseAsString.withDefault(''),
 }
 
+export const projectPageTabs = {
+  tab: parseAsStringEnum(['general', 'settings']).withDefault('general'),
+}
+
 export const servicePageTabs = {
   tab: parseAsStringEnum([
     'general',
@@ -15,15 +19,18 @@ export const servicePageTabs = {
     'scaling',
     'backup',
     'volumes',
+    'settings',
   ]).withDefault('general'),
 }
 
 export const serverPageTabs = {
   tab: parseAsStringEnum([
     'general',
-    'monitoring',
     'plugins',
     'domains',
+    'monitoring',
+    'settings',
+    'kubernetes',
   ]).withDefault('general'),
 }
 
@@ -35,6 +42,7 @@ export const serviceLogs = {
 export const loadOnboardingSelectedServer = createLoader(
   onboardingSelectedServer,
 )
+export const loadProjectPageTabs = createLoader(projectPageTabs)
 export const loadServicePageTabs = createLoader(servicePageTabs)
 export const loadServerPageTabs = createLoader(serverPageTabs)
 export const loadServiceLogs = createLoader(serviceLogs)

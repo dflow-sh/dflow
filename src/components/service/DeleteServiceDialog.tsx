@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 
 import { deleteServiceAction } from '@/actions/service'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Server, Service } from '@/payload-types'
+import { Project, Server, Service } from '@/payload-types'
 
 const DeleteServiceContent = ({
   service,
@@ -27,12 +27,7 @@ const DeleteServiceContent = ({
   setOpen,
 }: {
   service: Service & { displayName?: string }
-  project: {
-    id: string
-    name: string
-    description?: string | null | undefined
-    server: string | Server
-  }
+  project: Partial<Project>
   setOpen: Dispatch<SetStateAction<boolean>>
 }) => {
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
@@ -210,12 +205,7 @@ const DeleteServiceDialog = ({
   setOpen,
 }: {
   service: Service & { displayName?: string }
-  project: {
-    id: string
-    name: string
-    description?: string | null | undefined
-    server: string | Server
-  }
+  project: Partial<Project>
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
 }) => {

@@ -13,10 +13,12 @@ import DomainsTab from '@/components/service/DomainsTab'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTabClient from '@/components/service/LogsTabClient'
 import ScalingTab from '@/components/service/ScalingTab'
+import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
 import VariablesForm from '@/components/service/VariablesForm'
 import VolumesForm from '@/components/service/VolumesForm'
 import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
+import { Project } from '@/payload-types'
 
 interface PageProps {
   params: Promise<{
@@ -117,6 +119,15 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       const resource = resourceRes?.data?.resource ?? {}
 
       return <ScalingTab service={service} scale={scale} resource={resource} />
+    }
+
+    case 'settings': {
+      return (
+        <ServiceSettingsTab
+          service={service}
+          project={service.project as Project}
+        />
+      )
     }
 
     default:

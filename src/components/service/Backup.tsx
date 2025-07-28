@@ -196,7 +196,10 @@ const Backup = ({
   return (
     <>
       <div className='flex items-center justify-between'>
-        <h2 className='text-2xl font-semibold'>Backups</h2>
+        <h2 className='flex items-center gap-2 text-2xl font-semibold'>
+          <DatabaseBackup className='inline-block' />
+          Backups
+        </h2>
         <div className='flex items-center gap-2'>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>

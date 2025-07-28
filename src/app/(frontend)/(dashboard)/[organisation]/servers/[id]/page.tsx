@@ -45,6 +45,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedLinuxVersions } from '@/lib/constants'
 import { netdata } from '@/lib/netdata'
+import { loadServerPageTabs } from '@/lib/searchParams'
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -300,12 +301,15 @@ const ServerSettingsTab = ({ server }: { server: ServerType }) => {
   )
 }
 
-const SuspendedPage = ({ params, searchParams }: PageProps) => {
+const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   const [syncParams, syncSearchParams] = use(
     Promise.all([params, searchParams]),
   )
   const { id } = syncParams
-  const { tab, refreshServerDetails } = syncSearchParams
+  const { refreshServerDetails } = syncSearchParams
+
+  const { tab } = await loadServerPageTabs(searchParams)
+
   const isRefreshServerDetails = refreshServerDetails === 'true'
 
   const result = use(
