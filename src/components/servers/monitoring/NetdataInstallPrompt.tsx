@@ -30,9 +30,9 @@ const NetdataInstallPrompt = ({
       })
       router.refresh()
     },
-    onError: (error: any) => {
+    onError: ({ error }) => {
       toast.error(
-        `Failed to start Monitoring Tools installation: ${error.message}`,
+        `Failed to start Monitoring Tools installation: ${error.serverError}`,
       )
     },
   })

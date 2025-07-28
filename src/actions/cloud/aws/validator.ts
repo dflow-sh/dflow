@@ -4,7 +4,13 @@ export const connectAWSAccountSchema = z.object({
   accessKeyId: z.string().min(1),
   secretAccessKey: z.string().min(1),
   name: z.string().min(1),
-  id: z.string().optional(),
+})
+
+export const updateAWSAccountSchema = z.object({
+  accessKeyId: z.string().min(1),
+  secretAccessKey: z.string().min(1),
+  name: z.string().min(1),
+  id: z.string(),
 })
 
 export const deleteAWSAccountSchema = z.object({

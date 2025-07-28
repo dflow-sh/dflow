@@ -48,6 +48,9 @@ const ServerOnboardingLayout = ({
         })
       }
     },
+    onError: ({ error, input }) => {
+      toast.error(`Failed to sync domain: ${error.serverError}`)
+    },
   })
 
   const { execute: executeCompleteOnboarding, isPending: isOnboardingSerer } =

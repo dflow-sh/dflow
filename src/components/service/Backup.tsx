@@ -23,6 +23,7 @@ import {
   ChevronDown,
   Cloud,
   DatabaseBackup,
+  History,
   Server,
   Trash2,
 } from 'lucide-react'
@@ -65,10 +66,10 @@ export const IndividualBackup = ({
         })
       }
     },
-    onError: () => {
+    onError: ({ error }) => {
       toast.error('Restore Failed', {
         id: 'restore-backup',
-        description: 'There was an error restoring the backup',
+        description: error?.serverError,
       })
     },
   })
@@ -90,10 +91,10 @@ export const IndividualBackup = ({
         })
       }
     },
-    onError: () => {
+    onError: ({ error }) => {
       toast.error('Delete Failed', {
         id: 'delete-backup',
-        description: 'There was an error deleting the backup',
+        description: error?.serverError,
       })
     },
   })
@@ -184,10 +185,10 @@ const Backup = ({
           })
         }
       },
-      onError: () => {
+      onError: ({ error }) => {
         toast.error('Backup Failed', {
           id: 'create-backup',
-          description: 'There was an error creating the backup',
+          description: error?.serverError,
         })
       },
     })
@@ -332,3 +333,86 @@ const Backup = ({
 }
 
 export default Backup
+
+export const BackupDetails = ({ data }: { data: BackupType[] }) => {
+  const grouped = data.reduce(
+    (acc, backup) => {
+      let projectName = ''
+      let serviceName = ''
+
+      if (typeof backup.service === 'string') {
+        projectName = 'Deleted Project/Service'
+        serviceName = backup.service
+      } else {
+        projectName =
+          typeof backup.service !== 'string'
+            ? backup.service.project &&
+              typeof backup.service.project !== 'string'
+              ? backup.service.project.name || 'Unknown Project'
+              : 'Unknown Project'
+            : 'Unknown Project'
+        serviceName =
+          typeof backup.service !== 'string'
+            ? backup.service.name
+            : backup.service
+      }
+
+      if (!acc[projectName]) acc[projectName] = {}
+      if (!acc[projectName][serviceName]) acc[projectName][serviceName] = []
+
+      acc[projectName][serviceName].push(backup)
+      return acc
+    },
+    {} as Record<string, Record<string, BackupType[]>>,
+  )
+
+  return (
+    <div className='mt-4 space-y-4'>
+      {Object.entries(grouped).map(([projectName, services]) => (
+        <div key={projectName} className='rounded-xl border p-6 shadow'>
+          <h4 className='mb-4 text-2xl font-semibold'>{projectName}</h4>
+          <div className='space-y-6'>
+            {Object.entries(services).map(([serviceName, backups]) => (
+              <div key={serviceName}>
+                <h5 className='mb-2 text-lg font-medium text-muted-foreground'>
+                  {serviceName}
+                </h5>
+                <ul className='space-y-3'>
+                  {backups.map(backup => (
+                    <IndividualBackup
+                      key={backup.id}
+                      showRestoreIcon={false}
+                      showDeleteIcon={false}
+                      backup={backup}
+                      serviceId={
+                        typeof backup.service === 'string'
+                          ? backup.service
+                          : backup.service.id
+                      }
+                    />
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      {Object.keys(grouped).length === 0 && (
+        <div className='rounded-lg border bg-muted/20 py-12 text-center'>
+          <div className='grid min-h-[40vh] place-items-center'>
+            <div className='max-w-md space-y-4 text-center'>
+              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                <History className='h-8 w-8 animate-pulse text-muted-foreground' />
+              </div>
+              <h2 className='text-2xl font-semibold'>No Backups Found</h2>
+              <p className='text-muted-foreground'>
+                You don’t have any backups yet. Backups for your projects or
+                services will appear here once they’re created.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

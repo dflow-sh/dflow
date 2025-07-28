@@ -1,4 +1,5 @@
 import { NodeSSH } from 'node-ssh'
+import payload from 'payload'
 
 interface Args {
   ssh: NodeSSH
@@ -69,4 +70,13 @@ const command = `
 export const serverInfo = async ({ ssh }: Args) => {
   const resultServerInfo = await ssh.execCommand(command)
   return parseSSHOutput(resultServerInfo.stdout)
+}
+
+export const getServerById = async (id: string) => {
+  // Adjust this logic as needed for your context
+  const server = await payload.findByID({
+    collection: 'servers',
+    id,
+  })
+  return server
 }

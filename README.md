@@ -14,8 +14,9 @@ and Tailscale.
 ### ✅ Prerequisites
 
 - Docker
-- Docker Compose
-- A Tailscale account
+- Tailscale account
+- Domain
+- Server (recommended 2VPC, 8GB RAM)
 
 ### 🧭 Setup Instructions
 
@@ -30,7 +31,7 @@ cd dflow
 
 1. Login to [tailscale](https://tailscale.com) and go to the Admin Console.
 2. Update Access controls
-   ```
+   ```json
    {
      "tagOwners": {
        "tag:customer-machine": ["autogroup:admin"],
@@ -67,10 +68,10 @@ cd dflow
 3. Create Keys
    1. Go to settings.
    2. Navigate to Personal Settings > Keys
-      1. Generate auth key
+      1. Generate reusable auth key.
    3. Navigate to Tailnet Settings > OAuth clients
-      1. Generate OAuth client with all read permissions and write permission
-         for auth keys with customer-machine tag.
+      1. Generate OAuth client key with all read permissions and write permission
+         for `auth keys` with `customer-machine` tag.
 
 #### 3. DNS Configuration
 
@@ -78,14 +79,14 @@ Setup DNS records with your provider:
 
 ```
   Type: A,
-  Name: *.subdomain
+  Name: *.up
   Value: <your-server-ip>
   Proxy: OFF
 ```
 
 #### 4. Configure Environment Variables
 
-- Create .env file & add the requried variables.
+Create .env file & add the requried variables.
 
   ```
   # mongodb
@@ -114,11 +115,11 @@ Setup DNS records with your provider:
   TAILSCALE_OAUTH_CLIENT_SECRET=tskey-client-xxxx
   TAILSCALE_TAILNET=your-tailnet-name
 
-  # Better stack - For telemetry
+  # (Optional variables) Better stack - For telemetry 
   NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=bstk-xxx
   NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=https://logs.betterstack.com
 
-  # resend - For email configurations
+  # (Optional variables) resend - For email configurations
   RESEND_API_KEY=re_12345
   RESEND_SENDER_EMAIL=no-reply@up.example.com
   RESEND_SENDER_NAME=dFlow System
@@ -126,24 +127,25 @@ Setup DNS records with your provider:
 
 #### 5. Build the Docker image
 
-```
+```bash
 source .env
+
 docker build \
-  --build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
-  --build-arg DATABASE_URI=$DATABASE_URI \
-  --build-arg REDIS_URI=$REDIS_URI \
-  --build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
-  --build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
-  --build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
-  --build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
-  --build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
-  --build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
-  --build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
-  --build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
-  --build-arg RESEND_API_KEY=$RESEND_API_KEY \
-  --build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
-  --build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
-  -t dflow .
+--build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
+--build-arg DATABASE_URI=$DATABASE_URI \
+--build-arg REDIS_URI=$REDIS_URI \
+--build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
+--build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
+--build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
+--build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
+--build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
+--build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
+--build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
+--build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
+--build-arg RESEND_API_KEY=$RESEND_API_KEY \
+--build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
+--build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
+-t dflow .
 ```
 
 #### 6. Traefik Setup
@@ -151,7 +153,7 @@ docker build \
 1. Create `traefik.yaml` file at the root directory.
 2. Change the email
 
-   ```
+   ```yaml
    entryPoints:
      web:
        address: ":80"
@@ -180,23 +182,54 @@ docker build \
    ```
 
 3. Create and secure `acme.json`:
+
    ```bash
    touch acme.json
    chmod 600 acme.json
    ```
 
+4. create `dynamic/dflow-app.yaml` file
+
+```yaml
+http:
+  routers:
+    dflow-app-router:
+      rule: Host(`dflow.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: dflow-app-service
+  services:
+    dflow-app-service:
+      loadBalancer:
+        servers:
+          - url: http://payload-app:3000
+```
+
+5. create `dynamic/dflow-traefik.yaml` file
+
+```yaml
+http:
+  routers:
+    dflow-traefik-router:
+      rule: Host(`dflow-traefik.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: dflow-traefik-service
+  services:
+    dflow-traefik-service:
+      loadBalancer:
+        servers:
+          - url: http://config-generator:9999
+```
+
 #### 7. Start the Docker Compose Stack
 
-```
+```bash
 docker compose --env-file .env up -d
-```
-
-#### 8. Final Configuration
-
-Make a `POST` request to complete initial setup:
-
-```
-http://<YOUR_SERVER_IP>:9999/configuration/default
 ```
 
 ## 🤝 Contributors

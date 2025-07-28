@@ -1,6 +1,10 @@
 import { Button } from '../ui/button'
 import { env } from 'env'
 import { PlusIcon } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { toast } from 'sonner'
+
+import { createGithubAppAction } from '@/actions/gitProviders'
 
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
@@ -9,46 +13,44 @@ const githubCallbackURL =
   env.NEXT_PUBLIC_WEBHOOK_URL ?? env.NEXT_PUBLIC_WEBSITE_URL
 
 const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
-  const state = 'gh_init'
+  const { execute, result, isPending } = useAction(createGithubAppAction, {
+    onSuccess: ({ data }) => {
+      if (data?.githubAppUrl && data?.manifest) {
+        // Create a form and submit it to GitHub
+        const form = document.createElement('form')
+        form.method = 'post'
+        form.action = data.githubAppUrl
 
-  const value = JSON.stringify({
-    redirect_url: `${githubCallbackURL}/api/webhook/providers/github?onboarding=${onboarding}`,
-    name: `dFlow-${formattedDate}`,
-    url: githubCallbackURL,
-    hook_attributes: {
-      url: `${githubCallbackURL}/api/deploy/github`,
+        const manifestInput = document.createElement('input')
+        manifestInput.type = 'hidden'
+        manifestInput.name = 'manifest'
+        manifestInput.value = data.manifest
+
+        form.appendChild(manifestInput)
+        document.body.appendChild(form)
+        form.submit()
+        document.body.removeChild(form)
+      }
     },
-    callback_urls: [`${githubCallbackURL}/api/webhook/providers/github`],
-    public: false,
-    request_oauth_on_install: true,
-    default_permissions: {
-      contents: 'read',
-      metadata: 'read',
-      emails: 'read',
-      pull_requests: 'write',
+    onError: ({ error }) => {
+      toast.error(`Failed to create github app ${error.serverError}`)
     },
-    default_events: ['pull_request', 'push'],
   })
+
+  const handleCreateApp = async () => {
+    execute({ onboarding })
+  }
 
   return (
     <div className='flex w-full items-center justify-end gap-3 pt-4'>
-      <form
-        method='post'
-        action={`https://github.com/settings/apps/new?state=${state}`}>
-        <input
-          type='text'
-          name='manifest'
-          id='manifest'
-          className='sr-only'
-          defaultValue={value}
-        />
-
-        {/* Added github option in GitProviders collection */}
-        <Button type='submit'>
-          <PlusIcon />
-          Create Github App
-        </Button>
-      </form>
+      {/* Added github option in GitProviders collection */}
+      <Button
+        disabled={isPending}
+        isLoading={isPending}
+        onClick={handleCreateApp}>
+        <PlusIcon />
+        Create Github App
+      </Button>
     </div>
   )
 }

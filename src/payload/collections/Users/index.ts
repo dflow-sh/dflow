@@ -24,13 +24,24 @@ const defaultTenantArrayField = tenantsArrayField({
   },
   rowFields: [
     {
-      name: 'roles',
-      type: 'select',
-      defaultValue: ['tenant-user'],
-      hasMany: true,
-      options: ['tenant-admin', 'tenant-user'],
-      label: 'Tenant Roles',
+      name: 'role',
+      type: 'relationship',
+      relationTo: 'roles',
+      hasMany: false,
+      label: 'Tenant Role',
       required: true,
+      filterOptions: ({ siblingData }: { siblingData: any }) => {
+        const tenantId = siblingData?.tenant
+        if (!tenantId) {
+          return false
+        }
+        // Filter roles where 'tenant' field equals selected tenantId
+        return {
+          tenant: {
+            equals: tenantId,
+          },
+        }
+      },
     },
   ],
 })

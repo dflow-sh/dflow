@@ -18,10 +18,9 @@ import { toast } from 'sonner'
 import { joinTeamAction } from '@/actions/team'
 import { Tenant, User } from '@/payload-types'
 
-type Role = 'tenant-admin' | 'tenant-user'
 interface InvitationData {
   tenantId: string
-  roles: Role[]
+  role: string
 }
 
 type Invitation = InvitationData | 'expired' | null
@@ -102,7 +101,7 @@ function InvitationView({
               onClick={() => {
                 if (invitationData && invitationData !== 'expired') {
                   joinTeam({
-                    roles: invitationData.roles,
+                    role: invitationData.role,
                     tenantId: invitationData.tenantId,
                   })
                 }

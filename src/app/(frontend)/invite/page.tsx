@@ -8,10 +8,9 @@ interface PageProps {
   searchParams: Promise<{ token?: string }>
 }
 
-type Role = 'tenant-admin' | 'tenant-user'
 interface InvitationData {
   tenantId: string
-  roles: Role[]
+  role: string
 }
 
 type Invitation = InvitationData | 'expired' | null

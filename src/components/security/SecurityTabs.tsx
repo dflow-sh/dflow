@@ -1,5 +1,6 @@
 'use client'
 
+import AccessDeniedAlert from '../AccessDeniedAlert'
 import { KeyRound, Shield } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
@@ -30,7 +31,10 @@ interface Props {
   keys: SshKey[]
   securityGroups: SecurityGroup[]
   cloudProviderAccounts: CloudProviderAccount[]
-  servers: Partial<Server>[]
+  securityGroupServers: Partial<Server>[]
+  sshServers: Partial<Server>[]
+  sshError: string | undefined
+  securityGroupError: string | undefined
 }
 
 const SecurityTabs = ({
@@ -39,7 +43,10 @@ const SecurityTabs = ({
   keys,
   securityGroups,
   cloudProviderAccounts,
-  servers,
+  securityGroupServers,
+  sshServers,
+  sshError,
+  securityGroupError,
 }: Props) => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -95,8 +102,10 @@ const SecurityTabs = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {keys.length ? (
-              <SSHKeysList keys={keys} servers={servers} />
+            {sshError ? (
+              <AccessDeniedAlert error={sshError} />
+            ) : keys.length ? (
+              <SSHKeysList keys={keys} servers={sshServers} />
             ) : (
               <div className='flex flex-col items-center justify-center py-12 text-center'>
                 <KeyRound className='mb-4 h-12 w-12 text-muted-foreground opacity-20' />
@@ -125,11 +134,13 @@ const SecurityTabs = ({
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {securityGroups.length ? (
+            {securityGroupError ? (
+              <AccessDeniedAlert error={securityGroupError} />
+            ) : securityGroups.length ? (
               <SecurityGroupsList
                 securityGroups={securityGroups}
                 cloudProviderAccounts={cloudProviderAccounts}
-                servers={servers}
+                servers={securityGroupServers}
               />
             ) : (
               <div className='flex flex-col items-center justify-center py-12 text-center'>

@@ -5,6 +5,7 @@ import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
 import { getProjectDetails } from '@/actions/pages/project'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateTemplateFromProject from '@/components/project/CreateTemplateFromProject'
 import ProjectSettingsTab from '@/components/project/ProjectSettingsTab'
@@ -114,7 +115,7 @@ const SuspendedPage = async ({
   const project = data?.Projects?.[0]
 
   if (!project) {
-    notFound()
+    return <AccessDeniedAlert error={result?.serverError!} />
   }
 
   const { services } = data

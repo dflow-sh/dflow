@@ -7,17 +7,17 @@ const secret = env.PAYLOAD_SECRET
 
 export async function verifyInviteToken(
   token: string,
-): Promise<{ tenantId: string; roles: string[] } | 'expired' | null> {
+): Promise<{ tenantId: string; role: string } | 'expired' | null> {
   try {
     const decoded = jwt.verify(token, secret) as JwtPayload
 
-    if (!decoded.tenantId || !decoded.roles) {
+    if (!decoded.tenantId || !decoded.role) {
       return null
     }
 
     return {
       tenantId: decoded.tenantId,
-      roles: decoded.roles,
+      role: decoded.role,
     }
   } catch (error) {
     if (error instanceof TokenExpiredError) {

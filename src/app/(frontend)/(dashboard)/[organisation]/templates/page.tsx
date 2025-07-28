@@ -3,8 +3,11 @@ import { Plus, Puzzle } from 'lucide-react'
 import Link from 'next/link'
 
 import { getCloudProvidersAccountsAction } from '@/actions/cloud'
-import { getTemplates } from '@/actions/pages/Template'
-import { getPublicTemplatesAction } from '@/actions/templates'
+import {
+  getAllOfficialTemplatesAction,
+  getPersonalTemplatesAction,
+} from '@/actions/templates'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import TemplateCard from '@/components/templates/TemplateCard'
 import TemplateDetails from '@/components/templates/TemplateDetails'
 import { Button } from '@/components/ui/button'
@@ -17,9 +20,15 @@ interface PageProps {
 
 const page = async ({ params }: PageProps) => {
   const syncParams = await params
-  const templates = await getTemplates()
-
-  const publicTemplates = await getPublicTemplatesAction()
+  const personalTemplates = await getPersonalTemplatesAction({
+    type: 'personal',
+  })
+  const officialTemplates = await getAllOfficialTemplatesAction({
+    type: 'official',
+  })
+  const communityTemplates = await getAllOfficialTemplatesAction({
+    type: 'community',
+  })
 
   const accounts = await getCloudProvidersAccountsAction({
     type: 'dFlow',
@@ -50,9 +59,9 @@ const page = async ({ params }: PageProps) => {
 
           {/* Official Templates */}
           <TabsContent value='official'>
-            {publicTemplates?.data?.officialTemplates?.length > 0 ? (
+            {officialTemplates?.data && officialTemplates?.data?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {publicTemplates?.data?.officialTemplates.map(
+                {officialTemplates?.data?.map(
                   (template: Template, index: number) => (
                     <TemplateCard key={index} template={template} />
                   ),
@@ -71,13 +80,12 @@ const page = async ({ params }: PageProps) => {
           </TabsContent>
           {/* Community Templates */}
           <TabsContent value='community'>
-            {publicTemplates?.data?.communityTemplates?.length > 0 ? (
+            {communityTemplates?.data &&
+            communityTemplates?.data?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {publicTemplates?.data?.communityTemplates?.map(
-                  (template: Template) => (
-                    <TemplateCard key={template.id} template={template} />
-                  ),
-                )}
+                {communityTemplates?.data?.map((template: Template) => (
+                  <TemplateCard key={template.id} template={template} />
+                ))}
               </div>
             ) : (
               <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
@@ -92,9 +100,12 @@ const page = async ({ params }: PageProps) => {
           </TabsContent>
           {/* Personal Templates */}
           <TabsContent value='personal'>
-            {templates?.data?.length! > 0 ? (
+            {personalTemplates?.serverError ? (
+              <AccessDeniedAlert error={personalTemplates?.serverError} />
+            ) : personalTemplates?.data &&
+              personalTemplates?.data?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {templates?.data?.map(template => (
+                {personalTemplates?.data?.map(template => (
                   <TemplateDetails
                     account={accounts?.data?.at(0)}
                     key={template.id}

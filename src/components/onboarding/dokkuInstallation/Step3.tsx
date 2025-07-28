@@ -2,7 +2,9 @@
 
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect } from 'react'
+
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import {
   configureLetsencryptPluginAction,
@@ -23,16 +25,29 @@ const Step3 = ({ server }: { server: ServerType }) => {
     execute: installPlugin,
     hasSucceeded: triggedInstallingPlugin,
     isPending: triggeringInstallingPlugin,
-  } = useAction(installPluginAction)
+  } = useAction(installPluginAction, {
+      onError: ({ error }) => {
+        toast.error(`Failed to install plugin: ${error.serverError}`)
+      },
+    })
 
   const { isPending: isSyncingPlugins, executeAsync: syncPlugins } =
-    useAction(syncPluginAction)
+    useAction(syncPluginAction, {
+    onError: ({ error }) => {
+      toast.error(`Failed to sync plugins: ${error?.serverError}`)
+    },
+  })
 
   const {
     execute: configureLetsencrypt,
     isPending: triggeringLetsencryptPluginConfiguration,
     hasSucceeded: triggeredLetsencryptPluginConfiguration,
-  } = useAction(configureLetsencryptPluginAction)
+  } = useAction(configureLetsencryptPluginAction,
+    {
+      onError: ({ error }) => {
+        toast.error(`Failed to update config: ${error?.serverError}`)
+      },
+    })
 
   const plugins = server?.plugins || []
   const letsEncryptPluginInstalled = plugins.find(

@@ -419,7 +419,11 @@ const VariablesForm = ({ service }: { service: Service }) => {
     isPending: gettingDatabases,
     result: databaseList,
     hasSucceeded,
-  } = useAction(getProjectDatabasesAction)
+  } = useAction(getProjectDatabasesAction, {
+    onError: ({ error }) => {
+      toast.error(`Failed to get database details: ${error?.serverError}`)
+    },
+  })
 
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),

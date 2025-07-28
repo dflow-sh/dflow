@@ -1,6 +1,8 @@
+import { getRolesAction } from '@/actions/roles'
 import { User } from '@/payload-types'
 
 import Invitation from './Invitation'
+import Roles from './Roles'
 import TeamMembers from './TeamMembers'
 
 async function TeamView({
@@ -10,10 +12,14 @@ async function TeamView({
   teamMembers: User[] | undefined
   tenant: any
 }) {
+  const result = await getRolesAction()
+  const roles = result?.data ?? []
+
   return (
     <div className='mt-4 space-y-10'>
-      <Invitation tenant={tenant} />
-      <TeamMembers teamMembers={teamMembers} />
+      <Invitation roles={roles} tenant={tenant} />
+      <TeamMembers roles={roles} teamMembers={teamMembers} />
+      <Roles roles={roles} teamMembers={teamMembers} />
     </div>
   )
 }

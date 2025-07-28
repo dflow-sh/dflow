@@ -4,6 +4,7 @@ import LayoutClient from '../layout.client'
 
 import { getTenantAction } from '@/actions/auth'
 import { getTeamMembersAction } from '@/actions/team'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import TeamView from '@/components/Team'
 
 const TeamPage = async () => {
@@ -16,7 +17,11 @@ const TeamPage = async () => {
     <LayoutClient>
       <section>
         <h3 className='text-2xl font-semibold'>People</h3>
-        <TeamView teamMembers={teamMembers} tenant={tenant?.data} />
+        {result?.serverError ? (
+          <AccessDeniedAlert className='mt-4' error={result?.serverError} />
+        ) : (
+          <TeamView teamMembers={teamMembers} tenant={tenant?.data} />
+        )}
       </section>
     </LayoutClient>
   )

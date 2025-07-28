@@ -11,9 +11,9 @@ import {
   internalRestoreSchema,
 } from './validator'
 
-export const getAllBackups = protectedClient
+export const getAllBackupsAction = protectedClient
   .metadata({
-    actionName: 'getAllBackups',
+    actionName: 'getAllBackupsAction',
   })
   .action(async ({ ctx }) => {
     const { payload, userTenant } = ctx

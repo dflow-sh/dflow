@@ -27,7 +27,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createTemplate } from '@/actions/templates'
+import { createTemplateAction } from '@/actions/templates'
 import {
   CreateTemplateSchemaType,
   createTemplateSchema,
@@ -127,22 +127,20 @@ const CreateTemplateFromProject = ({
     },
   })
 
-  const {
-    execute: createTemplateAction,
-    isPending: isCreateTemplateActionPending,
-  } = useAction(createTemplate, {
-    onSuccess: ({ data }) => {
-      toast.success('Template created successfully')
-      setOpen(false)
-      form.reset()
-    },
-    onError: () => {
-      toast.error('Failed to create template')
-    },
-  })
+  const { execute: createTemplate, isPending: isCreateTemplateActionPending } =
+    useAction(createTemplateAction, {
+      onSuccess: ({ data }) => {
+        toast.success('Template created successfully')
+        setOpen(false)
+        form.reset()
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to create template ${error.serverError}`)
+      },
+    })
 
   const onSubmit = (data: CreateTemplateSchemaType) => {
-    createTemplateAction({
+    createTemplate({
       name: data.name,
       description: data.description,
       services: updatedServices,

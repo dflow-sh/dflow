@@ -15,33 +15,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { sendInvitationLinkAction } from '@/actions/team'
-import { generateInviteLink } from '@/lib/generateInvitationLink'
-import { Tenant } from '@/payload-types'
+import {
+  generateInviteLinkAction,
+  sendInvitationLinkAction,
+} from '@/actions/team'
+import { Role, Tenant } from '@/payload-types'
 
-enum Role {
-  Admin = 'tenant-admin',
-  User = 'tenant-user',
-}
-
-const Invitation = ({ tenant }: { tenant: any }) => {
-  const [email, setEmail] = useState<string>('')
-  const [role, setRole] = useState<Role>(Role.User)
+const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
+  const [email, setEmail] = useState('')
+  const [role, setRole] = useState<string | undefined>(roles?.at(0)?.id)
   const [copied, setCopied] = useState(false)
-
-  const copyToClipboard = async () => {
-    const lin = await generateInviteLink((tenant.tenant as Tenant).id, [role])
-    setCopied(true)
-    navigator.clipboard.writeText(lin).then(
-      () => {},
-      err => {
-        console.error(err)
-      },
-    )
-    setTimeout(() => {
-      setCopied(false)
-    }, 1000)
-  }
 
   const {
     execute: sendInvitationLink,
@@ -50,23 +33,67 @@ const Invitation = ({ tenant }: { tenant: any }) => {
     onSuccess: () => {
       toast.success('Email sent successfully')
     },
-    onError: error => {
-      toast.error('Failed to send invitation email')
+    onError: ({ error }) => {
+      toast.error(`Failed to send invitation email ${error?.serverError}`)
     },
   })
+
+  const { execute: generateInvitationLink } = useAction(
+    generateInviteLinkAction,
+    {
+      onSuccess: ({ data }) => {
+        setCopied(true)
+        navigator.clipboard.writeText(data?.inviteLink!).then(
+          () => {},
+          err => {
+            console.error(err)
+          },
+        )
+        setTimeout(() => {
+          setCopied(false)
+        }, 1000)
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to generate invitation link ${error?.serverError}`)
+      },
+    },
+  )
+
+  const {
+    execute: generateInvitationLinkAndSendEmail,
+    isPending: isGenerateInvitationLinkAndSendEmailPending,
+  } = useAction(generateInviteLinkAction, {
+    onSuccess: ({ data, input }) => {
+      console.log({ input, data, email })
+      sendInvitationLink({
+        email: input?.email!,
+        link: data?.inviteLink!,
+      })
+    },
+    onError: ({ error }) => {
+      toast.error(`Failed to generate invitation link ${error?.serverError}`)
+    },
+  })
+
+  const copyToClipboard = () => {
+    generateInvitationLink({
+      role: role!,
+      tenantId: (tenant.tenant as Tenant).id,
+    })
+  }
+
   const handleChange = (newRole: string) => {
-    if (newRole === Role.Admin || newRole === Role.User) {
-      setRole(newRole as Role)
-    }
+    setRole(newRole)
   }
 
   const sendLink = async () => {
-    const link = await generateInviteLink((tenant.tenant as Tenant).id, [role])
-    sendInvitationLink({
-      email,
-      link,
+    generateInvitationLinkAndSendEmail({
+      role: role!,
+      tenantId: (tenant.tenant as Tenant).id,
+      email: email,
     })
   }
+
   return (
     <div>
       <h3 className='mb-2 text-lg font-medium'>Invite to your workspace</h3>
@@ -87,8 +114,11 @@ const Invitation = ({ tenant }: { tenant: any }) => {
               <SelectValue placeholder='select role' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='tenant-user'>Member</SelectItem>
-              <SelectItem value='tenant-admin'>Admin</SelectItem>
+              {roles?.map(role => (
+                <SelectItem key={role?.id} value={role?.id}>
+                  {role?.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <div>
@@ -120,31 +150,17 @@ const Invitation = ({ tenant }: { tenant: any }) => {
             )}
           </div>
         </div>
-        {/* <Select
-          value={expireTime}
-          onValueChange={newRole => handleChange(newRole)}
-          defaultValue={expireTime}>
-          <SelectTrigger className='w-64'>
-            <SelectValue placeholder='Select Link expire time' />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectLabel>Select link expire time</SelectLabel>
-            <SelectItem value='1h'>1 Hour</SelectItem>
-            <SelectItem value='12h'>12 Hours</SelectItem>
-            <SelectItem value='1d'>1 Day</SelectItem>
-            <SelectItem value='2d'>2 Days</SelectItem>
-            <SelectItem value='7d'>7 Days</SelectItem>
-            <SelectItem value='14d'>14 Days</SelectItem>
-            <SelectItem value='1m'>1 Month</SelectItem>
-            <SelectItem value='3m'>3 Months</SelectItem>
-            <SelectItem value='6m'>6 Months</SelectItem>
-            <SelectItem value='1y'>1 Year</SelectItem>
-          </SelectContent>
-        </Select> */}
         <Button
           onClick={sendLink}
-          isLoading={isSendInvitationLinkPending}
-          disabled={!email || isSendInvitationLinkPending}>
+          isLoading={
+            isSendInvitationLinkPending ||
+            isGenerateInvitationLinkAndSendEmailPending
+          }
+          disabled={
+            !email ||
+            isSendInvitationLinkPending ||
+            isGenerateInvitationLinkAndSendEmailPending
+          }>
           Invite
         </Button>
       </div>

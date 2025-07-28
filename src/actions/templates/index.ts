@@ -52,10 +52,10 @@ type PublicTemplate = Omit<
   type: 'community' | 'official'
 }
 
-export const createTemplate = protectedClient
+export const createTemplateAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'createTemplate',
+    actionName: 'createTemplateAction',
   })
   .schema(createTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -75,10 +75,10 @@ export const createTemplate = protectedClient
     return response
   })
 
-export const deleteTemplate = protectedClient
+export const deleteTemplateAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
-    actionName: 'deleteTemplate',
+    actionName: 'deleteTemplateAction',
   })
   .schema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -134,8 +134,8 @@ export const deleteTemplate = protectedClient
     }
   })
 
-export const getTemplateById = protectedClient
-  .metadata({ actionName: 'getTemplateById' })
+export const getTemplateByIdAction = protectedClient
+  .metadata({ actionName: 'getTemplateByIdAction' })
   .schema(getPersonalTemplateByIdSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
@@ -162,9 +162,9 @@ export const getTemplateById = protectedClient
     return response?.docs[0]
   })
 
-export const updateTemplate = protectedClient
+export const updateTemplateAction = protectedClient
   .metadata({
-    actionName: 'updateTemplate',
+    actionName: 'updateTemplateAction',
   })
   .schema(updateTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -188,12 +188,11 @@ export const updateTemplate = protectedClient
     return response
   })
 
-export const getAllTemplatesAction = protectedClient
-  .metadata({ actionName: 'getAllTemplatesAction' })
+export const getAllOfficialTemplatesAction = publicClient
+  .metadata({ actionName: 'getAllOfficialTemplatesAction' })
   .schema(getAllTemplatesSchema)
-  .action(async ({ ctx, clientInput }) => {
+  .action(async ({ clientInput }) => {
     const { type } = clientInput
-    const { userTenant, payload } = ctx
 
     if (type === 'official') {
       const res = await fetch(
@@ -220,20 +219,27 @@ export const getAllTemplatesAction = protectedClient
       const data = await res.json()
       return (data.docs ?? []) as Template[]
     }
+  })
 
-    if (type === 'personal') {
-      const { docs } = await payload.find({
-        collection: 'templates',
-        where: {
-          'tenant.slug': {
-            equals: userTenant.tenant.slug,
-          },
+export const getPersonalTemplatesAction = protectedClient
+  .metadata({ actionName: 'getPersonalTemplatesAction' })
+  .schema(getAllTemplatesSchema)
+  .action(async ({ ctx }) => {
+    const {
+      payload,
+      userTenant: { tenant },
+    } = ctx
+    const { docs: templates } = await payload.find({
+      collection: 'templates',
+      pagination: false,
+      sort: '-isPublished',
+      where: {
+        'tenant.slug': {
+          equals: tenant.slug,
         },
-        pagination: false,
-      })
-
-      return docs
-    }
+      },
+    })
+    return templates
   })
 
 export const getOfficialTemplateByIdAction = publicClient
@@ -482,29 +488,6 @@ export const syncWithPublicTemplateAction = protectedClient
 
     revalidatePath(`/${tenant.slug}/templates`)
     return { success: true }
-  })
-
-export const getPublicTemplatesAction = publicClient
-  .metadata({ actionName: 'getPublicTemplatesAction' })
-  .action(async () => {
-    const response = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/templates?pagination=false`,
-    )
-
-    const allTemplates = response?.data?.docs || []
-
-    const communityTemplates = allTemplates.filter(
-      (template: PublicTemplate) => template.type === 'community',
-    )
-
-    const officialTemplates = allTemplates.filter(
-      (template: PublicTemplate) => template.type === 'official',
-    )
-
-    return {
-      communityTemplates,
-      officialTemplates,
-    }
   })
 
 export const templateDeployAction = protectedClient

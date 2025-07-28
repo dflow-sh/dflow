@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import * as ssh2 from 'ssh2'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient, userClient } from '@/lib/safe-action'
 
 import {
   createSSHKeySchema,
@@ -95,7 +95,7 @@ export const deleteSSHKeyAction = protectedClient
     }
   })
 
-export const generateSSHKeyAction = protectedClient
+export const generateSSHKeyAction = userClient
   .metadata({
     actionName: 'generateSSHKeyAction',
   })
