@@ -1,4 +1,4 @@
-import { ScreenShareOff } from 'lucide-react'
+import { FolderOpen, ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { SearchParams } from 'nuqs/server'
@@ -31,7 +31,8 @@ const GeneralTab: React.FC<{
   services: Service[]
   project: Partial<Project>
   organisation: string
-}> = ({ services, project, organisation }) => {
+  isServerConnected: boolean
+}> = ({ services, project, organisation, isServerConnected }) => {
   const formattedServices = services?.length
     ? services.map(service => {
         const serviceName = service.name.replace(`${project.name}-`, '')
@@ -39,15 +40,61 @@ const GeneralTab: React.FC<{
       })
     : []
 
-  return formattedServices.length ? (
-    <ServiceList
-      organisationSlug={organisation}
-      project={project}
-      services={formattedServices}
-    />
-  ) : typeof project.server === 'object' ? (
-    <ServicesArchitecture server={project.server} />
-  ) : null
+  return (
+    <>
+      <div className='flex w-full justify-between'>
+        <div>
+          <h2 className='flex items-center text-2xl font-semibold'>
+            <FolderOpen className='mr-2 h-6 w-6' />
+            {project.name}
+            <SidebarToggleButton
+              directory='services'
+              fileName='services-overview'
+            />
+          </h2>
+
+          <p className='text-sm text-muted-foreground'>{project.description}</p>
+        </div>
+
+        {typeof project.server === 'object' && (
+          <div className='flex items-center gap-3'>
+            <DeployTemplate
+              server={project.server}
+              disableDeployButton={!isServerConnected}
+              disableReason={'Cannot deploy template: Server is not connected'}
+            />
+
+            {services?.length ? (
+              <>
+                <CreateTemplateFromProject
+                  services={services}
+                  projectName={project?.name!}
+                />
+
+                <CreateService
+                  server={project.server}
+                  project={project}
+                  disableCreateButton={!isServerConnected}
+                  disableReason={
+                    'Cannot create service: Server is not connected'
+                  }
+                />
+              </>
+            ) : null}
+          </div>
+        )}
+      </div>
+      {formattedServices.length ? (
+        <ServiceList
+          organisationSlug={organisation}
+          project={project}
+          services={formattedServices}
+        />
+      ) : typeof project.server === 'object' ? (
+        <ServicesArchitecture server={project.server} />
+      ) : null}
+    </>
+  )
 }
 
 const SuspendedPage = async ({
@@ -83,55 +130,11 @@ const SuspendedPage = async ({
       case 'general':
         return (
           <Suspense fallback={<ServicesSkeleton />}>
-            <div className='flex w-full justify-between'>
-              <div>
-                <h2 className='flex items-center text-2xl font-semibold'>
-                  {project.name}
-                  <SidebarToggleButton
-                    directory='services'
-                    fileName='services-overview'
-                  />
-                </h2>
-
-                <p className='text-sm text-muted-foreground'>
-                  {project.description}
-                </p>
-              </div>
-
-              {typeof project.server === 'object' && (
-                <div className='flex items-center gap-3'>
-                  <DeployTemplate
-                    server={project.server}
-                    disableDeployButton={!isServerConnected}
-                    disableReason={
-                      'Cannot deploy template: Server is not connected'
-                    }
-                  />
-
-                  {result?.data?.services?.length ? (
-                    <>
-                      <CreateTemplateFromProject
-                        services={result?.data?.services}
-                        projectName={project?.name}
-                      />
-
-                      <CreateService
-                        server={project.server}
-                        project={project}
-                        disableCreateButton={!isServerConnected}
-                        disableReason={
-                          'Cannot create service: Server is not connected'
-                        }
-                      />
-                    </>
-                  ) : null}
-                </div>
-              )}
-            </div>
             <GeneralTab
               services={services}
               project={project}
               organisation={organisation}
+              isServerConnected={isServerConnected}
             />
           </Suspense>
         )
@@ -150,6 +153,7 @@ const SuspendedPage = async ({
               services={services}
               project={project}
               organisation={organisation}
+              isServerConnected={isServerConnected}
             />
           </Suspense>
         )

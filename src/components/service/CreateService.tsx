@@ -57,7 +57,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { slugify } from '@/lib/slugify'
-import { Server } from '@/payload-types'
+import { Project, Server } from '@/payload-types'
 
 const databaseOptions = [
   {
@@ -94,7 +94,7 @@ const CreateService = ({
   disableReason = 'Cannot create service at this time',
 }: {
   server: Server
-  project: { name: string }
+  project: Partial<Project>
   disableCreateButton?: boolean
   disableReason?: string
 }) => {
