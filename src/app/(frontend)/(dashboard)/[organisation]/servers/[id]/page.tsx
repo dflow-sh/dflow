@@ -301,14 +301,14 @@ const ServerSettingsTab = ({ server }: { server: ServerType }) => {
   )
 }
 
-const SuspendedPage = async ({ params, searchParams }: PageProps) => {
+const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const [syncParams, syncSearchParams] = use(
     Promise.all([params, searchParams]),
   )
   const { id } = syncParams
   const { refreshServerDetails } = syncSearchParams
 
-  const { tab } = await loadServerPageTabs(searchParams)
+  const { tab } = use(loadServerPageTabs(searchParams))
 
   const isRefreshServerDetails = refreshServerDetails === 'true'
 

@@ -29,7 +29,7 @@ import { toast } from 'sonner'
 
 import { getServerProjects } from '@/actions/pages/server'
 import { updateServiceAction } from '@/actions/service'
-import { Server, Service } from '@/payload-types'
+import { Project, Service } from '@/payload-types'
 
 interface SwitchProjectForm {
   projectId: string
@@ -44,7 +44,7 @@ const SwitchServiceProjectDialog = ({
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
   service: Service & { displayName?: string }
-  project: { id: string; name: string; server: string | Server }
+  project: Partial<Project>
 }) => {
   const params = useParams<{ organisation: string }>()
   const router = useRouter()
@@ -85,7 +85,7 @@ const SwitchServiceProjectDialog = ({
         id:
           typeof project.server === 'object'
             ? project.server.id
-            : project.server,
+            : (project.server as string),
       })
       form.reset({ projectId: '' })
     }
