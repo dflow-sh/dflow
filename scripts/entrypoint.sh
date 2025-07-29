@@ -12,7 +12,7 @@ tailscaled --tun=linux --socket=/var/run/tailscale/tailscaled.sock &
 sleep 2
 
 # Join Tailscale as an ephemeral node
-tailscale up --authkey="${1}" --hostname "dflow" --accept-dns
+tailscale up --authkey="${TAILSCALE_AUTH_KEY}" --hostname "dflow" --accept-dns
 
 # /usr/sbin/sshd
 # On container stop, log out of Tailscale
@@ -83,6 +83,23 @@ END {
   printf "🔴 Offline devices: %d\n", custom["offline"] + 0
 }'
 
+
+# 🔁 Replace placeholders in built output
+# These fail if unset (because of `set -euo pipefail` if added at the top)
+NEXT_PUBLIC_DISCORD_INVITE_URL="${NEXT_PUBLIC_DISCORD_INVITE_URL}"
+NEXT_PUBLIC_WEBSITE_URL="${NEXT_PUBLIC_WEBSITE_URL}"
+NEXT_PUBLIC_PROXY_DOMAIN_URL="${NEXT_PUBLIC_PROXY_DOMAIN_URL}"
+NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN="${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}"
+NEXT_PUBLIC_BETTER_STACK_INGESTING_URL="${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}"
+NEXT_PUBLIC_PROXY_CNAME="${NEXT_PUBLIC_PROXY_CNAME}"
+
+# 🪄 Replace values in built static files
+find .next -type f -exec sed -i "s~__NEXT_PUBLIC_DISCORD_INVITE_URL__~${NEXT_PUBLIC_DISCORD_INVITE_URL}~g" {} +
+find .next -type f -exec sed -i "s~__NEXT_PUBLIC_WEBSITE_URL__~${NEXT_PUBLIC_WEBSITE_URL}~g" {} +
+find .next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_DOMAIN_URL__~${NEXT_PUBLIC_PROXY_DOMAIN_URL}~g" {} +
+find .next -type f -exec sed -i "s~__NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN__~${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}~g" {} +
+find .next -type f -exec sed -i "s~https://s1.eu.betterstackdata.com~${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}~g" {} +
+find .next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_CNAME__~${NEXT_PUBLIC_PROXY_CNAME}~g" {} +
 
 # Run your Next.js app
 exec node server.js

@@ -5,7 +5,6 @@ import { Toaster } from 'sonner'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 import SuspendedPostHogPageView from '@/providers/PosthogPageView'
-import PosthogProvider from '@/providers/PosthogProvider'
 
 import './globals.css'
 
@@ -51,10 +50,10 @@ export default async function RootLayout({
       <body
         className={`${geistSans.className} ${geistMono.variable} overflow-y-hidden`}>
         <NProgressProvider>
-          <PosthogProvider>
-            <SuspendedPostHogPageView />
-            <NetworkStatusProvider>{children}</NetworkStatusProvider>
-          </PosthogProvider>
+          {/* <PosthogProvider> */}
+          <SuspendedPostHogPageView />
+          <NetworkStatusProvider>{children}</NetworkStatusProvider>
+          {/* </PosthogProvider> */}
           <Toaster richColors theme='dark' duration={3000} closeButton />
         </NProgressProvider>
       </body>

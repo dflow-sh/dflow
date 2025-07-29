@@ -134,5 +134,6 @@
       "@types/react": "19.0.10",
       "@types/react-dom": "19.0.4"
     }
-  }
+  },
+  "packageManager": "pnpm@10.2.0"
 }
