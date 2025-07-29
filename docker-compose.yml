@@ -24,7 +24,7 @@ services:
 
   # Dynamic Config Generator
   config-generator:
-    image: ghcr.io/akhil-naidu/dflow-traefik:latest
+    image: ghcr.io/dflow-sh/config-generator:latest
     networks:
       - custom-tailnet
     container_name: config-generator
@@ -89,7 +89,7 @@ services:
 
   # Payload CMS App (from your custom Dockerfile)
   payload-app:
-    image: dflow
+    image: ghcr.io/dflow-sh/dflow:latest
     cap_add:
       - NET_ADMIN
     devices:
