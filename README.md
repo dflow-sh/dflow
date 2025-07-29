@@ -23,7 +23,7 @@ and Tailscale.
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/akhil-naidu/dflow/
+git clone https://github.com/dflow-sh/dflow/
 cd dflow
 ```
 
@@ -35,34 +35,34 @@ cd dflow
    {
      "tagOwners": {
        "tag:customer-machine": ["autogroup:admin"],
-       "tag:dflow-proxy":      ["autogroup:admin"],
-       "tag:dflow-support":    ["autogroup:admin"],
+       "tag:dflow-proxy": ["autogroup:admin"],
+       "tag:dflow-support": ["autogroup:admin"]
      },
      "grants": [
        {
          "src": ["autogroup:admin"],
          "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
+         "ip": ["*"]
        },
        {
          "src": ["tag:dflow-proxy"],
          "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
+         "ip": ["*"]
        },
        {
          "src": ["tag:dflow-support"],
          "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
-       },
+         "ip": ["*"]
+       }
      ],
      "ssh": [
        {
          "action": "accept",
-         "src":    ["autogroup:admin", "tag:dflow-support"],
-         "dst":    ["tag:customer-machine"],
-         "users":  ["autogroup:admin", "root"],
-       },
-     ],
+         "src": ["autogroup:admin", "tag:dflow-support"],
+         "dst": ["tag:customer-machine"],
+         "users": ["autogroup:admin", "root"]
+       }
+     ]
    }
    ```
 3. Create Keys
@@ -70,8 +70,8 @@ cd dflow
    2. Navigate to Personal Settings > Keys
       1. Generate reusable auth key.
    3. Navigate to Tailnet Settings > OAuth clients
-      1. Generate OAuth client key with all read permissions and write permission
-         for `auth keys` with `customer-machine` tag.
+      1. Generate OAuth client key with all read permissions and write
+         permission for `auth keys` with `customer-machine` tag.
 
 #### 3. DNS Configuration
 
@@ -88,67 +88,44 @@ Setup DNS records with your provider:
 
 Create .env file & add the requried variables.
 
-  ```
-  # mongodb
-  MONGO_INITDB_ROOT_USERNAME=admin
-  MONGO_INITDB_ROOT_PASSWORD=password
-  MONGO_DB_NAME=dFlow
+```
+# mongodb
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=password
+MONGO_DB_NAME=dFlow
 
-  # redis
-  REDIS_URI="redis://localhost:6379"
+# redis
+REDIS_URI="redis://redis:6379"
 
-  # config-generator
-  WILD_CARD_DOMAIN=up.example.com
-  JWT_TOKEN=your-jwt-token
-  PROXY_PORT=9999
+# config-generator
+WILD_CARD_DOMAIN=up.example.com
+JWT_TOKEN=your-jwt-token
+PROXY_PORT=9999
 
-  # dFlow app
-  NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
-  DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
-  PAYLOAD_SECRET=your-secret
+# dFlow app
+NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
+DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+PAYLOAD_SECRET=your-secret
 
-  NEXT_PUBLIC_PROXY_DOMAIN_URL=https://dflow-traefik.up.example.com
-  NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
+NEXT_PUBLIC_PROXY_DOMAIN_URL=up.example.com
+NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
 
-  # tailscale
-  TAILSCALE_AUTH_KEY=tskey-auth-xxxx
-  TAILSCALE_OAUTH_CLIENT_SECRET=tskey-client-xxxx
-  TAILSCALE_TAILNET=your-tailnet-name
+# tailscale
+TAILSCALE_AUTH_KEY=tskey-auth-xxxx
+TAILSCALE_OAUTH_CLIENT_SECRET=tskey-client-xxxx
+TAILSCALE_TAILNET=your-tailnet-name
 
-  # (Optional variables) Better stack - For telemetry 
-  NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=bstk-xxx
-  NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=https://logs.betterstack.com
+# (Optional variables) Better stack - For telemetry
+NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=bstk-xxx
+NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=https://logs.betterstack.com
 
-  # (Optional variables) resend - For email configurations
-  RESEND_API_KEY=re_12345
-  RESEND_SENDER_EMAIL=no-reply@up.example.com
-  RESEND_SENDER_NAME=dFlow System
-  ```
-
-#### 5. Build the Docker image
-
-```bash
-source .env
-
-docker build \
---build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
---build-arg DATABASE_URI=$DATABASE_URI \
---build-arg REDIS_URI=$REDIS_URI \
---build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
---build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
---build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
---build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
---build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
---build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
---build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
---build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
---build-arg RESEND_API_KEY=$RESEND_API_KEY \
---build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
---build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
--t dflow .
+# (Optional variables) resend - For email configurations
+RESEND_API_KEY=re_12345
+RESEND_SENDER_EMAIL=no-reply@up.example.com
+RESEND_SENDER_NAME=dFlow System
 ```
 
-#### 6. Traefik Setup
+#### 5. Traefik Setup
 
 1. Create `traefik.yaml` file at the root directory.
 2. Change the email
@@ -156,9 +133,9 @@ docker build \
    ```yaml
    entryPoints:
      web:
-       address: ":80"
+       address: ':80'
      websecure:
-       address: ":443"
+       address: ':443'
 
    providers:
      file:
@@ -171,11 +148,11 @@ docker build \
          email: johndoe@example.com
          storage: /etc/traefik/acme.json
          httpChallenge:
-           entryPoint: web  # Used for app-specific domains
+           entryPoint: web # Used for app-specific domains
 
    api:
      dashboard: false
-     insecure: false  # ⚠️ Secure this in production
+     insecure: false # ⚠️ Secure this in production
 
    log:
      level: INFO
@@ -226,9 +203,29 @@ http:
           - url: http://config-generator:9999
 ```
 
-#### 7. Start the Docker Compose Stack
+6. create `dynamic/dflow-beszel.yaml` file
+
+```yaml
+http:
+  routers:
+    dflow-beszel-router:
+      rule: Host(`monitoring.up.example.com`)
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      service: dflow-beszel-service
+  services:
+    dflow-beszel-service:
+      loadBalancer:
+        servers:
+          - url: http://beszel:8090
+```
+
+#### 6. Start the Docker Compose Stack
 
 ```bash
+source .env
 docker compose --env-file .env up -d
 ```
 
