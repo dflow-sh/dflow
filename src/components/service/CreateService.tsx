@@ -9,6 +9,12 @@ import {
   PostgreSQL,
   Redis,
 } from '../icons'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../ui/accordion'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -133,27 +139,26 @@ const ResourceStatusCard = ({
   const getSuccessMessage = (type?: ServiceType) => {
     switch (type) {
       case 'app':
-        return 'Server status for application deployment'
+        return 'Server ready for application deployment'
       case 'docker':
-        return 'Server status for Docker container'
+        return 'Server ready for Docker container'
       case 'database':
-        return 'Server status for database deployment'
+        return 'Server ready for database deployment'
       default:
-        return 'Server status for new service'
+        return 'Server ready for new service'
     }
   }
 
-  // Changed: Show warning message instead of blocking message
   const getWarningMessage = (type?: ServiceType) => {
     switch (type) {
       case 'app':
-        return 'Server resources are running low - monitor performance after deployment'
+        return 'Low server resources - monitor app performance after deployment'
       case 'docker':
-        return 'Server resources are running low - monitor container performance'
+        return 'Low server resources - monitor container performance'
       case 'database':
-        return 'Server resources are running low - monitor database performance'
+        return 'Low server resources - monitor database performance'
       default:
-        return 'Server resources are running low - monitor service performance'
+        return 'Low server resources - monitor service performance'
     }
   }
 
@@ -172,11 +177,19 @@ const ResourceStatusCard = ({
 
   if (!status) return null
 
-  const cpuUsage = Math.round((status.cpuLoad || 0) * 100)
+  // Calculate actual usage values
+  const cpuUsage = Math.round(status.cpuUtilization || 0)
   const memoryUsed = status.totalMemoryMB - status.memoryMB
   const memoryUsage = Math.round((memoryUsed / status.totalMemoryMB) * 100)
   const diskUsed = status.totalDiskGB - status.diskGB
   const diskUsage = Math.round((diskUsed / status.totalDiskGB) * 100)
+
+  // Helper function to get usage color
+  const getUsageColor = (usage: number) => {
+    if (usage >= 80) return 'text-red-500'
+    if (usage >= 60) return 'text-yellow-500'
+    return 'text-green-500'
+  }
 
   return (
     <Alert variant={capable ? 'default' : 'warning'}>
@@ -187,44 +200,112 @@ const ResourceStatusCard = ({
       )}
       <AlertDescription>
         <div className='space-y-3'>
-          <div className='font-medium'>
+          {/* Status Message */}
+          <div className='text-sm font-medium'>
             {capable
               ? getSuccessMessage(serviceType)
               : getWarningMessage(serviceType)}
           </div>
 
-          <div className='space-y-2 text-sm'>
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground'>
-                CPU ({status.cpuCores} cores)
-              </span>
-              <span>{cpuUsage}%</span>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground'>Memory</span>
-              <span>
-                {formatBytes(memoryUsed)} / {formatBytes(status.totalMemoryMB)}
-              </span>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground'>Disk</span>
-              <span>
-                {formatBytes(diskUsed, 'GB')} /{' '}
-                {formatBytes(status.totalDiskGB, 'GB')}
-              </span>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <span className='text-muted-foreground'>Containers</span>
-              <span>{status.runningContainers}</span>
-            </div>
+          {/* Quick Overview */}
+          <div className='flex gap-4 text-xs text-muted-foreground'>
+            <span>
+              CPU: <span className={getUsageColor(cpuUsage)}>{cpuUsage}%</span>
+            </span>
+            <span>
+              Memory:{' '}
+              <span className={getUsageColor(memoryUsage)}>{memoryUsage}%</span>
+            </span>
+            <span>
+              Disk:{' '}
+              <span className={getUsageColor(diskUsage)}>{diskUsage}%</span>
+            </span>
+            <span>Containers: {status.runningContainers}</span>
           </div>
 
-          {/* Changed: Always show refresh button, regardless of capability */}
-          <div className='flex items-center gap-2 pt-1'>
-            <Button variant='outline' size='sm' onClick={onRetry}>
+          <Accordion type='single' collapsible className='w-full'>
+            <AccordionItem value='details' className='border-none'>
+              <AccordionTrigger className='py-2 text-xs text-muted-foreground hover:text-foreground'>
+                View Detailed Breakdown
+              </AccordionTrigger>
+              <AccordionContent className='pt-2'>
+                <div className='space-y-3 text-xs'>
+                  {/* CPU Section */}
+                  <div className='rounded-md bg-muted/30 p-2'>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <span className='font-medium text-muted-foreground'>
+                        CPU ({status.cpuCores} cores)
+                      </span>
+                      <span
+                        className={`font-semibold ${getUsageColor(cpuUsage)}`}>
+                        {cpuUsage}% used
+                      </span>
+                    </div>
+                    <div className='flex justify-between text-xs text-muted-foreground'>
+                      <span>Available: {100 - cpuUsage}%</span>
+                      <span>Load: {status.cpuLoad.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Memory Section */}
+                  <div className='rounded-md bg-muted/30 p-2'>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <span className='font-medium text-muted-foreground'>
+                        Memory
+                      </span>
+                      <span
+                        className={`font-semibold ${getUsageColor(memoryUsage)}`}>
+                        {formatBytes(memoryUsed)} used ({memoryUsage}%)
+                      </span>
+                    </div>
+                    <div className='flex justify-between text-xs text-muted-foreground'>
+                      <span>Available: {formatBytes(status.memoryMB)}</span>
+                      <span>Total: {formatBytes(status.totalMemoryMB)}</span>
+                    </div>
+                  </div>
+
+                  {/* Storage Section */}
+                  <div className='rounded-md bg-muted/30 p-2'>
+                    <div className='mb-1 flex items-center justify-between'>
+                      <span className='font-medium text-muted-foreground'>
+                        Storage
+                      </span>
+                      <span
+                        className={`font-semibold ${getUsageColor(diskUsage)}`}>
+                        {formatBytes(diskUsed, 'GB')} used ({diskUsage}%)
+                      </span>
+                    </div>
+                    <div className='flex justify-between text-xs text-muted-foreground'>
+                      <span>Available: {formatBytes(status.diskGB, 'GB')}</span>
+                      <span>
+                        Total: {formatBytes(status.totalDiskGB, 'GB')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Containers Section */}
+                  <div className='rounded-md bg-muted/30 p-2'>
+                    <div className='flex items-center justify-between'>
+                      <span className='font-medium text-muted-foreground'>
+                        Containers Running
+                      </span>
+                      <span className='font-semibold'>
+                        {status.runningContainers}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          {/* Refresh Button */}
+          <div>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={onRetry}
+              className='h-7 text-xs'>
               <Server className='mr-1 h-3 w-3' />
               Refresh Status
             </Button>
