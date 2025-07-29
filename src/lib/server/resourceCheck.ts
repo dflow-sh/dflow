@@ -6,6 +6,7 @@ export interface ResourceStatus {
   memoryMB: number
   diskGB: number
   cpuLoad: number
+  cpuUtilization: number // Add actual CPU utilization percentage
   runningContainers: number
   totalMemoryMB: number
   totalDiskGB: number
@@ -64,12 +65,13 @@ export const checkServerResources = async (
   "$(docker ps -q | wc -l 2>/dev/null || echo 0)" \
   "$(free -m | grep Mem | awk '{print $2}' || echo 0)" \
   "$(df -BG --output=size / | tail -1 | tr -dc '0-9' || echo 0)" \
-  "$(nproc || echo 1)"`
+  "$(nproc || echo 1)" \
+  "$(top -bn1 | grep 'Cpu(s)' | awk '{print $2}' | sed 's/%us,//' 2>/dev/null || echo 0)"`
 
   const { stdout } = await ssh.execCommand(cmd)
   const lines = stdout.trim().split('|').filter(Boolean)
 
-  if (lines.length !== 7) {
+  if (lines.length !== 8) {
     return {
       capable: false,
       status: null as any,
@@ -85,17 +87,31 @@ export const checkServerResources = async (
     totalMemory,
     totalDisk,
     cpuCores,
+    cpuUtilization,
   ] = lines.map(Number)
 
   const status: ResourceStatus = {
     memoryMB: isNaN(availableMemory) ? 0 : availableMemory,
     diskGB: isNaN(availableDisk) ? 0 : availableDisk,
     cpuLoad: isNaN(currentCpuLoad) ? 0 : currentCpuLoad,
+    cpuUtilization: isNaN(cpuUtilization) ? 0 : cpuUtilization,
     runningContainers: isNaN(currentContainers) ? 0 : currentContainers,
     totalMemoryMB: isNaN(totalMemory) ? 0 : totalMemory,
     totalDiskGB: isNaN(totalDisk) ? 0 : totalDisk,
     cpuCores: isNaN(cpuCores) ? 1 : cpuCores,
   }
+
+  // Fallback: If CPU utilization is 0 or invalid, calculate from load average
+  if (status.cpuUtilization === 0 && status.cpuLoad > 0) {
+    // More accurate calculation: limit to 100% max
+    status.cpuUtilization = Math.min(
+      Math.round((status.cpuLoad / status.cpuCores) * 100),
+      100,
+    )
+  }
+
+  // Ensure CPU utilization is never negative
+  status.cpuUtilization = Math.max(status.cpuUtilization, 0)
 
   // Calculate dynamic server capacity based on actual hardware
   const maxAllowedCpuLoadValue = maxCpuLoad * cpuCores // e.g., 0.8 * 4 cores = 3.2
