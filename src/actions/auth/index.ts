@@ -5,10 +5,12 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { createSession } from '@/lib/createSession'
 import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
 
 import {
   forgotPasswordSchema,
+  impersonateUserSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -302,4 +304,27 @@ export const getTenantAction = protectedClient
   .metadata({ actionName: 'getTenantAction' })
   .action(async ({ ctx }) => {
     return ctx.userTenant
+  })
+
+export const impersonateUserAction = protectedClient
+  .metadata({
+    actionName: 'impersonateUserAction',
+  })
+  .schema(impersonateUserSchema)
+  .action(async ({ ctx, clientInput }) => {
+    const { user, payload } = ctx
+    // only admin users can impersonate
+    if (!user.role?.includes('admin')) {
+      throw new Error('Forbidden')
+    }
+
+    const { userId } = clientInput
+
+    const userDetails = await payload.findByID({
+      collection: 'users',
+      id: userId,
+    })
+
+    await createSession({ user: userDetails, payload })
+    redirect(`/${userDetails.username}/dashboard`)
   })
