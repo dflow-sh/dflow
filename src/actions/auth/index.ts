@@ -313,6 +313,8 @@ export const impersonateUserAction = protectedClient
   .schema(impersonateUserSchema)
   .action(async ({ ctx, clientInput }) => {
     const { user, payload } = ctx
+    console.dir({ user }, { depth: Infinity })
+
     // only admin users can impersonate
     if (!user.role?.includes('admin')) {
       throw new Error('Forbidden')
@@ -324,6 +326,8 @@ export const impersonateUserAction = protectedClient
       collection: 'users',
       id: userId,
     })
+
+    console.log({ impersonatedUser: userDetails }, { depth: null })
 
     await createSession({ user: userDetails, payload })
     redirect(`/${userDetails.username}/dashboard`)
