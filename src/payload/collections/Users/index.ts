@@ -51,6 +51,11 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     group: 'Users & Tenants',
+    components: {
+      edit: {
+        beforeDocumentControls: ['@/components/ImpersonateUser'],
+      },
+    },
   },
   auth: {
     tokenExpiration: 60 * 60 * 24 * 7,

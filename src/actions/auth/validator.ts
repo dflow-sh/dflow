@@ -49,3 +49,7 @@ export const resetPasswordSchema = z.object({
   }),
   token: z.string(),
 })
+
+export const impersonateUserSchema = z.object({
+  userId: z.string(),
+})
