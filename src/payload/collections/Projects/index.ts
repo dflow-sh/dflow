@@ -67,5 +67,15 @@ export const Projects: CollectionConfig = {
         },
       },
     },
+    {
+      name: 'hidden',
+      type: 'checkbox',
+      label: 'Hidden',
+      admin: {
+        description: 'Hide this project from the public view.',
+        position: 'sidebar',
+      },
+      defaultValue: false,
+    },
   ],
 }
