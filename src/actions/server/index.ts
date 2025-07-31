@@ -16,6 +16,7 @@ import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
+import { addInstallMonitoringQueue } from '@/queues/server/addInstallMonitoringQueue'
 import { addResetServerQueue } from '@/queues/server/reset'
 
 import {
@@ -27,6 +28,7 @@ import {
   createTailscaleServerSchema,
   deleteServerSchema,
   installDokkuSchema,
+  installMonitoringToolsSchema,
   uninstallDokkuSchema,
   updateRailpackSchema,
   updateServerDomainSchema,
@@ -931,6 +933,39 @@ export const resetOnboardingAction = protectedClient
     })
 
     if (resetServerResult.id) {
+      return { success: true }
+    }
+
+    return { success: false }
+  })
+
+export const installMonitoringToolsAction = protectedClient
+  .metadata({
+    actionName: 'installMonitoringToolsAction',
+  })
+  .schema(installMonitoringToolsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { serverId } = clientInput
+    const { payload, userTenant } = ctx
+
+    const serverDetails = (await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 1,
+      context: {
+        populateServerDetails: true,
+      },
+    })) as ServerType
+
+    const installMonitoringResult = await addInstallMonitoringQueue({
+      serverDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+        id: userTenant.tenant.id,
+      },
+    })
+
+    if (installMonitoringResult.id) {
       return { success: true }
     }
 

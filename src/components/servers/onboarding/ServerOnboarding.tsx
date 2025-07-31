@@ -10,11 +10,11 @@ import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 import ConfigureDomain from './ConfigureDomain'
-import DokkuInstallation from './DokkuInstallation'
 import {
   ServerOnboardingProvider,
   useServerOnboarding,
 } from './ServerOnboardingContext'
+import ServerSetup from './ServerSetup'
 
 const ServerOnboardingContent = ({ server }: { server: ServerType }) => {
   const { currentStep } = useServerOnboarding()
@@ -22,7 +22,7 @@ const ServerOnboardingContent = ({ server }: { server: ServerType }) => {
   return (
     <>
       {currentStep === 1 ? (
-        <DokkuInstallation server={server} />
+        <ServerSetup server={server} />
       ) : (
         <ConfigureDomain server={server} />
       )}

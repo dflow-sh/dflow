@@ -25,6 +25,12 @@ export const getActionAccess = {
     'projects.read',
     'securityGroups.read',
   ],
+  installMonitoringToolsAction: [
+    'servers.read',
+    'projects.read',
+    'projects.create',
+    'services.create',
+  ],
 
   // Plugin actions
   installPluginAction: ['servers.update'],
