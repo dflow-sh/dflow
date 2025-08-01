@@ -85,13 +85,13 @@ printf "\n"
 
 printf "Enter your Auth key:\n"
 printf "${GRAY}▬ Go to settings tab, under personal settings tab you'll find Keys option click on that!${NC}\n"
-printf "${GRAY}▬ Click Generate auth key, check Reusable & Ephemeral option's and create key${NC}\n"
+printf "${GRAY}▬ Click Generate auth key, check Reusable & Ephemeral option's and create key. example: tskey-auth-xxxxxxxx-xxxxxxxxx${NC}\n"
 prompt_with_default "TAILSCALE_AUTH_KEY" ">"
 printf "\n"
 
 printf "Enter your OAuth key:\n"
 printf "${GRAY}▬ Go to settings tab, under tailnet settings tab you'll find OAuth clients option click on that!${NC}\n"
-printf "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write write option for Auth Keys scope and create client${NC}\n"
+printf "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write write option for Auth Keys scope and create client. example: tskey-client-xxxxxxx-xxxxxxx${NC}\n"
 prompt_with_default "TAILSCALE_OAUTH_CLIENT_SECRET" ">"
 printf "\n"
 
@@ -110,11 +110,23 @@ printf "\n"
 
 if [ -z "$WILD_CARD_DOMAIN" ]; then
   WILD_CARD_DOMAIN="up.$(curl -s https://api.ipify.org).nip.io"
-  printf "✅ Using default domain: $WILD_CARD_DOMAIN\n"
+  printf "✅ Using default domain: $WILD_CARD_DOMAIN\n\n"
+fi
+
+# 4. Ask for JWT secret
+printf "${PURPLE}🔑 JWT configuration${NC}\n"
+printf "${GRAY}▬ Note: JWT Secret will be used for Authentication & Encryption${NC}\n"
+printf "${GRAY}▬ Enter your JWT, keep a strong secret it shouldn't be changed between deployments ${NC}\n"
+prompt_with_default "PAYLOAD_SECRET" ">"
+printf "\n"
+
+if [ -z "$PAYLOAD_SECRET" ]; then
+  PAYLOAD_SECRET=$(openssl rand -base64 32)
+  printf "✅ Generated default JWT: $PAYLOAD_SECRET\n\n"
 fi
 
 
-# 4. Create .env file
+# 5. Create .env file
 cat <<EOF > .env
 # mongodb
 MONGO_INITDB_ROOT_USERNAME=admin
@@ -126,16 +138,16 @@ REDIS_URI="redis://redis:6379"
 
 # config-generator
 WILD_CARD_DOMAIN="$WILD_CARD_DOMAIN"
-JWT_TOKEN=your-jwt-token
+JWT_TOKEN="$PAYLOAD_SECRET"
 PROXY_PORT=9999
 
 # dFlow app
 NEXT_PUBLIC_WEBSITE_URL=dflow.$WILD_CARD_DOMAIN
 DATABASE_URI=mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
-PAYLOAD_SECRET=your-secret
+PAYLOAD_SECRET="$PAYLOAD_SECRET"
 
 NEXT_PUBLIC_PROXY_DOMAIN_URL="$WILD_CARD_DOMAIN"
-NEXT_PUBLIC_PROXY_CNAME=cname."$WILD_CARD_DOMAIN"
+NEXT_PUBLIC_PROXY_CNAME=cname.$WILD_CARD_DOMAIN
 
 # tailscale
 TAILSCALE_AUTH_KEY="$TAILSCALE_AUTH_KEY"
