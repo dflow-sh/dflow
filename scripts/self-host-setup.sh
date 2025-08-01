@@ -12,7 +12,7 @@ readonly BOLD='\033[1m'
 prompt_with_default() {
   var_name=$1
   prompt_text=$2
-  current_value=$(eval echo \$$var_name)
+  current_value=$(eval printf \$$var_name)
 
   if [ -n "$current_value" ]; then
     prompt="$prompt_text [${current_value}]: "
@@ -68,47 +68,46 @@ if [ -f .env ]; then
   set -a
   . .env
   set +a
-  echo ""
+  printf ""
 fi
 
-echo "${PURPLE}Tailscale setup${NC}"
-echo "${GRAY}Sign-up for a free account at https://tailscale.com${NC}"
-echo ""
+printf "${PURPLE}⛓️  Tailscale setup${NC}\n"
+printf "${GRAY}Sign-up for a free account at https://tailscale.com${NC}\n\n"
 
-echo "Enter your Tailnet name"
-echo "${GRAY}▬ You can find your Tailnet name in the top header after logging in, example: ${BOLD}johndoe.github${NC}"
+
+printf "Enter your Tailnet name:\n"
+printf "${GRAY}▬ You can find your Tailnet name in the top header after logging in, example: ${BOLD}johndoe.github${NC}\n"
 prompt_with_default "TAILSCALE_TAILNET" ">"
-echo ""
+printf "\n"
 
-echo "Enter your Auth key:"
-echo "${GRAY}▬ Go to settings tab, under personal settings tab you'll find Keys option click on that!${NC}"
-echo "${GRAY}▬ Click Generate auth key, check Reusable & Ephemeral option's and create key${NC}"
+printf "Enter your Auth key:\n"
+printf "${GRAY}▬ Go to settings tab, under personal settings tab you'll find Keys option click on that!${NC}\n"
+printf "${GRAY}▬ Click Generate auth key, check Reusable & Ephemeral option's and create key${NC}\n"
 prompt_with_default "TAILSCALE_AUTH_KEY" ">"
-echo ""
+printf "\n"
 
-echo "Enter your OAuth key:"
-echo "${GRAY}▬ Go to settings tab, under tailnet settings tab you'll find OAuth clients option click on that!${NC}"
-echo "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write write option for Auth Keys scope and create client${NC}"
+printf "Enter your OAuth key:\n"
+printf "${GRAY}▬ Go to settings tab, under tailnet settings tab you'll find OAuth clients option click on that!${NC}\n"
+printf "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write write option for Auth Keys scope and create client${NC}\n"
 prompt_with_default "TAILSCALE_OAUTH_CLIENT_SECRET" ">"
-echo ""
+printf "\n"
 
 # 2. Ask for Traefik user email
-echo "${PURPLE}Email configuration${NC}"
-echo "${GRAY}▬ Enter your email, this will be used for SSL Certificate generation${NC}"
+printf "${PURPLE}✉️  Email configuration${NC}\n"
+printf "${GRAY}▬ Enter your email, this will be used for SSL Certificate generation${NC}\n"
 prompt_with_default "TRAEFIK_EMAIL" ">"
-
-echo ""
+printf "\n"
 
 # 3. Ask for custom domain (optional)
-echo "${PURPLE}Domain configuration${NC}"
-echo "${GRAY}▬ Add a DNS record for routing, Type A, Name: *.up, Value: <your-server-ip>, Proxy: OFF${NC}"
-echo "${GRAY}▬ Enter your domain, example: up.johndeo.com${NC}"
+printf "${PURPLE}🌐 Domain configuration${NC}\n"
+printf "${GRAY}▬ Add a DNS record for routing, Type A, Name: *.up, Value: <your-server-ip>, Proxy: OFF${NC}\n"
+printf "${GRAY}▬ Enter your domain, example: up.johndeo.com${NC}\n"
 prompt_with_default "WILD_CARD_DOMAIN" ">"
-echo ""
+printf "\n"
 
 if [ -z "$WILD_CARD_DOMAIN" ]; then
   WILD_CARD_DOMAIN="up.$(curl -s https://api.ipify.org).nip.io"
-  echo "✅ Using default domain: $WILD_CARD_DOMAIN"
+  printf "✅ Using default domain: $WILD_CARD_DOMAIN\n"
 fi
 
 
@@ -145,12 +144,12 @@ BESZEL_TOKEN=""
 
 TRAEFIK_EMAIL="$TRAEFIK_EMAIL"
 EOF
-echo "📄 Created .env file"
+printf "📄 Created .env file\n"
 
 # 5. Create acme.json with permissions
 touch acme.json
 chmod 600 acme.json
-echo "📁 Created acme.json for storing SSL Certificates"
+printf "📁 Created acme.json for storing SSL Certificates\n"
 
 # 6. Create traefik configuration files
 cat <<EOF > traefik.yaml
@@ -229,16 +228,16 @@ http:
         servers:
           - url: http://beszel:8090
 EOF
-echo "📁 Created traefik configuration in dynamic folder"
+printf "📁 Created traefik configuration in dynamic folder\n"
 
 # 6. Create docker-compose.yml
 if curl -fsSL https://raw.githubusercontent.com/dflow-sh/dflow/refs/heads/main/docker-compose.yml -o docker-compose.yaml; then
-  echo "📁 Created docker-compose.yaml"
+  printf "📁 Created docker-compose.yaml\n"
 else
-  echo "⚠️ Failed to download docker-compose.yaml, please check your internet connection or download manually."
+  printf "⚠️ Failed to download docker-compose.yaml, please check your internet connection or download manually."
   exit 1
 fi
-echo ""
+printf "\n"
 
 
 if [ -f .env ]; then
@@ -247,13 +246,13 @@ if [ -f .env ]; then
   set +a
 fi
 
-echo "${PURPLE}🚀 Next Steps${NC}"
+printf "${PURPLE}🚀 Next Steps${NC}\n"
 
 if command -v docker >/dev/null 2>&1; then
   DOCKER_VERSION=$(docker --version)
-  echo "▬ Run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "▬ Run: ${BOLD}docker compose --env-file .env up -d${NC}"
 else
-  echo "▬ Docker is not installed!"
-  echo "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}"
-  echo "▬ After installation run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "▬ Docker is not installed!\n"
+  printf "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}\n"
+  printf "▬ After installation run: ${BOLD}docker compose --env-file .env up -d${NC}"
 fi
