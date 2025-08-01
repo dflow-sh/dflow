@@ -4,6 +4,9 @@
     <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
 </a>
 
+<br/>
+<br/>
+
 **dFlow** is a self-hosted platform for deploying and managing applications —
 similar to Vercel, Railway, or Heroku — but with full control over your
 infrastructure and data. It provides automated deployment workflows, container
@@ -36,6 +39,8 @@ everything needed for your dFlow instance:
 curl -fsSL https://get.dflow.sh | bash
 ```
 
+<br/>
+
 ### ⛓️ Tailscale Setup
 
 dFlow uses Tailscale for Zero Trust networking — enabling secure SSH and
@@ -52,6 +57,8 @@ You'll be prompted to enter:
 - **OAuth Client Key** Go to **Settings > Tailnet > OAuth clients**. Enable all
   `read` scopes and `write` for `Auth Keys`, then create the key.
 
+<br/>
+
 ### ✉️ Email Configuration
 
 dFlow uses **Traefik** as a reverse proxy. The email you provide will be used to
@@ -63,6 +70,8 @@ You’ll be asked to:
 Enter your email for SSL certificate generation
 >
 ```
+
+<br/>
 
 ### 🌐 Domain Configuration
 
@@ -76,6 +85,8 @@ Enable custom domain support for your services:
    - **Proxy**: OFF
 
 2. When prompted, enter your domain, e.g., `up.johndoe.com`
+
+<br/>
 
 ### 🔑 JWT Configuration
 
@@ -93,6 +104,8 @@ When prompted:
 Enter your JWT secret (keep it safe and consistent)
 >
 ```
+
+<br/>
 
 Once all configuration steps are complete, the necessary files will be
 generated. Follow the remaining prompts in your terminal to launch your instance
