@@ -46,6 +46,15 @@ export const Servers: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
+    components: {
+      edit: {
+        beforeDocumentControls: [
+          {
+            path: '@/payload/collections/Servers/custom/InstallMonitoringTools.tsx',
+          },
+        ],
+      },
+    },
   },
   access: {
     read: isAdmin,

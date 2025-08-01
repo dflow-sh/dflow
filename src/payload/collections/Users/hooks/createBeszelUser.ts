@@ -3,6 +3,7 @@ import { CollectionAfterChangeHook } from 'payload'
 
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
 import { TypedBeszelHelpers } from '@/lib/beszel/client/typedHelpers'
+import { generateDeterministicPassword } from '@/lib/utils/generateDeterministicPassword'
 import { User } from '@/payload-types'
 
 export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
@@ -33,10 +34,15 @@ export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
     const helpers = new TypedBeszelHelpers(client)
 
     // TODO: Generate the password using email and token
+    const generatedPassword = generateDeterministicPassword(
+      doc.email,
+      env.PAYLOAD_SECRET,
+    )
+
     const data = {
       email: doc.email,
-      password: doc.password || 'tempPassword123!',
-      passwordConfirm: doc.password || 'tempPassword123!',
+      password: generatedPassword,
+      passwordConfirm: generatedPassword,
       emailVisibility: true,
       verified: true,
       username: doc.username || doc.email.split('@')[0],
@@ -45,8 +51,6 @@ export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
     }
 
     const res = await helpers.createUser(data)
-
-    console.log({ res })
 
     console.log(`Created beszel user for: ${doc.email}`)
   } catch (error) {

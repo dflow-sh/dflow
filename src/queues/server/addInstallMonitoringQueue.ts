@@ -166,7 +166,7 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
           status: 'up',
           host: (serverDetails.preferConnectionType === 'ssh'
             ? serverDetails.ip
-            : serverDetails.publicIp) as string,
+            : serverDetails.hostname) as string,
           port: '45876', // Default Beszel agent port
           info: '',
           users: userIds, // Grant access to specified users
