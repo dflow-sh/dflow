@@ -946,7 +946,7 @@ export const installMonitoringToolsAction = protectedClient
   .schema(installMonitoringToolsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
-    const { payload, userTenant } = ctx
+    const { payload, userTenant, user } = ctx
 
     const serverDetails = (await payload.findByID({
       collection: 'servers',
@@ -957,8 +957,24 @@ export const installMonitoringToolsAction = protectedClient
       },
     })) as ServerType
 
+    // TODO: Add a check to see if monitoring tools are already installed on this server to avoid reinstallation.
+
+    // TODO: Move all necessary Beszel operations (system creation and fingerprint registration)
+    //       and Payload API calls (project and service creation) into this action itself.
+    //       These should be executed before queueing the template deployment.
+
+    // TODO: Only enqueue the template deployment step (e.g., via Beszel) in the job queue.
+    //       This allows the UI to reflect successful monitoring setup immediately, regardless of
+    //       whether the deployment itself succeeds or fails later in the queue.
+
+    // TODO: Decide how to handle/report deployment failures from the queue to ensure users are informed,
+    //       possibly by tracking the job status separately.
+
+    // TODO: Skip installation of monitoring tools if the beszel env is not configured
+
     const installMonitoringResult = await addInstallMonitoringQueue({
       serverDetails,
+      user,
       tenant: {
         slug: userTenant.tenant.slug,
         id: userTenant.tenant.id,

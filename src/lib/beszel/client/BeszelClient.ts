@@ -91,6 +91,56 @@ export class BeszelClient {
     const pb = await loginAsBeszelUser(url, email, password)
     return new BeszelClient(pb)
   }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return this.pb.authStore.isValid
+  }
+
+  /**
+   * Get the currently logged-in user model
+   */
+  getCurrentUser(): any | null {
+    return this.pb.authStore.model
+  }
+
+  /**
+   * Get the authentication token
+   */
+  getAuthToken(): string {
+    return this.pb.authStore.token
+  }
+
+  /**
+   * Get user ID of currently logged-in user
+   */
+  getCurrentUserId(): string | null {
+    return this.pb.authStore.model?.id || null
+  }
+
+  /**
+   * Get user email of currently logged-in user
+   */
+  getCurrentUserEmail(): string | null {
+    return this.pb.authStore.model?.email || null
+  }
+
+  /**
+   * Check if current user is a superuser
+   */
+  isSuperuser(): boolean {
+    return this.pb.authStore.model?.collectionName === '_superusers'
+  }
+
+  /**
+   * Logout current user
+   */
+  logout(): void {
+    this.pb.authStore.clear()
+  }
+
   /**
    * Get paginated list of records
    */

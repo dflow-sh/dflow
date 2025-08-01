@@ -11,11 +11,13 @@ export interface System extends BaseRecord {
 
 // Create system input data type
 export interface CreateSystemData {
+  id?: string
   name: string
+  status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
-  port: number
-  status: 'online' | 'offline' | 'warning'
-  last_seen: string
+  port?: string
+  info?: String
+  users: Array<String>
 }
 
 // Update system input data type

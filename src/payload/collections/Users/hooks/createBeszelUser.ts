@@ -1,3 +1,4 @@
+import { env } from 'env'
 import { CollectionAfterChangeHook } from 'payload'
 
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
@@ -12,9 +13,9 @@ export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
   if (operation !== 'create') return doc
 
   try {
-    const monitoringUrl = 'https://monitoring.up.dflow.sh' // or process.env.BESZEL_MONITORING_URL
-    const superuserEmail = 'dev@resonateaes.com' // process.env.BESZEL_SUPERUSER_EMAIL!
-    const superuserPassword = 'ContentQL@123' // process.env.BESZEL_SUPERUSER_PASSWORD!
+    const monitoringUrl = env.BESZEL_MONITORING_URL
+    const superuserEmail = env.BESZEL_SUPERUSER_EMAIL
+    const superuserPassword = env.BESZEL_SUPERUSER_PASSWORD
 
     if (!monitoringUrl || !superuserEmail || !superuserPassword) {
       console.warn(
@@ -31,6 +32,7 @@ export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
     )
     const helpers = new TypedBeszelHelpers(client)
 
+    // TODO: Generate the password using email and token
     const data = {
       email: doc.email,
       password: doc.password || 'tempPassword123!',
@@ -41,8 +43,6 @@ export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
       role: 'user',
       name: doc.username || doc.email.split('@')[0],
     }
-
-    console.log({ data })
 
     const res = await helpers.createUser(data)
 
