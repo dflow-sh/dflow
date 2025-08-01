@@ -10,9 +10,9 @@ readonly BOLD='\033[1m'
 
 
 prompt_with_default() {
-  var_name=$1
-  prompt_text=$2
-  current_value=$(eval printf \$$var_name)
+  local var_name=$1
+  local prompt_text=$2
+  local current_value="${!var_name}"
 
   if [ -n "$current_value" ]; then
     prompt="$prompt_text [${current_value}]: "
@@ -20,8 +20,11 @@ prompt_with_default() {
     prompt="$prompt_text "
   fi
 
-  printf "%s" "$prompt"
+  # Print prompt and read input from TTY
+  printf "%b" "$prompt"
   read input < /dev/tty
+
+  # Update variable using indirect reference
   eval "$var_name=\"\${input:-\$current_value}\""
 }
 
@@ -250,9 +253,9 @@ printf "${PURPLE}🚀 Next Steps${NC}\n"
 
 if command -v docker >/dev/null 2>&1; then
   DOCKER_VERSION=$(docker --version)
-  printf "▬ Run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "%b\n" "▬ Run: ${BOLD}docker compose --env-file .env up -d${NC}"
 else
-  printf "▬ Docker is not installed!\n"
-  printf "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}\n"
-  printf "▬ After installation run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "%b\n" "▬ Docker is not installed!\n"
+  printf "%b\n" "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}\n"
+  printf "%b\n" "▬ After installation run: ${BOLD}docker compose --env-file .env up -d${NC}"
 fi
