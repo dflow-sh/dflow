@@ -23,6 +23,7 @@ export const env = createEnv({
     BESZEL_MONITORING_URL: z.string().min(1).optional(),
     BESZEL_SUPERUSER_EMAIL: z.string().min(1).optional(),
     BESZEL_SUPERUSER_PASSWORD: z.string().min(1).optional(),
+    BESZEL_HUB_SSH_KEY: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -59,6 +60,7 @@ export const env = createEnv({
     BESZEL_MONITORING_URL: process.env.BESZEL_MONITORING_URL,
     BESZEL_SUPERUSER_EMAIL: process.env.BESZEL_SUPERUSER_EMAIL,
     BESZEL_SUPERUSER_PASSWORD: process.env.BESZEL_SUPERUSER_PASSWORD,
+    BESZEL_HUB_SSH_KEY: process.env.BESZEL_HUB_SSH_KEY,
   },
   emptyStringAsUndefined: true,
   skipValidation: !!process.env.SKIP_VALIDATION,
