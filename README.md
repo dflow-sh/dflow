@@ -1,6 +1,6 @@
 # dFlow
 
-<a href="https://dokploy.com">
+<a href="https://dflow.sh">
     <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
 </a>
 
