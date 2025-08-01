@@ -1,5 +1,9 @@
 # dFlow
 
+<a href="https://dokploy.com">
+    <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
+</a>
+
 **dFlow** is a self-hosted platform for deploying and managing applications —
 similar to Vercel, Railway, or Heroku — but with full control over your
 infrastructure and data. It provides automated deployment workflows, container
