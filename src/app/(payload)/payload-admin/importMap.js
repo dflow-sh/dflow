@@ -6,6 +6,7 @@ import { ToggleButton as ToggleButton_dbef22401404dda2caddfae892201948 } from '@
 import { BulkSoftDeleteButton as BulkSoftDeleteButton_dbef22401404dda2caddfae892201948 } from '@payload-bites/soft-delete/client'
 import { BulkDeleteButton as BulkDeleteButton_dbef22401404dda2caddfae892201948 } from '@payload-bites/soft-delete/client'
 import { BulkRestoreButton as BulkRestoreButton_dbef22401404dda2caddfae892201948 } from '@payload-bites/soft-delete/client'
+import { default as default_fb905ece0654b411a3f8da7cbe8baa1d } from '@/components/ImpersonateUser'
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TextField as TextField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { JSONField as JSONField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
@@ -25,6 +26,7 @@ export const importMap = {
   "@payload-bites/soft-delete/client#BulkSoftDeleteButton": BulkSoftDeleteButton_dbef22401404dda2caddfae892201948,
   "@payload-bites/soft-delete/client#BulkDeleteButton": BulkDeleteButton_dbef22401404dda2caddfae892201948,
   "@payload-bites/soft-delete/client#BulkRestoreButton": BulkRestoreButton_dbef22401404dda2caddfae892201948,
+  "@/components/ImpersonateUser#default": default_fb905ece0654b411a3f8da7cbe8baa1d,
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/ui#TextField": TextField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui#JSONField": JSONField_3817bf644402e67bfe6577f60ef982de,

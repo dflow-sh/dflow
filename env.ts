@@ -24,6 +24,7 @@ export const env = createEnv({
     BESZEL_SUPERUSER_EMAIL: z.string().min(1).optional(),
     BESZEL_SUPERUSER_PASSWORD: z.string().min(1).optional(),
     BESZEL_HUB_SSH_KEY: z.string().min(1).optional(),
+    TAILSCALE_AUTH_KEY: z.string().min(1).optional(),
   },
   client: {
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
@@ -54,6 +55,7 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_BETTER_STACK_INGESTING_URL,
     TAILSCALE_OAUTH_CLIENT_SECRET: process.env.TAILSCALE_OAUTH_CLIENT_SECRET,
     TAILSCALE_TAILNET: process.env.TAILSCALE_TAILNET,
+    TAILSCALE_AUTH_KEY: process.env.TAILSCALE_AUTH_KEY,
     NEXT_PUBLIC_PROXY_DOMAIN_URL: process.env.NEXT_PUBLIC_PROXY_DOMAIN_URL,
     NEXT_PUBLIC_PROXY_CNAME: process.env.NEXT_PUBLIC_PROXY_CNAME,
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,

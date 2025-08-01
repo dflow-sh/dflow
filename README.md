@@ -1,238 +1,119 @@
 # dFlow
 
-Dflow is a self-hosted platform for deploying and managing applications, similar
-to Vercel, Railway, or Heroku. dFlow provides automated deployment workflows,
-container orchestration, and infrastructure management capabilities while giving
-you full control over your infrastructure and data.
+<a href="https://dflow.sh">
+    <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
+</a>
 
-## 🚀 Self-Hosting dFlow with Docker Compose
+<br/>
+<br/>
 
-This guide walks you through setting up and running your own self-hosted
-instance of dFlow, a powerful workflow management platform, using Docker Compose
-and Tailscale.
+**dFlow** is a self-hosted platform for deploying and managing applications —
+similar to Vercel, Railway, or Heroku — but with full control over your
+infrastructure and data. It provides automated deployment workflows, container
+orchestration, and infrastructure management tools, all within your private
+environment.
+
+## 🚀 Self-Hosting Guide
+
+This guide will walk you through setting up and running your own self-hosted
+instance of dFlow.
+
+Prefer not to self-host? Try [dFlow Cloud](https://dflow.sh) for a fully managed
+experience.
 
 ### ✅ Prerequisites
 
-- Docker
-- Tailscale account
-- Domain
-- Server (recommended 2VPC, 8GB RAM)
+Make sure you have the following:
 
-### 🧭 Setup Instructions
+- Docker installed
+- A Tailscale account
+- A domain name
+- A server (recommended: 2 vCPUs, 8GB RAM)
 
-#### 1. Clone the repository
+### 📥 Installation
 
-```bash
-git clone https://github.com/akhil-naidu/dflow/
-cd dflow
-```
-
-#### 2. Tailscale Setup
-
-1. Login to [tailscale](https://tailscale.com) and go to the Admin Console.
-2. Update Access controls
-   ```json
-   {
-     "tagOwners": {
-       "tag:customer-machine": ["autogroup:admin"],
-       "tag:dflow-proxy":      ["autogroup:admin"],
-       "tag:dflow-support":    ["autogroup:admin"],
-     },
-     "grants": [
-       {
-         "src": ["autogroup:admin"],
-         "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
-       },
-       {
-         "src": ["tag:dflow-proxy"],
-         "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
-       },
-       {
-         "src": ["tag:dflow-support"],
-         "dst": ["tag:customer-machine"],
-         "ip":  ["*"],
-       },
-     ],
-     "ssh": [
-       {
-         "action": "accept",
-         "src":    ["autogroup:admin", "tag:dflow-support"],
-         "dst":    ["tag:customer-machine"],
-         "users":  ["autogroup:admin", "root"],
-       },
-     ],
-   }
-   ```
-3. Create Keys
-   1. Go to settings.
-   2. Navigate to Personal Settings > Keys
-      1. Generate reusable auth key.
-   3. Navigate to Tailnet Settings > OAuth clients
-      1. Generate OAuth client key with all read permissions and write permission
-         for `auth keys` with `customer-machine` tag.
-
-#### 3. DNS Configuration
-
-Setup DNS records with your provider:
-
-```
-  Type: A,
-  Name: *.up
-  Value: <your-server-ip>
-  Proxy: OFF
-```
-
-#### 4. Configure Environment Variables
-
-Create .env file & add the requried variables.
-
-  ```
-  # mongodb
-  MONGO_INITDB_ROOT_USERNAME=admin
-  MONGO_INITDB_ROOT_PASSWORD=password
-  MONGO_DB_NAME=dFlow
-
-  # redis
-  REDIS_URI="redis://localhost:6379"
-
-  # config-generator
-  WILD_CARD_DOMAIN=up.example.com
-  JWT_TOKEN=your-jwt-token
-  PROXY_PORT=9999
-
-  # dFlow app
-  NEXT_PUBLIC_WEBSITE_URL=dflow.up.example.com
-  DATABASE_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
-  PAYLOAD_SECRET=your-secret
-
-  NEXT_PUBLIC_PROXY_DOMAIN_URL=https://dflow-traefik.up.example.com
-  NEXT_PUBLIC_PROXY_CNAME=cname.up.example.com
-
-  # tailscale
-  TAILSCALE_AUTH_KEY=tskey-auth-xxxx
-  TAILSCALE_OAUTH_CLIENT_SECRET=tskey-client-xxxx
-  TAILSCALE_TAILNET=your-tailnet-name
-
-  # (Optional variables) Better stack - For telemetry 
-  NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=bstk-xxx
-  NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=https://logs.betterstack.com
-
-  # (Optional variables) resend - For email configurations
-  RESEND_API_KEY=re_12345
-  RESEND_SENDER_EMAIL=no-reply@up.example.com
-  RESEND_SENDER_NAME=dFlow System
-  ```
-
-#### 5. Build the Docker image
+Run the following command to begin setup. It will guide you through configuring
+everything needed for your dFlow instance:
 
 ```bash
-source .env
-
-docker build \
---build-arg NEXT_PUBLIC_WEBSITE_URL=$NEXT_PUBLIC_WEBSITE_URL \
---build-arg DATABASE_URI=$DATABASE_URI \
---build-arg REDIS_URI=$REDIS_URI \
---build-arg PAYLOAD_SECRET=$PAYLOAD_SECRET \
---build-arg TAILSCALE_AUTH_KEY=$TAILSCALE_AUTH_KEY \
---build-arg TAILSCALE_OAUTH_CLIENT_SECRET=$TAILSCALE_OAUTH_CLIENT_SECRET \
---build-arg TAILSCALE_TAILNET=$TAILSCALE_TAILNET \
---build-arg NEXT_PUBLIC_PROXY_DOMAIN_URL=$NEXT_PUBLIC_PROXY_DOMAIN_URL \
---build-arg NEXT_PUBLIC_PROXY_CNAME=$NEXT_PUBLIC_PROXY_CNAME \
---build-arg NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=$NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN \
---build-arg NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=$NEXT_PUBLIC_BETTER_STACK_INGESTING_URL \
---build-arg RESEND_API_KEY=$RESEND_API_KEY \
---build-arg RESEND_SENDER_EMAIL=$RESEND_SENDER_EMAIL \
---build-arg RESEND_SENDER_NAME=$RESEND_SENDER_NAME \
--t dflow .
+curl -fsSL https://get.dflow.sh | bash
 ```
 
-#### 6. Traefik Setup
+<br/>
 
-1. Create `traefik.yaml` file at the root directory.
-2. Change the email
+### ⛓️ Tailscale Setup
 
-   ```yaml
-   entryPoints:
-     web:
-       address: ":80"
-     websecure:
-       address: ":443"
+dFlow uses Tailscale for Zero Trust networking — enabling secure SSH and
+internal communication via your private tailnet.
 
-   providers:
-     file:
-       directory: /etc/traefik/dynamic
-       watch: true
+You'll be prompted to enter:
 
-   certificatesResolvers:
-     letsencrypt:
-       acme:
-         email: johndoe@example.com
-         storage: /etc/traefik/acme.json
-         httpChallenge:
-           entryPoint: web  # Used for app-specific domains
+- **Tailnet name** Found in the header after logging into
+  [Tailscale](https://tailscale.com), e.g., `johndoe.github`
 
-   api:
-     dashboard: false
-     insecure: false  # ⚠️ Secure this in production
+- **Auth Key** Create one under **Settings > Personal > Keys**. Enable
+  `Reusable` and `Ephemeral`.
 
-   log:
-     level: INFO
-   ```
+- **OAuth Client Key** Go to **Settings > Tailnet > OAuth clients**. Enable all
+  `read` scopes and `write` for `Auth Keys`, then create the key.
 
-3. Create and secure `acme.json`:
+<br/>
 
-   ```bash
-   touch acme.json
-   chmod 600 acme.json
-   ```
+### ✉️ Email Configuration
 
-4. create `dynamic/dflow-app.yaml` file
+dFlow uses **Traefik** as a reverse proxy. The email you provide will be used to
+generate SSL certificates for your domain.
 
-```yaml
-http:
-  routers:
-    dflow-app-router:
-      rule: Host(`dflow.up.example.com`)
-      entryPoints:
-        - websecure
-      tls:
-        certResolver: letsencrypt
-      service: dflow-app-service
-  services:
-    dflow-app-service:
-      loadBalancer:
-        servers:
-          - url: http://payload-app:3000
-```
-
-5. create `dynamic/dflow-traefik.yaml` file
-
-```yaml
-http:
-  routers:
-    dflow-traefik-router:
-      rule: Host(`dflow-traefik.up.example.com`)
-      entryPoints:
-        - websecure
-      tls:
-        certResolver: letsencrypt
-      service: dflow-traefik-service
-  services:
-    dflow-traefik-service:
-      loadBalancer:
-        servers:
-          - url: http://config-generator:9999
-```
-
-#### 7. Start the Docker Compose Stack
+You’ll be asked to:
 
 ```bash
-docker compose --env-file .env up -d
+Enter your email for SSL certificate generation
+>
 ```
+
+<br/>
+
+### 🌐 Domain Configuration
+
+Enable custom domain support for your services:
+
+1. Add a DNS A record:
+
+   - **Type**: A
+   - **Name**: `*.up`
+   - **Value**: `<your-server-ip>`
+   - **Proxy**: OFF
+
+2. When prompted, enter your domain, e.g., `up.johndoe.com`
+
+<br/>
+
+### 🔑 JWT Configuration
+
+dFlow uses Payload CMS under the hood. A **JWT secret** is required for:
+
+- Authentication
+- Encrypting sensitive data like environment variables
+
+> ⚠️ Use a **strong, persistent** secret. Do not change this between
+> deployments.
+
+When prompted:
+
+```bash
+Enter your JWT secret (keep it safe and consistent)
+>
+```
+
+<br/>
+
+Once all configuration steps are complete, the necessary files will be
+generated. Follow the remaining prompts in your terminal to launch your instance
+of dFlow.
 
 ## 🤝 Contributors
+
+Thanks to all who have contributed to dFlow!
 
 <a href="https://github.com/akhil-naidu/dflow/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=akhil-naidu/dflow" />

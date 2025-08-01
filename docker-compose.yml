@@ -9,8 +9,8 @@ services:
     container_name: traefik
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     networks:
       - custom-tailnet
     command:
@@ -24,7 +24,7 @@ services:
 
   # Dynamic Config Generator
   config-generator:
-    image: ghcr.io/akhil-naidu/dflow-traefik:latest
+    image: ghcr.io/dflow-sh/config-generator:latest
     networks:
       - custom-tailnet
     container_name: config-generator
@@ -35,6 +35,34 @@ services:
       - PROXY_PORT=${PROXY_PORT}
     volumes:
       - ./dynamic:/app/output
+
+  # Monitoring dashboard
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: beszel
+    restart: unless-stopped
+    networks:
+      - custom-tailnet
+    volumes:
+      - ./beszel_data:/beszel_data
+      - ./beszel_socket:/beszel_socket
+
+  # Monitoring beszel-agent
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: unless-stopped
+    networks:
+      - custom-tailnet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./beszel_agent_data:/var/lib/beszel-agent
+      - ./beszel_socket:/beszel_socket
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      KEY: '<beszel-ssh-key>'
+      TOKEN: '<token>'
+      HUB_URL: http://beszel:8090
 
   # Redis
   redis:
@@ -61,7 +89,7 @@ services:
 
   # Payload CMS App (from your custom Dockerfile)
   payload-app:
-    image: dflow
+    image: ghcr.io/dflow-sh/dflow:latest
     cap_add:
       - NET_ADMIN
     devices:
