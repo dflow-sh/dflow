@@ -222,6 +222,9 @@ importers:
       pino-pretty:
         specifier: ^13.0.0
         version: 13.0.0
+      pocketbase:
+        specifier: ^0.26.2
+        version: 0.26.2
       posthog-js:
         specifier: ^1.239.0
         version: 1.240.0
@@ -5562,6 +5565,9 @@ packages:
   pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
+
+  pocketbase@0.26.2:
+    resolution: {integrity: sha512-WA8EOBc3QnSJh8rJ3iYoi9DmmPOMFIgVfAmIGux7wwruUEIzXgvrO4u0W2htfQjGIcyezJkdZOy5Xmh7SxAftw==}
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -12984,6 +12990,8 @@ snapshots:
   pkce-challenge@5.0.0: {}
 
   pluralize@8.0.0: {}
+
+  pocketbase@0.26.2: {}
 
   possible-typed-array-names@1.1.0: {}
 

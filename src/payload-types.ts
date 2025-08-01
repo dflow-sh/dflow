@@ -321,6 +321,10 @@ export interface Project {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Hide this project from the public view.
+   */
+  hidden?: boolean | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1361,6 +1365,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   description?: T;
   server?: T;
   services?: T;
+  hidden?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;

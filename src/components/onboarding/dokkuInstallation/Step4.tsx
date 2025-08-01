@@ -3,65 +3,51 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { installRailpackAction } from '@/actions/server'
+import { installMonitoringToolsAction } from '@/actions/server'
 import Loader from '@/components/Loader'
-import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step4 = ({ server }: { server: ServerType }) => {
-  const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
+  const { dokkuInstallationStep, setDokkuInstallationStep } =
+    useDokkuInstallationStep()
+  const [skipMonitoringInstall, setSkipMonitoringInstall] = useState(false)
+
   const { execute, isPending, hasSucceeded } = useAction(
-    installRailpackAction,
+    installMonitoringToolsAction,
     {
       onError: ({ error }) => {
-        toast.error(`Failed to install railpack: ${error?.serverError}`)
+        toast.error(`Failed to install monitoring tools: ${error?.serverError}`)
+      },
+      onSuccess: () => {
+        setDokkuInstallationStep(5)
       },
     },
   )
-  const { setCurrentStep } = useServerOnboarding()
-
-  const railpackVersion = server?.railpack
-
-  const redirectToNextStep = () => {
-    toast.info('Setup is done', {
-      description: 'Redirecting to next step...',
-      action: {
-        label: 'Cancel',
-        onClick: () => {},
-      },
-      duration: 3000,
-      onAutoClose: () => {
-        setCurrentStep(2)
-      },
-    })
-  }
 
   useEffect(() => {
     if (dokkuInstallationStep === 4) {
-      if (railpackVersion && railpackVersion !== 'not-installed') {
-        setSkipRailpackInstall(true)
-        redirectToNextStep()
+      if (hasSucceeded) {
+        setSkipMonitoringInstall(true)
       } else if (!hasSucceeded && !isPending) {
         execute({ serverId: server.id })
       }
     }
-  }, [dokkuInstallationStep, server])
+  }, [dokkuInstallationStep, server, hasSucceeded])
 
   return (
     <div className='space-y-2'>
-      {(isPending || hasSucceeded || skipRailpackInstall) && (
+      {(isPending || hasSucceeded || skipMonitoringInstall) && (
         <>
-          {!railpackVersion || railpackVersion === 'not-installed' ? (
+          {!hasSucceeded ? (
             <div className='flex items-center gap-2'>
-              <Loader className='h-max w-max' /> Installing Build tools...
+              <Loader className='h-max w-max' /> Installing monitoring tools...
             </div>
           ) : (
             <div className='flex items-center gap-2'>
               <CircleCheck size={24} className='text-primary' />
-              Installed Builder tools
+              Monitoring tools installed
             </div>
           )}
         </>

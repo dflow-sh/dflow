@@ -5,6 +5,7 @@ import type { CollectionConfig } from 'payload'
 import { ResetPassword } from '@/emails/reset-password'
 import { isAdmin } from '@/payload/access/isAdmin'
 
+import { createBeszelUser } from './hooks/createBeszelUser'
 import { handleUserRoles } from './hooks/handleUserRoles'
 
 const defaultTenantArrayField = tenantsArrayField({
@@ -73,6 +74,7 @@ export const Users: CollectionConfig = {
   },
   hooks: {
     beforeChange: [handleUserRoles],
+    afterChange: [createBeszelUser],
   },
   access: {
     admin: async ({ req }) => {

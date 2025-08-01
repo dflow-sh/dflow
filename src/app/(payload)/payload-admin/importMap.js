@@ -10,6 +10,7 @@ import { default as default_fb905ece0654b411a3f8da7cbe8baa1d } from '@/component
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TextField as TextField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { JSONField as JSONField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
+import { default as default_e95d58d99b0c81e6ac7c3072fd1bbae7 } from '@/payload/collections/Servers/custom/InstallMonitoringTools.tsx'
 import { TextareaField as TextareaField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TenantSelector as TenantSelector_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
@@ -29,6 +30,7 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/ui#TextField": TextField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/ui#JSONField": JSONField_3817bf644402e67bfe6577f60ef982de,
+  "@/payload/collections/Servers/custom/InstallMonitoringTools.tsx#default": default_e95d58d99b0c81e6ac7c3072fd1bbae7,
   "@payloadcms/ui#TextareaField": TextareaField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/plugin-multi-tenant/client#TenantSelector": TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,
