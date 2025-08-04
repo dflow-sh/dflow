@@ -1,10 +1,12 @@
-import { CircleCheck } from 'lucide-react'
+import { AlertCircle, CircleCheck, RotateCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { installMonitoringToolsAction } from '@/actions/server'
 import Loader from '@/components/Loader'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
@@ -12,44 +14,113 @@ import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 const Step4 = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =
     useDokkuInstallationStep()
-  const [skipMonitoringInstall, setSkipMonitoringInstall] = useState(false)
+  const [monitoringInstalled, setMonitoringInstalled] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const { execute, isPending, hasSucceeded } = useAction(
+  const { execute, isPending, hasSucceeded, result } = useAction(
     installMonitoringToolsAction,
     {
       onError: ({ error }) => {
-        toast.error(`Failed to install monitoring tools: ${error?.serverError}`)
+        // Handle both configuration errors and installation failures
+        const errorMsg = error?.serverError || 'Unknown error occurred'
+
+        setErrorMessage(errorMsg)
+        setHasError(true)
+
+        toast.error(`Monitoring installation failed: ${errorMsg}`)
       },
-      onSuccess: () => {
-        setDokkuInstallationStep(5)
+      onSuccess: ({ data }) => {
+        setHasError(false)
+        setErrorMessage('')
+
+        if (data?.success) {
+          toast.success('Monitoring tools installed successfully')
+
+          setMonitoringInstalled(true)
+          setDokkuInstallationStep(5)
+        } else {
+          // Handle case where monitoring was already installed or env not configured
+          const errorMsg = data?.error || 'Monitoring installation failed'
+
+          if (errorMsg.includes('already installed')) {
+            toast.info('Monitoring tools are already installed')
+
+            setMonitoringInstalled(true)
+            setDokkuInstallationStep(5)
+          } else if (errorMsg.includes('not properly configured')) {
+            toast.warning('Monitoring skipped: Environment not configured')
+
+            setMonitoringInstalled(true)
+            setDokkuInstallationStep(5)
+          } else {
+            setErrorMessage(errorMsg)
+            setHasError(true)
+
+            toast.error(errorMsg)
+          }
+        }
       },
     },
   )
 
+  const handleRetry = () => {
+    setHasError(false)
+    setErrorMessage('')
+
+    execute({ serverId: server.id })
+  }
+
   useEffect(() => {
-    if (dokkuInstallationStep === 4) {
-      if (hasSucceeded) {
-        setSkipMonitoringInstall(true)
-      } else if (!hasSucceeded && !isPending) {
-        execute({ serverId: server.id })
-      }
+    if (
+      dokkuInstallationStep === 4 &&
+      !monitoringInstalled &&
+      !isPending &&
+      !hasError
+    ) {
+      execute({ serverId: server.id })
     }
-  }, [dokkuInstallationStep, server, hasSucceeded])
+  }, [
+    dokkuInstallationStep,
+    server.id,
+    monitoringInstalled,
+    isPending,
+    hasError,
+    execute,
+  ])
 
   return (
-    <div className='space-y-2'>
-      {(isPending || hasSucceeded || skipMonitoringInstall) && (
+    <div className='space-y-4'>
+      {(isPending || monitoringInstalled || hasError) && (
         <>
-          {!hasSucceeded ? (
+          {isPending ? (
             <div className='flex items-center gap-2'>
               <Loader className='h-max w-max' /> Installing monitoring tools...
             </div>
-          ) : (
+          ) : monitoringInstalled ? (
             <div className='flex items-center gap-2'>
               <CircleCheck size={24} className='text-primary' />
               Monitoring tools installed
             </div>
-          )}
+          ) : hasError ? (
+            <div className='space-y-3'>
+              <Alert variant='destructive'>
+                <AlertCircle className='h-4 w-4' />
+                <AlertDescription>
+                  Monitoring installation failed: {errorMessage}
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={handleRetry}
+                disabled={isPending}
+                variant='outline'
+                size='sm'
+                className='flex items-center gap-2'>
+                <RotateCcw size={16} />
+                Retry Installation
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
     </div>

@@ -1,24 +1,31 @@
 'use server'
 
 import dns from 'dns/promises'
+import { env } from 'env'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import updateRailpack from '@/lib/axios/updateRailpack'
+import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
+import { Collections, CreateSystemData } from '@/lib/beszel/types'
 import { dokku } from '@/lib/dokku'
+import { pub } from '@/lib/redis'
 import { protectedClient, userClient } from '@/lib/safe-action'
+import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
+import { Server, Service, Template } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
-import { addInstallMonitoringQueue } from '@/queues/server/addInstallMonitoringQueue'
+import { addMonitoringDeploymentQueue } from '@/queues/server/addMonitoringDeploymentQueue'
 import { addResetServerQueue } from '@/queues/server/reset'
 
+import { checkBeszelConfiguration, isMonitoringInstalled } from './utils'
 import {
   checkDNSConfigSchema,
   checkServerConnectionSchema,
@@ -35,6 +42,8 @@ import {
   updateServerSchema,
   updateTailscaleServerSchema,
 } from './validator'
+
+type DeploymentService = Omit<Service, 'project'>
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServerAction = protectedClient
@@ -957,33 +966,405 @@ export const installMonitoringToolsAction = protectedClient
       },
     })) as ServerType
 
-    // TODO: Add a check to see if monitoring tools are already installed on this server to avoid reinstallation.
+    try {
+      // Check if monitoring tools are already installed on this server
+      const alreadyInstalled = await isMonitoringInstalled(
+        payload,
+        serverId,
+        userTenant.tenant.id,
+      )
 
-    // TODO: Move all necessary Beszel operations (system creation and fingerprint registration)
-    //       and Payload API calls (project and service creation) into this action itself.
-    //       These should be executed before queueing the template deployment.
+      if (alreadyInstalled) {
+        return {
+          success: false,
+          error: 'Monitoring tools are already installed on this server',
+        }
+      }
 
-    // TODO: Only enqueue the template deployment step (e.g., via Beszel) in the job queue.
-    //       This allows the UI to reflect successful monitoring setup immediately, regardless of
-    //       whether the deployment itself succeeds or fails later in the queue.
+      // Check if Beszel environment is configured
+      const beszelConfig = await checkBeszelConfiguration()
 
-    // TODO: Decide how to handle/report deployment failures from the queue to ensure users are informed,
-    //       possibly by tracking the job status separately.
+      if (!beszelConfig.configured) {
+        return {
+          success: false,
+          error: `Beszel monitoring environment is not properly configured. Missing: ${beszelConfig.missing?.join(', ')}`,
+        }
+      }
 
-    // TODO: Skip installation of monitoring tools if the beszel env is not configured
+      const monitoringUrl = env.BESZEL_MONITORING_URL!
+      const superuserEmail = env.BESZEL_SUPERUSER_EMAIL!
+      const superuserPassword = env.BESZEL_SUPERUSER_PASSWORD!
+      const beszelHubSshKey = env.BESZEL_HUB_SSH_KEY!
 
-    const installMonitoringResult = await addInstallMonitoringQueue({
-      serverDetails,
-      user,
-      tenant: {
-        slug: userTenant.tenant.slug,
-        id: userTenant.tenant.id,
-      },
-    })
+      // Send initial notification
+      sendEvent({
+        pub,
+        message: `🔧 Starting monitoring tools installation...`,
+        serverId: serverDetails.id,
+      })
 
-    if (installMonitoringResult.id) {
-      return { success: true }
+      // STEP 1: Create monitoring project
+      const slicedName = 'monitoring'
+      let uniqueName = slicedName
+
+      // Check for existing monitoring projects in this tenant
+      const { docs: duplicateProjects } = await payload.find({
+        collection: 'projects',
+        pagination: false,
+        where: {
+          and: [
+            {
+              name: {
+                equals: slicedName,
+              },
+            },
+            {
+              tenant: {
+                equals: userTenant.tenant.id,
+              },
+            },
+          ],
+        },
+      })
+
+      // If duplicates exist, append random suffix to ensure uniqueness
+      if (duplicateProjects.length > 0) {
+        const uniqueSuffix = generateRandomString({ length: 4 })
+        uniqueName = `${slicedName}-${uniqueSuffix}`
+      }
+
+      sendEvent({
+        pub,
+        message: `📁 Creating monitoring project: ${uniqueName}`,
+        serverId: serverDetails.id,
+      })
+
+      // Create the monitoring project in database
+      const projectDetails = await payload.create({
+        collection: 'projects',
+        data: {
+          name: uniqueName,
+          description: 'Monitoring tools for server observability',
+          server: serverDetails.id,
+          tenant: userTenant.tenant.id,
+          hidden: true, // Hide from main project list
+        },
+        depth: 10,
+      })
+
+      // STEP 2: Set up Beszel monitoring system
+      sendEvent({
+        pub,
+        message: `🔐 Authenticating with Beszel monitoring system...`,
+        serverId: serverDetails.id,
+      })
+
+      // Authenticate with Beszel using superuser credentials
+      const client = await BeszelClient.createWithSuperuserAuth(
+        monitoringUrl,
+        superuserEmail,
+        superuserPassword,
+      )
+
+      sendEvent({
+        pub,
+        message: `👤 Setting up monitoring user access...`,
+        serverId: serverDetails.id,
+      })
+
+      // Get user IDs for access control (current user + superuser)
+      const { items: users } = await client.getList({
+        collection: Collections.USERS,
+        filter: `email="${user.email}" || email="${superuserEmail}"`,
+        perPage: 2,
+        page: 1,
+      })
+
+      const userIds = users.map(u => u.id)
+
+      // Prepare system data for Beszel registration
+      const systemData = {
+        name: serverDetails.name,
+        status: 'up',
+        host: (serverDetails.preferConnectionType === 'ssh'
+          ? serverDetails.ip
+          : serverDetails.hostname) as string,
+        port: '45876', // Default Beszel agent port
+        info: '',
+        users: userIds, // Grant access to specified users
+      } as CreateSystemData
+
+      sendEvent({
+        pub,
+        message: `🖥️ Creating monitoring system for ${serverDetails.name}...`,
+        serverId: serverDetails.id,
+      })
+
+      // Register this server as a system in Beszel
+      const beszelSystem = await client.create({
+        collection: Collections.SYSTEMS,
+        data: systemData,
+      })
+
+      sendEvent({
+        pub,
+        message: `🔑 Generating monitoring fingerprint...`,
+        serverId: serverDetails.id,
+      })
+
+      // Create fingerprint for secure agent-hub communication
+      const beszelFingerprint = await client.create({
+        collection: Collections.FINGERPRINTS,
+        data: {
+          system: beszelSystem.id,
+          fingerprint: '', // Will be populated by Beszel
+        },
+      })
+
+      // STEP 3: Fetch and configure Beszel Agent template
+      sendEvent({
+        pub,
+        message: `📋 Fetching Beszel Agent template...`,
+        serverId: serverDetails.id,
+      })
+
+      // Fetch the official Beszel Agent template from the API
+      const res = await fetch(
+        'https://dflow.sh/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official',
+      )
+
+      if (!res.ok) {
+        throw new Error('Failed to fetch official templates')
+      }
+
+      const templateData = await res.json()
+      const template = (templateData.docs.at(0) ?? []) as Template
+
+      sendEvent({
+        pub,
+        message: `⚙️ Configuring monitoring agent services...`,
+        serverId: serverDetails.id,
+      })
+
+      // Configure Beszel agent service with required environment variables
+      const services = (template.services || []).map(service => {
+        if (service.name === 'beszel-agent') {
+          return {
+            ...service,
+            variables: service.variables?.map(variable => {
+              // Set SSH key for secure communication
+              if (variable.key === 'KEY') {
+                return {
+                  ...variable,
+                  value: beszelHubSshKey,
+                }
+              }
+
+              // Set hub URL for agent to connect to
+              if (variable.key === 'HUB_URL') {
+                return {
+                  ...variable,
+                  value: monitoringUrl,
+                }
+              }
+
+              // Set authentication token from fingerprint
+              if (variable.key === 'TOKEN') {
+                return {
+                  ...variable,
+                  value: beszelFingerprint.token ?? '',
+                }
+              }
+
+              return variable
+            }),
+          }
+        }
+
+        return service
+      })
+
+      if (!services.length) {
+        throw new Error('Please attach services to deploy the template')
+      }
+
+      // STEP 4: Generate unique service names
+      const serviceNames = {} as Record<string, string>
+      const projectServices = projectDetails?.services?.docs ?? []
+
+      services.forEach(service => {
+        const uniqueSuffix = generateRandomString({ length: 4 })
+        let baseServiceName = service.name
+
+        // Special handling for database services (limit name length)
+        if (service?.type === 'database') {
+          baseServiceName = service.name.slice(0, 10)
+        }
+
+        const baseName = `${projectDetails.name}-${baseServiceName}`
+
+        // Check if service name already exists in this project
+        const nameExists = projectServices?.some(
+          serviceDetails =>
+            typeof serviceDetails === 'object' &&
+            serviceDetails?.name === baseName,
+        )
+
+        // Add suffix if name collision detected
+        const finalName = nameExists ? `${baseName}-${uniqueSuffix}` : baseName
+        serviceNames[service.name] = finalName
+      })
+
+      // STEP 5: Prepare services with unique names and variables
+      const updatedServices = services.map(service => {
+        const serviceName = serviceNames[`${service?.name}`]
+
+        // Prepare service variables array
+        let variables = [] as Array<{
+          key: string
+          value: string
+          id?: string | null
+        }>
+
+        service?.variables?.forEach(variable => {
+          variables?.push(variable)
+        })
+
+        return { ...service, name: serviceName, variables }
+      })
+
+      let createdServices: Service[] = []
+
+      sendEvent({
+        pub,
+        message: `🏗️ Creating monitoring services in database...`,
+        serverId: serverDetails.id,
+      })
+
+      // STEP 6: Create services in database based on service type
+      for await (const service of updatedServices) {
+        const { type, name } = service
+
+        // Handle database services
+        if (type === 'database' && service?.databaseDetails) {
+          const serviceResponse = await payload.create({
+            collection: 'services',
+            data: {
+              name: `${name}`,
+              type,
+              databaseDetails: {
+                type: service.databaseDetails?.type,
+                exposedPorts: service.databaseDetails?.exposedPorts ?? [],
+              },
+              project: projectDetails?.id,
+              tenant: userTenant.tenant.id,
+            },
+            depth: 3,
+          })
+
+          createdServices.push(serviceResponse)
+        }
+        // Handle Docker container services
+        else if (type === 'docker' && service?.dockerDetails) {
+          const serviceResponse = await payload.create({
+            collection: 'services',
+            data: {
+              name: `${name}`,
+              type,
+              dockerDetails: service?.dockerDetails,
+              project: projectDetails?.id,
+              variables: service?.variables,
+              volumes: service?.volumes,
+              tenant: userTenant.tenant.id,
+            },
+            depth: 3,
+          })
+
+          createdServices.push(serviceResponse)
+        }
+        // Handle application services (Git-based deployments)
+        else if (type === 'app') {
+          // Currently supports GitHub provider
+          if (service?.providerType === 'github' && service?.githubSettings) {
+            const serviceResponse = await payload.create({
+              collection: 'services',
+              data: {
+                name: `${name}`,
+                type,
+                project: projectDetails?.id,
+                variables: service?.variables,
+                githubSettings: service?.githubSettings,
+                providerType: service?.providerType,
+                provider: service?.provider,
+                builder: service?.builder,
+                volumes: service?.volumes,
+                tenant: userTenant.tenant.id,
+              },
+              depth: 3,
+            })
+
+            createdServices.push(serviceResponse)
+          }
+        }
+      }
+
+      sendEvent({
+        pub,
+        message: `✅ Monitoring tools setup completed successfully`,
+        serverId: serverDetails.id,
+      })
+
+      sendEvent({
+        pub,
+        message: `🚀 Initiating monitoring services deployment...`,
+        serverId: serverDetails.id,
+      })
+
+      // STEP 7: Queue only the deployment step
+      // Remove project reference to avoid circular dependencies in deployment
+      const lightweightServices = createdServices.map(
+        ({ project, ...rest }) => rest,
+      )
+
+      const deployResponse = await addMonitoringDeploymentQueue({
+        services: lightweightServices,
+        serverDetails: {
+          id: (projectDetails.server as Server).id,
+        },
+        project: projectDetails,
+        tenantDetails: {
+          slug: userTenant.tenant.slug,
+        },
+        serverId: serverDetails.id,
+      })
+
+      // Trigger UI refresh to show new monitoring project immediately
+      sendActionEvent({
+        pub,
+        action: 'refresh',
+        tenantSlug: userTenant.tenant.slug,
+      })
+
+      // Note: Deployment success/failure will be handled by the deployment queue
+      // The monitoring setup is considered successful at this point
+      return {
+        success: true,
+        projectId: projectDetails.id,
+        deploymentJobId: deployResponse.id,
+      }
+    } catch (error) {
+      // Handle and report any errors during the installation process
+      const message = error instanceof Error ? error.message : 'Unknown error'
+
+      sendEvent({
+        pub,
+        message: `❌ Failed to install monitoring tools: ${message}`,
+        serverId: serverDetails.id,
+      })
+
+      return {
+        success: false,
+        error: `Failed to install monitoring tools: ${message}`,
+      }
     }
-
-    return { success: false }
   })
