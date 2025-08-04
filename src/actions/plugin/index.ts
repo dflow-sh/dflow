@@ -216,7 +216,7 @@ export const configureLetsencryptPluginAction = protectedClient
     const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 5,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server })

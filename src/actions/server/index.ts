@@ -278,8 +278,8 @@ export const updateServerDomainAction = protectedClient
       depth: 10,
     })
 
-    // for delete action remove domain from dokku
-    if (operation === 'remove') {
+    // for delete, set action updating domain in dokku
+    if (operation === 'remove' || operation === 'set') {
       const sshDetails = extractSSHDetails({ server })
 
       await addManageServerDomainQueue({

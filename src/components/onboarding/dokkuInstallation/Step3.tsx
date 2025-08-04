@@ -2,8 +2,7 @@
 
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -26,40 +25,29 @@ const Step3 = ({ server }: { server: ServerType }) => {
     hasSucceeded: triggedInstallingPlugin,
     isPending: triggeringInstallingPlugin,
   } = useAction(installPluginAction, {
-      onError: ({ error }) => {
-        toast.error(`Failed to install plugin: ${error.serverError}`)
-      },
-    })
-
-  const { isPending: isSyncingPlugins, executeAsync: syncPlugins } =
-    useAction(syncPluginAction, {
     onError: ({ error }) => {
-      toast.error(`Failed to sync plugins: ${error?.serverError}`)
+      toast.error(`Failed to install plugin: ${error.serverError}`)
     },
   })
+
+  const { isPending: isSyncingPlugins, executeAsync: syncPlugins } = useAction(
+    syncPluginAction,
+    {
+      onError: ({ error }) => {
+        toast.error(`Failed to sync plugins: ${error?.serverError}`)
+      },
+    },
+  )
 
   const {
     execute: configureLetsencrypt,
     isPending: triggeringLetsencryptPluginConfiguration,
     hasSucceeded: triggeredLetsencryptPluginConfiguration,
-  } = useAction(configureLetsencryptPluginAction,
-    {
-      onError: ({ error }) => {
-        toast.error(`Failed to update config: ${error?.serverError}`)
-      },
-    })
-
-  const plugins = server?.plugins || []
-  const letsEncryptPluginInstalled = plugins.find(
-    plugin => plugin.name === 'letsencrypt',
-  )
-
-  const letsEncryptPluginConfigurationEmail =
-    letsEncryptPluginInstalled &&
-    letsEncryptPluginInstalled.configuration &&
-    typeof letsEncryptPluginInstalled.configuration === 'object' &&
-    !Array.isArray(letsEncryptPluginInstalled.configuration) &&
-    letsEncryptPluginInstalled.configuration.email
+  } = useAction(configureLetsencryptPluginAction, {
+    onError: ({ error }) => {
+      toast.error(`Failed to update config: ${error?.serverError}`)
+    },
+  })
 
   const handlePluginsSync = async () => {
     // syncing plugins
@@ -84,6 +72,18 @@ const Step3 = ({ server }: { server: ServerType }) => {
   // sync plugins & configure letsencrypt global-email
   useEffect(() => {
     if (dokkuInstallationStep === 3) {
+      const plugins = server?.plugins || []
+      const letsEncryptPluginInstalled = plugins.find(
+        plugin => plugin.name === 'letsencrypt',
+      )
+
+      const letsEncryptPluginConfigurationEmail =
+        letsEncryptPluginInstalled &&
+        letsEncryptPluginInstalled.configuration &&
+        typeof letsEncryptPluginInstalled.configuration === 'object' &&
+        !Array.isArray(letsEncryptPluginInstalled.configuration) &&
+        letsEncryptPluginInstalled.configuration.email
+
       // 1. check if plugins synced or not
       if (!letsEncryptPluginInstalled) {
         handlePluginsSync()
@@ -102,6 +102,13 @@ const Step3 = ({ server }: { server: ServerType }) => {
         !triggeringLetsencryptPluginConfiguration &&
         !triggeredLetsencryptPluginConfiguration
       ) {
+        console.log({
+          letsEncryptPluginInstalled,
+          letsEncryptPluginConfigurationEmail,
+          triggeringLetsencryptPluginConfiguration,
+          triggeredLetsencryptPluginConfiguration,
+        })
+
         configureLetsencrypt({
           serverId: server.id,
           autoGenerateSSL: true,
@@ -109,6 +116,18 @@ const Step3 = ({ server }: { server: ServerType }) => {
       }
     }
   }, [dokkuInstallationStep, JSON.stringify(server)])
+
+  const plugins = server?.plugins || []
+  const letsEncryptPluginInstalled = plugins.find(
+    plugin => plugin.name === 'letsencrypt',
+  )
+
+  const letsEncryptPluginConfigurationEmail =
+    letsEncryptPluginInstalled &&
+    letsEncryptPluginInstalled.configuration &&
+    typeof letsEncryptPluginInstalled.configuration === 'object' &&
+    !Array.isArray(letsEncryptPluginInstalled.configuration) &&
+    letsEncryptPluginInstalled.configuration.email
 
   return dokkuInstallationStep >= 3 ? (
     <div className='space-y-2'>
