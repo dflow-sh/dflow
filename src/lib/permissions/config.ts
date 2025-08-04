@@ -207,9 +207,6 @@ export const getActionAccess = {
   startTerminalAction: ['servers.read'],
   stopTerminalAction: ['servers.read'],
   restartTerminalAction: ['servers.read'],
-
-  // Impersonate Action
-  impersonateUserAction: [],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

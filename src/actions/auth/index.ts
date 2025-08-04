@@ -306,7 +306,7 @@ export const getTenantAction = protectedClient
     return ctx.userTenant
   })
 
-export const impersonateUserAction = protectedClient
+export const impersonateUserAction = userClient
   .metadata({
     actionName: 'impersonateUserAction',
   })
