@@ -35,7 +35,17 @@ const Step4 = ({ server }: { server: ServerType }) => {
         setErrorMessage('')
 
         if (data?.success) {
-          toast.success('Monitoring tools installed successfully')
+          const servicesDeployed = data.servicesDeployed || 0
+
+          if (servicesDeployed > 0) {
+            toast.success(
+              `Monitoring tools installed successfully! ${servicesDeployed} services deployed.`,
+            )
+          } else {
+            toast.success(
+              'Monitoring tools verified - all services already up to date.',
+            )
+          }
 
           setMonitoringInstalled(true)
           setDokkuInstallationStep(5)
@@ -45,18 +55,15 @@ const Step4 = ({ server }: { server: ServerType }) => {
 
           if (errorMsg.includes('already installed')) {
             toast.info('Monitoring tools are already installed')
-
             setMonitoringInstalled(true)
             setDokkuInstallationStep(5)
           } else if (errorMsg.includes('not properly configured')) {
             toast.warning('Monitoring skipped: Environment not configured')
-
             setMonitoringInstalled(true)
             setDokkuInstallationStep(5)
           } else {
             setErrorMessage(errorMsg)
             setHasError(true)
-
             toast.error(errorMsg)
           }
         }
@@ -67,7 +74,6 @@ const Step4 = ({ server }: { server: ServerType }) => {
   const handleRetry = () => {
     setHasError(false)
     setErrorMessage('')
-
     execute({ serverId: server.id })
   }
 
