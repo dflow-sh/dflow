@@ -7,7 +7,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { BeforeDocumentControlsClientProps } from 'payload'
 import { reduceFieldsToValues } from 'payload/shared'
 
-import { installMonitoringToolsAction } from '@/actions/server'
+import { installMonitoringToolsAction } from '@/actions/beszel'
 import Loader from '@/components/Loader'
 import { Server } from '@/payload-types'
 

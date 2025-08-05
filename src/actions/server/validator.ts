@@ -117,7 +117,3 @@ export const updateRailpackSchema = z.object({
   serverId: z.string(),
   railpackVersion: z.string(),
 })
-
-export const installMonitoringToolsSchema = z.object({
-  serverId: z.string(),
-})

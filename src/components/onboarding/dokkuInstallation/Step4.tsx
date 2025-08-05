@@ -3,7 +3,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { installMonitoringToolsAction } from '@/actions/server'
+import { installMonitoringToolsAction } from '@/actions/beszel'
 import Loader from '@/components/Loader'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
