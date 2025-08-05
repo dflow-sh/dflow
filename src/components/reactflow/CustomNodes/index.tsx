@@ -8,15 +8,20 @@ import {
   CircleX,
   Clock,
   Database,
-  Github,
   Hammer,
   Package2,
 } from 'lucide-react'
 import { JSX } from 'react'
 
 import {
+  Bitbucket,
   Docker,
+  Git,
+  GitLab,
+  Gitea,
+  Github,
   MariaDB,
+  MicrosoftAzure,
   MongoDB,
   MySQL,
   PostgreSQL,
@@ -34,7 +39,7 @@ import { Service } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
-  app: <Github className='size-6' />,
+  app: <Git className='size-6' />,
   database: <Database className='size-6' />,
   docker: <Docker className='size-6' />,
 }
@@ -49,6 +54,16 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+}
+
+const ProviderTypeIcons: {
+  [key in NonNullable<Service['providerType']>]: JSX.Element
+} = {
+  github: <Github className='size-6' />,
+  gitlab: <GitLab className='size-6' />,
+  bitbucket: <Bitbucket className='size-6' />,
+  azureDevOps: <MicrosoftAzure className='size-6' />,
+  gitea: <Gitea className='size-6' />,
 }
 
 const statusMapping = {
@@ -132,7 +147,9 @@ const CustomNode = ({
           <div className='flex items-center gap-x-3'>
             {data.type === 'database' && data.databaseDetails?.type
               ? databaseIcons[data?.databaseDetails?.type]
-              : icon[data.type]}
+              : data.type === 'app' && data?.providerType
+                ? ProviderTypeIcons[data?.providerType]
+                : icon[data.type]}
 
             <div className='flex-1 items-start'>
               <CardTitle className='line-clamp-1' title={data.name}>

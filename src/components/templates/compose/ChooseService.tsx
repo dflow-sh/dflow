@@ -1,7 +1,7 @@
 'use client'
 
 import { Edge, Node, OnEdgesChange, OnNodesChange } from '@xyflow/react'
-import { ChevronRight, Database, Github, Package2, Plus } from 'lucide-react'
+import { ChevronRight, Database, Package2, Plus } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import {
   ChangeEvent,
@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react'
 
-import { Docker } from '@/components/icons'
+import { Docker, Git } from '@/components/icons'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
@@ -27,11 +27,11 @@ import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 import AddDatabaseService from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
-import AddGithubService from './AddGithubService'
 import { VolumeServicesList } from './AddVolumeToService'
 import ContextMenu from './ContextMenu'
 import ReorderList from './DeploymentOrder'
 import UpdateServiceDetails from './UpdateServiceDetails'
+import AppType from './git'
 
 interface Menu {
   service: ServiceNode
@@ -84,7 +84,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false)
   const [showOptions, setShowOptions] = useState<boolean>(false)
-  const [showGithub, setShowGithub] = useState<boolean>(false)
+  const [showApp, setShowApp] = useState<boolean>(false)
   const [showDocker, setShowDocker] = useState<boolean>(false)
   const [showDatabases, setShowDatabases] = useState<boolean>(false)
   const [showVolumeServices, setShowVolumeServices] = useState<boolean>(false)
@@ -123,7 +123,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   }
   const handleShowGithubRepoClick = () => {
     setShowOptions(true)
-    setShowGithub(true)
+    setShowApp(true)
   }
   const handleShowDatabaseClick = () => {
     setShowOptions(true)
@@ -140,7 +140,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const resetDialog = () => {
     setSearchQuery('')
     setShowDatabases(false)
-    setShowGithub(false)
+    setShowApp(false)
     setShowDocker(false)
     setShowVolumeServices(false)
     setShowOptions(false)
@@ -162,8 +162,8 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const mainOptions = [
     {
       id: 1,
-      text: 'Github Repo',
-      icon: <Github className='h-[18px] w-[18px]' />,
+      text: 'App',
+      icon: <Git className='h-[18px] w-[18px]' />,
       isDisabled: false,
       onClick: handleShowGithubRepoClick,
       chevronRightDisable: true,
@@ -307,8 +307,8 @@ const ChooseService: React.FC<ChooseServiceType> = ({
                 setOpen={setOpen}
                 handleOnClick={handleOnClick}
               />
-            ) : showOptions && showGithub ? (
-              <AddGithubService
+            ) : showOptions && showApp ? (
+              <AppType
                 type='create'
                 setOpen={setOpen}
                 nodes={nodes}

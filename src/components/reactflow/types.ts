@@ -11,6 +11,15 @@ export interface DatabaseDetails {
   exposedPorts?: string[] | null
 }
 
+export interface gitSettings {
+  repository: string
+  branch: string
+  gitToken?: string
+  owner: string
+  buildPath: string
+  port?: number | null
+}
+
 export interface ServiceNode {
   id: string
   name: string
@@ -34,13 +43,11 @@ export interface ServiceNode {
     | 'azureDevOps'
     | 'gitea'
     | null
-  githubSettings?: {
-    repository: string
-    owner: string
-    branch: string
-    buildPath: string
-    port?: number | null
-  }
+  githubSettings?: gitSettings
+  azureSettings?: gitSettings
+  giteaSettings?: gitSettings
+  gitlabSettings?: gitSettings
+  bitbucketSettings?: gitSettings
   dockerDetails?: {
     /**
      * Enter the docker-registry URL: ghrc://contentql/pin-bolt:latest

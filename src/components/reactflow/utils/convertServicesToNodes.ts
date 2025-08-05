@@ -46,7 +46,52 @@ export function convertToGraph(
         node.databaseDetails = item.databaseDetails ?? undefined
         break
       case 'app':
-        node.githubSettings = item.githubSettings ?? undefined
+        node.providerType = item.providerType ?? undefined
+        switch (item.providerType) {
+          case 'github':
+            node.githubSettings = item.githubSettings
+              ? {
+                  ...item.githubSettings,
+                  gitToken: item.githubSettings.gitToken ?? undefined,
+                }
+              : undefined
+            break
+
+          case 'gitlab':
+            node.gitlabSettings = item.gitlabSettings
+              ? {
+                  ...item.gitlabSettings,
+                  gitToken: item.gitlabSettings.gitToken ?? undefined,
+                }
+              : undefined
+            break
+
+          case 'bitbucket':
+            node.bitbucketSettings = item.bitbucketSettings
+              ? {
+                  ...item.bitbucketSettings,
+                  gitToken: item.bitbucketSettings.gitToken ?? undefined,
+                }
+              : undefined
+            break
+
+          case 'azureDevOps':
+            node.azureSettings = item.azureSettings ?? undefined
+            break
+
+          case 'gitea':
+            node.giteaSettings = item.giteaSettings
+              ? {
+                  ...item.giteaSettings,
+                  gitToken: item.giteaSettings.gitToken ?? undefined,
+                }
+              : undefined
+            break
+
+          default:
+            node.providerType = null
+        }
+
         node.builder = item.builder ?? undefined
         node.provider =
           typeof item.provider === 'object'
@@ -54,7 +99,7 @@ export function convertToGraph(
             : item.provider === 'string'
               ? item.provider
               : undefined
-        node.providerType = item.providerType ?? undefined
+
         break
       case 'docker':
         node.dockerDetails = item.dockerDetails ?? undefined

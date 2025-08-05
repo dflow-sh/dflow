@@ -1,28 +1,46 @@
 import { z } from 'zod'
 
-export const GithubServiceSchema = z.object({
-  provider: z.string().optional(),
-  providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
-  builder: z
-    .enum([
-      'nixpacks',
-      'dockerfile',
-      'herokuBuildPacks',
-      'buildPacks',
-      'railpack',
-    ])
-    .default('buildPacks')
-    .optional(),
-  githubSettings: z
-    .object({
-      repository: z.string(),
-      owner: z.string(),
-      branch: z.string(),
-      buildPath: z.string(),
-      port: z.number().default(3000),
-    })
-    .optional(),
-})
+const gitSettings = z
+  .object({
+    repository: z.string(),
+    branch: z.string(),
+    gitToken: z.string().optional(),
+    owner: z.string(),
+    buildPath: z.string(),
+    port: z.number().default(3000),
+  })
+  .optional()
+
+export const GithubServiceSchema = z
+  .object({
+    provider: z.string().optional(),
+    providerType: z
+      .enum(['github', 'gitlab', 'bitbucket', 'azureDevOps', 'gitea'])
+      .optional(),
+    builder: z
+      .enum([
+        'nixpacks',
+        'dockerfile',
+        'herokuBuildPacks',
+        'buildPacks',
+        'railpack',
+      ])
+      .default('buildPacks')
+      .optional(),
+    githubSettings: gitSettings,
+    azureSettings: gitSettings,
+    giteaSettings: gitSettings,
+    gitlabSettings: gitSettings,
+    bitbucketSettings: gitSettings,
+  })
+  .refine(
+    data =>
+      data.providerType === 'azureDevOps' ? data.azureSettings?.gitToken : true,
+    {
+      message: 'Git Token is required',
+      path: ['azureSettings', 'gitToken'],
+    },
+  )
 
 export type GithubServiceType = z.infer<typeof GithubServiceSchema>
 
