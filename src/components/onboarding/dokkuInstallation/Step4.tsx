@@ -12,9 +12,13 @@ import { ServerType } from '@/payload-types-overrides'
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
 const Step4 = ({ server }: { server: ServerType }) => {
-  const { dokkuInstallationStep, setDokkuInstallationStep } =
-    useDokkuInstallationStep()
-  const [monitoringInstalled, setMonitoringInstalled] = useState(false)
+  const {
+    dokkuInstallationStep,
+    setDokkuInstallationStep,
+    monitoringInstalled,
+    setMonitoringInstalled,
+  } = useDokkuInstallationStep()
+
   const [hasError, setHasError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
@@ -97,38 +101,39 @@ const Step4 = ({ server }: { server: ServerType }) => {
 
   return (
     <div className='space-y-4'>
-      {(isPending || monitoringInstalled || hasError) && (
-        <>
-          {isPending ? (
-            <div className='flex items-center gap-2'>
-              <Loader className='h-max w-max' /> Installing monitoring tools...
-            </div>
-          ) : monitoringInstalled ? (
-            <div className='flex items-center gap-2'>
-              <CircleCheck size={24} className='text-primary' />
-              Monitoring tools installed
-            </div>
-          ) : hasError ? (
-            <div className='space-y-3'>
-              <Alert variant='destructive'>
-                <AlertCircle className='h-4 w-4' />
-                <AlertDescription>
-                  Monitoring installation failed: {errorMessage}
-                </AlertDescription>
-              </Alert>
-              <Button
-                onClick={handleRetry}
-                disabled={isPending}
-                variant='outline'
-                size='sm'
-                className='flex items-center gap-2'>
-                <RotateCcw size={16} />
-                Retry Installation
-              </Button>
-            </div>
-          ) : null}
-        </>
-      )}
+      {isPending ? (
+        <div className='flex items-center gap-2'>
+          <Loader className='h-max w-max' /> Installing monitoring tools...
+        </div>
+      ) : monitoringInstalled ? (
+        <div className='flex items-center gap-2'>
+          <CircleCheck size={24} className='text-primary' />
+          Monitoring tools installed
+        </div>
+      ) : hasError ? (
+        <div className='space-y-3'>
+          <Alert variant='destructive'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>
+              Monitoring installation failed: {errorMessage}
+            </AlertDescription>
+          </Alert>
+          <Button
+            onClick={handleRetry}
+            disabled={isPending}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-2'>
+            <RotateCcw size={16} />
+            Retry Installation
+          </Button>
+        </div>
+      ) : dokkuInstallationStep === 4 ? (
+        <div className='flex items-center gap-2 text-muted-foreground'>
+          <Loader className='h-max w-max' /> Preparing to install monitoring
+          tools...
+        </div>
+      ) : null}
     </div>
   )
 }
