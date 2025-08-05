@@ -19,6 +19,7 @@ import { CloudProviderAccounts } from './payload/collections/CloudProviderAccoun
 import { Deployments } from './payload/collections/Deployments'
 import { DockerRegistries } from './payload/collections/DockerRegistries'
 import { GitProviders } from './payload/collections/GitProviders'
+import { Media } from './payload/collections/Media'
 import { Projects } from './payload/collections/Projects'
 import { Roles } from './payload/collections/Roles'
 import { SSHKeys } from './payload/collections/SSHkeys'
@@ -29,6 +30,7 @@ import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Traefik } from './payload/collections/Traefik'
 import { Users } from './payload/collections/Users'
+import { Theme } from './payload/globals/Theme'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 import {
   addBeforeOperationHook,
@@ -73,7 +75,8 @@ export default buildConfig({
       ),
     },
   },
-  collections: [...collectionsWithHook, Banners],
+  globals: [Theme],
+  collections: [...collectionsWithHook, Banners, Media],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
