@@ -1,0 +1,63 @@
+$radius-none: 0rem;
+$radius-small: 0.75rem;
+$radius-medium: 1rem;
+$radius-large: 1.5rem;
+$radius-full: 999rem;
+
+:root {
+  --radius-none: #{$radius-none};
+  --radius-small: #{$radius-small};
+  --radius-medium: #{$radius-medium};
+  --radius-large: #{$radius-large};
+  --radius-full: #{$radius-full};
+}
+
+// Color field styles
+.color-field-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+// Radius field styles
+.radius-field-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 30rem;
+  margin-top: 0.5rem;
+
+  & .radius-field-label[data-option-active='true'] {
+    border-color: #8b5cf6;
+  }
+}
+
+.radius-field-label {
+  position: relative;
+  border: 1px solid #334154;
+  border-radius: 0.25rem;
+  cursor: pointer;
+
+  & .radius-option-name {
+    position: absolute;
+    bottom: -2rem;
+  }
+}
+
+.radius-field-label input {
+  position: absolute;
+  appearance: none;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.radius-field-label .radius-option {
+  height: 32px;
+  width: 32px;
+  background: rgba(139, 92, 246, 0.3137254902);
+  border-left: 2px solid #8b5cf6;
+  border-top: 2px solid #8b5cf6;
+  margin: 1rem;
+  position: relative;
+}
