@@ -20,11 +20,11 @@ const config: Config = {
       },
     },
     extend: {
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
+      // borderRadius: {
+      //   lg: 'var(--radius)',
+      //   md: 'calc(var(--radius) - 2px)',
+      //   sm: 'calc(var(--radius) - 4px)',
+      // },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -89,7 +89,20 @@ const config: Config = {
           foreground: '#00320b',
         },
       },
+      // fontFamily: {
+      //   mono: ['var(--font-geist-mono)'],
+      // },
+      borderRadius: {
+        DEFAULT: 'var(--border-radius)',
+        none: `0rem`,
+        sm: `0.75rem`,
+        md: `1rem`,
+        lg: `1.5rem`,
+        full: `999rem`,
+      },
       fontFamily: {
+        display: ['var(--font-display)'],
+        body: ['var(--font-body)'],
         mono: ['var(--font-geist-mono)'],
       },
       keyframes: {

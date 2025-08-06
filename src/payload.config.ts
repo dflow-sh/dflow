@@ -30,6 +30,7 @@ import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Traefik } from './payload/collections/Traefik'
 import { Users } from './payload/collections/Users'
+import { Branding } from './payload/globals/Branding'
 import { Theme } from './payload/globals/Theme'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
 import {
@@ -75,7 +76,7 @@ export default buildConfig({
       ),
     },
   },
-  globals: [Theme],
+  globals: [Theme, Branding],
   collections: [...collectionsWithHook, Banners, Media],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

@@ -107,3 +107,10 @@ export const DFLOW_CONFIG = {
 }
 
 export const WILD_CARD_DOMAINS = ['nip.io', 'sslip.io']
+export const borderRadius = {
+  none: `0rem`,
+  small: `0.75rem`,
+  medium: `1rem`,
+  large: `1.5rem`,
+  full: `999rem`,
+} as const
