@@ -33,8 +33,7 @@ import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServ
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
 import ServerDetails from '@/components/servers/ServerDetails'
 import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
-import Monitoring from '@/components/servers/monitoring/Monitoring'
-import NetdataInstallPrompt from '@/components/servers/monitoring/NetdataInstallPrompt'
+import MonitoringTab from '@/components/servers/monitoring/MonitoringTab'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
 import {
   DomainsTabSkeleton,
@@ -149,29 +148,6 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
         </div>
 
         <ProjectsAndServicesSection projects={projects} />
-      </div>
-    </div>
-  )
-}
-
-const MonitoringTab = ({
-  server,
-  isSshConnected,
-}: {
-  server: ServerType
-  isSshConnected: boolean
-}) => {
-  return (
-    <div className='space-y-6'>
-      <div className='space-y-4'>
-        {!server.netdataVersion ? (
-          <NetdataInstallPrompt
-            server={server}
-            disableInstallButton={!isSshConnected}
-          />
-        ) : (
-          <Monitoring server={server} />
-        )}
       </div>
     </div>
   )
