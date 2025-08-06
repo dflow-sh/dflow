@@ -6,7 +6,7 @@ export interface System extends BaseRecord {
   status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
   port?: string
-  info?: String
+  info?: JSON
   users: Array<String>
 }
 
@@ -17,7 +17,7 @@ export interface CreateSystemData {
   status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
   port?: string
-  info?: String
+  info?: JSON
   users: Array<String>
 }
 
@@ -27,6 +27,6 @@ export interface UpdateSystemData {
   status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
   port?: string
-  info?: String
+  info?: JSON
   users: Array<String>
 }

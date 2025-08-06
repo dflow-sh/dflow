@@ -200,32 +200,30 @@ export const getSystemStatsAction = userClient
 
       console.log(existingSystems)
 
-      const beszelSystem = existingSystems.find(
+      const system = existingSystems.find(
         (s: any) => s.name === serverName || s.host === host,
       )
 
       // Step 4: Fetch system stats
       const normalizedFrom = new Date(from)
-        .toLocaleString('sv-SE')
+        .toISOString()
+        .slice(0, 19)
         .replace('T', ' ')
-
-      console.log(normalizedFrom)
 
       const stats = await client.getList({
         collection: Collections.SYSTEM_STATS,
         page: 1,
         perPage: 500,
-        filter: `system='${beszelSystem?.id}' && created>'${normalizedFrom}' && type='${type}'`,
+        filter: `system='${system?.id}' && created>'${normalizedFrom}' && type='${type}'`,
         sort: 'created',
         skipTotal: true,
-        fields: 'created,stats',
       })
 
       console.log(stats)
 
       return {
         success: true,
-        data: stats,
+        data: { system, stats },
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'

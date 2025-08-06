@@ -2,8 +2,8 @@ import { BaseRecord } from './base'
 
 // System Stats collection return type
 export interface SystemStats extends BaseRecord {
-  system: string // RELATION_RECORD_ID
-  stats: any // JSON
+  system: string
+  stats: JSON
   type: string
 }
 
@@ -11,13 +11,13 @@ export interface SystemStats extends BaseRecord {
 export interface CreateSystemStatsData {
   id?: string
   system: string
-  stats: any
+  stats: JSON
   type: string
 }
 
 // Update system stats input data type
 export interface UpdateSystemStatsData {
   system?: string
-  stats?: any
+  stats?: JSON
   type?: string
 }

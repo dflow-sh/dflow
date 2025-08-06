@@ -25,12 +25,6 @@ export const getActionAccess = {
     'projects.read',
     'securityGroups.read',
   ],
-  installMonitoringToolsAction: [
-    'servers.read',
-    'projects.read',
-    'projects.create',
-    'services.create',
-  ],
 
   // Plugin actions
   installPluginAction: ['servers.update'],
@@ -210,6 +204,15 @@ export const getActionAccess = {
 
   // Impersonate Action
   impersonateUserAction: [],
+
+  // Beszel Actions
+  installMonitoringToolsAction: [
+    'servers.read',
+    'projects.read',
+    'projects.create',
+    'services.create',
+  ],
+  getSystemStatsAction: [],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
