@@ -2238,7 +2238,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Theme {
   id: string;
   /**
-   * Check to override default-theme
+   * Check to apply custom theme colors
    */
   overrideTheme: boolean;
   lightMode: {
