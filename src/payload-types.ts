@@ -126,9 +126,11 @@ export interface Config {
   };
   globals: {
     theme: Theme;
+    branding: Branding;
   };
   globalsSelect: {
     theme: ThemeSelect<false> | ThemeSelect<true>;
+    branding: BrandingSelect<false> | BrandingSelect<true>;
   };
   locale: null;
   user: User & {
@@ -2265,6 +2267,8 @@ export interface Theme {
     sidebarForeground: string;
     sidebarPrimary: string;
     sidebarPrimaryForeground: string;
+    sidebarAccent: string;
+    sidebarAccentForeground: string;
     sidebarBorder: string;
     sidebarRing: string;
   };
@@ -2292,6 +2296,8 @@ export interface Theme {
     sidebarForeground: string;
     sidebarPrimary: string;
     sidebarPrimaryForeground: string;
+    sidebarAccent: string;
+    sidebarAccentForeground: string;
     sidebarBorder: string;
     sidebarRing: string;
   };
@@ -2310,6 +2316,42 @@ export interface Theme {
     };
   };
   radius: 'none' | 'small' | 'medium' | 'large' | 'full';
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding".
+ */
+export interface Branding {
+  id: string;
+  /**
+   * The title of your site, displayed in the browser tab and search results.
+   */
+  title: string;
+  /**
+   * A self-hosted platform for deploying and managing applications, similar to Vercel, Railway, or Heroku. dFlow provides automated deployment workflows, container orchestration, and infrastructure management capabilities while giving you full control over your infrastructure and data.
+   */
+  description: string;
+  /**
+   * Keywords for SEO, separated by commas. These help search engines understand the content of your site.
+   */
+  keywords?: string[] | null;
+  /**
+   * Recommended size: 32x32px
+   */
+  favicon?: {
+    lightMode?: (string | null) | Media;
+    darkMode?: (string | null) | Media;
+  };
+  logo?: {
+    lightMode?: (string | null) | Media;
+    darkMode?: (string | null) | Media;
+  };
+  /**
+   * Recommended size: 1200x630px
+   */
+  ogImage?: (string | null) | Media;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2345,6 +2387,8 @@ export interface ThemeSelect<T extends boolean = true> {
         sidebarForeground?: T;
         sidebarPrimary?: T;
         sidebarPrimaryForeground?: T;
+        sidebarAccent?: T;
+        sidebarAccentForeground?: T;
         sidebarBorder?: T;
         sidebarRing?: T;
       };
@@ -2374,6 +2418,8 @@ export interface ThemeSelect<T extends boolean = true> {
         sidebarForeground?: T;
         sidebarPrimary?: T;
         sidebarPrimaryForeground?: T;
+        sidebarAccent?: T;
+        sidebarAccentForeground?: T;
         sidebarBorder?: T;
         sidebarRing?: T;
       };
@@ -2398,6 +2444,31 @@ export interface ThemeSelect<T extends boolean = true> {
             };
       };
   radius?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding_select".
+ */
+export interface BrandingSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  keywords?: T;
+  favicon?:
+    | T
+    | {
+        lightMode?: T;
+        darkMode?: T;
+      };
+  logo?:
+    | T
+    | {
+        lightMode?: T;
+        darkMode?: T;
+      };
+  ogImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

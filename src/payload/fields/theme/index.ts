@@ -367,6 +367,30 @@ export const themeFields: Field[] = [
             required: true,
             defaultValue: 'hsl(0, 0%, 98.4314%)',
           },
+          // sidebarAccent
+          {
+            type: 'text',
+            name: 'sidebarAccent',
+            admin: {
+              components: {
+                Field: '@/payload/fields/theme/ColorField',
+              },
+            },
+            required: true,
+            defaultValue: 'hsl(46.1538, 22.8070%, 88.8235%)',
+          },
+          // sidebarAccentForeground
+          {
+            type: 'text',
+            name: 'sidebarAccentForeground',
+            admin: {
+              components: {
+                Field: '@/payload/fields/theme/ColorField',
+              },
+            },
+            required: true,
+            defaultValue: 'hsl(0, 0%, 20.3922%)',
+          },
           // sidebarBorder
           {
             type: 'text',
@@ -672,6 +696,30 @@ export const themeFields: Field[] = [
             },
             required: true,
             defaultValue: 'hsl(0, 0%, 98.4314%)',
+          },
+          // sidebarAccent
+          {
+            type: 'text',
+            name: 'sidebarAccent',
+            admin: {
+              components: {
+                Field: '@/payload/fields/theme/ColorField',
+              },
+            },
+            required: true,
+            defaultValue: 'hsl(60, 3.4483%, 5.6863%)',
+          },
+          // sidebarAccentForeground
+          {
+            type: 'text',
+            name: 'sidebarAccentForeground',
+            admin: {
+              components: {
+                Field: '@/payload/fields/theme/ColorField',
+              },
+            },
+            required: true,
+            defaultValue: 'hsl(46.1538, 9.7744%, 73.9216%)',
           },
           // sidebarBorder
           {
