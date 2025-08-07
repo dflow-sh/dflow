@@ -41,18 +41,11 @@ const Step3 = ({ server }: { server: ServerType }) => {
 
   const handlePluginsSync = async () => {
     // syncing plugins
-    const pluginsData = await syncPlugins({ serverId: server.id })
+    await syncPlugins({ serverId: server.id })
 
-    const letsEncryptPluginInstalled = pluginsData?.data?.plugins?.find(
-      plugin => plugin.name === 'letsencrypt',
-    )
-
-    // if letsencrypt plugin not-installed installing it!
-    if (!letsEncryptPluginInstalled) {
-      installPlugin({
-        serverId: server?.id,
-      })
-    }
+    installPlugin({
+      serverId: server?.id,
+    })
   }
 
   // sync plugins & configure letsencrypt global-email
