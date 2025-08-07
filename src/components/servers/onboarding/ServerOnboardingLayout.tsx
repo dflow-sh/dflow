@@ -94,11 +94,15 @@ const ServerOnboardingLayout = ({
       .filter(({ synced }) => !synced)
       .map(({ domain }) => domain)
 
-    syncDomain({
-      domains: unsyncedDomains,
-      id: server.id,
-      operation: 'add',
-    })
+    if (unsyncedDomains.length) {
+      syncDomain({
+        domains: unsyncedDomains,
+        id: server.id,
+        operation: 'add',
+      })
+    } else {
+      executeCompleteOnboarding({ serverId: server.id })
+    }
   }
 
   return (
