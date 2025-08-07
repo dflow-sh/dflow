@@ -37,3 +37,7 @@ export const configureLetsencryptPluginSchema = z.object({
   autoGenerateSSL: z.boolean().default(false),
   serverId: z.string(),
 })
+
+export const installAndConfigureLetsencryptPluginSchema = z.object({
+  serverId: z.string(),
+})

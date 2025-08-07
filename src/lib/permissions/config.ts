@@ -38,6 +38,7 @@ export const getActionAccess = {
   togglePluginStatusAction: ['servers.update'],
   deletePluginAction: ['servers.update'],
   configureLetsencryptPluginAction: ['servers.update'],
+  installAndConfigureLetsencryptPluginAction: ['servers.update'],
 
   // Templates actions
   getTemplateByIdAction: ['templates.read'],

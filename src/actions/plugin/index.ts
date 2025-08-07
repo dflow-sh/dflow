@@ -7,12 +7,14 @@ import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
+import { addInstallLetsencryptAndConfigureQueue } from '@/queues/letsencrypt/installAndConfigure'
 import { addDeletePluginQueue } from '@/queues/plugin/delete'
 import { addInstallPluginQueue } from '@/queues/plugin/install'
 import { addTogglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
   configureLetsencryptPluginSchema,
+  installAndConfigureLetsencryptPluginSchema,
   installPluginSchema,
   syncPluginSchema,
   togglePluginStatusSchema,
@@ -226,6 +228,44 @@ export const configureLetsencryptPluginAction = protectedClient
       },
       pluginDetails: {
         autoGenerateSSL,
+        email: userEmail,
+      },
+      sshDetails,
+      tenant: {
+        slug: userTenant.tenant.slug,
+      },
+    })
+
+    if (queueResponse.id) {
+      return { success: true }
+    }
+  })
+
+export const installAndConfigureLetsencryptPluginAction = protectedClient
+  .metadata({
+    actionName: 'installAndConfigureLetsencryptPluginAction',
+  })
+  .schema(installAndConfigureLetsencryptPluginSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { payload, userTenant } = ctx
+    const { serverId } = clientInput
+
+    const userEmail = ctx.user.email
+
+    // Fetching server details instead of passing from client
+    const server = await payload.findByID({
+      collection: 'servers',
+      id: serverId,
+      depth: 1,
+    })
+
+    const sshDetails = extractSSHDetails({ server })
+    const queueResponse = await addInstallLetsencryptAndConfigureQueue({
+      serverDetails: {
+        id: serverId,
+      },
+      pluginDetails: {
+        autoGenerateSSL: true,
         email: userEmail,
       },
       sshDetails,
