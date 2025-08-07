@@ -2313,10 +2313,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface Theme {
   id: string;
-  /**
-   * Check to apply custom theme colors
-   */
-  overrideTheme: boolean;
   lightMode: {
     background: string;
     foreground: string;
@@ -2434,7 +2430,6 @@ export interface Branding {
  * via the `definition` "theme_select".
  */
 export interface ThemeSelect<T extends boolean = true> {
-  overrideTheme?: T;
   lightMode?:
     | T
     | {
