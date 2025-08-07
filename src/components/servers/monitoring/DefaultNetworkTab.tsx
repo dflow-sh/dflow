@@ -8,6 +8,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ResponsiveContainer,
   XAxis,
   YAxis,
 } from 'recharts'
@@ -104,7 +105,7 @@ const DefaultNetworkTab = ({
     <div className='space-y-6'>
       {/* Primary Network Traffic Charts */}
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-        {/* Network Traffic Over Time */}
+        {/* Network Traffic Over Time - Updated with stacking */}
         <Card>
           <CardHeader>
             <CardTitle>Network Traffic</CardTitle>
@@ -117,59 +118,64 @@ const DefaultNetworkTab = ({
                 outgoing: { label: 'Outgoing', color: 'hsl(var(--chart-4))' },
               }}
               className='aspect-auto h-[300px] w-full'>
-              <AreaChart data={network} accessibilityLayer>
-                <CartesianGrid vertical={false} strokeDasharray='3 3' />
-                <XAxis
-                  dataKey='timestamp'
-                  tickLine={false}
-                  axisLine={false}
-                  interval={calculateTickInterval(network)}
-                  minTickGap={20}
-                  fontSize={11}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={value => formatBytes(value) + '/s'}
-                  fontSize={11}
-                />
-                <Area
-                  type='monotone'
-                  dataKey='incoming'
-                  stroke='hsl(var(--chart-3))'
-                  fill='hsl(var(--chart-3))'
-                  fillOpacity={0.6}
-                  strokeWidth={2}
-                  connectNulls
-                />
-                <Area
-                  type='monotone'
-                  dataKey='outgoing'
-                  stroke='hsl(var(--chart-4))'
-                  fill='hsl(var(--chart-4))'
-                  fillOpacity={0.4}
-                  strokeWidth={2}
-                  connectNulls
-                />
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      indicator='dot'
-                      labelFormatter={label => {
-                        const dataPoint = network.find(
-                          d => d.timestamp === label,
-                        )
-                        return dataPoint?.fullTimestamp || `Time: ${label}`
-                      }}
-                      formatter={(value, name) => [
-                        `${formatBytes(Number(value))}/s`,
-                        name === 'incoming' ? 'Incoming' : 'Outgoing',
-                      ]}
-                    />
-                  }
-                />
-                <ChartLegend content={<ChartLegendContent />} />
-              </AreaChart>
+              <ResponsiveContainer width='100%' height='100%'>
+                <AreaChart data={network} accessibilityLayer>
+                  <CartesianGrid vertical={false} strokeDasharray='3 3' />
+                  <XAxis
+                    dataKey='timestamp'
+                    tickLine={false}
+                    axisLine={false}
+                    interval={calculateTickInterval(network)}
+                    minTickGap={20}
+                    fontSize={11}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={value => formatBytes(value) + '/s'}
+                    fontSize={11}
+                    domain={[0, (dataMax: number) => dataMax * 1.1]}
+                  />
+                  <Area
+                    type='monotone'
+                    dataKey='incoming'
+                    stackId='network'
+                    stroke='hsl(var(--chart-3))'
+                    fill='hsl(var(--chart-3))'
+                    fillOpacity={0.6}
+                    strokeWidth={2}
+                    connectNulls
+                  />
+                  <Area
+                    type='monotone'
+                    dataKey='outgoing'
+                    stackId='network'
+                    stroke='hsl(var(--chart-4))'
+                    fill='hsl(var(--chart-4))'
+                    fillOpacity={0.4}
+                    strokeWidth={2}
+                    connectNulls
+                  />
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        indicator='dot'
+                        labelFormatter={label => {
+                          const dataPoint = network.find(
+                            d => d.timestamp === label,
+                          )
+                          return dataPoint?.fullTimestamp || `Time: ${label}`
+                        }}
+                        formatter={(value, name) => [
+                          `${formatBytes(Number(value), Number(value) < 1024 ? 0 : 2)}/s`,
+                          name === 'incoming' ? 'Incoming' : 'Outgoing',
+                        ]}
+                      />
+                    }
+                  />
+                  <ChartLegend content={<ChartLegendContent />} />
+                </AreaChart>
+              </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
