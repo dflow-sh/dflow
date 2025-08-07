@@ -69,21 +69,6 @@ const fontConfig = ({
 ]
 
 export const themeFields: Field[] = [
-  // Colors
-  {
-    type: 'row',
-    fields: [
-      {
-        name: 'overrideTheme',
-        type: 'checkbox',
-        required: true,
-        defaultValue: false,
-        admin: {
-          description: 'Check to apply custom theme colors',
-        },
-      },
-    ],
-  },
   {
     type: 'row',
     fields: [

@@ -51,7 +51,7 @@ function generateThemeVariables({ colors, radius, fontName }: ThemeStylesType) {
 }
 
 const Branding = async ({ theme }: { theme: ThemeType }) => {
-  const { lightMode, darkMode, radius, fonts, overrideTheme } = theme
+  const { lightMode, darkMode, radius, fonts } = theme
 
   const displayFont =
     fonts.display.type === 'customFont'
@@ -116,7 +116,7 @@ const Branding = async ({ theme }: { theme: ThemeType }) => {
     radius,
   })
 
-  return overrideTheme ? (
+  return (
     <>
       {displayFont?.url && (
         <link
@@ -199,7 +199,7 @@ const Branding = async ({ theme }: { theme: ThemeType }) => {
         }}
       />
     </>
-  ) : null
+  )
 }
 
 export default Branding

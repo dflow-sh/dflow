@@ -199,7 +199,7 @@ importers:
         specifier: ^7.10.3
         version: 7.10.8(next@15.2.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(zod@3.24.4)
       next-themes:
-        specifier: ^0.4.4
+        specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       node-ssh:
         specifier: ^13.2.0

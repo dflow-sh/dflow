@@ -1,5 +1,6 @@
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
+import { ThemeProvider } from 'next-themes'
 // import { Geist, Geist_Mono } from 'next/font/google'
 import React from 'react'
 import { Toaster } from 'sonner'
@@ -125,7 +126,11 @@ export default async function RootLayout({
         <NProgressProvider>
           {/* <PosthogProvider> */}
           {/* <SuspendedPostHogPageView /> */}
-          <NetworkStatusProvider>{children}</NetworkStatusProvider>
+          <NetworkStatusProvider>
+            <ThemeProvider enableSystem attribute='class'>
+              {children}
+            </ThemeProvider>
+          </NetworkStatusProvider>
           {/* </PosthogProvider> */}
           <Toaster richColors theme='dark' duration={3000} closeButton />
         </NProgressProvider>
