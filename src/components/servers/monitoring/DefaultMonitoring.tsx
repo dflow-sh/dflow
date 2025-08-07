@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  AlertTriangle,
-  CheckCircle,
-  Loader2,
-  MoreHorizontal,
-  RefreshCcw,
-  XCircle,
-} from 'lucide-react'
+import { Loader2, MoreHorizontal, RefreshCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -20,11 +13,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { System } from '@/lib/beszel/types'
 import { ServerType } from '@/payload-types-overrides'
 
 import DefaultCurrentResourceUsage from './DefaultCurrentResourceUsage'
 import DefaultMonitoringTabs from './DefaultMonitoringTabs'
-import DefaultStatusOverview from './DefaultStatusOverview'
+import DefaultSystemInfo from './DefaultSystemInfo'
 import DefaultTimeRangeSelector from './DefaultTimeRangeSelector'
 
 interface DefaultMonitoringProps {
@@ -46,13 +40,7 @@ const DefaultMonitoring = ({
     from: new Date(Date.now() - 60 * 60 * 1000).toISOString(), // Default 1 hour ago
   })
 
-  // State for server status
-  const [serverStatus, setServerStatus] = useState({
-    status: 'loading',
-    uptime: '--',
-    lastIncident: '--',
-    activeAlerts: 0,
-  })
+  const [serverSystemData, setServerSystemData] = useState<System | null>(null)
 
   // Enhanced monitoring state with historical data
   const [monitoringData, setMonitoringData] = useState({
@@ -61,6 +49,10 @@ const DefaultMonitoring = ({
       uptime: '--',
       version: '--',
       hostname: '--',
+      kernel: '--',
+      model: '--',
+      cores: 0,
+      threads: 0,
     },
     resources: {
       cpu: { usage: 0, cores: 0 },
@@ -100,18 +92,20 @@ const DefaultMonitoring = ({
       }>,
     },
     services: [],
-    alerts: [],
   })
 
   // Action for fetching system stats
   const {
     execute: getSystemStats,
     isPending: isSystemStatsPending,
-    hasErrored: systemStatsHasErrored,
-    hasSucceeded: systemStatsHasSucceeded,
     result: systemStatsResult,
   } = useAction(getSystemStatsAction, {
     onSuccess: ({ data }) => {
+      console.log(data)
+      if (data?.success && data.data?.system) {
+        setServerSystemData(data.data.system)
+      }
+
       if (
         !data?.success ||
         !data.data?.stats?.items ||
@@ -120,11 +114,18 @@ const DefaultMonitoring = ({
         toast.warning(
           'No monitoring data available for the selected time range',
         )
-        setServerStatus(prev => ({ ...prev, status: 'warning' }))
+        setMonitoringData(prev => ({
+          ...prev,
+          systemInfo: {
+            ...prev.systemInfo,
+            status: 'warning',
+          },
+        }))
         return
       }
 
       const items = data.data.stats.items
+      const systemInfo = data.data.system?.info || {}
 
       // Process historical data for charts
       const processedCpuData = items.map(item => ({
@@ -222,18 +223,30 @@ const DefaultMonitoring = ({
           currentOutgoing = Math.round((stats.ns || 0) * 1024)
         }
 
+        // Format uptime
+        const uptimeSeconds = systemInfo.u || 0
+        const uptimeFormatted =
+          uptimeSeconds >= 86400
+            ? `${Math.floor(uptimeSeconds / 86400)} days`
+            : `${Math.floor(uptimeSeconds / 3600)} hours`
+
         // Update current monitoring data with proper conversions
         setMonitoringData(prev => ({
           ...prev,
           systemInfo: {
-            ...prev.systemInfo,
             status: status,
             hostname: server.name || server.hostname || '--',
+            kernel: systemInfo.k || '--',
+            model: systemInfo.m || '--',
+            cores: systemInfo.c || 0,
+            threads: systemInfo.t || 0,
+            version: systemInfo.v || '--',
+            uptime: uptimeFormatted,
           },
           resources: {
             cpu: {
               usage: cpuUsage || 0,
-              cores: data.data.system?.info?.c || 0,
+              cores: systemInfo.c || 0,
             },
             memory: {
               used: Math.round(stats.mu * 100) / 100 || 0,
@@ -258,25 +271,12 @@ const DefaultMonitoring = ({
           },
         }))
 
-        setServerStatus({
-          status: status,
-          uptime: data.data.system?.info?.u
-            ? `${Math.floor(data.data.system.info.u / 86400)} days`
-            : '--',
-          lastIncident: 'No incidents',
-          activeAlerts: 0,
-        })
-
         setLastUpdated(new Date().toLocaleTimeString())
       }
     },
     onError: ({ error }) => {
       console.error('Error fetching system stats:', error)
       toast.error('Failed to fetch system stats')
-      setServerStatus(prev => ({
-        ...prev,
-        status: 'error',
-      }))
       setMonitoringData(prev => ({
         ...prev,
         systemInfo: {
@@ -371,21 +371,6 @@ const DefaultMonitoring = ({
     refreshData()
   }, [timeRange])
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'online':
-      case 'healthy':
-        return <CheckCircle className='h-4 w-4 text-green-500' />
-      case 'warning':
-        return <AlertTriangle className='h-4 w-4 text-yellow-500' />
-      case 'error':
-      case 'offline':
-        return <XCircle className='h-4 w-4 text-red-500' />
-      default:
-        return <Loader2 className='h-4 w-4 animate-spin text-gray-500' />
-    }
-  }
-
   return (
     <div className='space-y-6'>
       {/* Header */}
@@ -419,8 +404,6 @@ const DefaultMonitoring = ({
               ? 'Refreshing...'
               : 'Refresh Data'}
           </Button>
-
-          {/* <MonitoringSettings serverId={server.id} /> */}
         </div>
 
         {/* Mobile Dropdown Menu */}
@@ -459,10 +442,10 @@ const DefaultMonitoring = ({
         <p>Last updated at: {lastUpdated || 'Fetching...'}</p>
       </div>
 
-      {/* Status Overview */}
-      <DefaultStatusOverview
-        serverStatus={serverStatus}
+      {/* System Information */}
+      <DefaultSystemInfo
         monitoringData={monitoringData}
+        systemData={serverSystemData}
       />
 
       {/* Current Resource Usage */}

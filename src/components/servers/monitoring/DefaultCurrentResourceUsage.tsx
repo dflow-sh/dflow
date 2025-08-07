@@ -174,13 +174,13 @@ const DefaultCurrentResourceUsage = ({
               <div className='mt-2 grid grid-cols-2 gap-2 text-xs'>
                 <div>
                   <div className='font-medium'>
-                    {latestStats.stats.dr || 0} B/s
+                    {formatBytes((latestStats.stats.dr || 0) * 1024 * 1024)}/s
                   </div>
                   <div className='text-muted-foreground'>Disk Read</div>
                 </div>
                 <div>
                   <div className='font-medium'>
-                    {latestStats.stats.dw || 0} B/s
+                    {formatBytes((latestStats.stats.dw || 0) * 1024 * 1024)}/s
                   </div>
                   <div className='text-muted-foreground'>Disk Write</div>
                 </div>
