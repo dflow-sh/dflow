@@ -77,7 +77,7 @@ export const Users: CollectionConfig = {
     afterChange: [createBeszelUser],
   },
   access: {
-    admin: async ({ req }) => {
+    admin: ({ req }) => {
       const { user } = req
 
       if (user?.role?.includes('admin')) {

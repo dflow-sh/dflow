@@ -32,6 +32,7 @@ export const getActionAccess = {
   togglePluginStatusAction: ['servers.update'],
   deletePluginAction: ['servers.update'],
   configureLetsencryptPluginAction: ['servers.update'],
+  installAndConfigureLetsencryptPluginAction: ['servers.update'],
 
   // Templates actions
   getTemplateByIdAction: ['templates.read'],
@@ -202,17 +203,13 @@ export const getActionAccess = {
   stopTerminalAction: ['servers.read'],
   restartTerminalAction: ['servers.read'],
 
-  // Impersonate Action
-  impersonateUserAction: [],
-
   // Beszel Actions
   installMonitoringToolsAction: [
     'servers.read',
     'projects.read',
     'projects.create',
     'services.create',
-  ],
-  getSystemStatsAction: [],
+  ]
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess
