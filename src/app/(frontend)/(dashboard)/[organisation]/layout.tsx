@@ -59,7 +59,7 @@ const DashboardLayoutInner = async ({
           <Link
             href={`/${organisationSlug}/dashboard`}
             className='flex items-center gap-1'>
-            <Logo />
+            <Logo showText />
           </Link>
 
           {/* Breadcrumb placeholders */}

@@ -19,9 +19,11 @@ const extractLogoUrl = (logo: NonNullable<Branding['logo']>['lightMode']) => {
 const Logo = ({
   className = '',
   skeletonClassName = '',
+  showText = false,
 }: {
   className?: string
   skeletonClassName?: string
+  showText?: boolean
 }) => {
   const [mounted, setMounted] = useState(false)
 
@@ -44,14 +46,21 @@ const Logo = ({
   }
 
   return (
-    <Image
-      src={logoUrl?.url || '/images/dflow-no-bg.png'}
-      alt={'logo'}
-      width={200}
-      height={32}
-      key={theme}
-      className={cn(`h-full max-h-8 w-full max-w-24 object-contain`, className)}
-    />
+    <>
+      <Image
+        src={logoUrl?.url || '/images/dflow-no-bg.png'}
+        alt={'logo'}
+        width={200}
+        height={32}
+        key={theme}
+        className={cn(
+          `h-full max-h-8 w-full max-w-24 object-contain`,
+          className,
+        )}
+      />
+
+      {showText && !logoUrl?.url && <p className='hidden sm:block'>dFlow</p>}
+    </>
   )
 }
 
