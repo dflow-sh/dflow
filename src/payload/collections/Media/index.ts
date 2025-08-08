@@ -12,7 +12,7 @@ export const Media: CollectionConfig = {
   access: {
     create: isAdmin,
     delete: isAdmin,
-    read: isAdmin,
+    read: () => true, // Allow public read access to media files
     update: isAdmin,
   },
   fields: [

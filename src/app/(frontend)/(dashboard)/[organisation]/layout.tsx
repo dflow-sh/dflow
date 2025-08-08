@@ -8,6 +8,8 @@ import { getDflowUser } from '@/actions/cloud/dFlow'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
+import Logo from '@/components/Logo'
+import ToggleTheme from '@/components/ToggleTheme'
 import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
@@ -45,11 +47,10 @@ const DashboardLayoutInner = async ({
 }: {
   params: PageProps['params']
 }) => {
-  const organisationSlug = (await params).organisation
-
   const result = await getGithubStarsAction()
   const dflowUser = await getDflowUser()
   const hasClaimedCredits = dflowUser?.data?.user?.hasClaimedFreeCredits
+  const organisationSlug = (await params).organisation
 
   return (
     <div className='sticky top-0 z-50 w-full bg-background'>
@@ -58,18 +59,11 @@ const DashboardLayoutInner = async ({
           <Link
             href={`/${organisationSlug}/dashboard`}
             className='flex items-center gap-1'>
-            <Image
-              src='/images/dflow-no-bg.png'
-              alt='dFlow-logo'
-              width={32}
-              height={32}
-              className='object-contain'
-            />
-            <p className='hidden sm:block'>dFlow</p>
+            <Logo />
           </Link>
 
           {/* Breadcrumb placeholders */}
-          <div id='projectName'></div>
+          <div id='projectName' />
           <div id='serviceName' className='-ml-2' />
           <div id='serverName' className='-ml-4' />
         </div>
@@ -78,7 +72,7 @@ const DashboardLayoutInner = async ({
           <Link
             target='_blank'
             rel='noopener noreferrer'
-            className='inline-flex items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground'
+            className='hidden items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground md:inline-flex'
             href='https://github.com/akhil-naidu/dflow'>
             <Github width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
@@ -87,7 +81,10 @@ const DashboardLayoutInner = async ({
           {!hasClaimedCredits && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant={'ghost'} size={'icon'} className='w-full p-1'>
+                <Button
+                  variant={'ghost'}
+                  size={'icon'}
+                  className='hidden w-full p-1 md:block'>
                   <Image
                     src={'/images/gift.png'}
                     width={100}
@@ -97,6 +94,7 @@ const DashboardLayoutInner = async ({
                   />
                 </Button>
               </DialogTrigger>
+
               <DialogContent>
                 <div>
                   <Image
@@ -127,6 +125,8 @@ const DashboardLayoutInner = async ({
               </DialogContent>
             </Dialog>
           )}
+
+          <ToggleTheme />
 
           <Suspense fallback={<NavUserSkeleton />}>
             <NavUserSuspended />

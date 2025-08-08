@@ -44,3 +44,5 @@ next-env.d.ts
 /media
 
 .content-collections
+
+/public/media

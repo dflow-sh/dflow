@@ -1,3 +1,25 @@
+@layer payload-default {
+  .collection-list {
+    .table {
+      max-height: calc(100vh - 260px); /* 100vh - (header + footer heights) */
+      overflow-y: auto !important; /* Enable vertical scrolling */
+      display: block !important;
+    }
+
+    table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+    }
+
+    th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 10 !important; /* Ensure headers stay above content */
+      background: var(--theme-elevation-100) !important;
+    }
+  }
+}
+
 $radius-none: 0rem;
 $radius-small: 0.75rem;
 $radius-medium: 1rem;

@@ -22,7 +22,11 @@ const Description = () => {
           to customize or generate color palettes
         </li>
 
-        <li>After generating color-palettes, copy the generated code</li>
+        <li>
+          After generating color-palettes, select{' '}
+          <strong>Tailwind v3, hsl color code</strong> and copy the generated
+          code
+        </li>
 
         <li>paste it in any color-input field</li>
       </ol>
