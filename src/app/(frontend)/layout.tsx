@@ -7,6 +7,7 @@ import { Toaster } from 'sonner'
 
 import { getBranding, getTheme } from '@/actions/branding'
 import Branding from '@/components/Branding'
+import { BrandingProvider } from '@/providers/BrandingProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 
@@ -103,8 +104,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const themeData = await getTheme()
+  const [themeData, brandingData] = await Promise.all([
+    getTheme(),
+    getBranding(),
+  ])
   const theme = themeData?.data
+  const branding = brandingData?.data
 
   return (
     // todo: add next-themes support, add context to pass logo url to client-components
@@ -128,7 +133,9 @@ export default async function RootLayout({
           {/* <SuspendedPostHogPageView /> */}
           <NetworkStatusProvider>
             <ThemeProvider enableSystem attribute='class'>
-              {children}
+              <BrandingProvider branding={branding}>
+                {children}
+              </BrandingProvider>
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}

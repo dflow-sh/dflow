@@ -1,9 +1,9 @@
 'use client'
 
 import Loader from '../Loader'
+import Logo from '../Logo'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -67,12 +67,9 @@ const SignInForm: React.FC<{ resendEnvExist: boolean }> = ({
     <div className='flex min-h-screen w-full items-center justify-center'>
       <div className='mx-auto w-full max-w-md drop-shadow-2xl'>
         <div className='w-full max-w-md p-6'>
-          <Image
-            src='/images/dflow-no-bg.png'
-            alt='dFlow logo'
-            className='m-auto mb-4'
-            width={50}
-            height={50}
+          <Logo
+            className='mx-auto mb-2 max-h-28'
+            skeletonClassName='mx-auto mb-2'
           />
           <h1 className='mb-6 text-center text-3xl font-semibold'>Sign In</h1>
 

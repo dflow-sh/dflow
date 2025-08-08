@@ -23,7 +23,6 @@ import { User } from '@/payload-types'
 export function NavUser({ user }: { user: User }) {
   const { execute } = useAction(logoutAction)
   const params = useParams<{ organisation: string }>()
-
   const initial = user.email.slice(0, 1)
 
   return (
