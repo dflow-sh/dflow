@@ -93,7 +93,7 @@ export class TypedBeszelHelpers {
     })
   }
 
-  async deleteUser(id: string): Promise<null> {
+  async deleteUser(id: string): Promise<boolean> {
     return this.client.delete({
       collection: Collections.USERS,
       id,
@@ -172,7 +172,7 @@ export class TypedBeszelHelpers {
     })
   }
 
-  async deleteAlert(id: string): Promise<null> {
+  async deleteAlert(id: string): Promise<boolean> {
     return this.client.delete({
       collection: Collections.ALERTS,
       id,
@@ -251,7 +251,7 @@ export class TypedBeszelHelpers {
     })
   }
 
-  async deleteSystemStat(id: string): Promise<null> {
+  async deleteSystemStat(id: string): Promise<boolean> {
     return this.client.delete({
       collection: Collections.SYSTEM_STATS,
       id,

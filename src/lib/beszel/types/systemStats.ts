@@ -11,13 +11,13 @@ export interface SystemStats extends BaseRecord {
 export interface CreateSystemStatsData {
   id?: string
   system: string
-  stats: Record<string, any>
+  stats: string
   type: string
 }
 
 // Update system stats input data type
 export interface UpdateSystemStatsData {
-  system?: string
-  stats?: Record<string, any>
-  type?: string
+  system: string
+  stats: string
+  type: string
 }

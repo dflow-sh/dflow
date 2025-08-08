@@ -17,7 +17,7 @@ export interface CreateSystemData {
   status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
   port?: string
-  info?: Record<string, any>
+  info?: string
   users: Array<String>
 }
 
@@ -27,6 +27,6 @@ export interface UpdateSystemData {
   status?: 'up' | 'down' | 'paused' | 'pending'
   host: string
   port?: string
-  info?: Record<string, any>
+  info?: string
   users: Array<String>
 }
