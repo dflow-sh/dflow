@@ -840,6 +840,6 @@ export const themeFields: Field[] = [
       },
     ],
     required: true,
-    defaultValue: 'none',
+    defaultValue: 'medium',
   },
 ]

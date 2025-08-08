@@ -27,12 +27,12 @@ export default function ToggleTheme() {
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
       <MoonIcon
         size={16}
-        className='shrink-0 scale-0 opacity-0 transition-all data-[state=on]:scale-100 data-[state=on]:opacity-100 dark:scale-100 dark:opacity-100'
+        className='shrink-0 scale-0 text-foreground opacity-0 transition-all data-[state=on]:scale-100 data-[state=on]:opacity-100 dark:scale-100 dark:opacity-100'
         aria-hidden='true'
       />
       <SunIcon
         size={16}
-        className='absolute shrink-0 scale-100 opacity-100 transition-all data-[state=on]:scale-0 data-[state=on]:opacity-0 dark:scale-0 dark:opacity-0'
+        className='absolute shrink-0 scale-100 text-foreground opacity-100 transition-all data-[state=on]:scale-0 data-[state=on]:opacity-0 dark:scale-0 dark:opacity-0'
         aria-hidden='true'
       />
     </Toggle>
