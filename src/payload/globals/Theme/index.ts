@@ -12,7 +12,7 @@ export const Theme: GlobalConfig = {
   admin: {
     components: {
       elements: {
-        Description: '@/payload/fields/theme/Description',
+        Description: '@/payload/fields/theme/ColorFieldDescription',
       },
     },
   },

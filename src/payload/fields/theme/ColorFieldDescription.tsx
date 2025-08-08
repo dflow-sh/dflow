@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-const Description = () => {
+const ColorFieldDescription = () => {
   return (
     <div className='color-palette-instructions-container'>
       <p>Color Palette Customization:</p>
@@ -34,4 +34,4 @@ const Description = () => {
   )
 }
 
-export default Description
+export default ColorFieldDescription

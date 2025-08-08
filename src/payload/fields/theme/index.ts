@@ -738,6 +738,11 @@ export const themeFields: Field[] = [
   {
     type: 'group',
     name: 'fonts',
+    admin: {
+      components: {
+        beforeInput: ['@/payload/fields/theme/FontFieldDescription'],
+      },
+    },
     fields: [
       {
         type: 'group',

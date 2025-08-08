@@ -14,8 +14,9 @@ import { default as default_e95d58d99b0c81e6ac7c3072fd1bbae7 } from '@/payload/c
 import { TextareaField as TextareaField_3817bf644402e67bfe6577f60ef982de } from '@payloadcms/ui'
 import { WatchTenantCollection as WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { default as default_716d92e4b4cca6507e5e98f7e54f5349 } from '@/payload/fields/theme/ColorField'
+import { default as default_ec83c8500116c9123747ef2f266397c0 } from '@/payload/fields/theme/FontFieldDescription'
 import { default as default_d25165dc99ddf39f9b76c9dfbc43f7c3 } from '@/payload/fields/theme/RadiusField'
-import { default as default_359720131409498a64c5979c2b0ac949 } from '@/payload/fields/theme/Description'
+import { default as default_2a5cc71bd475f95770573bcae4ff398a } from '@/payload/fields/theme/ColorFieldDescription'
 import { TenantSelector as TenantSelector_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { SoftDeleteProviderRsc as SoftDeleteProviderRsc_c45c4f8d9ba288d17e180b40027d3024 } from '@payload-bites/soft-delete/rsc'
@@ -37,8 +38,9 @@ export const importMap = {
   "@payloadcms/ui#TextareaField": TextareaField_3817bf644402e67bfe6577f60ef982de,
   "@payloadcms/plugin-multi-tenant/client#WatchTenantCollection": WatchTenantCollection_1d0591e3cf4f332c83a86da13a0de59a,
   "@/payload/fields/theme/ColorField#default": default_716d92e4b4cca6507e5e98f7e54f5349,
+  "@/payload/fields/theme/FontFieldDescription#default": default_ec83c8500116c9123747ef2f266397c0,
   "@/payload/fields/theme/RadiusField#default": default_d25165dc99ddf39f9b76c9dfbc43f7c3,
-  "@/payload/fields/theme/Description#default": default_359720131409498a64c5979c2b0ac949,
+  "@/payload/fields/theme/ColorFieldDescription#default": default_2a5cc71bd475f95770573bcae4ff398a,
   "@payloadcms/plugin-multi-tenant/client#TenantSelector": TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   "@payload-bites/soft-delete/rsc#SoftDeleteProviderRsc": SoftDeleteProviderRsc_c45c4f8d9ba288d17e180b40027d3024
