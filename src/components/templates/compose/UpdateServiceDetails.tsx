@@ -3,7 +3,6 @@ import { Edge, MarkerType, Node } from '@xyflow/react'
 import {
   Braces,
   Database,
-  Github,
   Globe,
   KeyRound,
   Plus,
@@ -20,8 +19,14 @@ import {
   UpdateServiceType,
 } from '@/actions/templates/validator'
 import {
+  Bitbucket,
   Docker,
+  Git,
+  GitLab,
+  Gitea,
+  Github,
   MariaDB,
+  MicrosoftAzure,
   MongoDB,
   MySQL,
   PostgreSQL,
@@ -46,11 +51,16 @@ import {
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { Service } from '@/payload-types'
 
 import { PortForm } from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
-import AddGithubService from './AddGithubService'
 import EditServiceName from './EditServiceName'
+import AddAzureDevopsService from './git/AddAzureDevopsService'
+import AddBitbucketService from './git/AddBitbucketService'
+import AddGiteaService from './git/AddGiteaService'
+import AddGithubService from './git/AddGithubService'
+import AddGitlabService from './git/AddGitlabService'
 
 type StatusType = NonNullable<
   NonNullable<ServiceNode['databaseDetails']>['type']
@@ -67,9 +77,19 @@ const databaseIcons: {
 }
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
-  app: <Github className='size-6' />,
+  app: <Git className='size-6' />,
   database: <Database className='size-6 text-destructive' />,
   docker: <Docker className='size-6' />,
+}
+
+const ProviderTypeIcons: {
+  [key in NonNullable<Service['providerType']>]: JSX.Element
+} = {
+  github: <Github className='size-6' />,
+  gitlab: <GitLab className='size-6' />,
+  bitbucket: <Bitbucket className='size-6' />,
+  azureDevOps: <MicrosoftAzure className='size-6' />,
+  gitea: <Gitea className='size-6' />,
 }
 
 const UpdateServiceDetails = ({
@@ -116,7 +136,9 @@ const UpdateServiceDetails = ({
             <div className='flex items-center gap-x-3'>
               {service.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
-                : icon[service.type]}
+                : service.type === 'app' && service?.providerType
+                  ? ProviderTypeIcons[service?.providerType]
+                  : icon[service.type]}
               <EditServiceName
                 type='sideBar'
                 key={service?.id}
@@ -213,6 +235,46 @@ const Settings = ({
             type='update'
             nodes={nodes}
             setNodes={setNodes}
+            service={service}
+          />
+        </>
+      ) : service?.type === 'app' && service?.providerType === 'azureDevOps' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold'>Azure DevOps Details</h2>
+          <AddAzureDevopsService
+            setNodes={setNodes}
+            nodes={nodes}
+            type='update'
+            service={service}
+          />
+        </>
+      ) : service?.type === 'app' && service?.providerType === 'bitbucket' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold'>Bitbucket Details</h2>
+          <AddBitbucketService
+            nodes={nodes}
+            setNodes={setNodes}
+            type='update'
+            service={service}
+          />
+        </>
+      ) : service?.type === 'app' && service?.providerType === 'gitea' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold'>Gitea Details</h2>
+          <AddGiteaService
+            nodes={nodes}
+            setNodes={setNodes}
+            type='update'
+            service={service}
+          />
+        </>
+      ) : service?.type === 'app' && service?.providerType === 'gitlab' ? (
+        <>
+          <h2 className='text-md pb-2 font-semibold'>GitLab Details</h2>
+          <AddGitlabService
+            nodes={nodes}
+            setNodes={setNodes}
+            type='update'
             service={service}
           />
         </>

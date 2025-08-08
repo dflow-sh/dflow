@@ -102,6 +102,14 @@ export const Template: CollectionConfig = {
                   label: 'Bitbucket',
                   value: 'bitbucket',
                 },
+                {
+                  label: 'Azure DevOps',
+                  value: 'azureDevOps',
+                },
+                {
+                  label: 'Gitea',
+                  value: 'gitea',
+                },
               ],
             },
             {
@@ -127,6 +135,10 @@ export const Template: CollectionConfig = {
                   type: 'text',
                   required: true,
                 },
+                encryptedField({
+                  name: 'gitToken',
+                  type: 'text',
+                }),
                 {
                   name: 'branch',
                   type: 'text',
@@ -146,16 +158,185 @@ export const Template: CollectionConfig = {
               ],
             },
             {
-              name: 'builder',
-              type: 'select',
-              options: [
-                { label: 'Build packs (Default)', value: 'buildPacks' },
-                { label: 'Railpack', value: 'railpack' },
-                { label: 'Nixpacks', value: 'nixpacks' },
-                { label: 'Dockerfile', value: 'dockerfile' },
-                { label: 'Heroku build packs', value: 'herokuBuildPacks' },
+              name: 'azureSettings',
+              type: 'group',
+              admin: {
+                // App settings field will be considered if service-type is app
+                condition: (data, siblingsData) => {
+                  if (siblingsData.providerType === 'azureDevOps') {
+                    return true
+                  }
+                  return false
+                },
+              },
+              fields: [
+                {
+                  name: 'repository',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'branch',
+                  type: 'text',
+                  required: true,
+                },
+                encryptedField({
+                  name: 'gitToken',
+                  type: 'text',
+                  required: true,
+                }),
+                {
+                  name: 'owner',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'buildPath',
+                  type: 'text',
+                  required: true,
+                  defaultValue: '/',
+                },
+                {
+                  name: 'port',
+                  type: 'number',
+                  defaultValue: 3000,
+                },
               ],
-              defaultValue: 'buildPacks',
+            },
+            {
+              name: 'giteaSettings',
+              type: 'group',
+              admin: {
+                // App settings field will be considered if service-type is app
+                condition: (data, siblingsData) => {
+                  if (siblingsData.providerType === 'gitea') {
+                    return true
+                  }
+                  return false
+                },
+              },
+              fields: [
+                {
+                  name: 'repository',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'branch',
+                  type: 'text',
+                  required: true,
+                },
+                encryptedField({
+                  name: 'gitToken',
+                  type: 'text',
+                }),
+                {
+                  name: 'owner',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'buildPath',
+                  type: 'text',
+                  required: true,
+                  defaultValue: '/',
+                },
+                {
+                  name: 'port',
+                  type: 'number',
+                  defaultValue: 3000,
+                },
+              ],
+            },
+            {
+              name: 'gitlabSettings',
+              type: 'group',
+              admin: {
+                // App settings field will be considered if service-type is app
+                condition: (data, siblingsData) => {
+                  if (siblingsData.providerType === 'gitlab') {
+                    return true
+                  }
+                  return false
+                },
+              },
+              fields: [
+                {
+                  name: 'repository',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'branch',
+                  type: 'text',
+                  required: true,
+                },
+                encryptedField({
+                  name: 'gitToken',
+                  type: 'text',
+                }),
+                {
+                  name: 'owner',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'buildPath',
+                  type: 'text',
+                  required: true,
+                  defaultValue: '/',
+                },
+                {
+                  name: 'port',
+                  type: 'number',
+                  defaultValue: 3000,
+                },
+              ],
+            },
+            {
+              name: 'bitbucketSettings',
+              type: 'group',
+              admin: {
+                // App settings field will be considered if service-type is app
+                condition: (data, siblingsData) => {
+                  if (siblingsData.providerType === 'bitbucket') {
+                    return true
+                  }
+                  return false
+                },
+              },
+              fields: [
+                {
+                  name: 'repository',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'owner',
+                  type: 'text',
+                  required: true,
+                },
+                encryptedField({
+                  name: 'gitToken',
+                  type: 'text',
+                }),
+                {
+                  name: 'branch',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'buildPath',
+                  type: 'text',
+                  required: true,
+                  defaultValue: '/',
+                },
+                {
+                  name: 'port',
+                  type: 'number',
+                  defaultValue: 3000,
+                },
+              ],
             },
           ],
         },
@@ -273,6 +454,25 @@ export const Template: CollectionConfig = {
               ],
             },
           ],
+        },
+        {
+          name: 'builder',
+          type: 'select',
+          options: [
+            { label: 'Build packs (Default)', value: 'buildPacks' },
+            { label: 'Railpack', value: 'railpack' },
+            { label: 'Nixpacks', value: 'nixpacks' },
+            { label: 'Dockerfile', value: 'dockerfile' },
+            { label: 'Heroku build packs', value: 'herokuBuildPacks' },
+          ],
+          defaultValue: 'buildPacks',
+          admin: {
+            condition: (data, siblingsData) => {
+              return (
+                siblingsData.type === 'app' || siblingsData.type === 'docker'
+              )
+            },
+          },
         },
         {
           type: 'text',

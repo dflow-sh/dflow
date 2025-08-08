@@ -66,13 +66,15 @@ export const servicesToTemplate = (
       }
     })
 
-    return {
+    const baseData = {
       name: cleanServiceName,
       variables: updatedVariables,
       type: service.type,
-      ...(service.type === 'app' && {
-        githubSettings: service.githubSettings,
-        providerType: service.providerType,
+    }
+
+    if (service.type === 'app') {
+      const appSettings: any = {
+        providerType: service.providerType ?? undefined,
         provider:
           typeof service.provider === 'object'
             ? (service.provider as GitProvider)?.id
@@ -81,16 +83,71 @@ export const servicesToTemplate = (
               : undefined,
         builder: service.builder || 'buildPacks',
         volumes: service.volumes || [],
-      }),
-      ...(service.type === 'database' && {
+      }
+      // Dynamically map provider-specific settings
+      switch (service.providerType) {
+        case 'github':
+          appSettings.githubSettings = service.githubSettings
+            ? {
+                ...service.githubSettings,
+                gitToken: service.githubSettings.gitToken ?? undefined,
+              }
+            : undefined
+          break
+
+        case 'gitlab':
+          appSettings.gitlabSettings = service.gitlabSettings
+            ? {
+                ...service.gitlabSettings,
+                gitToken: service.gitlabSettings.gitToken ?? undefined,
+              }
+            : undefined
+          break
+
+        case 'bitbucket':
+          appSettings.bitbucketSettings = service.bitbucketSettings
+            ? {
+                ...service.bitbucketSettings,
+                gitToken: service.bitbucketSettings.gitToken ?? undefined,
+              }
+            : undefined
+          break
+
+        case 'azureDevOps':
+          appSettings.azureSettings = service.azureSettings ?? undefined
+          break
+
+        case 'gitea':
+          appSettings.giteaSettings = service.giteaSettings
+            ? {
+                ...service.giteaSettings,
+                gitToken: service.giteaSettings.gitToken ?? undefined,
+              }
+            : undefined
+          break
+
+        default:
+          appSettings.providerType = null
+      }
+
+      return { ...baseData, ...appSettings }
+    }
+
+    if (service.type === 'database') {
+      return {
+        ...baseData,
         databaseDetails: service.databaseDetails
           ? {
               type: service.databaseDetails.type || undefined,
               exposedPorts: service.databaseDetails.exposedPorts || undefined,
             }
           : undefined,
-      }),
-      ...(service.type === 'docker' && {
+      }
+    }
+
+    if (service.type === 'docker') {
+      return {
+        ...baseData,
         dockerDetails: service.dockerDetails
           ? {
               url: service.dockerDetails.url,
@@ -101,8 +158,10 @@ export const servicesToTemplate = (
             }
           : undefined,
         volumes: service.volumes || [],
-      }),
+      }
     }
+
+    return baseData
   })
 
   return updatedServices as z.infer<typeof servicesSchema>

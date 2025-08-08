@@ -1,11 +1,11 @@
 'use client'
 
+import { getPositionForNewNode } from '../ChooseService'
+import { GithubServiceSchema, GithubServiceType } from '../types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
-import Image from 'next/image'
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -21,9 +21,7 @@ import {
   getBranchesAction,
   getRepositoriesAction,
 } from '@/actions/gitProviders'
-import { Docker, Heroku } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -37,46 +35,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import SelectSearch from '@/components/ui/select-search'
-
-import { getPositionForNewNode } from './ChooseService'
-import { GithubServiceSchema, GithubServiceType } from './types'
+import { buildOptions } from '@/lib/buildOptions'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
-
-const options = [
-  {
-    label: (
-      <div className='flex items-center gap-2'>
-        BuildPacks
-        <Badge variant='secondary' className='text-xs'>
-          Default
-        </Badge>
-      </div>
-    ),
-    value: 'buildPacks',
-    icon: <Heroku width={18} height={18} />,
-    description: 'Build app using buildpacks',
-  },
-  {
-    label: 'Dockerfile',
-    value: 'dockerfile',
-    icon: <Docker fontSize={20} />,
-    description: 'Build app using Docker',
-  },
-  {
-    label: 'Railpack',
-    value: 'railpack',
-    icon: (
-      <Image
-        src={'/images/railpack.png'}
-        alt='railpack'
-        width={32}
-        height={32}
-      />
-    ),
-    description: 'Build app using railpack',
-  },
-]
 
 const handleBuildPathInputChange =
   (onChange: (value: string) => void) =>
@@ -100,7 +61,6 @@ const AddGithubService = ({
   type: 'create' | 'update'
   handleOnClick?: ({ serviceId }: { serviceId: string }) => void
 }) => {
-  const { organisation } = useParams()
   const { fitView } = useReactFlow()
   const [repoType, setRepoType] = useState(
     service?.provider ? 'private' : 'public',
@@ -196,22 +156,20 @@ const AddGithubService = ({
 
   const addGithubNode = (data: GithubServiceType) => {
     if (type === 'update') {
-      if (type === 'update') {
-        setNodes((prevNodes: Node[]) =>
-          prevNodes.map(node => {
-            if (node.id === service?.id) {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  ...data,
-                },
-              }
+      setNodes((prevNodes: Node[]) =>
+        prevNodes.map(node => {
+          if (node.id === service?.id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                ...data,
+              },
             }
-            return node
-          }),
-        )
-      }
+          }
+          return node
+        }),
+      )
       toast.success('Github details updated successfully')
     } else if (type === 'create') {
       const name = uniqueNamesGenerator({
@@ -677,7 +635,7 @@ const AddGithubService = ({
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     className='grid w-full grid-cols-2 gap-4'>
-                    {options.map(({ value, label, icon, description }) => (
+                    {buildOptions.map(({ value, label, icon, description }) => (
                       <FormItem
                         className='flex w-full items-center space-x-3 space-y-0'
                         key={value}>
@@ -718,6 +676,7 @@ const AddGithubService = ({
               type='submit'
               disabled={
                 isPending ||
+                !githubSettings?.buildPath ||
                 (repoType === 'public' &&
                   (!githubSettings?.branch ||
                     !githubSettings?.owner ||

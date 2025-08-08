@@ -998,15 +998,47 @@ export interface Template {
     | {
         type: 'app' | 'database' | 'docker';
         provider?: (string | null) | GitProvider;
-        providerType?: ('github' | 'gitlab' | 'bitbucket') | null;
+        providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps' | 'gitea') | null;
         githubSettings?: {
           repository: string;
           owner: string;
+          gitToken?: string | null;
           branch: string;
           buildPath: string;
           port?: number | null;
         };
-        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
+        azureSettings?: {
+          repository: string;
+          branch: string;
+          gitToken: string;
+          owner: string;
+          buildPath: string;
+          port?: number | null;
+        };
+        giteaSettings?: {
+          repository: string;
+          branch: string;
+          gitToken?: string | null;
+          owner: string;
+          buildPath: string;
+          port?: number | null;
+        };
+        gitlabSettings?: {
+          repository: string;
+          branch: string;
+          gitToken?: string | null;
+          owner: string;
+          buildPath: string;
+          port?: number | null;
+        };
+        bitbucketSettings?: {
+          repository: string;
+          owner: string;
+          gitToken?: string | null;
+          branch: string;
+          buildPath: string;
+          port?: number | null;
+        };
         /**
          * select database you want
          */
@@ -1029,6 +1061,7 @@ export interface Template {
               }[]
             | null;
         };
+        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
         name: string;
         description?: string | null;
         volumes?:
@@ -1702,11 +1735,51 @@ export interface TemplatesSelect<T extends boolean = true> {
           | {
               repository?: T;
               owner?: T;
+              gitToken?: T;
               branch?: T;
               buildPath?: T;
               port?: T;
             };
-        builder?: T;
+        azureSettings?:
+          | T
+          | {
+              repository?: T;
+              branch?: T;
+              gitToken?: T;
+              owner?: T;
+              buildPath?: T;
+              port?: T;
+            };
+        giteaSettings?:
+          | T
+          | {
+              repository?: T;
+              branch?: T;
+              gitToken?: T;
+              owner?: T;
+              buildPath?: T;
+              port?: T;
+            };
+        gitlabSettings?:
+          | T
+          | {
+              repository?: T;
+              branch?: T;
+              gitToken?: T;
+              owner?: T;
+              buildPath?: T;
+              port?: T;
+            };
+        bitbucketSettings?:
+          | T
+          | {
+              repository?: T;
+              owner?: T;
+              gitToken?: T;
+              branch?: T;
+              buildPath?: T;
+              port?: T;
+            };
         databaseDetails?:
           | T
           | {
@@ -1727,6 +1800,7 @@ export interface TemplatesSelect<T extends boolean = true> {
                     id?: T;
                   };
             };
+        builder?: T;
         name?: T;
         description?: T;
         volumes?:

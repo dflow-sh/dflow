@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+const gitSettings = z
+  .object({
+    repository: z.string(),
+    branch: z.string(),
+    gitToken: z.string().optional(),
+    owner: z.string(),
+    buildPath: z.string(),
+    port: z.number().default(3000),
+  })
+  .optional()
+
 export const servicesSchema = z.array(
   z.object({
     type: z.enum(['app', 'database', 'docker']),
@@ -34,16 +45,14 @@ export const servicesSchema = z.array(
       .optional(),
 
     provider: z.string().optional(),
-    providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
-    githubSettings: z
-      .object({
-        repository: z.string(),
-        owner: z.string(),
-        branch: z.string(),
-        buildPath: z.string(),
-        port: z.number().default(3000),
-      })
+    providerType: z
+      .enum(['github', 'gitlab', 'bitbucket', 'azureDevOps', 'gitea'])
       .optional(),
+    githubSettings: gitSettings,
+    azureSettings: gitSettings,
+    giteaSettings: gitSettings,
+    gitlabSettings: gitSettings,
+    bitbucketSettings: gitSettings,
     dockerDetails: z
       .object({
         url: z.string(),
@@ -121,16 +130,14 @@ export const UpdateServiceSchema = z.object({
     .optional(),
 
   provider: z.string().optional(),
-  providerType: z.enum(['github', 'gitlab', 'bitbucket']).optional(),
-  githubSettings: z
-    .object({
-      repository: z.string(),
-      owner: z.string(),
-      branch: z.string(),
-      buildPath: z.string(),
-      port: z.number().default(3000),
-    })
+  providerType: z
+    .enum(['github', 'gitlab', 'bitbucket', 'azureDevOps', 'gitea'])
     .optional(),
+  githubSettings: gitSettings,
+  azureSettings: gitSettings,
+  giteaSettings: gitSettings,
+  gitlabSettings: gitSettings,
+  bitbucketSettings: gitSettings,
   dockerDetails: z
     .object({
       url: z.string(),

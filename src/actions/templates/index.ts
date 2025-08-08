@@ -67,7 +67,7 @@ export const createTemplateAction = protectedClient
       data: {
         name,
         description,
-        services,
+        services: services as Template['services'],
         imageUrl,
         tenant: userTenant.tenant,
       },
