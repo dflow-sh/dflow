@@ -39,11 +39,27 @@ const Step4 = ({ server }: { server: ServerType }) => {
         setErrorMessage('')
 
         if (data?.success) {
-          const servicesDeployed = data.servicesDeployed || 0
+          // Handle already installed case
+          if (data.alreadyInstalled) {
+            toast.success('Monitoring tools are already installed and running!')
+            setMonitoringInstalled(true)
+            setDokkuInstallationStep(5)
+            return
+          }
 
-          if (servicesDeployed > 0) {
+          const servicesCreated = data.servicesCreated || 0
+          const servicesUpdated = data.servicesUpdated || 0
+          const totalServicesDeployed = servicesCreated + servicesUpdated
+
+          if (totalServicesDeployed > 0) {
+            let deploymentMsg = []
+            if (servicesCreated > 0)
+              deploymentMsg.push(`${servicesCreated} new`)
+            if (servicesUpdated > 0)
+              deploymentMsg.push(`${servicesUpdated} updated`)
+
             toast.success(
-              `Monitoring tools installed successfully! ${servicesDeployed} services deployed.`,
+              `Monitoring tools installed successfully! ${deploymentMsg.join(', ')} services deployed.`,
             )
           } else {
             toast.success(
@@ -54,15 +70,17 @@ const Step4 = ({ server }: { server: ServerType }) => {
           setMonitoringInstalled(true)
           setDokkuInstallationStep(5)
         } else {
-          // Handle case where monitoring was already installed or env not configured
+          // Handle case where monitoring installation failed
           const errorMsg = data?.error || 'Monitoring installation failed'
 
-          if (errorMsg.includes('already installed')) {
-            toast.info('Monitoring tools are already installed')
+          if (errorMsg.includes('Missing Beszel config')) {
+            toast.warning(
+              'Monitoring skipped: Environment not properly configured',
+            )
             setMonitoringInstalled(true)
             setDokkuInstallationStep(5)
-          } else if (errorMsg.includes('not properly configured')) {
-            toast.warning('Monitoring skipped: Environment not configured')
+          } else if (errorMsg.includes('already installed')) {
+            toast.info('Monitoring tools are already installed')
             setMonitoringInstalled(true)
             setDokkuInstallationStep(5)
           } else {

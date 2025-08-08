@@ -1,16 +1,21 @@
 'use client'
 
 import {
+  AlertCircle,
   BarChart3,
   CheckCircle,
   Loader2,
+  RotateCcw,
   Shield,
   TrendingUp,
   Zap,
 } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+import { installMonitoringToolsAction } from '@/actions/beszel'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,34 +25,124 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { defaultMonitoring } from '@/lib/default-monitoring'
 
 interface DefaultMonitoringInstallProps {
   serverId: string
-  onInstallComplete?: () => void
+  onInstallComplete?: (data?: {
+    servicesCreated?: number
+    servicesUpdated?: number
+  }) => void
 }
 
 const DefaultMonitoringInstall = ({
   serverId,
   onInstallComplete,
 }: DefaultMonitoringInstallProps) => {
-  const [isInstalling, setIsInstalling] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [isInstalled, setIsInstalled] = useState(false)
 
-  const handleInstall = async () => {
-    setIsInstalling(true)
-    try {
-      const response = await defaultMonitoring.enableDefaultMonitoring(serverId)
-      if (response.success) {
-        toast.success('Default monitoring enabled successfully')
-        onInstallComplete?.()
-      } else {
-        toast.error('Failed to enable default monitoring')
-      }
-    } catch (error) {
-      toast.error('Failed to enable default monitoring')
-    } finally {
-      setIsInstalling(false)
-    }
+  const { execute, isPending, hasSucceeded } = useAction(
+    installMonitoringToolsAction,
+    {
+      onError: ({ error }) => {
+        const errorMsg = error?.serverError || 'Unknown error occurred'
+        setErrorMessage(errorMsg)
+        setHasError(true)
+        toast.error(`Monitoring installation failed: ${errorMsg}`)
+      },
+      onSuccess: ({ data }) => {
+        setHasError(false)
+        setErrorMessage('')
+
+        if (data?.success) {
+          // Handle already installed case
+          if (data.alreadyInstalled) {
+            toast.success('Monitoring tools are already installed and running!')
+            setIsInstalled(true)
+            onInstallComplete?.(data)
+            return
+          }
+
+          const servicesDeployed =
+            (data.servicesCreated || 0) + (data.servicesUpdated || 0)
+
+          if (servicesDeployed > 0) {
+            const createdMsg = data.servicesCreated
+              ? `${data.servicesCreated} new services`
+              : ''
+            const updatedMsg = data.servicesUpdated
+              ? `${data.servicesUpdated} updated services`
+              : ''
+            const deploymentMsg = [createdMsg, updatedMsg]
+              .filter(Boolean)
+              .join(', ')
+
+            toast.success(
+              `Monitoring tools installed successfully! Deployed: ${deploymentMsg}.`,
+            )
+          } else {
+            toast.success(
+              'Monitoring tools verified - all services already up to date.',
+            )
+          }
+
+          setIsInstalled(true)
+          onInstallComplete?.(data)
+        } else {
+          const errorMsg = data?.error || 'Monitoring installation failed'
+
+          // Handle specific error cases
+          if (errorMsg.includes('Missing Beszel config')) {
+            toast.warning(
+              'Cannot install monitoring: Environment not properly configured',
+            )
+            setErrorMessage('Environment configuration required')
+            setHasError(true)
+          } else if (errorMsg.includes('already installed')) {
+            toast.info('Monitoring tools are already installed')
+            setIsInstalled(true)
+            onInstallComplete?.(data)
+          } else {
+            setErrorMessage(errorMsg)
+            setHasError(true)
+            toast.error(errorMsg)
+          }
+        }
+      },
+    },
+  )
+
+  const handleInstall = () => {
+    setHasError(false)
+    setErrorMessage('')
+    execute({ serverId })
+  }
+
+  const handleRetry = () => {
+    setHasError(false)
+    setErrorMessage('')
+    execute({ serverId })
+  }
+
+  if (isInstalled) {
+    return (
+      <Card>
+        <CardContent className='pt-6'>
+          <div className='flex items-center justify-center gap-3'>
+            <div className='flex h-12 w-12 items-center justify-center rounded-full bg-success/20'>
+              <CheckCircle className='h-6 w-6 text-success' />
+            </div>
+            <div>
+              <h3 className='font-semibold'>Monitoring Enabled</h3>
+              <p className='text-sm text-muted-foreground'>
+                Your server is now being monitored
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -67,8 +162,8 @@ const DefaultMonitoringInstall = ({
         {/* Features */}
         <div className='grid gap-4 md:grid-cols-3'>
           <div className='space-y-2 text-center'>
-            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600'>
-              <BarChart3 className='h-5 w-5' />
+            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-success/20'>
+              <BarChart3 className='h-5 w-5 text-success' />
             </div>
             <h4 className='font-medium'>Real-time Metrics</h4>
             <p className='text-sm text-muted-foreground'>
@@ -77,8 +172,8 @@ const DefaultMonitoringInstall = ({
           </div>
 
           <div className='space-y-2 text-center'>
-            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600'>
-              <Shield className='h-5 w-5' />
+            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-info/20'>
+              <Shield className='h-5 w-5 text-info' />
             </div>
             <h4 className='font-medium'>Smart Alerts</h4>
             <p className='text-sm text-muted-foreground'>
@@ -87,8 +182,8 @@ const DefaultMonitoringInstall = ({
           </div>
 
           <div className='space-y-2 text-center'>
-            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600'>
-              <Zap className='h-5 w-5' />
+            <div className='mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20'>
+              <Zap className='h-5 w-5 text-primary' />
             </div>
             <h4 className='font-medium'>Quick Setup</h4>
             <p className='text-sm text-muted-foreground'>
@@ -100,37 +195,47 @@ const DefaultMonitoringInstall = ({
         {/* What's Included */}
         <div className='rounded-lg border bg-card p-4'>
           <h4 className='mb-3 flex items-center gap-2 font-medium'>
-            <CheckCircle className='h-4 w-4 text-green-500' />
+            <CheckCircle className='h-4 w-4 text-success' />
             What's Included
           </h4>
 
           <div className='grid gap-2 text-sm'>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               System resource monitoring (CPU, RAM, Disk)
             </div>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               Service status tracking
             </div>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               Network traffic monitoring
             </div>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               Configurable alert thresholds
             </div>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               Email notifications (optional)
             </div>
             <div className='flex items-center gap-2'>
-              <div className='h-1.5 w-1.5 rounded-full bg-green-500' />
+              <div className='h-1.5 w-1.5 rounded-full bg-success' />
               30-day data retention
             </div>
           </div>
         </div>
+
+        {/* Error State */}
+        {hasError && (
+          <Alert variant='destructive'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>
+              Monitoring installation failed: {errorMessage}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Benefits */}
         <div className='flex flex-wrap justify-center gap-2'>
@@ -140,28 +245,51 @@ const DefaultMonitoringInstall = ({
           <Badge variant='secondary'>Instant Setup</Badge>
         </div>
 
-        {/* Install Button */}
-        <div className='text-center'>
-          <Button
-            onClick={handleInstall}
-            disabled={isInstalling}
-            size='lg'
-            className='w-full md:w-auto'>
-            {isInstalling ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Enabling Monitoring...
-              </>
-            ) : (
-              <>
-                <TrendingUp className='mr-2 h-4 w-4' />
-                Enable Default Monitoring
-              </>
-            )}
-          </Button>
+        {/* Install/Retry Button */}
+        <div className='space-y-2 text-center'>
+          {hasError ? (
+            <Button
+              onClick={handleRetry}
+              disabled={isPending}
+              variant='outline'
+              size='lg'
+              className='w-full md:w-auto'>
+              {isPending ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RotateCcw className='mr-2 h-4 w-4' />
+                  Retry Installation
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleInstall}
+              disabled={isPending}
+              size='lg'
+              className='w-full md:w-auto'>
+              {isPending ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Installing Monitoring...
+                </>
+              ) : (
+                <>
+                  <TrendingUp className='mr-2 h-4 w-4' />
+                  Enable Default Monitoring
+                </>
+              )}
+            </Button>
+          )}
 
-          <p className='mt-2 text-xs text-muted-foreground'>
-            Takes less than 10 seconds to set up
+          <p className='text-xs text-muted-foreground'>
+            {isPending
+              ? 'This may take a few moments...'
+              : 'Takes less than 10 seconds to set up'}
           </p>
         </div>
       </CardContent>

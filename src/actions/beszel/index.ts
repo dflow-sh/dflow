@@ -43,6 +43,13 @@ export const installMonitoringToolsAction = protectedClient
         }
       }
 
+      // Check if monitoring is already installed and running
+      const existingProject = await findMonitoringProject(
+        payload,
+        serverId,
+        userTenant.tenant.id,
+      )
+
       sendEvent({
         pub,
         message: '🔧 Starting monitoring installation...',
@@ -50,11 +57,7 @@ export const installMonitoringToolsAction = protectedClient
       })
 
       // Get or create monitoring project
-      let project = await findMonitoringProject(
-        payload,
-        serverId,
-        userTenant.tenant.id,
-      )
+      let project = existingProject
       if (!project) {
         project = await createMonitoringProject(
           payload,
@@ -130,11 +133,21 @@ export const installMonitoringToolsAction = protectedClient
           serverId: serverDetails.id,
         })
       } else {
+        // If no services to deploy, monitoring is already fully installed
         sendEvent({
           pub,
-          message: '✅ All monitoring services are up to date',
+          message: '✅ Monitoring tools are already installed and running',
           serverId: serverDetails.id,
         })
+
+        return {
+          success: true,
+          alreadyInstalled: true,
+          message: 'Monitoring tools are already installed and running',
+          projectId: project.id,
+          servicesCreated: 0,
+          servicesUpdated: 0,
+        }
       }
 
       sendActionEvent({
