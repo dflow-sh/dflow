@@ -1,5 +1,6 @@
 'use client'
 
+import Logo from '../Logo'
 import { Button } from '../ui/button'
 import {
   Card,
@@ -10,13 +11,13 @@ import {
   CardTitle,
 } from '../ui/card'
 import { useAction } from 'next-safe-action/hooks'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { joinTeamAction } from '@/actions/team'
 import { Tenant, User } from '@/payload-types'
+import { useBrandingContext } from '@/providers/BrandingProvider'
 
 interface InvitationData {
   tenantId: string
@@ -35,9 +36,11 @@ function InvitationView({
   token: string
 }) {
   const router = useRouter()
+  const { branding } = useBrandingContext()
   if (invitationData === null) {
     toast.error('Invalid invitation link')
   }
+
   const { execute: joinTeam, isPending: isJoinTeamPending } = useAction(
     joinTeamAction,
     {
@@ -63,6 +66,7 @@ function InvitationView({
       },
     },
   )
+
   return (
     <div className='flex h-screen w-full items-center justify-center'>
       <Card className='w-96'>
@@ -76,15 +80,13 @@ function InvitationView({
 
         <CardContent>
           <div className='w-full max-w-md'>
-            <Image
-              src='/images/dflow-no-bg.png'
-              alt='dFlow logo'
-              className='m-auto mb-4'
-              width={50}
-              height={50}
+            <Logo
+              className='mx-auto mb-2 max-h-28'
+              skeletonClassName='mx-auto mb-2'
             />
+
             <h6 className='mb-6 text-center text-lg font-semibold'>
-              Welcome to Dflow
+              Welcome to {branding?.title || 'Dflow'}
             </h6>
           </div>
         </CardContent>
