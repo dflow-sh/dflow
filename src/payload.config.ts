@@ -75,6 +75,24 @@ export default buildConfig({
         'importMap.js',
       ),
     },
+    livePreview: {
+      globals: ['theme'],
+      url: env.NEXT_PUBLIC_WEBSITE_URL,
+      breakpoints: [
+        {
+          label: 'Desktop',
+          name: 'desktop',
+          width: 1280,
+          height: 800,
+        },
+        {
+          label: 'Mobile',
+          name: 'mobile',
+          width: 375,
+          height: 667,
+        },
+      ],
+    },
   },
   globals: [Theme, Branding],
   collections: [...collectionsWithHook, Banners, Media],

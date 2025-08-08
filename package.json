@@ -26,6 +26,7 @@
     "@payload-bites/soft-delete": "^2.1.1",
     "@payloadcms/db-mongodb": "3.40.0",
     "@payloadcms/email-resend": "3.40.0",
+    "@payloadcms/live-preview-react": "3.40.0",
     "@payloadcms/next": "3.40.0",
     "@payloadcms/plugin-multi-tenant": "3.40.0",
     "@payloadcms/richtext-lexical": "3.40.0",

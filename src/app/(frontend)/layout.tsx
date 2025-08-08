@@ -1,27 +1,18 @@
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
-// import { Geist, Geist_Mono } from 'next/font/google'
+import { draftMode } from 'next/headers'
 import React from 'react'
 import { Toaster } from 'sonner'
 
 import { getBranding, getTheme } from '@/actions/branding'
 import Branding from '@/components/Branding'
+import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { BrandingProvider } from '@/providers/BrandingProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 
 import './globals.css'
-
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// })
-
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// })
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -104,8 +95,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { isEnabled: draft } = await draftMode()
   const [themeData, brandingData] = await Promise.all([
-    getTheme(),
+    getTheme({ draft: true }),
     getBranding(),
   ])
   const theme = themeData?.data
@@ -134,6 +126,7 @@ export default async function RootLayout({
           <NetworkStatusProvider>
             <ThemeProvider enableSystem attribute='class'>
               <BrandingProvider branding={branding}>
+                {draft && <LivePreviewListener />}
                 {children}
               </BrandingProvider>
             </ThemeProvider>

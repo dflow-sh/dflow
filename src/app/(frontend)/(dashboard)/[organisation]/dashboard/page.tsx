@@ -1,5 +1,6 @@
 import LayoutClient from '../layout.client'
 import { AlertCircle, Folder, Plus, Server } from 'lucide-react'
+import { draftMode } from 'next/headers'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
@@ -204,6 +205,10 @@ const SuspendedDashboard = async ({
 
 const DashboardPage = async ({ params }: PageProps) => {
   const syncParams = await params
+  const { isEnabled: draft } = await draftMode()
+
+  console.log({ draft })
+
   return (
     <LayoutClient>
       <Suspense fallback={<DashboardSkeleton />}>

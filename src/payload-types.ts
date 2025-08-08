@@ -2312,6 +2312,7 @@ export interface Theme {
     };
   };
   radius: 'none' | 'small' | 'medium' | 'large' | 'full';
+  _status?: ('draft' | 'published') | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2439,6 +2440,7 @@ export interface ThemeSelect<T extends boolean = true> {
             };
       };
   radius?: T;
+  _status?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

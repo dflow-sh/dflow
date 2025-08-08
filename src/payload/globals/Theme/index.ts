@@ -9,6 +9,14 @@ export const Theme: GlobalConfig = {
     read: isAdmin,
     update: isAdmin,
   },
+  versions: {
+    max: 10,
+    drafts: {
+      autosave: {
+        interval: 375,
+      },
+    },
+  },
   admin: {
     components: {
       elements: {
