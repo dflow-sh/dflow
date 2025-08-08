@@ -86,7 +86,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 33.3333%, 97.0588%)',
+            defaultValue: 'hsl(240, 100.0000%, 98.0392%)',
           },
           // foreground
           {
@@ -98,7 +98,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 19.6078%, 20%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // card
           {
@@ -110,7 +110,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 33.3333%, 97.0588%)',
+            defaultValue: 'hsl(0, 0%, 100%)',
           },
           // cardForeground
           {
@@ -122,7 +122,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.5641%, 7.6471%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // popover
           {
@@ -146,7 +146,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50.7692, 19.4030%, 13.1373%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // primary
           {
@@ -158,7 +158,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(15.1111, 55.5556%, 52.3529%)',
+            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
           },
           // primaryForeground
           {
@@ -182,7 +182,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 22.8070%, 88.8235%)',
+            defaultValue: 'hsl(249.3750, 100%, 93.7255%)',
           },
           // secondaryForeground
           {
@@ -194,7 +194,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50.7692, 8.4967%, 30.0000%)',
+            defaultValue: 'hsl(249.3750, 33.3333%, 37.6471%)',
           },
           // muted
           {
@@ -206,7 +206,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(44.0000, 29.4118%, 90%)',
+            defaultValue: 'hsl(240, 50.0000%, 96.0784%)',
           },
           // mutedForeground
           {
@@ -218,7 +218,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50.0000, 2.3622%, 50.1961%)',
+            defaultValue: 'hsl(240, 12.1951%, 48.2353%)',
           },
           // accent
           {
@@ -230,7 +230,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 22.8070%, 88.8235%)',
+            defaultValue: 'hsl(218.4615, 100.0000%, 92.3529%)',
           },
           // accentForeground
           {
@@ -242,7 +242,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50.7692, 19.4030%, 13.1373%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // destructive
           {
@@ -254,7 +254,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.5641%, 7.6471%)',
+            defaultValue: 'hsl(350.1754, 100%, 66.4706%)',
           },
           // destructiveForeground
           {
@@ -278,7 +278,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50, 7.5000%, 84.3137%)',
+            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
           },
           // input
           {
@@ -290,7 +290,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(50.7692, 7.9755%, 68.0392%)',
+            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
           },
           // ring
           {
@@ -302,7 +302,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(15.1111, 55.5556%, 52.3529%)',
+            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
           },
           // sidebar
           {
@@ -314,7 +314,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(51.4286, 25.9259%, 94.7059%)',
+            defaultValue: 'hsl(240, 50.0000%, 96.0784%)',
           },
           // sidebarForeground
           {
@@ -326,7 +326,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.5210%, 23.3333%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // sidebarPrimary
           {
@@ -338,7 +338,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(15.1111, 55.5556%, 52.3529%)',
+            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
           },
           // sidebarPrimaryForeground
           {
@@ -350,7 +350,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 98.4314%)',
+            defaultValue: 'hsl(0, 0%, 100%)',
           },
           // sidebarAccent
           {
@@ -362,7 +362,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 22.8070%, 88.8235%)',
+            defaultValue: 'hsl(218.4615, 100.0000%, 92.3529%)',
           },
           // sidebarAccentForeground
           {
@@ -374,7 +374,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 20.3922%)',
+            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
           },
           // sidebarBorder
           {
@@ -386,7 +386,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 92.1569%)',
+            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
           },
           // sidebarRing
           {
@@ -398,7 +398,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 70.9804%)',
+            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
           },
         ],
       },
@@ -416,7 +416,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.7027%, 14.5098%)',
+            defaultValue: 'hsl(221, 50%, 11%)',
           },
           // foreground
           {
@@ -428,7 +428,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 9.7744%, 73.9216%)',
+            defaultValue: 'hsl(240, 66.67%, 94.12%)',
           },
           // card
           {
@@ -440,7 +440,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.7027%, 14.5098%)',
+            defaultValue: 'hsl(240, 27.59%, 22.75%)',
           },
           // cardForeground
           {
@@ -452,7 +452,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 33.3333%, 97.0588%)',
+            defaultValue: 'hsl(240, 100%, 97.06%)',
           },
           // popover
           {
@@ -464,7 +464,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.1277%, 18.4314%)',
+            defaultValue: 'hsl(217, 33%, 17%)',
           },
           // popoverForeground
           {
@@ -476,7 +476,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 5.4545%, 89.2157%)',
+            defaultValue: 'hsl(240, 66.67%, 94.12%)',
           },
           // primary
           {
@@ -488,7 +488,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(14.7692, 63.1068%, 59.6078%)',
+            defaultValue: 'hsl(258, 71%, 61%)',
           },
           // primaryForeground
           {
@@ -512,7 +512,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 33.3333%, 97.0588%)',
+            defaultValue: 'hsl(235, 31.49%, 35.49%)',
           },
           // secondaryForeground
           {
@@ -524,7 +524,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 2.1277%, 18.4314%)',
+            defaultValue: 'hsl(240, 34.78%, 90.98%)',
           },
           // muted
           {
@@ -536,7 +536,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 3.8462%, 10.1961%)',
+            defaultValue: 'hsl(240, 27.59%, 22.75%)',
           },
           // mutedForeground
           {
@@ -548,7 +548,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(51.4286, 8.8608%, 69.0196%)',
+            defaultValue: 'hsl(215, 20%, 65%)',
           },
           // accent
           {
@@ -560,7 +560,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(48, 10.6383%, 9.2157%)',
+            defaultValue: 'hsl(217, 19, 27)',
           },
           // accentForeground
           {
@@ -572,7 +572,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(51.4286, 25.9259%, 94.7059%)',
+            defaultValue: 'hsl(240, 66.67%, 94.12%)',
           },
           // destructive
           {
@@ -584,7 +584,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 84.2365%, 60.1961%)',
+            defaultValue: 'hsl(0, 73.46%, 41.37%)',
           },
           // destructiveForeground
           {
@@ -608,7 +608,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 5.0847%, 23.1373%)',
+            defaultValue: 'hsl(215, 25%, 27%)',
           },
           // input
           {
@@ -620,7 +620,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(52.5000, 5.1282%, 30.5882%)',
+            defaultValue: 'hsl(215, 25%, 27%)',
           },
           // ring
           {
@@ -632,7 +632,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(14.7692, 63.1068%, 59.6078%)',
+            defaultValue: 'hsl(291, 63.72%, 42.16%)',
           },
           // sidebar
           {
@@ -656,7 +656,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 9.7744%, 73.9216%)',
+            defaultValue: 'hsl(240, 100%, 90.78%)',
           },
           // sidebarPrimary
           {
@@ -668,7 +668,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 20.3922%)',
+            defaultValue: 'hsl(262, 51.87%, 47.25%)',
           },
           // sidebarPrimaryForeground
           {
@@ -680,7 +680,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 98.4314%)',
+            defaultValue: 'hsl(0, 0%, 100%)',
           },
           // sidebarAccent
           {
@@ -692,7 +692,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(60, 3.4483%, 5.6863%)',
+            defaultValue: 'hsl(240, 24.49%, 38.43%)',
           },
           // sidebarAccentForeground
           {
@@ -704,7 +704,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(46.1538, 9.7744%, 73.9216%)',
+            defaultValue: 'hsl(0, 0%, 87.84%)',
           },
           // sidebarBorder
           {
@@ -716,7 +716,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 92.1569%)',
+            defaultValue: 'hsl(240, 24.49%, 38.43%)',
           },
           // sidebarRing
           {
@@ -728,7 +728,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 70.9804%)',
+            defaultValue: 'hsl(291, 63.72%, 42.16%)',
           },
         ],
       },
@@ -764,8 +764,8 @@ export const themeFields: Field[] = [
             type: 'row',
             fields: fontConfig({
               remoteFont:
-                'https://fonts.googleapis.com/css2?family=Chewy&display=swap',
-              fontName: 'Chewy',
+                'https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap',
+              fontName: 'Geist',
             }),
           },
         ],

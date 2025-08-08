@@ -135,6 +135,16 @@
   * {
     @apply border-border;
   }
+
+  /* h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  } */
+
   body {
     @apply bg-background font-display text-foreground;
   }
@@ -155,6 +165,7 @@
   background: hsl(var(--muted) / 0.3) !important; /* Dark background */
   color: white !important;
 }
+
 .react-flow__controls-button {
   background-color: hsl(
     var(--muted) / 0.3
