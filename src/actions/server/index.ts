@@ -11,12 +11,12 @@ import { protectedClient, userClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
+import { Service } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
 import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
 import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
-import { addInstallMonitoringQueue } from '@/queues/server/addInstallMonitoringQueue'
 import { addResetServerQueue } from '@/queues/server/reset'
 
 import {
@@ -28,13 +28,14 @@ import {
   createTailscaleServerSchema,
   deleteServerSchema,
   installDokkuSchema,
-  installMonitoringToolsSchema,
   uninstallDokkuSchema,
   updateRailpackSchema,
   updateServerDomainSchema,
   updateServerSchema,
   updateTailscaleServerSchema,
 } from './validator'
+
+type DeploymentService = Omit<Service, 'project'>
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServerAction = protectedClient
@@ -933,55 +934,6 @@ export const resetOnboardingAction = protectedClient
     })
 
     if (resetServerResult.id) {
-      return { success: true }
-    }
-
-    return { success: false }
-  })
-
-export const installMonitoringToolsAction = protectedClient
-  .metadata({
-    actionName: 'installMonitoringToolsAction',
-  })
-  .schema(installMonitoringToolsSchema)
-  .action(async ({ clientInput, ctx }) => {
-    const { serverId } = clientInput
-    const { payload, userTenant, user } = ctx
-
-    const serverDetails = (await payload.findByID({
-      collection: 'servers',
-      id: serverId,
-      depth: 1,
-      context: {
-        populateServerDetails: true,
-      },
-    })) as ServerType
-
-    // TODO: Add a check to see if monitoring tools are already installed on this server to avoid reinstallation.
-
-    // TODO: Move all necessary Beszel operations (system creation and fingerprint registration)
-    //       and Payload API calls (project and service creation) into this action itself.
-    //       These should be executed before queueing the template deployment.
-
-    // TODO: Only enqueue the template deployment step (e.g., via Beszel) in the job queue.
-    //       This allows the UI to reflect successful monitoring setup immediately, regardless of
-    //       whether the deployment itself succeeds or fails later in the queue.
-
-    // TODO: Decide how to handle/report deployment failures from the queue to ensure users are informed,
-    //       possibly by tracking the job status separately.
-
-    // TODO: Skip installation of monitoring tools if the beszel env is not configured
-
-    const installMonitoringResult = await addInstallMonitoringQueue({
-      serverDetails,
-      user,
-      tenant: {
-        slug: userTenant.tenant.slug,
-        id: userTenant.tenant.id,
-      },
-    })
-
-    if (installMonitoringResult.id) {
       return { success: true }
     }
 

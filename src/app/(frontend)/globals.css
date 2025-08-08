@@ -7,7 +7,6 @@
     --background: 221 50% 11%;
     --foreground: 240 66.67% 94.12%;
 
-    /* --card: 217 33% 17%; */
     --card: 240 27.59% 22.75%;
     --card-foreground: 240 100% 97.06%;
 
@@ -44,17 +43,18 @@
 
     --radius: 0.75rem;
 
-    --chart-1: 220 70% 50%; /* Blue */
-    --chart-2: 340 75% 55%; /* Pink */
-    --chart-3: 30 80% 55%; /* Orange */
-    --chart-4: 280 65% 60%; /* Violet */
-    --chart-5: 160 60% 45%; /* Teal */
-    --chart-6: 0 85% 50%; /* Red */
-    --chart-7: 45 85% 55%; /* Yellow */
-    --chart-8: 200 75% 50%; /* Cyan */
-    --chart-9: 120 70% 50%; /* Green */
-    --chart-10: 260 65% 55%; /* Purple */
-    --xy-controls-button-background-color-default: #2020f3;
+    /* Updated Chart Colors - Harmonized with dark purple theme */
+    --chart-1: 258 60% 65%; /* Primary purple (lighter) */
+    --chart-2: 280 55% 60%; /* Violet */
+    --chart-3: 200 50% 55%; /* Cool blue */
+    --chart-4: 320 45% 55%; /* Magenta */
+    --chart-5: 180 40% 50%; /* Teal (muted) */
+    --chart-6: 240 50% 70%; /* Lavender */
+    --chart-7: 160 35% 45%; /* Sage green (muted) */
+    --chart-8: 220 45% 55%; /* Steel blue */
+    --chart-9: 300 50% 60%; /* Purple-pink */
+    --chart-10: 195 40% 50%; /* Slate blue */
+
     --xy-controls-button-background-color-default: #2020f3;
   }
 }

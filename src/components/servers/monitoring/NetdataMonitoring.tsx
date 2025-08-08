@@ -21,7 +21,7 @@ import CurrentResourceUsage from './CurrentResourceUsage'
 import MonitoringTabs from './MonitoringTabs'
 import StatusOverView from './StatusOverView'
 
-const Monitoring = ({ server }: { server: ServerType }) => {
+const NetdataMonitoring = ({ server }: { server: ServerType }) => {
   const router = useRouter()
 
   // State for server status
@@ -261,4 +261,4 @@ const Monitoring = ({ server }: { server: ServerType }) => {
   )
 }
 
-export default Monitoring
+export default NetdataMonitoring
