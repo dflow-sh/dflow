@@ -41,9 +41,18 @@ export const getProjectsAndServers = protectedClient
         collection: 'projects',
         depth: 1,
         where: {
-          'tenant.slug': {
-            equals: tenant.slug,
-          },
+          and: [
+            {
+              'tenant.slug': {
+                equals: tenant.slug,
+              },
+            },
+            {
+              hidden: {
+                not_equals: true,
+              },
+            },
+          ],
         },
         pagination: false,
         sort: '-createdAt',
