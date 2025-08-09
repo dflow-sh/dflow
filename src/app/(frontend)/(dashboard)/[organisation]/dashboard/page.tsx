@@ -5,13 +5,12 @@ import { Suspense } from 'react'
 
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import { ProjectCard } from '@/components/ProjectCard'
+import ProjectFiltersSection from '@/components/ProjectFiltersSection'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProject from '@/components/project/CreateProject'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Project, Service } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 interface PageProps {
@@ -20,36 +19,15 @@ interface PageProps {
   }>
 }
 
-const Projects = ({
-  servers,
-  projects,
+const EmptyState = ({
   organisationSlug,
   hasServers,
+  hasProjects,
 }: {
-  servers: ServerType[]
-  projects: Project[]
   organisationSlug: string
   hasServers: boolean
+  hasProjects: boolean
 }) => {
-  if (projects?.length) {
-    return (
-      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {projects?.map(project => {
-          const services = (project?.services?.docs ?? []) as Service[]
-          return (
-            <ProjectCard
-              key={project.id}
-              organisationSlug={organisationSlug}
-              project={project}
-              servers={servers}
-              services={services}
-            />
-          )
-        })}
-      </div>
-    )
-  }
-
   if (!hasServers) {
     return (
       <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
@@ -77,23 +55,26 @@ const Projects = ({
     )
   }
 
-  // hasServers but no projects
-  return (
-    <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
-      <div className='grid min-h-[40vh] place-items-center'>
-        <div className='max-w-md space-y-4 text-center'>
-          <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-            <Folder className='h-8 w-8 animate-pulse text-muted-foreground' />
+  if (!hasProjects) {
+    return (
+      <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+        <div className='grid min-h-[40vh] place-items-center'>
+          <div className='max-w-md space-y-4 text-center'>
+            <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+              <Folder className='h-8 w-8 animate-pulse text-muted-foreground' />
+            </div>
+            <h2 className='text-2xl font-semibold'>No Projects Yet</h2>
+            <p className='text-muted-foreground'>
+              It looks like you haven&apos;t created any projects yet. Start by
+              creating a new one using a connected server.
+            </p>
           </div>
-          <h2 className='text-2xl font-semibold'>No Projects Yet</h2>
-          <p className='text-muted-foreground'>
-            It looks like you haven&apos;t created any projects yet. Start by
-            creating a new one using a connected server.
-          </p>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  return null
 }
 
 const SuspendedDashboard = async ({
@@ -106,8 +87,13 @@ const SuspendedDashboard = async ({
   const servers = result?.data?.serversRes.docs ?? []
   const projects = result?.data?.projectsRes.docs ?? []
 
+  // Separate hidden and visible projects
+  const hiddenProjects = projects.filter(project => project.hidden)
+  const visibleProjects = projects.filter(project => !project.hidden)
+
   // Check if there are any servers available
   const hasServers = servers.length > 0
+  const hasProjects = projects.length > 0
 
   // Check if there are any connection fail servers
   const allServersFailed = servers?.every(
@@ -126,23 +112,23 @@ const SuspendedDashboard = async ({
             <Folder />
             Projects
           </div>
-
-          {hasServers && (
-            <CreateProject servers={servers}>
-              <Button>
-                <Plus size={16} />
-                Create Project
-              </Button>
-            </CreateProject>
-          )}
+          <div className='flex items-center gap-3'>
+            {hasServers && (
+              <CreateProject servers={servers}>
+                <Button>
+                  <Plus size={16} />
+                  Create Project
+                </Button>
+              </CreateProject>
+            )}
+          </div>
         </div>
 
         {result?.serverError ? (
           <AccessDeniedAlert error={result?.serverError} />
         ) : (
           <>
-            {' '}
-            {/* Complete Onboarding */}
+            {/* Server Status Alerts */}
             {notOnboardedServers.length > 0 && (
               <Alert variant='warning' className='mb-4'>
                 <AlertCircle className='h-4 w-4' />
@@ -169,6 +155,7 @@ const SuspendedDashboard = async ({
                 </AlertDescription>
               </Alert>
             )}
+
             {servers.length > 0 && allServersFailed && (
               <Alert variant='warning'>
                 <AlertCircle className='h-4 w-4' />
@@ -186,13 +173,22 @@ const SuspendedDashboard = async ({
                 </AlertDescription>
               </Alert>
             )}
-            {/* Server Alerts and Projects display */}
-            <Projects
-              servers={servers as ServerType[]}
-              projects={projects}
-              organisationSlug={organisationSlug}
-              hasServers={hasServers}
-            />
+
+            {/* Projects Display with Popover Filters */}
+            {hasServers && hasProjects ? (
+              <ProjectFiltersSection
+                projects={visibleProjects}
+                hiddenProjects={hiddenProjects}
+                servers={servers as ServerType[]}
+                organisationSlug={organisationSlug}
+              />
+            ) : (
+              <EmptyState
+                organisationSlug={organisationSlug}
+                hasServers={hasServers}
+                hasProjects={hasProjects}
+              />
+            )}
           </>
         )}
       </section>
