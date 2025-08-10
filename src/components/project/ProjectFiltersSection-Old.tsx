@@ -1,5 +1,19 @@
 'use client'
 
+import { Docker } from '../icons'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { ScrollArea } from '../ui/scroll-area'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select'
+import { Separator } from '../ui/separator'
 import {
   isAfter,
   startOfMonth,
@@ -30,21 +44,6 @@ import { useMemo, useState } from 'react'
 import { ProjectCard } from '@/components/ProjectCard'
 import { Project, Service } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
-
-import { Docker } from './icons'
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { ScrollArea } from './ui/scroll-area'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select'
-import { Separator } from './ui/separator'
 
 interface ProjectFiltersProps {
   projects: Project[]
