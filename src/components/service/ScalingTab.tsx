@@ -277,25 +277,25 @@ const ScalingTab = ({
         return {
           name: 'Web Server',
           icon: Globe,
-          color: 'bg-blue-500/10 text-blue-400',
+          color: 'bg-primary/10 text-primary',
         }
       case 'worker':
         return {
           name: 'Background Worker',
           icon: Cog,
-          color: 'bg-green-500/10 text-green-400',
+          color: 'bg-success/10 text-success',
         }
       case 'scheduler':
         return {
           name: 'Scheduler',
           icon: Clock,
-          color: 'bg-purple-500/10 text-purple-400',
+          color: 'bg-secondary/10 text-secondary',
         }
       default:
         return {
           name: proc.charAt(0).toUpperCase() + proc.slice(1),
           icon: Settings2,
-          color: 'bg-gray-500/10 text-gray-400',
+          color: 'bg-muted/10 text-muted-foreground',
         }
     }
   }
@@ -309,8 +309,6 @@ const ScalingTab = ({
     resource[proc]?.reserve?.cpu ?? ''
   const getInitialReserveMemory = (proc: string) =>
     resource[proc]?.reserve?.memory ?? ''
-
-  // Simple and clean ResourceInputs component with better button clarity
 
   const ResourceInputs = ({
     form,
@@ -505,7 +503,7 @@ const ScalingTab = ({
   if (processTypes.length === 0) {
     return (
       <div className='space-y-6'>
-        <Alert>
+        <Alert variant='destructive'>
           <AlertTriangle className='h-4 w-4' />
           <AlertDescription>
             No process types found for this service. Make sure your service is
@@ -551,8 +549,8 @@ const ScalingTab = ({
               className='overflow-hidden rounded-lg border'>
               <AccordionTrigger className='bg-muted/30 px-4 py-3 hover:no-underline'>
                 <div className='flex items-center gap-3'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10'>
-                    <ArrowUp className='h-4 w-4 text-purple-400' />
+                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10'>
+                    <ArrowUp className='h-4 w-4 text-primary' />
                   </div>
                   <div className='text-left'>
                     <h3 className='text-lg font-semibold'>Process Scaling</h3>
@@ -711,8 +709,8 @@ const ScalingTab = ({
               className='overflow-hidden rounded-lg border'>
               <AccordionTrigger className='bg-muted/30 px-4 py-3 hover:no-underline'>
                 <div className='flex items-center gap-3'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10'>
-                    <Settings2 className='h-4 w-4 text-blue-400' />
+                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10'>
+                    <Settings2 className='h-4 w-4 text-primary' />
                   </div>
                   <div className='text-left'>
                     <h3 className='text-lg font-semibold'>Resource Limits</h3>
@@ -751,8 +749,8 @@ const ScalingTab = ({
               className='overflow-hidden rounded-lg border'>
               <AccordionTrigger className='bg-muted/30 px-4 py-3 hover:no-underline'>
                 <div className='flex items-center gap-3'>
-                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10'>
-                    <Shield className='h-4 w-4 text-green-400' />
+                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-success/10'>
+                    <Shield className='h-4 w-4 text-success' />
                   </div>
                   <div className='text-left'>
                     <h3 className='text-lg font-semibold'>
@@ -883,9 +881,9 @@ const ScalingTab = ({
             </div>
           </div>
 
-          <Alert className='mt-4 border-destructive/30 bg-destructive/10'>
-            <AlertTriangle className='h-4 w-4 text-destructive' />
-            <AlertDescription className='text-destructive'>
+          <Alert className='mt-4' variant='destructive'>
+            <AlertTriangle className='h-4 w-4' />
+            <AlertDescription>
               <strong>Important:</strong> Resource changes require redeploying
               your app to take effect. Scaling changes are applied immediately.
             </AlertDescription>
