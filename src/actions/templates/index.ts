@@ -194,31 +194,16 @@ export const getAllOfficialTemplatesAction = publicClient
   .action(async ({ clientInput }) => {
     const { type } = clientInput
 
-    if (type === 'official') {
-      const res = await fetch(
-        'https://dflow.sh/api/templates?where[type][equals]=official',
-      )
+    const res = await fetch(
+      `https://dflow.sh/api/templates?where[type][equals]=${type}&pagination=false`,
+    )
 
-      if (!res.ok) {
-        throw new Error('Failed to fetch official templates')
-      }
-
-      const data = await res.json()
-      return (data.docs ?? []) as Template[]
+    if (!res.ok) {
+      throw new Error('Failed to fetch official templates')
     }
 
-    if (type === 'community') {
-      const res = await fetch(
-        'https://dflow.sh/api/templates?where[type][equals]=community',
-      )
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch official templates')
-      }
-
-      const data = await res.json()
-      return (data.docs ?? []) as Template[]
-    }
+    const data = await res.json()
+    return (data.docs ?? []) as Template[]
   })
 
 export const getPersonalTemplatesAction = protectedClient
