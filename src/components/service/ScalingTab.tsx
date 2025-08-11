@@ -518,7 +518,7 @@ const ScalingTab = ({
 
   return (
     <div className='space-y-8 pb-12'>
-      <div className='flex items-center gap-1.5 mb-4'>
+      <div className='mb-4 flex items-center gap-1.5'>
         <BarChart3 />
         <h4 className='text-lg font-semibold'>Scaling</h4>
       </div>
@@ -540,118 +540,145 @@ const ScalingTab = ({
           </div>
         </CardHeader>
 
-        <CardContent className='space-y-4'>
-          <Form {...scalingForm}>
-            <form className='space-y-4'>
-              {processTypes.map((proc, index) => {
-                const processInfo = getProcessTypeDisplay(proc)
-                const currentScale = scale[proc] ?? 0
-                const hasChanges =
-                  scalingForm.watch(`scale_${proc}`) !== currentScale
-                const IconComponent = processInfo.icon
+        <CardContent>
+          <Accordion
+            type='multiple'
+            defaultValue={['scaling']}
+            className='space-y-4'>
+            {/* Process Scaling Accordion */}
+            <AccordionItem
+              value='scaling'
+              className='overflow-hidden rounded-lg border'>
+              <AccordionTrigger className='bg-muted/30 px-4 py-3 hover:no-underline'>
+                <div className='flex items-center gap-3'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10'>
+                    <ArrowUp className='h-4 w-4 text-purple-400' />
+                  </div>
+                  <div className='text-left'>
+                    <h3 className='text-lg font-semibold'>Process Scaling</h3>
+                    <p className='text-sm text-muted-foreground'>
+                      Scale the number of replicas for each process
+                    </p>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className='space-y-6 px-4 pb-2 pt-4'>
+                <Form {...scalingForm}>
+                  <form className='space-y-6'>
+                    {processTypes.map((proc, index) => {
+                      const processInfo = getProcessTypeDisplay(proc)
+                      const currentScale = scale[proc] ?? 0
+                      const hasChanges =
+                        scalingForm.watch(`scale_${proc}`) !== currentScale
+                      const IconComponent = processInfo.icon
 
-                return (
-                  <div key={proc}>
-                    <Card className='rounded-lg border p-4'>
-                      <div className='mb-4 flex items-center justify-between'>
-                        <div className='flex items-center gap-3'>
-                          <div
-                            className={`flex h-8 w-8 items-center justify-center rounded-md ${processInfo.color}`}>
-                            <IconComponent className='h-4 w-4' />
-                          </div>
-                          <div>
-                            <Badge variant='secondary' className='font-medium'>
-                              {processInfo.name}
-                            </Badge>
-                            <div className='mt-1 text-sm text-muted-foreground'>
-                              Current:{' '}
-                              <span className='font-medium text-foreground'>
-                                {currentScale}
-                              </span>{' '}
-                              replicas
+                      return (
+                        <div key={proc}>
+                          <div className='mb-4 flex items-center justify-between'>
+                            <div className='flex items-center gap-3'>
+                              <div
+                                className={`flex h-8 w-8 items-center justify-center rounded-md ${processInfo.color}`}>
+                                <IconComponent className='h-4 w-4' />
+                              </div>
+                              <div>
+                                <Badge
+                                  variant='secondary'
+                                  className='font-medium'>
+                                  {processInfo.name}
+                                </Badge>
+                                <div className='mt-1 text-sm text-muted-foreground'>
+                                  Current:{' '}
+                                  <span className='font-medium text-foreground'>
+                                    {currentScale}
+                                  </span>{' '}
+                                  replicas
+                                </div>
+                              </div>
                             </div>
                           </div>
+
+                          <div className='flex items-end gap-4'>
+                            <FormField
+                              control={scalingForm.control}
+                              name={`scale_${proc}`}
+                              render={({ field }) => (
+                                <FormItem className='flex-1'>
+                                  <FormLabel className='text-sm font-medium'>
+                                    Target Replicas
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      type='number'
+                                      min={0}
+                                      max={100}
+                                      {...field}
+                                      value={field.value?.toString() || ''}
+                                      onChange={e =>
+                                        field.onChange(
+                                          parseInt(e.target.value) || 0,
+                                        )
+                                      }
+                                      className='font-mono'
+                                      placeholder='0'
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <Button
+                              type='button'
+                              variant='outline'
+                              size='sm'
+                              onClick={() =>
+                                scalingForm.resetField(`scale_${proc}`)
+                              }
+                              disabled={
+                                scalingForm.watch(`scale_${proc}`) ===
+                                getInitialScale(proc)
+                              }
+                              className='flex min-w-[40px] items-center justify-center'
+                              title='Reset to initial value'>
+                              <RotateCcw className='h-4 w-4' />
+                              <span className='hidden sm:inline'>
+                                Undo Changes
+                              </span>
+                              <span className='sm:hidden'>Undo</span>
+                            </Button>
+
+                            <Button
+                              size='sm'
+                              onClick={() => handleScaleSubmit(proc)}
+                              disabled={
+                                loading[`scale-${proc}`] ||
+                                scalingForm.watch(`scale_${proc}`) ===
+                                  getInitialScale(proc)
+                              }
+                              className='min-w-[120px]'>
+                              {loading[`scale-${proc}`] ? (
+                                <>
+                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                  Scaling...
+                                </>
+                              ) : (
+                                <>
+                                  <ArrowUp className='mr-2 h-4 w-4' />
+                                  Scale
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                          {index < processTypes.length - 1 && (
+                            <Separator className='my-4' />
+                          )}
                         </div>
-                      </div>
-
-                      <div className='flex items-end gap-4'>
-                        <FormField
-                          control={scalingForm.control}
-                          name={`scale_${proc}`}
-                          render={({ field }) => (
-                            <FormItem className='flex-1'>
-                              <FormLabel className='text-sm font-medium'>
-                                Target Replicas
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  type='number'
-                                  min={0}
-                                  max={100}
-                                  {...field}
-                                  value={field.value?.toString() || ''}
-                                  onChange={e =>
-                                    field.onChange(
-                                      parseInt(e.target.value) || 0,
-                                    )
-                                  }
-                                  className='font-mono'
-                                  placeholder='0'
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Button
-                          type='button'
-                          variant='outline'
-                          size='sm'
-                          onClick={() =>
-                            scalingForm.resetField(`scale_${proc}`)
-                          }
-                          disabled={
-                            scalingForm.watch(`scale_${proc}`) ===
-                            getInitialScale(proc)
-                          }
-                          className='flex min-w-[40px] items-center justify-center'
-                          title='Reset to initial value'>
-                          <RotateCcw className='h-4 w-4' />
-                          <span className='hidden sm:inline'>Undo Changes</span>
-                          <span className='sm:hidden'>Undo</span>
-                        </Button>
-
-                        <Button
-                          size='sm'
-                          onClick={() => handleScaleSubmit(proc)}
-                          disabled={
-                            loading[`scale-${proc}`] ||
-                            scalingForm.watch(`scale_${proc}`) ===
-                              getInitialScale(proc)
-                          }
-                          className='min-w-[120px]'>
-                          {loading[`scale-${proc}`] ? (
-                            <>
-                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              Scaling...
-                            </>
-                          ) : (
-                            <>
-                              <ArrowUp className='mr-2 h-4 w-4' />
-                              Scale
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </Card>
-                    {index < processTypes.length - 1 && (
-                      <Separator className='my-4' />
-                    )}
-                  </div>
-                )
-              })}
-            </form>
-          </Form>
+                      )
+                    })}
+                  </form>
+                </Form>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
 
