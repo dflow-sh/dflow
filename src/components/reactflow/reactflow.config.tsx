@@ -76,10 +76,7 @@ const ReactFlowConfig = ({
           gap={32}
           className='bg-base-100 text-base-content/80'
         />
-        <Controls
-          position='center-left'
-          className='bg-primary-foreground text-muted'
-        />
+        <Controls position='center-left' className='bg-primary-foreground' />
         {children}
       </ReactFlow>
     </div>
