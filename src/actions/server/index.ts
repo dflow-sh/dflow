@@ -31,6 +31,7 @@ import {
   uninstallDokkuSchema,
   updateRailpackSchema,
   updateServerDomainSchema,
+  updateServerResourceLimitsSchema,
   updateServerSchema,
   updateTailscaleServerSchema,
 } from './validator'
@@ -155,6 +156,41 @@ export const updateServerAction = protectedClient
     }
 
     return { success: true, server: response }
+  })
+
+export const updateServerResourceLimitsAction = protectedClient
+  .metadata({
+    actionName: 'updateServerResourceLimitsAction',
+  })
+  .schema(updateServerResourceLimitsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    try {
+      const { id, defaultResourceLimits } = clientInput
+      const { payload, user } = ctx
+
+      const response = await payload.update({
+        collection: 'servers',
+        id,
+        data: { defaultResourceLimits },
+        user,
+      })
+
+      if (response) {
+        revalidatePath(`/servers/${id}`)
+      }
+
+      return { success: true, server: response }
+    } catch (error) {
+      console.error('Failed to update server resource limits:', error)
+
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update resource limits',
+      }
+    }
   })
 
 export const deleteServerAction = protectedClient
