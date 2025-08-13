@@ -75,8 +75,19 @@ export const DynamicFilterPanel = <T,>({
   }
 
   const handleRemoveFilter = (key: string, value?: any) => {
-    const newFilters = filterEngine.removeFilter(filters, key, value)
-    onFiltersChange(newFilters)
+    // Find the filter config to determine filter type
+    const filterConfig = enrichedSchema.find(config => config.key === key)
+
+    // For text-based filters, clear the entire filter instead of trying to remove a specific value
+    if (filterConfig?.type === 'search') {
+      const newFilters = { ...filters }
+      delete newFilters[key]
+      onFiltersChange(newFilters)
+    } else {
+      // For other filter types (multi-select, etc.), use the existing logic
+      const newFilters = filterEngine.removeFilter(filters, key, value)
+      onFiltersChange(newFilters)
+    }
   }
 
   const groupedSchema = useMemo(() => {

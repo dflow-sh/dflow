@@ -103,22 +103,22 @@ export const Servers: CollectionConfig = {
           name: 'cpu',
           type: 'text',
           label: 'Default CPU Limit',
-          defaultValue: '500m',
+          defaultValue: '0.5',
           admin: {
-            placeholder: 'e.g. 500m, 1, 2',
+            placeholder: 'e.g., 0.5, 1.0, 2.0',
             description:
-              'Set the default CPU limit for new services (e.g., 500m, 1, 2).',
+              'Set the default CPU limit for new services using fractional cores only (e.g., 0.5, 1.0, 2.0). Millicores (500m) are NOT supported.',
           },
         },
         {
           name: 'memory',
           type: 'text',
           label: 'Default Memory Limit',
-          defaultValue: '512M',
+          defaultValue: '512m',
           admin: {
-            placeholder: 'e.g. 512M, 1G',
+            placeholder: 'e.g., 512m, 1g, 2g',
             description:
-              'Set the default memory limit for new services (e.g., 512M, 1G).',
+              'Set the default memory limit for new services using lowercase units only (e.g., 512m, 1g). Binary units (Mi, Gi) are NOT supported.',
           },
         },
       ],
