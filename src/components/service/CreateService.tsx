@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  Docker,
-  Git,
-  MariaDB,
-  MongoDB,
-  MySQL,
-  PostgreSQL,
-  Redis,
-} from '../icons'
+import { Docker, Git } from '../icons'
 import {
   Accordion,
   AccordionContent,
@@ -73,37 +65,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { databaseOptions } from '@/lib/constants'
 import { ServiceType } from '@/lib/server/resourceCheck'
 import { slugify } from '@/lib/slugify'
 import { Project, Server as ServerType } from '@/payload-types'
-
-const databaseOptions = [
-  {
-    label: 'Postgres',
-    value: 'postgres',
-    icon: PostgreSQL,
-  },
-  {
-    label: 'MongoDB',
-    value: 'mongo',
-    icon: MongoDB,
-  },
-  {
-    label: 'MySQL',
-    value: 'mysql',
-    icon: MySQL,
-  },
-  {
-    label: 'MariaDB',
-    value: 'mariadb',
-    icon: MariaDB,
-  },
-  {
-    label: 'Redis',
-    value: 'redis',
-    icon: Redis,
-  },
-]
 
 const formatBytes = (bytes: number, unit: 'MB' | 'GB' = 'MB') => {
   if (unit === 'GB') {

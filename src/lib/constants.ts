@@ -1,3 +1,5 @@
+import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+
 export const supportedLinuxVersions = ['11', '12', '20.04', '22.04', '24.04']
 
 export const supportedDokkuVersion = '0.35.15'
@@ -82,22 +84,27 @@ export const databaseOptions = [
   {
     label: 'Postgres',
     value: 'postgres',
+    icon: PostgreSQL,
   },
   {
     label: 'MongoDB',
     value: 'mongo',
+    icon: MongoDB,
   },
   {
     label: 'MySQL',
     value: 'mysql',
-  },
-  {
-    label: 'Redis',
-    value: 'redis',
+    icon: MySQL,
   },
   {
     label: 'MariaDB',
     value: 'mariadb',
+    icon: MariaDB,
+  },
+  {
+    label: 'Redis',
+    value: 'redis',
+    icon: Redis,
   },
 ]
 
