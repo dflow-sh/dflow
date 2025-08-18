@@ -21,6 +21,7 @@ import { addStopDatabaseQueue } from '@/queues/database/stop'
 import { addManageServiceDomainQueue } from '@/queues/domain/manage'
 import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
 import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regenerate'
+import { addCreateServiceWithPluginsQueue } from '@/queues/service/createWithPlugins'
 import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
 
 import {
@@ -100,8 +101,6 @@ export const createServiceAction = protectedClient
     const sshDetails = extractSSHDetails({ server })
 
     try {
-      ssh = await dynamicSSH(sshDetails)
-
       // Commented: Resource capability check - now allows creation regardless of resources
       // const resourceCheck = await checkServerResources(ssh, {
       //   serviceType: type,
@@ -119,6 +118,8 @@ export const createServiceAction = protectedClient
       }
 
       if (type === 'app' || type === 'docker') {
+        ssh = await dynamicSSH(sshDetails)
+
         // Creating app in dokku
         const appsCreationResponse = await dokku.apps.create(ssh, serviceName)
 
@@ -172,12 +173,12 @@ export const createServiceAction = protectedClient
           }
         }
       } else if (databaseType) {
-        const databaseList = await dokku.database.list(ssh, databaseType)
+        // const databaseList = await dokku.database.list(ssh, databaseType)
 
         // Throwing a error if database is already created
-        if (databaseList.includes(serviceName)) {
-          throw new Error('Name is already taken!')
-        }
+        // if (databaseList.includes(serviceName)) {
+        //   throw new Error('Name is already taken!')
+        // }
 
         const databaseResponse = await payload.create({
           collection: 'services',
@@ -216,6 +217,43 @@ export const createServiceAction = protectedClient
       if (ssh) {
         ssh.dispose()
       }
+    }
+  })
+
+export const createServiceWithPluginAction = protectedClient
+  .metadata({
+    actionName: 'createServiceWithPluginAction',
+  })
+  .schema(createServiceSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { name, description, projectId, type, databaseType } = clientInput
+    const {
+      userTenant: { tenant },
+      user,
+    } = ctx
+
+    try {
+      const job = await addCreateServiceWithPluginsQueue({
+        name,
+        description,
+        projectId,
+        type,
+        databaseType,
+        userId: user.id,
+        tenantId: tenant.id,
+        tenantSlug: tenant.slug,
+      })
+
+      revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
+
+      return {
+        success: true,
+        jobId: job.id,
+        message: 'Service creation started',
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      throw new Error(message)
     }
   })
 
