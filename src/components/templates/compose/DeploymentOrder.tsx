@@ -134,11 +134,11 @@ const NodeComponent = ({ node, index }: { node: Node; index: number }) => {
         ? databaseIcons[service?.databaseDetails?.type]
         : icon[service.type]}
 
-      <span title={service.name} className='flex-grow truncate'>
+      <span title={service.name} className='grow truncate'>
         {service.name}
       </span>
 
-      <GripVertical className='flex-shrink-0' size={16} />
+      <GripVertical className='shrink-0' size={16} />
     </Reorder.Item>
   )
 }

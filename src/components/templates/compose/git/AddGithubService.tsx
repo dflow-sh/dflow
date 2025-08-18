@@ -278,7 +278,7 @@ const AddGithubService = ({
                 }
               }}
               className='flex gap-4'>
-              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
                 <RadioGroupItem
                   value='public'
                   id='r2'
@@ -294,7 +294,7 @@ const AddGithubService = ({
                   </div>
                 </div>
               </div>
-              <div className='has-data-[state=checked]:border-ring shadow-xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+              <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
                 <RadioGroupItem
                   value='private'
                   id='r3'
@@ -434,7 +434,7 @@ const AddGithubService = ({
                   control={form.control}
                   name='provider'
                   render={({ field }) => (
-                    <FormItem className='mt-[-0.5rem]'>
+                    <FormItem className='-mt-2'>
                       <FormControl>
                         <SelectSearch
                           fieldValue={field.value}
@@ -640,7 +640,7 @@ const AddGithubService = ({
                         className='flex w-full items-center space-x-3 space-y-0'
                         key={value}>
                         <FormControl>
-                          <div className='has-data-[state=checked]:border-ring shadow-xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-none'>
+                          <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
                             <RadioGroupItem
                               value={value}
                               id={value}

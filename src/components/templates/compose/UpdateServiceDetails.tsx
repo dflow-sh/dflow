@@ -120,14 +120,14 @@ const UpdateServiceDetails = ({
       {open && (
         <div
           className={cn(
-            'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-[#171d33] px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
+            'fixed right-4 top-38 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-[#171d33] px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
           )}>
           <div
             onClick={() => {
               setOpen(false)
               setActiveTab('settings')
             }}
-            className='focus:ring-none text-base-content absolute right-4 top-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
+            className='focus:ring-none text-base-content absolute right-4 top-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none'>
             <X className='h-4 w-4' />
             <span className='sr-only'>Close</span>
           </div>
@@ -367,7 +367,7 @@ const ReferenceVariableDropdown = ({
           className='absolute right-2 top-1.5 h-6 w-6 rounded-sm'
           size='icon'
           variant='outline'>
-          <Braces className='!h-3 !w-3' />
+          <Braces className='h-3! w-3!' />
         </Button>
       </DropdownMenuTrigger>
 

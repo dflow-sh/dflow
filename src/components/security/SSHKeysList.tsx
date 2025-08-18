@@ -69,8 +69,8 @@ const SSHKeyItem = ({
   return (
     <>
       <Card className='transition-shadow hover:shadow-md'>
-        <CardContent className='grid h-full w-full grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-4'>
-          <KeyRound className='flex-shrink-0' size={20} />
+        <CardContent className='grid h-full w-full grid-cols-[auto_1fr_auto_auto] items-center gap-4 p-4'>
+          <KeyRound className='shrink-0' size={20} />
 
           <div className='min-w-0 space-y-1 overflow-hidden'>
             <div className='flex items-center gap-2'>
@@ -94,7 +94,7 @@ const SSHKeyItem = ({
             )}
           </div>
 
-          <Badge variant={isConnectedToServers ? 'info' : 'outline'}>
+          <Badge variant={isConnectedToServers ? 'info' : 'outline-solid'}>
             <LinkIcon className='mr-1 h-3 w-3' />
             {isConnectedToServers
               ? `${connectedServers.length} Server${connectedServers.length > 1 ? 's' : ''}`

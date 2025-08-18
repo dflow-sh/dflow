@@ -321,8 +321,8 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
           <CardContent className='p-4'>
             <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
               <div className='flex items-start gap-3'>
-                <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted'>
-                  <CreditCard className='h-5 w-5 text-muted-foreground' />
+                <div className='bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full'>
+                  <CreditCard className='text-muted-foreground h-5 w-5' />
                 </div>
                 <div>
                   <p className='font-medium'>Payment Setup Required</p>
@@ -330,7 +330,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                     <span className='text-muted-foreground'>
                       Add a payment method or top up your wallet
                     </span>
-                    <span className='hidden text-muted-foreground sm:inline'>
+                    <span className='text-muted-foreground hidden sm:inline'>
                       •
                     </span>
                     <span className='font-semibold'>
@@ -369,7 +369,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         <div className='flex flex-col items-center gap-4 py-8'>
           <div className='text-center'>
             <h3 className='text-lg font-medium'>Connect Your dFlow Account</h3>
-            <p className='mt-2 text-sm text-muted-foreground'>
+            <p className='text-muted-foreground mt-2 text-sm'>
               You need to connect a dFlow account to create VPS instances
             </p>
           </div>
@@ -419,16 +419,16 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                       key={plan.slug}
                       className={`relative flex w-full items-start rounded-md border ${
                         selectedOption === plan.slug
-                          ? 'border-2 border-primary'
+                          ? 'border-primary border-2'
                           : 'border-input'
-                      } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                      } hover:border-primary/50 cursor-pointer p-4 transition-all duration-200`}>
                       <RadioGroupItem
                         value={String(plan.slug)}
                         id={`${id}-${plan.slug}`}
                         className='order-1 after:absolute after:inset-0'
                       />
                       <div className='flex grow gap-4'>
-                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                        <div className='bg-secondary flex h-10 w-10 items-center justify-center rounded-full'>
                           <Server className='size-4' />
                         </div>
 
@@ -441,13 +441,13 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                             </Label>
                           </div>
 
-                          <p className='text-sm text-muted-foreground'>
+                          <p className='text-muted-foreground text-sm'>
                             {formatSpecs(plan)}
                           </p>
                           <div className='flex flex-col gap-1'>
                             <div className='flex items-center gap-2'>
                               <span
-                                className={`text-sm font-medium text-primary`}>
+                                className={`text-primary text-sm font-medium`}>
                                 {formatDiscountedPrice(plan, walletBalance)}
                               </span>
                             </div>
@@ -517,7 +517,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                                         <span className={`font-medium`}>
                                           Final: ${finalPrice.toFixed(2)}
                                         </span>
-                                        <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs text-foreground'>
+                                        <span className='bg-primary text-foreground rounded-md px-1.5 py-0.5 text-xs'>
                                           -${creditsApplied.toFixed(2)} credits
                                         </span>
                                       </div>
@@ -608,7 +608,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
             <h2 className='text-2xl font-semibold'>
               Choose a Deployment Option
             </h2>
-            <p className='mt-1 text-muted-foreground'>
+            <p className='text-muted-foreground mt-1'>
               Select a cloud provider or add server details manually
             </p>
           </div>
@@ -629,7 +629,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
 
       <div className='space-y-6'>
         {/* dFlow Section */}
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardHeader className='pb-0'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-3'>
@@ -669,7 +669,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         </Card>
 
         {/* Cloud Providers Section */}
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardHeader className='pb-0'>
             <CardTitle className='flex items-center text-lg font-medium'>
               Cloud Providers
@@ -695,12 +695,12 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                     <div
                       className={`relative flex w-full items-start rounded-md border ${
                         selectedOption === slug
-                          ? 'border-2 border-primary'
+                          ? 'border-primary border-2'
                           : 'border-input'
                       } p-4 transition-all duration-200 ${
                         !live
                           ? 'cursor-not-allowed opacity-60'
-                          : 'cursor-pointer hover:border-primary/50'
+                          : 'hover:border-primary/50 cursor-pointer'
                       }`}>
                       <RadioGroupItem
                         value={slug}
@@ -709,7 +709,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         className='order-1 after:absolute after:inset-0'
                       />
                       <div className='flex grow items-center gap-4'>
-                        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                        <div className='bg-secondary flex h-10 w-10 items-center justify-center rounded-full'>
                           {Icon && <Icon className='h-5 w-5' />}
                         </div>
                         <div>
@@ -729,7 +729,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
         </Card>
 
         {/* Manual Configuration Section */}
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardHeader className='pb-0'>
             <CardTitle className='flex items-center text-lg font-medium'>
               Manual Configuration
@@ -751,16 +751,16 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
               <div
                 className={`relative flex w-full items-start rounded-md border ${
                   selectedOption === 'manual'
-                    ? 'border-2 border-primary'
+                    ? 'border-primary border-2'
                     : 'border-input'
-                } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                } hover:border-primary/50 cursor-pointer p-4 transition-all duration-200`}>
                 <RadioGroupItem
                   value='manual'
                   id={`${id}-manual`}
                   className='order-1 after:absolute after:inset-0'
                 />
                 <div className='flex grow items-center gap-4'>
-                  <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary'>
+                  <div className='bg-secondary flex h-10 w-10 items-center justify-center rounded-full'>
                     <Server className='size-4' />
                   </div>
                   <div>
@@ -769,7 +769,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                       className='cursor-pointer font-medium'>
                       Manual Setup
                     </Label>
-                    <p className='text-sm text-muted-foreground'>
+                    <p className='text-muted-foreground text-sm'>
                       Bring your own server details
                     </p>
                   </div>
@@ -827,7 +827,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
           </Button>
           <h2 className='text-xl font-semibold'>No Server Type Selected</h2>
         </div>
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardContent className='p-6'>
             <Alert variant='warning'>
               <AlertCircle className='h-4 w-4' />
@@ -1020,7 +1020,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
       </div>
 
       {!validation.isValid ? (
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardContent className='p-6'>
             <div className='space-y-4'>
               <Alert variant='destructive'>
@@ -1045,7 +1045,7 @@ const ServerFormContent: React.FC<ServerFormContentProps> = ({
       ) : type === 'manual' && option === 'manual' ? (
         renderFormComponent(type, option)
       ) : (
-        <Card className='border shadow-sm'>
+        <Card className='border shadow-xs'>
           <CardContent className='p-6'>
             {renderFormComponent(type, option)}
           </CardContent>

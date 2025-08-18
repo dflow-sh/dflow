@@ -181,7 +181,7 @@ const ServiceList = ({
         <DropdownMenuTrigger asChild>
           <button
             type='button'
-            className='rounded-full p-1 hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary'
+            className='rounded-full p-1 hover:bg-muted focus:outline-hidden focus:ring-2 focus:ring-primary'
             onClick={e => e.stopPropagation()}
             aria-label='Open menu'>
             <MoreVertical size={18} />

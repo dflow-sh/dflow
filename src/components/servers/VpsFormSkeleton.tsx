@@ -49,7 +49,7 @@ const VpsFormSkeleton = () => {
   return (
     <section className='flex flex-col'>
       <div>
-        <span className='bg-gradient-to-r from-slate-200/60 via-slate-200 to-slate-200/60 bg-clip-text text-lg font-bold text-transparent md:text-2xl'>
+        <span className='bg-linear-to-r from-slate-200/60 via-slate-200 to-slate-200/60 bg-clip-text text-lg font-bold text-transparent md:text-2xl'>
           VPS Configuration
         </span>
       </div>

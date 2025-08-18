@@ -119,7 +119,7 @@ const UpdateEC2InstanceForm = ({
   }
 
   return (
-    <div className='space-y-6 rounded bg-muted/30 p-4'>
+    <div className='bg-muted/30 space-y-6 rounded p-4'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
           {/* Basic Information - Editable */}
@@ -180,7 +180,7 @@ const UpdateEC2InstanceForm = ({
                   />
                 </div>
               </div>
-              <p className='mt-1 text-xs text-muted-foreground'>
+              <p className='text-muted-foreground mt-1 text-xs'>
                 SSH keys cannot be updated after instance creation
               </p>
             </FormItem>

@@ -133,7 +133,7 @@ export default function BannerComponent({ banners }: BannerProps) {
           <Button
             variant='ghost'
             size='icon'
-            className={`absolute left-2 top-1/2 z-10 size-6 -translate-y-1/2`}
+            className={`absolute top-1/2 left-2 z-10 size-6 -translate-y-1/2`}
             onClick={scrollToPrev}>
             <ChevronLeft className='h-4 w-4' />
             <span className='sr-only'>Previous banner</span>
@@ -142,7 +142,7 @@ export default function BannerComponent({ banners }: BannerProps) {
           <Button
             variant='ghost'
             size='icon'
-            className={`absolute right-2 top-1/2 z-10 size-6 -translate-y-1/2`}
+            className={`absolute top-1/2 right-2 z-10 size-6 -translate-y-1/2`}
             onClick={scrollToNext}>
             <ChevronRight className='h-4 w-4' />
             <span className='sr-only'>Next banner</span>
@@ -158,11 +158,11 @@ export default function BannerComponent({ banners }: BannerProps) {
           <div
             key={banner.id}
             className={cn(
-              'relative flex w-full flex-shrink-0 snap-start items-center justify-center px-6 py-1 transition-colors duration-200',
+              'relative flex w-full shrink-0 snap-start items-center justify-center px-6 py-1 transition-colors duration-200',
               variantStyles[banner.variant ?? 'info'],
             )}>
             <div className='mx-auto flex max-w-7xl items-center justify-center gap-3'>
-              <div className='flex-shrink-0'>
+              <div className='shrink-0'>
                 {bannerTypeIcon[banner.type] && (
                   <span className='text-lg'>{bannerTypeIcon[banner.type]}</span>
                 )}

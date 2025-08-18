@@ -128,12 +128,12 @@ const GeneralTab = ({
           </div>
 
           <p
-            className='line-clamp-1 text-muted-foreground'
+            className='text-muted-foreground line-clamp-1'
             title={service.description || undefined}>
             {service.description}
           </p>
 
-          <div className='flex items-center gap-2 text-muted-foreground'>
+          <div className='text-muted-foreground flex items-center gap-2'>
             {domains?.length ? (
               <>
                 <Globe size={16} />
@@ -141,7 +141,7 @@ const GeneralTab = ({
                   href={`//${domains[0].domain}`}
                   target='_blank'
                   rel='noopener noreferrer'>
-                  <div className='flex items-center gap-x-1 text-sm hover:text-primary'>
+                  <div className='hover:text-primary flex items-center gap-x-1 text-sm'>
                     {domains[0].domain}
                     <ExternalLink size={14} />
                   </div>
@@ -160,7 +160,7 @@ const GeneralTab = ({
                     {domains?.slice(1).map((domain, index) => (
                       <div
                         key={index}
-                        className='flex items-center gap-x-1 text-sm hover:text-primary'>
+                        className='hover:text-primary flex items-center gap-x-1 text-sm'>
                         <Link
                           href={`//${domain.domain}`}
                           target='_blank'

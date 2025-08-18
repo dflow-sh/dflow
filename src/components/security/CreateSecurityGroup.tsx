@@ -59,14 +59,14 @@ const CreateSecurityGroup = ({
       <DialogContent
         className={`${isFullScreen ? 'm-0 h-screen max-h-screen w-screen max-w-none p-6' : 'max-w-4xl'}`}>
         <div className={`flex flex-col ${isFullScreen ? 'h-full' : ''}`}>
-          <DialogHeader className='mb-0 flex-shrink-0'>
+          <DialogHeader className='mb-0 shrink-0'>
             <DialogTitle>
               {type === 'update' ? 'Edit Security Group' : 'Add Security Group'}
             </DialogTitle>
             <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
 
-          <div className='absolute right-12 top-2'>
+          <div className='absolute top-2 right-12'>
             <Button
               variant='ghost'
               size='icon'

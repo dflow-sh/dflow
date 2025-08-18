@@ -48,7 +48,7 @@ const ProjectTabsList: React.FC<{
           />
         </div>
 
-        <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
+        <div className='absolute bottom-0 z-[-10] h-px w-full bg-border' />
       </div>
 
       <main

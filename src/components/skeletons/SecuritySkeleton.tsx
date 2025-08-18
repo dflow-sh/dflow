@@ -6,7 +6,7 @@ export const SecuritySkeleton = () => {
       {/* Tab List */}
       <div className='w-full'>
         <div className='mb-4 grid h-9 w-full max-w-md grid-cols-2 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground'>
-          <div className='flex h-7 items-center justify-center gap-2 rounded-md bg-background px-3 shadow'>
+          <div className='flex h-7 items-center justify-center gap-2 rounded-md bg-background px-3 shadow-sm'>
             <Skeleton className='h-4 w-4' /> {/* Tab icon */}
             <Skeleton className='h-4 w-16' /> {/* Tab text */}
             <Skeleton className='ml-1 h-4 w-6 rounded-md' /> {/* Count badge */}
@@ -21,7 +21,7 @@ export const SecuritySkeleton = () => {
         {/* Tab Panel Content */}
         <div className='mt-4'>
           {/* Card container */}
-          <div className='rounded-xl border bg-muted/30 text-card-foreground shadow'>
+          <div className='rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
             <div className='flex flex-col space-y-1.5 p-6'>
               <div className='flex items-center justify-between'>
                 <Skeleton className='h-8 w-32' /> {/* Card title */}
@@ -34,7 +34,7 @@ export const SecuritySkeleton = () => {
             <div className='p-6 pt-0'>
               <div className='mt-4 w-full space-y-4'>
                 {/* SSH Key Item 1 */}
-                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow'>
+                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
                   <div className='flex h-24 w-full items-center justify-between gap-3 p-6 pt-4'>
                     <div className='flex items-center gap-3'>
                       <Skeleton className='h-8 w-8 rounded-full' /> {/* Icon */}
@@ -54,7 +54,7 @@ export const SecuritySkeleton = () => {
                 </div>
 
                 {/* SSH Key Item 2 */}
-                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow'>
+                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
                   <div className='flex h-24 w-full items-center justify-between gap-3 p-6 pt-4'>
                     <div className='flex items-center gap-3'>
                       <Skeleton className='h-8 w-8 rounded-full' /> {/* Icon */}
@@ -74,7 +74,7 @@ export const SecuritySkeleton = () => {
                 </div>
 
                 {/* SSH Key Item 3 */}
-                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow'>
+                <div className='rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
                   <div className='flex h-24 w-full items-center justify-between gap-3 p-6 pt-4'>
                     <div className='flex items-center gap-3'>
                       <Skeleton className='h-8 w-8 rounded-full' /> {/* Icon */}

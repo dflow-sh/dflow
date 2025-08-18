@@ -391,7 +391,7 @@ const CreateEC2InstanceForm = ({
                     disabled
                     className='bg-muted'
                   />
-                  <p className='mt-1 text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground mt-1 text-xs'>
                     SSH keys cannot be updated after instance creation
                   </p>
                 </>
