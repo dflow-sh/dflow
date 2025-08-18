@@ -357,11 +357,11 @@ export interface Server {
    */
   defaultResourceLimits?: {
     /**
-     * Set the default CPU limit for new services (e.g., 500m, 1, 2).
+     * Set the default CPU limit for new services using fractional cores only (e.g., 0.5, 1.0, 2.0). Millicores (500m) are NOT supported.
      */
     cpu?: string | null;
     /**
-     * Set the default memory limit for new services (e.g., 512M, 1G).
+     * Set the default memory limit for new services using lowercase units only (e.g., 512m, 1g). Binary units (Mi, Gi) are NOT supported.
      */
     memory?: string | null;
   };

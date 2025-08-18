@@ -25,6 +25,7 @@ export const getActionAccess = {
     'projects.read',
     'securityGroups.read',
   ],
+  updateServerResourceLimitsAction: ['servers.update'],
 
   // Plugin actions
   installPluginAction: ['servers.update'],
@@ -209,7 +210,7 @@ export const getActionAccess = {
     'projects.read',
     'projects.create',
     'services.create',
-  ]
+  ],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

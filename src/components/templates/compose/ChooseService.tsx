@@ -351,6 +351,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
           setEdges={setEdges}
           service={nodes?.find(node => node?.id === serviceId)?.data as any}
         />
+
         {menu && (
           <ContextMenu
             nodes={nodes}
