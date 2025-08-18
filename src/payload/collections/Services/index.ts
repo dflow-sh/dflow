@@ -27,7 +27,10 @@ const databaseField: Field = {
         {
           name: 'type',
           type: 'select',
-          options: databaseOptions,
+          options: databaseOptions.map(option => ({
+            label: option.label,
+            value: option.value,
+          })),
         },
         {
           name: 'username',

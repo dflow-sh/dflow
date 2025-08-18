@@ -1,6 +1,6 @@
 import { addDeployQueue } from '../app/deploy'
 import { addDockerImageDeploymentQueue } from '../app/dockerImage-deployment'
-import { addCreateDatabaseQueue } from '../database/create'
+import { addCreateDatabaseWithPluginsQueue } from '../database/createWithPlugins'
 import { addExposeDatabasePortQueue } from '../database/expose'
 import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
 import { updateVolumesQueue } from '../volume/updateVolumesQueue'
@@ -341,19 +341,20 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             if (type === 'database' && serviceDetails.databaseDetails?.type) {
               const { exposedPorts = [] } = serviceDetails?.databaseDetails
               // add ports exposing process
-              const databaseQueueResponse = await addCreateDatabaseQueue({
-                databaseName: serviceDetails.name,
-                databaseType: serviceDetails.databaseDetails?.type,
-                sshDetails,
-                serviceDetails: {
-                  id: serviceDetails.id,
-                  deploymentId: deploymentResponse.id,
-                  serverId: project.server.id,
-                },
-                tenant: {
-                  slug: tenantDetails.slug,
-                },
-              })
+              const databaseQueueResponse =
+                await addCreateDatabaseWithPluginsQueue({
+                  databaseName: serviceDetails.name,
+                  databaseType: serviceDetails.databaseDetails?.type,
+                  sshDetails,
+                  serviceDetails: {
+                    id: serviceDetails.id,
+                    deploymentId: deploymentResponse.id,
+                    serverId: project.server.id,
+                  },
+                  tenant: {
+                    slug: tenantDetails.slug,
+                  },
+                })
 
               await waitForJobCompletion(databaseQueueResponse)
 

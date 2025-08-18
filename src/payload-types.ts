@@ -839,7 +839,7 @@ export interface Service {
     port?: number | null;
   };
   databaseDetails?: {
-    type?: ('postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb') | null;
+    type?: ('postgres' | 'mongo' | 'mysql' | 'mariadb' | 'redis') | null;
     username?: string | null;
     password?: string | null;
     host?: string | null;

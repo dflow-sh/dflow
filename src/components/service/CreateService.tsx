@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  Docker,
-  Git,
-  MariaDB,
-  MongoDB,
-  MySQL,
-  PostgreSQL,
-  Redis,
-} from '../icons'
+import { Docker, Git } from '../icons'
 import {
   Accordion,
   AccordionContent,
@@ -30,7 +22,7 @@ import {
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -38,6 +30,7 @@ import { z } from 'zod'
 import {
   checkServerResourcesAction,
   createServiceAction,
+  createServiceWithPluginAction,
 } from '@/actions/service'
 import { createServiceSchema } from '@/actions/service/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -73,37 +66,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { databaseOptions } from '@/lib/constants'
 import { ServiceType } from '@/lib/server/resourceCheck'
 import { slugify } from '@/lib/slugify'
 import { Project, Server as ServerType } from '@/payload-types'
-
-const databaseOptions = [
-  {
-    label: 'Postgres',
-    value: 'postgres',
-    icon: PostgreSQL,
-  },
-  {
-    label: 'MongoDB',
-    value: 'mongo',
-    icon: MongoDB,
-  },
-  {
-    label: 'MySQL',
-    value: 'mysql',
-    icon: MySQL,
-  },
-  {
-    label: 'MariaDB',
-    value: 'mariadb',
-    icon: MariaDB,
-  },
-  {
-    label: 'Redis',
-    value: 'redis',
-    icon: Redis,
-  },
-]
 
 const formatBytes = (bytes: number, unit: 'MB' | 'GB' = 'MB') => {
   if (unit === 'GB') {
@@ -344,7 +310,7 @@ const CreateService = ({
     },
   })
 
-  const { execute, isPending } = useAction(createServiceAction, {
+  const { execute: createService, isPending } = useAction(createServiceAction, {
     onSuccess: ({ data, input }) => {
       if (data?.success) {
         if (data.redirectUrl) {
@@ -359,6 +325,21 @@ const CreateService = ({
     },
   })
 
+  const { execute: createServiceWithPlugin, isPending: isPluginPending } =
+    useAction(createServiceWithPluginAction, {
+      onSuccess: ({ data, input }) => {
+        if (data?.success) {
+          toast.success(
+            `Service creation started for ${input.name}. Installing required plugins...`,
+          )
+          setOpen(false)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to create service: ${error.serverError}`)
+      },
+    })
+
   const form = useForm<z.infer<typeof createServiceSchema>>({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
@@ -367,7 +348,13 @@ const CreateService = ({
     },
   })
 
-  const { type } = useWatch({ control: form.control })
+  const { type, databaseType } = useWatch({ control: form.control })
+
+  const needsPluginInstallation =
+    databaseType &&
+    !plugins?.some(
+      plugin => plugin.name === databaseType && plugin.status === 'enabled',
+    )
 
   const handleResourceCheck = async (serviceType: ServiceType) => {
     if (!serviceType) return
@@ -406,22 +393,38 @@ const CreateService = ({
       )
     }
 
-    execute(values)
+    createService(values)
+
+    // if (needsPluginInstallation) {
+    //   createServiceWithPlugin(values)
+    // } else {
+    //   createService(values)
+    // }
   }
+
+  const isFormValid = form.formState.isValid
+  const submitDisabled = isPending || isPluginPending || !isFormValid
 
   const createButton = (
     <Button
       disabled={disableCreateButton}
       className='disabled:cursor-not-allowed'>
-      <Plus className='mr-2' />
-      Create Service
+      {isPending || isPluginPending ? (
+        <>
+          <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+          {needsPluginInstallation ? 'Installing & Creating...' : 'Creating...'}
+        </>
+      ) : (
+        <>
+          <Plus className='mr-2 h-4 w-4' />
+          Create Service
+        </>
+      )}
     </Button>
   )
 
   // Commented: Resource-based form validation - now only checks form validity
   // const isFormValid = resourceStatus?.data?.capable && form.formState.isValid
-  const isFormValid = form.formState.isValid
-  const submitDisabled = isPending || !isFormValid
 
   return (
     <>
@@ -433,26 +436,34 @@ const CreateService = ({
             form.reset()
           }
         }}>
-        {disableCreateButton ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>{createButton}</div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{disableReason}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <DialogTrigger asChild>{createButton}</DialogTrigger>
-        )}
+        <DialogTrigger asChild>
+          {disableCreateButton ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span tabIndex={0}>
+                    <Button disabled={true}>
+                      <Plus className='mr-2 h-4 w-4' />
+                      Create Service
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{disableReason}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            createButton
+          )}
+        </DialogTrigger>
 
-        <DialogContent className='max-w-2xl'>
+        <DialogContent className='sm:max-w-md md:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>Create new service</DialogTitle>
-            <DialogDescription className='sr-only'>
-              This will create a new service
+            <DialogDescription>
+              This will create a new service in the{' '}
+              <span className='font-medium'>{project.name}</span> project
             </DialogDescription>
           </DialogHeader>
 
@@ -466,30 +477,21 @@ const CreateService = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
-                    <div className='space-y-2'>
-                      <p className='text-sm text-gray-500'>
-                        Service will be named:{' '}
-                        <span className='font-semibold'>{projectName}-</span>
-                        <span className='italic'>[your-input]</span>
-                      </p>
-
-                      <FormControl>
-                        <div className='grid grid-cols-[auto_1fr]'>
-                          {projectName && (
-                            <div className='flex h-full items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-muted-foreground'>
-                              {`${projectName}-`}
-                            </div>
-                          )}
-
-                          <Input
-                            {...field}
-                            value={field.value.replace(`${projectName}-`, '')}
-                            onChange={e => handleNameChange(e.target.value)}
-                            className={projectName ? 'rounded-l-none' : ''}
-                          />
-                        </div>
-                      </FormControl>
-                    </div>
+                    <FormControl>
+                      <div className='flex'>
+                        {projectName && (
+                          <div className='inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground'>
+                            {`${projectName}-`}
+                          </div>
+                        )}
+                        <Input
+                          placeholder=''
+                          {...field}
+                          onChange={e => handleNameChange(e.target.value)}
+                          className={projectName ? 'rounded-l-none' : ''}
+                        />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -501,39 +503,35 @@ const CreateService = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Type</FormLabel>
-
                     <Select
                       onValueChange={handleTypeChange}
                       defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder='Select a type' />
+                          <SelectValue placeholder='Select service type' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value='app'>
-                          <div className='flex items-center gap-1.5'>
-                            <Git className='size-4' />
+                          <div className='flex items-center gap-2'>
+                            <Git className='h-4 w-4' />
                             App (Git based application)
                           </div>
                         </SelectItem>
-
                         <SelectItem value='docker'>
-                          <div className='flex items-center gap-1.5'>
-                            <Docker className='size-4 text-blue-500' />
+                          <div className='flex items-center gap-2'>
+                            <Docker className='h-4 w-4' />
                             Docker
                           </div>
                         </SelectItem>
-
                         <SelectItem value='database'>
-                          <div className='flex items-center gap-1.5'>
-                            <Database size={16} className='text-blue-500' />
+                          <div className='flex items-center gap-2'>
+                            <Database className='h-4 w-4' />
                             Database
                           </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -555,29 +553,26 @@ const CreateService = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Database</FormLabel>
-
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder='Select a type' />
+                            <SelectValue placeholder='Select database type' />
                           </SelectTrigger>
                         </FormControl>
-
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel className='mb-2 inline-block w-[calc(var(--radix-select-trigger-width)-16px)] text-wrap font-normal'>
-                              To deploy database which are disabled, please
-                              enable appropriate plugin on{' '}
+                            <SelectLabel>
+                              To deploy database which are disabled, please{' '}
                               <Link
-                                className='text-primary underline'
-                                href={`/${params.organisation}/servers/${server.id}?tab=plugins`}>
-                                server
-                              </Link>
+                                href={`/${params.organisation}/dashboard/server/${server.id}?tab=plugins`}
+                                className='text-blue-600 underline'>
+                                enable appropriate plugin on
+                              </Link>{' '}
+                              server
                             </SelectLabel>
                           </SelectGroup>
-
                           {databaseOptions.map(
                             ({ label, value, icon: Icon }) => {
                               const optionDisabled =
@@ -589,22 +584,31 @@ const CreateService = ({
                                   ?.status === 'disabled'
 
                               return (
-                                <Fragment key={value}>
-                                  <SelectItem
-                                    value={value}
-                                    disabled={optionDisabled}>
-                                    <span className='flex gap-2'>
-                                      <Icon className='size-5' />
-                                      {label}
-                                    </span>
-                                  </SelectItem>
-                                </Fragment>
+                                <SelectItem
+                                  key={value}
+                                  value={value}
+                                  // ? We are automatically installing the plugin
+                                  // disabled={optionDisabled}
+                                >
+                                  <div className='flex items-center gap-2'>
+                                    <Icon className='h-4 w-4' />
+                                    {label}
+                                  </div>
+                                </SelectItem>
                               )
                             },
                           )}
                         </SelectContent>
                       </Select>
-
+                      {needsPluginInstallation && (
+                        <Alert variant={'info'}>
+                          <AlertCircle className='h-4 w-4' />
+                          <AlertDescription>
+                            The {databaseType} plugin will be automatically
+                            installed during service creation.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -618,7 +622,10 @@ const CreateService = ({
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea
+                        placeholder='Optional description for your service'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -686,15 +693,17 @@ const CreateService = ({
               )}
 
               <DialogFooter>
-                <Button
-                  type='submit'
-                  disabled={submitDisabled}
-                  isLoading={isPending}>
-                  {/* Commented: Resource-based button text - now always shows "Create Service" */}
-                  {/* {!resourceStatus?.data?.capable && type
-                    ? 'Server Not Ready'
-                    : 'Create Service'} */}
-                  Create Service
+                <Button type='submit' disabled={submitDisabled}>
+                  {isPending || isPluginPending ? (
+                    <>
+                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                      {needsPluginInstallation
+                        ? 'Installing & Creating...'
+                        : 'Creating...'}
+                    </>
+                  ) : (
+                    'Create Service'
+                  )}
                 </Button>
               </DialogFooter>
             </form>

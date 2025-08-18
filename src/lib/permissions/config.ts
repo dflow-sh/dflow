@@ -150,6 +150,13 @@ export const getActionAccess = {
   getServiceDetails: ['services.read'],
   getServiceDeploymentsBackups: ['services.read', 'backups.read'],
   createServiceAction: ['services.create', 'projects.read', 'services.read'],
+  createServiceWithPluginAction: [
+    'servers.read',
+    'servers.update',
+    'services.create',
+    'projects.read',
+    'services.read',
+  ],
   deleteServiceAction: ['services.delete', 'services.read'],
   updateServiceAction: ['services.read', 'services.update'],
   restartServiceAction: ['services.read', 'services.update'],
