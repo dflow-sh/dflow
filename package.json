@@ -98,7 +98,7 @@
     "sharp": "0.32.6",
     "sonner": "^1.7.4",
     "ssh2": "^1.16.0",
-    "tailwind-merge": "^3.0.1",
+    "tailwind-merge": "^3.2.0",
     "tailwindcss-animate": "^1.0.7",
     "unique-names-generator": "^4.7.1",
     "vaul": "^1.1.2",
@@ -124,6 +124,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4.1.12",
+    "tw-animate-css": "^1.3.7",
     "typescript": "5.7.3"
   },
   "engines": {
