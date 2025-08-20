@@ -115,6 +115,11 @@ export const updateServiceDomainSchema = z.object({
   id: z.string(),
 })
 
+export const markDefaultServiceDomainSchema = z.object({
+  serviceId: z.string(),
+  defaultDomain: z.string().min(1),
+})
+
 export const regenerateSSLSchema = z.object({
   id: z.string(),
   email: z.string().email().optional(),

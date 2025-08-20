@@ -33,6 +33,7 @@ import {
   exposeDatabasePortSchema,
   fetchServiceResourceStatusSchema,
   fetchServiceScaleStatusSchema,
+  markDefaultServiceDomainSchema,
   regenerateSSLSchema,
   restartServiceSchema,
   scaleServiceSchema,
@@ -71,7 +72,7 @@ export const createServiceAction = protectedClient
     const { server, name: projectName } = await payload.findByID({
       collection: 'projects',
       id: projectId,
-      depth: 10,
+      depth: 2,
     })
 
     const slicedName = name.slice(0, 10)
@@ -273,7 +274,7 @@ export const deleteServiceAction = protectedClient
     const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     if (typeof project === 'object') {
@@ -418,7 +419,7 @@ export const updateServiceAction = protectedClient
         provider: data?.provider ?? null,
       },
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const environmentVariablesChange =
@@ -475,7 +476,7 @@ export const restartServiceAction = protectedClient
 
     const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id,
     })
 
@@ -536,7 +537,7 @@ export const stopServerAction = protectedClient
 
     const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id,
     })
 
@@ -596,7 +597,7 @@ export const exposeDatabasePortAction = protectedClient
 
     const { project, type, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id,
     })
 
@@ -721,7 +722,7 @@ export const updateServiceDomainAction = protectedClient
         domains: updatedDomains,
       },
       collection: 'services',
-      depth: 10,
+      depth: 3,
     })
 
     // for add operation we're not syncing domain as domain verification process not done!
@@ -780,7 +781,7 @@ export const regenerateSSLAction = protectedClient
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id,
     })
 
@@ -817,7 +818,7 @@ export const syncServiceDomainAction = protectedClient
     const { project, variables, ...serviceDetails } = await payload.findByID({
       id,
       collection: 'services',
-      depth: 10,
+      depth: 3,
     })
 
     if (typeof project === 'object' && typeof project.server === 'object') {
@@ -854,6 +855,62 @@ export const syncServiceDomainAction = protectedClient
     }
   })
 
+export const markDefaultServiceDomainAction = protectedClient
+  .metadata({
+    actionName: 'markDefaultServiceDomainAction',
+  })
+  .schema(markDefaultServiceDomainSchema)
+  .action(async ({ ctx, clientInput }) => {
+    // 1. update domain as default
+    const { payload, userTenant } = ctx
+    const { serviceId, defaultDomain } = clientInput
+    const serviceDetails = await payload.findByID({
+      collection: 'services',
+      id: serviceId,
+    })
+    const domainsList = serviceDetails?.domains ?? []
+
+    const updatedService = await payload.update({
+      collection: 'services',
+      id: serviceId,
+      data: {
+        domains: domainsList.map(domain => ({
+          ...domain,
+          default: domain.domain === defaultDomain,
+        })),
+      },
+      depth: 3,
+    })
+
+    // 2. trigger updateEnvironment variables queue
+    if (
+      typeof updatedService?.project === 'object' &&
+      typeof updatedService?.project?.server === 'object'
+    ) {
+      const sshDetails = extractSSHDetails({ project: updatedService.project })
+      const queueResponse = await addUpdateEnvironmentVariablesQueue({
+        sshDetails,
+        serverDetails: {
+          id: updatedService.project.server.id,
+        },
+        serviceDetails: {
+          id: serviceId,
+          name: serviceDetails.name,
+          noRestart: false,
+          previousVariables: [],
+          variables: serviceDetails.variables ?? [],
+        },
+        tenantDetails: {
+          slug: userTenant.tenant.slug,
+        },
+      })
+
+      if (queueResponse.id) {
+        return { success: true }
+      }
+    }
+  })
+
 export const updateVolumesAction = protectedClient
   .metadata({ actionName: 'updateVolumesAction' })
   .schema(updateVolumesSchema)
@@ -867,7 +924,7 @@ export const updateVolumesAction = protectedClient
     const updatedService = await payload.update({
       collection: 'services',
       id: id,
-      depth: 10,
+      depth: 3,
       data: {
         volumes: volumes,
       },
@@ -904,7 +961,7 @@ export const scaleServiceAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -934,7 +991,7 @@ export const fetchServiceScaleStatusAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -967,7 +1024,7 @@ export const setServiceResourceLimitAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -999,7 +1056,7 @@ export const setServiceResourceReserveAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -1031,7 +1088,7 @@ export const fetchServiceResourceStatusAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -1060,7 +1117,7 @@ export const clearServiceResourceLimitAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
@@ -1092,7 +1149,7 @@ export const clearServiceResourceReserveAction = protectedClient
     const { project, name } = await payload.findByID({
       collection: 'services',
       id,
-      depth: 10,
+      depth: 3,
     })
 
     const sshDetails = extractSSHDetails({ project })
