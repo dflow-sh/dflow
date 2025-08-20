@@ -68,6 +68,7 @@
     "cmdk": "1.0.0",
     "cpu-features": "^0.0.10",
     "cross-env": "^7.0.3",
+    "cuid": "^3.0.0",
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "emblor": "^1.4.7",

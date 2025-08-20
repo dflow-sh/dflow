@@ -1,16 +1,22 @@
 'use server'
 
 import configPromise from '@payload-config'
+import cuid from 'cuid'
+import { env } from 'env'
+import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
+import { MagicLinkEmail } from '@/emails/MagicLinkEmailTemplate'
 import { createSession } from '@/lib/createSession'
 import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
 
 import {
+  autoLoginSchema,
   forgotPasswordSchema,
   impersonateUserSchema,
+  magicLinkSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -331,4 +337,135 @@ export const impersonateUserAction = userClient
 
     await createSession({ user: userDetails, payload })
     redirect(`/${userDetails.username}/dashboard`)
+  })
+
+export const autoLoginAction = publicClient
+  .metadata({ actionName: 'autoLoginAction' })
+  .schema(autoLoginSchema)
+  .action(async ({ clientInput }) => {
+    const token = clientInput.token
+    const payload = await getPayload({ config: configPromise })
+    const cookieStore = await cookies()
+
+    // JWT verification
+    const decodedToken = jwt.verify(token, env.PAYLOAD_SECRET, {
+      algorithms: ['HS256'],
+    }) as {
+      email?: string
+      code?: string
+      exp?: number
+      redirectUrl?: string
+    }
+
+    // Validate essential token data
+    if (
+      !decodedToken?.email ||
+      typeof decodedToken.exp !== 'number' ||
+      decodedToken.exp < Math.floor(Date.now() / 1000)
+    ) {
+      throw new Error('Forbidden')
+    }
+
+    // Find user or auto-create if not found
+    let user = (
+      await payload.find({
+        collection: 'users',
+        where: { email: { equals: decodedToken.email } },
+      })
+    ).docs[0]
+
+    if (!user) {
+      user = await payload.create({
+        collection: 'users',
+        data: {
+          email: decodedToken.email,
+          username: decodedToken.email.split('@')[0] || cuid().slice(0, 8), // random username
+          password: cuid().slice(0, 12), // random password
+          role: ['user'],
+        },
+      })
+    }
+
+    // One-time code logic with Redis
+    if (!decodedToken.code) throw new Error('Forbidden')
+
+    const { createRedisClient } = await import('@/lib/redis')
+    const redisClient = createRedisClient()
+
+    // Prevent code reuse (one-time link)
+    const code = decodedToken.code
+    const storedCode = await redisClient.get(`auto-login-code:${code}`)
+    if (storedCode === code) throw new Error('Forbidden')
+    await redisClient.set(`auto-login-code:${code}`, code, 'EX', 60 * 5)
+
+    // Issue session/cookie
+    await createSession({ user, payload })
+
+    cookieStore.set('payload-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    })
+
+    // Compute redirect URL (strong fallback)
+    const finalRedirect =
+      typeof decodedToken.redirectUrl === 'string' && decodedToken.redirectUrl
+        ? `/${user.username}${
+            decodedToken.redirectUrl.startsWith('/')
+              ? decodedToken.redirectUrl
+              : `/${decodedToken.redirectUrl}`
+          }`
+        : `/${user.username}/dashboard`
+
+    redirect(finalRedirect)
+  })
+
+export const requestMagicLinkAction = publicClient
+  .metadata({ actionName: 'requestMagicLinkAction' })
+  .schema(magicLinkSchema)
+  .action(async ({ clientInput }) => {
+    const { email } = clientInput
+    const payload = await getPayload({ config: configPromise })
+
+    // Check if Magic Link is enabled in global config
+    const authConfig = await payload.findGlobal({ slug: 'auth-config' })
+    if (authConfig?.authMethod === 'email-password') {
+      throw new Error('Magic Link authentication is disabled')
+    }
+
+    // Generate unique code and JWT token
+    const code = cuid()
+    const redirectUrl = '/dashboard'
+
+    const token = jwt.sign(
+      {
+        email,
+        code,
+        redirectUrl,
+        exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
+      },
+      env.PAYLOAD_SECRET,
+      { algorithm: 'HS256' },
+    )
+
+    // Create magic link URL
+    const magicLinkUrl = `${env.NEXT_PUBLIC_WEBSITE_URL}/api/auto-login?token=${token}`
+
+    // Await the render function to get HTML string
+    const emailHtml = await MagicLinkEmail({
+      actionLabel: 'Sign in to dFlow',
+      buttonText: 'Sign In',
+      userName: email.split('@')[0],
+      href: magicLinkUrl,
+    })
+
+    // Send email using Payload's email service
+    await payload.sendEmail({
+      to: email,
+      subject: 'Sign in to dFlow',
+      html: emailHtml,
+    })
+
+    return { success: true, message: 'Magic link sent to your email' }
   })
