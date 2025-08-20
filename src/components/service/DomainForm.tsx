@@ -12,13 +12,14 @@ import {
   DialogTrigger,
 } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
 import { Info, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -27,6 +28,7 @@ import { updateServiceDomainSchema } from '@/actions/service/validator'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -52,7 +54,7 @@ const DomainForm = ({ ip }: { ip: string }) => {
         certificateType: 'none',
         autoRegenerateSSL: false,
         hostname: '',
-        default: false,
+        default: true,
       },
       operation: 'add',
     },
@@ -61,8 +63,8 @@ const DomainForm = ({ ip }: { ip: string }) => {
   const { execute, isPending } = useAction(updateServiceDomainAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
-        toast.info('Added to queue', {
-          description: 'Added domain attachment to queue',
+        toast.info('Added domain', {
+          description: 'Please add necessary records and sync domain',
         })
         setOpen(false)
         form.reset()
@@ -91,6 +93,8 @@ const DomainForm = ({ ip }: { ip: string }) => {
 
     execute(values)
   }
+
+  const { domain } = useWatch({ control: form.control })
 
   return (
     <>
@@ -121,19 +125,6 @@ const DomainForm = ({ ip }: { ip: string }) => {
             <form
               onSubmit={form.handleSubmit(onSubmit)}
               className='w-full space-y-6'>
-              <Alert variant='info'>
-                <Info className='h-4 w-4' />
-                <AlertTitle>
-                  Domain environment variables of this service will be updated
-                  automatically
-                </AlertTitle>
-
-                <AlertDescription>
-                  Other services using these variables should be updated
-                  manually.
-                </AlertDescription>
-              </Alert>
-
               <FormField
                 control={form.control}
                 name='domain.hostname'
@@ -147,7 +138,6 @@ const DomainForm = ({ ip }: { ip: string }) => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name='domain.certificateType'
@@ -175,8 +165,7 @@ const DomainForm = ({ ip }: { ip: string }) => {
                   </FormItem>
                 )}
               />
-
-              {/* <FormField
+              <FormField
                 control={form.control}
                 name='domain.default'
                 render={({ field }) => (
@@ -196,14 +185,22 @@ const DomainForm = ({ ip }: { ip: string }) => {
                     </FormControl>
                   </FormItem>
                 )}
-              /> */}
+              />
 
-              {/* The environment variables
-              of this service will be updated automatically.
-              <br />
-              <b>Note:</b> Other services using these environment variables will
-              not be updated automatically—you will need to update them
-              manually. */}
+              {domain?.default && (
+                <Alert variant='info'>
+                  <Info className='h-4 w-4' />
+                  <AlertTitle>
+                    Domain environment variables of this service will be updated
+                    automatically
+                  </AlertTitle>
+
+                  <AlertDescription>
+                    Other services using these variables should be updated
+                    manually.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <DialogFooter>
                 <Button

@@ -848,6 +848,10 @@ export const addDeployQueue = async (data: QueueArgs) => {
                   if (domainExists) {
                     return {
                       ...domainExists,
+                      default:
+                        domainsResponse.length === 1
+                          ? true
+                          : domainExists.default,
                       synced: true,
                     }
                   }
@@ -855,6 +859,7 @@ export const addDeployQueue = async (data: QueueArgs) => {
                   return {
                     domain,
                     synced: true,
+                    default: domainsResponse.length === 1,
                   }
                 }),
               },

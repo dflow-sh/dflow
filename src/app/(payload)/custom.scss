@@ -14,7 +14,7 @@
     th {
       position: sticky !important;
       top: 0 !important;
-      z-index: 10 !important; /* Ensure headers stay above content */
+      z-index: 2 !important; /* Ensure headers stay above content */
       background: var(--theme-elevation-100) !important;
     }
   }
