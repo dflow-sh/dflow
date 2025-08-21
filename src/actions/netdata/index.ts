@@ -61,7 +61,7 @@ export const uninstallNetdataAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })

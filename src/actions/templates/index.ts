@@ -545,7 +545,6 @@ export const templateDeployAction = protectedClient
           server: projectData?.serverId!,
           tenant,
         },
-        depth: 10,
       })
 
       projectDetails = response

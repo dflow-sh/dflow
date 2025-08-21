@@ -142,6 +142,16 @@ export const getServerProjects = protectedClient
           {
             server: { equals: id },
           },
+          {
+            deletedAt: {
+              exists: false,
+            },
+          },
+          {
+            hidden: {
+              equals: false,
+            },
+          },
         ],
       },
     })

@@ -96,21 +96,22 @@ const PluginCard = ({
     },
   })
 
-  const { execute: deletePlugin, isPending: isDeletingPlugin } = useAction(
-    deletePluginAction,
-    {
-      onSuccess: ({ data, input }) => {
-        if (data?.success) {
-          toast.info('Job queued', {
-            description: `Queued job to uninstall ${input.pluginName} plugin`,
-          })
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(`Faqiled to delete plugin: ${error?.serverError}`)
-      },
+  const {
+    execute: deletePlugin,
+    isPending: isDeletingPlugin,
+    hasSucceeded: triggeredPluginDeletion,
+  } = useAction(deletePluginAction, {
+    onSuccess: ({ data, input }) => {
+      if (data?.success) {
+        toast.info('Job queued', {
+          description: `Queued job to uninstall ${input.pluginName} plugin`,
+        })
+      }
     },
-  )
+    onError: ({ error }) => {
+      toast.error(`Failed to delete plugin: ${error?.serverError}`)
+    },
+  })
 
   const { execute: togglePluginStatus, isPending: isUpdatingPluginStatus } =
     useAction(togglePluginStatusAction, {
@@ -159,7 +160,9 @@ const PluginCard = ({
           <div className='space-x-2'>
             <Button
               variant='outline'
-              disabled={!notCustomPlugin || isDeletingPlugin}
+              disabled={
+                !notCustomPlugin || isDeletingPlugin || triggeredPluginDeletion
+              }
               onClick={() => {
                 if (notCustomPlugin) {
                   deletePlugin({
@@ -170,7 +173,9 @@ const PluginCard = ({
                 }
               }}>
               <Trash2 />
-              Uninstall
+              {isDeletingPlugin || triggeredPluginDeletion
+                ? 'Uninstalling...'
+                : 'Uninstall'}
             </Button>
 
             {'hasConfig' in plugin && plugin.hasConfig && (

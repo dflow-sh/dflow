@@ -108,7 +108,6 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
             tenant: tenant.id,
             hidden: true, // Hide from main project list
           },
-          depth: 10,
         })
 
         projectDetails = response

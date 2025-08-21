@@ -35,7 +35,7 @@ export const triggerDeployment = async ({
     ...serviceDetails
   } = await payload.findByID({
     collection: 'services',
-    depth: 10,
+    depth: 3,
     id: serviceId,
   })
 

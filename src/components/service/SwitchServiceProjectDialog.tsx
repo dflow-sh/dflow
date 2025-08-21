@@ -2,6 +2,7 @@ import { Button } from '../ui/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -108,7 +109,10 @@ const SwitchServiceProjectDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='max-w-md'>
         <DialogHeader>
-          <DialogTitle>Switch Service Project</DialogTitle>
+          <DialogTitle>Switch Service</DialogTitle>
+          <DialogDescription>
+            Switch the service to different project within same server
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -126,7 +130,13 @@ const SwitchServiceProjectDialog = ({
                       onValueChange={field.onChange}
                       disabled={isLoadingProjects || isSuccess}>
                       <SelectTrigger id='switch-project-select'>
-                        <SelectValue placeholder='Select project' />
+                        <SelectValue
+                          placeholder={
+                            isLoadingProjects
+                              ? 'Fetching projects...'
+                              : 'Select project'
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {projects.map((p: any) => (
@@ -143,18 +153,19 @@ const SwitchServiceProjectDialog = ({
             />
             <DialogFooter>
               <Button
-                variant='outline'
-                type='button'
-                onClick={() => setOpen(false)}
-                disabled={isSwitching}>
-                Cancel
-              </Button>
-              <Button
                 variant='default'
                 type='submit'
                 disabled={!form.watch('projectId') || isSwitching}
                 isLoading={isSwitching}>
                 Switch
+              </Button>
+
+              <Button
+                variant='outline'
+                type='button'
+                onClick={() => setOpen(false)}
+                disabled={isSwitching}>
+                Cancel
               </Button>
             </DialogFooter>
           </form>

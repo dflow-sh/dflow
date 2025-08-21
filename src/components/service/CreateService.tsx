@@ -605,7 +605,7 @@ const CreateService = ({
                           <AlertCircle className='h-4 w-4' />
                           <AlertDescription>
                             The {databaseType} plugin will be automatically
-                            installed during service creation.
+                            installed during service deployment.
                           </AlertDescription>
                         </Alert>
                       )}
@@ -697,9 +697,7 @@ const CreateService = ({
                   {isPending || isPluginPending ? (
                     <>
                       <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      {needsPluginInstallation
-                        ? 'Installing & Creating...'
-                        : 'Creating...'}
+                      Creating...
                     </>
                   ) : (
                     'Create Service'

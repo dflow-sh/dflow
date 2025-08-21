@@ -12,7 +12,7 @@ const XTermTerminal = ({
   className?: string
 }) => {
   return (
-    <div className={cn('h-[70vh] rounded-md bg-border py-4 pl-4', className)}>
+    <div className={cn('h-[70vh] rounded-sm bg-border py-4 pl-4', className)}>
       <div ref={ref} className='h-full w-full' />
     </div>
   )

@@ -280,12 +280,17 @@ const CreateEC2InstanceForm = ({
                       onValueChange={field.onChange}
                       defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger disabled={accountsPending}>
+                        <SelectTrigger
+                          disabled={
+                            accountsPending || !accountDetails?.data?.length
+                          }>
                           <SelectValue
                             placeholder={
                               accountsPending
                                 ? 'Fetching account details...'
-                                : 'Select a Account'
+                                : accountDetails?.data?.length
+                                  ? 'Select a Account'
+                                  : 'No Accounts Found!'
                             }
                           />
                         </SelectTrigger>
@@ -299,6 +304,7 @@ const CreateEC2InstanceForm = ({
                         ))}
                       </SelectContent>
                     </Select>
+
                     {isOnboarding && (
                       <AWSAccountForm refetch={getAccounts}>
                         <Button

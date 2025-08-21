@@ -85,7 +85,7 @@ export const addCreateServiceWithPluginsQueue = async (data: QueueArgs) => {
           await payload.findByID({
             collection: 'projects',
             id: projectId,
-            depth: 10,
+            depth: 2,
           })
 
         if (!projectServer) {
@@ -94,6 +94,7 @@ export const addCreateServiceWithPluginsQueue = async (data: QueueArgs) => {
 
         const serverId =
           typeof projectServer === 'object' ? projectServer.id : projectServer
+
         server = await payload.findByID({
           collection: 'servers',
           id: serverId,
