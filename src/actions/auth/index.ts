@@ -8,7 +8,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { MagicLinkEmail } from '@/emails/MagicLinkEmailTemplate'
+import { renderMagicLinkEmail } from '@/emails/magic-link'
 import { createSession } from '@/lib/createSession'
 import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
 
@@ -24,42 +24,112 @@ import {
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient
-  .metadata({
-    actionName: 'signInAction',
-  })
+  .metadata({ actionName: 'signInAction' })
   .schema(signInSchema)
   .action(async ({ clientInput }) => {
-    const payload = await getPayload({
-      config: configPromise,
-    })
+    try {
+      const { email, password } = clientInput
+      const payload = await getPayload({ config: configPromise })
 
-    const { email, password } = clientInput
+      // Check if email/password auth is enabled
+      try {
+        const authConfig = await payload.findGlobal({ slug: 'auth-config' })
+        if (authConfig?.authMethod === 'magic-link') {
+          return {
+            success: false,
+            error:
+              'Email and password authentication is currently disabled. Please use magic link to sign in.',
+          }
+        }
+      } catch (configError) {
+        console.error('Error fetching auth configuration:', configError)
+        // Continue with sign-in if config check fails
+      }
 
-    const { user, token } = await payload.login({
-      collection: 'users',
-      data: {
-        email,
-        password,
-      },
-    })
+      // Attempt login
+      let loginResult
+      try {
+        loginResult = await payload.login({
+          collection: 'users',
+          data: { email, password },
+        })
+      } catch (loginError) {
+        console.error('Login attempt failed:', loginError)
 
-    const cookieStore = await cookies()
-    cookieStore.set('payload-token', token || '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-    })
+        if (loginError instanceof Error) {
+          if (loginError.message.includes('Invalid')) {
+            return {
+              success: false,
+              error:
+                'Invalid email or password. Please check your credentials.',
+            }
+          }
+          if (
+            loginError.message.includes('locked') ||
+            loginError.message.includes('disabled')
+          ) {
+            return {
+              success: false,
+              error:
+                'Your account has been temporarily locked. Please contact support.',
+            }
+          }
+        }
 
-    if (user) {
-      // finding user tenants and redirecting user to first tenant, last resort redirecting with there user-name
-      const tenants = user?.tenants ?? []
-      const tenantSlug =
-        typeof tenants?.[0]?.tenant === 'object'
-          ? tenants?.[0]?.tenant?.slug
-          : ''
+        return {
+          success: false,
+          error: 'Sign in failed. Please check your credentials and try again.',
+        }
+      }
 
-      redirect(`/${tenantSlug || user.username}/dashboard`)
+      const { user, token } = loginResult
+
+      if (!user || !token) {
+        return {
+          success: false,
+          error: 'Authentication failed. Please try again.',
+        }
+      }
+
+      // Set authentication cookie
+      try {
+        const cookieStore = await cookies()
+        cookieStore.set('payload-token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV !== 'development',
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          path: '/',
+        })
+      } catch (cookieError) {
+        console.error('Error setting authentication cookie:', cookieError)
+        return {
+          success: false,
+          error: 'Failed to establish session. Please try again.',
+        }
+      }
+
+      // Determine redirect URL
+      try {
+        const tenants = user?.tenants ?? []
+        const tenantSlug =
+          typeof tenants?.[0]?.tenant === 'object'
+            ? tenants?.[0].tenant?.slug
+            : ''
+
+        const redirectUrl = `/${tenantSlug || user.username}/dashboard`
+        redirect(redirectUrl)
+      } catch (redirectError) {
+        console.error('Error during redirect:', redirectError)
+        // Fallback redirect
+        redirect('/dashboard')
+      }
+    } catch (error) {
+      console.error('Unexpected error in signInAction:', error)
+
+      return {
+        success: false,
+        error: 'An unexpected error occurred. Please try again later.',
+      }
     }
   })
 
@@ -426,46 +496,139 @@ export const requestMagicLinkAction = publicClient
   .schema(magicLinkSchema)
   .action(async ({ clientInput }) => {
     const { email } = clientInput
-    const payload = await getPayload({ config: configPromise })
 
-    // Check if Magic Link is enabled in global config
-    const authConfig = await payload.findGlobal({ slug: 'auth-config' })
-    if (authConfig?.authMethod === 'email-password') {
-      throw new Error('Magic Link authentication is disabled')
+    try {
+      // Initialize Payload
+      const payload = await getPayload({ config: configPromise })
+
+      // Check if Magic Link is enabled in global config
+      try {
+        const authConfig = await payload.findGlobal({ slug: 'auth-config' })
+        if (authConfig?.authMethod === 'email-password') {
+          return {
+            success: false,
+            error:
+              'Magic Link authentication is currently disabled. Please use email and password to sign in.',
+          }
+        }
+      } catch (configError) {
+        console.error('Error fetching auth configuration:', configError)
+        // Continue with magic link if config check fails (fallback behavior)
+      }
+
+      // Generate unique code and JWT token
+      let token: string
+      let magicLinkUrl: string
+
+      try {
+        const code = cuid()
+        const redirectUrl = '/dashboard'
+
+        token = jwt.sign(
+          {
+            email,
+            code,
+            redirectUrl,
+            exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
+          },
+          env.PAYLOAD_SECRET,
+          { algorithm: 'HS256' },
+        )
+
+        // Create magic link URL
+        magicLinkUrl = `${env.NEXT_PUBLIC_WEBSITE_URL}/api/auto-login?token=${token}`
+      } catch (tokenError) {
+        console.error('Error generating magic link token:', tokenError)
+        return {
+          success: false,
+          error: 'Unable to generate secure login link. Please try again.',
+        }
+      }
+
+      // Generate email HTML
+      let emailHtml: string
+      try {
+        emailHtml = await renderMagicLinkEmail({
+          actionLabel: 'Sign in to dFlow',
+          buttonText: 'Sign In',
+          userName: email.split('@')[0] || 'User',
+          href: magicLinkUrl,
+        })
+
+        // Validate email content
+        if (
+          typeof emailHtml !== 'string' ||
+          !emailHtml.includes('<!DOCTYPE html')
+        ) {
+          throw new Error('Email template did not render properly')
+        }
+      } catch (emailRenderError) {
+        console.error('Error rendering email template:', emailRenderError)
+        return {
+          success: false,
+          error: 'Unable to prepare login email. Please try again.',
+        }
+      }
+
+      // Send email using Payload's email service
+      try {
+        await payload.sendEmail({
+          to: email,
+          subject: 'Sign in to dFlow',
+          html: emailHtml,
+        })
+      } catch (emailSendError) {
+        console.error('Error sending magic link email:', emailSendError)
+
+        // Provide different error messages based on error type
+        if (emailSendError instanceof Error) {
+          if (emailSendError.message.includes('Invalid email')) {
+            return {
+              success: false,
+              error: 'Please enter a valid email address.',
+            }
+          }
+          if (
+            emailSendError.message.includes('rate limit') ||
+            emailSendError.message.includes('quota')
+          ) {
+            return {
+              success: false,
+              error:
+                'Email sending limit reached. Please try again in a few minutes.',
+            }
+          }
+          if (
+            emailSendError.message.includes('SMTP') ||
+            emailSendError.message.includes('network')
+          ) {
+            return {
+              success: false,
+              error: 'Email service temporarily unavailable. Please try again.',
+            }
+          }
+        }
+
+        return {
+          success: false,
+          error:
+            'Unable to send login email. Please check your email address and try again.',
+        }
+      }
+
+      return {
+        success: true,
+        message:
+          'Magic link sent to your email. Please check your inbox and click the link to sign in.',
+      }
+    } catch (error) {
+      // Catch-all error handler
+      console.error('Unexpected error in requestMagicLinkAction:', error)
+
+      // Don't expose internal errors to the client
+      return {
+        success: false,
+        error: 'An unexpected error occurred. Please try again later.',
+      }
     }
-
-    // Generate unique code and JWT token
-    const code = cuid()
-    const redirectUrl = '/dashboard'
-
-    const token = jwt.sign(
-      {
-        email,
-        code,
-        redirectUrl,
-        exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
-      },
-      env.PAYLOAD_SECRET,
-      { algorithm: 'HS256' },
-    )
-
-    // Create magic link URL
-    const magicLinkUrl = `${env.NEXT_PUBLIC_WEBSITE_URL}/api/auto-login?token=${token}`
-
-    // Await the render function to get HTML string
-    const emailHtml = await MagicLinkEmail({
-      actionLabel: 'Sign in to dFlow',
-      buttonText: 'Sign In',
-      userName: email.split('@')[0],
-      href: magicLinkUrl,
-    })
-
-    // Send email using Payload's email service
-    await payload.sendEmail({
-      to: email,
-      subject: 'Sign in to dFlow',
-      html: emailHtml,
-    })
-
-    return { success: true, message: 'Magic link sent to your email' }
   })

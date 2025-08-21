@@ -2,7 +2,7 @@
 
 import Logo from '../Logo'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoaderIcon, Lock, LogIn, Mail, Zap } from 'lucide-react'
+import { LoaderIcon, Lock, LogIn, Mail, RotateCcw, Zap } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -49,11 +49,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
-
-  // Type assertion to ensure proper typing
   const method = authMethod as AuthConfig['authMethod']
 
-  // Unified form
   const form = useForm<z.infer<typeof dynamicSignInSchema>>({
     resolver: zodResolver(dynamicSignInSchema),
     mode: 'onBlur',
@@ -73,53 +70,93 @@ const SignInForm: React.FC<SignInFormProps> = ({
   const isPasswordMode = hasPassword && showPasswordField
   const isMagicLinkMode = !hasPassword && showMagicLink
 
-  // signIn action (only if password auth is allowed)
+  // signIn action
   const {
     execute: signInMutate,
     isPending: isSignInPending,
     hasSucceeded: isSignInSuccess,
+    hasErrored: isSignInError,
   } = useAction(signInAction, {
-    onSuccess: () => {
-      if (token) {
-        router.replace(`/invite?token=${token}`)
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success('Successfully signed in!')
+        if (token) {
+          router.replace(`/invite?token=${token}`)
+        }
+      } else if (data?.error) {
+        toast.error(data.error, { duration: 5000 })
       }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to sign in: ${error.serverError}`, { duration: 5000 })
+      const errorMessage =
+        error.serverError || 'An unexpected error occurred during sign in'
+      toast.error(errorMessage, { duration: 5000 })
     },
   })
 
-  // magic link action (only if magic link is allowed)
+  // magic link action
   const {
     execute: magicLinkMutate,
     isPending: isMagicPending,
     hasSucceeded: isMagicSuccess,
+    hasErrored: isMagicError,
   } = useAction(requestMagicLinkAction, {
-    onSuccess: () => {
-      toast.success('Magic link sent to your email.')
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success(data.message || 'Magic link sent to your email!')
+        form.setValue('password', '')
+      } else if (data?.error) {
+        toast.error(data.error, { duration: 5000 })
+      }
     },
     onError: ({ error }) => {
-      toast.error(`Failed to send magic link: ${error.serverError}`, {
-        duration: 5000,
-      })
+      const errorMessage =
+        error.serverError || 'Failed to send magic link. Please try again.'
+      toast.error(errorMessage, { duration: 5000 })
     },
   })
 
+  // Declare disable variables
+  const isPending = isSignInPending || isMagicPending
+  const isSuccess = isSignInSuccess || isMagicSuccess
+  const isError = isSignInError || isMagicError
+
+  // Main disable state - disable all when pending or successful
+  const isFormDisabled = isPending || isSuccess
+  const isInputDisabled = isFormDisabled
+  const isSubmitButtonDisabled = isFormDisabled
+  const isResendButtonDisabled = isPending // Only disable resend during pending, not success
+
+  // Derived variable: Replace showResend state with computed value
+  const shouldShowResendButton =
+    isMagicSuccess && !isMagicError && isMagicLinkMode && !isPending
+
   // Unified form submission handler
-  const onSubmit = (data: z.infer<typeof dynamicSignInSchema>) => {
+  const onSubmit = async (data: z.infer<typeof dynamicSignInSchema>) => {
     if (isPasswordMode && data.password) {
-      // Sign in with email and password
-      const signInData = { email: data.email, password: data.password }
-      signInMutate(signInData)
+      signInMutate({ email: data.email.trim(), password: data.password })
     } else if (isMagicLinkMode) {
-      // Send magic link
-      const magicData = { email: data.email }
-      magicLinkMutate(magicData)
+      magicLinkMutate({ email: data.email.trim() })
     }
   }
 
-  const isPending = isSignInPending || isMagicPending
-  const isSuccess = isSignInSuccess || isMagicSuccess
+  // Handle resend magic link
+  const handleResend = async () => {
+    const email = form.getValues('email')
+    if (email && email.trim()) {
+      await magicLinkMutate({ email: email.trim() })
+    } else {
+      toast.error('Please enter a valid email address first.')
+    }
+  }
+
+  // Handle form validation errors
+  const onFormError = (errors: any) => {
+    const firstErrorKey = Object.keys(errors)[0]
+    if (firstErrorKey && errors[firstErrorKey]?.message) {
+      toast.error(errors[firstErrorKey].message, { duration: 3000 })
+    }
+  }
 
   // Dynamic button content
   const getButtonContent = () => {
@@ -149,7 +186,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
       )
     }
 
-    // For email-password only mode
     if (method === 'email-password') {
       return (
         <>
@@ -159,7 +195,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
       )
     }
 
-    // For magic-link only mode
     if (method === 'magic-link') {
       return (
         <>
@@ -169,7 +204,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
       )
     }
 
-    // For both mode - dynamic based on password presence
     if (isPasswordMode) {
       return (
         <>
@@ -189,18 +223,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
   // Dynamic description based on mode
   const getDescription = () => {
-    if (method === 'email-password') {
+    if (method === 'email-password')
       return 'Enter your email and password to sign in'
-    }
-    if (method === 'magic-link') {
+    if (method === 'magic-link')
       return 'Enter your email to receive a magic link'
-    }
-    if (isPasswordMode) {
-      return 'Enter your email and password to sign in'
-    }
-    if (isMagicLinkMode) {
-      return 'Enter your email to receive a magic link'
-    }
+    if (isPasswordMode) return 'Enter your email and password to sign in'
+    if (isMagicLinkMode) return 'Enter your email to receive a magic link'
     return 'Sign in to your account to continue'
   }
 
@@ -221,7 +249,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
           <CardContent className='space-y-6'>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(onSubmit, onFormError)}
                 className='space-y-4'>
                 {/* Email Field - Always shown */}
                 <FormField
@@ -234,10 +262,16 @@ const SignInForm: React.FC<SignInFormProps> = ({
                         <div className='relative'>
                           <Mail className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
                           <Input
-                            disabled={isSuccess}
+                            disabled={isInputDisabled}
                             placeholder='john.doe@example.com'
                             className='pl-10'
                             {...field}
+                            onChange={e => {
+                              field.onChange(e)
+                              if (form.formState.errors.email) {
+                                form.clearErrors('email')
+                              }
+                            }}
                           />
                         </div>
                       </FormControl>
@@ -274,7 +308,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                           <div className='relative'>
                             <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
                             <Input
-                              disabled={isSuccess}
+                              disabled={isInputDisabled}
                               type='password'
                               placeholder={
                                 method === 'both'
@@ -283,6 +317,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
                               }
                               className='pl-10'
                               {...field}
+                              onChange={e => {
+                                field.onChange(e)
+                                if (form.formState.errors.password) {
+                                  form.clearErrors('password')
+                                }
+                              }}
                             />
                           </div>
                         </FormControl>
@@ -307,11 +347,32 @@ const SignInForm: React.FC<SignInFormProps> = ({
                 <Button
                   className='w-full'
                   type='submit'
-                  disabled={isPending || isSuccess}>
+                  disabled={isSubmitButtonDisabled}>
                   {getButtonContent()}
                 </Button>
+
+                {/* Resend Magic Link Button - Only shown when conditions are met */}
+                {shouldShowResendButton && (
+                  <Button
+                    variant='outline'
+                    className='w-full'
+                    type='button'
+                    onClick={handleResend}
+                    disabled={isResendButtonDisabled}>
+                    <RotateCcw className='mr-2 h-4 w-4' />
+                    Resend magic link
+                  </Button>
+                )}
               </form>
             </Form>
+
+            {/* Additional help text when resend is available */}
+            {shouldShowResendButton && (
+              <p className='text-center text-xs text-muted-foreground'>
+                Didn't receive the email? Check your spam folder or click resend
+                above.
+              </p>
+            )}
           </CardContent>
         </Card>
 

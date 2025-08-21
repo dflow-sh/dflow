@@ -3,6 +3,7 @@ import { env } from 'env'
 import jwt from 'jsonwebtoken'
 import { APIError, PayloadHandler, PayloadRequest } from 'payload'
 
+import { renderLoginConfirmationEmail } from '@/emails/login-confirmation'
 import { createSession } from '@/lib/createSession'
 
 export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
@@ -64,22 +65,26 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
     })
 
     let user
+    let isNewUser = false
+    let generatedPassword: string | null = null
 
     if (usersList.length === 0) {
       // Auto-create user if not found (Magic Link auto-onboarding)
+      isNewUser = true
+      generatedPassword = cuid().slice(0, 12)
+
       const newUser = await payload.create({
         collection: 'users',
         req,
         data: {
           email: userEmail,
-          username: userEmail.split('@')[0] || cuid().slice(0, 8),
-          password: cuid().slice(0, 12), // Random password
+          username: userEmail.split('@')[0] || cuid().slice(0, 8) || 'NewUser',
+          password: generatedPassword,
           role: ['user'],
         },
       })
 
-      // Extract single user from create result (could be User | User[])
-      user = Array.isArray(newUser) ? newUser[0] : newUser
+      user = newUser
     } else {
       // Extract the first user from docs array
       user = usersList[0]
@@ -90,6 +95,24 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
 
     // Store the code in Redis with a TTL of 5 minutes to prevent reuse
     await redisClient.set(`auto-login-code:${code}`, code, 'EX', 60 * 5)
+
+    // Send confirmation email with conditional content
+    try {
+      await payload.sendEmail({
+        to: userEmail,
+        subject: isNewUser
+          ? 'Welcome to dFlow! Your account details'
+          : 'Login Successful - dFlow',
+        html: await renderLoginConfirmationEmail({
+          userName: user.username || userEmail.split('@')[0],
+          password: isNewUser ? generatedPassword || undefined : undefined,
+          isNewUser,
+        }),
+      })
+    } catch (emailError) {
+      // Log email error but don't fail the login process
+      console.error('Error sending login confirmation email:', emailError)
+    }
 
     // Compute final redirect URL with proper user typing
     const finalRedirect = redirectUrl
