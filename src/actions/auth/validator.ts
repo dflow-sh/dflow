@@ -53,3 +53,9 @@ export const resetPasswordSchema = z.object({
 export const impersonateUserSchema = z.object({
   userId: z.string(),
 })
+
+export const autoLoginSchema = z.object({ token: z.string().min(1) })
+
+export const magicLinkSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+})

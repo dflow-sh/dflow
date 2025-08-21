@@ -127,10 +127,12 @@ export interface Config {
   globals: {
     theme: Theme;
     branding: Branding;
+    'auth-config': AuthConfig;
   };
   globalsSelect: {
     theme: ThemeSelect<false> | ThemeSelect<true>;
     branding: BrandingSelect<false> | BrandingSelect<true>;
+    'auth-config': AuthConfigSelect<false> | AuthConfigSelect<true>;
   };
   locale: null;
   user: User & {
@@ -2427,6 +2429,16 @@ export interface Branding {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auth-config".
+ */
+export interface AuthConfig {
+  id: string;
+  authMethod: 'email-password' | 'magic-link' | 'both';
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "theme_select".
  */
 export interface ThemeSelect<T extends boolean = true> {
@@ -2538,6 +2550,16 @@ export interface BrandingSelect<T extends boolean = true> {
         darkMode?: T;
       };
   ogImage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auth-config_select".
+ */
+export interface AuthConfigSelect<T extends boolean = true> {
+  authMethod?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
