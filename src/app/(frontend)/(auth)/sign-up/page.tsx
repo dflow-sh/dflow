@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
 import { getAuthConfigAction } from '@/actions/pages/auth'
@@ -16,9 +16,9 @@ const SuspensePage = async ({ token }: { token: string | undefined }) => {
   const authMethod = (result?.data?.authConfig.authMethod ||
     'both') as AuthConfig['authMethod']
 
-  // If authMethod is magic-link only, return not-found
+  // If authMethod is magic-link only, redirect to sign-in
   if (authMethod === 'magic-link') {
-    notFound()
+    redirect('/sign-in')
   }
 
   // Only allow sign-up for email-password or both methods
