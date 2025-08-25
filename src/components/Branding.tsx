@@ -35,6 +35,11 @@ function generateThemeVariables({ colors, radius, fontName }: ThemeStylesType) {
       --border: ${colors.border};
       --input: ${colors.input};
       --ring: ${colors.ring};
+      --chart-1: ${colors.chart1};
+      --chart-2: ${colors.chart2};
+      --chart-3: ${colors.chart3};
+      --chart-4: ${colors.chart4};
+      --chart-5: ${colors.chart5};
       --sidebar: ${colors.sidebar};
       --sidebar-foreground: ${colors.sidebarForeground};
       --sidebar-primary: ${colors.sidebarPrimary};

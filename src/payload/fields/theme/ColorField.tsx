@@ -40,7 +40,7 @@ function parseCssVars(css: string): Record<string, string> {
 
     // Remove leading '--' and convert to camelCase
     const cleanedKey = key.trim().replace(/^--/, '')
-    const camelKey = cleanedKey.replace(/-([a-z])/g, (_, char) =>
+    const camelKey = cleanedKey.replace(/-([a-z0-9])/gi, (_, char) =>
       char.toUpperCase(),
     )
 

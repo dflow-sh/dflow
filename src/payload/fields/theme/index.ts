@@ -304,6 +304,56 @@ export const themeFields: Field[] = [
             required: true,
             defaultValue: 'oklch(0.5417 0.179 288.0332)',
           },
+          // chart-1
+          {
+            type: 'text',
+            name: 'chart1',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.5854 0.2041 277.1173)',
+          },
+          // chart-2
+          {
+            type: 'text',
+            name: 'chart2',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.5106 0.2301 276.9656)',
+          },
+          // chart-3
+          {
+            type: 'text',
+            name: 'chart3',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.4568 0.2146 277.0229)',
+          },
+          // chart-4
+          {
+            type: 'text',
+            name: 'chart4',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.3984 0.1773 277.3662)',
+          },
+          // chart-5
+          {
+            type: 'text',
+            name: 'chart5',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.3588 0.1354 278.6973)',
+          },
           // sidebar
           {
             type: 'text',
@@ -594,6 +644,56 @@ export const themeFields: Field[] = [
             },
             required: true,
             defaultValue: 'oklch(0.5154 0.2147 320.8737)',
+          },
+          // chart-1
+          {
+            type: 'text',
+            name: 'chart1',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.6801 0.1583 276.9349)',
+          },
+          // chart-2
+          {
+            type: 'text',
+            name: 'chart2',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.5854 0.2041 277.1173)',
+          },
+          // chart-3
+          {
+            type: 'text',
+            name: 'chart3',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.5106 0.2301 276.9656)',
+          },
+          // chart-4
+          {
+            type: 'text',
+            name: 'chart4',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.4568 0.2146 277.0229)',
+          },
+          // chart-5
+          {
+            type: 'text',
+            name: 'chart5',
+            admin: {
+              components: { Field: '@/payload/fields/theme/ColorField' },
+            },
+            required: true,
+            defaultValue: 'oklch(0.3984 0.1773 277.3662)',
           },
           // sidebar
           {
