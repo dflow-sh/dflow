@@ -1,4 +1,3 @@
-// src/emails/LoginConfirmationTemplate.tsx
 import EmailLayout from '../common/EmailLayout'
 import { Hr, Section, Text, render } from '@react-email/components'
 
@@ -24,8 +23,6 @@ const confirmationStyles = {
     lineHeight: '1.4',
     margin: '0 0 16px 0',
     color: 'hsl(240, 67%, 94%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   userNameSpan: {
     color: 'hsl(258, 71%, 61%)',
@@ -37,8 +34,6 @@ const confirmationStyles = {
     lineHeight: '1.5',
     margin: '0 0 24px 0',
     color: 'hsl(215, 20%, 65%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   passwordBox: {
     backgroundColor: 'hsl(240, 28%, 23%)',
@@ -52,14 +47,11 @@ const confirmationStyles = {
     fontSize: '14px',
     color: 'hsl(215, 20%, 65%)',
     margin: '0 0 8px 0',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   passwordValue: {
     fontSize: '18px',
     fontWeight: '600' as const,
     color: 'hsl(258, 71%, 61%)',
-    fontFamily: 'monospace',
     letterSpacing: '1px',
     margin: '0',
     padding: '8px',
@@ -76,16 +68,12 @@ const confirmationStyles = {
     fontWeight: '600' as const,
     margin: '0 0 8px 0',
     color: 'hsl(240, 67%, 94%)',
-    fontFamily:
-      'Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   securityText: {
     fontSize: '14px',
     lineHeight: '1.4',
     margin: '0',
     color: 'hsl(215, 20%, 65%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   footerSection: {
     textAlign: 'center' as const,
@@ -95,8 +83,6 @@ const confirmationStyles = {
     fontSize: '14px',
     color: 'hsl(215, 20%, 65%)',
     margin: '0',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
 }
 

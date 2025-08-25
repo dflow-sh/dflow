@@ -1,4 +1,3 @@
-// src/emails/MagicLinkTemplate.tsx
 import EmailLayout from '../common/EmailLayout'
 import { Button, Hr, Section, Text, render } from '@react-email/components'
 
@@ -25,8 +24,6 @@ const magicLinkStyles = {
     lineHeight: '1.4',
     margin: '0 0 16px 0',
     color: 'hsl(240, 67%, 94%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   userNameSpan: {
     color: 'hsl(258, 71%, 61%)',
@@ -38,8 +35,6 @@ const magicLinkStyles = {
     lineHeight: '1.5',
     margin: '0 0 24px 0',
     color: 'hsl(215, 20%, 65%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   buttonSection: {
     textAlign: 'center' as const,
@@ -56,16 +51,12 @@ const magicLinkStyles = {
     textDecoration: 'none',
     border: 'none',
     display: 'inline-block',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   alternativeText: {
     fontSize: '14px',
     color: 'hsl(215, 20%, 65%)',
     margin: '16px 0 8px 0',
     textAlign: 'center' as const,
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   linkText: {
     fontSize: '12px',
@@ -77,7 +68,6 @@ const magicLinkStyles = {
     wordBreak: 'break-all' as const,
     textAlign: 'center' as const,
     margin: '0 0 16px 0',
-    fontFamily: 'monospace',
   },
   securitySection: {
     padding: '16px',
@@ -88,16 +78,12 @@ const magicLinkStyles = {
     fontWeight: '600' as const,
     margin: '0 0 8px 0',
     color: 'hsl(240, 67%, 94%)',
-    fontFamily:
-      'Geist, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   securityText: {
     fontSize: '14px',
     lineHeight: '1.4',
     margin: '0',
     color: 'hsl(215, 20%, 65%)',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
   footerSection: {
     textAlign: 'center' as const,
@@ -107,8 +93,6 @@ const magicLinkStyles = {
     fontSize: '14px',
     color: 'hsl(215, 20%, 65%)',
     margin: '0',
-    fontFamily:
-      'Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   },
 }
 
