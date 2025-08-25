@@ -63,8 +63,8 @@ const DocSidebar = () => {
           exit='initial'
           animate={isOpen ? 'animate' : 'initial'}
           transition={{ duration: 0.3, ease: [0.33, 1, 0.68, 1] }}
-          className={`fixed right-0 top-0 z-9999 h-full max-w-md overflow-y-scroll scroll-smooth bg-background pt-0 lg:static ${isOpen ? 'border-l' : ''}`}>
-          <header className='sticky top-0 z-50 flex items-center justify-between border-b bg-background px-4 py-4'>
+          className={`bg-background fixed top-0 right-0 z-9999 h-full max-w-md overflow-y-scroll scroll-smooth pt-0 lg:static ${isOpen ? 'border-l' : ''}`}>
+          <header className='bg-background sticky top-0 z-50 flex items-center justify-between border-b px-4 py-4'>
             <div className='font-medium'>Documentation</div>
             <Button
               variant='link'
@@ -74,7 +74,7 @@ const DocSidebar = () => {
             </Button>
           </header>
 
-          <div className='prose prose-gray prose-invert h-full overflow-y-scroll p-4 prose-headings:scroll-mt-20 prose-headings:font-medium prose-headings:text-foreground'>
+          <div className='prose prose-gray prose-invert prose-headings:scroll-mt-20 prose-a:text-primary prose-headings:font-medium prose-headings:text-foreground h-full overflow-y-scroll p-4'>
             {isDocsPending ? (
               <InternalDocsSkeleton />
             ) : doc ? (

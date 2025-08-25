@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
+          'from-primary to-primary/85 text-primary-foreground border border-zinc-950/25 bg-gradient-to-t shadow-md shadow-zinc-950/20 ring-1 ring-inset ring-white/20 transition-[filter] duration-200 hover:brightness-110 active:brightness-90 dark:border-white/20 dark:ring-transparent',
         destructive:
           'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90',
         outline:
@@ -70,7 +70,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               {children}
             </span>
             {isLoading && (
-              <div className='absolute inset-0 flex items-center justify-center text-foreground'>
+              <div className='text-foreground absolute inset-0 flex items-center justify-center'>
                 <Loader className='animate-spin [&_svg]:size-5' />
               </div>
             )}
@@ -92,7 +92,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </span>
 
         {isLoading && (
-          <div className='absolute inset-0 flex items-center justify-center text-foreground [&_svg]:size-5'>
+          <div className='text-foreground absolute inset-0 flex items-center justify-center [&_svg]:size-5'>
             <Loader className='animate-spin' />
           </div>
         )}

@@ -24,11 +24,11 @@ const bannerTypeIcon = {
 }
 
 const variantStyles = {
-  info: 'border-info/50 bg-info-foreground/90 text-info dark:border-info [&>svg]:text-info',
+  info: 'border-info/50 dark:bg-info-foreground/90 dark:text-info bg-info/50 text-info-foreground dark:border-info [&>svg]:text-info',
   warning:
-    'border-warning/50 bg-warning-foreground/90 text-warning [&>svg]:text-warning',
+    'border-warning/50 dark:bg-warning-foreground/90 dark:text-warning bg-warning/50 text-warning-foreground [&>svg]:text-warning',
   success:
-    'border-success/50 bg-success-foreground/90 text-success [&>svg]:text-success',
+    'border-success/50 dark:bg-success-foreground/90 dark:text-success bg-success/50 text-success-foreground [&>svg]:text-success',
 }
 
 const ctaButtonStyles = {

@@ -6,6 +6,7 @@ import React from 'react'
 import { Toaster } from 'sonner'
 
 import { getBranding, getTheme } from '@/actions/branding'
+import Branding from '@/components/Branding'
 import { BrandingProvider } from '@/providers/BrandingProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
@@ -123,7 +124,7 @@ export default async function RootLayout({
           />
         )} */}
 
-        {/* {theme && <Branding theme={theme} />} */}
+        {theme && <Branding theme={theme} />}
       </head>
 
       <body className='overflow-y-hidden'>

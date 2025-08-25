@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 
 import { borderRadius } from '@/lib/constants'
 import { fontType, getCSSAndLinkGoogleFonts, mimeTypes } from '@/lib/googleFont'
-import { hslToCSSVariable } from '@/lib/hslToCSSVariable'
 import type { Theme as ThemeType } from '@/payload-types'
 
 type ThemeStylesType = {
@@ -18,32 +17,32 @@ type ThemeStylesType = {
 // All the color variables are generated using generateThemeStyles function for light & dark mode
 function generateThemeVariables({ colors, radius, fontName }: ThemeStylesType) {
   return `
-      --primary: ${hslToCSSVariable(colors.primary)};
-      --primary-foreground: ${hslToCSSVariable(colors.primaryForeground)};
-      --secondary: ${hslToCSSVariable(colors.secondary)};
-      --secondary-foreground: ${hslToCSSVariable(colors.secondaryForeground)};
-      --accent: ${hslToCSSVariable(colors.accent)};
-      --accent-foreground: ${hslToCSSVariable(colors.accentForeground)};
-      --background: ${hslToCSSVariable(colors.background)};
-      --foreground: ${hslToCSSVariable(colors.foreground)};
-      --card: ${hslToCSSVariable(colors.card)};
-      --card-foreground: ${hslToCSSVariable(colors.cardForeground)};
-      --popover: ${hslToCSSVariable(colors.popover)};
-      --popover-foreground: ${hslToCSSVariable(colors.popoverForeground)};
-      --muted: ${hslToCSSVariable(colors.muted)};
-      --muted-foreground: ${hslToCSSVariable(colors.mutedForeground)};
-      --destructive: ${hslToCSSVariable(colors.destructive)};
-      --border: ${hslToCSSVariable(colors.border)};
-      --input: ${hslToCSSVariable(colors.input)};
-      --ring: ${hslToCSSVariable(colors.ring)};
-      --sidebar: ${hslToCSSVariable(colors.sidebar)};
-      --sidebar-foreground: ${hslToCSSVariable(colors.sidebarForeground)};
-      --sidebar-primary: ${hslToCSSVariable(colors.sidebarPrimary)};
-      --sidebar-primary-foreground: ${hslToCSSVariable(colors.sidebarPrimaryForeground)};
-      --sidebar-accent: ${hslToCSSVariable(colors.sidebarAccent)};
-      --sidebar-accent-foreground: ${hslToCSSVariable(colors.sidebarAccentForeground)};
-      --sidebar-border: ${hslToCSSVariable(colors.sidebarBorder)};
-      --sidebar-ring: ${hslToCSSVariable(colors.sidebarRing)};
+      --primary: ${colors.primary};
+      --primary-foreground: ${colors.primaryForeground};
+      --secondary: ${colors.secondary};
+      --secondary-foreground: ${colors.secondaryForeground};
+      --accent: ${colors.accent};
+      --accent-foreground: ${colors.accentForeground};
+      --background: ${colors.background};
+      --foreground: ${colors.foreground};
+      --card: ${colors.card};
+      --card-foreground: ${colors.cardForeground};
+      --popover: ${colors.popover};
+      --popover-foreground: ${colors.popoverForeground};
+      --muted: ${colors.muted};
+      --muted-foreground: ${colors.mutedForeground};
+      --destructive: ${colors.destructive};
+      --border: ${colors.border};
+      --input: ${colors.input};
+      --ring: ${colors.ring};
+      --sidebar: ${colors.sidebar};
+      --sidebar-foreground: ${colors.sidebarForeground};
+      --sidebar-primary: ${colors.sidebarPrimary};
+      --sidebar-primary-foreground: ${colors.sidebarPrimaryForeground};
+      --sidebar-accent: ${colors.sidebarAccent};
+      --sidebar-accent-foreground: ${colors.sidebarAccentForeground};
+      --sidebar-border: ${colors.sidebarBorder};
+      --sidebar-ring: ${colors.sidebarRing};
       --font-display: ${fontName.display || ''};
       --font-body: ${fontName.body || ''};
       --border-radius: ${borderRadius[radius]};

@@ -86,7 +86,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 100.0000%, 98.0392%)',
+            defaultValue: 'oklch(0.973 0.0133 286.1503)',
           },
           // foreground
           {
@@ -98,7 +98,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(0.3015 0.0572 282.4176)',
           },
           // card
           {
@@ -110,7 +110,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(1 0 0)',
           },
           // cardForeground
           {
@@ -122,7 +122,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(0.2686 0 0)',
           },
           // popover
           {
@@ -134,7 +134,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(1 0 0)',
           },
           // popoverForeground
           {
@@ -146,7 +146,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(0.2686 0 0)',
           },
           // primary
           {
@@ -158,7 +158,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
+            defaultValue: 'oklch(0.5417 0.179 288.0332)',
           },
           // primaryForeground
           {
@@ -170,7 +170,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(0 0 0)',
           },
           // secondary
           {
@@ -182,7 +182,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(249.3750, 100%, 93.7255%)',
+            defaultValue: 'oklch(0.9174 0.0435 292.6901)',
           },
           // secondaryForeground
           {
@@ -194,7 +194,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(249.3750, 33.3333%, 37.6471%)',
+            defaultValue: 'oklch(0.4461 0.0263 256.8018)',
           },
           // muted
           {
@@ -206,7 +206,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 50.0000%, 96.0784%)',
+            defaultValue: 'oklch(0.958 0.0133 286.1454)',
           },
           // mutedForeground
           {
@@ -218,7 +218,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 12.1951%, 48.2353%)',
+            defaultValue: 'oklch(0.551 0.0234 264.3637)',
           },
           // accent
           {
@@ -230,7 +230,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(218.4615, 100.0000%, 92.3529%)',
+            defaultValue: 'oklch(0.9221 0.0373 262.141)',
           },
           // accentForeground
           {
@@ -242,7 +242,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(0.4732 0.1247 46.2007)',
           },
           // destructive
           {
@@ -254,7 +254,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(350.1754, 100%, 66.4706%)',
+            defaultValue: 'oklch(0.6861 0.2061 14.9941)',
           },
           // destructiveForeground
           {
@@ -266,7 +266,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(1 0 0)',
           },
           // border
           {
@@ -278,7 +278,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
+            defaultValue: 'oklch(0.9115 0.0216 285.9625)',
           },
           // input
           {
@@ -290,7 +290,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
+            defaultValue: 'oklch(0.9115 0.0216 285.9625)',
           },
           // ring
           {
@@ -302,7 +302,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
+            defaultValue: 'oklch(0.5417 0.179 288.0332)',
           },
           // sidebar
           {
@@ -314,7 +314,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 50.0000%, 96.0784%)',
+            defaultValue: 'oklch(95.802% 0.01344 286.031)',
           },
           // sidebarForeground
           {
@@ -338,7 +338,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
+            defaultValue: 'oklch(54.168% 0.17912 288.036)',
           },
           // sidebarPrimaryForeground
           {
@@ -350,7 +350,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(100% 0.00011 271.152)',
           },
           // sidebarAccent
           {
@@ -362,7 +362,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(218.4615, 100.0000%, 92.3529%)',
+            defaultValue: 'oklch(92.214% 0.0374 262.174)',
           },
           // sidebarAccentForeground
           {
@@ -374,7 +374,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(30.147% 0.05728 282.419)',
           },
           // sidebarBorder
           {
@@ -386,7 +386,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 34.7826%, 90.9804%)',
+            defaultValue: 'oklch(91.145% 0.02175 285.899)',
           },
           // sidebarRing
           {
@@ -398,7 +398,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(251.9008, 55.7604%, 57.4510%)',
+            defaultValue: 'oklch(54.168% 0.17912 288.036)',
           },
         ],
       },
@@ -406,329 +406,274 @@ export const themeFields: Field[] = [
         type: 'group',
         name: 'darkMode',
         fields: [
-          // background
           {
             type: 'text',
             name: 'background',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(221, 50%, 11%)',
+            defaultValue: 'oklch(0.2069 0.0403 263.9914)',
           },
           // foreground
           {
             type: 'text',
             name: 'foreground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 66.67%, 94.12%)',
+            defaultValue: 'oklch(0.9309 0.0269 285.8648)',
           },
           // card
           {
             type: 'text',
             name: 'card',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.59%, 22.75%)',
+            defaultValue: 'oklch(0.3015 0.0572 282.4176)',
           },
           // cardForeground
           {
             type: 'text',
             name: 'cardForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 100%, 97.06%)',
+            defaultValue: 'oklch(0.9219 0 0)',
           },
           // popover
           {
             type: 'text',
             name: 'popover',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(217, 33%, 17%)',
+            defaultValue: 'oklch(0.2755 0.037 260.0225)',
           },
           // popoverForeground
           {
             type: 'text',
             name: 'popoverForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 66.67%, 94.12%)',
+            defaultValue: 'oklch(0.9219 0 0)',
           },
           // primary
           {
             type: 'text',
             name: 'primary',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(258, 71%, 61%)',
+            defaultValue: 'oklch(0.5695 0.2038 292.4287)',
           },
           // primaryForeground
           {
             type: 'text',
             name: 'primaryForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(100% 0.00011 271.152)',
           },
           // secondary
           {
             type: 'text',
             name: 'secondary',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(235, 31.49%, 35.49%)',
+            defaultValue: 'oklch(0.4043 0.087 277.6045)',
           },
           // secondaryForeground
           {
             type: 'text',
             name: 'secondaryForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 34.78%, 90.98%)',
+            defaultValue: 'oklch(0.9219 0 0)',
           },
           // muted
           {
             type: 'text',
             name: 'muted',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.59%, 22.75%)',
+            defaultValue: 'oklch(0.3015 0.0572 282.4176)',
           },
           // mutedForeground
           {
             type: 'text',
             name: 'mutedForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(215, 20%, 65%)',
+            defaultValue: 'oklch(0.7155 0 0)',
           },
           // accent
           {
             type: 'text',
             name: 'accent',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(217, 19, 27)',
+            defaultValue: 'oklch(0.3767 0.0305 259.7354)',
           },
           // accentForeground
           {
             type: 'text',
             name: 'accentForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 66.67%, 94.12%)',
+            defaultValue: 'oklch(93.09% 0.02705 285.814)',
           },
           // destructive
           {
             type: 'text',
             name: 'destructive',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(0, 73.46%, 41.37%)',
+            defaultValue: 'oklch(0.5016 0.1887 27.4816)',
           },
           // destructiveForeground
           {
             type: 'text',
             name: 'destructiveForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(1 0 0)',
           },
           // border
           {
             type: 'text',
             name: 'border',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(215, 25%, 27%)',
+            defaultValue: 'oklch(0.3755 0.0391 257.2866)',
           },
           // input
           {
             type: 'text',
             name: 'input',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(215, 25%, 27%)',
+            defaultValue: 'oklch(0.3755 0.0391 257.2866)',
           },
           // ring
           {
             type: 'text',
             name: 'ring',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(291, 63.72%, 42.16%)',
+            defaultValue: 'oklch(0.5154 0.2147 320.8737)',
           },
           // sidebar
           {
             type: 'text',
             name: 'sidebar',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(30, 3.3333%, 11.7647%)',
+            defaultValue: 'oklch(23.574% 0.00241 67.461)',
           },
           // sidebarForeground
           {
             type: 'text',
             name: 'sidebarForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 100%, 90.78%)',
+            defaultValue: 'oklch(87.299% 0.06481 284.967)',
           },
           // sidebarPrimary
           {
             type: 'text',
             name: 'sidebarPrimary',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(262, 51.87%, 47.25%)',
+            defaultValue: 'oklch(47.531% 0.18633 295.254)',
           },
           // sidebarPrimaryForeground
           {
             type: 'text',
             name: 'sidebarPrimaryForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 100%)',
+            defaultValue: 'oklch(100% 0.00011 271.152)',
           },
           // sidebarAccent
           {
             type: 'text',
             name: 'sidebarAccent',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 24.49%, 38.43%)',
+            defaultValue: 'oklch(43.141% 0.07862 282.604)',
           },
           // sidebarAccentForeground
           {
             type: 'text',
             name: 'sidebarAccentForeground',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(0, 0%, 87.84%)',
+            defaultValue: 'oklch(90.67% 0.0001 271.152)',
           },
           // sidebarBorder
           {
             type: 'text',
             name: 'sidebarBorder',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(240, 24.49%, 38.43%)',
+            defaultValue: 'oklch(43.141% 0.07862 282.604)',
           },
           // sidebarRing
           {
             type: 'text',
             name: 'sidebarRing',
             admin: {
-              components: {
-                Field: '@/payload/fields/theme/ColorField',
-              },
+              components: { Field: '@/payload/fields/theme/ColorField' },
             },
             required: true,
-            defaultValue: 'hsl(291, 63.72%, 42.16%)',
+            defaultValue: 'oklch(51.537% 0.2148 320.863)',
           },
         ],
       },
