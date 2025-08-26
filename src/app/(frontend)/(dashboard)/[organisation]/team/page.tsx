@@ -1,6 +1,7 @@
 'use server'
 
 import LayoutClient from '../layout.client'
+import { Users } from 'lucide-react'
 
 import { getTenantAction } from '@/actions/auth'
 import { getTeamMembersAction } from '@/actions/team'
@@ -16,7 +17,11 @@ const TeamPage = async () => {
   return (
     <LayoutClient>
       <section>
-        <h3 className='text-2xl font-semibold'>People</h3>
+        <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+          <Users />
+          <h3>Team</h3>
+        </div>
+
         {result?.serverError ? (
           <AccessDeniedAlert className='mt-4' error={result?.serverError} />
         ) : (

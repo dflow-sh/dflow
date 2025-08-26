@@ -3,14 +3,7 @@
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  CheckCircle,
-  Copy,
-  Key,
-  RefreshCw,
-  Shield,
-  Terminal,
-} from 'lucide-react'
+import { Copy, Dices, Key, RefreshCw, Shield, Terminal } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -36,6 +29,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
+import { handleGenerateName } from './dflowVpsForm/utils'
+
 type TailscaleFormData = z.infer<typeof createTailscaleServerSchema>
 
 const TailscaleForm = () => {
@@ -45,7 +40,7 @@ const TailscaleForm = () => {
   const form = useForm<TailscaleFormData>({
     resolver: zodResolver(createTailscaleServerSchema),
     defaultValues: {
-      name: '',
+      name: handleGenerateName(),
       description: '',
       username: 'root',
     },
@@ -214,9 +209,23 @@ const TailscaleForm = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} className='rounded-sm' />
-              </FormControl>
+              <div className='flex w-full items-center space-x-2'>
+                <FormControl>
+                  <Input {...field} className='w-full' />
+                </FormControl>
+
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='icon'
+                  onClick={() => {
+                    const generatedName = handleGenerateName()
+                    form.setValue('name', generatedName)
+                  }}
+                  title='Generate unique name'>
+                  <Dices className='h-4 w-4' />
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -247,13 +256,13 @@ const TailscaleForm = () => {
                   <Input
                     {...field}
                     placeholder='Generating unique hostname...'
-                    className='cursor-not-allowed rounded-sm bg-muted'
+                    className='bg-muted cursor-not-allowed rounded-sm'
                     readOnly
                     disabled
                   />
                 </FormControl>
                 <FormMessage />
-                <p className='mt-1 text-xs text-muted-foreground'>
+                <p className='text-muted-foreground mt-1 text-xs'>
                   A unique hostname has been automatically generated for your
                   server
                 </p>
@@ -282,55 +291,43 @@ const TailscaleForm = () => {
 
         <div className='space-y-4'>
           {/* Generate Auth Key Section */}
-          <div className='rounded-lg border bg-muted/30 p-4'>
+          <div className='bg-muted/30 rounded-lg border p-4'>
             <div className='flex items-center justify-between gap-3'>
               <div className='flex-1'>
                 <div className='flex items-center gap-2'>
-                  <Key className='h-4 w-4 text-muted-foreground' />
-                  <p className='text-sm font-medium text-foreground'>
+                  <Key className='text-muted-foreground h-4 w-4' />
+                  <p className='text-foreground text-sm font-medium'>
                     Tailscale Auth Key
                   </p>
                 </div>
-                <p className='mt-1 text-xs text-muted-foreground'>
+                <p className='text-muted-foreground mt-1 text-xs'>
                   Generate authentication key for secure mesh networking
                 </p>
               </div>
+
               <Button
                 type='submit'
                 disabled={
                   isFetchingOAuthClientSecret || isGenerating || isGenerated
                 }
+                isLoading={isFetchingOAuthClientSecret || isGenerating}
                 className='shrink-0'>
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className='mr-2 h-3 w-3 animate-spin' />
-                    Generating...
-                  </>
-                ) : isGenerated ? (
-                  <>
-                    <CheckCircle className='mr-2 h-3 w-3' />
-                    Generated
-                  </>
-                ) : (
-                  <>
-                    <Key className='mr-2 h-3 w-3' />
-                    Generate Key
-                  </>
-                )}
+                <Key className='mr-2 h-3 w-3' />
+                Generate Key
               </Button>
             </div>
           </div>
 
           {/* Generated Commands Section */}
           {isGenerated && generatedCommands.length > 0 && (
-            <div className='rounded-lg border bg-muted/50 p-4'>
+            <div className='bg-muted/50 rounded-lg border p-4'>
               <div className='mb-3 flex items-center gap-2'>
-                <Terminal className='h-4 w-4 text-muted-foreground' />
-                <p className='text-sm font-medium text-foreground'>
+                <Terminal className='text-muted-foreground h-4 w-4' />
+                <p className='text-foreground text-sm font-medium'>
                   Generated Commands
                 </p>
               </div>
-              <p className='mb-4 text-xs text-muted-foreground'>
+              <p className='text-muted-foreground mb-4 text-xs'>
                 Execute these commands on your server to install and configure
                 Tailscale
               </p>
@@ -339,7 +336,7 @@ const TailscaleForm = () => {
                 {generatedCommands.map((command, index) => (
                   <div key={index} className='space-y-2'>
                     <div className='flex items-center justify-between'>
-                      <p className='text-xs font-medium text-foreground'>
+                      <p className='text-foreground text-xs font-medium'>
                         Step {index + 1}:{' '}
                         {index === 0
                           ? 'Install Tailscale'
@@ -356,7 +353,7 @@ const TailscaleForm = () => {
                       </Button>
                     </div>
                     <div className='relative'>
-                      <pre className='overflow-x-auto rounded border bg-background p-3 text-xs text-foreground'>
+                      <pre className='bg-background text-foreground overflow-x-auto rounded border p-3 text-xs'>
                         <code>{command}</code>
                       </pre>
                     </div>
@@ -364,8 +361,8 @@ const TailscaleForm = () => {
                 ))}
               </div>
 
-              <div className='mt-4 rounded border bg-muted/30 p-3'>
-                <p className='text-xs text-muted-foreground'>
+              <div className='bg-muted/30 mt-4 rounded border p-3'>
+                <p className='text-muted-foreground text-xs'>
                   💡 <strong>Tip:</strong> Run these commands in order on your
                   server. The first command installs Tailscale, and the second
                   connects it to your network.
@@ -375,16 +372,16 @@ const TailscaleForm = () => {
           )}
 
           {/* Test Connection Section */}
-          <div className='rounded-lg border bg-muted/30 p-4'>
+          <div className='bg-muted/30 rounded-lg border p-4'>
             <div className='flex items-center justify-between gap-3'>
               <div className='flex-1'>
                 <div className='flex items-center gap-2'>
-                  <Shield className='h-4 w-4 text-muted-foreground' />
-                  <p className='text-sm font-medium text-foreground'>
+                  <Shield className='text-muted-foreground h-4 w-4' />
+                  <p className='text-foreground text-sm font-medium'>
                     Server Connection Test
                   </p>
                 </div>
-                <p className='mt-1 text-xs text-muted-foreground'>
+                <p className='text-muted-foreground mt-1 text-xs'>
                   Verify Tailscale network connectivity
                 </p>
               </div>
@@ -416,7 +413,7 @@ const TailscaleForm = () => {
             type='button'
             disabled={isCreatingServer || !showCreateServer}
             onClick={handleCreateServer}>
-            Create Server
+            Add Server
           </Button>
         </div>
       </form>

@@ -479,10 +479,10 @@ const AttachCustomServerForm = ({
           <div className='space-y-4 rounded-lg border p-4'>
             <div className='flex items-center justify-between gap-3'>
               <div className='flex-1'>
-                <p className='text-sm font-medium text-foreground'>
+                <p className='text-foreground text-sm font-medium'>
                   Server Connection Test
                 </p>
-                <p className='text-xs text-muted-foreground'>
+                <p className='text-muted-foreground text-xs'>
                   Verify server connectivity before saving
                 </p>
               </div>
@@ -580,10 +580,7 @@ const AttachCustomServerForm = ({
               ) : criticalFieldsChanged && !hasTestedConnection ? (
                 'Test Connection First'
               ) : canSave ? (
-                <>
-                  <CheckCircle className='mr-2 h-4 w-4' />
-                  {formType === 'create' ? 'Add Server' : 'Update Server'}
-                </>
+                <>{formType === 'create' ? 'Add Server' : 'Update Server'}</>
               ) : (
                 'Fix Connection Issues'
               )}

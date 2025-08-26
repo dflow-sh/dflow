@@ -709,9 +709,10 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                         className='order-1 after:absolute after:inset-0'
                       />
                       <div className='flex grow items-center gap-4'>
-                        <div className='bg-secondary flex h-10 w-10 items-center justify-center rounded-full'>
+                        <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full'>
                           {Icon && <Icon className='h-5 w-5' />}
                         </div>
+
                         <div>
                           <Label
                             htmlFor={`${id}-${slug}`}
@@ -760,7 +761,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                   className='order-1 after:absolute after:inset-0'
                 />
                 <div className='flex grow items-center gap-4'>
-                  <div className='bg-secondary flex h-10 w-10 items-center justify-center rounded-full'>
+                  <div className='bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full'>
                     <Server className='size-4' />
                   </div>
                   <div>

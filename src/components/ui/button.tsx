@@ -92,7 +92,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         </span>
 
         {isLoading && (
-          <div className='text-foreground absolute inset-0 flex items-center justify-center [&_svg]:size-5'>
+          <div className='absolute inset-0 flex items-center justify-center [&_svg]:size-5'>
             <Loader className='animate-spin' />
           </div>
         )}

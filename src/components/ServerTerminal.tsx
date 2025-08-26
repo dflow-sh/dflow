@@ -71,7 +71,7 @@ const ServerTerminal = ({
       <SheetTrigger asChild>
         <button
           className={cn(
-            'fixed bottom-0 right-0 z-50 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
+            'bg-secondary/50 hover:bg-secondary/70 fixed right-0 bottom-0 z-50 flex w-full items-center justify-between border-t px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear',
           )}>
           <div className='flex items-center gap-2 text-sm'>
             <SquareTerminal size={16} /> Console
@@ -90,7 +90,7 @@ const ServerTerminal = ({
         {servers.length ? (
           <Tabs tabs={tabs} />
         ) : (
-          <p className='text-center'>No Severs Found!</p>
+          <p className='py-8 text-center'>No Severs Found!</p>
         )}
       </SheetContent>
     </Sheet>
