@@ -1,3 +1,5 @@
+'use server'
+
 import { addExposeDatabasePortQueue } from '../database/expose'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'

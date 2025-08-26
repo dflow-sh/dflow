@@ -20,6 +20,7 @@ import { toast } from 'sonner'
 
 import { checkDNSConfigAction } from '@/actions/server'
 import {
+  markDefaultServiceDomainAction,
   syncServiceDomainAction,
   updateServiceDomainAction,
 } from '@/actions/service'
@@ -86,13 +87,13 @@ const DomainCard = ({
     isPending: checkingDNSConfig,
     result,
   } = useAction(checkDNSConfigAction, {
-    onSuccess: ({ data }) => {
-      if (data) {
-        toast.info('Added to queue', {
-          description: 'Added syncing domain to queue',
-        })
-      }
-    },
+    // onSuccess: ({ data }) => {
+    //   if (data) {
+    //     toast.info('Added to queue', {
+    //       description: 'Added syncing domain to queue',
+    //     })
+    //   }
+    // },
     onError: ({ error, input }) => {
       toast.error(
         `Failed to verify ${input.domain} domain status: ${error.serverError}`,
@@ -117,6 +118,26 @@ const DomainCard = ({
     },
   })
 
+  const {
+    execute: markAsDefault,
+    isPending: markingAsDefault,
+    hasSucceeded: triggeredMarkAsDefault,
+  } = useAction(markDefaultServiceDomainAction, {
+    onError: ({ error }) => {
+      toast.error('Failed to mark as default', {
+        description: error.serverError,
+      })
+    },
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.info('Successfully marked domain as default', {
+          description: 'Environment variables update in-progress',
+          duration: 4000,
+        })
+      }
+    },
+  })
+
   const wildCardDomains = [
     ...WILD_CARD_DOMAINS,
     env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? '',
@@ -127,12 +148,13 @@ const DomainCard = ({
   )
 
   // Check if this is a default domain (proxy domain)
-  const isDefaultDomain =
+  const isProxyDomain =
     env.NEXT_PUBLIC_PROXY_DOMAIN_URL &&
     server &&
     server.hostname &&
     domain.domain ===
       `${service.name}.${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+  const isDefaultDomain = domain.default
 
   useEffect(() => {
     // Skip if wildcard domain or already synced
@@ -231,8 +253,6 @@ const DomainCard = ({
         : undefined,
     })
   }
-
-  const disableDeleteButton = isDefaultDomain
 
   return (
     <Card
@@ -338,7 +358,7 @@ const DomainCard = ({
             )}
 
             {/* Delete Button */}
-            {!disableDeleteButton && (
+            {!isProxyDomain && (
               <Button
                 size='sm'
                 variant='ghost'
@@ -366,39 +386,53 @@ const DomainCard = ({
         <div className='flex items-center justify-between border-t pt-3'>
           <StatusBadge />
 
-          <Button
-            size='sm'
-            variant={domain.synced ? 'outline' : 'default'}
-            className='h-8 px-3 text-xs'
-            disabled={
-              // Disable if verification hasn't succeeded yet (unless it's a wildcard domain or already synced)
-              (!(result?.data === true || isWildCardDomain) &&
-                !domain.synced) ||
-              checkingDNSConfig ||
-              syncingDomain ||
-              domain.synced ||
-              triggeredDomainSync ||
-              isPending
-            }
-            isLoading={syncingDomain}
-            onClick={() => {
-              syncDomain({
-                domain: {
-                  hostname: domain.domain,
-                  autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
-                  certificateType: domain.certificateType ?? 'letsencrypt',
-                  default: domain.default ?? false,
-                },
-                id: serviceId,
-                operation: 'add',
-              })
-            }}>
-            {domain.synced
-              ? 'Synced'
-              : triggeredDomainSync
-                ? 'Syncing...'
-                : 'Sync Domain'}
-          </Button>
+          <div className='flex gap-2'>
+            {!isDefaultDomain && domain.synced && (
+              <Button
+                isLoading={markingAsDefault}
+                disabled={markingAsDefault || triggeredMarkAsDefault}
+                onClick={() => {
+                  markAsDefault({
+                    defaultDomain: domain.domain,
+                    serviceId: service.id,
+                  })
+                }}>
+                Mark as Default
+              </Button>
+            )}
+
+            <Button
+              variant={domain.synced ? 'outline' : 'default'}
+              disabled={
+                // Disable if verification hasn't succeeded yet (unless it's a wildcard domain or already synced)
+                (!(result?.data === true || isWildCardDomain) &&
+                  !domain.synced) ||
+                checkingDNSConfig ||
+                syncingDomain ||
+                domain.synced ||
+                triggeredDomainSync ||
+                isPending
+              }
+              isLoading={syncingDomain}
+              onClick={() => {
+                syncDomain({
+                  domain: {
+                    hostname: domain.domain,
+                    autoRegenerateSSL: domain.autoRegenerateSSL ?? false,
+                    certificateType: domain.certificateType ?? 'letsencrypt',
+                    default: domain.default ?? false,
+                  },
+                  id: serviceId,
+                  operation: 'add',
+                })
+              }}>
+              {domain.synced
+                ? 'Synced'
+                : triggeredDomainSync
+                  ? 'Syncing...'
+                  : 'Sync Domain'}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

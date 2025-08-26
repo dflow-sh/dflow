@@ -17,7 +17,14 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 import { useRouter } from '@bprogress/next'
-import { AlertCircle, EllipsisVertical, SquarePen, Trash2 } from 'lucide-react'
+import {
+  AlertCircle,
+  EllipsisVertical,
+  LayoutTemplate,
+  Plus,
+  SquarePen,
+  Trash2,
+} from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -34,7 +41,107 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { CloudProviderAccount, Template, Tenant } from '@/payload-types'
 
-const TemplateDetails = ({
+const UnPublishedTemplates = ({
+  templates,
+  account,
+}: {
+  templates: Template[]
+  account: CloudProviderAccount | undefined
+}) => {
+  const { organisation } = useParams()
+  return (
+    <section>
+      {templates && templates?.length > 0 ? (
+        <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
+          {templates.map(template => (
+            <TemplateCard
+              key={template.id}
+              template={template}
+              account={account}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+          <div className='grid min-h-[20vh] place-items-center'>
+            <div>
+              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                <LayoutTemplate className='h-8 w-8 animate-pulse text-muted-foreground' />
+              </div>
+
+              <div className='my-4'>
+                <h3 className='text-xl font-semibold text-foreground'>
+                  All templates published
+                </h3>
+                <p className='text-base text-muted-foreground'>
+                  Looks like you have not published any templates
+                </p>
+              </div>
+
+              <Link
+                className='block'
+                href={`/${organisation}/templates/compose`}>
+                <Button className='mt-2'>
+                  <Plus className='h-4 w-4' />
+                  Create Template
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+const PublishedTemplates = ({
+  templates,
+  account,
+}: {
+  templates: Template[]
+  account: CloudProviderAccount | undefined
+}) => {
+  return (
+    <section>
+      <h3 className='text-xl font-semibold'>Published Templates</h3>
+      <p className='mb-6 text-sm text-muted-foreground'>
+        A list of templates published to the dFlow template marketplace
+      </p>
+      {templates && templates?.length > 0 ? (
+        <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
+          {templates.map(template => (
+            <TemplateCard
+              key={template.id}
+              template={template}
+              account={account}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+          <div className='grid min-h-[20vh] place-items-center'>
+            <div>
+              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
+                <LayoutTemplate className='h-8 w-8 animate-pulse text-muted-foreground' />
+              </div>
+
+              <div className='my-4'>
+                <h3 className='text-xl font-semibold text-foreground'>
+                  No published templates found
+                </h3>
+                <p className='text-base text-muted-foreground'>
+                  Looks like you have not published any templates
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
+const TemplateCard = ({
   template,
   account,
 }: {
@@ -137,7 +244,9 @@ const TemplateDetails = ({
                 <SquarePen size={20} />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setOpen(true)}>
+              <DropdownMenuItem
+                disabled={!!isPublished}
+                onClick={() => setOpen(true)}>
                 <Trash2 size={20} />
                 Delete
               </DropdownMenuItem>
@@ -248,4 +357,29 @@ const TemplateDetails = ({
   )
 }
 
-export default TemplateDetails
+const PersonalTemplates = ({
+  templates,
+  accounts,
+}: {
+  templates: Template[]
+  accounts: CloudProviderAccount[] | []
+}) => {
+  const publishedTemplates = templates.filter(template => template.isPublished)
+  const unPublishedTemplates = templates.filter(
+    template => !template.isPublished,
+  )
+  return (
+    <div className='space-y-12'>
+      <UnPublishedTemplates
+        templates={unPublishedTemplates}
+        account={accounts?.at(0)}
+      />
+      <PublishedTemplates
+        templates={publishedTemplates}
+        account={accounts?.at(0)}
+      />
+    </div>
+  )
+}
+
+export default PersonalTemplates

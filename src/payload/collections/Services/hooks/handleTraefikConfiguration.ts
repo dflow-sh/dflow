@@ -23,7 +23,10 @@ export const handleTraefikConfiguration: CollectionAfterChangeHook<
         depth: 1,
       })
 
-      if (typeof server === 'object') {
+      if (
+        typeof server === 'object' &&
+        server.preferConnectionType === 'tailscale'
+      ) {
         const tenantSlug = typeof tenant === 'object' ? tenant?.slug : ''
 
         const domains =

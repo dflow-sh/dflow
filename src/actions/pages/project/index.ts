@@ -93,8 +93,7 @@ export const getProjectBreadcrumbs = protectedClient
             },
           ],
         },
-        depth: 10,
-
+        depth: 1,
         select: {
           server: true,
           name: true,

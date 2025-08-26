@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Database, Github, Loader2, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { JSX, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -112,8 +111,8 @@ export const formateServices = (services: Template['services']) => {
 const TemplateCard = ({
   template,
   isSelected,
-  isDisabled,
-  disabledReason,
+  hasMissingPlugins,
+  missingPlugins,
   onSelect,
   serverId,
   serverName,
@@ -121,8 +120,8 @@ const TemplateCard = ({
 }: {
   template: Template
   isSelected: boolean
-  isDisabled: boolean
-  disabledReason?: string[]
+  hasMissingPlugins: boolean
+  missingPlugins?: string[]
   onSelect: (id: string) => void
   serverId: string
   serverName: string
@@ -130,14 +129,13 @@ const TemplateCard = ({
 }) => {
   const { id, name, services = [], description, imageUrl } = template
 
-  const card = (
+  return (
     <div
       className={cn(
         'relative cursor-pointer rounded-lg border p-4 transition-all hover:shadow-md',
         isSelected && 'border-primary',
-        isDisabled && 'cursor-not-allowed opacity-50',
       )}
-      onClick={() => !isDisabled && onSelect(id)}>
+      onClick={() => onSelect(id)}>
       {isSelected && (
         <div className='absolute right-3 top-3'>
           <Check className='size-5 text-primary' />
@@ -169,55 +167,56 @@ const TemplateCard = ({
         <div className='flex flex-wrap gap-1'>
           {services?.map(service => {
             const serviceName = service.databaseDetails?.type ?? service?.type
+            const isPluginMissing =
+              service.type === 'database' &&
+              missingPlugins?.includes(service.databaseDetails?.type ?? '')
 
-            return (
+            const badge = (
               <Badge
-                variant='outline'
+                variant={isPluginMissing ? 'warning' : 'outline'}
                 key={service.id}
-                className='gap-1 text-xs capitalize'>
+                className={cn(
+                  'gap-1 text-xs capitalize',
+                  isPluginMissing && 'border-dashed',
+                )}>
                 {service.type === 'database' && service.databaseDetails?.type
                   ? databaseIcons[service.databaseDetails?.type]
                   : icon[service.type]}
                 {serviceName}
               </Badge>
             )
+
+            if (isPluginMissing) {
+              return (
+                <TooltipProvider key={service.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>{badge}</TooltipTrigger>
+                    <TooltipContent>
+                      <p>Plugin not installed - will be auto-installed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
+            }
+
+            return badge
           })}
         </div>
 
-        {isDisabled && disabledReason?.length && (
-          <div className='text-xs text-destructive'>
-            Enable {disabledReason.join(', ')} plugin for{' '}
-            <Button
-              variant='link'
-              className='h-auto w-min px-0 text-xs'
-              asChild>
-              <Link
-                href={`/${organisationName}/servers/${serverId}?tab=plugins`}>
-                {serverName}
-              </Link>
-            </Button>{' '}
-            server to deploy template
+        {hasMissingPlugins && missingPlugins?.length && (
+          <div className='text-xs text-muted-foreground'>
+            Missing plugins{' '}
+            <span className='font-medium text-primary'>
+              {missingPlugins.join(', ')}
+            </span>{' '}
+            will be auto-installed
           </div>
         )}
       </div>
     </div>
   )
-
-  if (isDisabled && disabledReason?.length) {
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>{card}</TooltipTrigger>
-          <TooltipContent>
-            <p>Missing required plugins: {disabledReason.join(', ')}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )
-  }
-
-  return card
 }
+
 const TemplateDeploymentForm = ({
   execute,
   isPending,
@@ -241,7 +240,8 @@ const TemplateDeploymentForm = ({
       onSuccess: ({ data }) => {
         if (data?.success) {
           toast.success('Added to queue', {
-            description: 'Added template deploy to queue',
+            description:
+              'Template deployment started. Missing plugins will be installed automatically.',
           })
 
           dialogRef.current?.click()
@@ -288,7 +288,7 @@ const TemplateDeploymentForm = ({
       service => service.type === 'database',
     )
 
-    const disabledDatabasesList = databasesList?.filter(database => {
+    const missingPluginsList = databasesList?.filter(database => {
       const databaseType = database?.databaseDetails?.type
 
       const pluginDetails = plugins?.find(
@@ -301,9 +301,9 @@ const TemplateDeploymentForm = ({
       )
     })
 
-    const disabledDatabasesListNames = Array.from(
+    const missingPluginsNames = Array.from(
       new Set(
-        disabledDatabasesList
+        missingPluginsList
           ?.map(db => db?.databaseDetails?.type)
           .filter(
             (value): value is Exclude<typeof value, undefined> =>
@@ -314,8 +314,8 @@ const TemplateDeploymentForm = ({
 
     return {
       ...template,
-      isDisabled: !services?.length || !!disabledDatabasesList?.length,
-      disabledReason: disabledDatabasesListNames,
+      hasMissingPlugins: !!missingPluginsList?.length,
+      missingPlugins: missingPluginsNames,
     }
   })
 
@@ -342,8 +342,8 @@ const TemplateDeploymentForm = ({
                           key={template.id}
                           template={template}
                           isSelected={selectedTemplateId === template.id}
-                          isDisabled={template.isDisabled}
-                          disabledReason={template.disabledReason}
+                          hasMissingPlugins={template.hasMissingPlugins}
+                          missingPlugins={template.missingPlugins}
                           onSelect={setSelectedTemplateId}
                           serverId={serverId}
                           serverName={serverName}
@@ -369,7 +369,7 @@ const TemplateDeploymentForm = ({
             type='submit'
             disabled={deployingTemplate || !selectedTemplateId}
             isLoading={deployingTemplate}>
-            Deploy
+            Deploy Template
           </Button>
         </DialogFooter>
       </form>
@@ -433,7 +433,8 @@ const DeployTemplate = ({
         <DialogHeader>
           <DialogTitle>Deploy from Template</DialogTitle>
           <DialogDescription>
-            Choose a template to deploy to your project
+            Choose a template to deploy to your project. Missing plugins will be
+            installed automatically.
           </DialogDescription>
         </DialogHeader>
         <div className='flex-1 overflow-hidden'>
@@ -467,12 +468,12 @@ const DeployTemplate = ({
 
               <TabsContent value='personal' className='h-full'>
                 <TemplateDeploymentForm
-              execute={getPersonalTemplates}
-              templates={personalTemplates.data}
-              isPending={isGetTemplatesPending}
-              server={server}
-              type='personal'
-            />
+                  execute={getPersonalTemplates}
+                  templates={personalTemplates.data}
+                  isPending={isGetTemplatesPending}
+                  server={server}
+                  type='personal'
+                />
               </TabsContent>
             </div>
           </Tabs>

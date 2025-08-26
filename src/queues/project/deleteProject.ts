@@ -57,7 +57,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         const { server, services } = await payload.findByID({
           collection: 'projects',
           id: projectDetails.id,
-          depth: 10,
+          depth: 4,
           joins: {
             services: {
               limit: 1000,

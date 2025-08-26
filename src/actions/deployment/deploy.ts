@@ -7,7 +7,7 @@ import { extractSSHDetails } from '@/lib/ssh'
 import { addDeployQueue } from '@/queues/app/deploy'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addRebuildAppQueue } from '@/queues/app/rebuilt'
-import { addCreateDatabaseQueue } from '@/queues/database/create'
+import { addCreateDatabaseWithPluginsQueue } from '@/queues/database/createWithPlugins'
 
 export const triggerDeployment = async ({
   serviceId,
@@ -35,7 +35,7 @@ export const triggerDeployment = async ({
     ...serviceDetails
   } = await payload.findByID({
     collection: 'services',
-    depth: 10,
+    depth: 3,
     id: serviceId,
   })
 
@@ -104,7 +104,7 @@ export const triggerDeployment = async ({
     }
 
     if (type === 'database' && serviceDetails.databaseDetails?.type) {
-      const databaseQueueResponse = await addCreateDatabaseQueue({
+      const databaseQueueResponse = await addCreateDatabaseWithPluginsQueue({
         databaseName: serviceDetails.name,
         databaseType: serviceDetails.databaseDetails?.type,
         sshDetails,

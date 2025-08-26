@@ -88,7 +88,7 @@ export const uninstallTerminalAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     if (typeof serverDetails.sshKey !== 'object') {
@@ -133,7 +133,7 @@ export const startTerminalAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
@@ -169,7 +169,7 @@ export const stopTerminalAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
@@ -205,7 +205,7 @@ export const restartTerminalAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })

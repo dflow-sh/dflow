@@ -198,9 +198,9 @@ export const deletePluginAction = protectedClient
       },
     })
 
-    console.log({ queueResponse })
-
-    return { success: true }
+    if (queueResponse.id) {
+      return { success: true }
+    }
   })
 
 export const configureLetsencryptPluginAction = protectedClient

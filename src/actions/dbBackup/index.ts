@@ -55,7 +55,7 @@ export const internalBackupAction = protectedClient
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id: serviceId,
     })
 
@@ -110,7 +110,7 @@ export const internalRestoreAction = protectedClient
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id: serviceId,
     })
 
@@ -153,7 +153,7 @@ export const internalDbDeleteAction = protectedClient
 
     const { project, ...serviceDetails } = await payload.findByID({
       collection: 'services',
-      depth: 10,
+      depth: 3,
       id: serviceId,
     })
 

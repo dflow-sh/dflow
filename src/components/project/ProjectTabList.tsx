@@ -52,7 +52,7 @@ const ProjectTabsList: React.FC<{
       </div>
 
       <main
-        className={cn('mx-auto mb-10 mt-4 w-full max-w-6xl px-4', className)}>
+        className={cn('mx-auto mt-4 w-full max-w-6xl px-4 pb-32', className)}>
         {children}
       </main>
     </>

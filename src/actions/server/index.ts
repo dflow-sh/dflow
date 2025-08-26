@@ -242,7 +242,7 @@ export const installDokkuAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
@@ -312,7 +312,7 @@ export const updateServerDomainAction = protectedClient
         domains: filteredDomains,
       },
       collection: 'servers',
-      depth: 10,
+      depth: 1,
     })
 
     // for delete, set action updating domain in dokku
@@ -350,7 +350,7 @@ export const installRailpackAction = protectedClient
     const serverDetails = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server: serverDetails })
@@ -500,7 +500,7 @@ export const syncServerDomainAction = protectedClient
     const server = await payload.findByID({
       id,
       collection: 'servers',
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server })
@@ -929,7 +929,7 @@ export const configureGlobalBuildDirAction = protectedClient
     const server = await payload.findByID({
       collection: 'servers',
       id: serverId,
-      depth: 10,
+      depth: 1,
     })
 
     const sshDetails = extractSSHDetails({ server })

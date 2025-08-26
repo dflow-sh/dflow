@@ -51,7 +51,7 @@ const LayoutClient = ({
       </div>
 
       <main
-        className={cn('mx-auto mb-32 w-full max-w-6xl px-4 pt-4', className)}>
+        className={cn('mx-auto w-full max-w-6xl px-4 pb-32 pt-4', className)}>
         {children}
       </main>
     </>

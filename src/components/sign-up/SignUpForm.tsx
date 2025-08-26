@@ -3,6 +3,7 @@
 import Loader from '../Loader'
 import Logo from '../Logo'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Lock, Mail, User, UserPlus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,6 +14,13 @@ import { z } from 'zod'
 import { signUpAction } from '@/actions/auth'
 import { signUpSchema } from '@/actions/auth/validator'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Form,
   FormControl,
@@ -60,106 +68,125 @@ const SignUpForm: React.FC<SignupProps> = ({ token }) => {
   }
 
   return (
-    <div className='flex min-h-screen w-full items-center justify-center'>
-      <div className='w-full max-w-md p-6'>
-        <Logo
-          className='mx-auto mb-2 max-h-28'
-          skeletonClassName='mx-auto mb-2'
-        />
-        <h1 className='mb-6 text-center text-3xl font-semibold'>Sign Up</h1>
+    <div className='flex min-h-screen items-center justify-center bg-background p-4'>
+      <div className='w-full max-w-md space-y-6'>
+        <Card className='shadow-lg'>
+          <CardHeader className='space-y-1 pb-4'>
+            <Logo className='mx-auto mb-4 max-h-28' />
+            <CardTitle className='text-center text-2xl font-semibold'>
+              Create an account
+            </CardTitle>
+            <CardDescription className='text-center'>
+              Enter your information to create an account
+            </CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-6'>
+            <Form {...form}>
+              <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+                <FormField
+                  control={form.control}
+                  name={'username'}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <User className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                          <Input
+                            {...field}
+                            onChange={e => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              e.target.value = slugify(e.target.value)
+                              field.onChange(e)
+                            }}
+                            type='text'
+                            placeholder='john-doe'
+                            className='pl-10'
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={'email'}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <Mail className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                          <Input
+                            {...field}
+                            type='email'
+                            placeholder='johndoe@example.com'
+                            className='pl-10'
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={'password'}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                          <Input {...field} type='password' className='pl-10' />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={'confirmPassword'}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <div className='relative'>
+                          <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                          <Input {...field} type='password' className='pl-10' />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className='pt-4'>
+                  <Button type='submit' className='w-full' disabled={isPending}>
+                    {isPending ? (
+                      <Loader />
+                    ) : (
+                      <>
+                        <UserPlus className='mr-2 h-4 w-4' />
+                        Sign Up
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
 
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-            <FormField
-              control={form.control}
-              name={'username'}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-
-                  <FormControl>
-                    <Input
-                      {...field}
-                      onChange={e => {
-                        e.stopPropagation()
-                        e.preventDefault()
-
-                        e.target.value = slugify(e.target.value)
-
-                        field.onChange(e)
-                      }}
-                      type='text'
-                      placeholder='john-deo'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name={'email'}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type='email'
-                      placeholder='johndeo@gmail.com'
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name={'password'}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-
-                  <FormControl>
-                    <Input {...field} type='password' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name={'confirmPassword'}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-
-                  <FormControl>
-                    <Input {...field} type='password' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type='submit' className='w-full' disabled={isPending}>
-              {isPending ? <Loader /> : 'Sign Up'}
-            </Button>
-          </form>
-        </Form>
-
-        <div className='text-base-content/70 mt-4 text-center text-sm'>
-          <p>
-            Already have an account?{' '}
-            <Link
-              href={token ? `/sign-in?token=${token}` : '/sign-in'}
-              className='text-primary underline'>
-              SignIn
-            </Link>
-          </p>
+        <div className='text-center text-sm text-muted-foreground'>
+          Already have an account?{' '}
+          <Link
+            href={token ? `/sign-in?token=${token}` : '/sign-in'}
+            className='font-medium text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline'>
+            Sign in
+          </Link>
         </div>
       </div>
     </div>

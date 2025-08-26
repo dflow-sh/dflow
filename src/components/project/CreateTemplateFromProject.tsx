@@ -22,6 +22,7 @@ import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Puzzle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -177,6 +178,8 @@ const CreateTemplateFromProject = ({
   const updatedServices = servicesToTemplate(services, projectName)
 
   const [open, setOpen] = useState(false)
+  const { organisation } = useParams()
+  const router = useRouter()
   const form = useForm<CreateTemplateSchemaType>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
@@ -191,6 +194,9 @@ const CreateTemplateFromProject = ({
       onSuccess: ({ data }) => {
         toast.success('Template created successfully')
         setOpen(false)
+        router.replace(
+          `/${organisation}/templates/compose?templateId=${data?.id}&type=personal`,
+        )
         form.reset()
       },
       onError: ({ error }) => {

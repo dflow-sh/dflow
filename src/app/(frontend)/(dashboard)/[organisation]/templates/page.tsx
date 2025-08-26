@@ -8,8 +8,8 @@ import {
   getPersonalTemplatesAction,
 } from '@/actions/templates'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
+import PersonalTemplates from '@/components/templates/PersonalTemplates'
 import TemplateCard from '@/components/templates/TemplateCard'
-import TemplateDetails from '@/components/templates/TemplateDetails'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Template } from '@/payload-types'
@@ -107,15 +107,10 @@ const page = async ({ params }: PageProps) => {
               <AccessDeniedAlert error={personalTemplates?.serverError} />
             ) : personalTemplates?.data &&
               personalTemplates?.data?.length > 0 ? (
-              <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {personalTemplates?.data?.map(template => (
-                  <TemplateDetails
-                    account={accounts?.data?.at(0)}
-                    key={template.id}
-                    template={template}
-                  />
-                ))}
-              </div>
+              <PersonalTemplates
+                templates={personalTemplates?.data}
+                accounts={accounts?.data || []}
+              />
             ) : (
               <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
                 <Puzzle
