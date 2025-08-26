@@ -37,10 +37,10 @@ const RequestsTab = ({
 }) => {
   return (
     <div>
-      <div className='absolute inset-0 z-10 flex items-center justify-center bg-background/40 backdrop-blur-[2px]'>
-        <div className='flex flex-col items-center gap-2 rounded-lg bg-secondary px-8 py-6 shadow-lg'>
+      <div className='bg-background/40 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[2px]'>
+        <div className='bg-secondary flex flex-col items-center gap-2 rounded-lg px-8 py-6 shadow-lg'>
           <div className='text-xl font-semibold'>Coming Soon</div>
-          <p className='text-sm text-muted-foreground'>
+          <p className='text-muted-foreground text-sm'>
             This feature is under development
           </p>
         </div>
@@ -51,16 +51,16 @@ const RequestsTab = ({
             <CardTitle>Request Volume</CardTitle>
             <CardDescription>Successful vs Error requests</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 success: {
                   label: 'Success',
-                  color: 'hsl(var(--chart-2))',
+                  color: 'var(--chart-2)',
                 },
                 error: {
                   label: 'Error',
-                  color: 'hsl(var(--chart-3))',
+                  color: 'var(--chart-3)',
                 },
               }}
               className='aspect-auto h-[250px] w-full'>
@@ -126,12 +126,12 @@ const RequestsTab = ({
             <CardTitle>Response Time</CardTitle>
             <CardDescription>Average response time (ms)</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 responseTime: {
                   label: 'Response Time',
-                  color: 'hsl(var(--chart-1))',
+                  color: 'var(--chart-1)',
                 },
               }}
               className='aspect-auto h-[250px] w-full'>
@@ -187,24 +187,24 @@ const RequestsTab = ({
             <CardDescription>Distribution by HTTP status</CardDescription>
           </CardHeader>
 
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 ok: {
                   label: '200 OK',
-                  color: 'hsl(var(--chart-1))',
+                  color: 'var(--chart-1)',
                 },
                 redirect: {
                   label: '301/302 Redirect',
-                  color: 'hsl(var(--chart-2))',
+                  color: 'var(--chart-2)',
                 },
                 notFound: {
                   label: '404 Not Found',
-                  color: 'hsl(var(--chart-3))',
+                  color: 'var(--chart-3)',
                 },
                 serverError: {
                   label: '500 Server Error',
-                  color: 'hsl(var(--chart-4))',
+                  color: 'var(--chart-4)',
                 },
               }}
               className='aspect-auto h-[250px] w-full'>
@@ -247,12 +247,12 @@ const RequestsTab = ({
               Request processing time distribution
             </CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 count: {
                   label: 'Request Count',
-                  color: 'hsl(var(--chart-1))',
+                  color: 'var(--chart-1)',
                 },
               }}
               className='aspect-auto h-[250px] w-full'>

@@ -117,12 +117,12 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
         {
           name: 'Used',
           value: latestDiskData.used,
-          color: 'hsl(var(--chart-1))',
+          color: 'var(--chart-1)',
         },
         {
           name: 'Free',
           value: latestDiskData.total - latestDiskData.used,
-          color: 'hsl(var(--chart-3))',
+          color: 'var(--chart-3)',
         },
       ]
     : []
@@ -137,13 +137,13 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
             <CardTitle>Disk Usage Trend</CardTitle>
             <CardDescription>Used vs free space over time</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                usage: { label: 'Used %', color: 'hsl(var(--chart-1))' },
+                usage: { label: 'Used %', color: 'var(--chart-1)' },
                 freePercentage: {
                   label: 'Free %',
-                  color: 'hsl(var(--chart-3))',
+                  color: 'var(--chart-3)',
                 },
               }}
               className='aspect-auto h-[300px] w-full'>
@@ -169,8 +169,8 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     type='monotone'
                     dataKey='usage'
                     stackId='disk'
-                    stroke='hsl(var(--chart-1))'
-                    fill='hsl(var(--chart-1))'
+                    stroke='var(--chart-1)'
+                    fill='var(--chart-1)'
                     fillOpacity={0.6}
                     strokeWidth={2}
                     connectNulls
@@ -179,8 +179,8 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     type='monotone'
                     dataKey='freePercentage'
                     stackId='disk'
-                    stroke='hsl(var(--chart-3))'
-                    fill='hsl(var(--chart-3))'
+                    stroke='var(--chart-3)'
+                    fill='var(--chart-3)'
                     fillOpacity={0.4}
                     strokeWidth={2}
                     connectNulls
@@ -216,11 +216,11 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
               <CardTitle>Current Disk Space</CardTitle>
               <CardDescription>Used vs Free space distribution</CardDescription>
             </CardHeader>
-            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+            <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
               <ChartContainer
                 config={{
-                  used: { label: 'Used', color: 'hsl(var(--chart-1))' },
-                  free: { label: 'Free', color: 'hsl(var(--chart-3))' },
+                  used: { label: 'Used', color: 'var(--chart-1)' },
+                  free: { label: 'Free', color: 'var(--chart-3)' },
                 }}
                 className='aspect-auto h-[300px] w-full'>
                 <ResponsiveContainer width='100%' height='100%'>
@@ -266,11 +266,11 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
             <CardTitle>Disk Space (Absolute)</CardTitle>
             <CardDescription>Used vs Free space in GB</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                used: { label: 'Used GB', color: 'hsl(var(--chart-1))' },
-                free: { label: 'Free GB', color: 'hsl(var(--chart-3))' },
+                used: { label: 'Used GB', color: 'var(--chart-1)' },
+                free: { label: 'Free GB', color: 'var(--chart-3)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <ResponsiveContainer width='100%' height='100%'>
@@ -294,8 +294,8 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     type='monotone'
                     dataKey='used'
                     stackId='space'
-                    stroke='hsl(var(--chart-1))'
-                    fill='hsl(var(--chart-1))'
+                    stroke='var(--chart-1)'
+                    fill='var(--chart-1)'
                     fillOpacity={0.6}
                     strokeWidth={2}
                     connectNulls
@@ -304,8 +304,8 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     type='monotone'
                     dataKey='free'
                     stackId='space'
-                    stroke='hsl(var(--chart-3))'
-                    fill='hsl(var(--chart-3))'
+                    stroke='var(--chart-3)'
+                    fill='var(--chart-3)'
                     fillOpacity={0.4}
                     strokeWidth={2}
                     connectNulls
@@ -346,11 +346,11 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                 Read and write throughput in MB/s
               </CardDescription>
             </CardHeader>
-            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+            <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
               <ChartContainer
                 config={{
-                  reads: { label: 'Reads', color: 'hsl(var(--chart-2))' },
-                  writes: { label: 'Writes', color: 'hsl(var(--chart-4))' },
+                  reads: { label: 'Reads', color: 'var(--chart-2)' },
+                  writes: { label: 'Writes', color: 'var(--chart-4)' },
                 }}
                 className='aspect-auto h-[300px] w-full'>
                 <ResponsiveContainer width='100%' height='100%'>
@@ -372,13 +372,13 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     />
                     <Bar
                       dataKey='reads'
-                      fill='hsl(var(--chart-2))'
+                      fill='var(--chart-2)'
                       fillOpacity={0.8}
                       radius={[2, 2, 2, 2]}
                     />
                     <Bar
                       dataKey='writes'
-                      fill='hsl(var(--chart-4))'
+                      fill='var(--chart-4)'
                       fillOpacity={0.6}
                       radius={[2, 2, 2, 2]}
                     />
@@ -414,10 +414,10 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                 Combined read and write throughput
               </CardDescription>
             </CardHeader>
-            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+            <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
               <ChartContainer
                 config={{
-                  totalIO: { label: 'Total I/O', color: 'hsl(var(--chart-5))' },
+                  totalIO: { label: 'Total I/O', color: 'var(--chart-5)' },
                 }}
                 className='aspect-auto h-[300px] w-full'>
                 <ResponsiveContainer width='100%' height='100%'>
@@ -440,7 +440,7 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     <Line
                       type='monotone'
                       dataKey='totalIO'
-                      stroke='hsl(var(--chart-5))'
+                      stroke='var(--chart-5)'
                       strokeWidth={3}
                       dot={false}
                       connectNulls
@@ -478,16 +478,16 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
             <CardTitle>Cumulative Data Transfer</CardTitle>
             <CardDescription>Total data transferred over time</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 cumulativeReads: {
                   label: 'Total Reads',
-                  color: 'hsl(var(--chart-2))',
+                  color: 'var(--chart-2)',
                 },
                 cumulativeWrites: {
                   label: 'Total Writes',
-                  color: 'hsl(var(--chart-4))',
+                  color: 'var(--chart-4)',
                 },
               }}
               className='aspect-auto h-[300px] w-full'>
@@ -511,7 +511,7 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                   <Line
                     type='monotone'
                     dataKey='cumulativeReads'
-                    stroke='hsl(var(--chart-2))'
+                    stroke='var(--chart-2)'
                     strokeWidth={2}
                     dot={false}
                     connectNulls
@@ -519,7 +519,7 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                   <Line
                     type='monotone'
                     dataKey='cumulativeWrites'
-                    stroke='hsl(var(--chart-4))'
+                    stroke='var(--chart-4)'
                     strokeWidth={2}
                     dot={false}
                     connectNulls
@@ -562,15 +562,15 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
         <CardContent>
           <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-1'>
+              <div className='text-chart-1 text-2xl font-bold'>
                 {disk.length > 0
                   ? `${disk[disk.length - 1].usage.toFixed(1)}%`
                   : '0%'}
               </div>
-              <div className='text-sm text-muted-foreground'>Current Usage</div>
+              <div className='text-muted-foreground text-sm'>Current Usage</div>
             </div>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-3'>
+              <div className='text-chart-3 text-2xl font-bold'>
                 {disk.length > 0
                   ? formatBytes(
                       (disk[disk.length - 1].total -
@@ -581,12 +581,12 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                     )
                   : '0 GB'}
               </div>
-              <div className='text-sm text-muted-foreground'>Free Space</div>
+              <div className='text-muted-foreground text-sm'>Free Space</div>
             </div>
             {diskIOData.length > 0 && (
               <>
                 <div className='space-y-2'>
-                  <div className='text-2xl font-bold text-chart-2'>
+                  <div className='text-chart-2 text-2xl font-bold'>
                     {cumulativeIOData.length > 0
                       ? formatBytes(
                           cumulativeIOData[cumulativeIOData.length - 1]
@@ -594,12 +594,12 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                         )
                       : '0'}
                   </div>
-                  <div className='text-sm text-muted-foreground'>
+                  <div className='text-muted-foreground text-sm'>
                     Total Reads
                   </div>
                 </div>
                 <div className='space-y-2'>
-                  <div className='text-2xl font-bold text-chart-4'>
+                  <div className='text-chart-4 text-2xl font-bold'>
                     {cumulativeIOData.length > 0
                       ? formatBytes(
                           cumulativeIOData[cumulativeIOData.length - 1]
@@ -607,7 +607,7 @@ const DefaultDiskTab = ({ historicalData, timeRange }: DefaultDiskTabProps) => {
                         )
                       : '0'}
                   </div>
-                  <div className='text-sm text-muted-foreground'>
+                  <div className='text-muted-foreground text-sm'>
                     Total Writes
                   </div>
                 </div>

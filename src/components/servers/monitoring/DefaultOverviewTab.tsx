@@ -126,10 +126,10 @@ const DefaultOverviewTab = ({
           <CardTitle>CPU Usage</CardTitle>
           <CardDescription>Average system-wide CPU utilization</CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              usage: { label: 'CPU %', color: 'hsl(var(--chart-1))' },
+              usage: { label: 'CPU %', color: 'var(--chart-1)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <AreaChart data={cpu} accessibilityLayer>
@@ -152,8 +152,8 @@ const DefaultOverviewTab = ({
               <Area
                 type='monotone'
                 dataKey='usage'
-                stroke='hsl(var(--chart-1))'
-                fill='hsl(var(--chart-1))'
+                stroke='var(--chart-1)'
+                fill='var(--chart-1)'
                 fillOpacity={0.2}
                 strokeWidth={1.5}
                 connectNulls
@@ -186,10 +186,10 @@ const DefaultOverviewTab = ({
             Precise utilization at the recorded time
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              usedBytes: { label: 'Memory', color: 'hsl(var(--chart-2))' },
+              usedBytes: { label: 'Memory', color: 'var(--chart-2)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <AreaChart data={memoryBytesData} accessibilityLayer>
@@ -211,8 +211,8 @@ const DefaultOverviewTab = ({
               <Area
                 type='monotone'
                 dataKey='usedBytes'
-                stroke='hsl(var(--chart-2))'
-                fill='hsl(var(--chart-2))'
+                stroke='var(--chart-2)'
+                fill='var(--chart-2)'
                 fillOpacity={0.2}
                 strokeWidth={1.5}
                 connectNulls
@@ -245,10 +245,10 @@ const DefaultOverviewTab = ({
           <CardTitle>Disk Usage</CardTitle>
           <CardDescription>Usage of root partition</CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              usedBytes: { label: 'Disk', color: 'hsl(var(--chart-3))' },
+              usedBytes: { label: 'Disk', color: 'var(--chart-3)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <AreaChart data={diskBytesData} accessibilityLayer>
@@ -270,8 +270,8 @@ const DefaultOverviewTab = ({
               <Area
                 type='monotone'
                 dataKey='usedBytes'
-                stroke='hsl(var(--chart-3))'
-                fill='hsl(var(--chart-3))'
+                stroke='var(--chart-3)'
+                fill='var(--chart-3)'
                 fillOpacity={0.2}
                 strokeWidth={1.5}
                 connectNulls
@@ -304,11 +304,11 @@ const DefaultOverviewTab = ({
           <CardTitle>Disk I/O</CardTitle>
           <CardDescription>Throughput of root filesystem</CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              reads: { label: 'Reads', color: 'hsl(var(--chart-4))' },
-              writes: { label: 'Writes', color: 'hsl(var(--chart-5))' },
+              reads: { label: 'Reads', color: 'var(--chart-4)' },
+              writes: { label: 'Writes', color: 'var(--chart-5)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <AreaChart data={diskIOData} accessibilityLayer>
@@ -331,8 +331,8 @@ const DefaultOverviewTab = ({
                 type='monotone'
                 dataKey='writes'
                 stackId='io'
-                stroke='hsl(var(--chart-5))'
-                fill='hsl(var(--chart-5))'
+                stroke='var(--chart-5)'
+                fill='var(--chart-5)'
                 fillOpacity={0.6}
                 strokeWidth={1}
                 connectNulls
@@ -341,8 +341,8 @@ const DefaultOverviewTab = ({
                 type='monotone'
                 dataKey='reads'
                 stackId='io'
-                stroke='hsl(var(--chart-4))'
-                fill='hsl(var(--chart-4))'
+                stroke='var(--chart-4)'
+                fill='var(--chart-4)'
                 fillOpacity={0.6}
                 strokeWidth={1}
                 connectNulls
@@ -378,11 +378,11 @@ const DefaultOverviewTab = ({
             Network traffic of public interfaces
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              incoming: { label: 'Incoming', color: 'hsl(var(--chart-1))' },
-              outgoing: { label: 'Outgoing', color: 'hsl(var(--chart-2))' },
+              incoming: { label: 'Incoming', color: 'var(--chart-1)' },
+              outgoing: { label: 'Outgoing', color: 'var(--chart-2)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <AreaChart data={network} accessibilityLayer>
@@ -405,8 +405,8 @@ const DefaultOverviewTab = ({
                 type='monotone'
                 dataKey='outgoing'
                 stackId='network'
-                stroke='hsl(var(--chart-2))'
-                fill='hsl(var(--chart-2))'
+                stroke='var(--chart-2)'
+                fill='var(--chart-2)'
                 fillOpacity={0.6}
                 strokeWidth={1}
                 connectNulls
@@ -415,8 +415,8 @@ const DefaultOverviewTab = ({
                 type='monotone'
                 dataKey='incoming'
                 stackId='network'
-                stroke='hsl(var(--chart-1))'
-                fill='hsl(var(--chart-1))'
+                stroke='var(--chart-1)'
+                fill='var(--chart-1)'
                 fillOpacity={0.6}
                 strokeWidth={1}
                 connectNulls
@@ -448,12 +448,12 @@ const DefaultOverviewTab = ({
           <CardTitle>Load Average</CardTitle>
           <CardDescription>System load averages over time</CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              load1: { label: '1 min', color: 'hsl(var(--chart-1))' },
-              load5: { label: '5 min', color: 'hsl(var(--chart-2))' },
-              load15: { label: '15 min', color: 'hsl(var(--chart-3))' },
+              load1: { label: '1 min', color: 'var(--chart-1)' },
+              load5: { label: '5 min', color: 'var(--chart-2)' },
+              load15: { label: '15 min', color: 'var(--chart-3)' },
             }}
             className='aspect-auto h-[200px] w-full'>
             <LineChart data={loadAverageData} accessibilityLayer>
@@ -475,7 +475,7 @@ const DefaultOverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='load1'
-                stroke='hsl(var(--chart-1))'
+                stroke='var(--chart-1)'
                 strokeWidth={2}
                 dot={false}
                 connectNulls
@@ -483,7 +483,7 @@ const DefaultOverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='load5'
-                stroke='hsl(var(--chart-2))'
+                stroke='var(--chart-2)'
                 strokeWidth={2}
                 dot={false}
                 connectNulls
@@ -491,7 +491,7 @@ const DefaultOverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='load15'
-                stroke='hsl(var(--chart-3))'
+                stroke='var(--chart-3)'
                 strokeWidth={2}
                 dot={false}
                 connectNulls

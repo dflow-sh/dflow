@@ -39,24 +39,24 @@ const MemoryTab = ({
   memorySomePressureStallTime: any[]
 }) => {
   const memoryMetrics = [
-    { key: 'buffers', label: 'Buffers', color: 'hsl(var(--chart-1))' },
-    { key: 'cached', label: 'Cached', color: 'hsl(var(--chart-2))' },
-    { key: 'free', label: 'Free', color: 'hsl(var(--chart-3))' },
-    { key: 'used', label: 'Used', color: 'hsl(var(--chart-4))' },
+    { key: 'buffers', label: 'Buffers', color: 'var(--chart-1)' },
+    { key: 'cached', label: 'Cached', color: 'var(--chart-2)' },
+    { key: 'free', label: 'Free', color: 'var(--chart-3)' },
+    { key: 'used', label: 'Used', color: 'var(--chart-4)' },
   ]
 
   const availableMetrics = [
-    { key: 'available', label: 'Available', color: 'hsl(var(--chart-7))' },
+    { key: 'available', label: 'Available', color: 'var(--chart-7)' },
   ]
 
   const pressureMetrics = [
-    { key: 'some10', label: 'Some 10', color: 'hsl(var(--chart-3))' },
-    { key: 'some60', label: 'Some 60', color: 'hsl(var(--chart-4))' },
-    { key: 'some300', label: 'Some 300', color: 'hsl(var(--chart-5))' },
+    { key: 'some10', label: 'Some 10', color: 'var(--chart-3)' },
+    { key: 'some60', label: 'Some 60', color: 'var(--chart-4)' },
+    { key: 'some300', label: 'Some 300', color: 'var(--chart-5)' },
   ]
 
   const stallTimeMetrics = [
-    { key: 'stallTime', label: 'Stall Time', color: 'hsl(var(--chart-6))' },
+    { key: 'stallTime', label: 'Stall Time', color: 'var(--chart-6)' },
   ]
 
   return (
@@ -71,7 +71,7 @@ const MemoryTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               memoryMetrics.map(m => [
@@ -126,7 +126,7 @@ const MemoryTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               availableMetrics.map(m => [
@@ -180,7 +180,7 @@ const MemoryTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               pressureMetrics.map(m => [
@@ -234,7 +234,7 @@ const MemoryTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               stallTimeMetrics.map(m => [
