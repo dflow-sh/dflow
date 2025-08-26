@@ -108,7 +108,7 @@ export default function SelectSearchComponent({
   }
 
   return (
-    <div className='*:not-first:mt-2'>
+    <div className='not-first:*:mt-2'>
       <Label htmlFor={'server-select'} className='mb-2 ml-1.5 block'>
         {label}
       </Label>
@@ -146,7 +146,7 @@ export default function SelectSearchComponent({
         </div>
 
         <PopoverContent
-          className='w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0'
+          className='w-full min-w-(--radix-popper-anchor-width) border-input p-0'
           align='start'>
           <Command>
             <CommandInput placeholder={commandInputLabel} />

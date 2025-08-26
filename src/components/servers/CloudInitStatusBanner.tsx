@@ -51,7 +51,7 @@ const BannerBase = ({
           ) : (
             <>
               <div className='relative h-2 w-full overflow-hidden rounded-full bg-primary/20'>
-                <div className='animate-progress absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent' />
+                <div className='animate-progress absolute inset-0 w-1/2 bg-linear-to-r from-transparent via-primary to-transparent' />
               </div>
               <div className='mt-1 animate-pulse text-right text-xs text-muted-foreground'>
                 Initializing...

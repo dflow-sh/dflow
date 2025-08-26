@@ -49,7 +49,7 @@ const databaseIcons: {
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Github className='size-6' />,
-  database: <Database className='size-6 text-destructive' />,
+  database: <Database className='text-destructive size-6' />,
   docker: <Docker className='size-6' />,
 }
 
@@ -123,10 +123,10 @@ const NodeComponent = ({ node, index }: { node: Node; index: number }) => {
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
       className={cn(
-        'relative flex items-center justify-between gap-2 rounded-sm bg-background px-3 py-2',
+        'bg-background relative flex items-center justify-between gap-2 rounded-sm px-3 py-2',
         isDragging ? 'cursor-grabbing' : 'cursor-grab',
       )}>
-      <div className='mr-1 grid size-6 shrink-0 place-items-center rounded-full bg-primary text-sm'>
+      <div className='bg-primary text-foreground mr-1 grid size-6 shrink-0 place-items-center rounded-full text-sm'>
         {index}
       </div>
 
@@ -134,11 +134,11 @@ const NodeComponent = ({ node, index }: { node: Node; index: number }) => {
         ? databaseIcons[service?.databaseDetails?.type]
         : icon[service.type]}
 
-      <span title={service.name} className='flex-grow truncate'>
+      <span title={service.name} className='grow truncate'>
         {service.name}
       </span>
 
-      <GripVertical className='flex-shrink-0' size={16} />
+      <GripVertical className='shrink-0' size={16} />
     </Reorder.Item>
   )
 }

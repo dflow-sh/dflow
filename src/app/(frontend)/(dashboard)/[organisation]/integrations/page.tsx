@@ -1,6 +1,7 @@
 'use client'
 
 import LayoutClient from '../layout.client'
+import { Link } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 
@@ -43,7 +44,10 @@ const IntegrationsPage = () => {
   return (
     <LayoutClient>
       <section>
-        <h3 className='text-2xl font-semibold'>Integrations</h3>
+        <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+          <Link />
+          <h3>Integrations</h3>
+        </div>
 
         <Suspense fallback={<IntegrationsSkeleton />}>
           <SuspendedIntegrationsPage />

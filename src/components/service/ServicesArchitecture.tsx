@@ -64,13 +64,13 @@ const DeploymentDialog = memo(
 
     return (
       <motion.div
-        className='absolute left-0 top-2 z-10 grid h-max w-full place-items-center'
+        className='absolute top-2 left-0 z-10 grid h-max w-full place-items-center'
         initial={{ opacity: 0, y: '-40px' }}
         animate={{ opacity: 1, y: '0px' }}
         transition={{ duration: 0.2 }}>
         <div
           className={cn(
-            'w-full max-w-2xl rounded-md border border-border/50 bg-primary/5 p-2 shadow-lg backdrop-blur-md transition-colors',
+            'border-border/50 bg-primary/5 w-full max-w-2xl rounded-md border p-2 shadow-lg backdrop-blur-md transition-colors',
             disabledDatabasesList.length
               ? 'border-warning bg-warning-foreground'
               : '',
@@ -83,7 +83,7 @@ const DeploymentDialog = memo(
               </p>
 
               {disabledDatabasesListNames?.length ? (
-                <span className='text-xs text-muted-foreground'>
+                <span className='text-muted-foreground text-xs'>
                   {`Enable ${disabledDatabasesListNames?.join(', ')} plugin for `}
                   <Button
                     variant='link'
@@ -100,7 +100,7 @@ const DeploymentDialog = memo(
               ) : null}
 
               {isDeploying && (
-                <p className='text-sm text-muted-foreground'>
+                <p className='text-muted-foreground text-sm'>
                   This process might take time, please wait...
                 </p>
               )}

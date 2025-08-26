@@ -46,7 +46,7 @@ export default function SelectSearch({
   )
 
   return (
-    <div className='*:not-first:mt-2'>
+    <div className='not-first:*:mt-2'>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -54,7 +54,7 @@ export default function SelectSearch({
             variant={'ghost'}
             role='combobox'
             aria-expanded={open}
-            className='w-full justify-between border-input bg-background px-1.5 font-normal outline-none outline-offset-0 hover:bg-foreground/5 focus-visible:outline-[3px]'>
+            className='w-full justify-between border-input bg-background px-1.5 font-normal outline-hidden outline-offset-0 hover:bg-foreground/5 focus-visible:outline-[3px]'>
             <ChevronsUpDown
               size={14}
               className='shrink-0 text-muted-foreground/80'
@@ -63,7 +63,7 @@ export default function SelectSearch({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className='w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0'
+          className='w-full min-w-(--radix-popper-anchor-width) border-input p-0'
           align='start'>
           <Command>
             <CommandInput placeholder={`Search ${placeholder}...`} />

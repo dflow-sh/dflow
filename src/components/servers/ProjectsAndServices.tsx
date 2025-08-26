@@ -92,7 +92,7 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
                           <Folder className='h-5 w-5 text-muted-foreground' />
                         )}
                       </div>
-                      <div className='flex-grow'>
+                      <div className='grow'>
                         <Link
                           href={`/${params.organisation}/dashboard/project/${project.id}`}>
                           <span className='text-sm font-medium hover:text-primary'>
@@ -153,7 +153,7 @@ export const ProjectsAndServicesSection = ({
   projects: Project[]
 }) => {
   return (
-    <div className='scrollbar-hide grid max-h-[42rem] grid-cols-1 gap-4 overflow-y-scroll'>
+    <div className='scrollbar-hide grid max-h-168 grid-cols-1 gap-4 overflow-y-scroll'>
       <ProjectsCard projects={projects} />
     </div>
   )

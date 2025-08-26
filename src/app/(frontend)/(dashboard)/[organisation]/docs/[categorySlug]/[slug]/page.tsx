@@ -43,7 +43,7 @@ const DocPage = async ({ params }: PageProps) => {
   }
 
   return (
-    <article className='prose prose-purple w-full dark:prose-invert md:prose-lg prose-headings:font-medium prose-headings:text-foreground prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain'>
+    <article className='prose prose-gray prose-a:text-primary dark:prose-invert md:prose-lg prose-headings:font-medium prose-headings:text-foreground prose-img:mx-auto prose-img:aspect-video prose-img:w-full prose-img:rounded-md prose-img:object-contain w-full'>
       <MDXContent code={doc.mdx} />
     </article>
   )

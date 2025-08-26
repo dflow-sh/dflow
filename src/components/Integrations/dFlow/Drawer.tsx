@@ -69,7 +69,7 @@ const DflowDrawer = () => {
           </SheetTitle>
 
           <p className='pt-4 font-semibold'>{integration?.label}</p>
-          <SheetDescription className='!mt-0'>
+          <SheetDescription className='mt-0!'>
             {integration?.description}
           </SheetDescription>
         </SheetHeader>
@@ -77,11 +77,11 @@ const DflowDrawer = () => {
         {isPending ? (
           <GithubIntegrationsLoading />
         ) : result?.serverError ? (
-          <ScrollArea className='flex-grow'>
+          <ScrollArea className='grow'>
             <AccessDeniedAlert error={result?.serverError} />
           </ScrollArea>
         ) : result.data ? (
-          <ScrollArea className='flex-grow'>
+          <ScrollArea className='grow'>
             <CloudProvidersList accounts={result.data} refetch={execute} />
           </ScrollArea>
         ) : null}

@@ -391,7 +391,7 @@ const ServerCard = ({
               <div className='min-w-0 flex-1'>
                 <div className='flex items-center gap-2'>
                   <CardTitle className='mb-2 flex items-center gap-2'>
-                    <ServerIcon className='h-5 w-5 flex-shrink-0' />
+                    <ServerIcon className='h-5 w-5 shrink-0' />
                     <span className='truncate'>{server.name}</span>
                   </CardTitle>
                   {['dpkg-locked', 'dpkg-locked-onboarded'].includes(
@@ -424,7 +424,7 @@ const ServerCard = ({
                   <Button
                     variant='ghost'
                     size='icon'
-                    className='z-10 h-8 w-8 flex-shrink-0'>
+                    className='z-10 h-8 w-8 shrink-0'>
                     <Ellipsis className='h-4 w-4' />
                   </Button>
                 </DropdownMenuTrigger>

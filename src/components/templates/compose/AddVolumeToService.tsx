@@ -200,7 +200,7 @@ const AddVolumeToService = ({
           }
           setOpen(isOpen)
         }}>
-        <DialogContent className='w-full md:w-[42rem]'>
+        <DialogContent className='w-full md:w-2xl'>
           <DialogHeader>
             <DialogTitle>Manage Volumes</DialogTitle>
             <DialogDescription>

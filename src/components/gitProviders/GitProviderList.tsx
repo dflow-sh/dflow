@@ -59,7 +59,7 @@ const GithubCard = ({
 
           <div>
             <p className='font-semibold'>{provider?.github?.appName}</p>
-            <time className='text-sm text-muted-foreground'>
+            <time className='text-muted-foreground text-sm'>
               {format(new Date(provider.createdAt), 'LLL d, yyyy h:mm a')}
             </time>
           </div>

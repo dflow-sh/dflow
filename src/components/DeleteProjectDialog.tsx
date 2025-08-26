@@ -192,7 +192,7 @@ const DeleteProjectContent = ({
         </ScrollArea>
       </div>
 
-      <DialogFooter className='flex-shrink-0 space-x-2 pt-4'>
+      <DialogFooter className='shrink-0 space-x-2 pt-4'>
         <Button
           variant='outline'
           disabled={isPending}
@@ -228,7 +228,7 @@ const DeleteProjectDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
-        <DialogHeader className='flex-shrink-0'>
+        <DialogHeader className='shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
             <Trash2 className='h-5 w-5 text-destructive' />
             Delete project

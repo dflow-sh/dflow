@@ -19,7 +19,7 @@ export const ProjectSkeleton = () => {
             .map((_, index) => (
               <div
                 key={index}
-                className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow'>
+                className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
                 <div className='flex w-full flex-row justify-between space-y-1.5 p-6'>
                   <div className='flex items-center gap-x-3'>
                     <Skeleton className='size-6 rounded-full' />
@@ -28,7 +28,7 @@ export const ProjectSkeleton = () => {
                       <Skeleton className='h-4 w-24' />
                     </div>
                   </div>
-                  <Skeleton className='h-9 w-9 flex-shrink-0 rounded-md' />
+                  <Skeleton className='h-9 w-9 shrink-0 rounded-md' />
                 </div>
                 <div className='flex items-center p-6 pt-0'>
                   <Skeleton className='h-4 w-36' />

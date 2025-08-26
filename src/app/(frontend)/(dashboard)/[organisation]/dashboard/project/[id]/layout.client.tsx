@@ -47,7 +47,7 @@ const ClientLayout = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 flex-shrink-0 stroke-border'
+                className='h-5 w-5 shrink-0 stroke-border'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}

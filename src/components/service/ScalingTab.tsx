@@ -572,7 +572,7 @@ const ScalingTab = ({
       </div>
 
       {/* Horizontal Scaling Section */}
-      <Card className='rounded-lg border shadow-sm'>
+      <Card className='rounded-lg border shadow-xs'>
         <CardHeader className='pb-6'>
           <div className='flex items-center gap-4'>
             <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10'>
@@ -730,7 +730,7 @@ const ScalingTab = ({
       </Card>
 
       {/* Vertical Scaling Section */}
-      <Card className='rounded-lg border shadow-sm'>
+      <Card className='rounded-lg border shadow-xs'>
         <CardHeader className='pb-6'>
           <div className='flex items-center gap-4'>
             <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10'>
@@ -852,7 +852,7 @@ const ScalingTab = ({
       </Card>
 
       {/* Documentation Section */}
-      <Card className='rounded-lg border shadow-sm'>
+      <Card className='rounded-lg border shadow-xs'>
         <CardHeader className='pb-6'>
           <div className='flex items-center gap-4'>
             <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10'>

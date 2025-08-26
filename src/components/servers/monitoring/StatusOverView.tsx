@@ -70,7 +70,7 @@ const StatusOverView = ({
         <CardContent>
           <div className='flex items-center justify-between'>
             <StatusIndicator status={serverStatus.status} />
-            <Server className='h-4 w-4 text-muted-foreground' />
+            <Server className='text-muted-foreground h-4 w-4' />
           </div>
         </CardContent>
       </Card>
@@ -94,7 +94,7 @@ const StatusOverView = ({
         <CardContent>
           <div className='flex items-center justify-between'>
             <div>{serverStatus.lastIncident}</div>
-            <Clock className='h-4 w-4 text-muted-foreground' />
+            <Clock className='text-muted-foreground h-4 w-4' />
           </div>
         </CardContent>
       </Card>
@@ -115,7 +115,7 @@ const StatusOverView = ({
                     <Badge variant='destructive'>Attention Needed</Badge>
                   )}
                 </HoverCardTrigger>
-                <HoverCardContent className='w-auto min-w-[320px] max-w-[400px]'>
+                <HoverCardContent className='w-auto max-w-[400px] min-w-[320px]'>
                   <div className='flex justify-between'>
                     <h4 className='text-sm font-semibold'>System Alerts</h4>
                     <Badge
@@ -146,10 +146,10 @@ const StatusOverView = ({
                               {alert.status}
                             </Badge>
                           </div>
-                          <p className='text-sm text-muted-foreground'>
+                          <p className='text-muted-foreground text-sm'>
                             {alert.summary}
                           </p>
-                          <p className='text-xs text-muted-foreground'>
+                          <p className='text-muted-foreground text-xs'>
                             {alert.fullTimestamp}
                           </p>
                         </div>
@@ -157,7 +157,7 @@ const StatusOverView = ({
                     </div>
                   ) : (
                     <div className='flex h-20 items-center justify-center'>
-                      <p className='text-sm text-muted-foreground'>
+                      <p className='text-muted-foreground text-sm'>
                         No active alerts
                       </p>
                     </div>

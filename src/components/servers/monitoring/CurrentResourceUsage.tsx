@@ -89,7 +89,7 @@ const CurrentResourceUsage = ({
       {/* Resource Cards Grid */}
       <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
         {/* CPU Usage */}
-        <Card className='shadow-sm'>
+        <Card className='shadow-xs'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-medium'>CPU Usage</CardTitle>
           </CardHeader>
@@ -105,7 +105,7 @@ const CurrentResourceUsage = ({
         </Card>
 
         {/* Memory Usage */}
-        <Card className='shadow-sm'>
+        <Card className='shadow-xs'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-medium'>Memory Usage</CardTitle>
           </CardHeader>
@@ -121,7 +121,7 @@ const CurrentResourceUsage = ({
         </Card>
 
         {/* Network Traffic */}
-        <Card className='shadow-sm'>
+        <Card className='shadow-xs'>
           <CardHeader className='pb-2'>
             <CardTitle className='text-sm font-medium'>
               Network Traffic
@@ -156,7 +156,7 @@ const CurrentResourceUsage = ({
       </div>
 
       {/* System Health Summary */}
-      <Card className='shadow-sm'>
+      <Card className='shadow-xs'>
         <CardHeader className='pb-2'>
           <CardTitle className='text-sm font-medium'>
             System Health Summary

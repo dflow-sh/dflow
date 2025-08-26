@@ -34,7 +34,7 @@ export const DashboardSkeleton = () => {
 
 export const SkeletonProjectCard = () => {
   return (
-    <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow'>
+    <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
       <div className='flex w-full flex-row items-center justify-between space-y-1.5 p-6'>
         <div className='w-3/4'>
           <Skeleton className='mb-2 h-5 w-32' />

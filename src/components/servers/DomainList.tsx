@@ -238,8 +238,8 @@ const DomainItem = ({
   return (
     <>
       <Card
-        className={`text-sm transition-all hover:bg-muted/20 hover:shadow-md`}>
-        <CardContent className='pb-4 pt-6'>
+        className={`hover:bg-muted/20 text-sm transition-all hover:shadow-md`}>
+        <CardContent className='pt-6 pb-4'>
           {/* Top section with domain info and actions */}
           <div className='mb-4 flex items-start justify-between'>
             <div className='flex items-center gap-3'>
@@ -266,7 +266,7 @@ const DomainItem = ({
                     </Badge>
                   )}
                 </div>
-                <p className='mt-1 text-xs text-muted-foreground'>
+                <p className='text-muted-foreground mt-1 text-xs'>
                   {isDefaultDomain
                     ? 'Automatically configured'
                     : 'Custom domain'}
@@ -346,7 +346,7 @@ const DomainItem = ({
                 <Button
                   size='sm'
                   variant='ghost'
-                  className='h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive'
+                  className='text-destructive hover:bg-destructive/10 hover:text-destructive h-8 w-8 p-0'
                   onClick={() => {
                     execute({
                       operation: 'remove',
@@ -432,7 +432,7 @@ const DomainList = ({
           ))}
         </div>
       ) : (
-        <div className='py-12 text-center text-muted-foreground'>
+        <div className='text-muted-foreground py-12 text-center'>
           <Globe size={48} className='mx-auto mb-4 opacity-50' />
           <p className='mb-2 text-lg font-medium'>No domains configured</p>
           <p className='text-sm'>Add a domain to get started</p>

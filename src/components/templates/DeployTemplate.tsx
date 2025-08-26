@@ -145,7 +145,7 @@ const TemplateCard = ({
       <div className='space-y-3'>
         <div className='flex items-center gap-3'>
           {/* Template Image */}
-          <div className='flex-shrink-0'>
+          <div className='shrink-0'>
             <img
               src={imageUrl || '/images/favicon.ico'}
               alt={`${name} template`}

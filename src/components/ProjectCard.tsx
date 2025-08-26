@@ -135,7 +135,7 @@ export function ProjectCard({
                 <Button
                   variant='ghost'
                   size='icon'
-                  className='z-10 !mt-0'
+                  className='z-10 mt-0!'
                   onClick={e => {
                     e.preventDefault()
                     e.stopPropagation()

@@ -9,7 +9,7 @@ export const IntegrationsSkeleton = () => {
           {[1, 2, 3].map(item => (
             <div
               key={item}
-              className='h-full rounded-xl border bg-muted/30 text-card-foreground shadow'>
+              className='h-full rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
               <div className='flex flex-col space-y-1.5 p-6 pb-2'>
                 <div className='mb-2 flex size-14 items-center justify-center rounded-md border'>
                   <Skeleton className='size-8' /> {/* Icon skeleton */}

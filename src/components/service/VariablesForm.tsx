@@ -127,7 +127,7 @@ const ReferenceVariableDropdown = ({
           className='absolute right-2 top-1.5 h-6 w-6 rounded-sm'
           size='icon'
           variant='outline'>
-          <Braces className='!h-3 !w-3' />
+          <Braces className='h-3! w-3!' />
         </Button>
       </DropdownMenuTrigger>
 

@@ -155,9 +155,9 @@ const EditServiceName = ({
             className={cn(
               'group inline-flex items-center gap-x-2 rounded px-2 py-1 hover:bg-muted-foreground/10',
             )}>
-            <p className='flex-grow truncate'>{service.name}</p>
+            <p className='grow truncate'>{service.name}</p>
             <SquarePen
-              className='hidden flex-shrink-0 group-hover:block'
+              className='hidden shrink-0 group-hover:block'
               size={16}
             />
           </div>

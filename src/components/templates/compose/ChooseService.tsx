@@ -268,10 +268,10 @@ const ChooseService: React.FC<ChooseServiceType> = ({
                             filteredOptions.map(option => (
                               <li
                                 key={option.id}
-                                className={`flex items-center justify-between rounded-md p-3 text-base hover:bg-card/30 ${
+                                className={`hover:bg-card/30 flex items-center justify-between rounded-md p-3 text-base ${
                                   option.isDisabled
-                                    ? 'cursor-not-allowed text-muted-foreground'
-                                    : 'cursor-pointer hover:text-base focus:bg-card/30'
+                                    ? 'text-muted-foreground cursor-not-allowed'
+                                    : 'focus:bg-card/30 cursor-pointer hover:text-base'
                                 }`}
                                 onClick={
                                   !option.isDisabled
@@ -337,7 +337,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         </Dialog>
 
         {nodes?.length > 1 && (
-          <div className='absolute right-2 top-24 z-20'>
+          <div className='absolute top-24 right-2 z-20'>
             <ReorderList nodes={nodes as any} setNodes={setNodes as any} />
           </div>
         )}

@@ -26,7 +26,7 @@ const TemplateCard = async ({ template }: { template: Template }) => {
               <p className='line-clamp-1 text-lg font-semibold'>
                 {template?.name}
               </p>
-              <p className='line-clamp-2 text-sm text-muted-foreground'>
+              <p className='text-muted-foreground line-clamp-2 text-sm'>
                 {template?.description}
               </p>
             </div>
