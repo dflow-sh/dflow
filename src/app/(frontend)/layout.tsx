@@ -1,7 +1,7 @@
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
-// import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist_Mono } from 'next/font/google'
 import React from 'react'
 import { Toaster } from 'sonner'
 
@@ -13,15 +13,10 @@ import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 
 import './globals.css'
 
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// })
-
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// })
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -127,7 +122,7 @@ export default async function RootLayout({
         {theme && <Branding theme={theme} />}
       </head>
 
-      <body className='overflow-y-hidden'>
+      <body className={`overflow-y-hidden ${geistMono.variable}`}>
         <NProgressProvider>
           {/* <PosthogProvider> */}
           {/* <SuspendedPostHogPageView /> */}
