@@ -1,0 +1,56 @@
+name: Send GitHub Issues to Discord
+
+on:
+  issues:
+    types: [opened, reopened, closed]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send issue event to Discord
+        run: |
+          # Pick color depending on issue state
+          if [ "${{ github.event.action }}" = "closed" ]; then
+            color=3066993 # green
+            status="✅ Closed"
+          else
+            color=15105570 # red/orange
+            status="🐞 Open"
+          fi
+
+          # Build JSON payload with jq
+          payload=$(jq -n \
+            --arg title "${{ github.event.issue.title }}" \
+            --arg body "${{ github.event.issue.body }}" \
+            --arg url "${{ github.event.issue.html_url }}" \
+            --arg user "${{ github.event.issue.user.login }}" \
+            --arg state "$status" \
+            --arg repo "${{ github.repository }}" \
+            --arg created "${{ github.event.issue.created_at }}" \
+            --argjson color $color \
+            --arg labels "$(echo '${{ toJson(github.event.issue.labels) }}' | jq -r 'map(.name) | join(", ")')" \
+            --arg assignees "$(echo '${{ toJson(github.event.issue.assignees) }}' | jq -r 'map(.login) | join(", ")')" \
+            '{
+              "embeds": [
+                {
+                  "title": "\($title)",
+                  "description": (if $body == "" then "_No description provided._" else $body end),
+                  "url": $url,
+                  "color": $color,
+                  "fields": [
+                    {"name": "👤 Author", "value": $user, "inline": true},
+                    {"name": "📌 State", "value": $state, "inline": true},
+                    {"name": "🏷️ Labels", "value": (if $labels == "" then "None" else $labels end), "inline": false},
+                    {"name": "🧑‍💻 Assignees", "value": (if $assignees == "" then "None" else $assignees end), "inline": false}
+                  ],
+                  "footer": {"text": "Repository: \($repo)"},
+                  "timestamp": $created
+                }
+              ]
+            }')
+
+          # Send to Discord
+          curl -H "Content-Type: application/json" \
+               -d "$payload" \
+               "${{ secrets.DISCORD_WEBHOOK }}"
