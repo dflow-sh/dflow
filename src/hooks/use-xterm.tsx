@@ -28,7 +28,7 @@ const useXterm = () => {
       cursorStyle: 'underline',
       cursorBlink: false,
       theme: {
-        background: 'red',
+        background: '#334256',
       },
       convertEol: true,
       scrollback: 5000,
