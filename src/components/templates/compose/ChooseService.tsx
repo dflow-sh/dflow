@@ -215,7 +215,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
       className=''>
       <section
         ref={ref}
-        className='relative mx-auto h-[calc(100vh-156px)] w-full overflow-y-hidden px-2'>
+        className='relative mx-auto h-[calc(100vh-180px)] w-full overflow-y-hidden px-2'>
         <div className='mt-2 flex w-full items-center justify-end gap-x-2'>
           <Button
             className='z-20'

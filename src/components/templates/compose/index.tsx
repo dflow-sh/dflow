@@ -215,7 +215,7 @@ const CreateNewTemplate = () => {
             .map((_, index) => (
               <div
                 key={index}
-                className='h-36 w-full rounded-xl border bg-[#171d33] text-card-foreground shadow-sm md:w-72'>
+                className='text-card-foreground h-36 w-full rounded-xl border bg-[#171d33] shadow-sm md:w-72'>
                 <div className='flex w-full flex-row justify-between space-y-1.5 p-6'>
                   <div className='flex items-center gap-x-3'>
                     <Skeleton className='size-6 rounded-full' />
@@ -237,7 +237,7 @@ const CreateNewTemplate = () => {
   }
   return (
     <div className='w-full'>
-      <div className='flex w-full items-center justify-end gap-x-2 p-2'>
+      <div className='flex w-full items-center justify-end gap-x-2 pt-2'>
         <DeployTemplateWithProjectForm services={services} />
         <Button
           variant={'default'}

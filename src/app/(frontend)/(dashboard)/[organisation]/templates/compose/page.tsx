@@ -4,7 +4,7 @@ import CreateNewTemplate from '@/components/templates/compose'
 
 const page = () => {
   return (
-    <LayoutClient className='mb-0 min-w-full overflow-hidden pt-0'>
+    <LayoutClient className='min-w-full overflow-hidden !px-0 !py-0'>
       <CreateNewTemplate />
     </LayoutClient>
   )
