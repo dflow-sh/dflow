@@ -115,10 +115,10 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   return (
     <div
       className={cn(
-        'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-background px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
+        'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-t border-l px-6 pb-20 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
       )}>
       <CloseService organisation={organisation} projectId={id} />
-      <div className='w-full space-y-4 pb-2 pt-6'>
+      <div className='w-full space-y-4 pt-6 pb-2'>
         <div className='flex items-center gap-x-3'>
           {service?.type === 'database' && service.databaseDetails?.type
             ? databaseIcons[service?.databaseDetails?.type]
@@ -140,8 +140,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       </div>
       <div className='relative flex h-full flex-col overflow-hidden'>
         <Tabs defaultValue='general' className='flex h-full flex-col'>
-          <div className='scrollbar-hide sticky top-0 z-10 overflow-x-auto bg-background pt-2'>
-            <TabsList className='rounded bg-primary/10'>
+          <div className='scrollbar-hide bg-background sticky top-0 z-10 overflow-x-auto pt-2'>
+            <TabsList className='bg-primary/10 rounded'>
               <TabsTrigger value='general'>General</TabsTrigger>
               {service?.type !== 'database' && (
                 <TabsTrigger value='environment'>Environment</TabsTrigger>
@@ -165,7 +165,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
             <div className='border-base-content/40 w-full border-b pt-2' />
           </div>
 
-          <div className='flex-1 overflow-y-auto overflow-x-hidden px-1 pb-8 pt-4'>
+          <div className='flex-1 overflow-x-hidden overflow-y-auto px-1 pt-4 pb-8'>
             <TabsContent className='w-full' value='general'>
               <GeneralTab service={service} server={server} />
             </TabsContent>

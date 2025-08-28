@@ -1,9 +1,7 @@
 'use client'
 
-import { useProgress } from '@bprogress/next'
 import { useParams } from 'next/navigation'
-import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
@@ -28,22 +26,7 @@ const LayoutClient = ({
     organisation: string
     id: string
   }>()
-  const [isPending, startTransition] = useTransition()
-  const { start, stop } = useProgress()
-  const [tab, setTab] = useQueryState(
-    'tab',
-    parseAsStringEnum([
-      'general',
-      'environment',
-      'logs',
-      'domains',
-      'deployments',
-      'backup',
-      'volumes',
-      'scaling',
-      'settings',
-    ]).withDefault('general'),
-  )
+
   const [mounted, setMounted] = useState(false)
   const [populatedVariables, setPopulatedVariables] = useState(
     service.populatedVariables,
@@ -56,14 +39,6 @@ const LayoutClient = ({
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    if (isPending) {
-      start()
-    } else {
-      stop()
-    }
-  }, [isPending])
-
   // When environment variables are changed we're disabling the deployments
   // Checking if old-variables and new-variables are changed and enabling deployment actions
   useEffect(() => {
@@ -72,31 +47,6 @@ const LayoutClient = ({
       setPopulatedVariables(defaultPopulatedVariables)
     }
   }, [service.populatedVariables])
-
-  const tabsList = useMemo(() => {
-    return type === 'database'
-      ? ([
-          { label: 'General', slug: 'general', disabled: false },
-          { label: 'Logs', slug: 'logs', disabled: false },
-          { label: 'Deployments', slug: 'deployments', disabled: false },
-          { label: 'Backup', slug: 'backup', disabled: false },
-          { label: 'Settings', slug: 'settings', disabled: false },
-        ] as const)
-      : ([
-          { label: 'General', slug: 'general', disabled: false },
-          { label: 'Environment', slug: 'environment', disabled: false },
-          { label: 'Logs', slug: 'logs', disabled: false },
-          { label: 'Deployments', slug: 'deployments', disabled: false },
-          { label: 'Scaling', slug: 'scaling', disabled: false },
-          { label: 'Domains', slug: 'domains', disabled: false },
-          { label: 'Volumes', slug: 'volumes', disabled: false },
-          { label: 'Settings', slug: 'settings', disabled: false },
-        ] as const)
-  }, [type])
-
-  const activeTab = tabsList.findIndex(({ slug }) => {
-    return slug === tab
-  })
 
   return (
     <>
@@ -109,7 +59,7 @@ const LayoutClient = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 flex-shrink-0 stroke-border'
+                className='stroke-border h-5 w-5 flex-shrink-0'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}

@@ -34,28 +34,26 @@ export const InternalDocsSkeleton = () => {
       <section className='flex h-full w-full'>
         {/* Main Content Skeleton */}
         <div className='h-full flex-1 p-6'>
-          <article className='prose prose-purple prose-invert md:prose-lg'>
-            <Skeleton className='mb-6 h-8 w-48' /> {/* H1 title */}
-            <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
-            <Skeleton className='mb-6 h-4 w-5/6' /> {/* Paragraph line */}
-            <Skeleton className='mb-4 mt-8 h-6 w-40' /> {/* H2 heading */}
-            <Skeleton className='mb-2 h-4 w-36' /> {/* Strong text */}
-            <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
-            <Skeleton className='mb-4 mt-8 h-6 w-40' /> {/* H2 heading */}
-            <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
-            <Skeleton className='mb-4 h-4 w-5/6' /> {/* Paragraph line */}
-            {/* List skeleton */}
-            <div className='my-4 ml-6'>
-              <div className='mb-2 flex gap-2'>
-                <Skeleton className='h-4 w-2 rounded-full' /> {/* Bullet */}
-                <Skeleton className='h-4 w-5/6' /> {/* List item */}
-              </div>
-              <div className='mb-2 flex gap-2'>
-                <Skeleton className='h-4 w-2 rounded-full' /> {/* Bullet */}
-                <Skeleton className='h-4 w-4/5' /> {/* List item */}
-              </div>
+          <Skeleton className='mb-6 h-8 w-48' /> {/* H1 title */}
+          <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
+          <Skeleton className='mb-6 h-4 w-5/6' /> {/* Paragraph line */}
+          <Skeleton className='mt-8 mb-4 h-6 w-40' /> {/* H2 heading */}
+          <Skeleton className='mb-2 h-4 w-36' /> {/* Strong text */}
+          <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
+          <Skeleton className='mt-8 mb-4 h-6 w-40' /> {/* H2 heading */}
+          <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
+          <Skeleton className='mb-4 h-4 w-5/6' /> {/* Paragraph line */}
+          {/* List skeleton */}
+          <div className='my-4 ml-6'>
+            <div className='mb-2 flex gap-2'>
+              <Skeleton className='h-4 w-2 rounded-full' /> {/* Bullet */}
+              <Skeleton className='h-4 w-5/6' /> {/* List item */}
             </div>
-          </article>
+            <div className='mb-2 flex gap-2'>
+              <Skeleton className='h-4 w-2 rounded-full' /> {/* Bullet */}
+              <Skeleton className='h-4 w-4/5' /> {/* List item */}
+            </div>
+          </div>
         </div>
       </section>
     </main>
@@ -74,11 +72,11 @@ export const DocsSkeleton = () => {
             <Skeleton className='mb-6 h-8 w-48' /> {/* H1 title */}
             <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
             <Skeleton className='mb-6 h-4 w-5/6' /> {/* Paragraph line */}
-            <Skeleton className='mb-4 mt-8 h-6 w-40' /> {/* H2 heading */}
+            <Skeleton className='mt-8 mb-4 h-6 w-40' /> {/* H2 heading */}
             <Skeleton className='mb-2 h-4 w-36' /> {/* Strong text */}
             <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
             {/* Code block skeleton */}
-            <div className='relative my-6 rounded-lg bg-muted/50 p-4'>
+            <div className='bg-muted/50 relative my-6 rounded-lg p-4'>
               <Skeleton className='mb-1 h-4 w-full' />
               <Skeleton className='mb-1 h-4 w-full' />
               <Skeleton className='mb-1 h-4 w-5/6' />
@@ -86,7 +84,7 @@ export const DocsSkeleton = () => {
               <Skeleton className='mb-1 h-4 w-full' />
               <Skeleton className='h-4 w-3/4' />
             </div>
-            <Skeleton className='mb-4 mt-8 h-6 w-40' /> {/* H2 heading */}
+            <Skeleton className='mt-8 mb-4 h-6 w-40' /> {/* H2 heading */}
             <Skeleton className='mb-2 h-4 w-full' /> {/* Paragraph line */}
             <Skeleton className='mb-4 h-4 w-5/6' /> {/* Paragraph line */}
             {/* List skeleton */}
@@ -101,7 +99,7 @@ export const DocsSkeleton = () => {
               </div>
             </div>
             {/* Another code block skeleton */}
-            <div className='relative my-6 rounded-lg bg-muted/50 p-4'>
+            <div className='bg-muted/50 relative my-6 rounded-lg p-4'>
               <Skeleton className='mb-1 h-4 w-full' />
               <Skeleton className='mb-1 h-4 w-5/6' />
               <Skeleton className='mb-1 h-4 w-4/5' />
