@@ -10,7 +10,7 @@ export const ServiceLayoutSkeleton = () => {
           <div className='flex w-full items-center rounded-none border-none bg-transparent shadow-none'>
             <div className='w-full p-0'>
               <div className='relative'>
-                <div className='absolute bottom-[-5.5px] h-[1px] w-full bg-border'></div>
+                <div className='absolute bottom-[-5.5px] h-px w-full bg-border'></div>
                 <div className='absolute bottom-[-6px] h-[2px] w-16 rounded-full bg-foreground'></div>
                 <div className='relative flex items-center space-x-[6px]'>
                   {/* Generate 5 tab skeletons */}
@@ -23,7 +23,7 @@ export const ServiceLayoutSkeleton = () => {
             </div>
           </div>
         </div>
-        <div className='absolute bottom-[18.5px] z-[-10] h-[1px] w-full bg-border'></div>
+        <div className='absolute bottom-[18.5px] z-[-10] h-px w-full bg-border'></div>
       </div>
       <main className='mx-auto mb-10 mt-4 w-full max-w-6xl'>
         <div className='mb-6 md:flex md:justify-between md:gap-x-2'>

@@ -7,7 +7,7 @@ export const ServersSkeleton = () => {
       <div className='grid gap-4 md:grid-cols-3'>
         {/* Server Card 1 */}
         <div className='h-full'>
-          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow transition-colors duration-300'>
+          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow-sm transition-colors duration-300'>
             <div className='flex w-full flex-row items-start justify-between space-y-1.5 p-6'>
               <div>
                 <div className='flex items-center gap-2 font-semibold leading-none tracking-tight'>
@@ -29,7 +29,7 @@ export const ServersSkeleton = () => {
 
         {/* Server Card 2 */}
         <div className='h-full'>
-          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow transition-colors duration-300'>
+          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow-sm transition-colors duration-300'>
             <div className='flex w-full flex-row items-start justify-between space-y-1.5 p-6'>
               <div>
                 <div className='flex items-center gap-2 font-semibold leading-none tracking-tight'>
@@ -51,7 +51,7 @@ export const ServersSkeleton = () => {
 
         {/* Server Card 3 */}
         <div className='h-full'>
-          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow transition-colors duration-300'>
+          <div className='h-full min-h-36 rounded-xl border bg-muted/30 text-card-foreground shadow-sm transition-colors duration-300'>
             <div className='flex w-full flex-row items-start justify-between space-y-1.5 p-6'>
               <div>
                 <div className='flex items-center gap-2 font-semibold leading-none tracking-tight'>

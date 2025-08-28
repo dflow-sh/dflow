@@ -354,12 +354,12 @@ const CreateEC2InstanceForm = ({
               </FormLabel>
               {isCreating ? (
                 <div className='flex items-center space-x-2'>
-                  <div className='flex-1'>
+                  <div className='grow'>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a SSH key' />
                         </SelectTrigger>
                       </FormControl>
@@ -373,6 +373,7 @@ const CreateEC2InstanceForm = ({
                       </SelectContent>
                     </Select>
                   </div>
+
                   <CreateSSHKey
                     trigger={
                       <Button
@@ -397,7 +398,7 @@ const CreateEC2InstanceForm = ({
                     disabled
                     className='bg-muted'
                   />
-                  <p className='mt-1 text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground mt-1 text-xs'>
                     SSH keys cannot be updated after instance creation
                   </p>
                 </>

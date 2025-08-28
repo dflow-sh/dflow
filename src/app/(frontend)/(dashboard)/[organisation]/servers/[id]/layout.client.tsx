@@ -93,7 +93,7 @@ const LayoutClient = ({
             defaultActiveTab={activeTab >= 0 ? activeTab : 0}
           />
         </div>
-        <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border' />
+        <div className='absolute bottom-0 z-[-10] h-px w-full bg-border' />
       </div>
 
       <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4 pb-10'>
@@ -107,7 +107,7 @@ const LayoutClient = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 flex-shrink-0 stroke-border'
+                className='h-5 w-5 shrink-0 stroke-border'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}
@@ -125,7 +125,7 @@ const LayoutClient = ({
             <svg
               fill='currentColor'
               viewBox='0 0 20 20'
-              className='h-5 w-5 flex-shrink-0 stroke-border'
+              className='h-5 w-5 shrink-0 stroke-border'
               aria-hidden='true'>
               <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
             </svg>{' '}

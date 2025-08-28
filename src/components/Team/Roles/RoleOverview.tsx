@@ -44,8 +44,8 @@ const RoleActions = ({ role }: { role: Role }) => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className='rounded-md border p-2 hover:bg-muted'>
-          <EllipsisVertical className='size-5 text-muted-foreground' />
+        <DropdownMenuTrigger className='hover:bg-muted rounded-md border p-2'>
+          <EllipsisVertical className='text-muted-foreground size-5' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
           <DropdownMenuItem onClick={() => setDeleteRoleOpen(true)}>
@@ -88,7 +88,7 @@ const RoleOverview = ({
 }) => {
   return (
     <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-      <div className='space-y-4 rounded-2xl border bg-muted/10 p-4 text-center shadow-md'>
+      <div className='bg-muted/10 space-y-4 rounded-2xl border p-4 text-center shadow-md'>
         <div className='flex justify-between'>
           <div className='flex gap-x-2'>
             <Settings className='size-6' />
@@ -123,7 +123,7 @@ const RoleOverview = ({
           </div>
         </div>
       </div>
-      <div className='space-y-4 rounded-2xl border bg-muted/10 p-4 text-center shadow-md'>
+      <div className='bg-muted/10 space-y-4 rounded-2xl border p-4 text-center shadow-md'>
         <div className='flex gap-x-2'>
           <CalendarRange className='size-6' />
           <h3 className='text-xl font-medium'>Timeline</h3>
@@ -145,7 +145,7 @@ const RoleOverview = ({
             <p className='text-muted-foreground'>Created by:</p>
             <div className='flex items-center gap-x-2'>
               <Avatar className='size-6'>
-                <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
+                <AvatarFallback className='group-hover:text-accent rounded-lg uppercase'>
                   {(role?.createdUser as User).email.slice(0, 1)}
                 </AvatarFallback>
               </Avatar>

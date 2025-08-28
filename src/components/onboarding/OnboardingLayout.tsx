@@ -39,7 +39,7 @@ export default async function Layout({
 
       <Card className='mb-20 w-full max-w-4xl'>
         <CardHeader>
-          <div className='flex items-center justify-between gap-2 text-sm font-extralight tracking-wide text-foreground'>
+          <div className='text-foreground flex items-center justify-between gap-2 text-sm font-extralight tracking-wide'>
             <div>
               STEP <span className='font-medium'>{currentStep}</span> OF{' '}
               <span className='font-medium'>5</span>
@@ -49,7 +49,7 @@ export default async function Layout({
           <div className='mt-1.5 text-3xl font-semibold tracking-wide'>
             {cardTitle}
           </div>
-          <div className='text-sm text-muted-foreground'>{cardDescription}</div>
+          <div className='text-muted-foreground text-sm'>{cardDescription}</div>
         </CardHeader>
 
         <CardContent>{children}</CardContent>

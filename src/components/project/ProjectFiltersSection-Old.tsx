@@ -519,7 +519,7 @@ const ProjectFiltersSection = ({
                   <div className='space-y-2'>
                     <label className='text-sm font-medium'>Search</label>
                     <div className='relative'>
-                      <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+                      <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
                       <Input
                         placeholder='Search projects...'
                         value={filters.search}
@@ -742,7 +742,7 @@ const ProjectFiltersSection = ({
           </Popover>
 
           {/* Results count */}
-          <span className='text-sm text-muted-foreground'>
+          <span className='text-muted-foreground text-sm'>
             {filteredProjects.length} of {allProjects.length} projects
           </span>
         </div>
@@ -763,7 +763,7 @@ const ProjectFiltersSection = ({
                 onClick={() =>
                   removeFilter(filter.type as keyof FilterOptions, filter.value)
                 }
-                className='ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20'>
+                className='hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5'>
                 <X className='h-3 w-3' />
               </button>
             </Badge>
@@ -789,14 +789,14 @@ const ProjectFiltersSection = ({
             })}
           </div>
         ) : (
-          <div className='rounded-lg border border-dashed bg-muted/10 p-8 text-center'>
-            <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted'>
-              <Filter className='h-6 w-6 text-muted-foreground' />
+          <div className='bg-muted/10 rounded-lg border border-dashed p-8 text-center'>
+            <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
+              <Filter className='text-muted-foreground h-6 w-6' />
             </div>
             <h3 className='mt-4 text-lg font-semibold'>
               No projects match your filters
             </h3>
-            <p className='mt-2 text-muted-foreground'>
+            <p className='text-muted-foreground mt-2'>
               Try adjusting your search criteria or clearing some filters.
             </p>
             <Button

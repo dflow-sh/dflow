@@ -91,10 +91,10 @@ const DefaultSystemTab = ({
               Detailed CPU utilization over time
             </CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                usage: { label: 'CPU %', color: 'hsl(var(--chart-1))' },
+                usage: { label: 'CPU %', color: 'var(--chart-1)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <AreaChart data={cpu} accessibilityLayer>
@@ -117,8 +117,8 @@ const DefaultSystemTab = ({
                 <Area
                   type='monotone'
                   dataKey='usage'
-                  stroke='hsl(var(--chart-1))'
-                  fill='hsl(var(--chart-1))'
+                  stroke='var(--chart-1)'
+                  fill='var(--chart-1)'
                   fillOpacity={0.4}
                   strokeWidth={2}
                   connectNulls
@@ -153,12 +153,12 @@ const DefaultSystemTab = ({
                 1min, 5min, and 15min load averages
               </CardDescription>
             </CardHeader>
-            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+            <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
               <ChartContainer
                 config={{
-                  load1m: { label: '1min', color: 'hsl(var(--chart-2))' },
-                  load5m: { label: '5min', color: 'hsl(var(--chart-3))' },
-                  load15m: { label: '15min', color: 'hsl(var(--chart-4))' },
+                  load1m: { label: '1min', color: 'var(--chart-2)' },
+                  load5m: { label: '5min', color: 'var(--chart-3)' },
+                  load15m: { label: '15min', color: 'var(--chart-4)' },
                 }}
                 className='aspect-auto h-[300px] w-full'>
                 <LineChart data={loadAvgData} accessibilityLayer>
@@ -180,7 +180,7 @@ const DefaultSystemTab = ({
                   <Line
                     type='monotone'
                     dataKey='load1m'
-                    stroke='hsl(var(--chart-2))'
+                    stroke='var(--chart-2)'
                     strokeWidth={2}
                     dot={false}
                     connectNulls
@@ -188,7 +188,7 @@ const DefaultSystemTab = ({
                   <Line
                     type='monotone'
                     dataKey='load5m'
-                    stroke='hsl(var(--chart-3))'
+                    stroke='var(--chart-3)'
                     strokeWidth={2}
                     dot={false}
                     connectNulls
@@ -196,7 +196,7 @@ const DefaultSystemTab = ({
                   <Line
                     type='monotone'
                     dataKey='load15m'
-                    stroke='hsl(var(--chart-4))'
+                    stroke='var(--chart-4)'
                     strokeWidth={2}
                     dot={false}
                     connectNulls
@@ -247,10 +247,10 @@ const DefaultSystemTab = ({
               Memory utilization percentage over time
             </CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                usage: { label: 'Memory %', color: 'hsl(var(--chart-2))' },
+                usage: { label: 'Memory %', color: 'var(--chart-2)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <AreaChart data={memory} accessibilityLayer>
@@ -273,8 +273,8 @@ const DefaultSystemTab = ({
                 <Area
                   type='monotone'
                   dataKey='usage'
-                  stroke='hsl(var(--chart-2))'
-                  fill='hsl(var(--chart-2))'
+                  stroke='var(--chart-2)'
+                  fill='var(--chart-2)'
                   fillOpacity={0.4}
                   strokeWidth={2}
                   connectNulls
@@ -308,11 +308,11 @@ const DefaultSystemTab = ({
             <CardTitle>Memory Usage (Absolute)</CardTitle>
             <CardDescription>Used vs Free memory</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                used: { label: 'Used GB', color: 'hsl(var(--chart-1))' },
-                free: { label: 'Free GB', color: 'hsl(var(--chart-3))' },
+                used: { label: 'Used GB', color: 'var(--chart-1)' },
+                free: { label: 'Free GB', color: 'var(--chart-3)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <AreaChart data={memoryAbsoluteData} accessibilityLayer>
@@ -335,8 +335,8 @@ const DefaultSystemTab = ({
                   type='monotone'
                   dataKey='used'
                   stackId='memory'
-                  stroke='hsl(var(--chart-1))'
-                  fill='hsl(var(--chart-1))'
+                  stroke='var(--chart-1)'
+                  fill='var(--chart-1)'
                   fillOpacity={0.6}
                   strokeWidth={2}
                   connectNulls
@@ -345,8 +345,8 @@ const DefaultSystemTab = ({
                   type='monotone'
                   dataKey='free'
                   stackId='memory'
-                  stroke='hsl(var(--chart-3))'
-                  fill='hsl(var(--chart-3))'
+                  stroke='var(--chart-3)'
+                  fill='var(--chart-3)'
                   fillOpacity={0.4}
                   strokeWidth={2}
                   connectNulls

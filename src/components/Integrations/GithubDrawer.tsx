@@ -59,7 +59,7 @@ const GitHubDrawer = () => {
           </SheetTitle>
 
           <p className='pt-4 font-semibold'>{integration?.label}</p>
-          <SheetDescription className='!mt-0'>
+          <SheetDescription className='mt-0!'>
             {integration?.description}
           </SheetDescription>
         </SheetHeader>
@@ -67,7 +67,7 @@ const GitHubDrawer = () => {
         {isPending && <GithubIntegrationsLoading />}
 
         {!isPending && result.data && (
-          <ScrollArea className='flex-grow'>
+          <ScrollArea className='grow'>
             <GitProviderList
               gitProviders={result.data}
               trigger={() => {

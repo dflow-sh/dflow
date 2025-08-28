@@ -38,7 +38,10 @@ const page = async ({ params }: PageProps) => {
     <LayoutClient>
       <section>
         <div className='flex w-full justify-between'>
-          <h3 className='text-2xl font-semibold'>Templates</h3>
+          <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+            <Puzzle />
+            <h3>Templates</h3>
+          </div>
 
           <Button asChild className='w-min'>
             <Link

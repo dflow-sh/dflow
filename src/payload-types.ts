@@ -2335,6 +2335,11 @@ export interface Theme {
     border: string;
     input: string;
     ring: string;
+    chart1: string;
+    chart2: string;
+    chart3: string;
+    chart4: string;
+    chart5: string;
     sidebar: string;
     sidebarForeground: string;
     sidebarPrimary: string;
@@ -2364,6 +2369,11 @@ export interface Theme {
     border: string;
     input: string;
     ring: string;
+    chart1: string;
+    chart2: string;
+    chart3: string;
+    chart4: string;
+    chart5: string;
     sidebar: string;
     sidebarForeground: string;
     sidebarPrimary: string;
@@ -2464,6 +2474,11 @@ export interface ThemeSelect<T extends boolean = true> {
         border?: T;
         input?: T;
         ring?: T;
+        chart1?: T;
+        chart2?: T;
+        chart3?: T;
+        chart4?: T;
+        chart5?: T;
         sidebar?: T;
         sidebarForeground?: T;
         sidebarPrimary?: T;
@@ -2495,6 +2510,11 @@ export interface ThemeSelect<T extends boolean = true> {
         border?: T;
         input?: T;
         ring?: T;
+        chart1?: T;
+        chart2?: T;
+        chart3?: T;
+        chart4?: T;
+        chart5?: T;
         sidebar?: T;
         sidebarForeground?: T;
         sidebarPrimary?: T;

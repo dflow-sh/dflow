@@ -528,6 +528,7 @@ export const requestMagicLinkAction = publicClient
           {
             email,
             code,
+            isMagicLink: true,
             redirectUrl,
             exp: Math.floor(Date.now() / 1000) + 60 * 10, // 10 minutes
           },

@@ -214,14 +214,14 @@ const Backup = ({
               </DialogHeader>
 
               <div className='space-y-4'>
-                <div className='text-sm text-muted-foreground'>
+                <div className='text-muted-foreground text-sm'>
                   Available schedules
                 </div>
                 <div className='flex items-center gap-x-4 space-x-2 rounded-md border p-2'>
                   <Checkbox />
                   <div>
                     <div>Daily</div>
-                    <div className='text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground text-sm'>
                       Backed up every 24 hours, kept for 6 days.
                     </div>
                   </div>
@@ -230,7 +230,7 @@ const Backup = ({
                   <Checkbox />
                   <div>
                     <div>Weekly</div>
-                    <div className='text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground text-sm'>
                       Backed up every 7 day, kept for 1 month.
                     </div>
                   </div>
@@ -239,7 +239,7 @@ const Backup = ({
                   <Checkbox />
                   <div>
                     <div>Monthly</div>
-                    <div className='text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground text-sm'>
                       Backed up every 30 days, kept for 3 months.
                     </div>
                   </div>
@@ -272,7 +272,7 @@ const Backup = ({
 
             <DropdownMenuContent align='end'>
               <DropdownMenuItem
-                className='cursor-pointer hover:text-background'
+                className='hover:text-background cursor-pointer'
                 onClick={() =>
                   internalDBBackupExecution({
                     serviceId,
@@ -313,7 +313,7 @@ const Backup = ({
         <div className='flex h-72 flex-col items-center justify-center'>
           <DatabaseBackup className='stroke-muted-foreground' />
           <div>No Backups</div>
-          <p className='font-light text-muted-foreground'>
+          <p className='text-muted-foreground font-light'>
             This service's volumes do not have any backups available.
           </p>
         </div>
@@ -369,12 +369,12 @@ export const BackupDetails = ({ data }: { data: BackupType[] }) => {
   return (
     <div className='mt-4 space-y-4'>
       {Object.entries(grouped).map(([projectName, services]) => (
-        <div key={projectName} className='rounded-xl border p-6 shadow'>
+        <div key={projectName} className='rounded-xl border p-6 shadow-sm'>
           <h4 className='mb-4 text-2xl font-semibold'>{projectName}</h4>
           <div className='space-y-6'>
             {Object.entries(services).map(([serviceName, backups]) => (
               <div key={serviceName}>
-                <h5 className='mb-2 text-lg font-medium text-muted-foreground'>
+                <h5 className='text-muted-foreground mb-2 text-lg font-medium'>
                   {serviceName}
                 </h5>
                 <ul className='space-y-3'>
@@ -398,11 +398,11 @@ export const BackupDetails = ({ data }: { data: BackupType[] }) => {
         </div>
       ))}
       {Object.keys(grouped).length === 0 && (
-        <div className='rounded-lg border bg-muted/20 py-12 text-center'>
+        <div className='bg-muted/20 rounded-lg border py-12 text-center'>
           <div className='grid min-h-[40vh] place-items-center'>
             <div className='max-w-md space-y-4 text-center'>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <History className='h-8 w-8 animate-pulse text-muted-foreground' />
+              <div className='bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full'>
+                <History className='text-muted-foreground h-8 w-8 animate-pulse' />
               </div>
               <h2 className='text-2xl font-semibold'>No Backups Found</h2>
               <p className='text-muted-foreground'>

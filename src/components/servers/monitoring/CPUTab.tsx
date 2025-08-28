@@ -70,36 +70,36 @@ const CPUTab = ({
   serverUptime: any[]
 }) => {
   const cpuMetrics = [
-    { key: 'utilization', label: 'Utilization', color: 'hsl(var(--chart-1))' },
-    { key: 'user', label: 'User', color: 'hsl(var(--chart-2))' },
-    { key: 'system', label: 'System', color: 'hsl(var(--chart-3))' },
-    { key: 'iowait', label: 'IOWait', color: 'hsl(var(--chart-4))' },
-    { key: 'steal', label: 'Steal', color: 'hsl(var(--chart-5))' },
-    { key: 'softirq', label: 'SoftIRQ', color: 'hsl(var(--chart-6))' },
-    { key: 'irq', label: 'IRQ', color: 'hsl(var(--chart-7))' },
-    { key: 'nice', label: 'Nice', color: 'hsl(var(--chart-8))' },
-    { key: 'guest', label: 'Guest', color: 'hsl(var(--chart-9))' },
-    { key: 'guest_nice', label: 'Guest Nice', color: 'hsl(var(--chart-10))' },
+    { key: 'utilization', label: 'Utilization', color: 'var(--chart-1)' },
+    { key: 'user', label: 'User', color: 'var(--chart-2)' },
+    { key: 'system', label: 'System', color: 'var(--chart-3)' },
+    { key: 'iowait', label: 'IOWait', color: 'var(--chart-4)' },
+    { key: 'steal', label: 'Steal', color: 'var(--chart-5)' },
+    { key: 'softirq', label: 'SoftIRQ', color: 'var(--chart-6)' },
+    { key: 'irq', label: 'IRQ', color: 'var(--chart-7)' },
+    { key: 'nice', label: 'Nice', color: 'var(--chart-8)' },
+    { key: 'guest', label: 'Guest', color: 'var(--chart-9)' },
+    { key: 'guest_nice', label: 'Guest Nice', color: 'var(--chart-10)' },
   ]
 
   const pressureMetrics = [
-    { key: 'some10', label: 'Some 10', color: 'hsl(var(--chart-2))' },
-    { key: 'some60', label: 'Some 60', color: 'hsl(var(--chart-3))' },
-    { key: 'some300', label: 'Some 300', color: 'hsl(var(--chart-4))' },
+    { key: 'some10', label: 'Some 10', color: 'var(--chart-2)' },
+    { key: 'some60', label: 'Some 60', color: 'var(--chart-3)' },
+    { key: 'some300', label: 'Some 300', color: 'var(--chart-4)' },
   ]
 
   const stallTimeMetrics = [
-    { key: 'stallTime', label: 'Stall Time', color: 'hsl(var(--chart-3))' },
+    { key: 'stallTime', label: 'Stall Time', color: 'var(--chart-3)' },
   ]
 
   const loadMetrics = [
-    { key: 'load1m', label: 'Load 1 m', color: 'hsl(var(--chart-4))' },
-    { key: 'load5m', label: 'Load 5 m', color: 'hsl(var(--chart-5))' },
-    { key: 'load15m', label: 'Load 15 m', color: 'hsl(var(--chart-6))' },
+    { key: 'load1m', label: 'Load 1 m', color: 'var(--chart-4)' },
+    { key: 'load5m', label: 'Load 5 m', color: 'var(--chart-5)' },
+    { key: 'load15m', label: 'Load 15 m', color: 'var(--chart-6)' },
   ]
 
   const uptimeMetrics = [
-    { key: 'uptime', label: 'Uptime', color: 'hsl(var(--chart-7))' },
+    { key: 'uptime', label: 'Uptime', color: 'var(--chart-7)' },
   ]
 
   // Process uptime data to add a numeric value for charting
@@ -126,7 +126,7 @@ const CPUTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               cpuMetrics.map(m => [m.key, { label: m.label, color: m.color }]),
@@ -177,7 +177,7 @@ const CPUTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               pressureMetrics.map(m => [
@@ -232,7 +232,7 @@ const CPUTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               stallTimeMetrics.map(m => [
@@ -286,7 +286,7 @@ const CPUTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               loadMetrics.map(m => [m.key, { label: m.label, color: m.color }]),
@@ -337,7 +337,7 @@ const CPUTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               uptimeMetrics.map(m => [

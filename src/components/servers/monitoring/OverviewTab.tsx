@@ -50,9 +50,9 @@ const OverviewTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
-            config={{ usage: { label: 'Usage', color: 'hsl(var(--chart-1))' } }}
+            config={{ usage: { label: 'Usage', color: 'var(--chart-1)' } }}
             className='aspect-auto h-[250px] w-full'>
             <LineChart
               data={cpuUtilization}
@@ -64,7 +64,7 @@ const OverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='usage'
-                stroke='hsl(var(--chart-1))'
+                stroke='var(--chart-1)'
                 strokeWidth={2}
                 dot={false}
               />
@@ -99,9 +99,9 @@ const OverviewTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
-            config={{ usage: { label: 'Usage', color: 'hsl(var(--chart-2))' } }}
+            config={{ usage: { label: 'Usage', color: 'var(--chart-2)' } }}
             className='aspect-auto h-[250px] w-full'>
             <AreaChart
               data={memoryUsage}
@@ -113,8 +113,8 @@ const OverviewTab = ({
               <Area
                 type='monotone'
                 dataKey='usage'
-                stroke='hsl(var(--chart-2))'
-                fill='hsl(var(--chart-2))'
+                stroke='var(--chart-2)'
+                fill='var(--chart-2)'
                 strokeWidth={2}
               />
               <ChartTooltip
@@ -148,11 +148,11 @@ const OverviewTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              incoming: { label: 'Incoming', color: 'hsl(var(--chart-3))' },
-              outgoing: { label: 'Outgoing', color: 'hsl(var(--chart-4))' },
+              incoming: { label: 'Incoming', color: 'var(--chart-3)' },
+              outgoing: { label: 'Outgoing', color: 'var(--chart-4)' },
             }}
             className='aspect-auto h-[250px] w-full'>
             <LineChart
@@ -165,14 +165,14 @@ const OverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='incoming'
-                stroke='hsl(var(--chart-3))'
+                stroke='var(--chart-3)'
                 strokeWidth={2}
                 dot={false}
               />
               <Line
                 type='monotone'
                 dataKey='outgoing'
-                stroke='hsl(var(--chart-4))'
+                stroke='var(--chart-4)'
                 strokeWidth={2}
                 dot={false}
               />
@@ -207,11 +207,11 @@ const OverviewTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={{
-              reads: { label: 'Reads', color: 'hsl(var(--chart-1))' },
-              writes: { label: 'Writes', color: 'hsl(var(--chart-2))' },
+              reads: { label: 'Reads', color: 'var(--chart-1)' },
+              writes: { label: 'Writes', color: 'var(--chart-2)' },
             }}
             className='aspect-auto h-[250px] w-full'>
             <LineChart
@@ -224,14 +224,14 @@ const OverviewTab = ({
               <Line
                 type='monotone'
                 dataKey='reads'
-                stroke='hsl(var(--chart-1))'
+                stroke='var(--chart-1)'
                 strokeWidth={2}
                 dot={false}
               />
               <Line
                 type='monotone'
                 dataKey='writes'
-                stroke='hsl(var(--chart-2))'
+                stroke='var(--chart-2)'
                 strokeWidth={2}
                 dot={false}
               />

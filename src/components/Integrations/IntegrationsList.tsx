@@ -42,7 +42,7 @@ const IntegrationsList = () => {
             </CardTitle>
           </CardHeader>
 
-          <CardContent className='min-h-24 text-muted-foreground'>
+          <CardContent className='text-muted-foreground min-h-24'>
             {integration.description}
           </CardContent>
 

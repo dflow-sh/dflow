@@ -56,7 +56,7 @@ export default function SelectSearch({
   }
 
   return (
-    <div className='*:not-first:mt-2'>
+    <div className='not-first:*:mt-2'>
       <Label htmlFor={id}>
         {label}
         {info}
@@ -92,7 +92,7 @@ export default function SelectSearch({
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className='w-full min-w-[var(--radix-popper-anchor-width)] border-input p-0'
+          className='w-full min-w-(--radix-popper-anchor-width) border-input p-0'
           align='start'>
           <Command>
             <CommandInput placeholder={`Search ${inputPlaceholder}...`} />

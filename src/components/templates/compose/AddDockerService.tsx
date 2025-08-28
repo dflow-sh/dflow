@@ -175,7 +175,7 @@ const AddDockerService = ({
               </div>
             </RadioGroup>
 
-            <p className='text-[0.8rem] text-muted-foreground'>
+            <p className='text-muted-foreground text-[0.8rem]'>
               Select private option to deploy private images
             </p>
           </div>
@@ -211,7 +211,7 @@ const AddDockerService = ({
 
                         {dockerDetails?.account && (
                           <div
-                            className='absolute right-8 top-2.5 cursor-pointer text-muted-foreground'
+                            className='text-muted-foreground absolute top-2.5 right-8 cursor-pointer'
                             onClick={e => {
                               form.setValue('dockerDetails.account', '', {
                                 shouldValidate: true,
@@ -258,7 +258,7 @@ const AddDockerService = ({
             <Label className='block'>Ports</Label>
 
             {fields.length ? (
-              <div className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+              <div className='text-muted-foreground grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm'>
                 <p className='font-semibold'>Host Port</p>
                 <p className='font-semibold'>Container Port</p>
                 <p className='font-semibold'>Schema</p>

@@ -54,7 +54,7 @@ const SuspendedServers = async ({
           ))}
         </div>
       ) : (
-        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-xs'>
           <div className='grid min-h-[40vh] place-items-center'>
             <div>
               <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>

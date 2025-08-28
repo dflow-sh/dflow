@@ -167,7 +167,7 @@ const DeployTemplateWithProjectForm = ({
                           <h4 className='text-md font-medium'>
                             Deploy to a New Project
                           </h4>
-                          <p className='text-sm text-muted-foreground'>
+                          <p className='text-muted-foreground text-sm'>
                             Choose this to deploy the template in a newly
                             created project
                           </p>

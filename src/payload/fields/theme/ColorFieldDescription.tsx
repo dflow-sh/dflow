@@ -24,7 +24,7 @@ const ColorFieldDescription = () => {
 
         <li>
           After generating color-palettes, select{' '}
-          <strong>Tailwind v3, hsl color code</strong> and copy the generated
+          <strong>Tailwind v4, oklch color code</strong> and copy the generated
           code
         </li>
 

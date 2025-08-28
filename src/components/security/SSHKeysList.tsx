@@ -69,14 +69,14 @@ const SSHKeyItem = ({
   return (
     <>
       <Card className='transition-shadow hover:shadow-md'>
-        <CardContent className='grid h-full w-full grid-cols-[auto,1fr,auto,auto] items-center gap-4 p-4'>
-          <KeyRound className='flex-shrink-0' size={20} />
+        <CardContent className='grid h-full w-full grid-cols-[auto_1fr_auto_auto] items-center gap-4 p-4'>
+          <KeyRound className='shrink-0' size={20} />
 
           <div className='min-w-0 space-y-1 overflow-hidden'>
             <div className='flex items-center gap-2'>
               <p className='truncate font-semibold'>{sshKey.name}</p>
             </div>
-            <p className='truncate text-sm text-muted-foreground'>
+            <p className='text-muted-foreground truncate text-sm'>
               {sshKey.description}
             </p>
             {hasMissingFields && (
@@ -86,7 +86,7 @@ const SSHKeyItem = ({
                   Missing required configuration
                 </AlertTitle>
                 <AlertDescription className='text-xs'>
-                  <ul className='ml-5 mt-1 list-disc space-y-1'>
+                  <ul className='mt-1 ml-5 list-disc space-y-1'>
                     {isMissingPublicKey && <li>Public key not configured</li>}
                   </ul>
                 </AlertDescription>
@@ -129,7 +129,7 @@ const SSHKeyItem = ({
         <DialogContent className='sm:max-w-lg'>
           <DialogHeader>
             <DialogTitle className='flex items-center gap-2 text-lg'>
-              <Trash2 className='h-5 w-5 text-destructive' />
+              <Trash2 className='text-destructive h-5 w-5' />
               Delete SSH Key
             </DialogTitle>
             <DialogDescription className='pt-2'>
@@ -141,11 +141,11 @@ const SSHKeyItem = ({
           <div className='space-y-4'>
             {isConnectedToServers && (
               <>
-                <div className='rounded-md border bg-warning/10 p-3'>
+                <div className='bg-warning/10 rounded-md border p-3'>
                   <div className='flex gap-2'>
-                    <AlertCircle className='h-5 w-5 text-warning' />
+                    <AlertCircle className='text-warning h-5 w-5' />
                     <div>
-                      <p className='font-medium text-warning'>
+                      <p className='text-warning font-medium'>
                         Warning: Connected Servers
                       </p>
                       <p className='text-sm'>
@@ -159,9 +159,9 @@ const SSHKeyItem = ({
                     {connectedServers.map((server, index) => (
                       <li
                         key={index}
-                        className='flex items-center justify-between border-t border-border pt-2'>
+                        className='border-border flex items-center justify-between border-t pt-2'>
                         <div className='flex items-center gap-2'>
-                          <LinkIcon className='h-4 w-4 text-muted-foreground' />
+                          <LinkIcon className='text-muted-foreground h-4 w-4' />
                           <span>{server.name || `Server ${index + 1}`}</span>
                         </div>
                         <div className='flex gap-2'>
@@ -187,8 +187,8 @@ const SSHKeyItem = ({
                   </ul>
                 </div>
 
-                <div className='rounded-md border bg-destructive/10 p-3'>
-                  <p className='text-sm text-destructive'>
+                <div className='bg-destructive/10 rounded-md border p-3'>
+                  <p className='text-destructive text-sm'>
                     <strong>Caution:</strong> Deleting this SSH key may prevent
                     access to your servers. Make sure you have alternative SSH
                     keys in place or understand the impact this will have on
@@ -199,7 +199,7 @@ const SSHKeyItem = ({
             )}
 
             {!isConnectedToServers && (
-              <div className='rounded-md border bg-muted p-3'>
+              <div className='bg-muted rounded-md border p-3'>
                 <p className='text-sm'>
                   This SSH key is not connected to any servers. It can be safely
                   deleted.

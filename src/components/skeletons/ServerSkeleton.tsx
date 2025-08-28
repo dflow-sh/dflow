@@ -10,7 +10,7 @@ export const TabNavigationSkeleton = () => {
           <div className='w-full p-0'>
             <div className='relative min-h-9'>
               {/* Bottom border line */}
-              <div className='absolute bottom-0 h-[1px] w-full bg-border'></div>
+              <div className='absolute bottom-0 h-px w-full bg-border'></div>
 
               {/* Active tab indicator (skeleton version) */}
               <div className='absolute bottom-0 h-[2px] w-16 rounded-full bg-muted-foreground/50'></div>
@@ -27,7 +27,7 @@ export const TabNavigationSkeleton = () => {
           </div>
         </div>
       </div>
-      <div className='absolute bottom-0 z-[-10] h-[1px] w-full bg-border'></div>
+      <div className='absolute bottom-0 z-[-10] h-px w-full bg-border'></div>
     </div>
   )
 }
@@ -52,7 +52,7 @@ export const ServerSkeleton = () => {
               .map((_, i) => (
                 <div
                   key={i}
-                  className='rounded-xl border bg-muted/30 text-card-foreground shadow'>
+                  className='rounded-xl border bg-muted/30 text-card-foreground shadow-sm'>
                   <div className='flex flex-col space-y-1.5 p-6 pb-2'>
                     <div className='flex items-center justify-between tracking-tight'>
                       <Skeleton className='h-4 w-24' />
@@ -109,7 +109,7 @@ export const ServerSkeleton = () => {
 
           {/* Projects section */}
           <div className='grid grid-cols-1 gap-4'>
-            <div className='h-full w-full rounded-sm border border-none bg-muted/30 text-card-foreground shadow'>
+            <div className='h-full w-full rounded-sm border border-none bg-muted/30 text-card-foreground shadow-sm'>
               <div className='flex flex-col space-y-1.5 border-b p-6'>
                 <div className='flex items-center gap-3 font-semibold leading-none tracking-tight'>
                   <Skeleton className='h-6 w-6 rounded' />
@@ -128,7 +128,7 @@ export const ServerSkeleton = () => {
                           <Skeleton className='h-4 w-4' />
                           <Skeleton className='h-5 w-5' />
                         </div>
-                        <div className='flex-grow'>
+                        <div className='grow'>
                           <Skeleton className='mb-1 h-4 w-24' />
                           <Skeleton className='h-3 w-16' />
                         </div>
@@ -227,7 +227,7 @@ export const GeneralTabSkeleton = () => {
                         <Skeleton className='h-4 w-4' />
                         <Skeleton className='h-5 w-5' />
                       </div>
-                      <div className='flex-grow'>
+                      <div className='grow'>
                         <Skeleton className='h-5 w-[100px]' />
                         <Skeleton className='mt-1 h-4 w-[80px]' />
                       </div>
@@ -365,7 +365,7 @@ export const DomainsTabSkeleton = () => {
           {[1, 2].map(item => (
             <div
               key={item}
-              className='rounded-xl border bg-muted/30 text-sm text-card-foreground shadow transition-colors duration-300'>
+              className='rounded-xl border bg-muted/30 text-sm text-card-foreground shadow-sm transition-colors duration-300'>
               <div className='flex w-full flex-col gap-6 p-6 pt-4 sm:flex-row sm:justify-between'>
                 <div className='flex items-center gap-3'>
                   <Skeleton className='h-5 w-5 rounded-full' />
@@ -428,7 +428,7 @@ export const MonitoringTabSkeleton = () => {
           {/* Three Column Stats Grid */}
           <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
             {/* CPU Usage Skeleton */}
-            <div className='rounded-xl border bg-muted/30 p-6 shadow-sm'>
+            <div className='rounded-xl border bg-muted/30 p-6 shadow-xs'>
               <div className='flex flex-col space-y-1.5 pb-2'>
                 <Skeleton className='h-4 w-1/2' />
               </div>
@@ -442,7 +442,7 @@ export const MonitoringTabSkeleton = () => {
             </div>
 
             {/* Memory Usage Skeleton */}
-            <div className='rounded-xl border bg-muted/30 p-6 shadow-sm'>
+            <div className='rounded-xl border bg-muted/30 p-6 shadow-xs'>
               <div className='flex flex-col space-y-1.5 pb-2'>
                 <Skeleton className='h-4 w-1/2' />
               </div>
@@ -456,7 +456,7 @@ export const MonitoringTabSkeleton = () => {
             </div>
 
             {/* Network Traffic Skeleton */}
-            <div className='rounded-xl border bg-muted/30 p-6 shadow-sm'>
+            <div className='rounded-xl border bg-muted/30 p-6 shadow-xs'>
               <div className='flex flex-col space-y-1.5 pb-2'>
                 <Skeleton className='h-4 w-1/2' />
               </div>
@@ -477,7 +477,7 @@ export const MonitoringTabSkeleton = () => {
           </div>
 
           {/* System Health Summary Skeleton */}
-          <div className='rounded-xl border bg-muted/30 p-6 shadow-sm'>
+          <div className='rounded-xl border bg-muted/30 p-6 shadow-xs'>
             <div className='flex flex-col space-y-1.5 pb-2'>
               <Skeleton className='h-4 w-1/3' />
             </div>
