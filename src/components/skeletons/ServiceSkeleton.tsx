@@ -72,7 +72,7 @@ const ServiceSkeleton = () => {
   return (
     <div
       className={cn(
-        'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-[#171d33] px-6 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
+        'fixed right-4 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-background px-6 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
       )}>
       <div className='mt-24' />
       <div className='border-base-content/40 my-4 w-full border-b' />

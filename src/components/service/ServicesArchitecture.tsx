@@ -144,7 +144,7 @@ const ServicesArchitecture = ({ server }: { server: Server }) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   return (
-    <div className='relative mt-4 w-full rounded-md border'>
+    <div className='relative mt-4 w-full'>
       <ChooseService
         nodes={nodes}
         edges={edges}

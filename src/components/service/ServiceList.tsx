@@ -212,9 +212,7 @@ const ServiceList = ({
 
   return (
     <>
-      <div
-        className='mx-auto mt-4 h-[calc(100vh-190px)] w-full max-w-6xl rounded-xl border'
-        ref={containerRef}>
+      <div className='mx-auto h-[calc(100vh-125px)] w-full' ref={containerRef}>
         <ReactFlowConfig
           edges={edges}
           nodes={nodes}
