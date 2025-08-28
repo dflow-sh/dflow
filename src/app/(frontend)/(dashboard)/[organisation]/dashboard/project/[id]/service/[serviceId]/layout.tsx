@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import React, { JSX, SVGProps, Suspense } from 'react'
+import React, { JSX, SVGProps } from 'react'
 
 import { getServiceDetails } from '@/actions/pages/service'
 import {
@@ -11,7 +11,6 @@ import {
   PostgreSQL,
   Redis,
 } from '@/components/icons'
-import { ServiceLayoutSkeleton } from '@/components/skeletons/ServiceLayoutSkeleton'
 import { Service } from '@/payload-types'
 import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
 
@@ -82,11 +81,9 @@ const ServiceIdLayout = ({
 }) => {
   return (
     <DisableDeploymentContextProvider>
-      <Suspense fallback={<ServiceLayoutSkeleton />}>
-        <SuspendedServicePageLayout params={params}>
-          {children}
-        </SuspendedServicePageLayout>
-      </Suspense>
+      <SuspendedServicePageLayout params={params}>
+        {children}
+      </SuspendedServicePageLayout>
     </DisableDeploymentContextProvider>
   )
 }

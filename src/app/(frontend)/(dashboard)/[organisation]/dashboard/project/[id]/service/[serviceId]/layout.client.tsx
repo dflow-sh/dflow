@@ -7,8 +7,6 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
 import { Service } from '@/payload-types'
 import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 
@@ -102,32 +100,7 @@ const LayoutClient = ({
 
   return (
     <>
-      <div className={cn('sticky top-[68px] z-40 bg-background')}>
-        <div
-          className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
-          style={{ scrollbarWidth: 'none' }}>
-          <Tabs
-            tabs={tabsList.map(({ label, disabled }) => ({ label, disabled }))}
-            onTabChange={index => {
-              const tab = tabsList[index]
-
-              startTransition(() => {
-                setTab(tab.slug, {
-                  shallow: false,
-                })
-              })
-            }}
-            activeTab={activeTab >= 0 ? activeTab : 0}
-            defaultActiveTab={activeTab >= 0 ? activeTab : 0}
-          />
-        </div>
-
-        <div className='absolute bottom-0 z-[-10] h-px w-full bg-border' />
-      </div>
-
-      <main className='mx-auto mt-4 w-full max-w-6xl px-4 pb-32'>
-        {children}
-      </main>
+      <main className='mx-auto'>{children}</main>
 
       {mounted && (
         <>
@@ -136,7 +109,7 @@ const LayoutClient = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 shrink-0 stroke-border'
+                className='h-5 w-5 flex-shrink-0 stroke-border'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}
