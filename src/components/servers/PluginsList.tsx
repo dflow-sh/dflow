@@ -27,6 +27,7 @@ import {
 } from '@/actions/plugin'
 import { supportedPluginsSchema } from '@/actions/plugin/validator'
 import {
+  ClickHouse,
   Letsencrypt,
   MariaDB,
   MongoDB,
@@ -70,6 +71,7 @@ const iconMapping: {
   mongo: MongoDB,
   redis: Redis,
   mysql: MySQL,
+  clickhouse: ClickHouse,
 }
 
 const PluginCard = ({
@@ -147,7 +149,7 @@ const PluginCard = ({
             {pluginName}
 
             {installedPlugin && (
-              <code className='font-normal text-muted-foreground'>
+              <code className='text-muted-foreground font-normal'>
                 {`(${installedPlugin.version})`}
               </code>
             )}

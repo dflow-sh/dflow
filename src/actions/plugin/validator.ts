@@ -8,6 +8,7 @@ export const supportedPluginsSchema = z.enum([
   'redis',
   'letsencrypt',
   'rabbitmq',
+  'clickhouse',
 ])
 
 export const installPluginSchema = z.object({
