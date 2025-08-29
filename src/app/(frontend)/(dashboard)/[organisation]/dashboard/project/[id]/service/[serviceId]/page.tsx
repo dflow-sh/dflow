@@ -89,7 +89,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
         />
       )
 
-    case 'backup':
+    case 'backups':
       return (
         <Backup
           databaseDetails={databaseDetails}

@@ -53,7 +53,7 @@ const GeneralTab: React.FC<{
             />
           </h2>
 
-          <p className='text-sm text-muted-foreground'>{project.description}</p>
+          <p className='text-muted-foreground text-sm'>{project.description}</p>
         </div>
 
         {typeof project.server === 'object' && (
@@ -127,7 +127,7 @@ const SuspendedPage = async ({
       <section>
         {/* Display SSH connection alert if server is not connected */}
         {typeof project.server === 'object' && !isServerConnected && (
-          <Alert variant='destructive' className='mb-4 mt-4'>
+          <Alert variant='destructive' className='mt-4 mb-4'>
             <ScreenShareOff className='h-4 w-4' />
             <AlertTitle>SSH Connection Failed</AlertTitle>
             <AlertDescription>
@@ -137,7 +137,7 @@ const SuspendedPage = async ({
               unavailable until the connection is restored.{' '}
               <Link
                 href={`/${organisation}/servers/${project.server.id}`}
-                className='text-sm font-normal text-primary hover:text-primary hover:underline hover:underline-offset-4'>
+                className='text-primary hover:text-primary text-sm font-normal hover:underline hover:underline-offset-4'>
                 Go to server settings
               </Link>
             </AlertDescription>
@@ -161,6 +161,7 @@ const layout = async ({ children, params }: Props) => {
   const result = await getProjectBreadcrumbs({ id })
 
   const project = result?.data?.project?.docs?.at(0)
+
   return (
     <ClientLayout
       project={{

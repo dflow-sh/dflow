@@ -4,11 +4,12 @@ import { useProgress } from '@bprogress/next'
 import { Database } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { type JSX, useEffect, useState, useTransition } from 'react'
+import { type JSX, useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
+import Tabs from '@/components/Tabs'
 import {
   Bitbucket,
   ClickHouse,
@@ -26,7 +27,7 @@ import {
 } from '@/components/icons'
 import CloseService from '@/components/service/CloseService'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Service } from '@/payload-types'
 import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 
@@ -87,7 +88,7 @@ const LayoutClient = ({
       'logs',
       'domains',
       'deployments',
-      'backup',
+      'backups',
       'volumes',
       'scaling',
       'settings',
@@ -101,6 +102,27 @@ const LayoutClient = ({
 
   const { setDisable } = useDisableDeploymentContext()
   const defaultPopulatedVariables = service?.populatedVariables ?? '{}'
+
+  const tabsList = useMemo(() => {
+    return type === 'database'
+      ? ([
+          { label: 'General', slug: 'general', disabled: false },
+          { label: 'Logs', slug: 'logs', disabled: false },
+          { label: 'Deployments', slug: 'deployments', disabled: false },
+          { label: 'Backups', slug: 'backups', disabled: false },
+          { label: 'Settings', slug: 'settings', disabled: false },
+        ] as const)
+      : ([
+          { label: 'General', slug: 'general', disabled: false },
+          { label: 'Environment', slug: 'environment', disabled: false },
+          { label: 'Logs', slug: 'logs', disabled: false },
+          { label: 'Deployments', slug: 'deployments', disabled: false },
+          { label: 'Scaling', slug: 'scaling', disabled: false },
+          { label: 'Domains', slug: 'domains', disabled: false },
+          { label: 'Volumes', slug: 'volumes', disabled: false },
+          { label: 'Settings', slug: 'settings', disabled: false },
+        ] as const)
+  }, [type])
 
   useEffect(() => {
     setMounted(true)
@@ -122,6 +144,10 @@ const LayoutClient = ({
       setPopulatedVariables(defaultPopulatedVariables)
     }
   }, [service.populatedVariables])
+
+  const activeTab = tabsList.findIndex(({ slug }) => {
+    return slug === tab
+  })
 
   return (
     <>
@@ -156,48 +182,29 @@ const LayoutClient = ({
             </div>
           </div>
 
-          <div className='relative flex h-full flex-col overflow-hidden'>
+          <div
+            className='mx-auto mb-4 w-full max-w-6xl overflow-x-scroll'
+            style={{ scrollbarWidth: 'none' }}>
             <Tabs
-              onValueChange={slug => {
+              tabs={tabsList.map(({ label, disabled }) => ({
+                label,
+                disabled,
+              }))}
+              onTabChange={index => {
+                const tab = tabsList[index]
+
                 startTransition(() => {
-                  setTab(slug as typeof tab, {
+                  setTab(tab.slug, {
                     shallow: false,
                   })
                 })
               }}
-              defaultValue={tab}
-              className='flex h-full flex-col'>
-              <div className='scrollbar-hide bg-background sticky top-0 z-10 overflow-x-auto pt-2'>
-                <TabsList className='bg-primary/10 rounded'>
-                  <TabsTrigger value='general'>General</TabsTrigger>
-                  {service?.type !== 'database' && (
-                    <TabsTrigger value='environment'>Environment</TabsTrigger>
-                  )}
-                  <TabsTrigger value='logs'>Logs</TabsTrigger>
-                  <TabsTrigger value='deployments'>Deployments</TabsTrigger>
-                  {service?.type !== 'database' && (
-                    <TabsTrigger value='scaling'>Scaling</TabsTrigger>
-                  )}
-                  {service?.type !== 'database' && (
-                    <TabsTrigger value='domains'>Domains</TabsTrigger>
-                  )}
-                  {service?.type !== 'database' && (
-                    <TabsTrigger value='volumes'>Volumes</TabsTrigger>
-                  )}
-                  {service?.type === 'database' && (
-                    <TabsTrigger value='backups'>Backups</TabsTrigger>
-                  )}
-                  <TabsTrigger value='settings'>Settings</TabsTrigger>
-                </TabsList>
-
-                <div className='border-base-content/40 w-full border-b pt-2' />
-              </div>
-
-              <div className='flex-1 overflow-x-hidden overflow-y-auto px-1 pt-4 pb-8'>
-                {children}
-              </div>
-            </Tabs>
+              activeTab={activeTab >= 0 ? activeTab : 0}
+              defaultActiveTab={activeTab >= 0 ? activeTab : 0}
+            />
           </div>
+
+          <ScrollArea className='h-[calc(100%-8.5rem)]'>{children}</ScrollArea>
         </div>
       </main>
 
