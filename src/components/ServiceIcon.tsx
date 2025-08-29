@@ -4,7 +4,15 @@ import { JSX, SVGProps } from 'react'
 import { cn } from '@/lib/utils'
 import { Service } from '@/payload-types'
 
-import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from './icons'
+import {
+  ClickHouse,
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from './icons'
 
 export type StatusType =
   | NonNullable<NonNullable<Service['databaseDetails']>['type']>
@@ -19,6 +27,7 @@ const iconMapping: {
   mongo: MongoDB,
   mysql: MySQL,
   redis: Redis,
+  clickhouse: ClickHouse,
   app: props => <Github {...props} />,
   docker: Docker,
 }

@@ -1,7 +1,14 @@
 import { Deployment, DockerRegistry, GitProvider } from '@/payload-types'
 
 export interface DatabaseDetails {
-  type?: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb' | null
+  type?:
+    | 'postgres'
+    | 'mongo'
+    | 'mysql'
+    | 'redis'
+    | 'mariadb'
+    | 'clickhouse'
+    | null
   username?: string | null
   password?: string | null
   host?: string | null

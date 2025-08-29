@@ -15,6 +15,7 @@ import { JSX } from 'react'
 
 import {
   Bitbucket,
+  ClickHouse,
   Docker,
   Git,
   GitLab,
@@ -54,6 +55,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const ProviderTypeIcons: {
@@ -140,7 +142,7 @@ const CustomNode = ({
         className={`relative z-10 h-full min-h-36 backdrop-blur-md ${
           isDisabled
             ? 'cursor-not-allowed'
-            : 'cursor-pointer hover:border-primary/50 hover:bg-primary/5 hover:shadow-md'
+            : 'hover:border-primary/50 hover:bg-primary/5 cursor-pointer hover:shadow-md'
         }`}>
         {menuOptions && menuOptions(data)}
         <CardHeader className='w-64 flex-row justify-between pb-2'>
@@ -161,7 +163,7 @@ const CustomNode = ({
 
         <CardContent className='pb-3'>
           {isDisabled && (
-            <div className='mb-1 flex items-center gap-2 rounded-md bg-muted px-2 py-1 text-sm text-muted-foreground'>
+            <div className='bg-muted text-muted-foreground mb-1 flex items-center gap-2 rounded-md px-2 py-1 text-sm'>
               <AlertCircle size={16} />
               <span>Node disabled</span>
             </div>
@@ -171,7 +173,7 @@ const CustomNode = ({
 
         <CardFooter>
           {data?.createdAt && (
-            <time className='flex items-center gap-1.5 text-sm text-muted-foreground'>
+            <time className='text-muted-foreground flex items-center gap-1.5 text-sm'>
               <Clock size={14} />
               {`Created ${formatDistanceToNow(new Date(data?.createdAt), {
                 addSuffix: true,
@@ -181,7 +183,7 @@ const CustomNode = ({
         </CardFooter>
       </Card>
       {data.volumes && data.volumes.length > 0 && (
-        <div className='z-0 -mt-6 w-full items-start gap-x-2 rounded-md border bg-muted/30 px-2 pb-2 pt-8 text-sm text-muted-foreground backdrop-blur-xs'>
+        <div className='bg-muted/30 text-muted-foreground z-0 -mt-6 w-full items-start gap-x-2 rounded-md border px-2 pt-8 pb-2 text-sm backdrop-blur-xs'>
           <div className='flex items-center justify-between gap-x-2'>
             <div className='inline-flex items-center gap-x-2 overflow-hidden'>
               <span className='shrink-0'>
@@ -194,7 +196,7 @@ const CustomNode = ({
             </div>
 
             {data.volumes.length > 1 && (
-              <span className='justify-end whitespace-nowrap text-primary-foreground'>
+              <span className='text-primary-foreground justify-end whitespace-nowrap'>
                 +{data.volumes.length - 1}
               </span>
             )}

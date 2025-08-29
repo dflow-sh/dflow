@@ -12,6 +12,7 @@ import {
 import { JSX, useEffect, useState } from 'react'
 
 import {
+  ClickHouse,
   Docker,
   MariaDB,
   MongoDB,
@@ -45,6 +46,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {

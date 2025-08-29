@@ -3,6 +3,7 @@ import React, { JSX, SVGProps } from 'react'
 
 import { getServiceDetails } from '@/actions/pages/service'
 import {
+  ClickHouse,
   Docker,
   Git,
   MariaDB,
@@ -29,6 +30,7 @@ const iconMapping: {
   mongo: MongoDB,
   mysql: MySQL,
   redis: Redis,
+  clickhouse: ClickHouse,
   app: props => <Git {...props} />,
   docker: Docker,
 }
