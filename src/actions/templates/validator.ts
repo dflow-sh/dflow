@@ -39,7 +39,14 @@ export const servicesSchema = z.array(
       .optional(),
     databaseDetails: z
       .object({
-        type: z.enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb']),
+        type: z.enum([
+          'postgres',
+          'mongo',
+          'mysql',
+          'redis',
+          'mariadb',
+          'clickhouse',
+        ]),
         exposedPorts: z.string().array().optional(),
       })
       .optional(),
@@ -125,7 +132,14 @@ export const UpdateServiceSchema = z.object({
     .optional(),
   databaseDetails: z
     .object({
-      type: z.enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb']),
+      type: z.enum([
+        'postgres',
+        'mongo',
+        'mysql',
+        'redis',
+        'mariadb',
+        'clickhouse',
+      ]),
     })
     .optional(),
 
