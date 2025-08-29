@@ -43,7 +43,6 @@ export const signInAction = publicClient
         }
       } catch (configError) {
         console.error('Error fetching auth configuration:', configError)
-        // Continue with sign-in if config check fails
       }
 
       // Attempt login
@@ -108,24 +107,25 @@ export const signInAction = publicClient
         }
       }
 
-      // Determine redirect URL
-      try {
-        const tenants = user?.tenants ?? []
-        const tenantSlug =
-          typeof tenants?.[0]?.tenant === 'object'
-            ? tenants?.[0].tenant?.slug
-            : ''
+      // Return success with redirect URL instead of calling redirect()
+      const tenants = user?.tenants ?? []
+      const tenantSlug =
+        typeof tenants?.[0]?.tenant === 'object'
+          ? tenants?.[0].tenant?.slug
+          : ''
+      const redirectUrl = `/${tenantSlug || user.username}/dashboard`
 
-        const redirectUrl = `/${tenantSlug || user.username}/dashboard`
-        redirect(redirectUrl)
-      } catch (redirectError) {
-        console.error('Error during redirect:', redirectError)
-        // Fallback redirect
-        redirect('/dashboard')
+      return {
+        success: true,
+        redirectUrl, // Return the URL for client-side redirect
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        },
       }
     } catch (error) {
       console.error('Unexpected error in signInAction:', error)
-
       return {
         success: false,
         error: 'An unexpected error occurred. Please try again later.',

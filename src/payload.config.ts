@@ -30,6 +30,7 @@ import { Template } from './payload/collections/Templates'
 import { Tenants } from './payload/collections/Tenants'
 import { Traefik } from './payload/collections/Traefik'
 import { Users } from './payload/collections/Users'
+import { logoutHandler } from './payload/endpoints/logout'
 import { AuthConfig } from './payload/globals/AuthConfig'
 import { Branding } from './payload/globals/Branding'
 import { Theme } from './payload/globals/Theme'
@@ -138,6 +139,11 @@ export default buildConfig({
       method: 'get',
       path: '/auto-login',
       handler: autoLogin,
+    },
+    {
+      path: '/logout',
+      method: 'post',
+      handler: logoutHandler,
     },
   ],
   jobs: {
