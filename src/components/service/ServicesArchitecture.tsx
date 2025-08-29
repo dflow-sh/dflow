@@ -84,7 +84,7 @@ const DeploymentDialog = memo(
 
               {disabledDatabasesListNames?.length ? (
                 <span className='text-muted-foreground text-xs'>
-                  {`Enable ${disabledDatabasesListNames?.join(', ')} plugin for `}
+                  {`${disabledDatabasesListNames?.join(', ')} plugin `}
                   <Button
                     variant='link'
                     className='w-min p-0'
@@ -95,7 +95,7 @@ const DeploymentDialog = memo(
                       {serverName}
                     </Link>
                   </Button>
-                  {` server to deploy services`}
+                  {` will be installed during deployment!`}
                 </span>
               ) : null}
 
@@ -115,7 +115,7 @@ const DeploymentDialog = memo(
                   })
                 }}
                 size='icon'
-                disabled={isDeploying || !!disabledDatabasesList.length}
+                disabled={isDeploying}
                 isLoading={isDeploying}>
                 <Rocket size={16} />
               </Button>

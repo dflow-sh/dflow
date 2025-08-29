@@ -213,16 +213,16 @@
 /* react flow */
 .react-flow__controls {
   background: hsl(var(--muted) / 0.3) !important; /* Dark background */
-  color: white !important;
+  color: var(--foreground) !important;
 }
 
 .react-flow__controls-button {
   background-color: hsl(
     var(--muted) / 0.3
   ) !important; /* Tailwind bg-gray-700 */
-  color: white !important;
+  color: var(--foreground) !important;
   margin: 0.25rem 0;
-  border-bottom: 2px solid rgb(113, 112, 112) !important;
+  border-bottom: 2px solid var(--input) !important;
 }
 
 .animate-progress {

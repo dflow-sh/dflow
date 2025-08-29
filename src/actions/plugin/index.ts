@@ -112,8 +112,7 @@ export const syncPluginAction = protectedClient
         },
       })
 
-      revalidatePath(`/servers/${serverId}/general`)
-      revalidatePath(`/onboarding/dokku-install`)
+      revalidatePath(`/servers/${serverId}`)
       return { success: true, plugins: updatedServerResponse.plugins ?? [] }
     } catch (error) {
       let message = ''

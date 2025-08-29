@@ -287,6 +287,7 @@ const PluginsList = ({ server }: { server: ServerType }) => {
           <p>Sync the existing dokku plugins installed on server</p>
           <Button
             disabled={isPending}
+            isLoading={isPending}
             onClick={() => execute({ serverId: server.id })}
             variant='secondary'>
             Sync Plugins

@@ -47,7 +47,7 @@ const TerminalContent = ({ serverId }: { serverId: string }) => {
     }
   }, [terminalInstance])
 
-  return <XTermTerminal ref={terminalRef} className='mt-2 h-80' />
+  return <XTermTerminal ref={terminalRef} className='mx-4 mb-5 h-80' />
 }
 
 const ProjectTerminal = ({ server }: ProjectTerminalType) => {
@@ -77,7 +77,7 @@ const ProjectTerminal = ({ server }: ProjectTerminalType) => {
           role='button'
           onClick={() => setOpen(true)}
           className={cn(
-            'fixed bottom-0 right-0 flex w-full items-center justify-between border-t bg-secondary/50 px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear hover:bg-secondary/70',
+            'bg-secondary/50 hover:bg-secondary/70 fixed right-0 bottom-0 flex w-full items-center justify-between border-t px-3 py-2 backdrop-blur-lg transition-[width] duration-200 ease-linear',
             // state === 'expanded'
             //   ? 'md:w-[calc(100%-var(--sidebar-width))]'
             //   : 'md:w-[calc(100%-var(--sidebar-width-icon))]',
@@ -95,6 +95,7 @@ const ProjectTerminal = ({ server }: ProjectTerminalType) => {
           <ChevronsUp size={20} />
         </button>
       </SheetTrigger>
+
       <SheetContent side='bottom'>
         <SheetHeader>
           <SheetTitle>{`${server.name} console`}</SheetTitle>

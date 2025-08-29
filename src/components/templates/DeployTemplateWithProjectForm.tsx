@@ -31,7 +31,6 @@ import {
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { Fragment, useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
@@ -52,7 +51,6 @@ import {
 } from '@/actions/templates/validator'
 import { slugify } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
-import { ServerType } from '@/payload-types-overrides'
 
 const DeployTemplateWithProjectForm = ({
   services,
@@ -140,10 +138,13 @@ const DeployTemplateWithProjectForm = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Deploy Template</DialogTitle>
-            <DialogDescription>deploy project</DialogDescription>
+            <DialogDescription className='sr-only'>
+              This template will be deployed with selected services
+            </DialogDescription>
           </DialogHeader>
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
               <FormField
                 control={form.control}
                 name='isCreateNewProject'
@@ -298,16 +299,7 @@ const DeployTemplateWithProjectForm = ({
                                     <SelectItem
                                       key={id}
                                       value={id}
-                                      disabled={
-                                        !isAvailable ||
-                                        !!disabledDatabasesList?.length
-                                      }
-                                      className={
-                                        !isAvailable ||
-                                        !!disabledDatabasesList?.length
-                                          ? 'cursor-not-allowed opacity-50'
-                                          : ''
-                                      }>
+                                      disabled={!isAvailable}>
                                       <div className='flex w-full items-center justify-between'>
                                         <span>{name}</span>
                                         {!isOnboarded ? (
@@ -325,20 +317,12 @@ const DeployTemplateWithProjectForm = ({
                                         ) : null}
                                       </div>
                                     </SelectItem>
-                                    {disabledDatabasesListNames?.length ? (
-                                      <span className='px-2 text-xs'>
-                                        {`Enable ${disabledDatabasesListNames?.join(',')} plugin for `}
-                                        <Button
-                                          variant='link'
-                                          className='w-min px-0'
-                                          size={'sm'}
-                                          asChild>
-                                          <Link
-                                            href={`/${organisation}/servers/${id}?tab=plugins`}>
-                                            {name}
-                                          </Link>
-                                        </Button>
-                                        {` server to deploy template`}
+
+                                    {isOnboarded &&
+                                    isConnected &&
+                                    disabledDatabasesListNames?.length ? (
+                                      <span className='text-muted-foreground px-2 text-xs'>
+                                        {`${disabledDatabasesListNames?.join(',')} plugin will be automatically installed during deployment!`}
                                       </span>
                                     ) : null}
                                     <SelectSeparator />
@@ -360,7 +344,7 @@ const DeployTemplateWithProjectForm = ({
                   name='projectId'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Projects</FormLabel>
+                      <FormLabel>Project</FormLabel>
 
                       <Select
                         onValueChange={field.onChange}
@@ -383,11 +367,15 @@ const DeployTemplateWithProjectForm = ({
                             e.stopPropagation()
                           }}>
                           {projects.map(({ name, id, server }) => {
+                            if (typeof server !== 'object') {
+                              return null
+                            }
+
                             const {
                               plugins,
                               id: serverId,
                               name: serverName,
-                            } = server as ServerType
+                            } = server
 
                             const databasesList = services?.filter(
                               service => service.type === 'database',
@@ -418,37 +406,32 @@ const DeployTemplateWithProjectForm = ({
                                 ?.filter((value, index, self) => {
                                   return self.indexOf(value) === index
                                 })
+
+                            const isEnabled =
+                              server.onboarded &&
+                              server.connection?.status === 'success'
+
                             return (
                               <Fragment key={id}>
-                                <SelectItem
-                                  disabled={!!disabledDatabasesList?.length}
-                                  className={
-                                    !!disabledDatabasesList?.length
-                                      ? 'cursor-not-allowed opacity-50'
-                                      : ''
-                                  }
-                                  key={id}
-                                  value={id}>
+                                <SelectItem disabled={!isEnabled} value={id}>
                                   <div className='flex w-full items-center justify-between'>
                                     <span>{name}</span>
                                   </div>
                                 </SelectItem>
-                                {disabledDatabasesListNames?.length ? (
-                                  <span className='px-2 text-xs'>
-                                    {`Enable ${disabledDatabasesListNames?.join(',')} plugin for `}
-                                    <Button
-                                      variant='link'
-                                      className='w-min px-0'
-                                      size={'sm'}
-                                      asChild>
-                                      <Link
-                                        href={`/${organisation}/servers/${serverId}?tab=plugins`}>
-                                        {serverName}
-                                      </Link>
-                                    </Button>
-                                    {` server to deploy template`}
+
+                                {isEnabled &&
+                                disabledDatabasesListNames?.length ? (
+                                  <span className='text-muted-foreground px-2 text-xs'>
+                                    {`${disabledDatabasesListNames?.join(',')} plugins will be installed during deployment!`}
                                   </span>
                                 ) : null}
+
+                                {!isEnabled && (
+                                  <span className='text-muted-foreground px-2 text-xs'>
+                                    {server.name} server is not ready for
+                                    deployment!
+                                  </span>
+                                )}
                                 <SelectSeparator />
                               </Fragment>
                             )

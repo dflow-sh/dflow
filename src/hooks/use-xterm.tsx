@@ -25,6 +25,7 @@ const useXterm = () => {
     const instance = new Terminal({
       fontFamily: 'var(--font-geist-mono)',
       fontSize: 14,
+      lineHeight: 1.5,
       cursorStyle: 'underline',
       cursorBlink: false,
       theme: {
