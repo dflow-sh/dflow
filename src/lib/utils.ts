@@ -92,6 +92,19 @@ export function parseDatabaseInfo({
           break
         }
 
+        case 'clickhouse': {
+          const regex = /clickhouse:\/\/(?:(.*?):(.*?)@)?(.*?):(\d+)(?:\/(.*))?/
+          const match = dsn.match(regex)
+          if (match) {
+            data.username = match[1]
+            data.password = match[2]
+            data.host = match[3]
+            data.port = match[4]
+            data.databaseName = match[5] ?? '' // optional database
+          }
+          break
+        }
+
         default:
           console.warn('Unknown database type:', dbType)
       }

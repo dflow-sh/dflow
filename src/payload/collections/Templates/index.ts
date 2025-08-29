@@ -1,6 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
+import { databaseOptions } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Template: CollectionConfig = {
@@ -357,28 +358,10 @@ export const Template: CollectionConfig = {
               name: 'type',
               label: 'Database Type',
               required: true,
-              options: [
-                {
-                  label: 'Postgres',
-                  value: 'postgres',
-                },
-                {
-                  label: 'MongoDB',
-                  value: 'mongo',
-                },
-                {
-                  label: 'MySQL',
-                  value: 'mysql',
-                },
-                {
-                  label: 'Redis',
-                  value: 'redis',
-                },
-                {
-                  label: 'MariaDB',
-                  value: 'mariadb',
-                },
-              ],
+              options: databaseOptions.map(option => ({
+                label: option.label,
+                value: option.value,
+              })),
             },
             {
               name: 'exposedPorts',
