@@ -1,4 +1,11 @@
-import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+import {
+  ClickHouse,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '@/components/icons'
 
 export const supportedLinuxVersions = ['11', '12', '20.04', '22.04', '24.04']
 
@@ -105,6 +112,11 @@ export const databaseOptions = [
     label: 'Redis',
     value: 'redis',
     icon: Redis,
+  },
+  {
+    label: 'ClickHouse',
+    value: 'clickhouse',
+    icon: ClickHouse,
   },
 ]
 

@@ -10,14 +10,27 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '@/components/icons'
+import {
+  ClickHouse,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import { numberRegex } from '@/lib/constants'
 
 import { getPositionForNewNode } from './ChooseService'
 
-type DatabaseType = 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb'
+type DatabaseType =
+  | 'postgres'
+  | 'mongo'
+  | 'mysql'
+  | 'redis'
+  | 'mariadb'
+  | 'clickhouse'
 
 const AddDatabaseService = ({
   nodes,
@@ -62,6 +75,12 @@ const AddDatabaseService = ({
       text: 'MySQL',
       type: 'mysql',
       icon: <MySQL className='size-6' />,
+    },
+    {
+      id: 6,
+      text: 'ClickHouse',
+      type: 'clickhouse',
+      icon: <ClickHouse className='size-6' />,
     },
   ]
 
@@ -112,7 +131,7 @@ const AddDatabaseService = ({
           <div
             onClick={() => addDatabaseNode(database?.type as DatabaseType)}
             key={database.id}
-            className='grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4 hover:bg-card/30'>
+            className='hover:bg-card/30 grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4'>
             <div className='flex items-center justify-between'>
               <div className='inline-flex items-center gap-x-2'>
                 {database?.icon}
@@ -174,7 +193,7 @@ export const PortForm = ({
       exit={{ x: '100%', opacity: 1 }}
       className='w-full space-y-2 pt-2'>
       <h3 className='text-md font-semibold'>External Credentials </h3>
-      <p className='text-pretty text-muted-foreground'>
+      <p className='text-muted-foreground text-pretty'>
         In order to make your database reachable over internet setting a port is
         required. make sure port is not used by other database or application
       </p>

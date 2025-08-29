@@ -1,6 +1,14 @@
 'use client'
 
-import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import {
+  ClickHouse,
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '../icons'
 import { Badge } from '../ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { useRouter } from '@bprogress/next'
@@ -66,6 +74,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-5' />,
   mysql: <MySQL className='size-5' />,
   redis: <Redis className='size-5' />,
+  clickhouse: <ClickHouse className='size-5' />,
 }
 
 export const formateServices = (services: Template['services']) => {

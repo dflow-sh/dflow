@@ -1,6 +1,14 @@
 'use client'
 
-import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import {
+  ClickHouse,
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '../icons'
 import {
   ChevronRight,
   Database,
@@ -19,7 +27,7 @@ import { Project, Service } from '@/payload-types'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
   app: <Github className='size-4' />,
-  database: <Database className='size-4 text-destructive' />,
+  database: <Database className='text-destructive size-4' />,
   docker: <Docker className='size-4' />,
 }
 
@@ -33,6 +41,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-4' />,
   mysql: <MySQL className='size-4' />,
   redis: <Redis className='size-4' />,
+  clickhouse: <ClickHouse className='size-4' />,
 }
 const ProjectsCard = ({ projects }: { projects: Project[] }) => {
   const params = useParams()
@@ -51,10 +60,10 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
     <Card className='h-full w-full rounded-sm border-none'>
       <CardHeader className='border-b'>
         <CardTitle className='flex items-center gap-3'>
-          <LayersIcon className='h-6 w-6 text-muted-foreground' />
+          <LayersIcon className='text-muted-foreground h-6 w-6' />
           <span className='flex flex-col font-semibold'>
             <span>Projects & Services</span>
-            <span className='text-sm text-muted-foreground'>
+            <span className='text-muted-foreground text-sm'>
               ({projects.length}{' '}
               {projects.length === 1 ? 'Project' : 'Projects'},{' '}
               {totalServicesCount}{' '}
@@ -66,7 +75,7 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
       <CardContent className='p-0'>
         {projects.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-8 text-center'>
-            <p className='text-sm text-muted-foreground'>No projects found</p>
+            <p className='text-muted-foreground text-sm'>No projects found</p>
           </div>
         ) : (
           <div>
@@ -77,29 +86,29 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
                 <div
                   onClick={() => toggleProject(project.id)}
                   className='cursor-pointer'>
-                  <div className='flex items-center justify-between p-4 pb-2 pr-6'>
+                  <div className='flex items-center justify-between p-4 pr-6 pb-2'>
                     <div className='flex w-full items-center space-x-3'>
                       <div className='flex items-center space-x-2'>
                         <ChevronRight
                           className={cn(
-                            'h-4 w-4 text-muted-foreground transition-transform',
+                            'text-muted-foreground h-4 w-4 transition-transform',
                             openProjectId === project.id ? 'rotate-90' : '',
                           )}
                         />
                         {openProjectId === project.id ? (
                           <FolderOpen className='h-5 w-5' />
                         ) : (
-                          <Folder className='h-5 w-5 text-muted-foreground' />
+                          <Folder className='text-muted-foreground h-5 w-5' />
                         )}
                       </div>
                       <div className='grow'>
                         <Link
                           href={`/${params.organisation}/dashboard/project/${project.id}`}>
-                          <span className='text-sm font-medium hover:text-primary'>
+                          <span className='hover:text-primary text-sm font-medium'>
                             {project.name}
                           </span>
                         </Link>
-                        <div className='text-xs text-muted-foreground'>
+                        <div className='text-muted-foreground text-xs'>
                           {project.services?.docs?.length || 0}{' '}
                           {project.services?.docs?.length === 1
                             ? 'Service'
@@ -129,7 +138,7 @@ const ProjectsCard = ({ projects }: { projects: Project[] }) => {
                                   ? databaseIcons[service.databaseDetails?.type]
                                   : icon[service.type]}
                               </div>
-                              <span className='text-sm group-hover:text-primary'>
+                              <span className='group-hover:text-primary text-sm'>
                                 {service.name}
                               </span>
                             </div>

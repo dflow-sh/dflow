@@ -11,6 +11,7 @@ import SelectSearch from '@/components/SelectSearch'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import {
   Bitbucket,
+  ClickHouse,
   Docker,
   Git,
   GitLab,
@@ -43,6 +44,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const ProviderTypeIcons: {
