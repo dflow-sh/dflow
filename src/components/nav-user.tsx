@@ -52,7 +52,7 @@ export function NavUser({ user }: { user: User }) {
               {/* Badge with letter at bottom right */}
               <span
                 title={params.organisation}
-                className='absolute -bottom-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card/30 text-xs uppercase'>
+                className='border-border bg-card/30 absolute -right-2 -bottom-2 flex h-5 w-5 items-center justify-center rounded-full border text-xs uppercase'>
                 {params.organisation?.slice(0, 1)}
               </span>
             </div>
@@ -65,14 +65,14 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuLabel>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-semibold'>Account</span>
-                <span className='truncate text-xs text-muted-foreground'>
+                <span className='text-muted-foreground truncate text-xs'>
                   {user.email}
                 </span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuLabel className='font-normal text-muted-foreground'>
+              <DropdownMenuLabel className='text-muted-foreground font-normal'>
                 Team
               </DropdownMenuLabel>
               {user?.tenants?.map(({ tenant }) =>
@@ -83,7 +83,7 @@ export function NavUser({ user }: { user: User }) {
                       className='flex h-full w-full items-center justify-between gap-2 text-sm'>
                       <div className='inline-flex items-center gap-x-2'>
                         <Avatar className='h-6 w-6 rounded-lg'>
-                          <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
+                          <AvatarFallback className='rounded-lg uppercase'>
                             {tenant?.name.slice(0, 1)}
                           </AvatarFallback>
                         </Avatar>
