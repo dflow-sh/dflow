@@ -47,7 +47,7 @@ const TerminalContent = ({ serverId }: { serverId: string }) => {
     }
   }, [terminalInstance])
 
-  return <XTermTerminal ref={terminalRef} className='mx-4 mb-5 h-80' />
+  return <XTermTerminal ref={terminalRef} className='mb-5 h-80' />
 }
 
 const ProjectTerminal = ({ server }: ProjectTerminalType) => {
