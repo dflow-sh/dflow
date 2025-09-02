@@ -154,7 +154,7 @@ const LayoutClient = ({
       <main className='mx-auto'>
         <div
           className={
-            'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-t border-l px-6 pb-20 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]'
+            'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-t-md border-t border-l px-6 pb-20 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'
           }>
           <CloseService
             organisation={params.organisation}

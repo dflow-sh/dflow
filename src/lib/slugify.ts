@@ -6,6 +6,6 @@ export const slugify = (val: string): string =>
 
 export const slugifyWithUnderscore = (val: string): string =>
   val
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9\-_/\.]/g, '')
+    .replace(/\s+/g, '-') // spaces → dash
+    .replace(/[^a-zA-Z0-9\-_/.:]/g, '') // keep colon too
     .toLowerCase()
