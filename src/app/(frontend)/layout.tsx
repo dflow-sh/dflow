@@ -134,7 +134,7 @@ export default async function RootLayout({
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}
-          <Toaster richColors theme='dark' duration={3000} closeButton />
+          <Toaster richColors theme='system' duration={3000} closeButton />
         </NProgressProvider>
       </body>
     </html>
