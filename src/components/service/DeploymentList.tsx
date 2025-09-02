@@ -1,8 +1,9 @@
 'use client'
 
+import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { format, formatDistanceToNow } from 'date-fns'
-import { ServerCog, Rocket } from 'lucide-react'
+import { Rocket, ServerCog } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,20 +28,13 @@ const DeploymentList = ({
   serviceId: string
   serverId: string
 }) => {
-  const statusColors: { [key in Deployment['status']]: string } = {
-    success: 'bg-success-foreground text-success border-success/30',
-    building: 'bg-info-foreground text-info border-info/30',
-    failed: 'bg-destructive/30 text-red-500 border-red-500/30',
-    queued: 'bg-warning-foreground text-warning/70 border-warning/70',
-  }
-
   const filteredDeployments = deployments.filter(
     deployment => typeof deployment !== 'string',
   )
 
   return (
     <section className='space-y-4'>
-      <div className='flex items-center gap-1.5 mb-4'>
+      <div className='mb-4 flex items-center gap-1.5'>
         <Rocket />
         <h4 className='text-lg font-semibold'>Deployments</h4>
       </div>
@@ -53,11 +47,21 @@ const DeploymentList = ({
             <Card key={id} className='text-sm'>
               <CardContent className='flex w-full items-center justify-between pt-4'>
                 <div className='flex items-center gap-6'>
-                  <p
-                    role='status'
-                    className={`border uppercase ${statusColors[status]} inline-block rounded-md px-2 py-1 text-[0.75rem] font-semibold`}>
+                  <Badge
+                    className='inline-block rounded-md px-2 py-1 text-[0.75rem] font-semibold uppercase'
+                    variant={
+                      status === 'building'
+                        ? 'info'
+                        : status === 'failed'
+                          ? 'destructive'
+                          : status === 'success'
+                            ? 'success'
+                            : status === 'queued'
+                              ? 'warning'
+                              : 'default'
+                    }>
                     {status}
-                  </p>
+                  </Badge>
 
                   <div>
                     <p>{`# ${id}`}</p>
@@ -94,18 +98,18 @@ const DeploymentList = ({
           )
         })
       ) : (
-        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-xs'>
+        <div className='bg-muted/10 rounded-2xl border p-8 text-center shadow-xs'>
           <div className='grid min-h-[40vh] place-items-center'>
             <div>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <ServerCog className='h-8 w-8 animate-pulse text-muted-foreground' />
+              <div className='bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full'>
+                <ServerCog className='text-muted-foreground h-8 w-8 animate-pulse' />
               </div>
 
               <div className='my-4 space-y-1'>
-                <h3 className='text-xl font-semibold text-foreground'>
+                <h3 className='text-foreground text-xl font-semibold'>
                   No Deployments Found
                 </h3>
-                <p className='text-base text-muted-foreground'>
+                <p className='text-muted-foreground text-base'>
                   You haven’t added any deployments yet.
                 </p>
               </div>
