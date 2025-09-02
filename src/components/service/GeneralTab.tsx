@@ -139,7 +139,7 @@ const GeneralTab = ({
                   {domains?.slice(1).map((domain, index) => (
                     <div
                       key={index}
-                      className='hover:text-primary flex items-center gap-x-1 text-sm'>
+                      className='flex items-center gap-x-1 text-sm'>
                       <Link
                         href={`//${domain.domain}`}
                         target='_blank'
