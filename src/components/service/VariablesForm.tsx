@@ -383,7 +383,7 @@ const KeyValuePair = memo(
           type='button'
           size='icon'
           onClick={() => {
-            removeVariable(+id)
+            removeVariable(id)
           }}>
           <Trash2 className='text-destructive' />
         </Button>
@@ -504,8 +504,8 @@ const VariablesForm = ({ service }: { service: Service }) => {
             {fields.map((field, index) => {
               return (
                 <KeyValuePair
-                  key={index}
-                  id={index}
+                  key={field.id} // use stable id provided by RHF
+                  id={index} // pass real index, not used as key
                   databaseList={databaseList?.data ?? []}
                   gettingDatabases={gettingDatabases}
                   parsedValues={parsedValues}
