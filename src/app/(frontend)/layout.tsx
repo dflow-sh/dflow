@@ -3,10 +3,10 @@ import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist_Mono } from 'next/font/google'
 import React from 'react'
-import { Toaster } from 'sonner'
 
 import { getBranding, getTheme } from '@/actions/branding'
 import Branding from '@/components/Branding'
+import { Toaster } from '@/components/ui/sonner'
 import { BrandingProvider } from '@/providers/BrandingProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
@@ -134,7 +134,7 @@ export default async function RootLayout({
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}
-          <Toaster richColors theme='system' duration={3000} closeButton />
+          <Toaster richColors duration={3000} closeButton />
         </NProgressProvider>
       </body>
     </html>

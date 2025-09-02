@@ -136,6 +136,7 @@ export function parseDatabaseUrl(url: string): {
   else if (url.startsWith('mysql://')) dbType = 'mysql'
   else if (url.startsWith('mariadb://')) dbType = 'mariadb'
   else if (url.startsWith('redis://')) dbType = 'redis'
+  else if (url.startsWith('clickhouse://')) dbType = 'clickhouse'
   else throw new Error('Unsupported or unrecognized database URL type.')
 
   const data: {
@@ -177,6 +178,19 @@ export function parseDatabaseUrl(url: string): {
     case 'mysql':
     case 'mariadb': {
       const regex = /.*:\/\/(.*?):(.*?)@(.*?):(.*?)\/(.*)/
+      const match = url.match(regex)
+      if (match) {
+        data.username = match[1]
+        data.password = match[2]
+        data.host = match[3]
+        data.port = match[4]
+        data.databaseName = match[5]
+      }
+      break
+    }
+
+    case 'clickhouse': {
+      const regex = /clickhouse:\/\/(.*?):(.*?)@(.*?):(.*?)\/(.*)/
       const match = url.match(regex)
       if (match) {
         data.username = match[1]
