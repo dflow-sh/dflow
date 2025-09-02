@@ -172,20 +172,23 @@ export const DomainFormWithoutDialog = ({
           />
 
           <DialogFooter>
-            {env.NEXT_PUBLIC_PROXY_DOMAIN_URL && (
-              <Button
-                type='button'
-                disabled={isPending}
-                variant='outline'
-                onClick={() => {
-                  const generatedDomain = `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
-                  form.setValue('domain', generatedDomain)
-                  // Immediately submit the generated domain
-                  onSubmit({ domain: generatedDomain, defaultDomain: true })
-                }}>
-                Generate Default Domain
-              </Button>
-            )}
+            {env.NEXT_PUBLIC_PROXY_DOMAIN_URL &&
+              server.preferConnectionType === 'tailscale' &&
+              server.hostname && (
+                <Button
+                  type='button'
+                  disabled={isPending}
+                  variant='outline'
+                  onClick={() => {
+                    const generatedDomain = `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+                    form.setValue('domain', generatedDomain)
+
+                    // Immediately submit the generated domain
+                    onSubmit({ domain: generatedDomain, defaultDomain: true })
+                  }}>
+                  Generate Default Domain
+                </Button>
+              )}
 
             <Button type='submit' isLoading={isPending} disabled={isPending}>
               Add
