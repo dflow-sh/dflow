@@ -98,12 +98,6 @@ const DeploymentDialog = memo(
                   {` will be installed during deployment!`}
                 </span>
               ) : null}
-
-              {isDeploying && (
-                <p className='text-muted-foreground text-sm'>
-                  This process might take time, please wait...
-                </p>
-              )}
             </div>
 
             <div className='flex items-center space-x-2'>
