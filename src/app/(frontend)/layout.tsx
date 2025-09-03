@@ -131,10 +131,10 @@ export default async function RootLayout({
               <BrandingProvider branding={branding}>
                 {children}
               </BrandingProvider>
+              <Toaster richColors duration={3000} closeButton />
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}
-          <Toaster richColors duration={3000} closeButton />
         </NProgressProvider>
       </body>
     </html>

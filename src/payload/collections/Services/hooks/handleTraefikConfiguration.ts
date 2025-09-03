@@ -50,10 +50,10 @@ export const handleTraefikConfiguration: CollectionAfterChangeHook<
 
           console.log(response.data)
         } catch (error) {
-          console.dir(
-            { message: 'Failed to create traefik configuration', error },
-            { depth: null },
-          )
+          console.dir({
+            message: 'Failed to create traefik configuration',
+            error,
+          })
         }
       }
     }
@@ -84,10 +84,10 @@ export const handleTraefikConfiguration: CollectionAfterChangeHook<
 
           console.log(response.data)
         } catch (error) {
-          console.dir(
-            { message: 'Failed to delete traefik configuration', error },
-            { depth: null },
-          )
+          console.dir({
+            message: 'Failed to delete traefik configuration',
+            error,
+          })
         }
       }
     }
