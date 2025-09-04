@@ -229,8 +229,13 @@ export interface Role {
   description?: string | null;
   projects: {
     create: boolean;
+    /**
+     * Set to 0 for unlimited servers. This is only applicable if Create permission is enabled.
+     */
+    createLimit?: number | null;
     update: boolean;
     read: boolean;
+    readLimit?: ('all' | 'createdByUser') | null;
     delete: boolean;
   };
   services: {
@@ -241,8 +246,13 @@ export interface Role {
   };
   servers: {
     create: boolean;
+    /**
+     * Set to 0 for unlimited servers. This is only applicable if Create permission is enabled.
+     */
+    createLimit?: number | null;
     update: boolean;
     read: boolean;
+    readLimit?: ('all' | 'createdByUser') | null;
     delete: boolean;
   };
   templates: {
@@ -300,7 +310,7 @@ export interface Role {
     delete: boolean;
   };
   type?: ('engineering' | 'management' | 'marketing' | 'finance' | 'sales') | null;
-  createdUser?: (string | null) | User;
+  createdBy?: (string | null) | User;
   tags?: string[] | null;
   deletedAt?: string | null;
   updatedAt: string;
@@ -335,6 +345,7 @@ export interface Project {
    * Hide this project from the public view.
    */
   hidden?: boolean | null;
+  createdBy?: (string | null) | User;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -590,6 +601,7 @@ export interface Server {
    * Default build directory for all Dokku applications on this server. Leave empty to use repository root.
    */
   globalBuildPath?: string | null;
+  createdBy?: (string | null) | User;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1490,6 +1502,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   server?: T;
   services?: T;
   hidden?: T;
+  createdBy?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1709,6 +1722,7 @@ export interface ServersSelect<T extends boolean = true> {
       };
   connectionAttempts?: T;
   globalBuildPath?: T;
+  createdBy?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2029,8 +2043,10 @@ export interface RolesSelect<T extends boolean = true> {
     | T
     | {
         create?: T;
+        createLimit?: T;
         update?: T;
         read?: T;
+        readLimit?: T;
         delete?: T;
       };
   services?:
@@ -2045,8 +2061,10 @@ export interface RolesSelect<T extends boolean = true> {
     | T
     | {
         create?: T;
+        createLimit?: T;
         update?: T;
         read?: T;
+        readLimit?: T;
         delete?: T;
       };
   templates?:
@@ -2122,7 +2140,7 @@ export interface RolesSelect<T extends boolean = true> {
         delete?: T;
       };
   type?: T;
-  createdUser?: T;
+  createdBy?: T;
   tags?: T;
   deletedAt?: T;
   updatedAt?: T;

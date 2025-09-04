@@ -57,12 +57,28 @@ export const Roles: CollectionConfig = {
               required: true,
             },
             {
-              label: 'Update',
-              type: 'checkbox',
-              name: 'update',
-              defaultValue: false,
-              required: true,
+              label: 'Create Limit',
+              type: 'number',
+              name: 'createLimit',
+              defaultValue: 0,
+              admin: {
+                description:
+                  'Set to 0 for unlimited servers. This is only applicable if Create permission is enabled.',
+                condition: (_, siblingData) => siblingData.create,
+              },
             },
+          ],
+        },
+        {
+          label: 'Update',
+          type: 'checkbox',
+          name: 'update',
+          defaultValue: false,
+          required: true,
+        },
+        {
+          type: 'row',
+          fields: [
             {
               label: 'Read',
               type: 'checkbox',
@@ -71,13 +87,32 @@ export const Roles: CollectionConfig = {
               required: true,
             },
             {
-              label: 'Delete',
-              type: 'checkbox',
-              name: 'delete',
-              defaultValue: false,
-              required: true,
+              label: 'Read Permission Scop',
+              type: 'select',
+              name: 'readLimit',
+              options: [
+                {
+                  label: 'All',
+                  value: 'all',
+                },
+                {
+                  label: 'created by user',
+                  value: 'createdByUser',
+                },
+              ],
+              defaultValue: 'all',
+              admin: {
+                condition: (_, siblingData) => siblingData.read,
+              },
             },
           ],
+        },
+        {
+          label: 'Delete',
+          type: 'checkbox',
+          name: 'delete',
+          defaultValue: false,
+          required: true,
         },
       ],
     },
@@ -137,12 +172,28 @@ export const Roles: CollectionConfig = {
               required: true,
             },
             {
-              label: 'Update',
-              type: 'checkbox',
-              name: 'update',
-              defaultValue: false,
-              required: true,
+              label: 'Create Limit',
+              type: 'number',
+              name: 'createLimit',
+              defaultValue: 0,
+              admin: {
+                description:
+                  'Set to 0 for unlimited servers. This is only applicable if Create permission is enabled.',
+                condition: (_, siblingData) => siblingData.create,
+              },
             },
+          ],
+        },
+        {
+          label: 'Update',
+          type: 'checkbox',
+          name: 'update',
+          defaultValue: false,
+          required: true,
+        },
+        {
+          type: 'row',
+          fields: [
             {
               label: 'Read',
               type: 'checkbox',
@@ -151,13 +202,32 @@ export const Roles: CollectionConfig = {
               required: true,
             },
             {
-              label: 'Delete',
-              type: 'checkbox',
-              name: 'delete',
-              defaultValue: false,
-              required: true,
+              label: 'Read Permission Scop',
+              type: 'select',
+              name: 'readLimit',
+              options: [
+                {
+                  label: 'All',
+                  value: 'all',
+                },
+                {
+                  label: 'created by user',
+                  value: 'createdByUser',
+                },
+              ],
+              defaultValue: 'all',
+              admin: {
+                condition: (_, siblingData) => siblingData.read,
+              },
             },
           ],
+        },
+        {
+          label: 'Delete',
+          type: 'checkbox',
+          name: 'delete',
+          defaultValue: false,
+          required: true,
         },
       ],
     },
@@ -553,7 +623,7 @@ export const Roles: CollectionConfig = {
     },
     {
       type: 'relationship',
-      name: 'createdUser',
+      name: 'createdBy',
       relationTo: 'users',
       admin: {
         position: 'sidebar',
