@@ -8,6 +8,7 @@ import {
   createRoleSchema,
   deleteRoleSchema,
   permissionsSchema,
+  permissionsWithLimitSchema,
   updatePermissionsSchema,
 } from './validator'
 
@@ -120,19 +121,14 @@ export const createRoleAction = protectedClient
       type,
     } = clientInput
 
-    // const parsedProjects = permissionsSchema.parse(projects)
-    // const parsedServices = permissionsSchema.parse(services)
-    // const parsedServers = permissionsSchema.parse(servers)
-    // const parsedTemplates = permissionsSchema.parse(templates)
-
     const response = await payload.create({
       collection: 'roles',
       data: {
         name,
         description,
-        projects: permissionsSchema.parse(projects),
-        servers: permissionsSchema.parse(services),
-        services: permissionsSchema.parse(servers),
+        projects: permissionsWithLimitSchema.parse(projects),
+        servers: permissionsWithLimitSchema.parse(servers),
+        services: permissionsSchema.parse(services),
         templates: permissionsSchema.parse(templates),
         roles: permissionsSchema.parse(roles),
         backups: permissionsSchema.parse(backups),
@@ -143,7 +139,7 @@ export const createRoleAction = protectedClient
         sshKeys: permissionsSchema.parse(sshKeys),
         team: permissionsSchema.parse(team),
         tags,
-        createdUser: user?.id,
+        createdBy: user?.id,
         type,
         tenant: tenant,
       },

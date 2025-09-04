@@ -1,6 +1,6 @@
 'use client'
 
-import { Eye, LockKeyhole, Users } from 'lucide-react'
+import { LockKeyhole, Users } from 'lucide-react'
 import { useState } from 'react'
 
 import {
@@ -14,7 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Role, User } from '@/payload-types'
 
 import CreateNewRole from './CreateNewRole'
-import RoleOverview from './RoleOverview'
 import RolePermissions from './RolePermissions'
 import RoleUsers from './RoleUsers'
 
@@ -49,13 +48,13 @@ const RoleDetails = ({
   )
   return (
     <AccordionItem
-      className='rounded-md border border-border px-4'
+      className='border-border rounded-md border px-4'
       value={role.id}
       key={role.id}>
       <AccordionTrigger className='flex w-full cursor-pointer items-center justify-between hover:no-underline'>
         <div className='max-w-[60%]'>
           <h3 className='text-lg font-semibold'> {role?.name} </h3>
-          <p className='line-clamp-1 break-all text-sm text-muted-foreground'>
+          <p className='text-muted-foreground line-clamp-1 text-sm break-all'>
             {role?.description}
           </p>
         </div>
@@ -69,15 +68,15 @@ const RoleDetails = ({
         </div>
       </AccordionTrigger>
       <AccordionContent className='flex flex-col gap-4 text-balance'>
-        <Tabs defaultValue='overview'>
+        <Tabs defaultValue='permissions'>
           <div
             className='flex w-full gap-x-2 overflow-x-auto'
             style={{ scrollbarWidth: 'none' }}>
             <TabsList className='flex w-full min-w-max justify-around'>
-              <TabsTrigger className='flex w-full gap-x-2' value='overview'>
+              {/* <TabsTrigger className='flex w-full gap-x-2' value='overview'>
                 <Eye className='size-4' />
                 Overview
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger className='flex w-full gap-x-2' value='permissions'>
                 <LockKeyhole className='size-4' />
                 Permissions
@@ -88,9 +87,9 @@ const RoleDetails = ({
               </TabsTrigger>
             </TabsList>
           </div>
-          <TabsContent value='overview'>
+          {/* <TabsContent value='overview'>
             <RoleOverview role={role} usersCount={assignedUsers?.length ?? 0} />
-          </TabsContent>
+          </TabsContent> */}
           <TabsContent value='permissions'>
             <RolePermissions role={role} />
           </TabsContent>
