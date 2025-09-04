@@ -8,8 +8,9 @@ export const getProjectsAndServers = protectedClient
   })
   .action(async ({ ctx }) => {
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const [serversRes, projectsRes] = await Promise.all([
@@ -23,13 +24,18 @@ export const getProjectsAndServers = protectedClient
                 equals: tenant.slug,
               },
             },
-            // {
-            //   onboarded: {
-            //     equals: true,
-            //   },
-            // },
+            ...(role?.servers?.readLimit === 'createdByUser'
+              ? [
+                  {
+                    createdBy: {
+                      equals: user?.id,
+                    },
+                  },
+                ]
+              : []),
           ],
         },
+
         select: {
           name: true,
           connection: true,
@@ -52,6 +58,15 @@ export const getProjectsAndServers = protectedClient
                 not_equals: true,
               },
             },
+            ...(role?.projects?.readLimit === 'createdByUser'
+              ? [
+                  {
+                    createdBy: {
+                      equals: user?.id,
+                    },
+                  },
+                ]
+              : []),
           ],
         },
         pagination: false,

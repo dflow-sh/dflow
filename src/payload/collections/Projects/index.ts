@@ -1,5 +1,6 @@
 import { CollectionConfig } from 'payload'
 
+import { User } from '@/payload-types'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Projects: CollectionConfig = {
@@ -76,6 +77,18 @@ export const Projects: CollectionConfig = {
         position: 'sidebar',
       },
       defaultValue: false,
+    },
+    {
+      type: 'relationship',
+      name: 'createdBy',
+      relationTo: 'users',
+      defaultValue: ({ user }: { user: User }) => {
+        if (!user) return undefined
+        return user?.id
+      },
+      admin: {
+        position: 'sidebar',
+      },
     },
   ],
 }

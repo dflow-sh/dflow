@@ -15,16 +15,30 @@ export const getServersDetailsAction = protectedClient
       clientInput || {}
 
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const { docs: servers } = await payload.find({
       collection: 'servers',
       where: {
-        'tenant.slug': {
-          equals: tenant.slug,
-        },
+        and: [
+          {
+            'tenant.slug': {
+              equals: tenant.slug,
+            },
+          },
+          ...(role?.servers?.readLimit === 'createdByUser'
+            ? [
+                {
+                  createdBy: {
+                    equals: user.id,
+                  },
+                },
+              ]
+            : []),
+        ],
       },
       pagination: false,
       context: {

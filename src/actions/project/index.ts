@@ -26,9 +26,36 @@ export const createProjectAction = protectedClient
 
     // Fetching the server details before creating the project
     const {
-      userTenant: { tenant },
+      user,
+      userTenant: { tenant, role },
       payload,
     } = ctx
+
+    if (Number(role?.projects?.createLimit) > 0) {
+      const { totalDocs } = await payload.count({
+        collection: 'projects',
+        where: {
+          and: [
+            {
+              tenant: {
+                equals: tenant.id,
+              },
+            },
+            {
+              createdBy: {
+                equals: user?.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (totalDocs >= Number(role?.projects?.createLimit)) {
+        throw new Error(
+          `You have reached your project creation limit. Please contact your administrator.`,
+        )
+      }
+    }
 
     const { version } = (await payload.findByID({
       collection: 'servers',
@@ -77,6 +104,7 @@ export const createProjectAction = protectedClient
         name: uniqueName,
         description,
         server: serverId,
+        createdBy: user?.id,
         tenant,
       },
       user: ctx.user,

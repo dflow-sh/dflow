@@ -482,7 +482,8 @@ export const templateDeployAction = protectedClient
   .schema(deployTemplateWithProjectCreateSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
-      userTenant: { tenant },
+      user,
+      userTenant: { tenant, role },
       payload,
     } = ctx
     let projectDetails: Project
@@ -495,6 +496,31 @@ export const templateDeployAction = protectedClient
     } = clientInput
 
     if (isCreateNewProject) {
+      if (Number(role?.projects?.createLimit) > 0) {
+        const { totalDocs } = await payload.count({
+          collection: 'projects',
+          where: {
+            and: [
+              {
+                tenant: {
+                  equals: tenant.id,
+                },
+              },
+              {
+                createdBy: {
+                  equals: user?.id,
+                },
+              },
+            ],
+          },
+        })
+
+        if (totalDocs >= Number(role?.projects?.createLimit)) {
+          throw new Error(
+            `You have reached your project creation limit. Please contact your administrator.`,
+          )
+        }
+      }
       const { version } = (await payload.findByID({
         collection: 'servers',
         id: projectData?.serverId!,
@@ -543,6 +569,7 @@ export const templateDeployAction = protectedClient
           name: uniqueName,
           description: projectData?.description,
           server: projectData?.serverId!,
+          createdBy: user.id,
           tenant,
         },
       })
