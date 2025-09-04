@@ -10,10 +10,6 @@ const BackupsPage = async () => {
   const result = await getAllBackupsAction()
   const data = result?.data as Backup[]
 
-  if (result?.serverError) {
-    return <AccessDeniedAlert error={result?.serverError} />
-  }
-
   return (
     <LayoutClient>
       <section>
