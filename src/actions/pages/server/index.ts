@@ -63,7 +63,11 @@ export const getAddServerDetails = protectedClient
     const [{ docs: sshKeys }, { docs: securityGroups }] = await Promise.all([
       payload.find({
         collection: 'sshKeys',
-        where: {},
+        where: {
+          'tenant.slug': {
+            equals: tenant.slug,
+          },
+        },
         pagination: false,
       }),
       payload.find({
