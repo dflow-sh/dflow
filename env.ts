@@ -35,6 +35,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PROXY_DOMAIN_URL: z.string().optional(),
     NEXT_PUBLIC_PROXY_CNAME: z.string().optional(),
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().optional(),
+    NEXT_PUBLIC_DFLOW_DOMAIN: z.string().optional(),
   },
   runtimeEnv: {
     NEXT_PUBLIC_WEBSITE_URL: changeBasedOnENV(
@@ -63,6 +64,7 @@ export const env = createEnv({
     BESZEL_SUPERUSER_EMAIL: process.env.BESZEL_SUPERUSER_EMAIL,
     BESZEL_SUPERUSER_PASSWORD: process.env.BESZEL_SUPERUSER_PASSWORD,
     BESZEL_HUB_SSH_KEY: process.env.BESZEL_HUB_SSH_KEY,
+    NEXT_PUBLIC_DFLOW_DOMAIN: process.env.NEXT_PUBLIC_DFLOW_DOMAIN,
   },
   emptyStringAsUndefined: true,
   skipValidation: !!process.env.SKIP_VALIDATION,

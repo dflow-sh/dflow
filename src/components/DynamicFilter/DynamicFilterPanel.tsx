@@ -143,7 +143,7 @@ export const DynamicFilterPanel = <T,>({
                       <div key={category}>
                         {category !== 'main' && (
                           <div className='mb-3'>
-                            <h5 className='text-sm font-medium uppercase tracking-wide text-muted-foreground'>
+                            <h5 className='text-muted-foreground text-sm font-medium tracking-wide uppercase'>
                               {category}
                             </h5>
                           </div>
@@ -177,7 +177,7 @@ export const DynamicFilterPanel = <T,>({
             </PopoverContent>
           </Popover>
 
-          <span className='text-sm text-muted-foreground'>
+          <span className='text-muted-foreground text-sm'>
             {filteredData.length} of {data.length} items
           </span>
         </div>
@@ -195,7 +195,7 @@ export const DynamicFilterPanel = <T,>({
                 type='button'
                 title='remove'
                 onClick={() => handleRemoveFilter(filter.key, filter.value)}
-                className='ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20'>
+                className='hover:bg-muted-foreground/20 ml-1 rounded-full p-0.5'>
                 <X className='h-3 w-3' />
               </button>
             </Badge>

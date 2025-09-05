@@ -18,11 +18,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { User } from '@/payload-types'
+import { useCrossDomainAuthContext } from '@/providers/CrossDomainAuthProvider'
 
 export function NavUser({ user }: { user: User }) {
-  const { execute } = useAction(logoutAction)
   const params = useParams<{ organisation: string }>()
   const initial = user.email.slice(0, 1)
+
+  // Use the cross-domain auth hook
+  const { crossDomainLogout } = useCrossDomainAuthContext()
+
+  const { execute } = useAction(logoutAction, {
+    onSuccess: async ({ data }) => {
+      if (data?.success) {
+        // This will only execute if env variable is set
+        await crossDomainLogout('/sign-in')
+      }
+    },
+  })
 
   return (
     <DropdownMenu>

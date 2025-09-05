@@ -76,15 +76,22 @@ const SignInForm: React.FC<SignInFormProps> = ({
     isPending: isSignInPending,
     hasSucceeded: isSignInSuccess,
     hasErrored: isSignInError,
+    reset: resetSignIn,
   } = useAction(signInAction, {
     onSuccess: ({ data }) => {
-      if (data?.success) {
+      if (data?.success && data?.redirectUrl) {
         toast.success('Successfully signed in!')
+
+        // Handle redirect based on token presence
         if (token) {
-          router.replace(`/invite?token=${token}`)
+          router.push(`/invite?token=${token}`)
+        } else {
+          router.push(data.redirectUrl)
         }
       } else if (data?.error) {
         toast.error(data.error, { duration: 5000 })
+        // Reset the action state to clear the success flag
+        resetSignIn()
       }
     },
     onError: ({ error }) => {
@@ -100,6 +107,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
     isPending: isMagicPending,
     hasSucceeded: isMagicSuccess,
     hasErrored: isMagicError,
+    reset: resetMagicLink,
   } = useAction(requestMagicLinkAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
@@ -107,6 +115,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
         form.setValue('password', '')
       } else if (data?.error) {
         toast.error(data.error, { duration: 5000 })
+        // Reset the action state to clear the success flag
+        resetMagicLink()
       }
     },
     onError: ({ error }) => {
@@ -233,7 +243,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
   }
 
   return (
-    <div className='flex min-h-screen items-center justify-center bg-background p-4'>
+    <div className='bg-background flex min-h-screen items-center justify-center p-4'>
       <div className='w-full max-w-md space-y-6'>
         <Card className='shadow-lg'>
           <CardHeader className='space-y-1 pb-4'>
@@ -260,7 +270,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className='relative'>
-                          <Mail className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                          <Mail className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform' />
                           <Input
                             disabled={isInputDisabled}
                             placeholder='john.doe@example.com'
@@ -291,7 +301,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                           <FormLabel>
                             Password{' '}
                             {method === 'both' && (
-                              <span className='text-sm font-normal text-muted-foreground'>
+                              <span className='text-muted-foreground text-sm font-normal'>
                                 (optional)
                               </span>
                             )}
@@ -299,14 +309,14 @@ const SignInForm: React.FC<SignInFormProps> = ({
                           {resendEnvExist && showForgotPassword && (
                             <Link
                               href='/forgot-password'
-                              className='text-xs text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline'>
+                              className='text-primary hover:text-primary/80 text-xs underline-offset-4 transition-colors hover:underline'>
                               Forgot password?
                             </Link>
                           )}
                         </div>
                         <FormControl>
                           <div className='relative'>
-                            <Lock className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground' />
+                            <Lock className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform' />
                             <Input
                               disabled={isInputDisabled}
                               type='password'
@@ -328,7 +338,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
                         </FormControl>
                         <FormMessage />
                         {method === 'both' && !hasPassword && (
-                          <p className='text-xs text-muted-foreground'>
+                          <p className='text-muted-foreground text-xs'>
                             Leave empty to receive a magic link instead
                           </p>
                         )}
@@ -339,7 +349,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
                 {/* Magic link info for magic-link-only mode */}
                 {method === 'magic-link' && (
-                  <p className='text-sm text-muted-foreground'>
+                  <p className='text-muted-foreground text-sm'>
                     We'll send you a secure link to sign in instantly.
                   </p>
                 )}
@@ -368,7 +378,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
             {/* Additional help text when resend is available */}
             {shouldShowResendButton && (
-              <p className='text-center text-xs text-muted-foreground'>
+              <p className='text-muted-foreground text-center text-xs'>
                 Didn't receive the email? Check your spam folder or click resend
                 above.
               </p>
@@ -378,11 +388,11 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
         {/* Conditional Sign Up Link - COMPLETELY HIDDEN for magic-link only */}
         {showSignUpLink && (
-          <div className='text-center text-sm text-muted-foreground'>
+          <div className='text-muted-foreground text-center text-sm'>
             Don't have an account?{' '}
             <Link
               href={token ? `/sign-up?token=${token}` : '/sign-up'}
-              className='font-medium text-primary underline-offset-4 transition-colors hover:text-primary/80 hover:underline'>
+              className='text-primary hover:text-primary/80 font-medium underline-offset-4 transition-colors hover:underline'>
               Sign up
             </Link>
           </div>
