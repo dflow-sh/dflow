@@ -76,6 +76,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
     isPending: isSignInPending,
     hasSucceeded: isSignInSuccess,
     hasErrored: isSignInError,
+    reset: resetSignIn,
   } = useAction(signInAction, {
     onSuccess: ({ data }) => {
       if (data?.success && data?.redirectUrl) {
@@ -89,6 +90,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
         }
       } else if (data?.error) {
         toast.error(data.error, { duration: 5000 })
+        // Reset the action state to clear the success flag
+        resetSignIn()
       }
     },
     onError: ({ error }) => {
@@ -104,6 +107,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
     isPending: isMagicPending,
     hasSucceeded: isMagicSuccess,
     hasErrored: isMagicError,
+    reset: resetMagicLink,
   } = useAction(requestMagicLinkAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
@@ -111,6 +115,8 @@ const SignInForm: React.FC<SignInFormProps> = ({
         form.setValue('password', '')
       } else if (data?.error) {
         toast.error(data.error, { duration: 5000 })
+        // Reset the action state to clear the success flag
+        resetMagicLink()
       }
     },
     onError: ({ error }) => {

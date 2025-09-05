@@ -145,6 +145,11 @@ export default buildConfig({
       method: 'post',
       handler: logoutHandler,
     },
+    {
+      path: '/logout',
+      method: 'get',
+      handler: logoutHandler,
+    },
   ],
   jobs: {
     tasks: [checkServersConnectionsTask],

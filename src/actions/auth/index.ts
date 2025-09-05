@@ -367,7 +367,8 @@ export const logoutAction = publicClient
   .action(async () => {
     const cookieStore = await cookies()
     cookieStore.delete('payload-token')
-    redirect('/sign-in')
+
+    return { success: true }
   })
 
 export const getUserAction = userClient
