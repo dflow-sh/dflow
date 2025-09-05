@@ -48,10 +48,36 @@ export const createServerAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { name, description, ip, port, username, sshKey } = clientInput
     const {
-      userTenant: { tenant },
+      userTenant: { tenant, role },
       payload,
       user,
     } = ctx
+
+    if (Number(role?.servers?.createLimit) > 0) {
+      const { totalDocs } = await payload.count({
+        collection: 'servers',
+        where: {
+          and: [
+            {
+              tenant: {
+                equals: tenant.id,
+              },
+            },
+            {
+              createdBy: {
+                equals: user?.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (totalDocs >= Number(role?.servers?.createLimit)) {
+        throw new Error(
+          `You have reached your server creation limit. Please contact your administrator.`,
+        )
+      }
+    }
 
     const response = await payload.create({
       collection: 'servers',
@@ -64,6 +90,7 @@ export const createServerAction = protectedClient
         username,
         sshKey,
         provider: 'other',
+        createdBy: user.id,
         tenant,
       },
       user,
@@ -85,10 +112,36 @@ export const createTailscaleServerAction = protectedClient
     const { name, description, hostname, username } = clientInput
 
     const {
-      userTenant: { tenant },
+      userTenant: { tenant, role },
       payload,
       user,
     } = ctx
+
+    if (Number(role?.servers?.createLimit) > 0) {
+      const { totalDocs } = await payload.count({
+        collection: 'servers',
+        where: {
+          and: [
+            {
+              tenant: {
+                equals: tenant.id,
+              },
+            },
+            {
+              createdBy: {
+                equals: user?.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (totalDocs >= Number(role?.servers?.createLimit)) {
+        throw new Error(
+          `You have reached your server creation limit. Please contact your administrator.`,
+        )
+      }
+    }
 
     const response = await payload.create({
       collection: 'servers',
@@ -99,6 +152,7 @@ export const createTailscaleServerAction = protectedClient
         hostname,
         username,
         provider: 'other',
+        createdBy: user.id,
         tenant,
       },
       user,

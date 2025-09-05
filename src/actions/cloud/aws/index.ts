@@ -45,9 +45,36 @@ export const createEC2InstanceAction = protectedClient
       securityGroupIds,
     } = clientInput
     const {
-      userTenant: { tenant },
+      user,
+      userTenant: { tenant, role },
     } = ctx
     const payload = await getPayload({ config: configPromise })
+
+    if (Number(role?.servers?.createLimit) > 0) {
+      const { totalDocs } = await payload.count({
+        collection: 'servers',
+        where: {
+          and: [
+            {
+              tenant: {
+                equals: tenant.id,
+              },
+            },
+            {
+              createdBy: {
+                equals: user?.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (totalDocs >= Number(role?.servers?.createLimit)) {
+        throw new Error(
+          `You have reached your server creation limit. Please contact your administrator.`,
+        )
+      }
+    }
 
     const awsAccountDetails = await payload.findByID({
       collection: 'cloudProviderAccounts',
@@ -227,6 +254,7 @@ export const createEC2InstanceAction = protectedClient
             keyName: instanceDetails.KeyName,
             architecture: instanceDetails.Architecture,
           },
+          createdBy: user.id,
           tenant,
         },
       })

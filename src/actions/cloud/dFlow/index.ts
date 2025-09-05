@@ -96,10 +96,36 @@ export const createVPSOrderAction = protectedClient
   .schema(createVPSOrderActionSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accountId, sshKeyIds = [], vps } = clientInput
-    const { userTenant, payload } = ctx
+    const { userTenant, payload, user } = ctx
     const { addCreateVpsQueue } = await import(
       '@/queues/dFlow/addCreateVpsQueue'
     )
+
+    if (Number(userTenant.role?.servers?.createLimit) > 0) {
+      const { totalDocs } = await payload.count({
+        collection: 'servers',
+        where: {
+          and: [
+            {
+              tenant: {
+                equals: userTenant.tenant.id,
+              },
+            },
+            {
+              createdBy: {
+                equals: user?.id,
+              },
+            },
+          ],
+        },
+      })
+
+      if (totalDocs >= Number(userTenant.role?.servers?.createLimit)) {
+        throw new Error(
+          `You have reached your server creation limit. Please contact your administrator.`,
+        )
+      }
+    }
 
     console.log('Starting VPS creation process...')
 
@@ -169,6 +195,7 @@ export const createVPSOrderAction = protectedClient
         id: dFlowAccount.id,
         accessToken: token,
       },
+      userId: user.id,
       tenant: userTenant.tenant,
       preferConnectionType: 'tailscale',
     })

@@ -12,8 +12,9 @@ export const getProjectDetails = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id: ProjectId } = clientInput
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const [{ docs: services }, { docs: Projects }] = await Promise.all([
@@ -44,12 +45,27 @@ export const getProjectDetails = protectedClient
       payload.find({
         collection: 'projects',
         where: {
-          'tenant.slug': {
-            equals: tenant.slug,
-          },
-          id: {
-            equals: ProjectId,
-          },
+          and: [
+            {
+              id: {
+                equals: ProjectId,
+              },
+            },
+            {
+              'tenant.slug': {
+                equals: tenant.slug,
+              },
+            },
+            ...(role?.projects?.readLimit === 'createdByUser'
+              ? [
+                  {
+                    createdBy: {
+                      equals: user?.id,
+                    },
+                  },
+                ]
+              : []),
+          ],
         },
         select: {
           name: true,
