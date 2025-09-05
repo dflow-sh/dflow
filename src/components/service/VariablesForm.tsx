@@ -2,7 +2,14 @@
 
 import Loader from '../Loader'
 import SidebarToggleButton from '../SidebarToggleButton'
-import { MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import {
+  ClickHouse,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '../icons'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -63,6 +70,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const variables = [
@@ -124,7 +132,7 @@ const ReferenceVariableDropdown = ({
       <DropdownMenuTrigger asChild>
         <Button
           type='button'
-          className='absolute right-2 top-1.5 h-6 w-6 rounded-sm'
+          className='absolute top-1.5 right-2 h-6 w-6 rounded-sm'
           size='icon'
           variant='outline'>
           <Braces className='h-3! w-3!' />
@@ -132,9 +140,9 @@ const ReferenceVariableDropdown = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className='max-h-64 overflow-y-scroll pb-2 pt-0'
+        className='max-h-64 overflow-y-scroll pt-0 pb-2'
         align='end'>
-        <DropdownMenuLabel className='sticky top-0 z-10 bg-popover pt-2'>
+        <DropdownMenuLabel className='bg-popover sticky top-0 z-10 pt-2'>
           Reference Variables
         </DropdownMenuLabel>
 
@@ -251,7 +259,7 @@ const CopyToClipboard = ({
     <MotionConfig transition={{ duration: 0.15 }}>
       <Button
         type='button'
-        className='absolute right-10 top-1.5 h-6 w-6 rounded-sm'
+        className='absolute top-1.5 right-10 h-6 w-6 rounded-sm'
         size='icon'
         variant='outline'
         onClick={() => {
@@ -375,7 +383,7 @@ const KeyValuePair = memo(
           type='button'
           size='icon'
           onClick={() => {
-            removeVariable(+id)
+            removeVariable(id)
           }}>
           <Trash2 className='text-destructive' />
         </Button>
@@ -471,7 +479,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
 
   return (
     <>
-      <div className='flex items-center gap-1.5 mb-4'>
+      <div className='mb-4 flex items-center gap-1.5'>
         <Braces />
         <h4 className='text-lg font-semibold'>Variables</h4>
       </div>
@@ -481,7 +489,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
           className='w-full space-y-6'>
           <div className='space-y-2'>
             {fields.length ? (
-              <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+              <div className='text-muted-foreground grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm'>
                 <p className='font-semibold'>Key</p>
                 <p className='font-semibold'>
                   Value{' '}
@@ -496,8 +504,8 @@ const VariablesForm = ({ service }: { service: Service }) => {
             {fields.map((field, index) => {
               return (
                 <KeyValuePair
-                  key={index}
-                  id={index}
+                  key={field.id} // use stable id provided by RHF
+                  id={index} // pass real index, not used as key
                   databaseList={databaseList?.data ?? []}
                   gettingDatabases={gettingDatabases}
                   parsedValues={parsedValues}

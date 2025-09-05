@@ -4,13 +4,13 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
+  'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground',
   {
     variants: {
       variant: {
         default: 'bg-card text-card-foreground',
         destructive:
-          'text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90',
+          'dark:border-destructive/50 dark:bg-destructive/10 dark:text-destructive/80 bg-red-100 text-red-900 border-red-900 dark:[&>svg]:text-destructive/80 [&>svg]:text-red-900',
         info: 'border-info/50 dark:bg-info-foreground/50 text-info bg-blue-100 dark:border-info [&>svg]:text-info',
         warning:
           'dark:border-warning/50 border-amber-900 text-amber-900 dark:bg-warning-foreground/50 bg-amber-100 dark:text-warning dark:[&>svg]:text-warning [&>svg]:text-amber-900',
@@ -41,10 +41,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot='alert-title'
-      className={cn(
-        'col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight',
-        className,
-      )}
+      className={cn('mb-1 leading-none font-medium tracking-tight', className)}
       {...props}
     />
   )
@@ -57,10 +54,7 @@ function AlertDescription({
   return (
     <div
       data-slot='alert-description'
-      className={cn(
-        'text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed',
-        className,
-      )}
+      className={cn('text-sm [&_p]:leading-relaxed', className)}
       {...props}
     />
   )

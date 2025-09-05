@@ -74,7 +74,7 @@ const DocSidebar = () => {
             </Button>
           </header>
 
-          <div className='prose prose-gray prose-invert prose-headings:scroll-mt-20 prose-a:text-primary prose-headings:font-medium prose-headings:text-foreground h-full overflow-y-scroll p-4'>
+          <div className='prose prose-gray dark:prose-invert prose-headings:scroll-mt-20 prose-a:text-primary prose-headings:font-medium prose-headings:text-foreground h-full overflow-y-scroll p-4'>
             {isDocsPending ? (
               <InternalDocsSkeleton />
             ) : doc ? (

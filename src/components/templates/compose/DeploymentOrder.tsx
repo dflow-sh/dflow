@@ -12,6 +12,7 @@ import {
 import { JSX, useEffect, useState } from 'react'
 
 import {
+  ClickHouse,
   Docker,
   MariaDB,
   MongoDB,
@@ -45,6 +46,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
@@ -87,7 +89,7 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
       collapsible
       className='w-full'>
       <AccordionItem
-        className='w-72 space-y-1 rounded-md border bg-[#171e33] px-3 backdrop-blur-md'
+        className='bg-background w-72 space-y-1 rounded-md border px-3 backdrop-blur-md'
         value='deployment-order'>
         <AccordionTrigger className='px-2 hover:no-underline'>
           Deployment order

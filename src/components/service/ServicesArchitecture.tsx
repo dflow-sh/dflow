@@ -84,7 +84,7 @@ const DeploymentDialog = memo(
 
               {disabledDatabasesListNames?.length ? (
                 <span className='text-muted-foreground text-xs'>
-                  {`Enable ${disabledDatabasesListNames?.join(', ')} plugin for `}
+                  {`${disabledDatabasesListNames?.join(', ')} plugin `}
                   <Button
                     variant='link'
                     className='w-min p-0'
@@ -95,15 +95,9 @@ const DeploymentDialog = memo(
                       {serverName}
                     </Link>
                   </Button>
-                  {` server to deploy services`}
+                  {` will be installed during deployment!`}
                 </span>
               ) : null}
-
-              {isDeploying && (
-                <p className='text-muted-foreground text-sm'>
-                  This process might take time, please wait...
-                </p>
-              )}
             </div>
 
             <div className='flex items-center space-x-2'>
@@ -115,7 +109,7 @@ const DeploymentDialog = memo(
                   })
                 }}
                 size='icon'
-                disabled={isDeploying || !!disabledDatabasesList.length}
+                disabled={isDeploying}
                 isLoading={isDeploying}>
                 <Rocket size={16} />
               </Button>
@@ -144,7 +138,7 @@ const ServicesArchitecture = ({ server }: { server: Server }) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   return (
-    <div className='relative mt-4 w-full rounded-md border'>
+    <div className='relative mt-4 w-full'>
       <ChooseService
         nodes={nodes}
         edges={edges}

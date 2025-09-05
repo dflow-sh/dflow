@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Plus, Trash2, HardDrive } from 'lucide-react'
+import { HardDrive, Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { memo, useEffect } from 'react'
 import {
@@ -61,7 +61,9 @@ const HostContainerPair = memo(
             </FormItem>
           )}
         />
+
         <span>:</span>
+
         <FormField
           control={control}
           name={`volumes.${id}.containerPath`}
@@ -79,7 +81,7 @@ const HostContainerPair = memo(
                   />
                 </div>
               </FormControl>
-              <div className='absolute -right-1 -top-5'>
+              <div className='absolute -top-5 -right-1'>
                 {created ? (
                   <Badge>Mounted</Badge>
                 ) : (
@@ -111,16 +113,16 @@ const VolumesForm = ({ service }: { service: Service }) => {
   const { execute: updateVolumes, isPending: isUpdateVolumePending } =
     useAction(updateVolumesAction, {
       onSuccess: () => {
-        toast.success(`Volumes saved successfully`)
-
-        setTimeout(() => {
-          toast.info('Volumes started mounting,please wait')
-        }, 1500)
+        toast.info('Added to queue', {
+          description: 'Started updating volumes',
+          duration: 4000,
+        })
       },
       onError: ({ error }) => {
         toast.error(`Failed to save volumes: ${error?.serverError} `)
       },
     })
+
   const form = useForm<VolumesType>({
     resolver: zodResolver(volumesSchema),
     defaultValues: {
@@ -161,17 +163,19 @@ const VolumesForm = ({ service }: { service: Service }) => {
       })
     }
   }, [service?.volumes])
+
   return (
     <>
-      <div className='flex items-center gap-1.5 mb-4'>
+      <div className='mb-4 flex items-center gap-1.5'>
         <HardDrive />
         <h4 className='text-lg font-semibold'>Volumes</h4>
       </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className='space-y-4'>
             {fields.length ? (
-              <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm text-muted-foreground'>
+              <div className='text-muted-foreground grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-left text-sm'>
                 <p className='font-semibold'>Host Path</p>
                 <p />
                 <p className='font-semibold'>Container Path</p>

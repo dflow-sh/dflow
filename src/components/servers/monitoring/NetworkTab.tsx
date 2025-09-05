@@ -41,24 +41,24 @@ const NetworkTab = ({
   networkErrors: any[]
 }) => {
   const bandwidthMetrics = [
-    { key: 'incoming', label: 'Incoming', color: 'hsl(var(--chart-1))' },
-    { key: 'outgoing', label: 'Outgoing', color: 'hsl(var(--chart-2))' },
+    { key: 'incoming', label: 'Incoming', color: 'var(--chart-1)' },
+    { key: 'outgoing', label: 'Outgoing', color: 'var(--chart-2)' },
   ]
 
   const trafficMetrics = [
-    { key: 'incoming', label: 'Incoming', color: 'hsl(var(--chart-3))' },
-    { key: 'outgoing', label: 'Outgoing', color: 'hsl(var(--chart-4))' },
+    { key: 'incoming', label: 'Incoming', color: 'var(--chart-3)' },
+    { key: 'outgoing', label: 'Outgoing', color: 'var(--chart-4)' },
   ]
 
   const packetMetrics = [
-    { key: 'received', label: 'Received', color: 'hsl(var(--chart-5))' },
-    { key: 'sent', label: 'Sent', color: 'hsl(var(--chart-6))' },
-    { key: 'dropped', label: 'Dropped', color: 'hsl(var(--chart-7))' },
+    { key: 'received', label: 'Received', color: 'var(--chart-5)' },
+    { key: 'sent', label: 'Sent', color: 'var(--chart-6)' },
+    { key: 'dropped', label: 'Dropped', color: 'var(--chart-7)' },
   ]
 
   const errorMetrics = [
-    { key: 'inbound', label: 'Inbound', color: 'hsl(var(--chart-8))' },
-    { key: 'outbound', label: 'Outbound', color: 'hsl(var(--chart-9))' },
+    { key: 'inbound', label: 'Inbound', color: 'var(--chart-8)' },
+    { key: 'outbound', label: 'Outbound', color: 'var(--chart-9)' },
   ]
 
   return (
@@ -73,7 +73,7 @@ const NetworkTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               bandwidthMetrics.map(m => [
@@ -135,7 +135,7 @@ const NetworkTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               trafficMetrics.map(m => [
@@ -197,7 +197,7 @@ const NetworkTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               packetMetrics.map(m => [
@@ -257,7 +257,7 @@ const NetworkTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               errorMetrics.map(m => [

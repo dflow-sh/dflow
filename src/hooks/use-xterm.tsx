@@ -23,13 +23,13 @@ const useXterm = () => {
 
   useEffect(() => {
     const instance = new Terminal({
-      fontFamily:
-        'operator mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace',
+      fontFamily: 'var(--font-geist-mono)',
       fontSize: 14,
+      lineHeight: 1.5,
       cursorStyle: 'underline',
       cursorBlink: false,
       theme: {
-        background: '#344255',
+        background: '#334256',
       },
       convertEol: true,
       scrollback: 5000,

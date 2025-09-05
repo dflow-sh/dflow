@@ -24,7 +24,19 @@ interface QueueArgs {
 type VolumeFromDokku = {
   host_path: string
   container_path: string
-  volume_option?: string
+  volume_options?: string
+}
+
+const extractHostPath = (fullPath: string) => {
+  if (typeof fullPath !== 'string') return ''
+
+  const parts = fullPath.split('/')
+
+  if (parts.length >= 8) {
+    return parts.slice(7).join('/')
+  }
+
+  return ''
 }
 
 export const updateVolumesQueue = async (data: QueueArgs) => {
@@ -62,18 +74,6 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
           )) as VolumeFromDokku[]
 
           const volumesList = service.volumes ?? []
-
-          const extractHostPath = (fullPath: string) => {
-            if (typeof fullPath !== 'string') return ''
-
-            const parts = fullPath.split('/')
-
-            if (parts.length >= 8) {
-              return parts.slice(7).join('/')
-            }
-
-            return ''
-          }
 
           const isSameVolume = (
             a: { hostPath: string },
@@ -134,7 +134,7 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
 
           const availableDokkuVolumes = updatedDokkuVolumes?.map(volume => ({
             hostPath: extractHostPath(volume.host_path),
-            containerPath: volume.container_path,
+            containerPath: `${volume.container_path}${volume.volume_options ? `:${volume.volume_options}` : ''}`,
             created: true,
           }))
 

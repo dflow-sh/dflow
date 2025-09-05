@@ -2,11 +2,11 @@ import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
 import { getServiceDeploymentsBackups } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
 } from '@/actions/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import Backup from '@/components/service/Backup'
 import DeploymentList from '@/components/service/DeploymentList'
 import DomainsTab from '@/components/service/DomainsTab'
@@ -16,7 +16,7 @@ import ScalingTab from '@/components/service/ScalingTab'
 import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
 import VariablesForm from '@/components/service/VariablesForm'
 import VolumesForm from '@/components/service/VolumesForm'
-import { ServiceSkeleton } from '@/components/skeletons/ServiceSkeleton'
+import ServiceSkeleton from '@/components/skeletons/ServiceSkeleton'
 import { loadServicePageTabs } from '@/lib/searchParams'
 import { Project } from '@/payload-types'
 
@@ -30,10 +30,10 @@ interface PageProps {
 }
 
 const SuspendedPage = async ({ params, searchParams }: PageProps) => {
-  const { serviceId, organisation } = await params
-  const { tab } = await loadServicePageTabs(searchParams)
+  const { serviceId, id, organisation } = await params
 
   const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
+  const { tab } = await loadServicePageTabs(searchParams)
 
   if (!serviceDetails?.data?.service || serviceDetails?.serverError) {
     return <AccessDeniedAlert error={serviceDetails?.serverError!} />
@@ -43,17 +43,6 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   const server =
     typeof service.project === 'object' ? service.project.server : ''
   const serverObject = typeof server === 'object' ? server : null
-
-  // if (
-  //   serverObject &&
-  //   serverObject.connection &&
-  //   serverObject.connection.status !== 'success'
-  // ) {
-  //   const projectId =
-  //     typeof service.project === 'object' ? service.project.id : service.project
-
-  //   redirect(`/${organisation}/dashboard/project/${projectId}`)
-  // }
 
   const domains = service.domains ?? []
   const databaseDetails = service.databaseDetails ?? {}
@@ -100,7 +89,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
         />
       )
 
-    case 'backup':
+    case 'backups':
       return (
         <Backup
           databaseDetails={databaseDetails}

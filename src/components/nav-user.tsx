@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { SidebarMenu, SidebarMenuItem } from '@/components/ui/sidebar'
 import { User } from '@/payload-types'
 import { useCrossDomainAuthContext } from '@/providers/CrossDomainAuthProvider'
 
@@ -38,104 +37,100 @@ export function NavUser({ user }: { user: User }) {
   })
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className='relative inline-block'>
-              <Avatar className='h-8 w-8 cursor-pointer rounded-lg'>
-                {user?.avatarUrl ? (
-                  <Image
-                    src={user.avatarUrl || ''}
-                    alt='User avatar'
-                    width={32}
-                    height={32}
-                    className='h-8 w-8 rounded-lg object-cover'
-                    loading='lazy'
-                    unoptimized
-                  />
-                ) : (
-                  <AvatarFallback className='rounded-lg uppercase'>
-                    {initial}
-                  </AvatarFallback>
-                )}
-              </Avatar>
+    <DropdownMenu>
+      <DropdownMenuTrigger className='relative'>
+        <Avatar className='h-9 w-9 cursor-pointer rounded-lg'>
+          {user?.avatarUrl ? (
+            <Image
+              src={user.avatarUrl || ''}
+              alt='User avatar'
+              width={32}
+              height={32}
+              className='h-full w-full rounded-lg object-cover'
+              loading='lazy'
+              unoptimized
+            />
+          ) : (
+            <AvatarFallback className='rounded-lg uppercase'>
+              {initial}
+            </AvatarFallback>
+          )}
+        </Avatar>
 
-              <span
-                title={params.organisation}
-                className='border-border bg-card/30 absolute -right-2 -bottom-2 flex h-5 w-5 items-center justify-center rounded-full border text-xs uppercase'>
-                {params.organisation?.slice(0, 1)}
-              </span>
-            </div>
-          </DropdownMenuTrigger>
+        {/* Badge with letter at bottom right */}
+        <span
+          title={params.organisation}
+          className='border-border bg-card/30 absolute -right-2 -bottom-2 flex h-5 w-5 items-center justify-center rounded-full border text-xs uppercase'>
+          {params.organisation?.slice(0, 1)}
+        </span>
+      </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            className='w-64 rounded-lg'
-            side='bottom'
-            align='end'>
-            <DropdownMenuLabel>
-              <div className='grid flex-1 text-left text-sm leading-tight'>
-                <span className='truncate font-semibold'>Account</span>
-                <span className='text-muted-foreground truncate text-xs'>
-                  {user.email}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className='text-muted-foreground font-normal'>
-                Team
-              </DropdownMenuLabel>
-              {user?.tenants?.map(({ tenant }) =>
-                typeof tenant === 'object' ? (
-                  <DropdownMenuItem className='group' key={tenant.id}>
-                    <Link
-                      href={`/${tenant?.slug}/dashboard`}
-                      className='flex h-full w-full items-center justify-between gap-2 text-sm'>
-                      <div className='inline-flex items-center gap-x-2'>
-                        <Avatar className='h-6 w-6 rounded-lg'>
-                          <AvatarFallback className='group-hover:text-accent rounded-lg uppercase'>
-                            {tenant?.name.slice(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
+      <DropdownMenuContent
+        className='w-64 rounded-lg'
+        side='bottom'
+        align='end'>
+        <DropdownMenuLabel>
+          <div className='grid flex-1 text-left text-sm leading-tight'>
+            <span className='truncate font-semibold'>Account</span>
+            <span className='text-muted-foreground truncate text-xs'>
+              {user.email}
+            </span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className='text-muted-foreground font-normal'>
+            Team
+          </DropdownMenuLabel>
+          {user?.tenants?.map(({ tenant }) =>
+            typeof tenant === 'object' ? (
+              <DropdownMenuItem className='group' key={tenant.id}>
+                <Link
+                  href={`/${tenant?.slug}/dashboard`}
+                  className='flex h-full w-full items-center justify-between gap-2 text-sm'>
+                  <div className='inline-flex items-center gap-x-2'>
+                    <Avatar className='h-6 w-6 rounded-lg'>
+                      <AvatarFallback className='rounded-lg uppercase'>
+                        {tenant?.name.slice(0, 1)}
+                      </AvatarFallback>
+                    </Avatar>
 
-                        <div className='inline-flex items-center gap-x-1'>
-                          <p className='line-clamp-1 break-all'>
-                            {tenant?.name}{' '}
-                          </p>
+                    <div className='inline-flex items-center gap-x-1'>
+                      <p className='line-clamp-1 break-all'>{tenant?.name} </p>
 
-                          <span className='text-muted-foreground group-hover:text-accent-foreground'>
-                            {user.username === tenant?.slug && '(you)'}
-                          </span>
-                        </div>
-                      </div>
+                      <span className='text-muted-foreground group-hover:text-accent-foreground'>
+                        {user.username === tenant?.slug && '(you)'}
+                      </span>
+                    </div>
+                  </div>
 
-                      {params.organisation === tenant?.slug && (
-                        <Check size={20} className='text-primary' />
-                      )}
-                    </Link>
-                  </DropdownMenuItem>
-                ) : null,
-              )}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <a
-                href='https://discord.com/channels/1346775217594302484/1384588060393603099'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='flex items-center'>
-                <HelpCircle />
-                Help & Support
-              </a>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => execute()}>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+                  {params.organisation === tenant?.slug && (
+                    <Check size={20} className='text-primary' />
+                  )}
+                </Link>
+              </DropdownMenuItem>
+            ) : null,
+          )}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <a
+            href='https://discord.com/channels/1346775217594302484/1384588060393603099'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex items-center'>
+            <HelpCircle />
+            Help & Support
+          </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            execute()
+          }}>
+          <LogOut />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

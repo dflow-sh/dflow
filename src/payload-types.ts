@@ -841,7 +841,7 @@ export interface Service {
     port?: number | null;
   };
   databaseDetails?: {
-    type?: ('postgres' | 'mongo' | 'mysql' | 'mariadb' | 'redis') | null;
+    type?: ('postgres' | 'mongo' | 'mysql' | 'mariadb' | 'redis' | 'clickhouse') | null;
     username?: string | null;
     password?: string | null;
     host?: string | null;
@@ -1053,7 +1053,7 @@ export interface Template {
          * select database you want
          */
         databaseDetails?: {
-          type: 'postgres' | 'mongo' | 'mysql' | 'redis' | 'mariadb';
+          type: 'postgres' | 'mongo' | 'mysql' | 'mariadb' | 'redis' | 'clickhouse';
           exposedPorts?: string[] | null;
         };
         dockerDetails?: {

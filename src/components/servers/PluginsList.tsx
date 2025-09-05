@@ -27,6 +27,7 @@ import {
 } from '@/actions/plugin'
 import { supportedPluginsSchema } from '@/actions/plugin/validator'
 import {
+  ClickHouse,
   Letsencrypt,
   MariaDB,
   MongoDB,
@@ -70,6 +71,7 @@ const iconMapping: {
   mongo: MongoDB,
   redis: Redis,
   mysql: MySQL,
+  clickhouse: ClickHouse,
 }
 
 const PluginCard = ({
@@ -147,7 +149,7 @@ const PluginCard = ({
             {pluginName}
 
             {installedPlugin && (
-              <code className='font-normal text-muted-foreground'>
+              <code className='text-muted-foreground font-normal'>
                 {`(${installedPlugin.version})`}
               </code>
             )}
@@ -285,6 +287,7 @@ const PluginsList = ({ server }: { server: ServerType }) => {
           <p>Sync the existing dokku plugins installed on server</p>
           <Button
             disabled={isPending}
+            isLoading={isPending}
             onClick={() => execute({ serverId: server.id })}
             variant='secondary'>
             Sync Plugins

@@ -87,7 +87,7 @@ const DeploymentTerminal = ({
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className='max-w-5xl'>
+      <DialogContent className='w-full max-w-5xl'>
         <DialogHeader>
           <DialogTitle className='mb-2 flex items-center gap-2'>
             <SquareTerminal />

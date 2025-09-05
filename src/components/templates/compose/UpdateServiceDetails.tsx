@@ -20,6 +20,7 @@ import {
 } from '@/actions/templates/validator'
 import {
   Bitbucket,
+  ClickHouse,
   Docker,
   Git,
   GitLab,
@@ -74,11 +75,12 @@ const databaseIcons: {
   mongo: <MongoDB className='size-6' />,
   mysql: <MySQL className='size-6' />,
   redis: <Redis className='size-6' />,
+  clickhouse: <ClickHouse className='size-6' />,
 }
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Git className='size-6' />,
-  database: <Database className='size-6 text-destructive' />,
+  database: <Database className='text-destructive size-6' />,
   docker: <Docker className='size-6' />,
 }
 
@@ -120,19 +122,19 @@ const UpdateServiceDetails = ({
       {open && (
         <div
           className={cn(
-            'fixed right-4 top-38 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-l border-t border-border bg-[#171d33] px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
+            'border-border bg-background fixed top-38 right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-t border-l px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
           )}>
           <div
             onClick={() => {
               setOpen(false)
               setActiveTab('settings')
             }}
-            className='focus:ring-none text-base-content absolute right-4 top-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none'>
+            className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none'>
             <X className='h-4 w-4' />
             <span className='sr-only'>Close</span>
           </div>
 
-          <div className='w-full space-y-4 pb-2 pt-6'>
+          <div className='w-full space-y-4 pt-6 pb-2'>
             <div className='flex items-center gap-x-3'>
               {service.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
@@ -157,8 +159,8 @@ const UpdateServiceDetails = ({
               value={activeTab}
               defaultValue='settings'
               className='flex h-full flex-col'>
-              <div className='sticky top-0 z-10 bg-[#171e33] pt-2'>
-                <TabsList className='rounded bg-primary/10'>
+              <div className='bg-background sticky top-0 z-10 pt-2'>
+                <TabsList className='bg-primary/10 rounded'>
                   <TabsTrigger value='settings'>Settings</TabsTrigger>
                   <TabsTrigger
                     disabled={service?.type == 'database'}
@@ -169,7 +171,7 @@ const UpdateServiceDetails = ({
                 <div className='border-base-content/40 w-full border-b pt-2' />
               </div>
 
-              <div className='flex-1 overflow-y-auto overflow-x-hidden px-1 pb-8 pt-4'>
+              <div className='flex-1 overflow-x-hidden overflow-y-auto px-1 pt-4 pb-8'>
                 <TabsContent className='w-full' value='settings'>
                   <Settings
                     key={service?.id}
@@ -364,7 +366,7 @@ const ReferenceVariableDropdown = ({
       <DropdownMenuTrigger asChild>
         <Button
           type='button'
-          className='absolute right-2 top-1.5 h-6 w-6 rounded-sm'
+          className='absolute top-1.5 right-2 h-6 w-6 rounded-sm'
           size='icon'
           variant='outline'>
           <Braces className='h-3! w-3!' />
@@ -372,9 +374,9 @@ const ReferenceVariableDropdown = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className='max-h-64 overflow-y-scroll pb-2 pt-0'
+        className='max-h-64 overflow-y-scroll pt-0 pb-2'
         align='end'>
-        <DropdownMenuLabel className='sticky top-0 z-10 bg-popover pt-2'>
+        <DropdownMenuLabel className='bg-popover sticky top-0 z-10 pt-2'>
           Reference Variables
         </DropdownMenuLabel>
 
@@ -552,7 +554,7 @@ const VariablesForm = ({
           className='w-full space-y-6'>
           <div className='space-y-2'>
             {fields.length ? (
-              <div className='grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm text-muted-foreground'>
+              <div className='text-muted-foreground grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm'>
                 <p className='font-semibold'>Key</p>
                 <p className='font-semibold'>Value</p>
               </div>

@@ -9,7 +9,7 @@ export const createServiceSchema = z
     description: z.string().optional(),
     type: z.enum(['database', 'app', 'docker']),
     databaseType: z
-      .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb'])
+      .enum(['postgres', 'mongo', 'mysql', 'redis', 'mariadb', 'clickhouse'])
       .optional(),
     projectId: z.string(),
     cpuLimit: z.string().optional(),

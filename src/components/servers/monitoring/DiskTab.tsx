@@ -37,22 +37,22 @@ const DiskTab = ({
   systemIO: any[]
 }) => {
   const diskIOMetrics = [
-    { key: 'reads', label: 'Reads', color: 'hsl(var(--chart-1))' },
-    { key: 'writes', label: 'Writes', color: 'hsl(var(--chart-2))' },
+    { key: 'reads', label: 'Reads', color: 'var(--chart-1)' },
+    { key: 'writes', label: 'Writes', color: 'var(--chart-2)' },
   ]
 
   const systemIOMetrics = [
-    { key: 'reads', label: 'Reads', color: 'hsl(var(--chart-3))' },
-    { key: 'writes', label: 'Writes', color: 'hsl(var(--chart-4))' },
+    { key: 'reads', label: 'Reads', color: 'var(--chart-3)' },
+    { key: 'writes', label: 'Writes', color: 'var(--chart-4)' },
   ]
 
   const diskSpaceMetrics = [
-    { key: 'avail', label: 'Avail', color: 'hsl(var(--chart-2))' },
-    { key: 'used', label: 'Used', color: 'hsl(var(--chart-1))' },
+    { key: 'avail', label: 'Avail', color: 'var(--chart-2)' },
+    { key: 'used', label: 'Used', color: 'var(--chart-1)' },
     {
       key: 'reserved for root',
       label: 'Reserved for root',
-      color: 'hsl(var(--chart-3))',
+      color: 'var(--chart-3)',
     },
   ]
 
@@ -70,7 +70,7 @@ const DiskTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               diskIOMetrics.map(m => [
@@ -122,7 +122,7 @@ const DiskTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               diskSpaceMetrics.map(m => [
@@ -179,7 +179,7 @@ const DiskTab = ({
               : 'No data available'}
           </CardDescription>
         </CardHeader>
-        <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+        <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
           <ChartContainer
             config={Object.fromEntries(
               systemIOMetrics.map(m => [

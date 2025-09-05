@@ -111,11 +111,11 @@ const DefaultNetworkTab = ({
             <CardTitle>Network Traffic</CardTitle>
             <CardDescription>Incoming and outgoing traffic</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                incoming: { label: 'Incoming', color: 'hsl(var(--chart-3))' },
-                outgoing: { label: 'Outgoing', color: 'hsl(var(--chart-4))' },
+                incoming: { label: 'Incoming', color: 'var(--chart-3)' },
+                outgoing: { label: 'Outgoing', color: 'var(--chart-4)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <ResponsiveContainer width='100%' height='100%'>
@@ -140,8 +140,8 @@ const DefaultNetworkTab = ({
                     type='monotone'
                     dataKey='incoming'
                     stackId='network'
-                    stroke='hsl(var(--chart-3))'
-                    fill='hsl(var(--chart-3))'
+                    stroke='var(--chart-3)'
+                    fill='var(--chart-3)'
                     fillOpacity={0.6}
                     strokeWidth={2}
                     connectNulls
@@ -150,8 +150,8 @@ const DefaultNetworkTab = ({
                     type='monotone'
                     dataKey='outgoing'
                     stackId='network'
-                    stroke='hsl(var(--chart-4))'
-                    fill='hsl(var(--chart-4))'
+                    stroke='var(--chart-4)'
+                    fill='var(--chart-4)'
                     fillOpacity={0.4}
                     strokeWidth={2}
                     connectNulls
@@ -188,10 +188,10 @@ const DefaultNetworkTab = ({
               Combined incoming and outgoing traffic
             </CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
-                total: { label: 'Total Traffic', color: 'hsl(var(--chart-1))' },
+                total: { label: 'Total Traffic', color: 'var(--chart-1)' },
               }}
               className='aspect-auto h-[300px] w-full'>
               <LineChart
@@ -218,7 +218,7 @@ const DefaultNetworkTab = ({
                 <Line
                   type='monotone'
                   dataKey='total'
-                  stroke='hsl(var(--chart-1))'
+                  stroke='var(--chart-1)'
                   strokeWidth={3}
                   dot={false}
                   connectNulls
@@ -256,11 +256,11 @@ const DefaultNetworkTab = ({
               <CardTitle>Bandwidth Utilization</CardTitle>
               <CardDescription>Received and sent speeds</CardDescription>
             </CardHeader>
-            <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+            <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
               <ChartContainer
                 config={{
-                  received: { label: 'Received', color: 'hsl(var(--chart-2))' },
-                  sent: { label: 'Sent', color: 'hsl(var(--chart-5))' },
+                  received: { label: 'Received', color: 'var(--chart-2)' },
+                  sent: { label: 'Sent', color: 'var(--chart-5)' },
                 }}
                 className='aspect-auto h-[300px] w-full'>
                 <BarChart
@@ -288,13 +288,13 @@ const DefaultNetworkTab = ({
                   />
                   <Bar
                     dataKey='received'
-                    fill='hsl(var(--chart-2))'
+                    fill='var(--chart-2)'
                     fillOpacity={0.8}
                     radius={[2, 2, 0, 0]}
                   />
                   <Bar
                     dataKey='sent'
-                    fill='hsl(var(--chart-5))'
+                    fill='var(--chart-5)'
                     fillOpacity={0.6}
                     radius={[2, 2, 0, 0]}
                   />
@@ -328,16 +328,16 @@ const DefaultNetworkTab = ({
             <CardTitle>Cumulative Data Transfer</CardTitle>
             <CardDescription>Total data transferred over time</CardDescription>
           </CardHeader>
-          <CardContent className='pl-0 pr-2 pt-4 sm:pr-6 sm:pt-6'>
+          <CardContent className='pt-4 pr-2 pl-0 sm:pt-6 sm:pr-6'>
             <ChartContainer
               config={{
                 cumulativeIn: {
                   label: 'Total In',
-                  color: 'hsl(var(--chart-3))',
+                  color: 'var(--chart-3)',
                 },
                 cumulativeOut: {
                   label: 'Total Out',
-                  color: 'hsl(var(--chart-4))',
+                  color: 'var(--chart-4)',
                 },
               }}
               className='aspect-auto h-[300px] w-full'>
@@ -360,7 +360,7 @@ const DefaultNetworkTab = ({
                 <Line
                   type='monotone'
                   dataKey='cumulativeIn'
-                  stroke='hsl(var(--chart-3))'
+                  stroke='var(--chart-3)'
                   strokeWidth={2}
                   dot={false}
                   connectNulls
@@ -368,7 +368,7 @@ const DefaultNetworkTab = ({
                 <Line
                   type='monotone'
                   dataKey='cumulativeOut'
-                  stroke='hsl(var(--chart-4))'
+                  stroke='var(--chart-4)'
                   strokeWidth={2}
                   dot={false}
                   connectNulls
@@ -406,34 +406,34 @@ const DefaultNetworkTab = ({
         <CardContent>
           <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-3'>
+              <div className='text-chart-3 text-2xl font-bold'>
                 {formatBytes(
                   cumulativeData[cumulativeData.length - 1]?.cumulativeIn || 0,
                 )}
               </div>
-              <div className='text-sm text-muted-foreground'>
+              <div className='text-muted-foreground text-sm'>
                 Total Received
               </div>
             </div>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-4'>
+              <div className='text-chart-4 text-2xl font-bold'>
                 {formatBytes(
                   cumulativeData[cumulativeData.length - 1]?.cumulativeOut || 0,
                 )}
               </div>
-              <div className='text-sm text-muted-foreground'>Total Sent</div>
+              <div className='text-muted-foreground text-sm'>Total Sent</div>
             </div>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-1'>
+              <div className='text-chart-1 text-2xl font-bold'>
                 {formatBytes(peakIncoming)}/s
               </div>
-              <div className='text-sm text-muted-foreground'>Peak Received</div>
+              <div className='text-muted-foreground text-sm'>Peak Received</div>
             </div>
             <div className='space-y-2'>
-              <div className='text-2xl font-bold text-chart-2'>
+              <div className='text-chart-2 text-2xl font-bold'>
                 {formatBytes(peakOutgoing)}/s
               </div>
-              <div className='text-sm text-muted-foreground'>Peak Sent</div>
+              <div className='text-muted-foreground text-sm'>Peak Sent</div>
             </div>
           </div>
         </CardContent>

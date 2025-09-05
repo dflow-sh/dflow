@@ -81,7 +81,7 @@ const ServerTerminal = ({
         </button>
       </SheetTrigger>
 
-      <SheetContent side='bottom'>
+      <SheetContent side='bottom' className='p-4'>
         <SheetHeader className='sr-only'>
           <SheetTitle>Console</SheetTitle>
           <SheetDescription>All console logs appear here</SheetDescription>

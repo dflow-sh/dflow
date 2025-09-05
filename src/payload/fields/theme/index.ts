@@ -376,7 +376,7 @@ export const themeFields: Field[] = [
               },
             },
             required: true,
-            defaultValue: 'hsl(240, 27.5862%, 22.7451%)',
+            defaultValue: 'oklch(30.147% 0.05728 282.419)',
           },
           // sidebarPrimary
           {

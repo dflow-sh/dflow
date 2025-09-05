@@ -1,8 +1,17 @@
 'use client'
 
-import { Docker, MariaDB, MongoDB, MySQL, PostgreSQL, Redis } from '../icons'
+import {
+  ClickHouse,
+  Docker,
+  MariaDB,
+  MongoDB,
+  MySQL,
+  PostgreSQL,
+  Redis,
+} from '../icons'
 import { Badge } from '../ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { useRouter } from '@bprogress/next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Database, Github, Loader2, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -37,7 +46,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import {
@@ -51,8 +59,8 @@ import { Server, Service, Template } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
-  app: <Github className='size-5 text-foreground' />,
-  database: <Database className='size-5 text-destructive' />,
+  app: <Github className='text-foreground size-5' />,
+  database: <Database className='text-destructive size-5' />,
   docker: <Docker className='size-5' />,
 }
 
@@ -66,6 +74,7 @@ const databaseIcons: {
   mongo: <MongoDB className='size-5' />,
   mysql: <MySQL className='size-5' />,
   redis: <Redis className='size-5' />,
+  clickhouse: <ClickHouse className='size-5' />,
 }
 
 export const formateServices = (services: Template['services']) => {
@@ -137,8 +146,8 @@ const TemplateCard = ({
       )}
       onClick={() => onSelect(id)}>
       {isSelected && (
-        <div className='absolute right-3 top-3'>
-          <Check className='size-5 text-primary' />
+        <div className='absolute top-3 right-3'>
+          <Check className='text-primary size-5' />
         </div>
       )}
 
@@ -157,7 +166,7 @@ const TemplateCard = ({
           <div className='min-w-0 flex-1'>
             <h4 className='text-sm font-semibold'>{name}</h4>
             {description && (
-              <p className='mt-1 line-clamp-2 text-xs text-muted-foreground'>
+              <p className='text-muted-foreground mt-1 line-clamp-2 text-xs'>
                 {description}
               </p>
             )}
@@ -204,9 +213,9 @@ const TemplateCard = ({
         </div>
 
         {hasMissingPlugins && missingPlugins?.length && (
-          <div className='text-xs text-muted-foreground'>
+          <div className='text-muted-foreground text-xs'>
             Missing plugins{' '}
-            <span className='font-medium text-primary'>
+            <span className='text-primary font-medium'>
               {missingPlugins.join(', ')}
             </span>{' '}
             will be auto-installed
@@ -230,6 +239,7 @@ const TemplateDeploymentForm = ({
   type: 'official' | 'community' | 'personal'
   server: Server
 }) => {
+  const router = useRouter()
   const dialogRef = useRef<HTMLButtonElement>(null)
   const params = useParams<{ id: string; organisation: string }>()
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
@@ -327,11 +337,10 @@ const TemplateDeploymentForm = ({
           name='id'
           render={() => (
             <FormItem>
-              <FormLabel>Select Template</FormLabel>
               <FormControl>
                 <div className='space-y-4'>
                   {isPending ? (
-                    <div className='flex flex-col items-center justify-center space-y-2 py-8 text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground flex flex-col items-center justify-center space-y-2 py-8 text-sm'>
                       <Loader2 className='h-5 w-5 animate-spin' />
                       <div>Fetching {type} templates...</div>
                     </div>
@@ -352,7 +361,7 @@ const TemplateDeploymentForm = ({
                       ))}
                     </div>
                   ) : (
-                    <div className='flex items-center justify-center py-8 text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground flex items-center justify-center py-8 text-sm'>
                       No {type} templates available
                     </div>
                   )}
@@ -365,6 +374,18 @@ const TemplateDeploymentForm = ({
 
         <DialogFooter>
           <DialogClose ref={dialogRef} className='sr-only' />
+          <Button
+            variant='outline'
+            onClick={() => {
+              router.push(
+                `/${params.organisation}/templates/compose?templateId=${selectedTemplateId}&type=${type === 'personal' ? 'personal' : 'official'}`,
+              )
+            }}
+            disabled={deployingTemplate || !selectedTemplateId}
+            type='button'>
+            Configure
+          </Button>
+
           <Button
             type='submit'
             disabled={deployingTemplate || !selectedTemplateId}

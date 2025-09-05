@@ -99,6 +99,16 @@ const knownVariables = [
   'MYSQL_PUBLIC_HOST',
   'MYSQL_PORT',
   'MYSQL_PUBLIC_PORT',
+  // Clickhouse
+  'CLICKHOUSE_URI',
+  'CLICKHOUSE_PUBLIC_URI',
+  'CLICKHOUSE_NAME',
+  'CLICKHOUSE_USERNAME',
+  'CLICKHOUSE_PASSWORD',
+  'CLICKHOUSE_HOST',
+  'CLICKHOUSE_PUBLIC_HOST',
+  'CLICKHOUSE_PORT',
+  'CLICKHOUSE_PUBLIC_PORT',
 ] as const
 
 type KnownVariable = (typeof knownVariables)[number]

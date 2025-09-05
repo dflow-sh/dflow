@@ -1,12 +1,12 @@
 import Loader from '../Loader'
-import { ExternalLink, Github, Globe } from 'lucide-react'
+import { ExternalLink, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { JSX, SVGProps } from 'react'
 
 import { getDockerRegistries } from '@/actions/dockerRegistry'
 import { getAllAppsAction } from '@/actions/gitProviders'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
 import {
+  ClickHouse,
   Docker,
   Git,
   MariaDB,
@@ -15,7 +15,6 @@ import {
   PostgreSQL,
   Redis,
 } from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
@@ -42,6 +41,7 @@ const iconMapping: {
   mongo: MongoDB,
   mysql: MySQL,
   redis: Redis,
+  clickhouse: ClickHouse,
   app: props => <Git {...props} />,
   docker: Docker,
 }
@@ -88,7 +88,9 @@ const GeneralTab = ({
         ? undefined // Handle "database" type explicitly if no icon is needed
         : iconMapping[service.type as Exclude<StatusType, 'database'>]
 
-  const domains = service.domains
+  const domains = service.domains?.sort((a, b) =>
+    a.default ? -1 : b.default ? 1 : 0,
+  )
 
   const renderService = () => {
     switch (service.type) {
@@ -109,72 +111,48 @@ const GeneralTab = ({
   return (
     <>
       {/* Heading removed as per user request */}
-      <div className='mb-6 md:flex md:justify-between md:gap-x-2'>
-        <div>
-          <div className='flex items-center gap-2'>
-            {Icon ? <Icon className='size-6' /> : <Github className='size-6' />}
-            <h1 className='text-2xl font-semibold'>{service.name}</h1>
+      <div className='mb-6 items-center md:flex md:justify-between md:gap-x-2'>
+        <div className='text-muted-foreground flex items-center gap-2'>
+          {domains?.length ? (
+            <>
+              <Globe size={16} />
+              <Link
+                href={`//${domains[0].domain}`}
+                target='_blank'
+                rel='noopener noreferrer'>
+                <div className='hover:text-primary flex items-center gap-x-1 text-sm'>
+                  {domains[0].domain}
+                  <ExternalLink size={14} />
+                </div>
+              </Link>
+            </>
+          ) : null}
 
-            {service?.databaseDetails?.status && (
-              <Badge className='h-max w-max gap-1' variant={'outline'}>
-                {service?.databaseDetails?.status}
-              </Badge>
-            )}
+          {domains?.length && domains.length > 1 ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>+ {(domains?.length ?? 0) - 1}</div>
+                </TooltipTrigger>
 
-            <SidebarToggleButton
-              directory='services'
-              fileName={`${service?.type === 'app' ? 'app-service' : service?.type === 'database' ? 'database-service' : service?.type === 'docker' ? 'docker-service' : ''}`}
-            />
-          </div>
-
-          <p
-            className='text-muted-foreground line-clamp-1'
-            title={service.description || undefined}>
-            {service.description}
-          </p>
-
-          <div className='text-muted-foreground flex items-center gap-2'>
-            {domains?.length ? (
-              <>
-                <Globe size={16} />
-                <Link
-                  href={`//${domains[0].domain}`}
-                  target='_blank'
-                  rel='noopener noreferrer'>
-                  <div className='hover:text-primary flex items-center gap-x-1 text-sm'>
-                    {domains[0].domain}
-                    <ExternalLink size={14} />
-                  </div>
-                </Link>
-              </>
-            ) : null}
-
-            {domains?.length && domains.length > 1 ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>+ {(domains?.length ?? 0) - 1}</div>
-                  </TooltipTrigger>
-
-                  <TooltipContent side='top'>
-                    {domains?.slice(1).map((domain, index) => (
-                      <div
-                        key={index}
-                        className='hover:text-primary flex items-center gap-x-1 text-sm'>
-                        <Link
-                          href={`//${domain.domain}`}
-                          target='_blank'
-                          rel='noopener noreferrer'>
-                          {domain.domain}
-                        </Link>
-                        <ExternalLink size={14} />
-                      </div>
-                    ))}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : null}
-          </div>
+                <TooltipContent side='top'>
+                  {domains?.slice(1).map((domain, index) => (
+                    <div
+                      key={index}
+                      className='flex items-center gap-x-1 text-sm'>
+                      <Link
+                        href={`//${domain.domain}`}
+                        target='_blank'
+                        rel='noopener noreferrer'>
+                        {domain.domain}
+                      </Link>
+                      <ExternalLink size={14} />
+                    </div>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : null}
         </div>
 
         <DeploymentForm service={service} />

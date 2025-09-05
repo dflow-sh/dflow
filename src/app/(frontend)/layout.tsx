@@ -1,12 +1,12 @@
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
-// import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist_Mono } from 'next/font/google'
 import React from 'react'
-import { Toaster } from 'sonner'
 
 import { getBranding, getTheme } from '@/actions/branding'
 import Branding from '@/components/Branding'
+import { Toaster } from '@/components/ui/sonner'
 import { BrandingProvider } from '@/providers/BrandingProvider'
 import { CrossDomainAuthProvider } from '@/providers/CrossDomainAuthProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
@@ -14,15 +14,10 @@ import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 
 import './globals.css'
 
-// const geistSans = Geist({
-//   variable: '--font-geist-sans',
-//   subsets: ['latin'],
-// })
-
-// const geistMono = Geist_Mono({
-//   variable: '--font-geist-mono',
-//   subsets: ['latin'],
-// })
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
@@ -134,7 +129,7 @@ export default async function RootLayout({
         {theme && <Branding theme={theme} />}
       </head>
 
-      <body className='overflow-y-hidden'>
+      <body className={`overflow-y-hidden ${geistMono.variable}`}>
         <NProgressProvider>
           {/* <PosthogProvider> */}
           {/* <SuspendedPostHogPageView /> */}
@@ -150,10 +145,10 @@ export default async function RootLayout({
                   {children}
                 </CrossDomainAuthProvider>
               </BrandingProvider>
+              <Toaster richColors duration={3000} closeButton />
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}
-          <Toaster richColors theme='dark' duration={3000} closeButton />
         </NProgressProvider>
       </body>
     </html>

@@ -46,97 +46,96 @@ export default function SelectSearch({
   )
 
   return (
-    <div className='not-first:*:mt-2'>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            id={id}
-            variant={'ghost'}
-            role='combobox'
-            aria-expanded={open}
-            className='w-full justify-between border-input bg-background px-1.5 font-normal outline-hidden outline-offset-0 hover:bg-foreground/5 focus-visible:outline-[3px]'>
-            <ChevronsUpDown
-              size={14}
-              className='shrink-0 text-muted-foreground/80'
-              aria-hidden='true'
-            />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className='w-full min-w-(--radix-popper-anchor-width) border-input p-0'
-          align='start'>
-          <Command>
-            <CommandInput placeholder={`Search ${placeholder}...`} />
-            <CommandList>
-              <CommandEmpty>No {placeholder} found.</CommandEmpty>
-              <CommandGroup>
-                {projects?.map(project => (
-                  <Link
-                    href={`/${organisationSlug}/dashboard/project/${project.id}`}
-                    key={project.id}>
-                    <CommandItem
-                      key={project.id}
-                      value={project.name}
-                      onSelect={currentValue => {
-                        setValue(currentValue === value ? '' : currentValue)
-                        setOpen(false)
-                      }}>
-                      {project.name}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          variant={'ghost'}
+          role='combobox'
+          className='px-1.5'
+          aria-expanded={open}>
+          <ChevronsUpDown
+            size={14}
+            className='text-muted-foreground/80 shrink-0'
+            aria-hidden='true'
+          />
+        </Button>
+      </PopoverTrigger>
 
-                      {value === project.id && (
-                        <CheckIcon size={16} className='ml-auto' />
-                      )}
-                    </CommandItem>
-                  </Link>
-                ))}
+      <PopoverContent
+        className='border-input w-full min-w-(--radix-popper-anchor-width) p-0'
+        align='start'>
+        <Command>
+          <CommandInput placeholder={`Search ${placeholder}...`} />
+          <CommandList>
+            <CommandEmpty>No {placeholder} found.</CommandEmpty>
+            <CommandGroup>
+              {projects?.map(project => (
+                <Link
+                  href={`/${organisationSlug}/dashboard/project/${project.id}`}
+                  key={project.id}>
+                  <CommandItem
+                    key={project.id}
+                    value={project.name}
+                    onSelect={currentValue => {
+                      setValue(currentValue === value ? '' : currentValue)
+                      setOpen(false)
+                    }}>
+                    {project.name}
 
-                {services?.map(service => (
-                  <Link
-                    href={`/${organisationSlug}/dashboard/project/${projectId}/service/${service.id}`}
-                    key={service.id}>
-                    <CommandItem
-                      key={service.id}
-                      value={service.id}
-                      onSelect={currentValue => {
-                        setValue(() => {
-                          return currentValue === value ? '' : currentValue
-                        })
-                        setOpen(false)
-                      }}>
-                      {service.name}
+                    {value === project.id && (
+                      <CheckIcon size={16} className='ml-auto' />
+                    )}
+                  </CommandItem>
+                </Link>
+              ))}
 
-                      {value === service.id && (
-                        <CheckIcon size={16} className='ml-auto' />
-                      )}
-                    </CommandItem>
-                  </Link>
-                ))}
+              {services?.map(service => (
+                <Link
+                  href={`/${organisationSlug}/dashboard/project/${projectId}/service/${service.id}`}
+                  key={service.id}>
+                  <CommandItem
+                    key={service.id}
+                    value={service.id}
+                    onSelect={currentValue => {
+                      setValue(() => {
+                        return currentValue === value ? '' : currentValue
+                      })
+                      setOpen(false)
+                    }}>
+                    {service.name}
 
-                {servers?.map(server => (
-                  <Link
-                    href={`/${organisationSlug}/servers/${server.id}`}
-                    key={server.id}>
-                    <CommandItem
-                      key={server.id}
-                      value={server.name}
-                      onSelect={currentValue => {
-                        setValue(() => {
-                          return currentValue === value ? '' : currentValue
-                        })
-                        setOpen(false)
-                      }}>
-                      {server.name}
-                      {value === server.id && (
-                        <CheckIcon size={16} className='ml-auto' />
-                      )}
-                    </CommandItem>
-                  </Link>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+                    {value === service.id && (
+                      <CheckIcon size={16} className='ml-auto' />
+                    )}
+                  </CommandItem>
+                </Link>
+              ))}
+
+              {servers?.map(server => (
+                <Link
+                  href={`/${organisationSlug}/servers/${server.id}`}
+                  key={server.id}>
+                  <CommandItem
+                    key={server.id}
+                    value={server.name}
+                    onSelect={currentValue => {
+                      setValue(() => {
+                        return currentValue === value ? '' : currentValue
+                      })
+                      setOpen(false)
+                    }}>
+                    {server.name}
+                    {value === server.id && (
+                      <CheckIcon size={16} className='ml-auto' />
+                    )}
+                  </CommandItem>
+                </Link>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   )
 }
