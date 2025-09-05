@@ -272,7 +272,7 @@ export const signUpAction = publicClient
           'Full access to manage projects, services, and all other features.',
         tags: ['Admin', 'Full Access'],
         tenant: tenant,
-        createdUser: user,
+        createdBy: user.id,
       },
     })
 

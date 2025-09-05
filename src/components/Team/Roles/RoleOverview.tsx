@@ -140,17 +140,17 @@ const RoleOverview = ({
             {format(new Date(role?.updatedAt), 'd MMM yy')}
           </p>
         </div>
-        {role?.createdUser && (
+        {role?.createdBy && (
           <div className='flex justify-between gap-6'>
             <p className='text-muted-foreground'>Created by:</p>
             <div className='flex items-center gap-x-2'>
               <Avatar className='size-6'>
                 <AvatarFallback className='group-hover:text-accent rounded-lg uppercase'>
-                  {(role?.createdUser as User).email.slice(0, 1)}
+                  {(role?.createdBy as User).email.slice(0, 1)}
                 </AvatarFallback>
               </Avatar>
               <p className='text-md capitalize'>
-                {(role?.createdUser as User)?.username}
+                {(role?.createdBy as User)?.username}
               </p>
             </div>
           </div>

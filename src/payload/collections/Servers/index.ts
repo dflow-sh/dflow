@@ -1,5 +1,6 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { User } from '@/payload-types'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 import { ensureUniqueIP } from './hooks/ensureUniqueIP'
@@ -689,6 +690,18 @@ export const Servers: CollectionConfig = {
         description:
           'Default build directory for all Dokku applications on this server. Leave empty to use repository root.',
         placeholder: 'e.g. app, dist, build (leave empty for repository root)',
+      },
+    },
+    {
+      type: 'relationship',
+      name: 'createdBy',
+      relationTo: 'users',
+      defaultValue: ({ user }: { user: User }) => {
+        if (!user) return undefined
+        return user?.id
+      },
+      admin: {
+        position: 'sidebar',
       },
     },
   ],

@@ -15,16 +15,30 @@ export const getServersDetailsAction = protectedClient
       clientInput || {}
 
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const { docs: servers } = await payload.find({
       collection: 'servers',
       where: {
-        'tenant.slug': {
-          equals: tenant.slug,
-        },
+        and: [
+          {
+            'tenant.slug': {
+              equals: tenant.slug,
+            },
+          },
+          ...(role?.servers?.readLimit === 'createdByUser'
+            ? [
+                {
+                  createdBy: {
+                    equals: user.id,
+                  },
+                },
+              ]
+            : []),
+        ],
       },
       pagination: false,
       context: {
@@ -79,17 +93,31 @@ export const getServerBreadcrumbs = protectedClient
     const { id, populateServerDetails, refreshServerDetails } = clientInput
 
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const [{ docs: servers }, { docs: serverDetails }] = await Promise.all([
       payload.find({
         collection: 'servers',
         where: {
-          'tenant.slug': {
-            equals: tenant.slug,
-          },
+          and: [
+            {
+              'tenant.slug': {
+                equals: tenant.slug,
+              },
+            },
+            ...(role?.servers?.readLimit === 'createdByUser'
+              ? [
+                  {
+                    createdBy: {
+                      equals: user?.id,
+                    },
+                  },
+                ]
+              : []),
+          ],
         },
         pagination: false,
       }),
@@ -97,6 +125,15 @@ export const getServerBreadcrumbs = protectedClient
         collection: 'servers',
         where: {
           and: [
+            ...(role?.servers?.readLimit === 'createdByUser'
+              ? [
+                  {
+                    createdBy: {
+                      equals: user?.id,
+                    },
+                  },
+                ]
+              : []),
             {
               'tenant.slug': {
                 equals: tenant.slug,
@@ -126,8 +163,9 @@ export const getServerProjects = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const { docs: projects } = await payload.find({
@@ -152,6 +190,15 @@ export const getServerProjects = protectedClient
               equals: false,
             },
           },
+          ...(role?.projects?.readLimit === 'createdByUser'
+            ? [
+                {
+                  createdBy: {
+                    equals: user?.id,
+                  },
+                },
+              ]
+            : []),
         ],
       },
     })
@@ -167,8 +214,9 @@ export const getServerGeneralTabDetails = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
+      user,
       payload,
-      userTenant: { tenant },
+      userTenant: { tenant, role },
     } = ctx
 
     const [{ docs: sshKeys }, { docs: projects }, { docs: securityGroups }] =
@@ -195,6 +243,15 @@ export const getServerGeneralTabDetails = protectedClient
               {
                 server: { equals: id },
               },
+              ...(role?.projects?.readLimit === 'createdByUser'
+                ? [
+                    {
+                      createdBy: {
+                        equals: user?.id,
+                      },
+                    },
+                  ]
+                : []),
             ],
           },
           joins: {

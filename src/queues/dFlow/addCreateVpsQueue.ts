@@ -53,6 +53,7 @@ interface CreateVpsQueueArgs {
     id: string
     accessToken: string
   }
+  userId: string
   tenant: Tenant
   preferConnectionType: 'ssh' | 'tailscale'
 }
@@ -69,7 +70,8 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
   getWorker<CreateVpsQueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { vps, accountDetails, tenant, preferConnectionType } = job.data
+      const { vps, accountDetails, tenant, preferConnectionType, userId } =
+        job.data
       const token = accountDetails.accessToken
       const jobId = job.id
 
@@ -134,6 +136,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
             username: 'root',
             provider: 'dflow',
             tenant: tenant.id,
+            createdBy: userId,
             cloudProviderAccount: accountDetails.id,
             preferConnectionType: 'ssh',
             dflowVpsDetails: {
@@ -155,6 +158,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
               createdVpsOrder?.instanceResponse?.name || 'pending-hostname',
             username: 'root',
             provider: 'dflow',
+            createdBy: userId,
             tenant: tenant.id,
             cloudProviderAccount: accountDetails.id,
             preferConnectionType: 'tailscale',
