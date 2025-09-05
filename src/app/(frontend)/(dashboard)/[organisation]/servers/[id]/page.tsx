@@ -13,6 +13,7 @@ import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
 } from '@/actions/pages/server'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import RefreshButton from '@/components/RefreshButton'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
@@ -116,6 +117,9 @@ const UpdateServerForm = ({
 
 const GeneralTab = ({ server }: { server: ServerType }) => {
   const generalTabDetails = use(getServerGeneralTabDetails({ id: server.id }))
+  if (generalTabDetails?.serverError) {
+    return <AccessDeniedAlert error={generalTabDetails.serverError} />
+  }
   const sshKeys = generalTabDetails?.data?.sshKeys ?? []
   const securityGroups = generalTabDetails?.data?.securityGroups ?? []
   const projects = generalTabDetails?.data?.projects ?? []
@@ -546,7 +550,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return (
         <div className='space-y-6'>
           <Alert variant='warning' className='flex items-center gap-3'>
-            <Lock className='h-5 w-5 text-warning' />
+            <Lock className='text-warning h-5 w-5' />
             <div>
               <AlertTitle>dpkg is Locked</AlertTitle>
               <AlertDescription>
