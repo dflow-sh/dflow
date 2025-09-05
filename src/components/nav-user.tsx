@@ -5,6 +5,7 @@ import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
 
 import { logoutAction } from '@/actions/auth'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -29,10 +30,11 @@ export function NavUser({ user }: { user: User }) {
 
   const { execute } = useAction(logoutAction, {
     onSuccess: async ({ data }) => {
-      if (data?.success) {
-        // This will only execute if env variable is set
-        await crossDomainLogout('/sign-in')
-      }
+      toast.success('Logged out successfully')
+      // if (data?.success) {
+      //   // This will only execute if env variable is set
+      //   await crossDomainLogout('/sign-in')
+      // }
     },
   })
 
