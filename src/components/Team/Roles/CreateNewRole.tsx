@@ -359,8 +359,7 @@ const CreateNewRole = ({
                   </CardHeader>
                   <CardContent className='px-0'>
                     <div className='border-border overflow-hidden rounded-lg border'>
-                      <PermissionsTable form={form as any} /> // !Todo: need
-                      proper type safety
+                      <PermissionsTable form={form as any} />
                     </div>
                   </CardContent>
                 </Card>
