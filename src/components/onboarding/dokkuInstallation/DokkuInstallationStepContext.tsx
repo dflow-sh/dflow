@@ -9,6 +9,8 @@ type DokkuInstallationStepContextType = {
   setMonitoringInstalled: React.Dispatch<React.SetStateAction<boolean>>
   totalDokkuInstallationSteps: number
   isDokkuInstallationStepsComplete: boolean
+  backupToolsInstalled: boolean
+  setBackupToolsInstalled: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const DokkuInstallationStepContext = createContext<
@@ -22,6 +24,7 @@ export const DokkuInstallationStepContextProvider = ({
 }) => {
   const [dokkuInstallationStep, setDokkuInstallationStep] = useState<number>(1)
   const [monitoringInstalled, setMonitoringInstalled] = useState(false)
+  const [backupToolsInstalled, setBackupToolsInstalled] = useState(false)
 
   const totalDokkuInstallationSteps = 4
   const isDokkuInstallationStepsComplete =
@@ -36,6 +39,8 @@ export const DokkuInstallationStepContextProvider = ({
         setMonitoringInstalled,
         totalDokkuInstallationSteps,
         isDokkuInstallationStepsComplete,
+        backupToolsInstalled,
+        setBackupToolsInstalled,
       }}>
       {children}
     </DokkuInstallationStepContext.Provider>

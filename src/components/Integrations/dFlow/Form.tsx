@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
 import {
@@ -157,6 +157,8 @@ const DFlowForm = ({
         },
   })
 
+  const { accessToken } = useWatch({ control: form.control })
+
   const handleTestConnection = () => {
     const accessToken = form.getValues('accessToken')
     if (!accessToken.trim()) {
@@ -223,7 +225,7 @@ const DFlowForm = ({
           <DialogTitle className='text-xl'>
             {account ? 'Edit dFlow Account' : 'Connect dFlow Account'}
           </DialogTitle>
-          <DialogDescription className='text-sm text-muted-foreground'>
+          <DialogDescription className='text-muted-foreground text-sm'>
             Connect your dFlow account to deploy servers and access cloud
             features.
           </DialogDescription>
@@ -313,22 +315,20 @@ const DFlowForm = ({
             <div className='space-y-4'>
               <div className='flex items-center justify-between gap-3'>
                 <div className='flex-1'>
-                  <p className='text-sm font-medium text-foreground'>
+                  <p className='text-foreground text-sm font-medium'>
                     Connection Status
                   </p>
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     Verify your access token before saving
                   </p>
                 </div>
+
                 <Button
                   type='button'
                   variant='outline'
                   size='sm'
                   onClick={handleTestConnection}
-                  disabled={
-                    isCheckingConnection ||
-                    !form.getValues('accessToken')?.trim()
-                  }
+                  disabled={isCheckingConnection || !accessToken}
                   className='shrink-0'>
                   {isCheckingConnection ? (
                     <>

@@ -1,6 +1,6 @@
 import { CircleCheck } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { installRailpackAction } from '@/actions/server'
@@ -10,9 +10,15 @@ import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
 
-const Step5 = ({ server }: { server: ServerType }) => {
-  const { dokkuInstallationStep } = useDokkuInstallationStep()
-  const [skipRailpackInstall, setSkipRailpackInstall] = useState(false)
+const Step5 = ({
+  server,
+  s3Enabled,
+}: {
+  server: ServerType
+  s3Enabled: boolean
+}) => {
+  const { dokkuInstallationStep, setDokkuInstallationStep } =
+    useDokkuInstallationStep()
   const { execute, isPending, hasSucceeded } = useAction(
     installRailpackAction,
     {
@@ -42,17 +48,21 @@ const Step5 = ({ server }: { server: ServerType }) => {
   useEffect(() => {
     if (dokkuInstallationStep === 5) {
       if (railpackVersion && railpackVersion !== 'not-installed') {
-        setSkipRailpackInstall(true)
-        redirectToNextStep()
+        if (!s3Enabled) {
+          redirectToNextStep()
+          return
+        }
+
+        setDokkuInstallationStep(6)
       } else if (!hasSucceeded && !isPending) {
         execute({ serverId: server.id })
       }
     }
-  }, [dokkuInstallationStep, server])
+  }, [dokkuInstallationStep, server, s3Enabled])
 
   return (
     <div className='space-y-2'>
-      {(isPending || hasSucceeded || skipRailpackInstall) && (
+      {(isPending || hasSucceeded) && (
         <>
           {!railpackVersion || railpackVersion === 'not-installed' ? (
             <div className='flex items-center gap-2'>

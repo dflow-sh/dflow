@@ -15,7 +15,7 @@ export const mount = async ({
   await ssh.execCommand(`dokku storage:ensure-directory ${appName}`)
 
   const resultVolume = await ssh.execCommand(
-    `dokku storage:mount ${appName} /var/lib/dokku/data/storage/${appName}/${volume.hostPath}:${volume.containerPath}`,
+    `dokku storage:mount ${appName} /${volume.hostPath}:${volume.containerPath}`,
   )
 
   if (resultVolume.code === 1) {

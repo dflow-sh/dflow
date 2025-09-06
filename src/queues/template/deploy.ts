@@ -91,13 +91,19 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
       const { services, tenantDetails, project } = job.data
       const payload = await getPayload({ config: configPromise })
 
+      // Sorting database to be first
+      const sortedServices = services.sort((a, b) => {
+        const order = { database: 0, app: 1, docker: 1 }
+        return order[a.type] - order[b.type]
+      })
+
       try {
         // Step 2: map through deployment sequence
         // 2.1 create a deployment entry in database
         // 2.2 if it's docker or app create app first, then add environment variables
         // 2.3 trigger the respective queue
         // 2.4 use waitUntilFinished and go-to next step anything
-        for await (const createdService of services) {
+        for await (const createdService of sortedServices) {
           const {
             type,
             providerType,
