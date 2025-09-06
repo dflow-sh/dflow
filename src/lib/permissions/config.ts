@@ -8,6 +8,7 @@ export const getActionAccess = {
   installDokkuAction: ['servers.read', 'servers.update'],
   updateServerDomainAction: ['servers.read', 'servers.update'],
   installRailpackAction: ['servers.read', 'servers.update'],
+  dokkuBackupAction: ['servers.read', 'servers.update'],
   updateRailpackAction: ['servers.update'],
   completeServerOnboardingAction: ['servers.read', 'servers.update'],
   getServersAction: ['servers.read'],

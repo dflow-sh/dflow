@@ -7,6 +7,7 @@ export const createProjectSchema = z.object({
     .max(10, { message: 'Name should be less than 10 characters' }),
   description: z.string().optional(),
   serverId: z.string({ message: 'Server is required' }),
+  revalidate: z.boolean().optional(),
 })
 
 export const updateProjectSchema = z.object({

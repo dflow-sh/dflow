@@ -222,7 +222,7 @@ export function configureTemplateServices(
 /**
  * Generate unique service name by checking existing services
  */
-async function generateUniqueServiceName(
+export async function generateUniqueServiceName(
   payload: Payload,
   projectName: string,
   templateServiceName: string,
@@ -316,6 +316,7 @@ export async function processServices(
         },
         depth: 3,
       })
+
       newServices.push(newService)
 
       sendEvent({

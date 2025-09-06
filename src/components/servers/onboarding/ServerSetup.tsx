@@ -15,11 +15,18 @@ import Step2 from '@/components/onboarding/dokkuInstallation/Step2'
 import Step3 from '@/components/onboarding/dokkuInstallation/Step3'
 import Step4 from '@/components/onboarding/dokkuInstallation/Step4'
 import Step5 from '@/components/onboarding/dokkuInstallation/Step5'
+import Step6 from '@/components/onboarding/dokkuInstallation/Step6'
 import { ServerType } from '@/payload-types-overrides'
 
 import ServerOnboardingLayout from './ServerOnboardingLayout'
 
-const ServerSetup = ({ server }: { server: ServerType }) => {
+const ServerSetup = ({
+  server,
+  s3Enabled,
+}: {
+  server: ServerType
+  s3Enabled: boolean
+}) => {
   const { dokkuInstallationStep, isDokkuInstallationStepsComplete } =
     useDokkuInstallationStep()
 
@@ -66,15 +73,25 @@ const ServerSetup = ({ server }: { server: ServerType }) => {
         highlighted: dokkuInstallationStep > 4,
       },
       {
-        title: 'Build Tools Setup',
+        title: 'Build Tools',
         description:
           'Configuring build environment for application deployments',
-        content: <Step5 server={server} />,
+        content: <Step5 server={server} s3Enabled={s3Enabled} />,
         icon: <Hammer size={20} />,
         disabled: dokkuInstallationStep < 5,
+        highlighted: dokkuInstallationStep > 5,
       },
-    ]
-  }, [dokkuInstallationStep, server])
+      s3Enabled
+        ? {
+            title: 'Backup Tools',
+            description: 'Setting up backup tools',
+            content: <Step6 server={server} />,
+            icon: <Hammer size={20} />,
+            disabled: dokkuInstallationStep < 6,
+          }
+        : null,
+    ].filter(Boolean) as TimeLineComponentType[]
+  }, [dokkuInstallationStep, server, s3Enabled])
 
   // Check if Dokku is properly installed on this server
   const installationDone =
