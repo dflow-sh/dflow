@@ -32,6 +32,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
 import ServerDetails from '@/components/servers/ServerDetails'
+import ServerQueuesTab from '@/components/servers/ServerQueuesTab'
 import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import MonitoringTab from '@/components/servers/monitoring/MonitoringTab'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -336,6 +337,13 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       case 'settings':
         return <ServerSettingsTab server={server} />
 
+      case 'queues':
+        return (
+          <Suspense fallback={<div>Loading queues...</div>}>
+            <ServerQueuesTab server={server} />
+          </Suspense>
+        )
+
       case 'kubernetes':
         return <KubernetesTab />
 
@@ -546,7 +554,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       return (
         <div className='space-y-6'>
           <Alert variant='warning' className='flex items-center gap-3'>
-            <Lock className='h-5 w-5 text-warning' />
+            <Lock className='text-warning h-5 w-5' />
             <div>
               <AlertTitle>dpkg is Locked</AlertTitle>
               <AlertDescription>
