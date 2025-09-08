@@ -118,7 +118,7 @@ const ServerQueuesTab = ({ server }: ServerQueuesTabProps) => {
   // Refresh data function
   const refreshData = useCallback(async () => {
     if (!server.id) return
-    await getQueuesAndStats({ serverId: server.id })
+    getQueuesAndStats({ serverId: server.id })
   }, [server.id, getQueuesAndStats])
 
   // Initial data fetch
