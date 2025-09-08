@@ -4,6 +4,7 @@ import { handleGenerateName } from '../servers/dflowVpsForm/utils'
 import SecretContent from '../ui/blur-reveal'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { ScrollArea } from '../ui/scroll-area'
 import { Textarea } from '../ui/textarea'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Copy, Download, Key } from 'lucide-react'
@@ -334,100 +335,103 @@ const CreateSSHKeyForm = ({
           </div>
         )}
 
-        <FormField
-          control={form.control}
-          name='name'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  disabled={type === 'view'}
-                  onChange={e => handleNameChange(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <ScrollArea className='h-[40vh]'>
+          <div className='w-full space-y-6'>
+            <FormField
+              control={form.control}
+              name='name'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={type === 'view'}
+                      onChange={e => handleNameChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name='description'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea {...field} disabled={type === 'view'} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name='description'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} disabled={type === 'view'} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name='publicKey'
-          render={({ field }) => (
-            <FormItem>
-              <div className='flex items-center justify-between'>
-                <FormLabel>Public Key</FormLabel>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={handleCopyPublic}
-                  className='h-8 px-2 text-xs'>
-                  {publicKeyCopied ? (
-                    <Check className='max-h-[13px] max-w-[13px]' />
-                  ) : (
-                    <Copy className='max-h-[13px] max-w-[13px]' />
-                  )}
-                  {publicKeyCopied ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
-              <FormControl>
-                <SecretContent defaultHide={type === 'view'}>
-                  <Textarea {...field} disabled={type === 'view'} />
-                </SecretContent>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name='publicKey'
+              render={({ field }) => (
+                <FormItem>
+                  <div className='flex items-center justify-between'>
+                    <FormLabel>Public Key</FormLabel>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={handleCopyPublic}
+                      className='h-8 px-2 text-xs'>
+                      {publicKeyCopied ? (
+                        <Check className='max-h-[13px] max-w-[13px]' />
+                      ) : (
+                        <Copy className='max-h-[13px] max-w-[13px]' />
+                      )}
+                      {publicKeyCopied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <FormControl>
+                    <SecretContent defaultHide={type === 'view'}>
+                      <Textarea {...field} disabled={type === 'view'} />
+                    </SecretContent>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name='privateKey'
-          render={({ field }) => (
-            <FormItem>
-              <div className='flex items-center justify-between'>
-                <FormLabel>Private Key</FormLabel>
-                <Button
-                  type='button'
-                  variant='outline'
-                  size='sm'
-                  onClick={handleCopyPrivate}
-                  className='h-8 px-2 text-xs'>
-                  {privateKeyCopied ? (
-                    <Check className='max-h-[13px] max-w-[13px]' />
-                  ) : (
-                    <Copy className='max-h-[13px] max-w-[13px]' />
-                  )}
-                  {privateKeyCopied ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
-              <FormControl>
-                <SecretContent defaultHide={type === 'view'}>
-                  <Textarea {...field} disabled={type === 'view'} />
-                </SecretContent>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+            <FormField
+              control={form.control}
+              name='privateKey'
+              render={({ field }) => (
+                <FormItem>
+                  <div className='flex items-center justify-between'>
+                    <FormLabel>Private Key</FormLabel>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={handleCopyPrivate}
+                      className='h-8 px-2 text-xs'>
+                      {privateKeyCopied ? (
+                        <Check className='max-h-[13px] max-w-[13px]' />
+                      ) : (
+                        <Copy className='max-h-[13px] max-w-[13px]' />
+                      )}
+                      {privateKeyCopied ? 'Copied' : 'Copy'}
+                    </Button>
+                  </div>
+                  <FormControl>
+                    <SecretContent defaultHide={type === 'view'}>
+                      <Textarea {...field} disabled={type === 'view'} />
+                    </SecretContent>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </ScrollArea>
         <DialogFooter className='flex flex-col gap-4 sm:flex-row sm:justify-between'>
           <div className='flex flex-col gap-2 sm:flex-row'>
             <Button
