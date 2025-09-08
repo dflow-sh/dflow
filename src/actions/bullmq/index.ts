@@ -20,10 +20,10 @@ export const getServerQueuesAction = userClient
     const { serverId } = clientInput
 
     try {
-      const queueNames = await bullmq.queues.listAll()
-      const stats = await bullmq.queues.getStats(queueNames)
+      const queues = await bullmq.queues.listServer(serverId)
+      const stats = await bullmq.queues.getStats(queues)
 
-      return { success: true, queues: queueNames, stats }
+      return { success: true, queues, stats }
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }
@@ -41,7 +41,7 @@ export const flushServerQueuesAction = userClient
     const { serverId, force = false } = clientInput
 
     try {
-      const queueNames = await bullmq.queues.listAll()
+      const queueNames = await bullmq.queues.listServer(serverId)
       await bullmq.queues.flush(queueNames, { force })
 
       return {
