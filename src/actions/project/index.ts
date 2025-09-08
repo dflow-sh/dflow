@@ -27,6 +27,7 @@ export const createProjectAction = protectedClient
       description = '',
       serverId,
       revalidate = true,
+      hidden = false,
     } = clientInput
 
     // Fetching the server details before creating the project
@@ -83,6 +84,7 @@ export const createProjectAction = protectedClient
         description,
         server: serverId,
         tenant,
+        hidden,
       },
       user: ctx.user,
       depth: 2,

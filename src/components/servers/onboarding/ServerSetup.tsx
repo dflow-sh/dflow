@@ -1,6 +1,6 @@
 'use client'
 
-import { Activity, Hammer, HardDrive, Plug2 } from 'lucide-react'
+import { Activity, CloudUpload, Hammer, HardDrive, Plug2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useMemo } from 'react'
 
@@ -86,7 +86,7 @@ const ServerSetup = ({
             title: 'Backup Tools',
             description: 'Setting up backup tools',
             content: <Step6 server={server} />,
-            icon: <Hammer size={20} />,
+            icon: <CloudUpload size={20} />,
             disabled: dokkuInstallationStep < 6,
           }
         : null,

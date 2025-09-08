@@ -45,6 +45,7 @@ interface QueueArgs {
     slug: string
   }
   exposeDatabase?: boolean
+  showEnvironmentVariableLogs?: boolean
 }
 
 const knownVariables = [
@@ -634,6 +635,7 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
         serverDetails,
         tenantDetails,
         exposeDatabase = false,
+        showEnvironmentVariableLogs = true,
       } = job.data
       const { variables, previousVariables } = serviceDetails
       let ssh: NodeSSH | null = null
@@ -833,19 +835,25 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
               options: {
                 onStdout: async chunk => {
                   console.info(chunk.toString())
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
+
+                  if (showEnvironmentVariableLogs) {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  }
                 },
                 onStderr: async chunk => {
                   console.info(chunk.toString())
-                  sendEvent({
-                    pub,
-                    message: chunk.toString(),
-                    serverId: serverDetails.id,
-                  })
+
+                  if (showEnvironmentVariableLogs) {
+                    sendEvent({
+                      pub,
+                      message: chunk.toString(),
+                      serverId: serverDetails.id,
+                    })
+                  }
                 },
               },
             })

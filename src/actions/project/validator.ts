@@ -8,6 +8,7 @@ export const createProjectSchema = z.object({
   description: z.string().optional(),
   serverId: z.string({ message: 'Server is required' }),
   revalidate: z.boolean().optional(),
+  hidden: z.boolean().optional(),
 })
 
 export const updateProjectSchema = z.object({

@@ -62,9 +62,8 @@ export const dokkuBackupAction = protectedClient
         name: 'backups',
         serverId,
         revalidate: false,
+        hidden: true,
       })
-
-      console.log({ projectResponse })
 
       if (projectResponse?.data) {
         project = projectResponse?.data
@@ -176,6 +175,7 @@ export const dokkuBackupAction = protectedClient
         },
         project,
         tenantDetails: { slug: userTenant.tenant.slug },
+        showEnvironmentVariableLogs: false,
       })
 
       if (response.id) {
