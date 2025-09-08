@@ -39,10 +39,10 @@ const Step6 = ({ server }: { server: ServerType }) => {
     onSuccess: ({ data }) => {
       if (data?.installation === 'done') {
         setBackupToolsInstalled(true)
-        redirectToNextStep()
       }
 
       toast.info(data?.message)
+      redirectToNextStep()
     },
   })
 

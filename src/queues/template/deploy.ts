@@ -25,6 +25,7 @@ interface QueueArgs {
   tenantDetails: {
     slug: string
   }
+  showEnvironmentVariableLogs?: boolean
 }
 
 async function waitForJobCompletion(
@@ -88,7 +89,12 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { services, tenantDetails, project } = job.data
+      const {
+        services,
+        tenantDetails,
+        project,
+        showEnvironmentVariableLogs = true,
+      } = job.data
       const payload = await getPayload({ config: configPromise })
 
       // Sorting database to be first
@@ -190,6 +196,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                         },
                         tenantDetails,
                         exposeDatabase: true,
+                        showEnvironmentVariableLogs,
                       })
 
                     await waitForJobCompletion(environmentVariablesQueue)
@@ -296,6 +303,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       },
                       tenantDetails,
                       exposeDatabase: true,
+                      showEnvironmentVariableLogs,
                     })
 
                   await waitForJobCompletion(environmentVariablesQueue)
