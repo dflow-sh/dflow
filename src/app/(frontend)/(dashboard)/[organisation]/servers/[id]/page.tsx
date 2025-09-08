@@ -33,6 +33,7 @@ import PluginsList from '@/components/servers/PluginsList'
 import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
 import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
 import ServerDetails from '@/components/servers/ServerDetails'
+import ServerQueuesTab from '@/components/servers/ServerQueuesTab'
 import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
 import MonitoringTab from '@/components/servers/monitoring/MonitoringTab'
 import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
@@ -339,6 +340,13 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
       case 'settings':
         return <ServerSettingsTab server={server} />
+
+      case 'queues':
+        return (
+          <Suspense fallback={<div>Loading queues...</div>}>
+            <ServerQueuesTab server={server} />
+          </Suspense>
+        )
 
       case 'kubernetes':
         return <KubernetesTab />

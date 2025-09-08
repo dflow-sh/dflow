@@ -26,6 +26,7 @@ const tabsList = [
   { label: 'Plugins', slug: 'plugins', disabled: false },
   { label: 'Domains', slug: 'domains', disabled: false },
   { label: 'Monitoring', slug: 'monitoring', disabled: false },
+  { label: 'Queues', slug: 'queues', disabled: false },
   { label: 'Settings', slug: 'settings', disabled: false },
   { label: 'Kubernetes (coming soon)', slug: 'kubernetes', disabled: false },
 ] as const
@@ -47,6 +48,7 @@ const LayoutClient = ({
       'monitoring',
       'plugins',
       'domains',
+      'queues',
       'settings',
       'kubernetes',
     ]).withDefault('general'),
@@ -76,7 +78,7 @@ const LayoutClient = ({
 
   return (
     <>
-      <div className={cn('sticky top-[68px] z-40 bg-background')}>
+      <div className={cn('bg-background sticky top-[68px] z-40')}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
@@ -93,10 +95,10 @@ const LayoutClient = ({
             defaultActiveTab={activeTab >= 0 ? activeTab : 0}
           />
         </div>
-        <div className='absolute bottom-0 z-[-10] h-px w-full bg-border' />
+        <div className='bg-border absolute bottom-0 z-[-10] h-px w-full' />
       </div>
 
-      <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4 pb-10'>
+      <main className='mx-auto mt-4 mb-20 w-full max-w-6xl px-4 pb-10'>
         {children}
       </main>
 
@@ -107,7 +109,7 @@ const LayoutClient = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 shrink-0 stroke-border'
+                className='stroke-border h-5 w-5 shrink-0'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}
@@ -125,7 +127,7 @@ const LayoutClient = ({
             <svg
               fill='currentColor'
               viewBox='0 0 20 20'
-              className='h-5 w-5 shrink-0 stroke-border'
+              className='stroke-border h-5 w-5 shrink-0'
               aria-hidden='true'>
               <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
             </svg>{' '}

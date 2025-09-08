@@ -31,6 +31,7 @@ export const serverPageTabs = {
     'monitoring',
     'settings',
     'kubernetes',
+    'queues',
   ]).withDefault('general'),
 }
 
