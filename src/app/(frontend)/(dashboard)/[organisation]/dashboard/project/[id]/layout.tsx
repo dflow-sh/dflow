@@ -41,7 +41,7 @@ const GeneralTab: React.FC<{
     : []
 
   return (
-    <>
+    <div className='relative'>
       <div className='mx-auto flex w-full max-w-6xl justify-between px-4'>
         <div>
           <h2 className='flex items-center text-2xl font-semibold'>
@@ -85,6 +85,25 @@ const GeneralTab: React.FC<{
         )}
       </div>
       <div className='w-full border-b pt-4' />
+      {typeof project.server === 'object' && !isServerConnected && (
+        <Alert
+          variant='destructive'
+          className='absolute top-15 left-0 z-50 w-full backdrop-blur-md'>
+          <ScreenShareOff className='h-4 w-4' />
+          <AlertTitle>SSH Connection Failed</AlertTitle>
+          <AlertDescription>
+            Unable to establish SSH connection to the server. Please verify your
+            server credentials and SSH key configuration. Server operations,
+            including service creation and deployment, are unavailable until the
+            connection is restored.{' '}
+            <Link
+              href={`/${organisation}/servers/${project.server.id}`}
+              className='text-primary hover:text-primary text-sm font-normal hover:underline hover:underline-offset-4'>
+              Go to server settings
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
       {formattedServices.length ? (
         <ServiceList
           organisationSlug={organisation}
@@ -94,7 +113,7 @@ const GeneralTab: React.FC<{
       ) : typeof project.server === 'object' ? (
         <ServicesArchitecture server={project.server} />
       ) : null}
-    </>
+    </div>
   )
 }
 
@@ -125,25 +144,6 @@ const SuspendedPage = async ({
   return (
     <ArchitectureContextProvider>
       <section>
-        {/* Display SSH connection alert if server is not connected */}
-        {typeof project.server === 'object' && !isServerConnected && (
-          <Alert variant='destructive' className='mt-4 mb-4'>
-            <ScreenShareOff className='h-4 w-4' />
-            <AlertTitle>SSH Connection Failed</AlertTitle>
-            <AlertDescription>
-              Unable to establish SSH connection to the server. Please verify
-              your server credentials and SSH key configuration. Server
-              operations, including service creation and deployment, are
-              unavailable until the connection is restored.{' '}
-              <Link
-                href={`/${organisation}/servers/${project.server.id}`}
-                className='text-primary hover:text-primary text-sm font-normal hover:underline hover:underline-offset-4'>
-                Go to server settings
-              </Link>
-            </AlertDescription>
-          </Alert>
-        )}
-
         <GeneralTab
           services={services}
           project={project}
