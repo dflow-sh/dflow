@@ -16,13 +16,19 @@ import {
 } from './ServerOnboardingContext'
 import ServerSetup from './ServerSetup'
 
-const ServerOnboardingContent = ({ server }: { server: ServerType }) => {
+const ServerOnboardingContent = ({
+  server,
+  s3Enabled,
+}: {
+  server: ServerType
+  s3Enabled: boolean
+}) => {
   const { currentStep } = useServerOnboarding()
 
   return (
     <>
       {currentStep === 1 ? (
-        <ServerSetup server={server} />
+        <ServerSetup server={server} s3Enabled={s3Enabled} />
       ) : (
         <ConfigureDomain server={server} />
       )}
@@ -34,10 +40,12 @@ const ServerOnboarding = ({
   server,
   sshKeys,
   securityGroups,
+  s3Enabled,
 }: {
   server: ServerType
   sshKeys: SshKey[]
   securityGroups: SecurityGroup[]
+  s3Enabled: boolean
 }) => {
   return (
     <ServerOnboardingProvider totalSteps={2}>
@@ -49,7 +57,7 @@ const ServerOnboarding = ({
           </TabsList>
 
           <TabsContent value='onboarding'>
-            <ServerOnboardingContent server={server} />
+            <ServerOnboardingContent server={server} s3Enabled={s3Enabled} />
           </TabsContent>
 
           <TabsContent value='configuration'>

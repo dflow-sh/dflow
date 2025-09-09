@@ -1,3 +1,4 @@
+import { env } from 'env'
 import {
   AlertCircle,
   Lock,
@@ -227,12 +228,19 @@ const Onboarding = ({ server }: { server: ServerType }) => {
   const generalTabDetails = use(getServerGeneralTabDetails({ id: server.id }))
   const sshKeys = generalTabDetails?.data?.sshKeys ?? []
   const securityGroups = generalTabDetails?.data?.securityGroups ?? []
+  const s3Enabled = Boolean(
+    env.S3_ENDPOINT &&
+      env.S3_ACCESS_KEY_ID &&
+      env.S3_SECRET_ACCESS_KEY &&
+      env.S3_REGION,
+  )
 
   return (
     <ServerOnboarding
       server={server}
       securityGroups={securityGroups}
       sshKeys={sshKeys}
+      s3Enabled={s3Enabled}
     />
   )
 }

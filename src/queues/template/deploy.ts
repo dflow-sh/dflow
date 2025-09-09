@@ -25,6 +25,7 @@ interface QueueArgs {
   tenantDetails: {
     slug: string
   }
+  showEnvironmentVariableLogs?: boolean
 }
 
 async function waitForJobCompletion(
@@ -88,8 +89,19 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
     name: QUEUE_NAME,
     connection: queueConnection,
     processor: async job => {
-      const { services, tenantDetails, project } = job.data
+      const {
+        services,
+        tenantDetails,
+        project,
+        showEnvironmentVariableLogs = true,
+      } = job.data
       const payload = await getPayload({ config: configPromise })
+
+      // Sorting database to be first
+      const sortedServices = services.sort((a, b) => {
+        const order = { database: 0, app: 1, docker: 1 }
+        return order[a.type] - order[b.type]
+      })
 
       try {
         // Step 2: map through deployment sequence
@@ -97,7 +109,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
         // 2.2 if it's docker or app create app first, then add environment variables
         // 2.3 trigger the respective queue
         // 2.4 use waitUntilFinished and go-to next step anything
-        for await (const createdService of services) {
+        for await (const createdService of sortedServices) {
           const {
             type,
             providerType,
@@ -184,6 +196,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                         },
                         tenantDetails,
                         exposeDatabase: true,
+                        showEnvironmentVariableLogs,
                       })
 
                     await waitForJobCompletion(environmentVariablesQueue)
@@ -290,6 +303,7 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
                       },
                       tenantDetails,
                       exposeDatabase: true,
+                      showEnvironmentVariableLogs,
                     })
 
                   await waitForJobCompletion(environmentVariablesQueue)

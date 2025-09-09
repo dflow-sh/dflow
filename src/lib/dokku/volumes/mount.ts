@@ -12,10 +12,13 @@ export const mount = async ({
     containerPath: string
   }
 }) => {
-  await ssh.execCommand(`dokku storage:ensure-directory ${appName}`)
+  // Ensure the directory exists if it's a dokku storage path
+  if (volume.hostPath.startsWith('/var/lib/dokku/data/storage/')) {
+    await ssh.execCommand(`dokku storage:ensure-directory ${appName}`)
+  }
 
   const resultVolume = await ssh.execCommand(
-    `dokku storage:mount ${appName} /var/lib/dokku/data/storage/${appName}/${volume.hostPath}:${volume.containerPath}`,
+    `dokku storage:mount ${appName} ${volume.hostPath}:${volume.containerPath}`,
   )
 
   if (resultVolume.code === 1) {
