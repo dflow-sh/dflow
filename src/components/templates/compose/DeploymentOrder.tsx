@@ -87,9 +87,9 @@ export default function ReorderList({ nodes, setNodes }: ReorderListProps) {
       type='single'
       defaultValue='deployment-order'
       collapsible
-      className='w-full'>
+      className='border-border w-full rounded-md border'>
       <AccordionItem
-        className='bg-background w-72 space-y-1 rounded-md border px-3 backdrop-blur-md'
+        className='bg-background w-72 space-y-1 rounded-md px-3 backdrop-blur-md'
         value='deployment-order'>
         <AccordionTrigger className='px-2 hover:no-underline'>
           Deployment order
@@ -125,7 +125,7 @@ const NodeComponent = ({ node, index }: { node: Node; index: number }) => {
       onDragStart={() => setIsDragging(true)}
       onDragEnd={() => setIsDragging(false)}
       className={cn(
-        'bg-background relative flex items-center justify-between gap-2 rounded-sm px-3 py-2',
+        'bg-foreground/10 relative flex items-center justify-between gap-2 rounded-sm px-3 py-2 backdrop-blur-md',
         isDragging ? 'cursor-grabbing' : 'cursor-grab',
       )}>
       <div className='bg-primary text-foreground mr-1 grid size-6 shrink-0 place-items-center rounded-full text-sm'>
