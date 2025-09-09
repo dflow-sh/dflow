@@ -19,6 +19,7 @@ import { ServiceNode } from '@/components/reactflow/types'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import SecretContent from '@/components/ui/blur-reveal'
 import { Button } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -30,6 +31,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { buildOptions } from '@/lib/buildOptions'
 
 const AddGitlabService = ({
@@ -127,189 +129,192 @@ const AddGitlabService = ({
       exit={{ x: '100%', opacity: 1 }}
       className='w-full'>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(addGitlabNode)}
-          className='w-full space-y-6'>
-          <Alert variant='info'>
-            <Workflow className='h-4 w-4' />
+        <form onSubmit={form.handleSubmit(addGitlabNode)}>
+          <ScrollArea className='h-[60vh]'>
+            <div className='space-y-6'>
+              <Alert variant='info'>
+                <Workflow className='h-4 w-4' />
 
-            <AlertTitle>Automatic deployments are coming soon!</AlertTitle>
-            <AlertDescription>
-              For now, you can set up your GitLab service with the following
-              details. Make sure to trigger a deployment after saving the
-              changes.
-            </AlertDescription>
-          </Alert>
+                <AlertTitle>Automatic deployments are coming soon!</AlertTitle>
+                <AlertDescription>
+                  For now, you can set up your GitLab service with the following
+                  details. Make sure to trigger a deployment after saving the
+                  changes.
+                </AlertDescription>
+              </Alert>
 
-          <div className='grid gap-4 md:grid-cols-2'>
-            {/* Repository URL */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.repository'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Repository URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='ex: https://github.com/akhil-naidu/dflow'
-                      {...field}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <div className='grid gap-4 md:grid-cols-2'>
+                {/* Repository URL */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.repository'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Repository URL</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          placeholder='ex: https://github.com/akhil-naidu/dflow'
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Branch */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.branch'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Branch</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='ex: main or commit-hash: 6492769'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Branch */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.branch'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Branch</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          placeholder='ex: main or commit-hash: 6492769'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Repository URL */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.owner'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='text'
-                      placeholder='ex: your-username'
-                      {...field}
-                      disabled
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Repository URL */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.owner'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='text'
+                          placeholder='ex: your-username'
+                          {...field}
+                          disabled
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Branch */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.gitToken'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Git Token</FormLabel>
-                  <FormControl>
-                    <SecretContent defaultHide={!!field.value}>
-                      <Input type='text' {...field} />
-                    </SecretContent>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Branch */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.gitToken'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Git Token</FormLabel>
+                      <FormControl>
+                        <SecretContent defaultHide={!!field.value}>
+                          <Input type='text' {...field} />
+                        </SecretContent>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Port */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.port'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Port</FormLabel>
-                  <FormControl>
-                    <Input
-                      type='number'
-                      placeholder='ex: 3000'
-                      {...field}
-                      value={field.value || ''}
-                      onChange={e => {
-                        const value = e.target.value
-                          ? parseInt(e.target.value, 10)
-                          : ''
-                        field.onChange(value)
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Port */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.port'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Port</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          placeholder='ex: 3000'
+                          {...field}
+                          value={field.value || ''}
+                          onChange={e => {
+                            const value = e.target.value
+                              ? parseInt(e.target.value, 10)
+                              : ''
+                            field.onChange(value)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Build path */}
-            <FormField
-              control={form.control}
-              name='gitlabSettings.buildPath'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Build path </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      onChange={e => field.onChange(e.target.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                {/* Build path */}
+                <FormField
+                  control={form.control}
+                  name='gitlabSettings.buildPath'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Build path </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value || ''}
+                          onChange={e => field.onChange(e.target.value)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-          <FormField
-            control={form.control}
-            name='builder'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Builder</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className='flex w-full flex-col gap-4 md:flex-row'>
-                    {buildOptions.map(({ value, label, icon, description }) => (
-                      <FormItem
-                        className='flex w-full items-center space-x-3 space-y-0'
-                        key={value}>
-                        <FormControl>
-                          <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
-                            <RadioGroupItem
-                              value={value}
-                              id={value}
-                              aria-describedby={`${label}-builder`}
-                              className='order-1 after:absolute after:inset-0'
-                            />
-                            <div className='flex grow items-start gap-3'>
-                              {icon}
+              <FormField
+                control={form.control}
+                name='builder'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Builder</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className='flex w-full flex-col gap-4 md:flex-row'>
+                        {buildOptions.map(
+                          ({ value, label, icon, description }) => (
+                            <FormItem
+                              className='flex w-full items-center space-y-0 space-x-3'
+                              key={value}>
+                              <FormControl>
+                                <div className='has-data-[state=checked]:border-ring border-input relative flex h-full w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
+                                  <RadioGroupItem
+                                    value={value}
+                                    id={value}
+                                    aria-describedby={`${label}-builder`}
+                                    className='order-1 after:absolute after:inset-0'
+                                  />
+                                  <div className='flex grow items-start gap-3'>
+                                    {icon}
 
-                              <div className='grid grow gap-2'>
-                                <Label htmlFor={value}>{label}</Label>
+                                    <div className='grid grow gap-2'>
+                                      <Label htmlFor={value}>{label}</Label>
 
-                                <p className='text-xs text-muted-foreground'>
-                                  {description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className='flex w-full justify-end'>
+                                      <p className='text-muted-foreground text-xs'>
+                                        {description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          ),
+                        )}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </ScrollArea>
+          <DialogFooter className='mt-4'>
             <Button
               type='submit'
               disabled={
@@ -321,7 +326,7 @@ const AddGitlabService = ({
               variant='outline'>
               Save
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Form>
     </motion.div>

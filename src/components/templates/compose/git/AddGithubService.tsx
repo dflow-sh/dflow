@@ -23,6 +23,7 @@ import {
 } from '@/actions/gitProviders'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -34,6 +35,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import SelectSearch from '@/components/ui/select-search'
 import { buildOptions } from '@/lib/buildOptions'
 
@@ -233,445 +235,457 @@ const AddGithubService = ({
       exit={{ x: '100%', opacity: 1 }}
       className='w-full'>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(addGithubNode)}
-          className='w-full space-y-6'>
-          <div className='space-y-4'>
-            <RadioGroup
-              value={repoType}
-              onValueChange={value => {
-                setRepoType(value)
-                const githubDetails = service?.githubSettings
-                const providerId = service?.provider
-                  ? typeof service?.provider === 'object'
-                    ? service?.provider?.id
-                    : service?.provider
-                  : ''
-                if (value === 'public') {
-                  form.setValue('provider', undefined)
-                  form.setValue(
-                    'githubSettings.branch',
-                    providerId ? '' : (githubDetails?.branch ?? ''),
-                  )
-                  form.setValue(
-                    'githubSettings.repository',
-                    providerId ? '' : (githubDetails?.repository ?? ''),
-                  )
-                  form.setValue(
-                    'githubSettings.owner',
-                    providerId ? '' : (githubDetails?.owner ?? ''),
-                  )
-                } else {
-                  form.setValue('provider', providerId)
-                  form.setValue(
-                    'githubSettings.branch',
-                    providerId ? (githubDetails?.branch ?? '') : '',
-                  )
-                  form.setValue(
-                    'githubSettings.repository',
-                    providerId ? (githubDetails?.repository ?? '') : '',
-                  )
-                  form.setValue(
-                    'githubSettings.owner',
-                    providerId ? (githubDetails?.owner ?? '') : '',
-                  )
-                }
-              }}
-              className='flex gap-4'>
-              <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
-                <RadioGroupItem
-                  value='public'
-                  id='r2'
-                  className='order-1 after:absolute after:inset-0'
-                />
-                <div className='flex grow items-start gap-3'>
-                  <div className='grid grow gap-2'>
-                    <Label>open source</Label>
-
-                    <p className='text-xs text-muted-foreground'>
-                      Automatic deployment is not available.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
-                <RadioGroupItem
-                  value='private'
-                  id='r3'
-                  className='order-1 after:absolute after:inset-0'
-                />
-                <div className='flex grow items-start gap-3'>
-                  <div className='grid grow gap-2'>
-                    <Label>personal/organisation</Label>
-
-                    <p className='text-xs text-muted-foreground'>
-                      Automatic deployment is enabled
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </RadioGroup>
-          </div>
-
-          {repoType === 'public' ? (
-            <>
-              <div
-                className={`grid gap-4 ${type == 'update' ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                {/* Repository URL */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.repository'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Repository URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='text'
-                          name='repositoryURL'
-                          placeholder='ex: https://github.com/akhil-naidu/dflow'
-                          defaultValue={publicRepoURL}
-                          onChange={e => {
-                            const value = e.target.value
-                            const matched = value.match(githubURLRegex)
-
-                            if (matched) {
-                              const username = matched[1]
-                              const repository = matched[2]
-
-                              form.setValue('githubSettings.owner', username)
-                              form.setValue(
-                                'githubSettings.repository',
-                                repository,
-                              )
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Branch */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.branch'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Branch</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='text'
-                          name='branch'
-                          defaultValue={githubSettings?.branch ?? ''}
-                          placeholder='ex: main or commit-hash: 6492769'
-                          onChange={e => {
-                            const value = e.target.value
-                            form.setValue('githubSettings.branch', value)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className='grid gap-4 md:grid-cols-2'>
-                  {/* Port */}
-                  <FormField
-                    control={form.control}
-                    name='githubSettings.port'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Port</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            {...field}
-                            value={field.value || ''}
-                            onChange={e => {
-                              const value = e.target.value
-                                ? parseInt(e.target.value, 10)
-                                : ''
-                              field.onChange(value)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Build path */}
-                  <FormField
-                    control={form.control}
-                    name='githubSettings.buildPath'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Build path</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            value={field.value || ''}
-                            onChange={handleBuildPathInputChange(
-                              field.onChange,
-                            )}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
+        <form onSubmit={form.handleSubmit(addGithubNode)}>
+          <ScrollArea className='h-[60vh]'>
             <div className='space-y-6'>
-              <div
-                className={`grid gap-4 ${type === 'update' ? 'grid-cols-2' : 'grid-cols-1'} `}>
-                {/* Account field */}
-                <FormField
-                  control={form.control}
-                  name='provider'
-                  render={({ field }) => (
-                    <FormItem className='-mt-2'>
-                      <FormControl>
-                        <SelectSearch
-                          fieldValue={field.value}
-                          label='Account'
-                          inputPlaceholder={'account'}
-                          gitProviders={gitProviders?.data ?? []}
-                          onSelect={(value: string) => {
-                            field.onChange(value)
+              <div className='space-y-4'>
+                <RadioGroup
+                  value={repoType}
+                  onValueChange={value => {
+                    setRepoType(value)
+                    const githubDetails = service?.githubSettings
+                    const providerId = service?.provider
+                      ? typeof service?.provider === 'object'
+                        ? service?.provider?.id
+                        : service?.provider
+                      : ''
+                    if (value === 'public') {
+                      form.setValue('provider', undefined)
+                      form.setValue(
+                        'githubSettings.branch',
+                        providerId ? '' : (githubDetails?.branch ?? ''),
+                      )
+                      form.setValue(
+                        'githubSettings.repository',
+                        providerId ? '' : (githubDetails?.repository ?? ''),
+                      )
+                      form.setValue(
+                        'githubSettings.owner',
+                        providerId ? '' : (githubDetails?.owner ?? ''),
+                      )
+                    } else {
+                      form.setValue('provider', providerId)
+                      form.setValue(
+                        'githubSettings.branch',
+                        providerId ? (githubDetails?.branch ?? '') : '',
+                      )
+                      form.setValue(
+                        'githubSettings.repository',
+                        providerId ? (githubDetails?.repository ?? '') : '',
+                      )
+                      form.setValue(
+                        'githubSettings.owner',
+                        providerId ? (githubDetails?.owner ?? '') : '',
+                      )
+                    }
+                  }}
+                  className='flex gap-4'>
+                  <div className='has-data-[state=checked]:border-ring border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
+                    <RadioGroupItem
+                      value='public'
+                      id='r2'
+                      className='order-1 after:absolute after:inset-0'
+                    />
+                    <div className='flex grow items-start gap-3'>
+                      <div className='grid grow gap-2'>
+                        <Label>open source</Label>
 
-                            const provider = gitProviders?.data?.find(
-                              ({ id }) => id === value,
-                            )
+                        <p className='text-muted-foreground text-xs'>
+                          Automatic deployment is not available.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='has-data-[state=checked]:border-ring border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
+                    <RadioGroupItem
+                      value='private'
+                      id='r3'
+                      className='order-1 after:absolute after:inset-0'
+                    />
+                    <div className='flex grow items-start gap-3'>
+                      <div className='grid grow gap-2'>
+                        <Label>personal/organisation</Label>
 
-                            if (
-                              provider &&
-                              provider.github &&
-                              provider.github.installationId
-                            ) {
-                              const { appId, installationId, privateKey } =
-                                provider.github
-                              getRepositories({
-                                appId: `${appId}`,
-                                installationId,
-                                privateKey,
-                                limit: 100,
-                                page: 1,
-                              })
-                            } else {
-                              resetRepositoriesList()
-                            }
-
-                            // Resetting the repository, branch value whenever account is changed
-                            form.setValue('githubSettings.repository', '')
-                            form.setValue('githubSettings.branch', '')
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Repository field */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.repository'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <SelectSearch
-                          fieldValue={field.value}
-                          label='Repository'
-                          inputPlaceholder={
-                            repositoriesLoading
-                              ? 'fetching repositories...'
-                              : 'repository'
-                          }
-                          gitProviders={repositoryOptions}
-                          disabled={!provider || repositoriesLoading}
-                          onSelect={(value: any) => {
-                            field.onChange(value)
-
-                            if (repositoriesList) {
-                              const { repositories } = repositoriesList
-
-                              const providerId = form.getValues('provider')
-
-                              const provider = gitProviders?.data?.find(
-                                ({ id }) => id === providerId,
-                              )
-
-                              const owner = repositories.find(
-                                repo => repo.name === value,
-                              )?.owner?.login
-
-                              // On changing repository fetching branches based on that
-                              if (
-                                owner &&
-                                provider &&
-                                provider.github &&
-                                provider.github.installationId
-                              ) {
-                                getBranches({
-                                  owner,
-                                  appId: `${provider.github.appId}`,
-                                  installationId:
-                                    provider.github.installationId ?? '',
-                                  privateKey: provider.github.privateKey,
-                                  repository: value,
-                                  limit: 100,
-                                  page: 1,
-                                })
-                              } else {
-                                resetBranchesList()
-                              }
-
-                              form.setValue('githubSettings.owner', owner ?? '')
-                              // resetting branch name whenever repository is changed
-                              form.setValue('githubSettings.branch', '')
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <p className='text-muted-foreground text-xs'>
+                          Automatic deployment is enabled
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </RadioGroup>
               </div>
 
-              <div
-                className={`grid gap-4 ${type === 'update' ? 'md:grid-cols-4' : 'grid-cols-2'} `}>
-                <div className='mt-2 md:col-span-2'>
-                  {/* Branch field */}
-                  <FormField
-                    control={form.control}
-                    name='githubSettings.branch'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <SelectSearch
-                            fieldValue={field.value}
-                            label='Branch'
-                            inputPlaceholder={
-                              branchesLoading
-                                ? 'fetching branches...'
-                                : 'branch'
-                            }
-                            gitProviders={branchOptions}
-                            disabled={
-                              !provider ||
-                              branchesLoading ||
-                              !githubSettings?.repository
-                            }
-                            onSelect={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+              {repoType === 'public' ? (
+                <>
+                  <div
+                    className={`grid gap-4 ${type == 'update' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {/* Repository URL */}
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.repository'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Repository URL</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='text'
+                              name='repositoryURL'
+                              placeholder='ex: https://github.com/akhil-naidu/dflow'
+                              defaultValue={publicRepoURL}
+                              onChange={e => {
+                                const value = e.target.value
+                                const matched = value.match(githubURLRegex)
 
-                {/* Build path */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.buildPath'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Build path</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value || ''}
-                          onChange={handleBuildPathInputChange(field.onChange)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                if (matched) {
+                                  const username = matched[1]
+                                  const repository = matched[2]
 
-                {/* Port field */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.port'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Port</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          {...field}
-                          value={field.value || ''}
-                          onChange={e => {
-                            const value = e.target.value
-                              ? parseInt(e.target.value, 10)
-                              : ''
-                            field.onChange(value)
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          )}
-
-          <FormField
-            control={form.control}
-            name='builder'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Builder</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className='grid w-full grid-cols-2 gap-4'>
-                    {buildOptions.map(({ value, label, icon, description }) => (
-                      <FormItem
-                        className='flex w-full items-center space-x-3 space-y-0'
-                        key={value}>
-                        <FormControl>
-                          <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
-                            <RadioGroupItem
-                              value={value}
-                              id={value}
-                              aria-describedby={`${label}-builder`}
-                              className='order-1 after:absolute after:inset-0'
+                                  form.setValue(
+                                    'githubSettings.owner',
+                                    username,
+                                  )
+                                  form.setValue(
+                                    'githubSettings.repository',
+                                    repository,
+                                  )
+                                }
+                              }}
                             />
-                            <div className='flex grow items-start gap-3'>
-                              <div className='flex h-8 w-8 items-center justify-center'>
-                                {icon}
-                              </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                              <div className='grid grow gap-2'>
-                                <Label htmlFor={value}>{label}</Label>
+                    {/* Branch */}
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.branch'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Branch</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='text'
+                              name='branch'
+                              defaultValue={githubSettings?.branch ?? ''}
+                              placeholder='ex: main or commit-hash: 6492769'
+                              onChange={e => {
+                                const value = e.target.value
+                                form.setValue('githubSettings.branch', value)
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                                <p className='text-xs text-muted-foreground'>
-                                  {description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </FormControl>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <div className='grid gap-4 md:grid-cols-2'>
+                      {/* Port */}
+                      <FormField
+                        control={form.control}
+                        name='githubSettings.port'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Port</FormLabel>
+                            <FormControl>
+                              <Input
+                                type='number'
+                                {...field}
+                                value={field.value || ''}
+                                onChange={e => {
+                                  const value = e.target.value
+                                    ? parseInt(e.target.value, 10)
+                                    : ''
+                                  field.onChange(value)
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-          <div className='flex w-full justify-end'>
+                      {/* Build path */}
+                      <FormField
+                        control={form.control}
+                        name='githubSettings.buildPath'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Build path</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                value={field.value || ''}
+                                onChange={handleBuildPathInputChange(
+                                  field.onChange,
+                                )}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className='space-y-6'>
+                  <div
+                    className={`grid gap-4 ${type === 'update' ? 'grid-cols-2' : 'grid-cols-1'} `}>
+                    {/* Account field */}
+                    <FormField
+                      control={form.control}
+                      name='provider'
+                      render={({ field }) => (
+                        <FormItem className='-mt-2'>
+                          <FormControl>
+                            <SelectSearch
+                              fieldValue={field.value}
+                              label='Account'
+                              inputPlaceholder={'account'}
+                              gitProviders={gitProviders?.data ?? []}
+                              onSelect={(value: string) => {
+                                field.onChange(value)
+
+                                const provider = gitProviders?.data?.find(
+                                  ({ id }) => id === value,
+                                )
+
+                                if (
+                                  provider &&
+                                  provider.github &&
+                                  provider.github.installationId
+                                ) {
+                                  const { appId, installationId, privateKey } =
+                                    provider.github
+                                  getRepositories({
+                                    appId: `${appId}`,
+                                    installationId,
+                                    privateKey,
+                                    limit: 100,
+                                    page: 1,
+                                  })
+                                } else {
+                                  resetRepositoriesList()
+                                }
+
+                                // Resetting the repository, branch value whenever account is changed
+                                form.setValue('githubSettings.repository', '')
+                                form.setValue('githubSettings.branch', '')
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Repository field */}
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.repository'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <SelectSearch
+                              fieldValue={field.value}
+                              label='Repository'
+                              inputPlaceholder={
+                                repositoriesLoading
+                                  ? 'fetching repositories...'
+                                  : 'repository'
+                              }
+                              gitProviders={repositoryOptions}
+                              disabled={!provider || repositoriesLoading}
+                              onSelect={(value: any) => {
+                                field.onChange(value)
+
+                                if (repositoriesList) {
+                                  const { repositories } = repositoriesList
+
+                                  const providerId = form.getValues('provider')
+
+                                  const provider = gitProviders?.data?.find(
+                                    ({ id }) => id === providerId,
+                                  )
+
+                                  const owner = repositories.find(
+                                    repo => repo.name === value,
+                                  )?.owner?.login
+
+                                  // On changing repository fetching branches based on that
+                                  if (
+                                    owner &&
+                                    provider &&
+                                    provider.github &&
+                                    provider.github.installationId
+                                  ) {
+                                    getBranches({
+                                      owner,
+                                      appId: `${provider.github.appId}`,
+                                      installationId:
+                                        provider.github.installationId ?? '',
+                                      privateKey: provider.github.privateKey,
+                                      repository: value,
+                                      limit: 100,
+                                      page: 1,
+                                    })
+                                  } else {
+                                    resetBranchesList()
+                                  }
+
+                                  form.setValue(
+                                    'githubSettings.owner',
+                                    owner ?? '',
+                                  )
+                                  // resetting branch name whenever repository is changed
+                                  form.setValue('githubSettings.branch', '')
+                                }
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div
+                    className={`grid gap-4 ${type === 'update' ? 'md:grid-cols-4' : 'grid-cols-2'} `}>
+                    <div className='mt-2 md:col-span-2'>
+                      {/* Branch field */}
+                      <FormField
+                        control={form.control}
+                        name='githubSettings.branch'
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <SelectSearch
+                                fieldValue={field.value}
+                                label='Branch'
+                                inputPlaceholder={
+                                  branchesLoading
+                                    ? 'fetching branches...'
+                                    : 'branch'
+                                }
+                                gitProviders={branchOptions}
+                                disabled={
+                                  !provider ||
+                                  branchesLoading ||
+                                  !githubSettings?.repository
+                                }
+                                onSelect={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Build path */}
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.buildPath'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Build path</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={field.value || ''}
+                              onChange={handleBuildPathInputChange(
+                                field.onChange,
+                              )}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Port field */}
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.port'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Port</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              {...field}
+                              value={field.value || ''}
+                              onChange={e => {
+                                const value = e.target.value
+                                  ? parseInt(e.target.value, 10)
+                                  : ''
+                                field.onChange(value)
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <FormField
+                control={form.control}
+                name='builder'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Builder</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className='grid w-full grid-cols-2 gap-4'>
+                        {buildOptions.map(
+                          ({ value, label, icon, description }) => (
+                            <FormItem
+                              className='flex w-full items-center space-y-0 space-x-3'
+                              key={value}>
+                              <FormControl>
+                                <div className='has-data-[state=checked]:border-ring border-input relative flex h-full w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
+                                  <RadioGroupItem
+                                    value={value}
+                                    id={value}
+                                    aria-describedby={`${label}-builder`}
+                                    className='order-1 after:absolute after:inset-0'
+                                  />
+                                  <div className='flex grow items-start gap-3'>
+                                    <div className='flex h-8 w-8 items-center justify-center'>
+                                      {icon}
+                                    </div>
+
+                                    <div className='grid grow gap-2'>
+                                      <Label htmlFor={value}>{label}</Label>
+
+                                      <p className='text-muted-foreground text-xs'>
+                                        {description}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          ),
+                        )}
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </ScrollArea>
+
+          <DialogFooter className='mt-4'>
             <Button
               type='submit'
               disabled={
@@ -685,7 +699,7 @@ const AddGithubService = ({
               variant='outline'>
               Save
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Form>
     </motion.div>

@@ -16,6 +16,7 @@ import {
 import { getDockerRegistries } from '@/actions/dockerRegistry'
 import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -28,6 +29,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -156,217 +158,218 @@ const AddDockerService = ({
       exit={{ x: '100%', opacity: 1 }}
       className='w-full'>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleDockerNodeSubmit)}
-          className='w-full space-y-4'>
-          <div className='pt-2s space-y-2'>
-            <RadioGroup
-              value={imageType}
-              onValueChange={setImageType}
-              className='flex gap-6'>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='public' id='r2' />
-                <Label htmlFor='r2'>Public</Label>
+        <form onSubmit={form.handleSubmit(handleDockerNodeSubmit)}>
+          <ScrollArea className='h-[60vh]'>
+            <div className='space-y-4'>
+              <div className='space-y-2 pt-2'>
+                <RadioGroup
+                  value={imageType}
+                  onValueChange={setImageType}
+                  className='flex gap-6'>
+                  <div className='flex items-center space-x-2'>
+                    <RadioGroupItem value='public' id='r2' />
+                    <Label htmlFor='r2'>Public</Label>
+                  </div>
+
+                  <div className='flex items-center space-x-2'>
+                    <RadioGroupItem value='private' id='r3' />
+                    <Label htmlFor='r3'>Private</Label>
+                  </div>
+                </RadioGroup>
+
+                <p className='text-muted-foreground text-[0.8rem]'>
+                  Select private option to deploy private images
+                </p>
               </div>
+              <FormField
+                control={form.control}
+                name='dockerDetails.account'
+                render={({ field }) => (
+                  <FormItem
+                    className={imageType === 'private' ? 'block' : 'hidden'}>
+                    <FormLabel>Account</FormLabel>
 
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='private' id='r3' />
-                <Label htmlFor='r3'>Private</Label>
-              </div>
-            </RadioGroup>
-
-            <p className='text-muted-foreground text-[0.8rem]'>
-              Select private option to deploy private images
-            </p>
-          </div>
-          <FormField
-            control={form.control}
-            name='dockerDetails.account'
-            render={({ field }) => (
-              <FormItem
-                className={imageType === 'private' ? 'block' : 'hidden'}>
-                <FormLabel>Account</FormLabel>
-
-                <div className='flex items-center gap-2'>
-                  <Select
-                    key={dockerDetails?.account}
-                    onValueChange={value => {
-                      field.onChange(value)
-                    }}
-                    value={field.value}
-                    disabled={isPending || !accounts?.data?.length}>
-                    <FormControl>
-                      <div className='relative w-full'>
-                        <SelectTrigger className='w-full'>
-                          <SelectValue
-                            placeholder={
-                              isPending
-                                ? 'Fetching accounts...'
-                                : !accounts?.data?.length
-                                  ? 'No accounts found!'
-                                  : 'Select a account'
-                            }
-                          />
-                        </SelectTrigger>
-
-                        {dockerDetails?.account && (
-                          <div
-                            className='text-muted-foreground absolute top-2.5 right-8 cursor-pointer'
-                            onClick={e => {
-                              form.setValue('dockerDetails.account', '', {
-                                shouldValidate: true,
-                              })
-                            }}>
-                            <X size={16} />
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts.data?.map(({ id, name }) => (
-                        <SelectItem key={id} value={id}>
-                          {name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <FormDescription>
-                  Select a account to deploy private images
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name='dockerDetails.url'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL</FormLabel>
-                <FormControl>
-                  <Input {...field} value={field.value ?? ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className='space-y-2'>
-            <Label className='block'>Ports</Label>
-
-            {fields.length ? (
-              <div className='text-muted-foreground grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm'>
-                <p className='font-semibold'>Host Port</p>
-                <p className='font-semibold'>Container Port</p>
-                <p className='font-semibold'>Schema</p>
-              </div>
-            ) : null}
-
-            {fields.map((field, index) => {
-              return (
-                <div
-                  key={field?.id ?? index}
-                  className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4'>
-                  <FormField
-                    control={form.control}
-                    name={`dockerDetails.ports.${index}.hostPort`}
-                    render={({ field }) => (
-                      <FormItem>
+                    <div className='flex items-center gap-2'>
+                      <Select
+                        key={dockerDetails?.account}
+                        onValueChange={value => {
+                          field.onChange(value)
+                        }}
+                        value={field.value}
+                        disabled={isPending || !accounts?.data?.length}>
                         <FormControl>
-                          <Input
-                            {...field}
-                            onChange={e => {
-                              const value = e.target.value
-                                ? parseInt(e.target.value, 10)
-                                : 0
-                              field.onChange(value)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`dockerDetails.ports.${index}.containerPort`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            onChange={e => {
-                              const value = e.target.value
-                                ? parseInt(e.target.value, 10)
-                                : 0
-                              field.onChange(value)
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`dockerDetails.ports.${index}.scheme`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder='Select a schema' />
+                          <div className='relative w-full'>
+                            <SelectTrigger className='w-full'>
+                              <SelectValue
+                                placeholder={
+                                  isPending
+                                    ? 'Fetching accounts...'
+                                    : !accounts?.data?.length
+                                      ? 'No accounts found!'
+                                      : 'Select a account'
+                                }
+                              />
                             </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {schema.map(item => (
-                              <SelectItem value={item} key={item}>
-                                {item}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                            {dockerDetails?.account && (
+                              <div
+                                className='text-muted-foreground absolute top-2.5 right-8 cursor-pointer'
+                                onClick={e => {
+                                  form.setValue('dockerDetails.account', '', {
+                                    shouldValidate: true,
+                                  })
+                                }}>
+                                <X size={16} />
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <SelectContent>
+                          {accounts.data?.map(({ id, name }) => (
+                            <SelectItem key={id} value={id}>
+                              {name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <Button
-                    variant='ghost'
-                    type='button'
-                    size='icon'
-                    onClick={() => {
-                      removePort(index)
-                    }}>
-                    <Trash2 className='text-destructive' />
-                  </Button>
-                </div>
-              )
-            })}
+                    <FormDescription>
+                      Select a account to deploy private images
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => {
-                appendPort({
-                  containerPort: 3000,
-                  hostPort: 80,
-                  scheme: 'http',
-                })
-              }}>
-              <Plus /> Add
-            </Button>
-          </div>
+              <FormField
+                control={form.control}
+                name='dockerDetails.url'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value ?? ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className='flex w-full justify-end'>
+              <div className='space-y-2'>
+                <Label className='block'>Ports</Label>
+
+                {fields.length ? (
+                  <div className='text-muted-foreground grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4 text-sm'>
+                    <p className='font-semibold'>Host Port</p>
+                    <p className='font-semibold'>Container Port</p>
+                    <p className='font-semibold'>Schema</p>
+                  </div>
+                ) : null}
+
+                {fields.map((field, index) => {
+                  return (
+                    <div
+                      key={field?.id ?? index}
+                      className='grid grid-cols-[1fr_1fr_1fr_2.5rem] gap-4'>
+                      <FormField
+                        control={form.control}
+                        name={`dockerDetails.ports.${index}.hostPort`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                onChange={e => {
+                                  const value = e.target.value
+                                    ? parseInt(e.target.value, 10)
+                                    : 0
+                                  field.onChange(value)
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`dockerDetails.ports.${index}.containerPort`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                onChange={e => {
+                                  const value = e.target.value
+                                    ? parseInt(e.target.value, 10)
+                                    : 0
+                                  field.onChange(value)
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`dockerDetails.ports.${index}.scheme`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder='Select a schema' />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {schema.map(item => (
+                                  <SelectItem value={item} key={item}>
+                                    {item}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button
+                        variant='ghost'
+                        type='button'
+                        size='icon'
+                        onClick={() => {
+                          removePort(index)
+                        }}>
+                        <Trash2 className='text-destructive' />
+                      </Button>
+                    </div>
+                  )
+                })}
+
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => {
+                    appendPort({
+                      containerPort: 3000,
+                      hostPort: 80,
+                      scheme: 'http',
+                    })
+                  }}>
+                  <Plus /> Add
+                </Button>
+              </div>
+            </div>
+          </ScrollArea>
+          <DialogFooter className='flex w-full justify-end'>
             <Button
               variant={type === 'update' ? 'outline' : 'default'}
               type='submit'
@@ -376,7 +379,7 @@ const AddDockerService = ({
               }>
               {type === 'update' ? 'Save' : 'Add'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </Form>
     </motion.div>
