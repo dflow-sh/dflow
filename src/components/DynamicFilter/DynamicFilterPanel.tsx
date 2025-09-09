@@ -2,16 +2,11 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { ChevronDown, Filter, X } from 'lucide-react'
+import { Sheet, SheetContent, SheetHeader, SheetTrigger } from '../ui/sheet'
+import { Filter, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import {
   DynamicFilterEngine,
   FilterConfig,
@@ -106,7 +101,7 @@ export const DynamicFilterPanel = <T,>({
     <div className={`space-y-4 ${className}`}>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
-          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          {/* <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant='outline' className='gap-2'>
                 <Filter className='h-4 w-4' />
@@ -175,7 +170,71 @@ export const DynamicFilterPanel = <T,>({
                 </div>
               </ScrollArea>
             </PopoverContent>
-          </Popover>
+          </Popover> */}
+
+          <Sheet open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+            <SheetTrigger asChild>
+              <Button variant='outline' className='gap-2'>
+                <Filter className='h-4 w-4' />
+                Filters
+                {activeFilterCount > 0 && (
+                  <Badge
+                    variant='secondary'
+                    className='ml-1 h-5 w-5 items-center justify-center rounded-full p-0 text-xs'>
+                    {activeFilterCount}
+                  </Badge>
+                )}
+                {/* <ChevronDown className='h-3 w-3' /> */}
+              </Button>
+            </SheetTrigger>
+            <SheetContent side='left' className='w-full md:w-sm'>
+              <SheetHeader>
+                <div className='flex items-center justify-between border-b p-4'>
+                  <h4 className='font-medium'>Filters</h4>
+                  {activeFilterCount > 0 && (
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleClearAllFilters}
+                      className='h-6 px-2 text-xs'>
+                      Clear all
+                    </Button>
+                  )}
+                </div>
+              </SheetHeader>
+
+              <ScrollArea className='h-full overflow-auto pb-4'>
+                <div className='space-y-4 p-4'>
+                  {Object.entries(groupedSchema).map(
+                    ([category, configs], groupIndex) => (
+                      <div key={category}>
+                        {category !== 'main' && (
+                          <div className='mb-3'>
+                            <h5 className='text-muted-foreground text-sm font-medium tracking-wide uppercase'>
+                              {category}
+                            </h5>
+                          </div>
+                        )}
+
+                        {configs.map((config, index) => (
+                          <div key={config.key}>
+                            <FilterRenderer
+                              config={config as FilterConfig}
+                              value={filters[config.key]}
+                              onChange={value =>
+                                handleFilterChange(config.key, value)
+                              }
+                              className='mb-3'
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ),
+                  )}
+                </div>
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
 
           <span className='text-muted-foreground text-sm'>
             {filteredData.length} of {data.length} items
