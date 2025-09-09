@@ -131,8 +131,8 @@ const VolumesForm = ({ service }: { service: Service }) => {
           ? service.volumes
           : [
               {
+                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
                 containerPath: '',
-                hostPath: '',
               },
             ],
     },
@@ -159,7 +159,12 @@ const VolumesForm = ({ service }: { service: Service }) => {
       form.reset({
         volumes: service.volumes.length
           ? service.volumes
-          : [{ containerPath: '', hostPath: '' }],
+          : [
+              {
+                containerPath: '',
+                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
+              },
+            ],
       })
     }
   }, [service?.volumes])
@@ -198,7 +203,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
               variant='outline'
               onClick={() => {
                 appendVariable({
-                  hostPath: '',
+                  hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
                   containerPath: '',
                 })
               }}>
@@ -210,7 +215,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
               type='submit'
               disabled={isUpdateVolumePending}
               isLoading={isUpdateVolumePending}>
-              save
+              Save
             </Button>
           </div>
         </form>

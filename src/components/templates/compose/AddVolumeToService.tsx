@@ -135,7 +135,7 @@ const AddVolumeToService = ({
           ? service.volumes
           : [
               {
-                containerPath: '',
+                containerPath: `/var/lib/dokku/data/storage/${service.name}/default`,
                 hostPath: '',
               },
             ],
@@ -175,12 +175,12 @@ const AddVolumeToService = ({
     <div>
       <div onClick={() => setOpen(true)}>
         {type === 'contextMenu' ? (
-          <div className='flex cursor-pointer items-center justify-between rounded px-2 py-1 text-muted-foreground hover:bg-primary/10 hover:text-primary'>
+          <div className='text-muted-foreground hover:bg-primary/10 hover:text-primary flex cursor-pointer items-center justify-between rounded px-2 py-1'>
             Attach Volume
             <ChevronRight size={16} />
           </div>
         ) : (
-          <div className='grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4 hover:bg-card/30'>
+          <div className='hover:bg-card/30 grid w-full cursor-pointer grid-cols-[1fr_auto] items-center gap-4 overflow-y-hidden rounded-md py-3 pl-4'>
             <div className='flex items-center justify-between'>
               <div className='inline-flex items-center gap-x-2'>
                 {icon[service.type]}
@@ -212,7 +212,7 @@ const AddVolumeToService = ({
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className='space-y-2'>
                 {fields.length ? (
-                  <div className='grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-sm text-muted-foreground'>
+                  <div className='text-muted-foreground grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-sm'>
                     <p className='font-semibold'>Host Path</p>
                     <span />
                     <p className='font-semibold'>Container Path</p>
@@ -234,7 +234,7 @@ const AddVolumeToService = ({
                   variant='outline'
                   onClick={() => {
                     appendVariable({
-                      hostPath: '',
+                      hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
                       containerPath: '',
                     })
                   }}>
