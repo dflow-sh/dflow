@@ -287,8 +287,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2(@content-collections/core@0.8.2(typescript@5.7.3))(acorn@8.14.1)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@content-collections/next':
-        specifier: ^0.2.6
-        version: 0.2.6(@content-collections/core@0.8.2(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))
+        specifier: ^0.2.7
+        version: 0.2.7(@content-collections/core@0.8.2(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))
       '@eslint/eslintrc':
         specifier: ^3.2.0
         version: 3.3.1
@@ -529,8 +529,8 @@ packages:
     peerDependencies:
       typescript: ^5.0.2
 
-  '@content-collections/integrations@0.2.1':
-    resolution: {integrity: sha512-AyEcS2MmcOXSYt6vNmJsAiu6EBYjtNiwYGUVUmpG3llm8Gt8uiNrhIhlHyv3cuk+N8KJ2PWemLcMqtQJ+sW3bA==}
+  '@content-collections/integrations@0.3.0':
+    resolution: {integrity: sha512-He+TXQC94LO/1bNygTioh3J5H0K/mkFVPVkIrM5kHybprvi5bRmGa91ViZ6K6icFAzGH4jFD0iasR56fZcMGTA==}
     peerDependencies:
       '@content-collections/core': 0.x
 
@@ -541,8 +541,8 @@ packages:
       react: '>= 18'
       react-dom: '>= 18'
 
-  '@content-collections/next@0.2.6':
-    resolution: {integrity: sha512-gbVgtnXD7Qad95ENjL99LvrXoBtRTL8N0aZc5gz5NIK/yKBlpTZI6/CKVQMmROtGrqLOwcBdWlGUIzZPwpUBVA==}
+  '@content-collections/next@0.2.7':
+    resolution: {integrity: sha512-9IOyOgMrubACDw5ZQ4a2e68MoH+gvKv1J0H2Jbe2wcDqiuXvr4rIznPAYG/jRJLqKoT8PN2FrbrjeVt7cEbxTQ==}
     peerDependencies:
       '@content-collections/core': 0.x
       next: ^12 || ^13 || ^14 || ^15
@@ -7309,7 +7309,7 @@ snapshots:
       yaml: 2.7.1
       zod: 3.24.4
 
-  '@content-collections/integrations@0.2.1(@content-collections/core@0.8.2(typescript@5.7.3))':
+  '@content-collections/integrations@0.3.0(@content-collections/core@0.8.2(typescript@5.7.3))':
     dependencies:
       '@content-collections/core': 0.8.2(typescript@5.7.3)
 
@@ -7325,10 +7325,10 @@ snapshots:
       - acorn
       - supports-color
 
-  '@content-collections/next@0.2.6(@content-collections/core@0.8.2(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))':
+  '@content-collections/next@0.2.7(@content-collections/core@0.8.2(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))':
     dependencies:
       '@content-collections/core': 0.8.2(typescript@5.7.3)
-      '@content-collections/integrations': 0.2.1(@content-collections/core@0.8.2(typescript@5.7.3))
+      '@content-collections/integrations': 0.3.0(@content-collections/core@0.8.2(typescript@5.7.3))
       next: 15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4)
 
   '@date-fns/tz@1.2.0': {}

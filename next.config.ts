@@ -47,6 +47,4 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 }
 
-export default withContentCollections(
-  withBetterStack(withPayload(nextConfig, { devBundleServerPackages: false })),
-)
+export default withContentCollections(withBetterStack(withPayload(nextConfig)))
