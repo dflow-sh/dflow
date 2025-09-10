@@ -1,39 +1,11 @@
 import { notFound } from 'next/navigation'
-import React, { JSX, SVGProps } from 'react'
+import React from 'react'
 
 import { getServiceDetails } from '@/actions/pages/service'
-import {
-  ClickHouse,
-  Docker,
-  Git,
-  MariaDB,
-  MongoDB,
-  MySQL,
-  PostgreSQL,
-  Redis,
-} from '@/components/icons'
 import { Service } from '@/payload-types'
 import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
 
 import LayoutClient from './layout.client'
-
-type StatusType =
-  | NonNullable<NonNullable<Service['databaseDetails']>['type']>
-  | 'app'
-  | 'docker'
-
-const iconMapping: {
-  [key in StatusType]: (props: SVGProps<SVGSVGElement>) => JSX.Element
-} = {
-  postgres: PostgreSQL,
-  mariadb: MariaDB,
-  mongo: MongoDB,
-  mysql: MySQL,
-  redis: Redis,
-  clickhouse: ClickHouse,
-  app: props => <Git {...props} />,
-  docker: Docker,
-}
 
 const SuspendedServicePageLayout = async ({
   children,

@@ -280,6 +280,7 @@ export const publishTemplateAction = protectedClient
     if (!token) {
       throw new Error('Invalid dFlow account: No access token found')
     }
+
     const { docs: templates } = await payload.find({
       collection: 'templates',
       where: {
@@ -289,10 +290,12 @@ export const publishTemplateAction = protectedClient
         ],
       },
     })
+
     const template = templates.at(0)
     if (!template) {
       throw new Error('Invalid templateId: No access template.')
     }
+
     const response = await axios.post(
       `${DFLOW_CONFIG.URL}/api/templates`,
       {
@@ -308,6 +311,7 @@ export const publishTemplateAction = protectedClient
         timeout: 10000,
       },
     )
+
     if (response.data.doc) {
       try {
         await payload.update({
@@ -455,24 +459,29 @@ export const syncWithPublicTemplateAction = protectedClient
       throw new Error('Invalid templateId: No access to template.')
     }
 
-    await axios.patch(
-      `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
-      {
-        name: template.name,
-        description: template.description,
-        imageUrl: template.imageUrl,
-        services: template.services,
-      },
-      {
-        headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+    try {
+      await axios.patch(
+        `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+        {
+          name: template.name,
+          description: template.description,
+          imageUrl: template.imageUrl,
+          services: template.services,
         },
-        timeout: 10000,
-      },
-    )
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          },
+          timeout: 10000,
+        },
+      )
 
-    revalidatePath(`/${tenant.slug}/templates`)
-    return { success: true }
+      revalidatePath(`/${tenant.slug}/templates`)
+      return { success: true }
+    } catch (error) {
+      console.error('Error syncing with public template:', error)
+      throw new Error('Failed to sync with public template')
+    }
   })
 
 export const templateDeployAction = protectedClient
@@ -521,6 +530,7 @@ export const templateDeployAction = protectedClient
           )
         }
       }
+
       const { version } = (await payload.findByID({
         collection: 'servers',
         id: projectData?.serverId!,
@@ -619,7 +629,7 @@ export const templateDeployAction = protectedClient
       serviceNames[service.name] = finalName
     })
 
-    // Step 1: update service names & reference variables name to unique
+    // Step 1: update reference variables, volume paths to unique service names
     const updatedServices = services.map(service => {
       const serviceName = serviceNames[`${service?.name}`]
 
@@ -698,7 +708,22 @@ export const templateDeployAction = protectedClient
         variables?.push(variable)
       })
 
-      return { ...service, name: serviceName, variables }
+      const volumes = service?.volumes
+        ? service.volumes?.map(volume => {
+            if (volume.hostPath.startsWith('/var/lib/dokku/data/storage/')) {
+              const newHostPath = volume.hostPath.replace(
+                service.name,
+                serviceName,
+              )
+
+              return { ...volume, hostPath: newHostPath }
+            }
+
+            return volume
+          })
+        : []
+
+      return { ...service, name: serviceName, variables, volumes }
     })
 
     let createdServices: Service[] = []

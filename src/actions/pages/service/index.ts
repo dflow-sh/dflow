@@ -48,44 +48,56 @@ export const getServiceDeploymentsBackups = protectedClient
       userTenant: { tenant },
     } = ctx
 
-    const [{ docs: services }, { docs: deployments }, { docs: backupsDocs }] =
-      await Promise.all([
-        payload.find({
-          collection: 'services',
-          where: {
-            and: [
-              {
-                id: {
-                  equals: id,
-                },
+    const [{ docs: services }, { docs: deployments }] = await Promise.all([
+      payload.find({
+        collection: 'services',
+        where: {
+          and: [
+            {
+              id: {
+                equals: id,
               },
-              {
-                'tenant.slug': {
-                  equals: tenant.slug,
-                },
+            },
+            {
+              'tenant.slug': {
+                equals: tenant.slug,
               },
-            ],
-          },
-        }),
-        payload.find({
-          collection: 'deployments',
-          pagination: false,
-          where: {
-            service: {
-              equals: id,
             },
+          ],
+        },
+      }),
+      payload.find({
+        collection: 'deployments',
+        pagination: false,
+        where: {
+          service: {
+            equals: id,
           },
-        }),
-        payload.find({
-          collection: 'backups',
-          where: {
-            service: {
-              equals: id,
-            },
-          },
-        }),
-      ])
+        },
+      }),
+    ])
     const service = services.at(0)
 
-    return { service, deployments, backupsDocs }
+    return { service, deployments }
+  })
+
+export const getServiceBackups = protectedClient
+  .metadata({
+    actionName: 'getServiceBackups',
+  })
+  .schema(getServiceDetailsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const { payload } = ctx
+
+    const { docs: backups } = await payload.find({
+      collection: 'backups',
+      where: {
+        service: {
+          equals: id,
+        },
+      },
+    })
+
+    return backups
   })

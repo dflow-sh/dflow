@@ -149,7 +149,8 @@ export const getActionAccess = {
 
   // Services actions
   getServiceDetails: ['services.read'],
-  getServiceDeploymentsBackups: ['services.read', 'backups.read'],
+  getServiceDeploymentsBackups: ['services.read'],
+  getServiceBackups: ['backups.read'],
   createServiceAction: ['services.create', 'projects.read', 'services.read'],
   createServiceWithPluginAction: [
     'servers.read',
@@ -194,7 +195,7 @@ export const getActionAccess = {
   generateOAuthClientSecretAction: ['servers.read'],
 
   //  Backup actions
-  getAllBackupsAction: ['backups.read'],
+  getAllBackupsAction: ['backups.read', 'backups.update'],
   internalBackupAction: ['backups.create', 'services.read'],
   internalRestoreAction: ['backups.read', 'services.read', 'backups.update'],
   internalDbDeleteAction: ['services.read', 'backups.delete', 'backups.read'],

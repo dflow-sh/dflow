@@ -1,7 +1,10 @@
 import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
-import { getServiceDeploymentsBackups } from '@/actions/pages/service'
+import {
+  getServiceBackups,
+  getServiceDeploymentsBackups,
+} from '@/actions/pages/service'
 import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
@@ -30,7 +33,7 @@ interface PageProps {
 }
 
 const SuspendedPage = async ({ params, searchParams }: PageProps) => {
-  const { serviceId, id, organisation } = await params
+  const { serviceId } = await params
 
   const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
   const { tab } = await loadServicePageTabs(searchParams)
@@ -38,7 +41,8 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   if (!serviceDetails?.data?.service || serviceDetails?.serverError) {
     return <AccessDeniedAlert error={serviceDetails?.serverError!} />
   }
-  const { service, deployments, backupsDocs } = serviceDetails.data
+
+  const { service, deployments } = serviceDetails.data
 
   const server =
     typeof service.project === 'object' ? service.project.server : ''
@@ -90,6 +94,14 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
       )
 
     case 'backups':
+      const backupsResponse = await getServiceBackups({ id: serviceId })
+
+      if (backupsResponse?.serverError) {
+        return <AccessDeniedAlert error={serviceDetails?.serverError!} />
+      }
+
+      const backupsDocs = backupsResponse?.data ?? []
+
       return (
         <Backup
           databaseDetails={databaseDetails}
