@@ -101,6 +101,21 @@ const EditServiceName = ({
               )
             : []
 
+          const updatedVolumes = Array.isArray(node.data?.volumes)
+            ? node.data.volumes.map(
+                (volume: NonNullable<ServiceNode['volumes']>[number]) => {
+                  const updatedValue = volume?.hostPath.replace(
+                    new RegExp(
+                      `(\\/var\\/lib\\/dokku\\/data\\/storage\\/)${oldServiceName}(\\/.*)`,
+                      'g',
+                    ),
+                    `$1${data.name}$2`,
+                  )
+                  return { ...volume, hostPath: updatedValue }
+                },
+              )
+            : []
+
           return {
             ...node,
             data: {
@@ -108,6 +123,7 @@ const EditServiceName = ({
               name: data.name,
               description: data.description,
               variables: updatedVariables,
+              volumes: updatedVolumes,
             },
           }
         }
@@ -153,7 +169,7 @@ const EditServiceName = ({
         {type === 'sideBar' ? (
           <div
             className={cn(
-              'group inline-flex items-center gap-x-2 rounded px-2 py-1 hover:bg-muted-foreground/10',
+              'group hover:bg-muted-foreground/10 inline-flex items-center gap-x-2 rounded px-2 py-1',
             )}>
             <p className='grow truncate'>{service.name}</p>
             <SquarePen
@@ -164,7 +180,7 @@ const EditServiceName = ({
         ) : (
           <div
             className={cn(
-              'rounded px-2 py-1 text-muted-foreground hover:bg-primary/10 hover:text-primary',
+              'text-muted-foreground hover:bg-primary/10 hover:text-primary rounded px-2 py-1',
             )}>
             Update Name
           </div>

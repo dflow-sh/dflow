@@ -31,6 +31,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { slugifyWithUnderscore } from '@/lib/slugify'
 
 import { VolumesType, volumesSchema } from './types'
@@ -135,8 +136,8 @@ const AddVolumeToService = ({
           ? service.volumes
           : [
               {
-                containerPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-                hostPath: '',
+                containerPath: '',
+                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
               },
             ],
     },
@@ -200,7 +201,7 @@ const AddVolumeToService = ({
           }
           setOpen(isOpen)
         }}>
-        <DialogContent className='w-full md:w-2xl'>
+        <DialogContent className='max-w-3xl sm:w-full'>
           <DialogHeader>
             <DialogTitle>Manage Volumes</DialogTitle>
             <DialogDescription>
@@ -218,31 +219,35 @@ const AddVolumeToService = ({
                     <p className='font-semibold'>Container Path</p>
                   </div>
                 ) : null}
-                {fields.map((field, index) => {
-                  return (
-                    <HostContainerPair
-                      key={field.id}
-                      id={index}
-                      removeVariable={removeVariable}
-                      serviceName={service.name}
-                    />
-                  )
-                })}
+                <ScrollArea className='h-72'>
+                  <div className='space-y-2 p-1'>
+                    {fields.map((field, index) => {
+                      return (
+                        <HostContainerPair
+                          key={field.id}
+                          id={index}
+                          removeVariable={removeVariable}
+                          serviceName={service.name}
+                        />
+                      )
+                    })}
 
-                <Button
-                  type='button'
-                  variant='outline'
-                  onClick={() => {
-                    appendVariable({
-                      hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-                      containerPath: '',
-                    })
-                  }}>
-                  <Plus /> New Volume
-                </Button>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      onClick={() => {
+                        appendVariable({
+                          hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
+                          containerPath: '',
+                        })
+                      }}>
+                      <Plus /> New Volume
+                    </Button>
+                  </div>
+                </ScrollArea>
               </div>
               <DialogFooter>
-                <Button type='submit'>save</Button>
+                <Button type='submit'>Save</Button>
               </DialogFooter>
             </form>
           </Form>
