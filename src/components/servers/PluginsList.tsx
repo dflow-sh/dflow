@@ -4,6 +4,7 @@ import RefreshButton from '../RefreshButton'
 import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Switch } from '../ui/switch'
 import {
   Download,
   LucideIcon,
@@ -198,6 +199,8 @@ const PluginCard = ({
 
   const Icon = 'value' in plugin ? iconMapping[plugin.value] : Plug2
 
+  const isPluginEnabled = installedPlugin?.status === 'enabled'
+
   return (
     <>
       <Card className='h-full' key={pluginName}>
@@ -219,31 +222,58 @@ const PluginCard = ({
         <CardContent
           className={`flex w-full items-center justify-between pt-4`}>
           {installedPlugin ? (
-            <div className='space-x-2'>
-              <Button
-                variant='outline'
-                disabled={
-                  !notCustomPlugin ||
-                  isDeletingPlugin ||
-                  triggeredPluginDeletion ||
-                  isCheckingUsage
-                }
-                onClick={handlePluginUninstall}>
-                <Trash2 />
-                {isCheckingUsage
-                  ? 'Checking...'
-                  : isDeletingPlugin || triggeredPluginDeletion
-                    ? 'Uninstalling...'
-                    : 'Uninstall'}
-              </Button>
+            <div className='flex w-full items-center justify-between'>
+              <div className='space-x-2'>
+                <Button
+                  variant='outline'
+                  disabled={
+                    !notCustomPlugin ||
+                    isDeletingPlugin ||
+                    triggeredPluginDeletion ||
+                    isCheckingUsage
+                  }
+                  onClick={handlePluginUninstall}>
+                  <Trash2 />
+                  {isCheckingUsage
+                    ? 'Checking...'
+                    : isDeletingPlugin || triggeredPluginDeletion
+                      ? 'Uninstalling...'
+                      : 'Uninstall'}
+                </Button>
 
-              {'hasConfig' in plugin && plugin.hasConfig && (
-                <PluginConfigurationForm plugin={installedPlugin}>
-                  <Button variant='outline' size='icon'>
-                    <Settings />
-                  </Button>
-                </PluginConfigurationForm>
-              )}
+                {'hasConfig' in plugin && plugin.hasConfig && (
+                  <PluginConfigurationForm plugin={installedPlugin}>
+                    <Button variant='outline' size='icon'>
+                      <Settings />
+                    </Button>
+                  </PluginConfigurationForm>
+                )}
+              </div>
+
+              {/* Switch to enable plugin (disable functionality restricted) */}
+              <Switch
+                disabled={
+                  !notCustomPlugin || isUpdatingPluginStatus || isPluginEnabled // Disable switch when plugin is already enabled
+                }
+                checked={isPluginEnabled}
+                onCheckedChange={enabled => {
+                  // Only allow enabling, not disabling
+                  if (enabled && notCustomPlugin) {
+                    togglePluginStatus({
+                      pluginName: plugin.value,
+                      pluginURL: plugin.githubURL,
+                      enabled: true,
+                      serverId: server.id,
+                    })
+                  } else if (!enabled) {
+                    // Show a toast message when user tries to disable
+                    toast.warning('Plugin cannot be disabled', {
+                      description:
+                        'Use the uninstall button to remove the plugin',
+                    })
+                  }
+                }}
+              />
             </div>
           ) : (
             <Button
