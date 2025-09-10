@@ -13,6 +13,7 @@ import { addInstallPluginQueue } from '@/queues/plugin/install'
 import { addTogglePluginQueue } from '@/queues/plugin/toggle'
 
 import {
+  checkPluginUsageSchema,
   configureLetsencryptPluginSchema,
   installAndConfigureLetsencryptPluginSchema,
   installPluginSchema,
@@ -200,6 +201,51 @@ export const deletePluginAction = protectedClient
     if (queueResponse.id) {
       return { success: true }
     }
+  })
+
+export const checkPluginUsageAction = protectedClient
+  .metadata({
+    actionName: 'checkPluginUsageAction',
+  })
+  .schema(checkPluginUsageSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { payload } = ctx
+    const { serverId, connectionType, pluginName, category } = clientInput
+
+    console.log({ serverId, pluginName, category })
+
+    if (category === 'database') {
+      const { docs: services } = await payload.find({
+        collection: 'services',
+        where: {
+          'databaseDetails.type': {
+            equals: pluginName,
+          },
+          'project.server': {
+            equals: serverId,
+          },
+        },
+        depth: 1,
+      })
+
+      if (services.length > 0) {
+        return { success: true, inUse: true, services }
+      } else {
+        return { success: true, inUse: false, services: [] }
+      }
+    }
+
+    if (category === 'messageQueue') {
+      return { success: true, inUse: false, services: [] }
+    }
+
+    if (category === 'domain') {
+      if (pluginName === 'letsencrypt' && connectionType === 'ssh') {
+        return { success: true, inUse: true, services: [] }
+      }
+    }
+
+    return { success: true, inUse: false, services: [] }
   })
 
 export const configureLetsencryptPluginAction = protectedClient

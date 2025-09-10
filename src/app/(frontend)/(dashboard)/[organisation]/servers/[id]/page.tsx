@@ -159,7 +159,13 @@ const GeneralTab = ({ server }: { server: ServerType }) => {
   )
 }
 
-const PluginsTab = ({ server }: { server: ServerType }) => {
+const PluginsTab = ({
+  server,
+  organisationSlug,
+}: {
+  server: ServerType
+  organisationSlug: string
+}) => {
   const dokkuInstalled =
     server.connection?.status === 'success' &&
     supportedLinuxVersions.includes(server.os.version ?? '') &&
@@ -169,7 +175,7 @@ const PluginsTab = ({ server }: { server: ServerType }) => {
     <div className='space-y-6'>
       <div className='space-y-4'>
         {dokkuInstalled ? (
-          <PluginsList server={server} />
+          <PluginsList server={server} organisationSlug={organisationSlug} />
         ) : (
           <Alert variant='default'>
             <TriangleAlert className='h-4 w-4' />
@@ -294,7 +300,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const [syncParams, syncSearchParams] = use(
     Promise.all([params, searchParams]),
   )
-  const { id } = syncParams
+  const { id, organisation } = syncParams
   const { refreshServerDetails } = syncSearchParams
 
   const { tab } = use(loadServerPageTabs(searchParams))
@@ -325,7 +331,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       case 'plugins':
         return (
           <Suspense fallback={<PluginsTabSkeleton />}>
-            <PluginsTab server={server} />
+            <PluginsTab server={server} organisationSlug={organisation} />
           </Suspense>
         )
 
