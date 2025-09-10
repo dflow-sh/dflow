@@ -74,7 +74,8 @@ const ReactFlowConfig = ({
           variant={BackgroundVariant.Cross}
           lineWidth={0.2}
           gap={32}
-          className='bg-base-100 text-base-content/80'
+          bgColor='var(--background)'
+          color='var(--foreground)'
         />
         <Controls position='center-left' className='bg-primary-foreground' />
         {children}
