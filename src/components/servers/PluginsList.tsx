@@ -4,7 +4,6 @@ import RefreshButton from '../RefreshButton'
 import { PluginListType, pluginList } from '../plugins'
 import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Switch } from '../ui/switch'
 import {
   Download,
   LucideIcon,
@@ -15,11 +14,12 @@ import {
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
-import { JSX, SVGProps } from 'react'
+import { JSX, SVGProps, useState } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 import {
+  checkPluginUsageAction,
   deletePluginAction,
   installPluginAction,
   syncPluginAction,
@@ -40,6 +40,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
 
 import PluginConfigurationForm from './PluginConfigurationForm'
+import { PluginUninstallDialog } from './PluginUninstallDialog'
 
 // Job Queued
 // Queued job to install plugin
@@ -77,10 +78,20 @@ const iconMapping: {
 const PluginCard = ({
   plugin,
   server,
+  category,
+  organisationSlug,
 }: {
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
   server: ServerType
+  category: string
+  organisationSlug: string
 }) => {
+  const [showUninstallDialog, setShowUninstallDialog] = useState(false)
+  const [usageData, setUsageData] = useState<{
+    inUse: boolean
+    services: any[]
+  } | null>(null)
+
   const {
     execute: installPlugin,
     isPending: isInstallingPlugin,
@@ -108,12 +119,33 @@ const PluginCard = ({
         toast.info('Job queued', {
           description: `Queued job to uninstall ${input.pluginName} plugin`,
         })
+        setShowUninstallDialog(false)
+        setUsageData(null)
       }
     },
     onError: ({ error }) => {
       toast.error(`Failed to delete plugin: ${error?.serverError}`)
+      setShowUninstallDialog(false)
     },
   })
+
+  const { execute: checkPluginUsage, isPending: isCheckingUsage } = useAction(
+    checkPluginUsageAction,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.success) {
+          setUsageData({
+            inUse: data.inUse,
+            services: data.services,
+          })
+          setShowUninstallDialog(true)
+        }
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to check plugin usage: ${error?.serverError}`)
+      },
+    },
+  )
 
   const { execute: togglePluginStatus, isPending: isUpdatingPluginStatus } =
     useAction(togglePluginStatusAction, {
@@ -129,6 +161,32 @@ const PluginCard = ({
       },
     })
 
+  const handlePluginUninstall = () => {
+    if (notCustomPlugin) {
+      checkPluginUsage({
+        serverId: params.id,
+        category,
+        pluginName: plugin.value,
+        connectionType: server.preferConnectionType,
+      })
+    }
+  }
+
+  const handleConfirmUninstall = () => {
+    if (notCustomPlugin) {
+      deletePlugin({
+        pluginName: plugin.value,
+        pluginURL: plugin.githubURL,
+        serverId: params.id,
+      })
+    }
+  }
+
+  const handleCloseDialog = () => {
+    setShowUninstallDialog(false)
+    setUsageData(null)
+  }
+
   const params = useParams<{ id: string }>()
   const defaultPlugins = server.plugins ?? []
   const notCustomPlugin = 'value' in plugin
@@ -141,90 +199,102 @@ const PluginCard = ({
   const Icon = 'value' in plugin ? iconMapping[plugin.value] : Plug2
 
   return (
-    <Card className='h-full' key={pluginName}>
-      <CardHeader className='w-full flex-row items-start justify-between'>
-        <div>
-          <CardTitle className='flex items-center gap-2'>
-            <Icon className='size-5' />
-            {pluginName}
+    <>
+      <Card className='h-full' key={pluginName}>
+        <CardHeader className='w-full flex-row items-start justify-between'>
+          <div>
+            <CardTitle className='flex items-center gap-2'>
+              <Icon className='size-5' />
+              {pluginName}
 
-            {installedPlugin && (
-              <code className='text-muted-foreground font-normal'>
-                {`(${installedPlugin.version})`}
-              </code>
-            )}
-          </CardTitle>
-        </div>
-      </CardHeader>
+              {installedPlugin && (
+                <code className='text-muted-foreground font-normal'>
+                  {`(${installedPlugin.version})`}
+                </code>
+              )}
+            </CardTitle>
+          </div>
+        </CardHeader>
 
-      <CardContent className={`flex w-full items-center justify-between pt-4`}>
-        {installedPlugin ? (
-          <div className='space-x-2'>
+        <CardContent
+          className={`flex w-full items-center justify-between pt-4`}>
+          {installedPlugin ? (
+            <div className='space-x-2'>
+              <Button
+                variant='outline'
+                disabled={
+                  !notCustomPlugin ||
+                  isDeletingPlugin ||
+                  triggeredPluginDeletion ||
+                  isCheckingUsage
+                }
+                onClick={handlePluginUninstall}>
+                <Trash2 />
+                {isCheckingUsage
+                  ? 'Checking...'
+                  : isDeletingPlugin || triggeredPluginDeletion
+                    ? 'Uninstalling...'
+                    : 'Uninstall'}
+              </Button>
+
+              {'hasConfig' in plugin && plugin.hasConfig && (
+                <PluginConfigurationForm plugin={installedPlugin}>
+                  <Button variant='outline' size='icon'>
+                    <Settings />
+                  </Button>
+                </PluginConfigurationForm>
+              )}
+            </div>
+          ) : (
             <Button
               variant='outline'
-              disabled={
-                !notCustomPlugin || isDeletingPlugin || triggeredPluginDeletion
-              }
+              disabled={isInstallingPlugin || triggeredPluginInstall}
+              isLoading={isInstallingPlugin}
               onClick={() => {
                 if (notCustomPlugin) {
-                  deletePlugin({
+                  installPlugin({
                     pluginName: plugin.value,
                     pluginURL: plugin.githubURL,
                     serverId: params.id,
                   })
                 }
               }}>
-              <Trash2 />
-              {isDeletingPlugin || triggeredPluginDeletion
-                ? 'Uninstalling...'
-                : 'Uninstall'}
+              <Download />
+              {triggeredPluginInstall ? 'Installing' : 'Install'}
             </Button>
+          )}
 
-            {'hasConfig' in plugin && plugin.hasConfig && (
-              <PluginConfigurationForm plugin={installedPlugin}>
-                <Button variant='outline' size='icon'>
-                  <Settings />
-                </Button>
-              </PluginConfigurationForm>
-            )}
-          </div>
-        ) : (
-          <Button
-            variant='outline'
-            disabled={isInstallingPlugin || triggeredPluginInstall}
-            isLoading={isInstallingPlugin}
-            onClick={() => {
-              if (notCustomPlugin) {
-                installPlugin({
-                  pluginName: plugin.value,
-                  pluginURL: plugin.githubURL,
-                  serverId: params.id,
-                })
-              }
-            }}>
-            <Download />
-            {triggeredPluginInstall ? 'Installing' : 'Install'}
-          </Button>
-        )}
+          {/* For now only uninstall is enough */}
+          {/* {installedPlugin && (
+            <Switch
+              disabled={!notCustomPlugin || isUpdatingPluginStatus}
+              defaultChecked={installedPlugin.status === 'enabled'}
+              onCheckedChange={enabled => {
+                if (notCustomPlugin) {
+                  togglePluginStatus({
+                    pluginName: plugin.value,
+                    pluginURL: plugin.githubURL,
+                    enabled,
+                    serverId: server.id,
+                  })
+                }
+              }}
+            />
+          )} */}
+        </CardContent>
+      </Card>
 
-        {installedPlugin && (
-          <Switch
-            disabled={!notCustomPlugin || isUpdatingPluginStatus}
-            defaultChecked={installedPlugin.status === 'enabled'}
-            onCheckedChange={enabled => {
-              if (notCustomPlugin) {
-                togglePluginStatus({
-                  pluginName: plugin.value,
-                  pluginURL: plugin.githubURL,
-                  enabled,
-                  serverId: server.id,
-                })
-              }
-            }}
-          />
-        )}
-      </CardContent>
-    </Card>
+      <PluginUninstallDialog
+        isOpen={showUninstallDialog}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirmUninstall}
+        pluginName={pluginName}
+        category={category}
+        usageData={usageData}
+        isLoading={isDeletingPlugin}
+        organisationSlug={organisationSlug}
+      />
+    </>
   )
 }
 
@@ -232,24 +302,40 @@ const PluginSection = ({
   title,
   plugins,
   server,
+  organisationSlug,
 }: {
   title: string
   plugins: PluginListType[] | NonNullable<ServerType['plugins']>
   server: ServerType
+  organisationSlug: string
 }) => {
   return (
     <div className='space-y-2 pt-2'>
       <h5 className='font-semibold capitalize'>{title}</h5>
       <div className='grid gap-x-4 gap-y-8 md:grid-cols-3'>
         {plugins.map((plugin, index) => {
-          return <PluginCard plugin={plugin} key={index} server={server} />
+          return (
+            <PluginCard
+              plugin={plugin}
+              key={index}
+              server={server}
+              category={title}
+              organisationSlug={organisationSlug}
+            />
+          )
         })}
       </div>
     </div>
   )
 }
 
-const PluginsList = ({ server }: { server: ServerType }) => {
+const PluginsList = ({
+  server,
+  organisationSlug,
+}: {
+  server: ServerType
+  organisationSlug: string
+}) => {
   const { execute, isPending } = useAction(syncPluginAction, {
     onSuccess: ({ data }) => {
       if (data?.success) {
@@ -300,6 +386,7 @@ const PluginsList = ({ server }: { server: ServerType }) => {
           title={category}
           server={server}
           plugins={list}
+          organisationSlug={organisationSlug}
           key={category}
         />
       ))}
@@ -309,6 +396,7 @@ const PluginsList = ({ server }: { server: ServerType }) => {
           title='Custom Plugins'
           server={server}
           plugins={customPlugins}
+          organisationSlug={organisationSlug}
         />
       ) : null}
     </div>

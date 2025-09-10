@@ -175,6 +175,7 @@ export const getActionAccess = {
   clearServiceResourceReserveAction: ['services.read'],
   checkServerResourcesAction: ['services.read'],
   markDefaultServiceDomainAction: ['services.update'],
+  checkPluginUsageAction: ['services.read'],
 
   // combined read access
   getProjectDetails: ['projects.read', 'services.read'],

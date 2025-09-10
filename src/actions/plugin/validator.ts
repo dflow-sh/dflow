@@ -17,6 +17,13 @@ export const installPluginSchema = z.object({
   pluginURL: z.string(),
 })
 
+export const checkPluginUsageSchema = z.object({
+  serverId: z.string(),
+  category: z.string(),
+  pluginName: supportedPluginsSchema,
+  connectionType: z.enum(['ssh', 'tailscale']),
+})
+
 export const syncPluginSchema = z.object({
   serverId: z.string(),
 })
