@@ -6,7 +6,7 @@ import { Suspense } from 'react'
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import ServerTerminalClient from '@/components/ServerTerminalClient'
-import CreateProject from '@/components/project/CreateProject'
+import CreateProjectButton from '@/components/project/CreateProjectButton'
 import ProjectFiltersSection from '@/components/project/ProjectFiltersSection'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -113,14 +113,7 @@ const SuspendedDashboard = async ({
             Projects
           </div>
           <div className='flex items-center gap-3'>
-            {hasServers && (
-              <CreateProject servers={servers}>
-                <Button>
-                  <Plus size={16} />
-                  Create Project
-                </Button>
-              </CreateProject>
-            )}
+            {hasServers && <CreateProjectButton servers={servers} />}
           </div>
         </div>
 

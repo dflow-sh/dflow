@@ -384,13 +384,13 @@ const ServerCard = ({
     <>
       <div className='relative'>
         <Card
-          className={`h-full min-h-48 border-b-0 border-l-4 border-r-0 border-t-0 transition-all duration-200 hover:shadow-md ${serverStatus.borderColor}`}>
+          className={`h-full min-h-48 border-t-0 border-r-0 border-b-0 border-l-4 transition-all duration-200 hover:shadow-md ${serverStatus.borderColor}`}>
           {/* Header Section */}
           <CardHeader className='pb-0'>
             <div className='flex items-start justify-between'>
               <div className='min-w-0 flex-1'>
-                <div className='flex items-center gap-2'>
-                  <CardTitle className='mb-2 flex items-center gap-2'>
+                <div className='mb-2 flex items-center gap-2'>
+                  <CardTitle className='flex items-center gap-2'>
                     <ServerIcon className='h-5 w-5 shrink-0' />
                     <span className='truncate'>{server.name}</span>
                   </CardTitle>
@@ -401,7 +401,7 @@ const ServerCard = ({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span>
-                            <Lock className='h-4 w-4 text-yellow-500' />
+                            <Lock className='text-warning h-4 w-4' />
                           </span>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -436,7 +436,7 @@ const ServerCard = ({
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    className='cursor-pointer text-destructive'
+                    className='text-destructive cursor-pointer'
                     onClick={() => setOpen(true)}>
                     <Trash2 className='h-4 w-4' />
                     Delete
@@ -525,7 +525,7 @@ const ServerCard = ({
             <div className='grid grid-cols-1 gap-3'>
               {/* IP Address */}
               <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <div className='text-muted-foreground flex items-center gap-2 text-sm'>
                   <ipInfo.icon className='h-4 w-4' />
                   <span>{ipInfo.label}</span>
                 </div>
@@ -542,7 +542,7 @@ const ServerCard = ({
 
               {/* Provider */}
               <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <div className='text-muted-foreground flex items-center gap-2 text-sm'>
                   <Cloud className='h-4 w-4' />
                   <span>Provider</span>
                 </div>
@@ -555,14 +555,14 @@ const ServerCard = ({
               {server?.provider.toLowerCase() === 'dflow' &&
                 server?.dflowVpsDetails?.next_billing_date && (
                   <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                    <div className='text-muted-foreground flex items-center gap-2 text-sm'>
                       <Calendar className='h-4 w-4' />
                       <span>Next Billing</span>
                     </div>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className='z-10 cursor-help text-sm text-muted-foreground'>
+                          <span className='text-muted-foreground z-10 cursor-help text-sm'>
                             {format(
                               server?.dflowVpsDetails?.next_billing_date,
                               'MMM d, yyyy',
@@ -590,7 +590,7 @@ const ServerCard = ({
         <Link
           title={server.name}
           href={`/${organisationSlug}/servers/${server.id}`}
-          className='absolute left-0 top-0 z-0 h-full w-full'
+          className='absolute top-0 left-0 z-0 h-full w-full'
         />
       </div>
 
