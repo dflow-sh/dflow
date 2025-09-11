@@ -84,6 +84,11 @@ if [ -f .env ]; then
   printf ""
 fi
 
+if [ "$(id -u)" -ne 0 ]; then
+  echo "❌ This script must be run as root (try using: sudo $0)"
+  exit 1
+fi
+
 printf "${PURPLE}⛓️  Tailscale setup${NC}\n"
 printf "${GRAY}Sign-up for a free account at https://tailscale.com${NC}\n\n"
 
