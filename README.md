@@ -36,6 +36,7 @@ Run the following command to begin setup. It will guide you through configuring
 everything needed for your dFlow instance:
 
 ```bash
+# run command as root user
 curl -fsSL https://get.dflow.sh | bash
 ```
 

@@ -177,6 +177,18 @@ BESZEL_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOxrWddjHETJ7MMTIUqFXGoLv3WuKlH
 BESZEL_TOKEN=""
 
 TRAEFIK_EMAIL="$TRAEFIK_EMAIL"
+
+# optional integrations
+CF_DNS_API_TOKEN=""
+
+NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN=""
+NEXT_PUBLIC_BETTER_STACK_INGESTING_URL=""
+
+NEXT_PUBLIC_DISCORD_INVITE_URL=""
+
+RESEND_SENDER_EMAIL=""
+RESEND_SENDER_NAME=""
+RESEND_API_KEY=""
 EOF
 printf "📄 Created .env file\n"
 
@@ -288,5 +300,5 @@ if command -v docker >/dev/null 2>&1; then
 else
   printf "%b\n" "▬ Docker is not installed!\n"
   printf "%b\n" "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}\n"
-  printf "%b\n" "▬ After installation run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "%b\n" "▬ After installation run: ${BOLD}docker compose --env-file .env -p dflow up -d${NC}"
 fi
