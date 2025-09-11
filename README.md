@@ -7,11 +7,11 @@
 <br/>
 <br/>
 
-**dFlow** is a self-hosted platform for deploying and managing applications —
-similar to Vercel, Railway, or Heroku — but with full control over your
-infrastructure and data. It provides automated deployment workflows, container
+**dFlow** is a open source alternative to Railway, Heroku & Vercel. With full
+control over your infrastructure and data. Host and Scale `Apps`, `Databases` &
+`Storage` in your own cloud. Automated deployment workflows, container
 orchestration, and infrastructure management tools, all within your private
-environment.
+network.
 
 ## 🚀 Self-Hosting Guide
 
@@ -50,6 +50,10 @@ You'll be prompted to enter:
 
 - **Tailnet name** Found in the header after logging into
   [Tailscale](https://tailscale.com), e.g., `johndoe.github`
+
+- **Access Control** Update it under **Access Control Tab > JSON editor**. use
+  this
+  [configuration](https://github.com/dflow-sh/dflow/blob/main/TAILSCALE.md).
 
 - **Auth Key** Create one under **Settings > Personal > Keys**. Enable
   `Reusable` and `Ephemeral`.
