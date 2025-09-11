@@ -2,11 +2,13 @@
 
 import LayoutClient from '../layout.client'
 import { Users } from 'lucide-react'
+import { Suspense } from 'react'
 
 import { getTenantAction } from '@/actions/auth'
 import { getTeamMembersAction } from '@/actions/team'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import TeamView from '@/components/Team'
+import TeamSkeleton from '@/components/skeletons/TeamSkeleton'
 
 const TeamPage = async () => {
   const result = await getTeamMembersAction()
@@ -16,18 +18,20 @@ const TeamPage = async () => {
 
   return (
     <LayoutClient>
-      <section>
-        <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
-          <Users />
-          <h3>Team</h3>
-        </div>
+      <Suspense fallback={<TeamSkeleton />}>
+        <section>
+          <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+            <Users />
+            <h3>Team</h3>
+          </div>
 
-        {result?.serverError ? (
-          <AccessDeniedAlert className='mt-4' error={result?.serverError} />
-        ) : (
-          <TeamView teamMembers={teamMembers} tenant={tenant?.data} />
-        )}
-      </section>
+          {result?.serverError ? (
+            <AccessDeniedAlert className='mt-4' error={result?.serverError} />
+          ) : (
+            <TeamView teamMembers={teamMembers} tenant={tenant?.data} />
+          )}
+        </section>
+      </Suspense>
     </LayoutClient>
   )
 }

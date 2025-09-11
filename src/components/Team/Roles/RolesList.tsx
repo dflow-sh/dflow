@@ -74,7 +74,7 @@ const RoleActions = ({
           onClickCapture={e => {
             e.stopPropagation()
           }}
-          className='hover:bg-muted top-2 right-2 rounded-md border p-1'>
+          className='hover:bg-muted top-2 right-2 rounded-md border p-2'>
           <EllipsisVertical className='text-muted-foreground size-4' />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end'>
