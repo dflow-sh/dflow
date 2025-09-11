@@ -28,6 +28,16 @@ prompt_with_default() {
   eval "$var_name=\"\${input:-\$current_value}\""
 }
 
+confirm_or_abort() {
+  local prompt_text=$1
+
+  printf "%b" "$prompt_text"
+  read answer < /dev/tty
+  if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
+    exit 1
+  fi
+}
+
 {
     printf '%b\n' \
     '                                                  ' \
@@ -77,6 +87,10 @@ fi
 printf "${PURPLE}⛓️  Tailscale setup${NC}\n"
 printf "${GRAY}Sign-up for a free account at https://tailscale.com${NC}\n\n"
 
+printf "Access Control:\n"
+printf "${GRAY}▬ Go to Access Control tab, select JSON Editor option paste the configuration: https://github.com/dflow-sh/dflow/blob/main/TAILSCALE.md ${NC}\n"
+confirm_or_abort "Have you updated the Access Control settings? [y/n]:"
+printf "\n"
 
 printf "Enter your Tailnet name:\n"
 printf "${GRAY}▬ You can find your Tailnet name in the top header after logging in, example: ${BOLD}johndoe.github${NC}\n"
@@ -91,7 +105,7 @@ printf "\n"
 
 printf "Enter your OAuth key:\n"
 printf "${GRAY}▬ Go to settings tab, under tailnet settings tab you'll find OAuth clients option click on that!${NC}\n"
-printf "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write write option for Auth Keys scope and create client. example: tskey-client-xxxxxxx-xxxxxxx${NC}\n"
+printf "${GRAY}▬ Click Generate OAuth client, check read option for ALL scopes & check write option for Auth Keys scope, select tag:customer-machine create client. example: tskey-client-xxxxxxx-xxxxxxx${NC}\n"
 prompt_with_default "TAILSCALE_OAUTH_CLIENT_SECRET" ">"
 printf "\n"
 
