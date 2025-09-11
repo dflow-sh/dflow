@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Tag, TagInput } from 'emblor'
 import {
   CheckCircle,
   ChevronDown,
@@ -14,7 +13,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createRoleAction } from '@/actions/roles'
-import { createRoleSchema, createRoleType } from '@/actions/roles/validator'
+import { CreateRoleType, createRoleSchema } from '@/actions/roles/validator'
 import {
   AccordionContent,
   AccordionItem,
@@ -29,25 +28,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { Form } from '@/components/ui/form'
 
 import PermissionsTable from './PermissionsTable'
+import RoleDetails from './RoleDetails'
 
 const CreateNewRole = ({
   setOpenItem,
@@ -55,16 +39,8 @@ const CreateNewRole = ({
   setOpenItem: (value: string | undefined) => void
 }) => {
   const [createStep, setCreateStep] = useState(1)
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
 
-  const [tags, setTags] = useState<Tag[]>([
-    {
-      id: '1',
-      text: 'Custom',
-    },
-  ])
-
-  const form = useForm<createRoleType>({
+  const form = useForm<CreateRoleType>({
     resolver: zodResolver(createRoleSchema),
     defaultValues: {
       name: '',
@@ -146,7 +122,7 @@ const CreateNewRole = ({
     },
   })
 
-  const { control, setValue } = form
+  const { control } = form
 
   const { name, description, type } = useWatch({ control: control })
 
@@ -165,7 +141,7 @@ const CreateNewRole = ({
     },
   )
 
-  const onSubmit = (data: createRoleType) => {
+  const onSubmit = (data: CreateRoleType) => {
     createRole({
       ...data,
     })
@@ -233,115 +209,7 @@ const CreateNewRole = ({
                     </CardDescription>
                   </CardHeader>
                   <CardContent className='px-0'>
-                    <div className='space-y-4'>
-                      <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                        <FormField
-                          name='name'
-                          control={control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Role Name{' '}
-                                <span className='text-destructive'>*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Input placeholder='Admin' {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          name='type'
-                          control={control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Department{' '}
-                                <span className='text-destructive'>*</span>
-                              </FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue='engineering'>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder='Select department' />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value='engineering'>
-                                      Engineering
-                                    </SelectItem>
-                                    <SelectItem value='management'>
-                                      Management
-                                    </SelectItem>
-                                    <SelectItem value='marketing'>
-                                      Marketing
-                                    </SelectItem>
-                                    <SelectItem value='finance'>
-                                      Finance
-                                    </SelectItem>
-                                    <SelectItem value='sales'>Sales</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name='tags'
-                        render={({ field }) => (
-                          <FormItem className='flex flex-col items-start'>
-                            <FormLabel className='text-left'>Tags</FormLabel>
-                            <FormControl>
-                              <TagInput
-                                {...field}
-                                value={field.value ?? undefined}
-                                placeholder='Enter a tag'
-                                tags={tags}
-                                setTags={newTags => {
-                                  setTags(newTags)
-                                  if (Array.isArray(newTags)) {
-                                    setValue(
-                                      'tags',
-                                      newTags?.map(tag => tag.text),
-                                    )
-                                  }
-                                }}
-                                activeTagIndex={activeTagIndex}
-                                setActiveTagIndex={setActiveTagIndex}
-                                inlineTags={false}
-                                inputFieldPosition='top'
-                              />
-                            </FormControl>
-
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        name='description'
-                        control={control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Role Description{' '}
-                              <span className='text-destructive'>*</span>
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                placeholder='Complete access to applications'
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                    <RoleDetails form={form} />
                   </CardContent>
                 </Card>
               )}
@@ -359,7 +227,7 @@ const CreateNewRole = ({
                   </CardHeader>
                   <CardContent className='px-0'>
                     <div className='border-border overflow-hidden rounded-lg border'>
-                      <PermissionsTable form={form as any} />
+                      <PermissionsTable form={form} />
                     </div>
                   </CardContent>
                 </Card>
@@ -396,7 +264,7 @@ const CreateNewRole = ({
                       onClick={() => {
                         setCreateStep(createStep + 1)
                       }}
-                      disabled={!name || !description || !type}
+                      disabled={!name?.trim() || !description?.trim() || !type}
                       className='gap-2'>
                       Next Step
                       <ChevronDown className='h-4 w-4 -rotate-90' />

@@ -1,6 +1,6 @@
 import { UseFormReturn, useWatch } from 'react-hook-form'
 
-import { PermissionsTableType } from '@/actions/roles/validator'
+import { CreateRoleType } from '@/actions/roles/validator'
 import { Checkbox } from '@/components/ui/check-box'
 import {
   FormControl,
@@ -28,7 +28,7 @@ import {
 const PermissionsTable = ({
   form,
 }: {
-  form: UseFormReturn<PermissionsTableType>
+  form: UseFormReturn<CreateRoleType>
 }) => {
   const { servers, projects } = useWatch({ control: form.control })
   return (

@@ -1,21 +1,167 @@
 'use client'
 
-import { LockKeyhole, Users } from 'lucide-react'
+import {
+  EllipsisVertical,
+  LockKeyhole,
+  Pencil,
+  Trash2,
+  Users,
+} from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import Image from 'next/image'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
+import { deleteRoleAction } from '@/actions/roles'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Role, User } from '@/payload-types'
 
 import CreateNewRole from './CreateNewRole'
 import RolePermissions from './RolePermissions'
 import RoleUsers from './RoleUsers'
+import UpdateRoleDetails from './UpdateRoleDetails'
+
+const RoleActions = ({
+  role,
+  assignedUsers,
+}: {
+  role: Role
+  assignedUsers: User[] | undefined
+}) => {
+  const [open, setOpen] = useState(false)
+  const [deleteRoleOpen, setDeleteRoleOpen] = useState<boolean>(false)
+  const { execute: deleteRole, isPending: isDeleteRolePending } = useAction(
+    deleteRoleAction,
+    {
+      onSuccess: () => {
+        toast.success('Role deleted successfully')
+        setDeleteRoleOpen(false)
+      },
+      onError: ({ error }) => {
+        toast.error(`Failed to delete role ${error?.serverError}`)
+      },
+    },
+  )
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          onClickCapture={e => {
+            e.stopPropagation()
+          }}
+          className='hover:bg-muted top-2 right-2 rounded-md border p-1'>
+          <EllipsisVertical className='text-muted-foreground size-4' />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align='end'>
+          <DropdownMenuItem
+            onClick={e => {
+              e.stopPropagation()
+              setOpen(true)
+            }}>
+            <Pencil className='h-3 w-3' />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className='text-foreground'
+            onClick={e => {
+              e.stopPropagation(), setDeleteRoleOpen(true)
+            }}>
+            <Trash2 className='h-3 w-3' />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {/* Edit role details  */}
+      <UpdateRoleDetails open={open} setOpen={setOpen} role={role} />
+      {/* Delete role */}
+      <Dialog open={deleteRoleOpen} onOpenChange={setDeleteRoleOpen}>
+        <DialogContent
+          onClick={e => {
+            e.stopPropagation()
+          }}>
+          <DialogHeader>
+            <DialogTitle>Delete Role</DialogTitle>
+            <DialogDescription>
+              {assignedUsers && assignedUsers.length > 0
+                ? 'In order to delete this role, you must first assign a different role to all users currently associated with it. Once no users are linked to this role, you can proceed with deletion'
+                : 'Are you sure you want to delete this role? This action cannot be undone.'}
+            </DialogDescription>
+          </DialogHeader>
+          {assignedUsers && assignedUsers?.length > 0 && (
+            <ScrollArea className='h-52'>
+              <div className='space-y-2 pt-2'>
+                {assignedUsers.map(member => (
+                  <div className='bg-foreground/5 flex items-center gap-x-2 rounded-md border p-2'>
+                    <Avatar className='h-9 w-9 rounded-full'>
+                      {member?.avatarUrl ? (
+                        <Image
+                          src={member.avatarUrl || ''}
+                          alt='User avatar'
+                          width={32}
+                          height={32}
+                          className='h-full w-full rounded-full object-cover'
+                          loading='lazy'
+                          unoptimized
+                        />
+                      ) : (
+                        <AvatarFallback className='rounded-lg uppercase'>
+                          {member.email.slice(0, 1)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div>
+                      <h6 className='text-md font-medium capitalize'>
+                        {member?.username}
+                      </h6>
+                      <p className='text-muted-foreground'>{member?.email}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          <DialogFooter>
+            <Button
+              onClick={() => deleteRole({ id: role.id })}
+              variant={'destructive'}
+              disabled={
+                isDeleteRolePending ||
+                (assignedUsers && assignedUsers.length > 0)
+              }
+              isLoading={isDeleteRolePending}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
 
 export const getBadgeVariant = (type: Role['type']) => {
   switch (type) {
@@ -51,7 +197,7 @@ const RoleDetails = ({
       className='border-border rounded-md border px-4'
       value={role.id}
       key={role.id}>
-      <AccordionTrigger className='flex w-full cursor-pointer items-center justify-between hover:no-underline'>
+      <AccordionTrigger className='relative flex w-full cursor-pointer items-center justify-between hover:no-underline'>
         <div className='max-w-[60%]'>
           <h3 className='text-lg font-semibold'> {role?.name} </h3>
           <p className='text-muted-foreground line-clamp-1 text-sm break-all'>
@@ -65,6 +211,7 @@ const RoleDetails = ({
           <Badge className='uppercase' variant={getBadgeVariant(role?.type)}>
             {role?.type}
           </Badge>
+          <RoleActions role={role} assignedUsers={assignedUsers} />
         </div>
       </AccordionTrigger>
       <AccordionContent className='flex flex-col gap-4 text-balance'>

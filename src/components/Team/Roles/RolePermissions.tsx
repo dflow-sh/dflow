@@ -4,10 +4,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { updateRolePermissionsAction } from '@/actions/roles'
-import {
-  updatePermissionsSchema,
-  updatePermissionsType,
-} from '@/actions/roles/validator'
+import { UpdateRoleType, updateRoleSchema } from '@/actions/roles/validator'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Role } from '@/payload-types'
@@ -15,10 +12,14 @@ import { Role } from '@/payload-types'
 import PermissionsTable from './PermissionsTable'
 
 const RolePermissions = ({ role }: { role: Role }) => {
-  const form = useForm<updatePermissionsType>({
-    resolver: zodResolver(updatePermissionsSchema),
+  const form = useForm<UpdateRoleType>({
+    resolver: zodResolver(updateRoleSchema),
     defaultValues: {
       id: role.id,
+      name: role.name,
+      description: role.description || '',
+      tags: role.tags || [],
+      type: role.type || 'engineering',
       projects: role.projects,
       servers: role.servers,
       services: role.services,
@@ -47,7 +48,7 @@ const RolePermissions = ({ role }: { role: Role }) => {
     },
   })
 
-  const onSubmit = (data: updatePermissionsType) => {
+  const onSubmit = (data: UpdateRoleType) => {
     updateRolePermissions({
       ...data,
     })

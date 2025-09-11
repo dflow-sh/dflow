@@ -22,7 +22,7 @@ export const permissionsWithLimitSchema = permissionsSchema.extend({
     .optional(),
 })
 
-const PermissionsTableSchema = z.object({
+const permissionsTableSchema = z.object({
   projects: permissionsWithLimitSchema,
   services: permissionsSchema,
   servers: permissionsWithLimitSchema,
@@ -37,15 +37,9 @@ const PermissionsTableSchema = z.object({
   team: permissionsSchema,
 })
 
-export type PermissionsTableType = z.infer<typeof PermissionsTableSchema>
+export type PermissionsTableType = z.infer<typeof permissionsTableSchema>
 
-export const updatePermissionsSchema = PermissionsTableSchema.extend({
-  id: z.string(),
-})
-
-export type updatePermissionsType = z.infer<typeof updatePermissionsSchema>
-
-export const createRoleSchema = PermissionsTableSchema.extend({
+export const createRoleSchema = permissionsTableSchema.extend({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   type: z
@@ -54,7 +48,13 @@ export const createRoleSchema = PermissionsTableSchema.extend({
   tags: z.array(z.string()).nullable().optional(),
 })
 
-export type createRoleType = z.infer<typeof createRoleSchema>
+export type CreateRoleType = z.infer<typeof createRoleSchema>
+
+export const updateRoleSchema = createRoleSchema.extend({
+  id: z.string(),
+})
+
+export type UpdateRoleType = z.infer<typeof updateRoleSchema>
 
 export const deleteRoleSchema = z.object({
   id: z.string(),

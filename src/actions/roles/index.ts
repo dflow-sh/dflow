@@ -9,7 +9,7 @@ import {
   deleteRoleSchema,
   permissionsSchema,
   permissionsWithLimitSchema,
-  updatePermissionsSchema,
+  updateRoleSchema,
 } from './validator'
 
 export const getRolesAction = protectedClient
@@ -42,7 +42,7 @@ export const updateRolePermissionsAction = protectedClient
   .metadata({
     actionName: 'updateRolePermissionsAction',
   })
-  .schema(updatePermissionsSchema)
+  .schema(updateRoleSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       userTenant: { tenant },
@@ -51,6 +51,10 @@ export const updateRolePermissionsAction = protectedClient
 
     const {
       id,
+      description,
+      name,
+      tags,
+      type,
       servers,
       templates,
       projects,
@@ -69,6 +73,10 @@ export const updateRolePermissionsAction = protectedClient
       collection: 'roles',
       id: id,
       data: {
+        name,
+        description,
+        type,
+        tags,
         services,
         servers,
         projects,
