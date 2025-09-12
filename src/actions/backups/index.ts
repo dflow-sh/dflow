@@ -63,6 +63,8 @@ const serverBackupMethod = async ({
     },
   })
 
+  console.dir({ server, tenant, docs }, { depth: null })
+
   let project = docs?.[0]
 
   // Get or create backups project
@@ -75,6 +77,8 @@ const serverBackupMethod = async ({
       tenantId: tenant.id,
     })
 
+    console.dir({ projectResponse }, { depth: null })
+
     if (projectResponse?.data) {
       project = projectResponse?.data
     }
@@ -84,7 +88,9 @@ const serverBackupMethod = async ({
     name: 'Restic Backups',
   })
 
-  const existingServices = project.services?.docs ?? []
+  console.dir({ project }, { depth: null })
+
+  const existingServices = project?.services?.docs ?? []
   const updatedServices = template.services.map(service => {
     if (service.name === 'app') {
       return {

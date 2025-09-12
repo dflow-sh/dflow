@@ -69,7 +69,6 @@ export const createProjectAdminAction = adminClient
         tenant: tenantId,
         hidden,
       },
-      user: ctx.user,
       depth: 2,
     })
 
