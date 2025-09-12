@@ -42,7 +42,7 @@ export const updateUserTenantRolesAction = protectedClient
   .metadata({
     actionName: 'updateUserTenantRolesAction',
   })
-  .schema(updateTenantRolesSchema)
+  .inputSchema(updateTenantRolesSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       payload,
@@ -74,7 +74,7 @@ export const removeUserFromTeamAction = protectedClient
   .metadata({
     actionName: 'removeUserFromTeamAction',
   })
-  .schema(updateTenantRolesSchema)
+  .inputSchema(updateTenantRolesSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       payload,
@@ -104,7 +104,7 @@ export const joinTeamAction = userClient
   .metadata({
     actionName: 'joinTeamAction',
   })
-  .schema(joinTeamSchema)
+  .inputSchema(joinTeamSchema)
   .action(async ({ ctx, clientInput }) => {
     const { payload, user } = ctx
     const { role, tenantId } = clientInput
@@ -144,7 +144,7 @@ export const sendInvitationLinkAction = userClient
   .metadata({
     actionName: 'sendInvitationLinkAction',
   })
-  .schema(sendInvitationLinkSchema)
+  .inputSchema(sendInvitationLinkSchema)
   .action(async ({ ctx, clientInput }) => {
     const { email, link } = clientInput
     const { payload } = ctx
@@ -167,7 +167,7 @@ export const generateInviteLinkAction = protectedClient
   .metadata({
     actionName: 'generateInviteLinkAction',
   })
-  .schema(generateInviteLinkSchema)
+  .inputSchema(generateInviteLinkSchema)
   .action(async ({ clientInput }) => {
     const { tenantId, role } = clientInput
 

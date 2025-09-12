@@ -57,7 +57,7 @@ export const createTemplateAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createTemplateAction',
   })
-  .schema(createTemplateSchema)
+  .inputSchema(createTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { userTenant, payload } = ctx
     const { name, description, services, imageUrl } = clientInput
@@ -80,7 +80,7 @@ export const deleteTemplateAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteTemplateAction',
   })
-  .schema(DeleteTemplateSchema)
+  .inputSchema(DeleteTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, accountId } = clientInput
     const {
@@ -136,7 +136,7 @@ export const deleteTemplateAction = protectedClient
 
 export const getTemplateByIdAction = protectedClient
   .metadata({ actionName: 'getTemplateByIdAction' })
-  .schema(getPersonalTemplateByIdSchema)
+  .inputSchema(getPersonalTemplateByIdSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx
@@ -166,7 +166,7 @@ export const updateTemplateAction = protectedClient
   .metadata({
     actionName: 'updateTemplateAction',
   })
-  .schema(updateTemplateSchema)
+  .inputSchema(updateTemplateSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, name, services, description, imageUrl } = clientInput
     const { payload } = ctx
@@ -190,7 +190,7 @@ export const updateTemplateAction = protectedClient
 
 export const getAllOfficialTemplatesAction = publicClient
   .metadata({ actionName: 'getAllOfficialTemplatesAction' })
-  .schema(getAllTemplatesSchema)
+  .inputSchema(getAllTemplatesSchema)
   .action(async ({ clientInput }) => {
     const { type } = clientInput
 
@@ -208,7 +208,7 @@ export const getAllOfficialTemplatesAction = publicClient
 
 export const getPersonalTemplatesAction = protectedClient
   .metadata({ actionName: 'getPersonalTemplatesAction' })
-  .schema(getAllTemplatesSchema)
+  .inputSchema(getAllTemplatesSchema)
   .action(async ({ ctx }) => {
     const {
       payload,
@@ -231,7 +231,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .metadata({
     actionName: 'getOfficialTemplateByIdAction',
   })
-  .schema(getTemplateByIdSchema)
+  .inputSchema(getTemplateByIdSchema)
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
@@ -249,7 +249,7 @@ export const publishTemplateAction = protectedClient
   .metadata({
     actionName: 'publishTemplateAction',
   })
-  .schema(publicTemplateSchema)
+  .inputSchema(publicTemplateSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       userTenant: { tenant },
@@ -343,7 +343,7 @@ export const unPublishTemplateAction = protectedClient
   .metadata({
     actionName: 'unPublishTemplateAction',
   })
-  .schema(publicTemplateSchema)
+  .inputSchema(publicTemplateSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       userTenant: { tenant },
@@ -414,7 +414,7 @@ export const syncWithPublicTemplateAction = protectedClient
   .metadata({
     actionName: 'syncWithPublicTemplateAction',
   })
-  .schema(publicTemplateSchema)
+  .inputSchema(publicTemplateSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       userTenant: { tenant },
@@ -488,7 +488,7 @@ export const templateDeployAction = protectedClient
   .metadata({
     actionName: 'templateDeployAction',
   })
-  .schema(deployTemplateWithProjectCreateSchema)
+  .inputSchema(deployTemplateWithProjectCreateSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       user,

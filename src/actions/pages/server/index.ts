@@ -9,7 +9,7 @@ export const getServersDetailsAction = protectedClient
   .metadata({
     actionName: 'getServersDetailsAction',
   })
-  .schema(getServersDetailsSchema)
+  .inputSchema(getServersDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { populateServerDetails = false, refreshServerDetails = false } =
       clientInput || {}
@@ -88,7 +88,7 @@ export const getServerBreadcrumbs = protectedClient
   .metadata({
     actionName: 'getServerBreadcrumbs',
   })
-  .schema(getServerDetailsSchema)
+  .inputSchema(getServerDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, populateServerDetails, refreshServerDetails } = clientInput
 
@@ -159,7 +159,7 @@ export const getServerProjects = protectedClient
   .metadata({
     actionName: 'getServerProjects',
   })
-  .schema(getServerDetailsSchema)
+  .inputSchema(getServerDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
@@ -210,7 +210,7 @@ export const getServerGeneralTabDetails = protectedClient
   .metadata({
     actionName: 'getServerGeneralTabDetails',
   })
-  .schema(getServerDetailsSchema)
+  .inputSchema(getServerDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {

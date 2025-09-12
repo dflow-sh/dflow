@@ -36,7 +36,7 @@ export const internalBackupAction = protectedClient
   .metadata({
     actionName: 'internalBackupAction',
   })
-  .schema(internalDBBackupSchema)
+  .inputSchema(internalDBBackupSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { serviceId } = clientInput
@@ -103,7 +103,7 @@ export const internalRestoreAction = protectedClient
   .metadata({
     actionName: 'internalRestoreAction',
   })
-  .schema(internalRestoreSchema)
+  .inputSchema(internalRestoreSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serviceId, backupId } = clientInput
     const { payload, userTenant } = ctx
@@ -146,7 +146,7 @@ export const internalDbDeleteAction = protectedClient
   .metadata({
     actionName: 'internalDbDeleteAction',
   })
-  .schema(internalDbDeleteScheme)
+  .inputSchema(internalDbDeleteScheme)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { backupId, serviceId, databaseType } = clientInput

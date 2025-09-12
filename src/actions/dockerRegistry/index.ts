@@ -41,7 +41,7 @@ export const connectDockerRegistryAction = protectedClient
   .metadata({
     actionName: 'connectDockerRegistryAction',
   })
-  .schema(connectDockerRegistrySchema)
+  .inputSchema(connectDockerRegistrySchema)
   .action(async ({ clientInput, ctx }) => {
     const { password, username, type, name } = clientInput
     const payload = await getPayload({ config: configPromise })
@@ -66,7 +66,7 @@ export const updateDockerRegistryAction = protectedClient
   .metadata({
     actionName: 'updateDockerRegistryAction',
   })
-  .schema(updateDockerRegistrySchema)
+  .inputSchema(updateDockerRegistrySchema)
   .action(async ({ clientInput, ctx }) => {
     const { password, username, type, name, id } = clientInput
     const payload = await getPayload({ config: configPromise })
@@ -91,7 +91,7 @@ export const deleteDockerRegistryAction = protectedClient
   .metadata({
     actionName: 'deleteDockerRegistryAction',
   })
-  .schema(deleteDockerRegistrySchema)
+  .inputSchema(deleteDockerRegistrySchema)
   .action(async ({ clientInput }) => {
     const { id } = clientInput
     const payload = await getPayload({ config: configPromise })
@@ -111,7 +111,7 @@ export const testDockerRegistryConnectionAction = protectedClient
   .metadata({
     actionName: 'testDockerRegistryConnectionAction',
   })
-  .schema(testDockerRegistryConnectionSchema)
+  .inputSchema(testDockerRegistryConnectionSchema)
   .action(async ({ clientInput }) => {
     const { type, username, password, name } = clientInput
 

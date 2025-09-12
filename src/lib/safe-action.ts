@@ -19,7 +19,7 @@ type UserTenant = {
 export const publicClient = createSafeActionClient({
   defineMetadataSchema() {
     return z.object({
-      actionName: z.string({ message: 'actionName is required!' }),
+      actionName: z.string(),
     })
   },
   // Can also be an async function.

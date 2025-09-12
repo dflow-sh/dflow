@@ -9,7 +9,7 @@ export const docsAction = publicClient
   .metadata({
     actionName: 'docsAction',
   })
-  .schema(docsSchema)
+  .inputSchema(docsSchema)
   .action(async ({ clientInput }) => {
     const { directory, fileName } = clientInput
 

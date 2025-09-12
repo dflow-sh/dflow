@@ -13,7 +13,7 @@ export const installNetdataAction = protectedClient
   .metadata({
     actionName: 'installNetdataAction',
   })
-  .schema(installNetdataSchema)
+  .inputSchema(installNetdataSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx
@@ -53,7 +53,7 @@ export const uninstallNetdataAction = protectedClient
   .metadata({
     actionName: 'uninstallNetdataAction',
   })
-  .schema(uninstallNetdataSchema)
+  .inputSchema(uninstallNetdataSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx

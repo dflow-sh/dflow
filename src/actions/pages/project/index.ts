@@ -8,7 +8,7 @@ export const getProjectDetails = protectedClient
   .metadata({
     actionName: 'getProjectDetails',
   })
-  .schema(getProjectDetailsSchema)
+  .inputSchema(getProjectDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id: ProjectId } = clientInput
     const {
@@ -85,7 +85,7 @@ export const getProjectBreadcrumbs = protectedClient
   .metadata({
     actionName: 'getProjectBreadcrumbs',
   })
-  .schema(getProjectDetailsSchema)
+  .inputSchema(getProjectDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {

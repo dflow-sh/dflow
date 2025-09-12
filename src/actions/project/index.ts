@@ -20,7 +20,7 @@ export const createProjectAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createProjectAction',
   })
-  .schema(createProjectSchema)
+  .inputSchema(createProjectSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       name = '',
@@ -130,7 +130,7 @@ export const updateProjectAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'updateProjectAction',
   })
-  .schema(updateProjectSchema)
+  .inputSchema(updateProjectSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
     const {
@@ -156,7 +156,7 @@ export const deleteProjectAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteProjectAction',
   })
-  .schema(deleteProjectSchema)
+  .inputSchema(deleteProjectSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, serverId, deleteBackups, deleteFromServer } = clientInput
     const {
@@ -192,7 +192,7 @@ export const getProjectDatabasesAction = protectedClient
   .metadata({
     actionName: 'getProjectDatabasesAction',
   })
-  .schema(getProjectDatabasesSchema)
+  .inputSchema(getProjectDatabasesSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

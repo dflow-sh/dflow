@@ -60,7 +60,7 @@ export const createServiceAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createServiceAction',
   })
-  .schema(createServiceSchema)
+  .inputSchema(createServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { name, description, projectId, type, databaseType } = clientInput
     const {
@@ -225,7 +225,7 @@ export const createServiceWithPluginAction = protectedClient
   .metadata({
     actionName: 'createServiceWithPluginAction',
   })
-  .schema(createServiceSchema)
+  .inputSchema(createServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { name, description, projectId, type, databaseType } = clientInput
     const {
@@ -263,7 +263,7 @@ export const deleteServiceAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteServiceAction',
   })
-  .schema(deleteServiceSchema)
+  .inputSchema(deleteServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, deleteBackups, deleteFromServer } = clientInput
     const {
@@ -399,7 +399,7 @@ export const updateServiceAction = protectedClient
   .metadata({
     actionName: 'updateServiceAction',
   })
-  .schema(updateServiceSchema)
+  .inputSchema(updateServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
     const {
@@ -469,7 +469,7 @@ export const restartServiceAction = protectedClient
   .metadata({
     actionName: 'restartServiceAction',
   })
-  .schema(restartServiceSchema)
+  .inputSchema(restartServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload, userTenant } = ctx
@@ -530,7 +530,7 @@ export const stopServerAction = protectedClient
   .metadata({
     actionName: 'stopServerAction',
   })
-  .schema(stopServiceSchema)
+  .inputSchema(stopServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload, userTenant } = ctx
@@ -590,7 +590,7 @@ export const exposeDatabasePortAction = protectedClient
   .metadata({
     actionName: 'exposeDatabasePortAction',
   })
-  .schema(exposeDatabasePortSchema)
+  .inputSchema(exposeDatabasePortSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, action } = clientInput
     const { payload, userTenant } = ctx
@@ -641,7 +641,7 @@ export const updateServiceDomainAction = protectedClient
   .metadata({
     actionName: 'updateServiceDomainAction',
   })
-  .schema(updateServiceDomainSchema)
+  .inputSchema(updateServiceDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
     const {
@@ -774,7 +774,7 @@ export const regenerateSSLAction = protectedClient
   .metadata({
     actionName: 'regenerateSSLAction',
   })
-  .schema(regenerateSSLSchema)
+  .inputSchema(regenerateSSLSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, email } = clientInput
     const { payload } = ctx
@@ -810,7 +810,7 @@ export const syncServiceDomainAction = protectedClient
   .metadata({
     actionName: 'syncServiceDomainAction',
   })
-  .schema(updateServiceDomainSchema)
+  .inputSchema(updateServiceDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domain, operation } = clientInput
     const { payload, userTenant } = ctx
@@ -859,7 +859,7 @@ export const markDefaultServiceDomainAction = protectedClient
   .metadata({
     actionName: 'markDefaultServiceDomainAction',
   })
-  .schema(markDefaultServiceDomainSchema)
+  .inputSchema(markDefaultServiceDomainSchema)
   .action(async ({ ctx, clientInput }) => {
     // 1. update domain as default
     const { payload, userTenant } = ctx
@@ -913,7 +913,7 @@ export const markDefaultServiceDomainAction = protectedClient
 
 export const updateVolumesAction = protectedClient
   .metadata({ actionName: 'updateVolumesAction' })
-  .schema(updateVolumesSchema)
+  .inputSchema(updateVolumesSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       payload,
@@ -953,7 +953,7 @@ export const updateVolumesAction = protectedClient
 // Horizontal scaling: set process scale (replicas)
 export const scaleServiceAction = protectedClient
   .metadata({ actionName: 'scaleServiceAction' })
-  .schema(scaleServiceSchema)
+  .inputSchema(scaleServiceSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, scaleArgs } = clientInput
     const { payload, userTenant } = ctx
@@ -983,7 +983,7 @@ export const scaleServiceAction = protectedClient
 // Fetch current process scale/status
 export const fetchServiceScaleStatusAction = protectedClient
   .metadata({ actionName: 'fetchServiceScaleStatusAction' })
-  .schema(fetchServiceScaleStatusSchema)
+  .inputSchema(fetchServiceScaleStatusSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, parse = true } = clientInput
     const { payload } = ctx
@@ -1016,7 +1016,7 @@ export const fetchServiceScaleStatusAction = protectedClient
 // Vertical scaling: set resource limits
 export const setServiceResourceLimitAction = protectedClient
   .metadata({ actionName: 'setServiceResourceLimitAction' })
-  .schema(setServiceResourceLimitSchema)
+  .inputSchema(setServiceResourceLimitSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, resourceArgs, processType } = clientInput
     const { payload, userTenant } = ctx
@@ -1048,7 +1048,7 @@ export const setServiceResourceLimitAction = protectedClient
 // Vertical scaling: set resource reservations
 export const setServiceResourceReserveAction = protectedClient
   .metadata({ actionName: 'setServiceResourceReserveAction' })
-  .schema(setServiceResourceReserveSchema)
+  .inputSchema(setServiceResourceReserveSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, resourceArgs, processType } = clientInput
     const { payload, userTenant } = ctx
@@ -1080,7 +1080,7 @@ export const setServiceResourceReserveAction = protectedClient
 // Fetch current resource status
 export const fetchServiceResourceStatusAction = protectedClient
   .metadata({ actionName: 'fetchServiceResourceStatusAction' })
-  .schema(fetchServiceResourceStatusSchema)
+  .inputSchema(fetchServiceResourceStatusSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx
@@ -1109,7 +1109,7 @@ export const fetchServiceResourceStatusAction = protectedClient
 // Clear resource limits
 export const clearServiceResourceLimitAction = protectedClient
   .metadata({ actionName: 'clearServiceResourceLimitAction' })
-  .schema(clearServiceResourceLimitSchema)
+  .inputSchema(clearServiceResourceLimitSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, processType } = clientInput
     const { payload, userTenant } = ctx
@@ -1141,7 +1141,7 @@ export const clearServiceResourceLimitAction = protectedClient
 // Clear resource reservations
 export const clearServiceResourceReserveAction = protectedClient
   .metadata({ actionName: 'clearServiceResourceReserveAction' })
-  .schema(clearServiceResourceReserveSchema)
+  .inputSchema(clearServiceResourceReserveSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, processType } = clientInput
     const { payload, userTenant } = ctx
@@ -1172,7 +1172,7 @@ export const clearServiceResourceReserveAction = protectedClient
 
 export const checkServerResourcesAction = protectedClient
   .metadata({ actionName: 'checkServerResourcesAction' })
-  .schema(checkServerResourcesSchema)
+  .inputSchema(checkServerResourcesSchema)
   .action(async ({ ctx, clientInput }) => {
     const { payload } = ctx
     const { serverId, serviceType } = clientInput

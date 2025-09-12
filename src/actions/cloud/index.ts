@@ -15,7 +15,7 @@ export const getCloudProvidersAccountsAction = protectedClient
   .metadata({
     actionName: 'getCloudProvidersAccountsAction',
   })
-  .schema(cloudProviderAccountsSchema)
+  .inputSchema(cloudProviderAccountsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { type } = clientInput
     const { userTenant, payload } = ctx
@@ -46,7 +46,7 @@ export const syncDflowServersAction = protectedClient
   .metadata({
     actionName: 'syncDflowServersAction',
   })
-  .schema(syncDflowServersSchema)
+  .inputSchema(syncDflowServersSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx

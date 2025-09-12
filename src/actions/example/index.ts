@@ -10,7 +10,7 @@ export const exampleAction = publicClient
     // This action name can be used for sentry tracking
     actionName: 'exampleAction',
   })
-  .schema(exampleSchema)
+  .inputSchema(exampleSchema)
   .action(async ({ clientInput }) => {
     const { email, name } = clientInput
 

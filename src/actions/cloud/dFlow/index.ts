@@ -21,7 +21,7 @@ export const connectDFlowAccountAction = protectedClient
   .metadata({
     actionName: 'connectDFlowAccountAction',
   })
-  .schema(connectDFlowAccountSchema)
+  .inputSchema(connectDFlowAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accessToken, name } = clientInput
 
@@ -49,7 +49,7 @@ export const updateDFlowAccountAction = protectedClient
   .metadata({
     actionName: 'updateDFlowAccountAction',
   })
-  .schema(updateDFlowAccountSchema)
+  .inputSchema(updateDFlowAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, accessToken, name } = clientInput
 
@@ -93,7 +93,7 @@ export const createVPSOrderAction = protectedClient
   .metadata({
     actionName: 'createVPSOrderAction',
   })
-  .schema(createVPSOrderActionSchema)
+  .inputSchema(createVPSOrderActionSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accountId, sshKeyIds = [], vps } = clientInput
     const { userTenant, payload, user } = ctx
@@ -220,7 +220,7 @@ export const checkPaymentMethodAction = protectedClient
   .metadata({
     actionName: 'checkPaymentMethodAction',
   })
-  .schema(checkPaymentMethodSchema)
+  .inputSchema(checkPaymentMethodSchema)
   .action(async ({ clientInput }) => {
     const { token } = clientInput
 
@@ -262,7 +262,7 @@ export const checkAccountConnection = protectedClient
   .metadata({
     actionName: 'checkAccountConnection',
   })
-  .schema(checkConnectionSchema)
+  .inputSchema(checkConnectionSchema)
   .action(async ({ clientInput }) => {
     const { token } = clientInput
 
@@ -393,7 +393,7 @@ export const deleteDFlowAccountAction = protectedClient
   .metadata({
     actionName: 'deleteDFlowAccountAction',
   })
-  .schema(deleteDFlowAccountSchema)
+  .inputSchema(deleteDFlowAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

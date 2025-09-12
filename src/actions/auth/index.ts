@@ -25,7 +25,7 @@ import {
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient
   .metadata({ actionName: 'signInAction' })
-  .schema(signInSchema)
+  .inputSchema(signInSchema)
   .action(async ({ clientInput }) => {
     try {
       const { email, password } = clientInput
@@ -137,7 +137,7 @@ export const signUpAction = publicClient
   .metadata({
     actionName: 'signUpAction',
   })
-  .schema(signUpSchema)
+  .inputSchema(signUpSchema)
   .action(async ({ clientInput }) => {
     const payload = await getPayload({
       config: configPromise,
@@ -291,7 +291,7 @@ export const signUpAction = publicClient
 //   .metadata({
 //     actionName: 'verifyEmailAction',
 //   })
-//   .schema(
+//   .inputSchema(
 //     z.object({
 //       token: z.string({ message: 'Verification token is required!' }),
 //       userId: z.string({ message: 'User id is required!' }),
@@ -322,7 +322,7 @@ export const forgotPasswordAction = publicClient
   .metadata({
     actionName: 'resetPasswordAction',
   })
-  .schema(forgotPasswordSchema)
+  .inputSchema(forgotPasswordSchema)
   .action(async ({ clientInput }) => {
     const payload = await getPayload({
       config: configPromise,
@@ -342,7 +342,7 @@ export const forgotPasswordAction = publicClient
 
 export const resetPasswordAction = publicClient
   .metadata({ actionName: 'resetPasswordAction' })
-  .schema(resetPasswordSchema)
+  .inputSchema(resetPasswordSchema)
   .action(async ({ clientInput }) => {
     const payload = await getPayload({
       config: configPromise,
@@ -387,7 +387,7 @@ export const impersonateUserAction = userClient
   .metadata({
     actionName: 'impersonateUserAction',
   })
-  .schema(impersonateUserSchema)
+  .inputSchema(impersonateUserSchema)
   .action(async ({ ctx, clientInput }) => {
     const { user, payload } = ctx
     console.dir({ user }, { depth: Infinity })
@@ -412,7 +412,7 @@ export const impersonateUserAction = userClient
 
 export const autoLoginAction = publicClient
   .metadata({ actionName: 'autoLoginAction' })
-  .schema(autoLoginSchema)
+  .inputSchema(autoLoginSchema)
   .action(async ({ clientInput }) => {
     const token = clientInput.token
     const payload = await getPayload({ config: configPromise })
@@ -494,7 +494,7 @@ export const autoLoginAction = publicClient
 
 export const requestMagicLinkAction = publicClient
   .metadata({ actionName: 'requestMagicLinkAction' })
-  .schema(magicLinkSchema)
+  .inputSchema(magicLinkSchema)
   .action(async ({ clientInput }) => {
     const { email } = clientInput
 

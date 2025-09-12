@@ -11,7 +11,7 @@ export const createDeploymentAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createDeploymentAction',
   })
-  .schema(createDeploymentSchema)
+  .inputSchema(createDeploymentSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serviceId, projectId, cache = 'no-cache' } = clientInput
     const {

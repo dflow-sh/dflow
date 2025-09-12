@@ -19,7 +19,7 @@ export const createGithubAppAction = protectedClient
   .metadata({
     actionName: 'createGithubAppAction',
   })
-  .schema(createGitHubAppSchema)
+  .inputSchema(createGitHubAppSchema)
   .action(async ({ clientInput }) => {
     const { onboarding } = clientInput
     const date = new Date()
@@ -61,7 +61,7 @@ export const installGithubAppAction = protectedClient
   .metadata({
     actionName: 'installGithubAppAction',
   })
-  .schema(installGitHubAppSchema)
+  .inputSchema(installGitHubAppSchema)
   .action(async ({ clientInput }) => {
     const { id, onboarding } = clientInput
 
@@ -78,7 +78,7 @@ export const deleteGitProviderAction = protectedClient
   .metadata({
     actionName: 'deleteGitProviderAction',
   })
-  .schema(deleteGitProviderSchema)
+  .inputSchema(deleteGitProviderSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { userTenant, payload } = ctx
@@ -112,7 +112,7 @@ export const getRepositoriesAction = protectedClient
   .metadata({
     actionName: 'getRepositoriesAction',
   })
-  .schema(getRepositorySchema)
+  .inputSchema(getRepositorySchema)
   .action(async ({ clientInput }) => {
     const { appId, installationId, privateKey } = clientInput
 
@@ -154,7 +154,7 @@ export const getBranchesAction = protectedClient
   .metadata({
     actionName: 'getBranchesAction',
   })
-  .schema(getBranchesSchema)
+  .inputSchema(getBranchesSchema)
   .action(async ({ clientInput }) => {
     const {
       page = 1,

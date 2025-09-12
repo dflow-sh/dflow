@@ -18,7 +18,7 @@ export const createSSHKeyAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createSSHKeyAction',
   })
-  .schema(createSSHKeySchema)
+  .inputSchema(createSSHKeySchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
@@ -49,7 +49,7 @@ export const createSSHKeyAction = protectedClient
 
 export const updateSSHKeyAction = protectedClient
   .metadata({ actionName: 'updateSSHKeyAction' })
-  .schema(updateSSHKeySchema)
+  .inputSchema(updateSSHKeySchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
     const { payload, user } = ctx
@@ -73,7 +73,7 @@ export const deleteSSHKeyAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteSSHKeyAction',
   })
-  .schema(deleteSSHKeySchema)
+  .inputSchema(deleteSSHKeySchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
@@ -99,7 +99,7 @@ export const generateSSHKeyAction = userClient
   .metadata({
     actionName: 'generateSSHKeyAction',
   })
-  .schema(generateSSHKeySchema)
+  .inputSchema(generateSSHKeySchema)
   .action(async ({ clientInput }) => {
     const { comment = 'dFlow', type } = clientInput
 

@@ -17,7 +17,7 @@ export const dokkuBackupAction = protectedClient
   .metadata({
     actionName: 'dokkuBackupAction',
   })
-  .schema(dokkuBackupSchema)
+  .inputSchema(dokkuBackupSchema)
   .action(async ({ ctx, clientInput }) => {
     const { payload, userTenant } = ctx
     const { serverId } = clientInput

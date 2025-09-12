@@ -42,7 +42,7 @@ export const updateRolePermissionsAction = protectedClient
   .metadata({
     actionName: 'updateRolePermissionsAction',
   })
-  .schema(updateRoleSchema)
+  .inputSchema(updateRoleSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       userTenant: { tenant },
@@ -102,7 +102,7 @@ export const createRoleAction = protectedClient
   .metadata({
     actionName: 'createRoleAction',
   })
-  .schema(createRoleSchema)
+  .inputSchema(createRoleSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       user,
@@ -163,7 +163,7 @@ export const deleteRoleAction = protectedClient
   .metadata({
     actionName: 'deleteRoleAction',
   })
-  .schema(deleteRoleSchema)
+  .inputSchema(deleteRoleSchema)
   .action(async ({ ctx, clientInput }) => {
     const {
       payload,

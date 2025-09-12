@@ -31,7 +31,7 @@ export const createEC2InstanceAction = protectedClient
   .metadata({
     actionName: 'createEC2InstanceAction',
   })
-  .schema(createEC2InstanceSchema)
+  .inputSchema(createEC2InstanceSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       name,
@@ -270,7 +270,7 @@ export const connectAWSAccountAction = protectedClient
   .metadata({
     actionName: 'connectAWSAccountAction',
   })
-  .schema(connectAWSAccountSchema)
+  .inputSchema(connectAWSAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accessKeyId, secretAccessKey, name } = clientInput
     const { userTenant, payload } = ctx
@@ -296,7 +296,7 @@ export const updateAWSAccountAction = protectedClient
   .metadata({
     actionName: 'updateAWSAccountAction',
   })
-  .schema(updateAWSAccountSchema)
+  .inputSchema(updateAWSAccountSchema)
   .action(async ({ clientInput, ctx }) => {
     const { accessKeyId, secretAccessKey, name, id } = clientInput
     const { userTenant, payload } = ctx
@@ -322,7 +322,7 @@ export const deleteAWSAccountAction = protectedClient
   .metadata({
     actionName: 'deleteAWSAccountAction',
   })
-  .schema(deleteAWSAccountSchema)
+  .inputSchema(deleteAWSAccountSchema)
   .action(async ({ clientInput }) => {
     const { id } = clientInput
     const payload = await getPayload({ config: configPromise })
@@ -342,7 +342,7 @@ export const updateEC2InstanceAction = protectedClient
   .metadata({
     actionName: 'updateEC2InstanceAction',
   })
-  .schema(updateEC2InstanceSchema)
+  .inputSchema(updateEC2InstanceSchema)
   .action(async ({ clientInput }) => {
     const {
       serverId,
@@ -496,7 +496,7 @@ export const checkAWSAccountConnection = protectedClient
   .metadata({
     actionName: 'checkAWSAccountConnection',
   })
-  .schema(checkAWSConnectionSchema)
+  .inputSchema(checkAWSConnectionSchema)
   .action(async ({ clientInput }) => {
     const { accessKeyId, secretAccessKey, region = 'us-east-1' } = clientInput
 

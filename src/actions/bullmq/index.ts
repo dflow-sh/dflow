@@ -15,7 +15,7 @@ import {
  */
 export const getServerQueuesAction = userClient
   .metadata({ actionName: 'getServerQueues' })
-  .schema(getServerQueuesStatsSchema)
+  .inputSchema(getServerQueuesStatsSchema)
   .action(async ({ clientInput }) => {
     const { serverId } = clientInput
 
@@ -35,7 +35,7 @@ export const getServerQueuesAction = userClient
  * Force flush (force=true): Removes all jobs including waiting, active, and delayed
  */
 export const flushServerQueuesAction = userClient
-  .schema(flushServerQueuesSchema)
+  .inputSchema(flushServerQueuesSchema)
   .metadata({ actionName: 'flushServerQueues' })
   .action(async ({ clientInput }) => {
     const { serverId, force = false } = clientInput
@@ -61,7 +61,7 @@ export const flushServerQueuesAction = userClient
  * Force flush (force=true): Removes all jobs including waiting, active, and delayed
  */
 export const flushSingleQueueAction = userClient
-  .schema(flushSingleQueueSchema)
+  .inputSchema(flushSingleQueueSchema)
   .metadata({ actionName: 'flushSingleQueue' })
   .action(async ({ clientInput }) => {
     const { queueName, force = false } = clientInput

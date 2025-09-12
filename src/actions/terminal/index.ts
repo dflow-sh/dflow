@@ -25,7 +25,7 @@ export const installTerminalAction = protectedClient
   .metadata({
     actionName: 'installTerminalAction',
   })
-  .schema(installTerminalSchema)
+  .inputSchema(installTerminalSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload } = ctx
@@ -80,7 +80,7 @@ export const uninstallTerminalAction = protectedClient
   .metadata({
     actionName: 'uninstallTerminalAction',
   })
-  .schema(uninstallTerminalSchema)
+  .inputSchema(uninstallTerminalSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload } = ctx
@@ -125,7 +125,7 @@ export const startTerminalAction = protectedClient
   .metadata({
     actionName: 'startTerminalAction',
   })
-  .schema(startTerminalSchema)
+  .inputSchema(startTerminalSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload } = ctx
@@ -161,7 +161,7 @@ export const stopTerminalAction = protectedClient
   .metadata({
     actionName: 'stopTerminalAction',
   })
-  .schema(stopTerminalSchema)
+  .inputSchema(stopTerminalSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload } = ctx
@@ -197,7 +197,7 @@ export const restartTerminalAction = protectedClient
   .metadata({
     actionName: 'restartTerminalAction',
   })
-  .schema(restartTerminalSchema)
+  .inputSchema(restartTerminalSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload } = ctx

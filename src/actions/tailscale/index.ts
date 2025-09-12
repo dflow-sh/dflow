@@ -54,7 +54,7 @@ export const generateOAuthClientSecretAction = protectedClient
   .metadata({
     actionName: 'generateOAuthClientSecretAction',
   })
-  .schema(
+  .inputSchema(
     z.object({
       access_token: z.string(),
     }),

@@ -15,7 +15,7 @@ export const createSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'createSecurityGroupAction',
   })
-  .schema(createSecurityGroupSchema)
+  .inputSchema(createSecurityGroupSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
@@ -58,7 +58,7 @@ export const updateSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'updateSecurityGroupAction',
   })
-  .schema(updateSecurityGroupSchema)
+  .inputSchema(updateSecurityGroupSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
       userTenant: { tenant },
@@ -102,7 +102,7 @@ export const deleteSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'deleteSecurityGroupAction',
   })
-  .schema(
+  .inputSchema(
     z.object({
       id: z.string().min(1, 'ID is required'),
     }),
@@ -134,7 +134,7 @@ export const syncSecurityGroupAction = protectedClient
   .metadata({
     actionName: 'syncSecurityGroupAction',
   })
-  .schema(
+  .inputSchema(
     z.object({
       id: z.string().min(1, 'ID is required'),
     }),
@@ -167,7 +167,7 @@ export const getSecurityGroupsAction = protectedClient
   .metadata({
     actionName: 'getSecurityGroupsAction',
   })
-  .schema(getSecurityGroupsSchema)
+  .inputSchema(getSecurityGroupsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { cloudProviderAccountId } = clientInput
     const { payload } = ctx

@@ -25,7 +25,7 @@ export const installPluginAction = protectedClient
   .metadata({
     actionName: 'installPluginAction',
   })
-  .schema(installPluginSchema)
+  .inputSchema(installPluginSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { serverId, pluginName, pluginURL } = clientInput
@@ -62,7 +62,7 @@ export const syncPluginAction = protectedClient
   .metadata({
     actionName: 'syncPluginAction',
   })
-  .schema(syncPluginSchema)
+  .inputSchema(syncPluginSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload } = ctx
     const { serverId } = clientInput
@@ -133,7 +133,7 @@ export const togglePluginStatusAction = protectedClient
   .metadata({
     actionName: 'togglePluginStatusAction',
   })
-  .schema(togglePluginStatusSchema)
+  .inputSchema(togglePluginStatusSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { pluginName, serverId, enabled } = clientInput
@@ -170,7 +170,7 @@ export const deletePluginAction = protectedClient
   .metadata({
     actionName: 'deletePluginAction',
   })
-  .schema(installPluginSchema)
+  .inputSchema(installPluginSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { serverId, pluginName } = clientInput
@@ -207,7 +207,7 @@ export const checkPluginUsageAction = protectedClient
   .metadata({
     actionName: 'checkPluginUsageAction',
   })
-  .schema(checkPluginUsageSchema)
+  .inputSchema(checkPluginUsageSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload } = ctx
     const { serverId, connectionType, pluginName, category } = clientInput
@@ -252,7 +252,7 @@ export const configureLetsencryptPluginAction = protectedClient
   .metadata({
     actionName: 'configureLetsencryptPluginAction',
   })
-  .schema(configureLetsencryptPluginSchema)
+  .inputSchema(configureLetsencryptPluginSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { email, autoGenerateSSL = false, serverId } = clientInput
@@ -290,7 +290,7 @@ export const installAndConfigureLetsencryptPluginAction = protectedClient
   .metadata({
     actionName: 'installAndConfigureLetsencryptPluginAction',
   })
-  .schema(installAndConfigureLetsencryptPluginSchema)
+  .inputSchema(installAndConfigureLetsencryptPluginSchema)
   .action(async ({ clientInput, ctx }) => {
     const { payload, userTenant } = ctx
     const { serverId } = clientInput

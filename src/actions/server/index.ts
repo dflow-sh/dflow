@@ -44,7 +44,7 @@ export const createServerAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'createServerAction',
   })
-  .schema(createServerSchema)
+  .inputSchema(createServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { name, description, ip, port, username, sshKey } = clientInput
     const {
@@ -107,7 +107,7 @@ export const createTailscaleServerAction = protectedClient
   .metadata({
     actionName: 'createTailscaleServerAction',
   })
-  .schema(createTailscaleServerSchema)
+  .inputSchema(createTailscaleServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { name, description, hostname, username } = clientInput
 
@@ -168,7 +168,7 @@ export const updateTailscaleServerAction = protectedClient
   .metadata({
     actionName: 'updateTailscaleServerAction',
   })
-  .schema(updateTailscaleServerSchema)
+  .inputSchema(updateTailscaleServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
     const { payload, user } = ctx
@@ -192,7 +192,7 @@ export const updateServerAction = protectedClient
   .metadata({
     actionName: 'updateServerAction',
   })
-  .schema(updateServerSchema)
+  .inputSchema(updateServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, ...data } = clientInput
     const { payload, user } = ctx
@@ -216,7 +216,7 @@ export const updateServerResourceLimitsAction = protectedClient
   .metadata({
     actionName: 'updateServerResourceLimitsAction',
   })
-  .schema(updateServerResourceLimitsSchema)
+  .inputSchema(updateServerResourceLimitsSchema)
   .action(async ({ clientInput, ctx }) => {
     try {
       const { id, defaultResourceLimits } = clientInput
@@ -252,7 +252,7 @@ export const deleteServerAction = protectedClient
     // This action name can be used for sentry tracking
     actionName: 'deleteServerAction',
   })
-  .schema(deleteServerSchema)
+  .inputSchema(deleteServerSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, deleteProjects, deleteBackups } = clientInput
     const { payload, userTenant } = ctx
@@ -288,7 +288,7 @@ export const installDokkuAction = protectedClient
   .metadata({
     actionName: 'installDokkuAction',
   })
-  .schema(installDokkuSchema)
+  .inputSchema(installDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx
@@ -321,7 +321,7 @@ export const updateServerDomainAction = protectedClient
   .metadata({
     actionName: 'updateServerDomainAction',
   })
-  .schema(updateServerDomainSchema)
+  .inputSchema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
@@ -396,7 +396,7 @@ export const installRailpackAction = protectedClient
   .metadata({
     actionName: 'installRailpackAction',
   })
-  .schema(installDokkuSchema)
+  .inputSchema(installDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx
@@ -428,7 +428,7 @@ export const updateRailpackAction = protectedClient
   .metadata({
     actionName: 'updateRailpackAction',
   })
-  .schema(updateRailpackSchema)
+  .inputSchema(updateRailpackSchema)
   .action(async ({ ctx, clientInput }) => {
     const { serverId, railpackVersion } = clientInput
     const { payload, userTenant } = ctx
@@ -464,7 +464,7 @@ export const completeServerOnboardingAction = protectedClient
   .metadata({
     actionName: 'completeServerOnboardingAction',
   })
-  .schema(completeServerOnboardingSchema)
+  .inputSchema(completeServerOnboardingSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx
@@ -507,7 +507,7 @@ export const checkDNSConfigAction = protectedClient
   .metadata({
     actionName: 'checkDNSConfigAction',
   })
-  .schema(checkDNSConfigSchema)
+  .inputSchema(checkDNSConfigSchema)
   .action(async ({ clientInput }) => {
     const { domain, ip, proxyDomain } = clientInput
 
@@ -546,7 +546,7 @@ export const syncServerDomainAction = protectedClient
   .metadata({
     actionName: 'syncServerDomainAction',
   })
-  .schema(updateServerDomainSchema)
+  .inputSchema(updateServerDomainSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id, domains, operation } = clientInput
     const { payload, userTenant } = ctx
@@ -582,7 +582,7 @@ export const checkServerConnection = protectedClient
   .metadata({
     actionName: 'checkServerConnection',
   })
-  .schema(checkServerConnectionSchema)
+  .inputSchema(checkServerConnectionSchema)
   .action(async ({ clientInput }) => {
     const { connectionType } = clientInput
 
@@ -975,7 +975,7 @@ export const configureGlobalBuildDirAction = protectedClient
   .metadata({
     actionName: 'configureGlobalBuildDirAction',
   })
-  .schema(configureGlobalBuildDirSchema)
+  .inputSchema(configureGlobalBuildDirSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId, buildDir } = clientInput
     const { payload } = ctx
@@ -1010,7 +1010,7 @@ export const resetOnboardingAction = protectedClient
   .metadata({
     actionName: 'resetOnboardingAction',
   })
-  .schema(uninstallDokkuSchema)
+  .inputSchema(uninstallDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant } = ctx

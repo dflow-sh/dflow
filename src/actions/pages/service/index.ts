@@ -8,7 +8,7 @@ export const getServiceDetails = protectedClient
   .metadata({
     actionName: 'getServiceDetails',
   })
-  .schema(getServiceDetailsSchema)
+  .inputSchema(getServiceDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
@@ -40,7 +40,7 @@ export const getServiceDeploymentsBackups = protectedClient
   .metadata({
     actionName: 'getServiceDeploymentsBackups',
   })
-  .schema(getServiceDetailsSchema)
+  .inputSchema(getServiceDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const {
@@ -85,7 +85,7 @@ export const getServiceBackups = protectedClient
   .metadata({
     actionName: 'getServiceBackups',
   })
-  .schema(getServiceDetailsSchema)
+  .inputSchema(getServiceDetailsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { id } = clientInput
     const { payload } = ctx

@@ -21,7 +21,7 @@ import { getSystemStatsSchema, installMonitoringToolsSchema } from './validator'
 
 export const installMonitoringToolsAction = protectedClient
   .metadata({ actionName: 'installMonitoringToolsAction' })
-  .schema(installMonitoringToolsSchema)
+  .inputSchema(installMonitoringToolsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverId } = clientInput
     const { payload, userTenant, user } = ctx
@@ -179,7 +179,7 @@ export const getSystemStatsAction = userClient
   .metadata({
     actionName: 'getSystemStats',
   })
-  .schema(getSystemStatsSchema)
+  .inputSchema(getSystemStatsSchema)
   .action(async ({ clientInput, ctx }) => {
     const { serverName, host, type, from } = clientInput
 
