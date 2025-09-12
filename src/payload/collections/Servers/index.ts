@@ -51,7 +51,7 @@ export const Servers: CollectionConfig = {
       edit: {
         beforeDocumentControls: [
           {
-            path: '@/payload/collections/Servers/custom/InstallMonitoringTools.tsx',
+            path: '@/payload/collections/Servers/custom/InstallBackupTools.tsx',
           },
         ],
       },

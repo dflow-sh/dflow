@@ -189,6 +189,11 @@ NEXT_PUBLIC_DISCORD_INVITE_URL=""
 RESEND_SENDER_EMAIL=""
 RESEND_SENDER_NAME=""
 RESEND_API_KEY=""
+
+S3_ACCESS_KEY_ID=""
+S3_ENDPOINT=""
+S3_REGION=""
+S3_SECRET_ACCESS_KEY=""
 EOF
 printf "📄 Created .env file\n"
 
@@ -296,9 +301,9 @@ printf "${PURPLE}🚀 Next Steps${NC}\n"
 
 if command -v docker >/dev/null 2>&1; then
   DOCKER_VERSION=$(docker --version)
-  printf "%b\n" "▬ Run: ${BOLD}docker compose --env-file .env up -d${NC}"
+  printf "%b\n" "▬ Run: ${BOLD}docker compose --env-file .env -p dflow up -d${NC}\n"
 else
   printf "%b\n" "▬ Docker is not installed!\n"
   printf "%b\n" "${GRAY}Install Docker, with single command, curl -fsSL https://get.docker.com/ | sh${NC}\n"
-  printf "%b\n" "▬ After installation run: ${BOLD}docker compose --env-file .env -p dflow up -d${NC}"
+  printf "%b\n" "▬ After installation run: ${BOLD}docker compose --env-file .env -p dflow up -d${NC}\n"
 fi

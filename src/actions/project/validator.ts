@@ -11,6 +11,10 @@ export const createProjectSchema = z.object({
   hidden: z.boolean().optional(),
 })
 
+export const createProjectAdminSchema = createProjectSchema.extend({
+  tenantId: z.string({ message: 'Tenant is required' }),
+})
+
 export const updateProjectSchema = z.object({
   name: z
     .string()

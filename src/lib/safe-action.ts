@@ -148,3 +148,48 @@ export const userClient = publicClient.use(async ({ next, ctx, metadata }) => {
     },
   })
 })
+
+export const adminClient = publicClient.use(async ({ next, ctx, metadata }) => {
+  const headersList = await headers()
+  const payload = await getPayload({
+    config: configPromise,
+  })
+
+  // 1. checking for user
+  const { user } = await payload.auth({ headers: headersList })
+
+  log.info(
+    `Running admin action: ${metadata?.actionName} by ${user?.username}`,
+    {
+      actionName: metadata?.actionName,
+      userId: user?.id,
+      userEmail: user?.email,
+      userName: user?.username,
+      headers: Object.fromEntries(headersList.entries()),
+    },
+    { hideInConsole: false },
+  )
+
+  if (!user) {
+    throw Error('Unauthenticated')
+  }
+
+  if (!user?.role?.includes('admin')) {
+    throw Error('Forbidden')
+  }
+
+  log.info(`Verified admin role for user: ${user?.username}`, {
+    actionName: metadata?.actionName,
+    userId: user?.id,
+    userEmail: user?.email,
+    userName: user?.username,
+  })
+
+  return next({
+    ctx: {
+      ...ctx,
+      payload,
+      user,
+    },
+  })
+})

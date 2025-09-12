@@ -3,7 +3,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { dokkuBackupAction } from '@/actions/backups'
+import { serverBackupAction } from '@/actions/backups'
 import Loader from '@/components/Loader'
 import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
@@ -32,12 +32,12 @@ const Step6 = ({ server }: { server: ServerType }) => {
     })
   }
 
-  const { execute, isPending, hasSucceeded } = useAction(dokkuBackupAction, {
+  const { execute, isPending, hasSucceeded } = useAction(serverBackupAction, {
     onError: ({ error }) => {
       toast.error(`Failed to install backup tools: ${error?.serverError}`)
     },
     onSuccess: ({ data }) => {
-      if (data?.installation === 'done') {
+      if (data?.installation) {
         setBackupToolsInstalled(true)
       }
 

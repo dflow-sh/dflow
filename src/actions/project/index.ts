@@ -2,19 +2,80 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
+import { adminClient, protectedClient } from '@/lib/safe-action'
 import { generateRandomString } from '@/lib/utils'
 import { ServerType } from '@/payload-types-overrides'
 import { addDeleteProjectQueue } from '@/queues/project/deleteProject'
 
 import {
+  createProjectAdminSchema,
   createProjectSchema,
   deleteProjectSchema,
   getProjectDatabasesSchema,
   updateProjectSchema,
 } from './validator'
 
-// No need to handle try/catch that abstraction is taken care by next-safe-actions
+export const createProjectAdminAction = adminClient
+  .metadata({
+    // This action name can be used for sentry tracking
+    actionName: 'createProjectAdminAction',
+  })
+  .inputSchema(createProjectAdminSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      name = '',
+      description = '',
+      serverId,
+      hidden = false,
+      tenantId,
+    } = clientInput
+    const { payload } = ctx
+
+    const slicedName = name?.slice(0, 10)
+
+    let uniqueName = slicedName
+
+    const { docs: duplicateProjects } = await payload.find({
+      collection: 'projects',
+      where: {
+        and: [
+          {
+            name: {
+              equals: slicedName,
+            },
+          },
+
+          {
+            tenant: {
+              equals: tenantId,
+            },
+          },
+        ],
+      },
+    })
+
+    if (duplicateProjects.length > 0) {
+      // add a 4-random character generation
+      const uniqueSuffix = generateRandomString({ length: 4 })
+      uniqueName = `${slicedName}-${uniqueSuffix}`
+    }
+
+    const response = await payload.create({
+      collection: 'projects',
+      data: {
+        name: uniqueName,
+        description,
+        server: serverId,
+        tenant: tenantId,
+        hidden,
+      },
+      user: ctx.user,
+      depth: 2,
+    })
+
+    return response
+  })
+
 export const createProjectAction = protectedClient
   .metadata({
     // This action name can be used for sentry tracking
