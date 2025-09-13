@@ -7,6 +7,7 @@ import { securityGroupBeforeDeleteHook } from './hooks/securityGroupBeforeDelete
 
 const SecurityGroups: CollectionConfig = {
   slug: 'securityGroups',
+  trash: true,
   admin: {
     useAsTitle: 'name',
   },

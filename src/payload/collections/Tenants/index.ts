@@ -4,6 +4,7 @@ import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
+  trash: true,
   admin: {
     useAsTitle: 'name',
     group: 'Users & Tenants',

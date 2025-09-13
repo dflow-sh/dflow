@@ -7,6 +7,7 @@ import { checkDuplicateDockerRegistries } from './hooks/checkDuplicateDockerRegi
 
 export const DockerRegistries: CollectionConfig = {
   slug: 'dockerRegistries',
+  trash: true,
   admin: {
     useAsTitle: 'name',
   },

@@ -49,6 +49,7 @@ const defaultTenantArrayField = tenantsArrayField({
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  trash: true,
   admin: {
     useAsTitle: 'email',
     group: 'Users & Tenants',

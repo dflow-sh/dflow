@@ -4,6 +4,7 @@ import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Traefik: CollectionConfig = {
   slug: 'traefik',
+  trash: true,
   access: {
     read: isAdmin,
     create: isAdmin,

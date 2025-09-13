@@ -1,4 +1,3 @@
-import { softDeletePlugin } from '@payload-bites/soft-delete'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
@@ -35,31 +34,9 @@ import { AuthConfig } from './payload/globals/AuthConfig'
 import { Branding } from './payload/globals/Branding'
 import { Theme } from './payload/globals/Theme'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
-import {
-  addBeforeOperationHook,
-  softDeletePluginConfigCollections,
-} from './soft-delete'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-const collectionsWithHook = addBeforeOperationHook([
-  Users,
-  Projects,
-  Services,
-  Servers,
-  SSHKeys,
-  GitProviders,
-  Deployments,
-  CloudProviderAccounts,
-  Template,
-  SecurityGroups,
-  DockerRegistries,
-  Tenants,
-  Backups,
-  Traefik,
-  Roles,
-])
 
 export default buildConfig({
   routes: {
@@ -79,7 +56,25 @@ export default buildConfig({
     },
   },
   globals: [Theme, Branding, AuthConfig],
-  collections: [...collectionsWithHook, Banners, Media],
+  collections: [
+    Users,
+    Projects,
+    Services,
+    Servers,
+    SSHKeys,
+    GitProviders,
+    Deployments,
+    CloudProviderAccounts,
+    Template,
+    SecurityGroups,
+    DockerRegistries,
+    Tenants,
+    Backups,
+    Traefik,
+    Roles,
+    Banners,
+    Media,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -109,10 +104,6 @@ export default buildConfig({
       tenantsArrayField: {
         includeDefaultField: false,
       },
-    }),
-    softDeletePlugin({
-      enabled: true,
-      collections: softDeletePluginConfigCollections,
     }),
   ],
   ...(env?.RESEND_API_KEY &&

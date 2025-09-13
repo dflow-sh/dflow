@@ -184,9 +184,9 @@ export interface User {
         id?: string | null;
       }[]
     | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
@@ -208,9 +208,9 @@ export interface Tenant {
   name: string;
   slug: string;
   subdomain: string;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -312,9 +312,9 @@ export interface Role {
   type?: ('engineering' | 'management' | 'marketing' | 'finance' | 'sales') | null;
   createdBy?: (string | null) | User;
   tags?: string[] | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -346,9 +346,9 @@ export interface Project {
    */
   hidden?: boolean | null;
   createdBy?: (string | null) | User;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -602,9 +602,9 @@ export interface Server {
    */
   globalBuildPath?: string | null;
   createdBy?: (string | null) | User;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -623,9 +623,9 @@ export interface SshKey {
   description?: string | null;
   publicKey: string;
   privateKey: string;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -662,9 +662,9 @@ export interface CloudProviderAccount {
     tenantId: string;
     subscriptionId: string;
   };
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -768,9 +768,9 @@ export interface SecurityGroup {
   securityGroupId?: string | null;
   syncStatus?: ('in-sync' | 'pending' | 'failed' | 'start-sync') | null;
   lastSyncedAt?: string | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -898,9 +898,9 @@ export interface Service {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -916,9 +916,9 @@ export interface Backup {
   type?: ('external' | 'internal') | null;
   backupName?: string | null;
   status: 'in-progress' | 'failed' | 'success';
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -940,9 +940,9 @@ export interface GitProvider {
     installationToken?: string | null;
     tokenExpiration?: string | null;
   };
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -955,9 +955,9 @@ export interface DockerRegistry {
   type: 'docker' | 'github' | 'digitalocean' | 'quay';
   username: string;
   password: string;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -979,9 +979,9 @@ export interface Deployment {
     | number
     | boolean
     | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1002,9 +1002,9 @@ export interface Traefik {
     | number
     | boolean
     | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1105,9 +1105,9 @@ export interface Template {
     | null;
   isPublished?: boolean | null;
   publishedTemplateId?: string | null;
-  deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1476,9 +1476,9 @@ export interface UsersSelect<T extends boolean = true> {
         role?: T;
         id?: T;
       };
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
@@ -1503,9 +1503,9 @@ export interface ProjectsSelect<T extends boolean = true> {
   services?: T;
   hidden?: T;
   createdBy?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1626,9 +1626,9 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   deployments?: T;
   traefikConfiguration?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1723,9 +1723,9 @@ export interface ServersSelect<T extends boolean = true> {
   connectionAttempts?: T;
   globalBuildPath?: T;
   createdBy?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1737,9 +1737,9 @@ export interface SshKeysSelect<T extends boolean = true> {
   description?: T;
   publicKey?: T;
   privateKey?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1762,9 +1762,9 @@ export interface GitProvidersSelect<T extends boolean = true> {
         installationToken?: T;
         tokenExpiration?: T;
       };
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1774,9 +1774,9 @@ export interface DeploymentsSelect<T extends boolean = true> {
   service?: T;
   status?: T;
   logs?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1816,9 +1816,9 @@ export interface CloudProviderAccountsSelect<T extends boolean = true> {
         tenantId?: T;
         subscriptionId?: T;
       };
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1926,9 +1926,9 @@ export interface TemplatesSelect<T extends boolean = true> {
       };
   isPublished?: T;
   publishedTemplateId?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1976,9 +1976,9 @@ export interface SecurityGroupsSelect<T extends boolean = true> {
   securityGroupId?: T;
   syncStatus?: T;
   lastSyncedAt?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1990,9 +1990,9 @@ export interface DockerRegistriesSelect<T extends boolean = true> {
   type?: T;
   username?: T;
   password?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2002,9 +2002,9 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   subdomain?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2016,9 +2016,9 @@ export interface BackupsSelect<T extends boolean = true> {
   type?: T;
   backupName?: T;
   status?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2027,9 +2027,9 @@ export interface BackupsSelect<T extends boolean = true> {
 export interface TraefikSelect<T extends boolean = true> {
   service?: T;
   configuration?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2142,9 +2142,9 @@ export interface RolesSelect<T extends boolean = true> {
   type?: T;
   createdBy?: T;
   tags?: T;
-  deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

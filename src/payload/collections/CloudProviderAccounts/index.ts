@@ -7,6 +7,7 @@ import { checkDuplicateCloudAccounts } from './hooks/checkDuplicateCloudAccounts
 
 export const CloudProviderAccounts: CollectionConfig = {
   slug: 'cloudProviderAccounts',
+  trash: true,
   admin: {
     useAsTitle: 'name',
   },

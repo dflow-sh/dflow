@@ -5,6 +5,7 @@ import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
+  trash: true,
   labels: {
     singular: 'Project',
     plural: 'Projects',

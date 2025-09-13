@@ -7,6 +7,7 @@ import { ensureUniqueName } from './hooks/ensureUniqueName'
 
 export const SSHKeys: CollectionConfig = {
   slug: 'sshKeys',
+  trash: true,
   labels: {
     singular: 'SSH Key',
     plural: 'SSH Keys',

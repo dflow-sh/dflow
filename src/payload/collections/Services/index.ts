@@ -437,6 +437,7 @@ const dockerField: Field = {
 
 export const Services: CollectionConfig = {
   slug: 'services',
+  trash: true,
   labels: {
     singular: 'Service',
     plural: 'Services',

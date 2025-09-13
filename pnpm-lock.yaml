@@ -36,9 +36,6 @@ importers:
       '@oversightstudio/encrypted-fields':
         specifier: ^1.0.0
         version: 1.0.0(@payloadcms/ui@3.54.0(@types/react@19.1.12)(monaco-editor@0.52.2)(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.7.3))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))
-      '@payload-bites/soft-delete':
-        specifier: ^2.1.1
-        version: 2.1.1(@payloadcms/translations@3.54.0)(@payloadcms/ui@3.54.0(@types/react@19.1.12)(monaco-editor@0.52.2)(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(qs-esm@7.0.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@payloadcms/db-mongodb':
         specifier: 3.54.0
         version: 3.54.0(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))
@@ -1595,17 +1592,6 @@ packages:
   '@parcel/watcher@2.5.1':
     resolution: {integrity: sha512-dfUnCxiN9H4ap84DvD2ubjw+3vUNpstxa0TneY/Paat8a3R4uQZDLSvWjmznAY/DoahqTHl9V46HF/Zs3F29pg==}
     engines: {node: '>= 10.0.0'}
-
-  '@payload-bites/soft-delete@2.1.1':
-    resolution: {integrity: sha512-vdi61lc7Rx3yhYIyHrsI7AOEah0TIiWJsWSjM4sSiEGeXU3/UuUmA05a1ypdJkPNYLN3yz1I2wwfqbkr99cQPg==}
-    peerDependencies:
-      '@payloadcms/translations': ^3.39.0
-      '@payloadcms/ui': ^3.39.0
-      next: ^15.2.3
-      payload: ^3.39.0
-      qs-esm: ^7
-      react: ^19
-      react-dom: ^19
 
   '@payloadcms/db-mongodb@3.54.0':
     resolution: {integrity: sha512-iNXJmS2elRdmpwXpS+kTPnLnsC+ltT9duJ222jdeRijaJTVB4mYU+Z5bFJ7ZIrzYvtQRV3V6Sz++iTuESEfMhg==}
@@ -8329,16 +8315,6 @@ snapshots:
       '@parcel/watcher-win32-arm64': 2.5.1
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
-
-  '@payload-bites/soft-delete@2.1.1(@payloadcms/translations@3.54.0)(@payloadcms/ui@3.54.0(@types/react@19.1.12)(monaco-editor@0.52.2)(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(qs-esm@7.0.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
-    dependencies:
-      '@payloadcms/translations': 3.54.0
-      '@payloadcms/ui': 3.54.0(@types/react@19.1.12)(monaco-editor@0.52.2)(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.7.3)
-      next: 15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4)
-      payload: 3.54.0(graphql@16.11.0)(typescript@5.7.3)
-      qs-esm: 7.0.2
-      react: 19.1.1
-      react-dom: 19.1.1(react@19.1.1)
 
   '@payloadcms/db-mongodb@3.54.0(payload@3.54.0(graphql@16.11.0)(typescript@5.7.3))':
     dependencies:

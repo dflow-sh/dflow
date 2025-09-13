@@ -8,6 +8,7 @@ import { checkDuplicateGitProviders } from './hooks/checkDuplicateGitProviders'
 
 export const GitProviders: CollectionConfig = {
   slug: 'gitProviders',
+  trash: true,
   labels: {
     singular: 'Git Provider',
     plural: 'Git Providers',

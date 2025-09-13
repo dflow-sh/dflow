@@ -41,6 +41,7 @@ const pluginFields: Field[] = [
 
 export const Servers: CollectionConfig = {
   slug: 'servers',
+  trash: true,
   labels: {
     singular: 'Server',
     plural: 'Servers',

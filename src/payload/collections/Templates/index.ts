@@ -6,6 +6,7 @@ import { isAdmin } from '@/payload/access/isAdmin'
 
 export const Template: CollectionConfig = {
   slug: 'templates',
+  trash: true,
   labels: {
     singular: 'Template',
     plural: 'Templates',
