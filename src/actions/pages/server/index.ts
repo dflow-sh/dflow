@@ -243,6 +243,9 @@ export const getServerGeneralTabDetails = protectedClient
               {
                 server: { equals: id },
               },
+              {
+                hidden: { equals: false },
+              },
               ...(role?.projects?.readLimit === 'createdByUser'
                 ? [
                     {
