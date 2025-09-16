@@ -4,6 +4,21 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // These will redirect old admin paths to new auth paths
+  async redirects() {
+    return [
+      {
+        source: '/payload-admin/login',
+        destination: '/sign-in',
+        permanent: false,
+      },
+      {
+        source: '/payload-admin/create-first-user',
+        destination: '/sign-up',
+        permanent: false,
+      },
+    ]
+  },
   // This will rewrite the events to posthog endpoint
   async rewrites() {
     return [
