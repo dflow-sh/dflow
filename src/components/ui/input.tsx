@@ -11,11 +11,20 @@ function Input({ className, type, showPasswordToggle, ...props }: InputProps) {
   const [showPassword, setShowPassword] = React.useState(false)
   const [inputType, setInputType] = React.useState(type)
 
-  const shouldShowToggle = type === 'password' && showPasswordToggle !== false
+  // Create a clear variable to determine when to show the toggle
+  const shouldShowToggle =
+    showPasswordToggle === true ||
+    (type === 'password' && showPasswordToggle !== false)
 
   React.useEffect(() => {
     if (shouldShowToggle) {
-      setInputType(showPassword ? 'text' : 'password')
+      // For password fields, toggle between 'password' and 'text'
+      // For other fields, toggle between original type and 'password'
+      if (type === 'password') {
+        setInputType(showPassword ? 'text' : 'password')
+      } else {
+        setInputType(showPassword ? 'password' : type)
+      }
     } else {
       setInputType(type)
     }
