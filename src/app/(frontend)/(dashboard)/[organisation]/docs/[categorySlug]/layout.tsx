@@ -13,7 +13,7 @@ interface PageProps {
 export default function Layout({ children, params }: PageProps) {
   return (
     <LayoutClient>
-      <section className='flex h-full w-full'>
+      <section className='-mt-4 flex h-full w-full'>
         <DocsSidebar params={params} />
 
         {/* Right Side Content */}

@@ -454,15 +454,6 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
       }
     }
 
-    console.log('Coming Here')
-
-    console.log({
-      isConnected,
-      isCloudInitRunning,
-      isOnboarded,
-      dpkgLocked: server.dpkgLocked,
-    })
-
     // 7. dpkg locked state (after onboarding check)
     if (
       isConnected &&

@@ -15,7 +15,7 @@ const LayoutClient = ({
   className?: string
 }) => {
   const pathName = usePathname()
-  const params = useParams()
+  const params = useParams<{ organisation: string }>()
 
   const tabsList = [
     { label: 'Dashboard', slug: '/dashboard' },
@@ -28,9 +28,11 @@ const LayoutClient = ({
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
+  console.log({ pathName, params })
+
   return (
     <>
-      <div className={cn('sticky top-[68px] z-40 bg-background')}>
+      <div className={cn('bg-background sticky top-[68px] z-40')}>
         <div
           className='mx-auto w-full max-w-6xl overflow-x-scroll px-4'
           style={{ scrollbarWidth: 'none' }}>
@@ -41,17 +43,20 @@ const LayoutClient = ({
               ),
               asChild: true,
             }))}
-            defaultActiveTab={tabsList.findIndex(({ slug }) =>
-              pathName.includes(slug),
-            )}
+            defaultActiveTab={tabsList.findIndex(({ slug }) => {
+              const url = pathName.split(`/${params.organisation}`).at(-1)
+              const splittedSlug = `/${slug.split('/').at(1)}`
+
+              return url?.startsWith(splittedSlug)
+            })}
           />
         </div>
 
-        <div className='absolute bottom-0 z-[-10] h-px w-full bg-border' />
+        <div className='bg-border absolute bottom-0 z-[-10] h-px w-full' />
       </div>
 
       <main
-        className={cn('mx-auto w-full max-w-6xl px-4 pb-32 pt-4', className)}>
+        className={cn('mx-auto w-full max-w-6xl px-4 pt-4 pb-32', className)}>
         {children}
       </main>
     </>

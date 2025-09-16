@@ -1006,9 +1006,9 @@ export const configureGlobalBuildDirAction = protectedClient
     }
   })
 
-export const resetOnboardingAction = protectedClient
+export const resetServerAction = protectedClient
   .metadata({
-    actionName: 'resetOnboardingAction',
+    actionName: 'resetServerAction',
   })
   .inputSchema(uninstallDokkuSchema)
   .action(async ({ clientInput, ctx }) => {
@@ -1040,4 +1040,23 @@ export const resetOnboardingAction = protectedClient
     }
 
     return { success: false }
+  })
+
+export const resetServerOnboardingAction = protectedClient
+  .metadata({
+    actionName: 'resetServerOnboardingAction',
+  })
+  .inputSchema(uninstallDokkuSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { serverId } = clientInput
+    const { payload, userTenant } = ctx
+
+    await payload.update({
+      id: serverId,
+      data: { onboarded: false, domains: [], plugins: [] },
+      collection: 'servers',
+    })
+
+    revalidatePath(`/${userTenant.tenant.slug}/servers/${serverId}`)
+    return { success: true }
   })

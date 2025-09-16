@@ -338,24 +338,7 @@ export const deleteServiceAction = protectedClient
           })
         }
       } else if (!deleteFromServer) {
-        // If not deleting from server, just mark as deleted in database
-        await payload.update({
-          collection: 'services',
-          id,
-          data: {
-            deletedAt: new Date().toISOString(),
-          },
-        })
-      }
-
-      // Always update the service in the database (if not already done above)
-      const response = await payload.findByID({
-        collection: 'services',
-        id,
-      })
-
-      // Only update if not already marked as deleted
-      if (!response.deletedAt) {
+        // marking service as deleted
         await payload.update({
           collection: 'services',
           id,
