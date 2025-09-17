@@ -79,6 +79,16 @@ export const installMonitoringToolsAction = protectedClient
         [user.email, config.superuserEmail],
       )
 
+      await payload.update({
+        collection: 'servers',
+        id: serverId,
+        data: {
+          beszel: {
+            systemId: system.id,
+          },
+        },
+      })
+
       // Get template and configure services
       const template = await fetchBeszelTemplate()
       const configuredServices = configureTemplateServices(

@@ -327,6 +327,25 @@ export const Servers: CollectionConfig = {
       ],
     },
     {
+      name: 'beszel',
+      type: 'group',
+      label: 'Beszel Monitoring',
+      admin: {
+        description: 'Beszel monitoring configuration for this server.',
+        position: 'sidebar',
+      },
+      fields: [
+        {
+          name: 'systemId',
+          type: 'text',
+          label: 'System ID',
+          admin: {
+            description: 'The Beszel system ID for this server',
+          },
+        },
+      ],
+    },
+    {
       name: 'plugins',
       type: 'array',
       fields: pluginFields,
