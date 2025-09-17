@@ -218,6 +218,7 @@ export const getActionAccess = {
   // Beszel Actions
   installMonitoringToolsAction: [
     'servers.read',
+    'servers.update',
     'projects.read',
     'projects.create',
     'services.create',

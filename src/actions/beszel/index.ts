@@ -191,7 +191,7 @@ export const getSystemStatsAction = userClient
   })
   .inputSchema(getSystemStatsSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { serverName, host, type, from } = clientInput
+    const { systemId, type, from } = clientInput
 
     try {
       // Step 1: Check Beszel configuration
@@ -214,18 +214,10 @@ export const getSystemStatsAction = userClient
       )
 
       // Step 3: Fetch server details
-      const { items: existingSystems } = await client.getList({
+      const system = await client.getOne({
         collection: Collections.SYSTEMS,
-        filter: `name="${serverName}" || host="${host}"`,
-        perPage: 10,
-        page: 1,
+        id: systemId,
       })
-
-      console.log(existingSystems)
-
-      const system = existingSystems.find(
-        (s: any) => s.name === serverName || s.host === host,
-      )
 
       // Step 4: Fetch system stats
       const normalizedFrom = new Date(from)
