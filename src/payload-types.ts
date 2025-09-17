@@ -459,6 +459,15 @@ export interface Server {
       | boolean
       | null;
   };
+  /**
+   * Beszel monitoring configuration for this server.
+   */
+  beszel?: {
+    /**
+     * The Beszel system ID for this server
+     */
+    systemId?: string | null;
+  };
   plugins?:
     | {
         name: string;
@@ -1664,6 +1673,11 @@ export interface ServersSelect<T extends boolean = true> {
         created?: T;
         expires?: T;
         completeApiResponse?: T;
+      };
+  beszel?:
+    | T
+    | {
+        systemId?: T;
       };
   plugins?:
     | T

@@ -6,6 +6,7 @@ import { Collections } from '@/lib/beszel/types'
 import { pub } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { generateRandomString } from '@/lib/utils'
+import { ServerType } from '@/payload-types-overrides'
 
 /**
  * Check if all required Beszel environment variables are configured
@@ -100,7 +101,7 @@ export async function createMonitoringProject(
  */
 export async function setupBeszelSystem(
   config: any,
-  serverDetails: any,
+  serverDetails: ServerType,
   host: string,
   userEmails: string[],
 ) {
@@ -121,14 +122,14 @@ export async function setupBeszelSystem(
   const userIds = users.map((u: any) => u.id)
 
   // Get or create system
-  const { items: systems } = await client.getList({
-    collection: Collections.SYSTEMS,
-    filter: `name="${serverDetails.name}" || host="${host}"`,
-    perPage: 10,
-    page: 1,
-  })
+  const existingSystem = serverDetails.beszel?.systemId
+    ? await client.getOne({
+        collection: Collections.SYSTEMS,
+        id: serverDetails.beszel.systemId,
+      })
+    : undefined
 
-  let system = systems[0]
+  let system = existingSystem
   if (system) {
     // Update existing system
     system = await client.update({
@@ -163,10 +164,25 @@ export async function setupBeszelSystem(
   })
 
   let fingerprint = fingerprints[0]
-  if (!fingerprint) {
+  if (fingerprint) {
+    // Reset existing fingerprint
+    fingerprint = await client.update({
+      collection: Collections.FINGERPRINTS,
+      id: fingerprint.id,
+      data: {
+        fingerprint: '',
+        token: fingerprint.token,
+        system: system.id,
+      },
+    })
+  } else {
+    // Create new fingerprint
     fingerprint = await client.create({
       collection: Collections.FINGERPRINTS,
-      data: { system: system.id, fingerprint: '' },
+      data: {
+        system: system.id,
+        fingerprint: '',
+      },
     })
   }
 

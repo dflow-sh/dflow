@@ -7,8 +7,7 @@ export const installMonitoringToolsSchema = z.object({
 })
 
 export const getSystemStatsSchema = z.object({
-  serverName: z.string(),
-  host: z.string(),
+  systemId: z.string(),
   type: StatTypeEnum,
   from: z.string(),
 })

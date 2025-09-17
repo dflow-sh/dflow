@@ -291,11 +291,7 @@ const DefaultMonitoring = ({
   const fetchMonitoringData = useCallback(async () => {
     try {
       getSystemStats({
-        serverName: server.name,
-        host:
-          server.preferConnectionType === 'ssh'
-            ? (server.ip ?? '')
-            : (server.publicIp ?? ''),
+        systemId: server.beszel?.systemId || '',
         type: timeRange.type,
         from: timeRange.from,
       })
@@ -435,7 +431,7 @@ const DefaultMonitoring = ({
       </div>
 
       {/* Last Updated Info with Loading Icon */}
-      <div className='flex items-center text-sm text-muted-foreground'>
+      <div className='text-muted-foreground flex items-center text-sm'>
         {(isDataRefreshing || isSystemStatsPending) && (
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
         )}
