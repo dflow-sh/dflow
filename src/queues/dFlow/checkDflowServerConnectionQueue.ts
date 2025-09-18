@@ -16,7 +16,7 @@ interface CheckDflowServerConnectionQueueArgs {
 export const addCheckDflowServerConnectionQueue = async (
   data: CheckDflowServerConnectionQueueArgs,
 ) => {
-  const QUEUE_NAME = `check-${data.serverId}-server-connection`
+  const QUEUE_NAME = `server-${data.serverId}-connection`
 
   const queue = getQueue({ name: QUEUE_NAME, connection: queueConnection })
 
