@@ -1,3 +1,4 @@
+import { addDeleteMachineQueue } from '../tailscale/deleteMachine'
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
@@ -6,6 +7,7 @@ import { deleteProjectAction } from '@/actions/project'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { deleteMachine } from '@/lib/tailscale/deleteMachine'
 
 interface QueueArgs {
   serverDetails: {
@@ -88,6 +90,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
         const failed = deleteResults.filter(
           result => result.status === 'rejected',
         )
+
         const succeeded = deleteResults.filter(
           result => result.status === 'fulfilled',
         )
@@ -111,6 +114,26 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
             pub,
             message: `✅ Successfully processed ${projects.length} project(s) for deletion`,
             serverId: serverDetails.id,
+          })
+        }
+
+        // if deleteProjects is checked directly removing machine from tailscale
+        if (!deleteProjectsFromServer) {
+          await deleteMachine({
+            serverId: serverDetails.id,
+            payload,
+          })
+        }
+        // waiting in queue for all project deletion to be completed to delete machine from tailscale
+        else {
+          await addDeleteMachineQueue({
+            serverDetails: {
+              id: serverDetails.id,
+              name: '',
+            },
+            projectsQueueIDs: succeeded.map(
+              actionResult => actionResult.value.data?.queueId!,
+            ),
           })
         }
 

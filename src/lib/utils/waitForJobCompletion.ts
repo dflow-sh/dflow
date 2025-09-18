@@ -1,4 +1,4 @@
-import { Job } from 'bullmq'
+import { type Job, type Queue, QueueEvents } from 'bullmq'
 
 export async function waitForJobCompletion(
   job: Job,
@@ -45,4 +45,62 @@ export async function waitForJobCompletion(
 
   // If we've reached the maximum number of attempts, consider it a timeout
   throw new Error(`Error execution timeout`)
+}
+
+export async function waitForJobIdCompletion(
+  queue: Queue,
+  jobId: string,
+  options: {
+    successStates?: string[]
+    failureStates?: string[]
+    timeout?: number
+  } = {},
+) {
+  const {
+    successStates = ['completed'],
+    failureStates = ['failed'],
+    timeout = 30 * 60 * 1000, // default: 30 minutes
+  } = options
+
+  const queueEvents = new QueueEvents(queue.name, {
+    connection: queue.opts.connection,
+  })
+  await queueEvents.waitUntilReady()
+
+  return new Promise<{ success: boolean }>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      cleanup()
+      reject(new Error(`Job ${jobId} timed out after ${timeout / 1000}s`))
+    }, timeout)
+
+    const handleCompleted = ({ jobId: finishedId }: { jobId: string }) => {
+      if (finishedId === jobId && successStates.includes('completed')) {
+        cleanup()
+        resolve({ success: true })
+      }
+    }
+
+    const handleFailed = ({
+      jobId: finishedId,
+      failedReason,
+    }: {
+      jobId: string
+      failedReason: string
+    }) => {
+      if (finishedId === jobId && failureStates.includes('failed')) {
+        cleanup()
+        reject(new Error(`Job ${jobId} failed: ${failedReason}`))
+      }
+    }
+
+    function cleanup() {
+      clearTimeout(timer)
+      queueEvents.off('completed', handleCompleted)
+      queueEvents.off('failed', handleFailed)
+      queueEvents.close()
+    }
+
+    queueEvents.on('completed', handleCompleted)
+    queueEvents.on('failed', handleFailed)
+  })
 }
