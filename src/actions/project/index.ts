@@ -218,7 +218,13 @@ export const deleteProjectAction = protectedClient
   })
   .inputSchema(deleteProjectSchema)
   .action(async ({ clientInput, ctx }) => {
-    const { id, serverId, deleteBackups, deleteFromServer } = clientInput
+    const {
+      id,
+      serverId,
+      deleteBackups,
+      deleteFromServer,
+      revalidateDashboard = true,
+    } = clientInput
     const {
       userTenant: { tenant },
     } = ctx
@@ -238,7 +244,9 @@ export const deleteProjectAction = protectedClient
     })
 
     if (queueResponse.id) {
-      revalidatePath(`/${tenant.slug}/dashboard`)
+      if (revalidateDashboard) {
+        revalidatePath(`/${tenant.slug}/dashboard`)
+      }
 
       return {
         queued: true,

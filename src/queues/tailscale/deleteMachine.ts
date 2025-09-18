@@ -31,6 +31,7 @@ export const addDeleteMachineQueue = async (data: QueueArgs) => {
       const payload = await getPayload({ config: configPromise })
 
       console.log('inside delete machine queue')
+      console.dir({ projectsQueueIDs }, { depth: null })
 
       try {
         sendEvent({
@@ -39,11 +40,22 @@ export const addDeleteMachineQueue = async (data: QueueArgs) => {
           serverId: serverDetails.id,
         })
 
+        console.log('waiting for project deletion')
+
         await Promise.allSettled(
-          projectsQueueIDs.map(id =>
-            waitForJobIdCompletion(deleteProjectQueue, id),
-          ),
+          projectsQueueIDs.map(id => {
+            const projectDeleteQueue = getQueue({
+              name: `server-${data.serverDetails.id}-project-delete`, // or whatever you used
+              connection: queueConnection,
+            })
+
+            console.log({ projectDeleteQueue, id })
+
+            return waitForJobIdCompletion(projectDeleteQueue, id)
+          }),
         )
+
+        console.log('completed for project deletion')
 
         const response = await deleteMachine({
           payload,

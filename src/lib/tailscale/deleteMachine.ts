@@ -13,7 +13,7 @@ export const deleteMachine = async ({
   payload: BasePayload
 }) => {
   const { data } = await generateOAuthToken()
-  const token = data?.data?.access_token
+  const token = data?.access_token
 
   if (token) {
     const listResponse = await tailscale.get(
@@ -25,7 +25,9 @@ export const deleteMachine = async ({
       },
     )
 
-    console.dir({ listResponse: listResponse.data }, { depth: null })
+    if (listResponse?.status > 200) {
+      throw new Error('Failed to retrieve tailscale devices')
+    }
 
     const server = await payload.findByID({
       collection: 'servers',
@@ -44,7 +46,9 @@ export const deleteMachine = async ({
       },
     })
 
-    console.log({ deletionResponse: deletionResponse?.data }, { depth: null })
+    if (listResponse?.status > 200) {
+      throw new Error(`Failed to delete server ${server.name}`)
+    }
 
     if (deletionResponse.status === 200) {
       return { success: true }
