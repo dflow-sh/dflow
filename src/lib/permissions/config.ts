@@ -193,8 +193,8 @@ export const getActionAccess = {
   getSshKeysAction: ['sshKeys.read', 'servers.read'],
 
   // tailscale Actions
-  getOAuthClientSecretAction: ['servers.read'],
-  generateOAuthClientSecretAction: ['servers.read'],
+  generateOAuthTokenAction: ['servers.read'],
+  generateAuthKeyAction: ['servers.read'],
 
   //  Backup actions
   getAllBackupsAction: ['backups.read', 'backups.update'],
@@ -218,6 +218,13 @@ export const getActionAccess = {
 
   // Beszel Actions
   installMonitoringToolsAction: [
+    'servers.read',
+    'servers.update',
+    'projects.read',
+    'projects.create',
+    'services.create',
+  ],
+  serverBackupAction: [
     'servers.read',
     'servers.update',
     'projects.read',

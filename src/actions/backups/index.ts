@@ -1,7 +1,7 @@
 'use server'
 
 import { generateUniqueServiceName } from '../beszel/utils'
-import { createProjectAdminAction } from '../project'
+import { createProjectAction, createProjectAdminAction } from '../project'
 import { env } from 'env'
 import { BasePayload } from 'payload'
 
@@ -17,9 +17,11 @@ import { dokkuBackupSchema } from './validator'
 const serverBackupMethod = async ({
   payload,
   serverId,
+  useAdminProcedure = false,
 }: {
   payload: BasePayload
   serverId: string
+  useAdminProcedure?: boolean
 }) => {
   const s3Enabled =
     env.S3_ENDPOINT &&
@@ -63,32 +65,39 @@ const serverBackupMethod = async ({
     },
   })
 
-  console.dir({ server, tenant, docs }, { depth: null })
-
   let project = docs?.[0]
 
   // Get or create backups project
   if (!project) {
-    const projectResponse = await createProjectAdminAction({
-      name: 'backups',
-      serverId,
-      revalidate: false,
-      hidden: true,
-      tenantId: tenant.id,
-    })
+    if (useAdminProcedure) {
+      const projectResponse = await createProjectAdminAction({
+        name: 'backups',
+        serverId,
+        revalidate: false,
+        hidden: true,
+        tenantId: tenant.id,
+      })
 
-    console.dir({ projectResponse }, { depth: null })
+      if (projectResponse?.data) {
+        project = projectResponse?.data
+      }
+    } else {
+      const projectResponse = await createProjectAction({
+        name: 'backups',
+        serverId,
+        revalidate: false,
+        hidden: true,
+      })
 
-    if (projectResponse?.data) {
-      project = projectResponse?.data
+      if (projectResponse?.data) {
+        project = projectResponse?.data
+      }
     }
   }
 
   const template = await fetchOfficialTemplateByName({
     name: 'Restic Backups',
   })
-
-  console.dir({ project }, { depth: null })
 
   const existingServices = project?.services?.docs ?? []
   const updatedServices = template.services.map(service => {
