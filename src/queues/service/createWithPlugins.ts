@@ -24,6 +24,9 @@ interface QueueArgs {
   userId: string
   tenantId: string
   tenantSlug: string
+  serverDetails: {
+    id: string
+  }
 }
 
 const getRequiredPlugins = (databaseType: string): string[] => {
@@ -50,7 +53,7 @@ const checkPluginsInstalled = async (
 }
 
 export const addCreateServiceWithPluginsQueue = async (data: QueueArgs) => {
-  const QUEUE_NAME = `service-creation-with-plugins`
+  const QUEUE_NAME = `server-${data.serverDetails.id}-service-creation-with-plugins`
 
   const createServiceQueue = getQueue({
     name: QUEUE_NAME,

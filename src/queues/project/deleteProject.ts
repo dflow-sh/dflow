@@ -24,7 +24,7 @@ interface QueueArgs {
 }
 
 export const addDeleteProjectQueue = async (data: QueueArgs) => {
-  const QUEUE_NAME = `project-${data.projectDetails.id}-delete`
+  const QUEUE_NAME = `server-${data.serverDetails.id}-project-delete`
 
   const deleteProjectQueue = getQueue({
     name: QUEUE_NAME,
@@ -53,15 +53,18 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
           serverId: serverDetails.id,
         })
 
+        const server = await payload.findByID({
+          collection: 'servers',
+          id: serverDetails.id,
+          trash: true,
+          depth: 1,
+        })
+
         // Fetching all services of project
-        const { server, services } = await payload.findByID({
-          collection: 'projects',
-          id: projectDetails.id,
-          depth: 4,
-          joins: {
-            services: {
-              limit: 1000,
-            },
+        const services = await payload.find({
+          collection: 'services',
+          where: {
+            and: [{ 'project.id': { equals: projectDetails.id } }],
           },
         })
 
@@ -163,9 +166,22 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
           for await (const service of servicesList) {
             await payload.update({
               collection: 'services',
-              id: service.id,
               data: {
                 deletedAt: new Date().toISOString(),
+              },
+              where: {
+                and: [
+                  {
+                    deletedAt: {
+                      exists: false,
+                    },
+                  },
+                  {
+                    id: {
+                      equals: service.id,
+                    },
+                  },
+                ],
               },
             })
 
@@ -184,15 +200,28 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
           serverId: serverDetails.id,
         })
 
-        const deleteProjectResponse = await payload.update({
+        const { docs: projects } = await payload.update({
           collection: 'projects',
-          id: projectDetails.id,
           data: {
             deletedAt: new Date().toISOString(),
           },
+          where: {
+            and: [
+              {
+                deletedAt: {
+                  exists: false,
+                },
+              },
+              {
+                id: {
+                  equals: projectDetails.id,
+                },
+              },
+            ],
+          },
         })
 
-        if (deleteProjectResponse.id) {
+        if (projects.length) {
           sendEvent({
             pub,
             message: `✅ Project successfully deleted with ${servicesList?.length || 0} service(s)`,

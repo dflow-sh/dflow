@@ -16,6 +16,7 @@ interface QueueArgs {
   tenant: {
     slug: string
   }
+  projects: string[]
   deleteProjectsFromServer: boolean
   deleteBackups: boolean
 }
@@ -31,8 +32,13 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
   const worker = getWorker<QueueArgs>({
     name: QUEUE_NAME,
     processor: async job => {
-      const { serverDetails, tenant, deleteProjectsFromServer, deleteBackups } =
-        job.data
+      const {
+        serverDetails,
+        tenant,
+        deleteProjectsFromServer,
+        deleteBackups,
+        projects,
+      } = job.data
 
       try {
         const payload = await getPayload({ config: configPromise })
@@ -41,23 +47,6 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
           pub,
           message: 'Fetching projects for server...',
           serverId: serverDetails.id,
-        })
-
-        // Get all projects for this server
-        const { docs: projects } = await payload.find({
-          collection: 'projects',
-          where: {
-            and: [
-              {
-                'tenant.slug': {
-                  equals: tenant.slug,
-                },
-              },
-              {
-                server: { equals: serverDetails.id },
-              },
-            ],
-          },
         })
 
         if (projects.length === 0) {
@@ -79,10 +68,11 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
         const deleteResults = await Promise.allSettled(
           projects.map(project =>
             deleteProjectAction({
-              id: project.id,
+              id: project,
               serverId: serverDetails.id,
               deleteFromServer: deleteProjectsFromServer,
               deleteBackups,
+              revalidateDashboard: false,
             }),
           ),
         )
@@ -105,7 +95,7 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
           // Log failed deletions for debugging
           failed.forEach((result, index) => {
             console.error(
-              `Failed to delete project ${projects[index]?.id}:`,
+              `Failed to delete project ${projects[index]}:`,
               result.reason,
             )
           })
