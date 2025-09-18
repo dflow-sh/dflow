@@ -17,8 +17,8 @@ import {
 } from '@/actions/server'
 import { createTailscaleServerSchema } from '@/actions/server/validator'
 import {
-  generateOAuthClientSecretAction,
-  getOAuthClientSecretAction,
+  generateAuthKeyAction,
+  generateOAuthTokenAction,
 } from '@/actions/tailscale'
 import {
   Form,
@@ -68,7 +68,7 @@ const TailscaleForm = () => {
   const {
     execute: fetchOAuthClientSecret,
     isPending: isFetchingOAuthClientSecret,
-  } = useAction(getOAuthClientSecretAction, {
+  } = useAction(generateOAuthTokenAction, {
     onSuccess: ({ data }) => {
       if (data?.success && data.data) {
         generateAuthKey({ access_token: data.data.access_token })
@@ -85,7 +85,7 @@ const TailscaleForm = () => {
   })
 
   const { execute: generateAuthKey, isPending: isGenerating } = useAction(
-    generateOAuthClientSecretAction,
+    generateAuthKeyAction,
     {
       onSuccess: ({ data }) => {
         if (data?.success && data.data) {
