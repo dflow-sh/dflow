@@ -1,12 +1,14 @@
 import type { PayloadHandler } from 'payload'
 
 export const logoutHandler: PayloadHandler = async () => {
-  return new Response('OK', {
-    status: 200,
+  return new Response(null, {
+    status: 302,
     headers: {
-      'Set-Cookie':
+      'Set-Cookie': [
         'payload-token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Lax',
-      'X-Frame-Options': 'ALLOWALL',
+      ].join(', '),
+      Location: '/sign-in',
+      // 'X-Frame-Options': 'ALLOWALL',
     },
   })
 }
