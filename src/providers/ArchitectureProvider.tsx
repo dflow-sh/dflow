@@ -26,6 +26,9 @@ export const ArchitectureContextProvider: React.FC<{
         toast.success('Added to queue', {
           description: 'Added deploying architecture to queue',
         })
+        if (data.projectId && typeof window !== 'undefined') {
+          localStorage.removeItem(data.projectId)
+        }
       }
     },
     onError: ({ error }) => {
