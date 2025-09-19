@@ -193,8 +193,8 @@ export const getActionAccess = {
   getSshKeysAction: ['sshKeys.read', 'servers.read'],
 
   // tailscale Actions
-  generateOAuthTokenAction: ['servers.read'],
-  generateAuthKeyAction: ['servers.read'],
+  getOAuthClientSecretAction: ['servers.read'],
+  generateOAuthClientSecretAction: ['servers.read'],
 
   //  Backup actions
   getAllBackupsAction: ['backups.read', 'backups.update'],
