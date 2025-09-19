@@ -4,6 +4,7 @@ import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { extractID } from 'payload/shared'
 
 import updateRailpack from '@/lib/axios/updateRailpack'
 import { dokku } from '@/lib/dokku'
@@ -259,7 +260,7 @@ export const deleteServerAction = protectedClient
     const { tenant } = userTenant
 
     // soft delete services
-    const { docs: _services } = await payload.update({
+    const { docs: services } = await payload.update({
       collection: 'services',
       data: {
         deletedAt: new Date().toISOString(),
@@ -280,7 +281,10 @@ export const deleteServerAction = protectedClient
         ],
       },
       depth: 0,
-      select: {},
+      select: {
+        name: true,
+        project: true,
+      },
     })
 
     // soft delete projects
@@ -316,7 +320,6 @@ export const deleteServerAction = protectedClient
         deletedAt: new Date().toISOString(),
       },
       depth: 0,
-      select: {},
     })
 
     const installationResponse = await addDeleteProjectsQueue({
@@ -329,6 +332,10 @@ export const deleteServerAction = protectedClient
         slug: userTenant.tenant.slug,
       },
       projects: projects.map(project => project.id),
+      services: services.map(service => ({
+        id: service.id,
+        projectId: extractID(service.project),
+      })),
     })
 
     if (server && installationResponse.id) {

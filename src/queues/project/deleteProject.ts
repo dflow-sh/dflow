@@ -8,6 +8,7 @@ import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { extractSSHDetails } from '@/lib/ssh'
+import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
 
 interface QueueArgs {
   serverDetails: {
@@ -21,6 +22,8 @@ interface QueueArgs {
   }
   deleteBackups: boolean
   deleteFromServer: boolean
+  waitUntilDeletion?: boolean
+  deletedServiceIds?: string[]
 }
 
 export const addDeleteProjectQueue = async (data: QueueArgs) => {
@@ -40,9 +43,11 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         tenant,
         deleteBackups,
         deleteFromServer,
+        waitUntilDeletion = false,
+        deletedServiceIds = [],
       } = job.data
 
-      console.log('inside delete project queue')
+      console.log(`inside delete project-${projectDetails.id} queue`)
 
       try {
         const payload = await getPayload({ config: configPromise })
@@ -64,8 +69,18 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         const services = await payload.find({
           collection: 'services',
           where: {
-            and: [{ 'project.id': { equals: projectDetails.id } }],
+            and: [
+              { 'project.id': { equals: projectDetails.id } },
+              deletedServiceIds.length
+                ? {
+                    id: {
+                      in: deletedServiceIds,
+                    },
+                  }
+                : {},
+            ],
           },
+          trash: true,
         })
 
         const servicesList = services?.docs?.filter(
@@ -110,6 +125,10 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
                 },
               })
 
+              if (waitUntilDeletion) {
+                await waitForJobCompletion(appQueueResponse)
+              }
+
               queueId = appQueueResponse.id
             }
 
@@ -135,6 +154,10 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
                 },
               })
 
+              if (waitUntilDeletion) {
+                await waitForJobCompletion(databaseQueueResponse)
+              }
+
               queueId = databaseQueueResponse.id
             }
 
@@ -142,9 +165,22 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
             if (queueId) {
               await payload.update({
                 collection: 'services',
-                id: service.id,
                 data: {
                   deletedAt: new Date().toISOString(),
+                },
+                where: {
+                  and: [
+                    {
+                      id: {
+                        equals: service.id,
+                      },
+                    },
+                    {
+                      deletedAt: {
+                        exists: false,
+                      },
+                    },
+                  ],
                 },
               })
 
@@ -200,37 +236,26 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
           serverId: serverDetails.id,
         })
 
-        const { docs: projects } = await payload.update({
+        let project = await payload.findByID({
           collection: 'projects',
-          data: {
-            deletedAt: new Date().toISOString(),
-          },
-          where: {
-            and: [
-              {
-                deletedAt: {
-                  exists: false,
-                },
-              },
-              {
-                id: {
-                  equals: projectDetails.id,
-                },
-              },
-            ],
-          },
+          id: projectDetails.id,
+          trash: true,
         })
 
-        if (projects.length) {
+        if (!project.deletedAt) {
+          project = await payload.update({
+            collection: 'projects',
+            id: projectDetails.id,
+            data: {
+              deletedAt: new Date().toISOString(),
+            },
+          })
+        }
+
+        if (project) {
           sendEvent({
             pub,
             message: `✅ Project successfully deleted with ${servicesList?.length || 0} service(s)`,
-            serverId: serverDetails.id,
-          })
-
-          sendEvent({
-            pub,
-            message: 'Syncing changes...',
             serverId: serverDetails.id,
           })
 
@@ -244,6 +269,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
         }
       } catch (error) {
         const message = error instanceof Error ? error.message : ''
+        console.log({ error })
         throw new Error(`❌ Failed to delete project: ${message}`)
       }
     },
@@ -261,7 +287,7 @@ export const addDeleteProjectQueue = async (data: QueueArgs) => {
     }
   })
 
-  const id = `delete-project:${new Date().getTime()}`
+  const id = `delete-project-${data.projectDetails.id}:${new Date().getTime()}`
 
   return await deleteProjectQueue.add(id, data, {
     jobId: id,
