@@ -4,7 +4,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { useAction } from 'next-safe-action/hooks'
-import { useEffect } from 'react'
+import { FormEvent, useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { exposeDatabasePortAction } from '@/actions/service'
@@ -47,6 +47,14 @@ const DatabaseForm = ({
     },
   )
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    execute({
+      action: isPublic ? 'unexpose' : 'expose',
+      id: service.id,
+    })
+  }
+
   useEffect(() => {
     if (hasSucceeded) {
       const ports = databaseDetails?.exposedPorts
@@ -74,10 +82,10 @@ const DatabaseForm = ({
 
   return (
     <>
-      <div className='space-y-4 rounded bg-muted/30 p-4'>
+      <div className='bg-muted/30 space-y-4 rounded p-4'>
         <h3 className='text-lg font-semibold'>Internal Credentials</h3>
 
-        <form className='w-full space-y-6'>
+        <form onSubmit={handleSubmit} className='w-full space-y-6'>
           <div className='grid gap-4 sm:grid-cols-2'>
             <div className='space-y-2'>
               <Label>Username</Label>
@@ -119,12 +127,7 @@ const DatabaseForm = ({
                     variant='outline'
                     disabled={isPending || hasSucceeded}
                     isLoading={isPending}
-                    onClick={() => {
-                      execute({
-                        action: isPublic ? 'unexpose' : 'expose',
-                        id: service.id,
-                      })
-                    }}>
+                    type='submit'>
                     {isPublic
                       ? input?.action === 'unexpose'
                         ? 'Un-exposing'
