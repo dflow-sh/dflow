@@ -122,6 +122,7 @@ export const databaseOptions = [
 
 export const DFLOW_CONFIG = {
   URL: 'https://dflow.sh',
+  DOMAIN: 'dflow.sh',
   AUTH_SLUG: 'users',
 }
 

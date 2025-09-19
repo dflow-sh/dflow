@@ -195,7 +195,7 @@ export const getAllOfficialTemplatesAction = publicClient
     const { type } = clientInput
 
     const res = await fetch(
-      `https://dflow.sh/api/templates?where[type][equals]=${type}&pagination=false`,
+      `${DFLOW_CONFIG.URL}/api/templates?where[type][equals]=${type}&pagination=false`,
     )
 
     if (!res.ok) {
@@ -235,7 +235,7 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`https://dflow.sh/api/templates/${templateId}`)
+    const res = await fetch(`${DFLOW_CONFIG.URL}/api/templates/${templateId}`)
 
     if (!res.ok) {
       throw new Error('Failed to fetch template details')

@@ -22,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { getCurrentUser } from '@/lib/getCurrentUser'
 import Provider from '@/providers/Provider'
 
@@ -53,7 +54,7 @@ const DashboardLayoutInner = async ({
   const organisationSlug = (await params).organisation
 
   return (
-    <div className='sticky top-0 z-50 w-full bg-background'>
+    <div className='bg-background sticky top-0 z-50 w-full'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-between p-4'>
         <div className='flex min-h-9 items-center gap-2 text-2xl font-semibold'>
           <Link
@@ -72,7 +73,7 @@ const DashboardLayoutInner = async ({
           <Link
             target='_blank'
             rel='noopener noreferrer'
-            className='hidden items-center gap-x-1 transition-colors duration-300 hover:text-muted-foreground md:inline-flex'
+            className='hover:text-muted-foreground hidden items-center gap-x-1 transition-colors duration-300 md:inline-flex'
             href='https://github.com/akhil-naidu/dflow'>
             <Github width='1.25em' height='1.25em' />{' '}
             {result?.data?.stars ? result?.data?.stars : 0}
@@ -112,11 +113,11 @@ const DashboardLayoutInner = async ({
                       You can claim rewards by joining our Discord community.
                       Click on Claim Rewards to continue on{' '}
                       <a
-                        className='inline-flex items-center text-foreground underline'
-                        href='https://dflow.sh/dashboard'
+                        className='text-foreground inline-flex items-center underline'
+                        href={`${DFLOW_CONFIG.URL}/dashboard`}
                         target='_blank'
                         rel='noopener noreferrer'>
-                        dflow.sh
+                        {DFLOW_CONFIG.DOMAIN}
                         <ArrowUpRight size={16} />
                       </a>
                     </DialogDescription>

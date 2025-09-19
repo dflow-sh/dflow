@@ -1,3 +1,5 @@
+import { DFLOW_CONFIG } from '../constants'
+
 import { Service } from '@/payload-types'
 
 type TemplateType = {
@@ -12,7 +14,7 @@ export async function fetchOfficialTemplateByName({
   name: string
 }) {
   const res = await fetch(
-    `https://dflow.sh/api/templates?where[and][0][name][equals]=${encodeURIComponent(name)}&where[and][1][type][equals]=official`,
+    `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=${encodeURIComponent(name)}&where[and][1][type][equals]=official`,
   )
 
   if (!res.ok) {

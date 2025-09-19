@@ -14,6 +14,7 @@ import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { DFLOW_CONFIG } from '@/lib/constants'
 
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 
@@ -92,8 +93,8 @@ export const PaymentStatusSection = () => {
           <CardContent className='p-4'>
             <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
               <div className='flex items-start gap-3'>
-                <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted'>
-                  <CreditCard className='h-5 w-5 text-muted-foreground' />
+                <div className='bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full'>
+                  <CreditCard className='text-muted-foreground h-5 w-5' />
                 </div>
                 <div>
                   <p className='font-medium'>Payment Setup Required</p>
@@ -101,7 +102,7 @@ export const PaymentStatusSection = () => {
                     <span className='text-muted-foreground'>
                       Add a payment method or top up your wallet
                     </span>
-                    <span className='hidden text-muted-foreground sm:inline'>
+                    <span className='text-muted-foreground hidden sm:inline'>
                       •
                     </span>
                     <span className='font-semibold'>
@@ -116,7 +117,7 @@ export const PaymentStatusSection = () => {
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open('https://dflow.sh/profile/cards', '_blank')
+                  window.open(`${DFLOW_CONFIG.URL}/profile/cards`, '_blank')
                 }>
                 Open dFlow
                 <ExternalLink className='h-4 w-4' />
@@ -191,7 +192,7 @@ export const PaymentStatusSection = () => {
                   </span>
 
                   {isCreditsUsed && (
-                    <span className='rounded-md bg-primary px-1.5 py-0.5 text-xs'>
+                    <span className='bg-primary rounded-md px-1.5 py-0.5 text-xs'>
                       Credits Applied: -${walletCreditsApplied.toFixed(2)}
                     </span>
                   )}

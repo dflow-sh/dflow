@@ -3,6 +3,7 @@ import { Payload } from 'payload'
 
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
 import { Collections } from '@/lib/beszel/types'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { pub } from '@/lib/redis'
 import { sendEvent } from '@/lib/sendEvent'
 import { generateRandomString } from '@/lib/utils'
@@ -194,7 +195,7 @@ export async function setupBeszelSystem(
  */
 export async function fetchBeszelTemplate() {
   const res = await fetch(
-    'https://dflow.sh/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official',
+    `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official`,
   )
 
   if (!res.ok) {

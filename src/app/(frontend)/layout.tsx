@@ -8,7 +8,6 @@ import { getBranding, getTheme } from '@/actions/branding'
 import Branding from '@/components/Branding'
 import { Toaster } from '@/components/ui/sonner'
 import { BrandingProvider } from '@/providers/BrandingProvider'
-import { CrossDomainAuthProvider } from '@/providers/CrossDomainAuthProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
 import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
 
@@ -108,11 +107,6 @@ export default async function RootLayout({
   const theme = themeData?.data
   const branding = brandingData?.data
 
-  // Only include dflow.sh if env variable exists
-  const domains = env.NEXT_PUBLIC_DFLOW_DOMAIN
-    ? [env.NEXT_PUBLIC_DFLOW_DOMAIN]
-    : []
-
   return (
     // todo: add next-themes support, add context to pass logo url to client-components
     <html lang='en' suppressHydrationWarning>
@@ -136,14 +130,7 @@ export default async function RootLayout({
           <NetworkStatusProvider>
             <ThemeProvider enableSystem attribute='class'>
               <BrandingProvider branding={branding}>
-                <CrossDomainAuthProvider
-                  domains={domains}
-                  config={{
-                    logoutEndpoint: '/api/logout',
-                    timeout: 5000,
-                  }}>
-                  {children}
-                </CrossDomainAuthProvider>
+                {children}
               </BrandingProvider>
               <Toaster richColors duration={3000} closeButton />
             </ThemeProvider>

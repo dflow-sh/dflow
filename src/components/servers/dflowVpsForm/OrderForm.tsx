@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Form } from '@/components/ui/form'
+import { DFLOW_CONFIG } from '@/lib/constants'
 
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
@@ -125,8 +126,8 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
                 Please complete onboarding process for using our services,
                 attach Discord account & accept our Terms of Service{' '}
                 <a
-                  className='inline-block text-foreground underline'
-                  href='https://dflow.sh/dashboard?terms-of-service=true'
+                  className='text-foreground inline-block underline'
+                  href={`${DFLOW_CONFIG.URL}/dashboard?terms-of-service=true`}
                   rel='noopener noreferrer'
                   target='_blank'>
                   link
@@ -166,7 +167,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           </DialogHeader>
 
           <div className='flex items-center justify-center pt-4'>
-            <Loader2 className='h-10 w-10 animate-spin text-primary' />
+            <Loader2 className='text-primary h-10 w-10 animate-spin' />
           </div>
         </DialogContent>
       </Dialog>

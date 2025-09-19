@@ -10,7 +10,7 @@ import { Alert, Collections, User } from '../types'
  * Example usage of the Beszel SDK
  */
 export async function exampleUsage() {
-  const url = 'https://monitoring.up.dflow.sh'
+  const url = 'https://monitoring.example.com'
   const superuserEmail = 'admin@example.com'
   const superuserPassword = 'supersecret'
   const userEmail = 'user@example.com'

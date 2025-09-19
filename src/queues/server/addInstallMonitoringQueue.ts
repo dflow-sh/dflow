@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
 import { Collections, CreateSystemData } from '@/lib/beszel/types'
 import { getQueue, getWorker } from '@/lib/bullmq'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { generateRandomString } from '@/lib/utils'
@@ -207,7 +208,7 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
 
         // Fetch the official Beszel Agent template from the API
         const res = await fetch(
-          'https://dflow.sh/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official',
+          `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official`,
         )
 
         if (!res.ok) {

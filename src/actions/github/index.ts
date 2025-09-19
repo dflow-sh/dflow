@@ -2,6 +2,7 @@
 
 import axios from 'axios'
 
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { publicClient } from '@/lib/safe-action'
 
 export const getGithubStarsAction = publicClient
@@ -10,7 +11,7 @@ export const getGithubStarsAction = publicClient
   })
   .action(async () => {
     const res = await axios.get(
-      'https://dflow.sh/api/globals/github?depth=2&draft=false',
+      `${DFLOW_CONFIG.URL}/api/globals/github?depth=2&draft=false`,
     )
 
     const stars = res.data.githubStars ?? 0

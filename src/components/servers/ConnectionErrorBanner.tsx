@@ -39,7 +39,7 @@ const ConnectionErrorBanner = ({
 
   const handleEmailContact = () => {
     window.open(
-      'mailto:hello@dflow.sh?subject=Server Connection Issue',
+      `mailto:${env.RESEND_SENDER_EMAIL}?subject=Server Connection Issue`,
       '_blank',
     )
     setIsOpen(false)
@@ -55,12 +55,12 @@ const ConnectionErrorBanner = ({
       variant={'destructive'}
       className='relative overflow-hidden border-0 shadow-lg'>
       <div className='mb-3 flex items-center gap-4'>
-        <span className='rounded-full bg-destructive/20 p-3'>
-          <TriangleAlert className='h-5 w-5 text-destructive' />
+        <span className='bg-destructive/20 rounded-full p-3'>
+          <TriangleAlert className='text-destructive h-5 w-5' />
         </span>
         <div>
           <AlertTitle className='text-lg font-bold'>{title}</AlertTitle>
-          <div className='text-sm text-muted-foreground'>
+          <div className='text-muted-foreground text-sm'>
             {subtitle ||
               `${serverName ? `"${serverName}"` : 'Your server'} could not be connected after multiple attempts.`}
           </div>
@@ -81,7 +81,7 @@ const ConnectionErrorBanner = ({
             ))}
           </ul>
         </div>
-        <div className='border-t pt-2 text-xs text-muted-foreground'>
+        <div className='text-muted-foreground border-t pt-2 text-xs'>
           {footer || (
             <span>
               Please{' '}
@@ -89,7 +89,7 @@ const ConnectionErrorBanner = ({
                 <DialogTrigger asChild>
                   <Button
                     variant='link'
-                    className='h-auto p-0 text-primary underline hover:text-primary/80'>
+                    className='text-primary hover:text-primary/80 h-auto p-0 underline'>
                     contact our support team
                   </Button>
                 </DialogTrigger>
@@ -101,7 +101,7 @@ const ConnectionErrorBanner = ({
                   </DialogHeader>
 
                   <div className='space-y-4'>
-                    <p className='text-sm text-muted-foreground'>
+                    <p className='text-muted-foreground text-sm'>
                       Get help with your server connection issue through one of
                       these channels:
                     </p>

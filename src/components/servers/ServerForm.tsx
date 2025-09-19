@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DFLOW_CONFIG } from '@/lib/constants'
 import { cloudProvidersList } from '@/lib/integrationList'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
@@ -349,7 +350,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                 size='sm'
                 className='w-full gap-2 sm:w-fit'
                 onClick={() =>
-                  window.open('https://dflow.sh/profile/cards', '_blank')
+                  window.open(`${DFLOW_CONFIG.URL}/profile/cards`, '_blank')
                 }>
                 Open dFlow
                 <ExternalLink className='h-4 w-4' />
