@@ -111,7 +111,7 @@ const GeneralTab: React.FC<{
           services={formattedServices}
         />
       ) : typeof project.server === 'object' ? (
-        <ServicesArchitecture server={project.server} />
+        <ServicesArchitecture projectId={project.id!} server={project.server} />
       ) : null}
     </div>
   )

@@ -48,6 +48,9 @@ const DeleteProjectContent = ({
         toast.info('Added to queue', {
           description: 'Added deleting project to queue',
         })
+        if (project.id && typeof window !== 'undefined') {
+          localStorage.removeItem(project.id)
+        }
       }
     },
     onError: ({ error }) => {
@@ -72,12 +75,12 @@ const DeleteProjectContent = ({
             <div className='space-y-4 pb-6'>
               {/* Services to be deleted */}
               {hasServices && (
-                <div className='space-y-3 rounded-md border bg-muted/50 p-3'>
+                <div className='bg-muted/50 space-y-3 rounded-md border p-3'>
                   <div className='text-sm'>
                     <span className='font-medium'>Server</span>
 
                     <div className='flex items-center gap-2'>
-                      <HardDrive className='h-4 w-4 text-muted-foreground' />
+                      <HardDrive className='text-muted-foreground h-4 w-4' />
                       <span>{serverName || 'Unknown server'}</span>
                     </div>
                   </div>
@@ -119,10 +122,10 @@ const DeleteProjectContent = ({
                   <div className='space-y-1'>
                     <label
                       htmlFor='delete-from-server'
-                      className='cursor-pointer text-sm font-medium leading-none'>
+                      className='cursor-pointer text-sm leading-none font-medium'>
                       Delete project files from server
                     </label>
-                    <p className='text-xs text-muted-foreground'>
+                    <p className='text-muted-foreground text-xs'>
                       Remove Docker containers, volumes, and all service files
                       from {serverName}
                       {hasServices &&
@@ -145,10 +148,10 @@ const DeleteProjectContent = ({
                   <div className='space-y-1'>
                     <label
                       htmlFor='delete-backups'
-                      className='cursor-pointer text-sm font-medium leading-none'>
+                      className='cursor-pointer text-sm leading-none font-medium'>
                       Delete all associated backups
                     </label>
-                    <p className='text-xs text-muted-foreground'>
+                    <p className='text-muted-foreground text-xs'>
                       Permanently remove all backup data for this project and
                       its services
                     </p>
@@ -230,7 +233,7 @@ const DeleteProjectDialog = ({
       <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
         <DialogHeader className='shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
-            <Trash2 className='h-5 w-5 text-destructive' />
+            <Trash2 className='text-destructive h-5 w-5' />
             Delete project
           </DialogTitle>
 
