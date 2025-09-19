@@ -3,11 +3,12 @@ import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
 
-import { deleteProjectAction } from '@/actions/project'
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { deleteMachine } from '@/lib/tailscale/deleteMachine'
+
+import { addDeleteProjectQueue } from './deleteProject'
 
 interface QueueArgs {
   serverDetails: {
@@ -17,6 +18,7 @@ interface QueueArgs {
     slug: string
   }
   projects: string[]
+  services: { id: string; projectId: string }[]
   deleteProjectsFromServer: boolean
   deleteBackups: boolean
 }
@@ -38,16 +40,11 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
         deleteProjectsFromServer,
         deleteBackups,
         projects,
+        services,
       } = job.data
 
       try {
         const payload = await getPayload({ config: configPromise })
-
-        sendEvent({
-          pub,
-          message: 'Fetching projects for server...',
-          serverId: serverDetails.id,
-        })
 
         if (projects.length === 0) {
           sendEvent({
@@ -55,56 +52,80 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
             message: '✅ No projects found on server',
             serverId: serverDetails.id,
           })
-          return
-        }
-
-        sendEvent({
-          pub,
-          message: `Found ${projects.length} project(s). Starting deletion process...`,
-          serverId: serverDetails.id,
-        })
-
-        // Delete all projects with better error handling
-        const deleteResults = await Promise.allSettled(
-          projects.map(project =>
-            deleteProjectAction({
-              id: project,
-              serverId: serverDetails.id,
-              deleteFromServer: deleteProjectsFromServer,
-              deleteBackups,
-              revalidateDashboard: false,
-            }),
-          ),
-        )
-
-        const failed = deleteResults.filter(
-          result => result.status === 'rejected',
-        )
-
-        const succeeded = deleteResults.filter(
-          result => result.status === 'fulfilled',
-        )
-
-        if (failed.length > 0) {
-          sendEvent({
-            pub,
-            message: `⚠️ ${failed.length} project(s) failed to delete, ${succeeded.length} succeeded`,
-            serverId: serverDetails.id,
-          })
-
-          // Log failed deletions for debugging
-          failed.forEach((result, index) => {
-            console.error(
-              `Failed to delete project ${projects[index]}:`,
-              result.reason,
-            )
-          })
         } else {
           sendEvent({
             pub,
-            message: `✅ Successfully processed ${projects.length} project(s) for deletion`,
+            message: `Found ${projects.length} project(s). Starting deletion process...`,
             serverId: serverDetails.id,
           })
+
+          // Delete all projects with better error handling
+          const deleteResults = await Promise.allSettled(
+            projects.map(projectId => {
+              const serviceIds = services
+                .filter(service => service.projectId === projectId)
+                .map(service => service.id)
+
+              return addDeleteProjectQueue({
+                serverDetails: {
+                  id: serverDetails.id,
+                },
+                projectDetails: {
+                  id: projectId,
+                },
+                tenant: {
+                  slug: tenant.slug,
+                },
+                deleteBackups,
+                deleteFromServer: deleteProjectsFromServer,
+                waitUntilDeletion: true,
+                deletedServiceIds: serviceIds,
+              })
+            }),
+          )
+
+          const failed = deleteResults.filter(
+            result => result.status === 'rejected',
+          )
+
+          const succeeded = deleteResults.filter(
+            result => result.status === 'fulfilled',
+          )
+
+          if (failed.length > 0) {
+            sendEvent({
+              pub,
+              message: `⚠️ ${failed.length} project(s) failed to delete, ${succeeded.length} succeeded`,
+              serverId: serverDetails.id,
+            })
+
+            // Log failed deletions for debugging
+            failed.forEach((result, index) => {
+              console.error(
+                `Failed to delete project ${projects[index]}:`,
+                result.reason,
+              )
+            })
+          } else {
+            sendEvent({
+              pub,
+              message: `✅ Successfully processed ${projects.length} project(s) for deletion`,
+              serverId: serverDetails.id,
+            })
+          }
+
+          // waiting in queue for all project deletion to be completed to delete machine from tailscale
+          if (deleteProjectsFromServer) {
+            await addDeleteMachineQueue({
+              serverDetails: {
+                id: serverDetails.id,
+                name: '',
+              },
+              projectsQueueIDs: succeeded.map(
+                actionResult => actionResult.value.id!,
+              ),
+            })
+          }
         }
 
         // if deleteProjects is checked directly removing machine from tailscale
@@ -114,24 +135,6 @@ export const addDeleteProjectsQueue = async (data: QueueArgs) => {
             payload,
           })
         }
-        // waiting in queue for all project deletion to be completed to delete machine from tailscale
-        else {
-          await addDeleteMachineQueue({
-            serverDetails: {
-              id: serverDetails.id,
-              name: '',
-            },
-            projectsQueueIDs: succeeded.map(
-              actionResult => actionResult.value.data?.queueId!,
-            ),
-          })
-        }
-
-        sendEvent({
-          pub,
-          message: 'Syncing changes...',
-          serverId: serverDetails.id,
-        })
 
         sendActionEvent({
           pub,

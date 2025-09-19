@@ -267,7 +267,7 @@ export const addDestroyDatabaseQueue = async (data: QueueArgs) => {
     }
   })
 
-  const id = `destroy-app-${data.databaseName}:${new Date().getTime()}`
+  const id = `destroy-database-${data.databaseName}:${new Date().getTime()}`
 
   return await destroyDatabaseQueue.add(id, data, {
     ...jobOptions,
