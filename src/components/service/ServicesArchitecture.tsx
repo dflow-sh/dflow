@@ -1,18 +1,31 @@
 'use client'
 
 import { convertNodesToServices } from '../reactflow/utils/convertNodesToServices'
-import ChooseService from '../templates/compose/ChooseService'
+import ChooseService, { ChildRef } from '../templates/compose/ChooseService'
 import { Button } from '../ui/button'
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
 import { Rocket } from 'lucide-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Dispatch, SetStateAction, memo, useMemo } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
+import { useLocalStorage, useReadLocalStorage } from 'usehooks-ts'
 
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+
+type FlowStorage = {
+  nodes: Node[]
+  edges: Edge[]
+}
 
 const DeploymentDialog = memo(
   ({
@@ -133,13 +146,53 @@ const DeploymentDialog = memo(
 
 DeploymentDialog.displayName = 'DeploymentDialog'
 
-const ServicesArchitecture = ({ server }: { server: Server }) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
+const ServicesArchitecture = ({
+  server,
+  projectId,
+}: {
+  server: Server
+  projectId: string
+}) => {
+  const childRef = useRef<ChildRef>(null)
+  const storedFlow = useReadLocalStorage<FlowStorage>(projectId)
+  const { nodes: storedNodes, edges: storedEdges } = storedFlow ?? {
+    nodes: [],
+    edges: [],
+  }
+
+  const initialNodes =
+    storedNodes && storedNodes?.length > 0
+      ? storedNodes?.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            onClick: () => callChildFunction({ serviceId: node.id! }),
+          },
+          type: 'custom',
+        }))
+      : []
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
+    ...initialNodes,
+  ])
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([...storedEdges])
+
+  const [flow, setFlow, removeFlow] = useLocalStorage<FlowStorage>(projectId, {
+    nodes: storedNodes,
+    edges: storedEdges,
+  })
+
+  const callChildFunction = (args: { serviceId: string }) => {
+    childRef.current?.handleOnClick(args)
+  }
+
+  useEffect(() => {
+    setFlow({ nodes, edges })
+  }, [nodes, edges])
 
   return (
     <div className='relative mt-4 w-full'>
       <ChooseService
+        ref={childRef}
         nodes={nodes}
         edges={edges}
         setNodes={setNodes}
