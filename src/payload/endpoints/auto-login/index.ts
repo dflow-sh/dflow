@@ -85,6 +85,7 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
           password: generatedPassword,
           role: ['user'],
         },
+        disableVerificationEmail: true,
       })
 
       user = newUser
@@ -99,8 +100,8 @@ export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
     // Store the code in Redis with a TTL of 5 minutes to prevent reuse
     await redisClient.set(`auto-login-code:${code}`, code, 'EX', 60 * 5)
 
-    // ONLY send confirmation email if this is a magic link login
-    if (isMagicLink) {
+    // ONLY send confirmation email if this is a magic link login and a new user
+    if (isMagicLink && isNewUser) {
       try {
         await payload.sendEmail({
           to: userEmail,
