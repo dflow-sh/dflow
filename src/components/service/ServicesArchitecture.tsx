@@ -29,6 +29,7 @@ type FlowStorage = {
 
 const DeploymentDialog = memo(
   ({
+    projectId,
     nodes,
     server: { plugins, id: serverId, name: serverName },
     setEdges,
@@ -38,6 +39,7 @@ const DeploymentDialog = memo(
     server: Server
     setNodes: Dispatch<SetStateAction<Node[]>>
     setEdges: Dispatch<SetStateAction<Edge[]>>
+    projectId: string
   }) => {
     const params = useParams<{ id: string; organisation: string }>()
     const { deploy, isDeploying } = useArchitectureContext()
@@ -133,6 +135,9 @@ const DeploymentDialog = memo(
                 onClick={() => {
                   setNodes([])
                   setEdges([])
+                  if (projectId && typeof window !== 'undefined') {
+                    localStorage.removeItem(projectId)
+                  }
                 }}>
                 Discard
               </Button>
@@ -200,6 +205,7 @@ const ServicesArchitecture = ({
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}>
         <DeploymentDialog
+          projectId={projectId}
           nodes={nodes}
           setEdges={setEdges}
           setNodes={setNodes}
