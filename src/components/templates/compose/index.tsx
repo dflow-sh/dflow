@@ -20,6 +20,7 @@ import {
   colors,
   uniqueNamesGenerator,
 } from 'unique-names-generator'
+import { useLocalStorage, useReadLocalStorage } from 'usehooks-ts'
 
 import {
   createTemplateAction,
@@ -49,8 +50,25 @@ import { Textarea } from '@/components/ui/textarea'
 
 import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
 
+type FlowStorage = {
+  nodes: Node[]
+  edges: Edge[]
+}
+
 const CreateNewTemplate = () => {
   const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
+  const storedFlow = useReadLocalStorage<FlowStorage>('create-new-template')
+  const { nodes: storedNodes, edges: storedEdges } = storedFlow ?? {
+    nodes: [],
+    edges: [],
+  }
+  const [flow, setFlow, removeFlow] = useLocalStorage<FlowStorage>(
+    'create-new-template',
+    {
+      nodes: storedNodes,
+      edges: storedEdges,
+    },
+  )
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const services = convertNodesToServices(nodes)
@@ -89,6 +107,7 @@ const CreateNewTemplate = () => {
         if (data) {
           toast.success(`Template created successfully`)
           router.push(`/${organisation}/templates`)
+          removeFlow()
         }
       },
       onError: ({ error }) => {
@@ -156,7 +175,30 @@ const CreateNewTemplate = () => {
   }
 
   useEffect(() => {
-    if (!templateId) return
+    if (!templateId) {
+      setFlow({ nodes, edges })
+    }
+  }, [nodes, edges])
+
+  useEffect(() => {
+    if (!templateId) {
+      if (storedFlow?.nodes) {
+        const initialNodes =
+          storedNodes && storedNodes?.length > 0
+            ? storedNodes?.map(node => ({
+                ...node,
+                data: {
+                  ...node.data,
+                  onClick: () => callChildFunction({ serviceId: node.id! }),
+                },
+                type: 'custom',
+              }))
+            : []
+        setNodes(initialNodes || [])
+        setEdges(storedEdges)
+      }
+      return
+    }
     if (type === 'personal') {
       getTemplateById({ id: templateId })
     } else if (type === 'official') {
