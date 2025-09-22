@@ -520,9 +520,9 @@ export const restartServiceAction = protectedClient
     }
   })
 
-export const stopServerAction = protectedClient
+export const stopServiceAction = protectedClient
   .metadata({
-    actionName: 'stopServerAction',
+    actionName: 'stopServiceAction',
   })
   .inputSchema(stopServiceSchema)
   .action(async ({ clientInput, ctx }) => {

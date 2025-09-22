@@ -163,7 +163,7 @@ export const getActionAccess = {
   deleteServiceAction: ['services.delete', 'services.read'],
   updateServiceAction: ['services.read', 'services.update'],
   restartServiceAction: ['services.read', 'services.update'],
-  stopServerAction: ['services.read', 'services.update'],
+  stopServiceAction: ['services.read', 'services.update'],
   exposeDatabasePortAction: ['services.read', 'services.update'],
   updateServiceDomainAction: ['services.read', 'services.update'],
   regenerateSSLAction: ['services.read', 'services.update'],

@@ -28,8 +28,6 @@ const LayoutClient = ({
     { label: 'Docs', slug: '/docs/getting-started/introduction' },
   ]
 
-  console.log({ pathName, params })
-
   return (
     <>
       <div className={cn('bg-background sticky top-[68px] z-40')}>

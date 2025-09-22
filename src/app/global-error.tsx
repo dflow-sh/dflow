@@ -1,10 +1,10 @@
 'use client'
 
-// Error boundaries must be Client Components
-import NextError from 'next/error'
-import posthog from 'posthog-js'
-import { env } from 'process'
-import { useEffect } from 'react'
+import { ThemeProvider } from 'next-themes'
+
+import { Button } from '@/components/ui/button'
+
+import './(frontend)/globals.css'
 
 export default function GlobalError({
   error,
@@ -13,22 +13,25 @@ export default function GlobalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
-  useEffect(() => {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      env.NEXT_PUBLIC_DFLOW_TELEMETRY_DISABLED
-    ) {
-      return
-    }
-
-    posthog.captureException(error)
-  }, [error])
+  console.log({ error })
 
   return (
-    // global-error must include html and body tags
     <html>
       <body>
-        <NextError statusCode={0} />
+        <ThemeProvider enableSystem attribute='class'>
+          <main className='flex min-h-screen w-full flex-col items-center justify-center'>
+            <h2 className='text-primary text-6xl font-semibold'>500</h2>
+            <p>Something went wrong!</p>
+
+            <Button
+              onClick={() => {
+                reset()
+              }}
+              className='mt-4 w-max'>
+              Try again
+            </Button>
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
-import { restartServiceAction, stopServerAction } from '@/actions/service'
+import { restartServiceAction, stopServiceAction } from '@/actions/service'
 import {
   Dialog,
   DialogContent,
@@ -121,7 +121,7 @@ const Deploy = ({ service }: { service: Service }) => {
             onValueChange={value =>
               setCacheOption(value as 'no-cache' | 'cache')
             }>
-            <div className='has-data-[state=checked]:border-primary/50 shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+            <div className='has-data-[state=checked]:border-primary/50 border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
               <RadioGroupItem
                 value='no-cache'
                 id='no-cache'
@@ -133,7 +133,7 @@ const Deploy = ({ service }: { service: Service }) => {
                 <div className='grid grow gap-2'>
                   <Label htmlFor='no-cache'>Without cache</Label>
 
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     This will redeploy your app by creating or pulling docker
                     image
                   </p>
@@ -141,7 +141,7 @@ const Deploy = ({ service }: { service: Service }) => {
               </div>
             </div>
 
-            <div className='has-data-[state=checked]:border-primary/50 shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+            <div className='has-data-[state=checked]:border-primary/50 border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
               <RadioGroupItem
                 value='cache'
                 id='cache'
@@ -152,7 +152,7 @@ const Deploy = ({ service }: { service: Service }) => {
 
                 <div className='grid grow gap-2'>
                   <Label htmlFor='cache'>Use existing cache</Label>
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     This will redeploy your app using the existing docker image
                   </p>
                 </div>
@@ -182,7 +182,7 @@ const Deploy = ({ service }: { service: Service }) => {
 }
 
 const DeploymentForm = ({ service }: { service: Service }) => {
-  const { deployments } = service
+  const { deployments, databaseDetails, type } = service
   const { disable: deploymentDisabled } = useDisableDeploymentContext()
 
   const { execute: restartService, isPending: isRestartingService } = useAction(
@@ -201,8 +201,8 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   )
 
-  const { execute: stopServer, isPending: isStoppingServer } = useAction(
-    stopServerAction,
+  const { execute: stopService, isPending: isStoppingServer } = useAction(
+    stopServiceAction,
     {
       onSuccess: ({ data }) => {
         if (data) {
@@ -218,6 +218,8 @@ const DeploymentForm = ({ service }: { service: Service }) => {
   )
 
   const noDeployments = deployments?.docs?.length === 0
+  const databaseWithExposedPorts =
+    type === 'database' && !!databaseDetails?.exposedPorts?.length
 
   return (
     <div className='mt-6 flex gap-x-2 md:mt-0'>
@@ -240,10 +242,18 @@ const DeploymentForm = ({ service }: { service: Service }) => {
       <Button
         disabled={isStoppingServer || deploymentDisabled}
         onClick={() => {
+          if (databaseWithExposedPorts) {
+            toast.warning('Please unexpose database before stopping!', {
+              duration: 5000,
+            })
+
+            return
+          }
+
           if (noDeployments) {
             toast.warning('Please deploy the service before stopping')
           } else {
-            stopServer({ id: service.id })
+            stopService({ id: service.id })
           }
         }}
         variant='destructive'>

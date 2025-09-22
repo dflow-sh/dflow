@@ -211,18 +211,23 @@
 }
 
 /* react flow */
-.react-flow__controls {
-  background: hsl(var(--muted) / 0.3) !important; /* Dark background */
-  color: var(--foreground) !important;
-}
-
 .react-flow__controls-button {
   background-color: hsl(
     var(--muted) / 0.3
   ) !important; /* Tailwind bg-gray-700 */
   color: var(--foreground) !important;
   margin: 0.25rem 0;
-  border-bottom: 2px solid var(--input) !important;
+  border-bottom: 1px solid var(--input) !important;
+}
+
+.react-flow__controls {
+  background: var(--muted) !important; /* Dark background */
+  color: var(--foreground) !important;
+  border-radius: var(--radius);
+
+  .react-flow__controls-button:last-child {
+    border-bottom: 0 !important;
+  }
 }
 
 .animate-progress {
