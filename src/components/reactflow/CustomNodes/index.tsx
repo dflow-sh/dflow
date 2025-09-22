@@ -144,7 +144,7 @@ const CustomNode = ({
             ? 'cursor-not-allowed'
             : 'hover:border-primary/50 hover:bg-primary/5 cursor-pointer hover:shadow-md'
         }`}>
-        {menuOptions && menuOptions(data)}
+        {/* {menuOptions && menuOptions(data)} */}
         <CardHeader className='w-64 flex-row justify-between pb-2'>
           <div className='flex items-center gap-x-3'>
             {data.type === 'database' && data.databaseDetails?.type
