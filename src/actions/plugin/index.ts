@@ -295,7 +295,20 @@ export const installAndConfigureLetsencryptPluginAction = protectedClient
     const { payload, userTenant } = ctx
     const { serverId } = clientInput
 
-    const userEmail = ctx.user.email
+    const { docs: users } = await payload.find({
+      collection: 'users',
+      where: {
+        username: {
+          equals: userTenant.tenant.slug,
+        },
+      },
+      select: {
+        email: true,
+      },
+      depth: 1,
+    })
+
+    const tenantUserEmail = users[0].email
 
     // Fetching server details instead of passing from client
     const server = await payload.findByID({
@@ -311,7 +324,7 @@ export const installAndConfigureLetsencryptPluginAction = protectedClient
       },
       pluginDetails: {
         autoGenerateSSL: true,
-        email: userEmail,
+        email: tenantUserEmail,
       },
       sshDetails,
       tenant: {
