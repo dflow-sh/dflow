@@ -76,7 +76,7 @@ const DashboardLayoutInner = async ({
             className='hover:text-muted-foreground hidden items-center gap-x-1 transition-colors duration-300 md:inline-flex'
             href='https://github.com/akhil-naidu/dflow'>
             <Github width='1.25em' height='1.25em' />{' '}
-            {result?.data?.stars ? result?.data?.stars : 0}
+            {result?.data?.stars ? result?.data?.stars : ''}
           </Link>
 
           {!hasClaimedCredits && (
