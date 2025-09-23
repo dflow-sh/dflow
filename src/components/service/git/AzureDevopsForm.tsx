@@ -238,13 +238,13 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className='flex w-full flex-col gap-4 md:flex-row'>
+                  className='grid w-full gap-4 md:grid-cols-2'>
                   {buildOptions.map(({ value, label, icon, description }) => (
                     <FormItem
-                      className='flex w-full items-center space-x-3 space-y-0'
+                      className='flex w-full items-center space-y-0 space-x-3'
                       key={value}>
                       <FormControl>
-                        <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex h-full w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+                        <div className='has-data-[state=checked]:border-ring border-input relative flex h-full w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
                           <RadioGroupItem
                             value={value}
                             id={value}
@@ -257,7 +257,7 @@ const AzureDevopsForm = ({ service }: { service: Service }) => {
                             <div className='grid grow gap-2'>
                               <Label htmlFor={value}>{label}</Label>
 
-                              <p className='text-xs text-muted-foreground'>
+                              <p className='text-muted-foreground text-xs'>
                                 {description}
                               </p>
                             </div>

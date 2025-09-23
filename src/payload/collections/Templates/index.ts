@@ -448,6 +448,7 @@ export const Template: CollectionConfig = {
             { label: 'Nixpacks', value: 'nixpacks' },
             { label: 'Dockerfile', value: 'dockerfile' },
             { label: 'Heroku build packs', value: 'herokuBuildPacks' },
+            { label: 'Static build', value: 'static' },
           ],
           defaultValue: 'buildPacks',
           admin: {
