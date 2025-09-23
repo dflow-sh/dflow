@@ -67,8 +67,7 @@ export const updateVolumesQueue = async (data: QueueArgs) => {
             a: { hostPath: string },
             b: { host_path: string },
           ): boolean => {
-            const expected = `${DOKKU_STORAGE_PATH}${service.name}/${a.hostPath}`
-            return b.host_path === expected
+            return b.host_path === a.hostPath
           }
 
           const addedVolumes = volumesList?.filter(
