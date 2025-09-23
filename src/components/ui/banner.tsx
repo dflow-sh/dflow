@@ -37,12 +37,6 @@ const ctaButtonStyles = {
   success: 'bg-success/50 hover:bg-success/30 text-white',
 }
 
-const closeButtonStyles = {
-  info: 'hover:bg-blue-200 text-blue-700',
-  warning: 'hover:bg-amber-200 text-amber-700',
-  success: 'hover:bg-green-200 text-green-700',
-}
-
 const DISMISSAL_DURATION = 24 * 60 * 60 * 1000
 const STORAGE_KEY = 'dismissed-banners'
 
@@ -206,7 +200,7 @@ export default function BannerComponent({ banners }: BannerProps) {
                   size='icon'
                   className='size-6'
                   onClick={() => dismissBanner(banner.id)}>
-                  <X className='h-3.5 w-3.5 cursor-pointer stroke-white' />
+                  <X className='stroke-foreground h-3.5 w-3.5' />
                 </Button>
               )}
             </div>
