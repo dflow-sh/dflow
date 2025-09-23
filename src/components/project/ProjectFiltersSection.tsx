@@ -10,6 +10,7 @@ import {
   Database,
   Eye,
   EyeOff,
+  FileCode2,
   Filter,
   Globe,
   Pause,
@@ -64,6 +65,11 @@ const filterConfig = {
       value: 'herokuBuildPacks',
       label: 'Heroku Build Packs',
       icon: Settings,
+    },
+    {
+      value: 'static',
+      label: 'Static Build',
+      icon: FileCode2,
     },
   ],
   provider: [
@@ -237,7 +243,7 @@ const ProjectFiltersSection = ({
 
   return (
     <div className='space-y-4'>
-      <DynamicFilterPanel<Project>
+      <DynamicFilterPanel
         data={allProjects}
         schema={enrichedSchema}
         filters={filters}
@@ -261,14 +267,14 @@ const ProjectFiltersSection = ({
             })}
           </div>
         ) : (
-          <div className='rounded-lg border border-dashed bg-muted/10 p-8 text-center'>
-            <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted'>
-              <Filter className='h-6 w-6 text-muted-foreground' />
+          <div className='bg-muted/10 rounded-lg border border-dashed p-8 text-center'>
+            <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
+              <Filter className='text-muted-foreground h-6 w-6' />
             </div>
             <h3 className='mt-4 text-lg font-semibold'>
               No projects match your filters
             </h3>
-            <p className='mt-2 text-muted-foreground'>
+            <p className='text-muted-foreground mt-2'>
               Try adjusting your search criteria or clearing some filters.
             </p>
             <Button

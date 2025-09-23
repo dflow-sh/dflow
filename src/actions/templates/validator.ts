@@ -82,6 +82,7 @@ export const servicesSchema = z.array(
         'buildPacks',
         'herokuBuildPacks',
         'nixpacks',
+        'static',
       ])
       .default('buildPacks')
       .optional(),
