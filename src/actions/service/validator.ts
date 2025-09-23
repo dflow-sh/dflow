@@ -46,6 +46,7 @@ export const updateServiceSchema = z
         'herokuBuildPacks',
         'buildPacks',
         'railpack',
+        'static',
       ])
       .optional(),
     provider: z.string().optional(),

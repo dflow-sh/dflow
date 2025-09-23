@@ -818,7 +818,7 @@ export interface Service {
       }[]
     | null;
   populatedVariables?: string | null;
-  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
+  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'static') | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps' | 'gitea') | null;
   githubSettings?: {
@@ -1092,7 +1092,7 @@ export interface Template {
               }[]
             | null;
         };
-        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
+        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'static') | null;
         name: string;
         description?: string | null;
         volumes?:

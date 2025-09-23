@@ -1,3 +1,4 @@
+import { FileCode2 } from 'lucide-react'
 import Image from 'next/image'
 
 import { Docker, Heroku } from '@/components/icons'
@@ -35,5 +36,11 @@ export const buildOptions = [
       />
     ),
     description: 'Build app using railpack',
+  },
+  {
+    label: 'Static',
+    value: 'static',
+    icon: <FileCode2 fontSize={16} />,
+    description: 'Deploy static app',
   },
 ]
