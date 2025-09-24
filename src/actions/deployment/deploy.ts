@@ -75,7 +75,8 @@ export const triggerDeployment = async ({
         if (
           builder === 'railpack' ||
           builder === 'dockerfile' ||
-          builder === 'buildPacks'
+          builder === 'buildPacks' ||
+          builder === 'static'
         ) {
           const { id } = await addDeployQueue({
             appName: serviceDetails.name,
