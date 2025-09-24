@@ -3,6 +3,7 @@ import { Edge, MarkerType, Node } from '@xyflow/react'
 import {
   Braces,
   Database,
+  FileText,
   Globe,
   KeyRound,
   Plus,
@@ -10,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { Fragment, JSX, useEffect, useState } from 'react'
+import { Fragment, JSX, useEffect, useRef, useState } from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -442,6 +443,10 @@ const VariablesForm = ({
   nodes: Node[]
   setEdges: Function
 }) => {
+  const [file, setFile] = useState<string | ArrayBuffer | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
   const form = useForm<UpdateServiceType>({
     resolver: zodResolver(UpdateServiceSchema),
     defaultValues: {
@@ -462,6 +467,7 @@ const VariablesForm = ({
     fields,
     append: appendVariable,
     remove: removeVariable,
+    insert: insertVariable,
   } = useFieldArray({
     control: form.control,
     name: 'variables',
@@ -542,6 +548,115 @@ const VariablesForm = ({
     toast.success('Variables updated successfully')
   }
 
+  const parseEnv = (text: string | null) => {
+    const parsedBulkVariables = text
+      ?.split('\n')
+      ?.map((line: string) => {
+        const trimmedLine = line.trim()
+        if (
+          !trimmedLine ||
+          trimmedLine.startsWith('#') ||
+          trimmedLine.startsWith('//')
+        ) {
+          return null // Ignore empty lines or comments
+        }
+
+        const regex = /^([^=]+)=(.*)$/
+        const match = trimmedLine.match(regex)
+
+        if (match) {
+          const [, key, value] = match
+          return {
+            key: key.trim(),
+            value: value.trim().replace(/^"(.*)"$/, '$1'), // Trim quotes only if they wrap the entire value
+          }
+        } else {
+          // Handle cases with only a key and no "=" sign
+          return {
+            key: trimmedLine,
+            value: '',
+          }
+        }
+      })
+      ?.filter(Boolean)
+
+    return parsedBulkVariables
+  }
+
+  const handlePaste = (
+    event: React.ClipboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
+    event.preventDefault()
+    const pastedText = event.clipboardData.getData('text/plain')
+    const parsedBulkVariables = parseEnv(pastedText)
+    if (parsedBulkVariables?.length) {
+      removeVariable(index) // Remove the current field where the paste occurred
+      const reversedVariables = [...parsedBulkVariables].reverse()
+      reversedVariables.forEach((row: any) => {
+        insertVariable(index, { key: row.key, value: row.value })
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!file || typeof file !== 'string') return
+    const parsedBulkVariables = parseEnv(file)
+    if (!parsedBulkVariables?.length) return
+
+    const lastIndex = fields.length - 1
+    const lastItem = fields[lastIndex]
+
+    if (lastItem && !lastItem.key && !lastItem.value) {
+      removeVariable(lastIndex) // remove empty row
+    }
+
+    parsedBulkVariables.forEach(row => {
+      if (row) appendVariable({ key: row.key, value: row.value })
+    })
+  }, [file, appendVariable])
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      await handleFile(selectedFile)
+    }
+  }
+
+  const isEnvFile = (filename: string) => {
+    // Check if file starts with .env or matches pattern like env.local, etc.
+    return filename.startsWith('.env') || filename.match(/^\.?env(\.|$)/i)
+  }
+  const handleFile = async (selectedFile: File) => {
+    setIsLoading(true)
+
+    if (!isEnvFile(selectedFile.name)) {
+      toast.error(
+        `Invalid file: ${selectedFile.name}. Only .env files are allowed.`,
+      )
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const reader = new FileReader()
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          setFile(e.target.result)
+        }
+      }
+      reader.readAsText(selectedFile)
+    } catch (err: any) {
+      toast.error(`Error reading file: ${err.message}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const selectFile = () => {
+    fileInputRef.current?.click()
+  }
+
   return (
     <motion.div
       initial={{ x: '5%', opacity: 0.25 }}
@@ -571,7 +686,10 @@ const VariablesForm = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input {...field} />
+                          <Input
+                            onPaste={e => handlePaste(e, index)}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -626,8 +744,30 @@ const VariablesForm = ({
             </Button>
           </div>
 
-          <div className='flex w-full justify-end gap-3'>
-            <Button type='submit' variant='outline'>
+          <div className='flex w-full justify-between gap-3'>
+            <div className='inline-flex items-center gap-x-2'>
+              <Button
+                type='button'
+                variant={'outline'}
+                onClick={e => {
+                  e.stopPropagation(), selectFile()
+                }}
+                disabled={isLoading}>
+                <FileText size={10} />
+                Import .env
+              </Button>
+              <p className='text-muted-foreground'>
+                or paste the .env contents above
+              </p>
+              <input
+                ref={fileInputRef}
+                type='file'
+                className='hidden'
+                accept='.env,.env.*'
+                onChange={handleFileChange}
+              />
+            </div>
+            <Button type='submit' variant='default'>
               Save
             </Button>
           </div>
