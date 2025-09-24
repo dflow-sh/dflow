@@ -1,11 +1,12 @@
 'use client'
 
-import { ArrowLeft, RefreshCw } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Clock, RefreshCw, Zap } from 'lucide-react'
 import { motion } from 'motion/react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 const SyncPanel = ({
@@ -20,137 +21,175 @@ const SyncPanel = ({
   onStartSync: () => void
 }) => {
   return (
-    <motion.div
-      key='sync'
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -20 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className='flex h-full flex-col p-6'>
-      {/* Header */}
-      <div className='mb-6 flex items-center'>
-        <Button
-          variant='ghost'
-          size='icon'
-          onClick={onBack}
-          className='mr-3 h-9 w-9'>
-          <ArrowLeft size={16} />
-        </Button>
-        <div className='min-w-0'>
-          <h2 className='text-foreground truncate text-xl font-semibold'>
-            Sync Manager
-          </h2>
-          <p className='text-muted-foreground mt-1 truncate text-sm'>
-            Manage data synchronization
-          </p>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className='min-h-0 flex-1 space-y-6'>
-        <div className='text-center'>
-          <motion.div
-            className={cn(
-              'mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full border-4 backdrop-blur-sm',
-              isSyncing
-                ? 'border-primary/50 bg-primary/10'
-                : 'border-border bg-muted/30',
-            )}
-            animate={
-              isSyncing
-                ? {
-                    borderColor: [
-                      'hsl(var(--primary) / 0.5)',
-                      'hsl(var(--primary))',
-                      'hsl(var(--primary) / 0.5)',
-                    ],
-                  }
-                : {}
-            }
-            transition={{ duration: 2, repeat: isSyncing ? Infinity : 0 }}>
-            <motion.div
-              animate={isSyncing ? { rotate: 360 } : {}}
-              transition={{
-                duration: 2,
-                repeat: isSyncing ? Infinity : 0,
-                ease: 'linear',
-              }}>
-              <RefreshCw
-                size={32}
-                className={isSyncing ? 'text-primary' : 'text-muted-foreground'}
-              />
-            </motion.div>
-          </motion.div>
-
-          <div
-            className={cn(
-              'mb-2 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium',
-              isSyncing
-                ? 'bg-primary/10 text-primary'
-                : 'bg-primary/10 text-primary',
-            )}>
-            {isSyncing ? 'Synchronizing...' : 'Up to date'}
-          </div>
-          <p className='text-muted-foreground text-sm'>
-            {isSyncing
-              ? 'Updating data from server'
-              : 'All data is synchronized'}
-          </p>
-        </div>
-
-        {isSyncing && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className='space-y-3'>
-            <div className='text-foreground flex justify-between text-sm'>
-              <span>Sync Progress</span>
-              <span>{progress}%</span>
-            </div>
-            <Progress value={progress} className='h-2' />
-            <p className='text-muted-foreground text-center text-xs'>
-              Synchronizing user preferences...
-            </p>
-          </motion.div>
-        )}
-
-        {!isSyncing && (
-          <Button onClick={onStartSync} className='w-full' size='lg'>
-            <RefreshCw size={16} className='mr-2' />
-            Start Sync
+    <div className='flex h-full flex-col'>
+      {/* STICKY HEADER */}
+      <div className='bg-background/95 border-border/50 sticky top-0 z-10 border-b backdrop-blur-sm'>
+        <div className='flex items-center p-4'>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={onBack}
+            className='mr-3 h-8 w-8'>
+            <ArrowLeft size={14} />
           </Button>
-        )}
-
-        {/* Status Cards */}
-        <div className='space-y-2'>
-          <div className='bg-muted/30 flex items-center justify-between rounded-lg border p-3'>
-            <span className='text-foreground text-sm'>Last sync</span>
-            <div className='flex items-center gap-2'>
-              <div className='bg-primary h-2 w-2 rounded-full' />
-              <span className='text-muted-foreground text-sm'>
-                2 minutes ago
-              </span>
-            </div>
+          <div>
+            <h2 className='text-foreground text-lg font-semibold'>
+              Sync Status
+            </h2>
+            <p className='text-muted-foreground text-xs'>
+              Platform synchronization
+            </p>
           </div>
-          <div className='bg-muted/30 flex items-center justify-between rounded-lg border p-3'>
-            <span className='text-foreground text-sm'>Next scheduled sync</span>
-            <span className='text-muted-foreground text-sm'>In 8 minutes</span>
-          </div>
-          <div className='bg-muted/30 flex items-center justify-between rounded-lg border p-3'>
-            <span className='text-foreground text-sm'>Sync status</span>
-            <Badge
-              variant={isSyncing ? 'default' : 'secondary'}
-              className='text-xs'>
-              {isSyncing ? 'Active' : 'Idle'}
-            </Badge>
-          </div>
-        </div>
-
-        <div className='text-muted-foreground text-center text-xs'>
-          Last sync completed successfully • No errors
         </div>
       </div>
-    </motion.div>
+
+      {/* SCROLLABLE CONTENT */}
+      <ScrollArea className='flex-1'>
+        <div className='space-y-6 p-4'>
+          {/* Current Status Display */}
+          <div className='bg-muted/30 rounded-lg border p-4'>
+            <div className='flex items-center gap-4'>
+              <motion.div
+                className={cn(
+                  'flex h-12 w-12 items-center justify-center rounded-full border-2',
+                  isSyncing
+                    ? 'border-primary/50 bg-primary/10'
+                    : 'border-border bg-background',
+                )}
+                animate={
+                  isSyncing
+                    ? {
+                        borderColor: [
+                          'hsl(var(--primary) / 0.5)',
+                          'hsl(var(--primary))',
+                          'hsl(var(--primary) / 0.5)',
+                        ],
+                      }
+                    : {}
+                }
+                transition={{ duration: 2, repeat: isSyncing ? Infinity : 0 }}>
+                <motion.div
+                  animate={isSyncing ? { rotate: 360 } : {}}
+                  transition={{
+                    duration: 2,
+                    repeat: isSyncing ? Infinity : 0,
+                    ease: 'linear',
+                  }}>
+                  {isSyncing ? (
+                    <RefreshCw size={20} className='text-primary' />
+                  ) : (
+                    <CheckCircle2 size={20} className='text-primary' />
+                  )}
+                </motion.div>
+              </motion.div>
+
+              <div className='flex-1'>
+                <div className='mb-1 flex items-center gap-2'>
+                  <span className='text-foreground text-sm font-medium'>
+                    Status: {isSyncing ? 'Synchronizing...' : 'Up to date'}
+                  </span>
+                  <Badge
+                    variant={isSyncing ? 'default' : 'secondary'}
+                    className='text-xs'>
+                    {isSyncing ? 'Active' : 'Idle'}
+                  </Badge>
+                </div>
+                <p className='text-muted-foreground text-xs'>
+                  {isSyncing
+                    ? 'Updating platform data from server'
+                    : 'All platform data is synchronized'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Section */}
+          {isSyncing && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='space-y-3'>
+              <div className='flex justify-between text-sm'>
+                <span className='text-foreground font-medium'>
+                  Sync Progress
+                </span>
+                <span className='text-muted-foreground'>{progress}%</span>
+              </div>
+              <Progress value={progress} className='h-2' />
+              <p className='text-muted-foreground text-center text-xs'>
+                Synchronizing platform configuration and user data...
+              </p>
+            </motion.div>
+          )}
+
+          {/* Sync Controls */}
+          {!isSyncing && (
+            <div className='space-y-3'>
+              <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+                Sync Actions
+              </div>
+              <Button onClick={onStartSync} className='w-full gap-2' size='lg'>
+                <RefreshCw size={16} />
+                Start Manual Sync
+              </Button>
+              <p className='text-muted-foreground text-center text-xs'>
+                Manual sync will update all platform data immediately
+              </p>
+            </div>
+          )}
+
+          {/* Sync Information Cards */}
+          <div className='space-y-3'>
+            <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+              Sync Information
+            </div>
+            <div className='grid gap-3'>
+              <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
+                <div className='flex items-center gap-3'>
+                  <Clock size={14} className='text-muted-foreground' />
+                  <span className='text-foreground text-sm'>Last sync</span>
+                </div>
+                <div className='flex items-center gap-2'>
+                  <div className='bg-primary h-2 w-2 rounded-full' />
+                  <span className='text-muted-foreground text-sm'>
+                    2 minutes ago
+                  </span>
+                </div>
+              </div>
+
+              <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
+                <div className='flex items-center gap-3'>
+                  <Zap size={14} className='text-muted-foreground' />
+                  <span className='text-foreground text-sm'>
+                    Next scheduled sync
+                  </span>
+                </div>
+                <span className='text-muted-foreground text-sm'>
+                  In 8 minutes
+                </span>
+              </div>
+
+              <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
+                <div className='flex items-center gap-3'>
+                  <CheckCircle2 size={14} className='text-muted-foreground' />
+                  <span className='text-foreground text-sm'>Sync health</span>
+                </div>
+                <Badge
+                  variant='secondary'
+                  className='bg-primary/10 text-primary'>
+                  Healthy
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Help Text */}
+          <div className='text-muted-foreground text-center text-xs'>
+            Automatic sync runs every 10 minutes • No errors detected
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
   )
 }
 

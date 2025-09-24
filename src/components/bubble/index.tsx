@@ -10,10 +10,17 @@ import {
   Sparkles,
   Terminal,
 } from 'lucide-react'
-import { AnimatePresence, motion } from 'motion/react'
-import { type CSSProperties, useEffect, useState } from 'react'
+import { motion } from 'motion/react'
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { Card } from '@/components/ui/card'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 import LogsPanel from './LogsPanel'
@@ -50,7 +57,6 @@ const defaultPreferences: Preferences = {
   visible: true,
 }
 
-// Updated size mapping with better proportions and more space
 const sizeMap = {
   small: {
     bubble: 'w-12 h-12',
@@ -82,59 +88,6 @@ const positionMap = {
   'top-left': 'top-6 left-6',
 }
 
-// Enhanced mock data with more realistic logs
-const mockLogs = [
-  {
-    time: '10:30:15',
-    level: 'INFO',
-    message: 'Application started successfully',
-    id: 1,
-  },
-  {
-    time: '10:30:16',
-    level: 'DEBUG',
-    message: 'Database connection established',
-    id: 2,
-  },
-  {
-    time: '10:30:17',
-    level: 'INFO',
-    message: 'User authentication initialized',
-    id: 3,
-  },
-  {
-    time: '10:30:18',
-    level: 'WARN',
-    message: 'Rate limit approaching for API endpoint',
-    id: 4,
-  },
-  {
-    time: '10:30:19',
-    level: 'INFO',
-    message: 'Background sync process started',
-    id: 5,
-  },
-  {
-    time: '10:30:20',
-    level: 'ERROR',
-    message: 'Failed to connect to external service',
-    id: 6,
-  },
-  {
-    time: '10:30:21',
-    level: 'INFO',
-    message: 'Retrying connection in 5 seconds',
-    id: 7,
-  },
-  {
-    time: '10:30:26',
-    level: 'SUCCESS',
-    message: 'Connection restored successfully',
-    id: 8,
-  },
-]
-
-// Custom hook for mobile detection and screen dimensions
 function useScreenDimensions() {
   const [dimensions, setDimensions] = useState({
     width: 0,
@@ -160,21 +113,26 @@ function useScreenDimensions() {
 }
 
 const Bubble = () => {
+  // Core state - simplified
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentPanel, setCurrentPanel] = useState<Panel>('menu')
   const [preferences, setPreferences] =
     useState<Preferences>(defaultPreferences)
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncProgress, setSyncProgress] = useState(0)
-  const [notifications, setNotifications] = useState<Notification[]>([])
   const [activeProcesses, setActiveProcesses] = useState<Set<string>>(new Set())
   const [isVisible, setIsVisible] = useState(false)
   const [currentNotification, setCurrentNotification] =
     useState<Notification | null>(null)
   const [showNotification, setShowNotification] = useState(false)
+
+  // Minimal refs - only what's absolutely necessary
+  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const screenDimensions = useScreenDimensions()
 
-  // Prevent SSR issues
+  // SIMPLIFIED: Minimal effects only
   useEffect(() => {
     setIsVisible(true)
   }, [])
@@ -199,12 +157,16 @@ const Bubble = () => {
     }
   }, [preferences])
 
+  // SIMPLIFIED: Basic sync effect without complex logic
   useEffect(() => {
     if (isSyncing) {
       setActiveProcesses(prev => new Set(prev).add('sync'))
-      addNotification('sync', 'Started syncing data...')
 
-      const interval = setInterval(() => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+      }
+
+      syncIntervalRef.current = setInterval(() => {
         setSyncProgress(prev => {
           if (prev >= 100) {
             setIsSyncing(false)
@@ -213,128 +175,106 @@ const Bubble = () => {
               newSet.delete('sync')
               return newSet
             })
-            addNotification('success', 'Sync completed successfully!')
             return 0
           }
           return prev + 10
         })
       }, 300)
-      return () => clearInterval(interval)
+    } else {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+        syncIntervalRef.current = null
+      }
+    }
+
+    return () => {
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+        syncIntervalRef.current = null
+      }
     }
   }, [isSyncing])
 
+  // Cleanup
   useEffect(() => {
-    const demoInterval = setInterval(() => {
-      const demoNotifications = [
-        {
-          type: 'queue' as NotificationType,
-          message: 'New queue job processed',
-        },
-        {
-          type: 'info' as NotificationType,
-          message: 'System health check completed',
-        },
-        {
-          type: 'success' as NotificationType,
-          message: 'Backup completed successfully',
-        },
-        {
-          type: 'error' as NotificationType,
-          message: 'Connection timeout detected',
-        },
-        {
-          type: 'log' as NotificationType,
-          message: 'Database query optimized',
-        },
-      ]
-
-      const randomNotification =
-        demoNotifications[Math.floor(Math.random() * demoNotifications.length)]
-      addNotification(randomNotification.type, randomNotification.message)
-
-      if (randomNotification.type === 'queue') {
-        setActiveProcesses(prev => new Set(prev).add('queue'))
-        setTimeout(() => {
-          setActiveProcesses(prev => {
-            const newSet = new Set(prev)
-            newSet.delete('queue')
-            return newSet
-          })
-        }, 4000)
-      }
-    }, 8000)
-
-    return () => clearInterval(demoInterval)
+    return () => {
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
+      if (notificationTimeoutRef.current)
+        clearTimeout(notificationTimeoutRef.current)
+    }
   }, [])
 
-  const addNotification = (type: NotificationType, message: string) => {
-    const notification: Notification = {
-      id: Date.now().toString(),
-      type,
-      message,
-      timestamp: Date.now(),
-    }
+  // SIMPLIFIED: Basic callbacks
+  const updatePreference = useCallback(
+    <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
+      setPreferences(prev => ({ ...prev, [key]: value }))
+    },
+    [],
+  )
 
-    setNotifications(prev => [notification, ...prev.slice(0, 3)])
-    setCurrentNotification(notification)
-    setShowNotification(true)
-
-    setTimeout(() => {
-      setShowNotification(false)
-      setTimeout(() => setCurrentNotification(null), 300)
-    }, 4000)
-  }
-
-  const updatePreference = <K extends keyof Preferences>(
-    key: K,
-    value: Preferences[K],
-  ) => {
-    setPreferences(prev => ({ ...prev, [key]: value }))
-  }
-
-  const handleBubbleClick = () => {
+  const handleBubbleClick = useCallback(() => {
     setIsExpanded(!isExpanded)
     if (!isExpanded) {
       setCurrentPanel('menu')
     }
-  }
+  }, [isExpanded])
 
-  const navigateToPanel = (panel: Panel) => {
+  const navigateToPanel = useCallback((panel: Panel) => {
     setCurrentPanel(panel)
-  }
+  }, [])
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     setCurrentPanel('menu')
-  }
+  }, [])
+
+  const startSync = useCallback(() => {
+    setIsSyncing(true)
+  }, [])
 
   if (!preferences.visible || !isVisible) return null
 
   const bubbleSize = sizeMap[preferences.size]
   const position = positionMap[preferences.position]
 
-  // Fixed notification pill positioning
-  const getNotificationPosition = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
-
-    if (isRight) {
-      return {
-        right: bubbleSize.bubbleSize - 8,
-        [isTop ? 'top' : 'bottom']:
-          (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
-        transformOrigin: 'right center',
-      }
-    } else {
-      return {
-        left: bubbleSize.bubbleSize - 8,
-        [isTop ? 'top' : 'bottom']:
-          (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
-        transformOrigin: 'left center',
-      }
+  // SIMPLIFIED: Direct panel rendering without complex memoization
+  const renderPanel = () => {
+    switch (currentPanel) {
+      case 'menu':
+        return (
+          <MenuPanel
+            onNavigate={navigateToPanel}
+            onStartSync={startSync}
+            onClose={() => setIsExpanded(false)}
+            activeProcesses={activeProcesses}
+            isSyncing={isSyncing}
+          />
+        )
+      case 'preferences':
+        return (
+          <PreferencesPanel
+            preferences={preferences}
+            onUpdate={updatePreference}
+            onBack={goBack}
+          />
+        )
+      case 'logs':
+        return <LogsPanel onBack={goBack} />
+      case 'queues':
+        return <QueuesPanel onBack={goBack} />
+      case 'sync':
+        return (
+          <SyncPanel
+            onBack={goBack}
+            progress={syncProgress}
+            isSyncing={isSyncing}
+            onStartSync={startSync}
+          />
+        )
+      default:
+        return null
     }
   }
 
-  // Enhanced bubble icon
   const getBubbleIcon = () => {
     const iconSize = bubbleSize.icon
 
@@ -352,7 +292,6 @@ const Bubble = () => {
     return <Sparkles size={iconSize} className='text-muted-foreground' />
   }
 
-  // Improved panel positioning with better mobile support
   const getPanelPosition = (): CSSProperties => {
     if (screenDimensions.isMobile) {
       return {
@@ -392,7 +331,6 @@ const Bubble = () => {
       bottom = `${screenPadding + bubbleSize.bubbleSize + margin}px`
     }
 
-    // Ensure panel stays within viewport
     const maxTop = screenDimensions.height - panelHeight - screenPadding
     if (top && parseInt(top) > maxTop) {
       top = `${Math.max(screenPadding, maxTop)}px`
@@ -421,97 +359,33 @@ const Bubble = () => {
     }
   }
 
-  const notificationPosition = getNotificationPosition()
   const panelStyle = getPanelPosition()
-
-  const renderPanel = () => {
-    switch (currentPanel) {
-      case 'menu':
-        return (
-          <MenuPanel
-            onNavigate={navigateToPanel}
-            onStartSync={() => setIsSyncing(true)}
-            onClose={() => setIsExpanded(false)}
-            activeProcesses={activeProcesses}
-            isSyncing={isSyncing}
-          />
-        )
-      case 'preferences':
-        return (
-          <PreferencesPanel
-            preferences={preferences}
-            onUpdate={updatePreference}
-            onBack={goBack}
-          />
-        )
-      case 'logs':
-        return <LogsPanel onBack={goBack} />
-      case 'queues':
-        return <QueuesPanel onBack={goBack} />
-      case 'sync':
-        return (
-          <SyncPanel
-            onBack={goBack}
-            progress={syncProgress}
-            isSyncing={isSyncing}
-            onStartSync={() => setIsSyncing(true)}
-          />
-        )
-      default:
-        return null
-    }
-  }
 
   return (
     <>
-      {/* Notification Pill */}
-      <div className={cn('fixed z-[60]', position)}>
-        <AnimatePresence>
-          {showNotification && currentNotification && !isExpanded && (
-            <motion.div
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              exit={{ scaleX: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className='bg-background/95 ring-border absolute flex items-center rounded-full border px-4 py-2 shadow-xl ring-1 backdrop-blur-xl'
-              style={{
-                ...notificationPosition,
-                minWidth: 200,
-                height: bubbleSize.pillHeight,
-                zIndex: 0,
-              }}>
-              <NotificationIcon type={currentNotification.type} />
-              <span className='text-foreground mr-1 ml-2 truncate text-sm font-medium'>
-                {currentNotification.message}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
       {/* Main Bubble Container */}
       <div className={cn('fixed z-50', position)}>
-        {/* Expanded Panel */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              style={{
-                ...panelStyle,
-                transformOrigin: getExpansionOrigin(),
-              }}
-              className='shadow-2xl'>
-              <Card className='bg-background/95 ring-border h-full w-full overflow-hidden rounded-2xl border ring-1 backdrop-blur-xl'>
-                <div className='flex h-full flex-col'>
-                  <AnimatePresence mode='wait'>{renderPanel()}</AnimatePresence>
+        {/* ENHANCED: Expanded Panel with ScrollArea */}
+        {isExpanded && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            style={{
+              ...panelStyle,
+              transformOrigin: getExpansionOrigin(),
+            }}>
+            <Card className='bg-background/90 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
+              <ScrollArea className='h-full w-full'>
+                <div className='flex h-full min-h-full flex-col'>
+                  {/* Panel content with proper scrolling */}
+                  <div className='h-full min-h-0'>{renderPanel()}</div>
                 </div>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </ScrollArea>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Bubble Button */}
         <motion.button
@@ -523,18 +397,7 @@ const Bubble = () => {
           style={{ zIndex: 1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-          animate={
-            activeProcesses.size > 0
-              ? {
-                  boxShadow: [
-                    '0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                    '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                    '0 0 #0000, 0 0 #0000, 0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                  ],
-                }
-              : {}
-          }>
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
           {/* Sync Progress Ring */}
           {isSyncing && (
             <svg
