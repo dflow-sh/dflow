@@ -10,6 +10,7 @@ import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
 import Logo from '@/components/Logo'
 import ToggleTheme from '@/components/ToggleTheme'
+import Bubble from '@/components/bubble'
 import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
@@ -159,6 +160,7 @@ export default async function OrganisationLayout({
     <Provider>
       <Banner />
       <DashboardLayout params={params}>{children}</DashboardLayout>
+      <Bubble />
     </Provider>
   )
 }
