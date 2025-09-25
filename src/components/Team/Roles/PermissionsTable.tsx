@@ -1,4 +1,4 @@
-import { UseFormReturn, useWatch } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 
 import { CreateRoleType } from '@/actions/roles/validator'
 import { Checkbox } from '@/components/ui/check-box'
@@ -25,16 +25,119 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+type Collections =
+  | 'projects'
+  | 'services'
+  | 'servers'
+  | 'templates'
+  | 'roles'
+  | 'backups'
+  | 'securityGroups'
+  | 'sshKeys'
+  | 'cloudProviderAccounts'
+  | 'dockerRegistries'
+  | 'gitProviders'
+  | 'team'
+
 const PermissionsTable = ({
   form,
 }: {
   form: UseFormReturn<CreateRoleType>
 }) => {
-  const { servers, projects } = useWatch({ control: form.control })
+  const collections: Collections[] = [
+    'projects',
+    'services',
+    'servers',
+    'templates',
+    'roles',
+    'backups',
+    'securityGroups',
+    'sshKeys',
+    'cloudProviderAccounts',
+    'dockerRegistries',
+    'gitProviders',
+    'team',
+  ]
+  const setAllPermissionsForCollection = (
+    collection: Collections,
+    checked: boolean,
+  ) => {
+    form.setValue(`${collection}.create`, checked, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    form.setValue(`${collection}.read`, checked, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    form.setValue(`${collection}.update`, checked, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+    form.setValue(`${collection}.delete`, checked, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
+
+    if ((collection === 'projects' || collection === 'servers') && !checked) {
+      form.setValue(`${collection}.createLimit`, 0, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.setValue(`${collection}.readLimit`, 'all', {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+  }
+
+  const selectAllPermissions = (checked: boolean) => {
+    collections.forEach(collection => {
+      form.setValue(`${collection}.create`, checked, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.setValue(`${collection}.read`, checked, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.setValue(`${collection}.update`, checked, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      form.setValue(`${collection}.delete`, checked, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+      if ((collection === 'projects' || collection === 'servers') && !checked) {
+        form.setValue(`${collection}.createLimit`, 0, {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+        form.setValue(`${collection}.readLimit`, 'all', {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+      }
+    })
+  }
+
   return (
     <Table className='w-full'>
       <TableHeader>
         <TableRow>
+          <TableHead className='w-[40px]'>
+            <Checkbox
+              checked={collections.every(
+                c =>
+                  form.watch(`${c}.create`) &&
+                  form.watch(`${c}.read`) &&
+                  form.watch(`${c}.update`) &&
+                  form.watch(`${c}.delete`),
+              )}
+              onCheckedChange={checked => selectAllPermissions(!!checked)}
+            />
+          </TableHead>
           <TableHead className='w-[240px]'>Collection</TableHead>
           <TableHead>Create</TableHead>
           <TableHead>Read</TableHead>
@@ -43,1052 +146,194 @@ const PermissionsTable = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Projects</TableCell>
-          <TableCell>
-            <div className='flex items-center gap-x-2'>
-              <FormField
-                control={form.control}
-                name='projects.create'
-                render={({ field }) => (
-                  <FormItem className='space-y-0'>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={checked => {
-                          field.onChange(checked)
-                          form.setValue('projects.createLimit', 0)
-                        }}
-                        ref={field.ref}
+        {collections.map(collection => {
+          const watched = {
+            create: form.watch(`${collection}.create`),
+            read: form.watch(`${collection}.read`),
+            update: form.watch(`${collection}.update`),
+            delete: form.watch(`${collection}.delete`),
+          }
+          return (
+            <TableRow>
+              <TableCell>
+                <Checkbox
+                  checked={
+                    watched.create &&
+                    watched.read &&
+                    watched.update &&
+                    watched.delete
+                  }
+                  onCheckedChange={checked =>
+                    setAllPermissionsForCollection(collection, !!checked)
+                  }
+                />
+              </TableCell>
+              <TableCell className='text-md font-semibold capitalize'>
+                {collection}
+              </TableCell>
+              <TableCell>
+                <div className='flex items-center gap-x-2'>
+                  <FormField
+                    control={form.control}
+                    name={`${collection}.create`}
+                    render={({ field }) => (
+                      <FormItem className='space-y-0'>
+                        <FormControl>
+                          <Checkbox
+                            checked={!!field.value}
+                            onCheckedChange={checked => {
+                              field.onChange(!!checked)
+                              // reset limit only if collection supports it
+                              if (
+                                collection === 'projects' ||
+                                collection === 'servers'
+                              ) {
+                                form.setValue(`${collection}.createLimit`, 0)
+                              }
+                            }}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {(collection === 'projects' || collection === 'servers') &&
+                    watched.create && (
+                      <FormField
+                        control={form.control}
+                        name={`${collection}.createLimit`}
+                        render={({ field }) => (
+                          <FormItem className='space-y-0'>
+                            <FormControl>
+                              <Input
+                                className='w-[180px]'
+                                type='number'
+                                placeholder='0'
+                                min={0}
+                                max={99}
+                                value={field.value?.toString() || '0'}
+                                onChange={e => {
+                                  const val = e.target.value
+                                  if (val === '') {
+                                    field.onChange(0)
+                                  } else {
+                                    const numVal = parseInt(val, 10)
+                                    if (!isNaN(numVal) && numVal >= 0) {
+                                      field.onChange(numVal)
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {projects?.create && (
+                    )}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex items-center gap-x-2'>
+                  <FormField
+                    control={form.control}
+                    name={`${collection}.read`}
+                    render={({ field }) => (
+                      <FormItem className='space-y-0'>
+                        <FormControl>
+                          <Checkbox
+                            checked={!!field.value}
+                            onCheckedChange={checked => {
+                              field.onChange(!!checked)
+                              // reset limit only if collection supports it
+                              if (
+                                collection === 'projects' ||
+                                collection === 'servers'
+                              ) {
+                                form.setValue(`${collection}.readLimit`, 'all')
+                              }
+                            }}
+                            ref={field.ref}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {(collection === 'projects' || collection === 'servers') &&
+                    watched.read && (
+                      <FormField
+                        control={form.control}
+                        name={`${collection}.readLimit`}
+                        render={({ field }) => (
+                          <FormItem className='space-y-0'>
+                            <FormControl>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value || 'all'}>
+                                <FormControl>
+                                  <SelectTrigger className='w-[180px]'>
+                                    <SelectValue placeholder='Select' />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value='all'>All</SelectItem>
+                                  <SelectItem value='createdByUser'>
+                                    User Specific
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                </div>
+              </TableCell>
+              <TableCell>
                 <FormField
                   control={form.control}
-                  name='projects.createLimit'
+                  name={`${collection}.update`}
                   render={({ field }) => (
                     <FormItem className='space-y-0'>
                       <FormControl>
-                        <Input
-                          className='w-[180px]'
-                          type='number'
-                          placeholder='0'
-                          min={0}
-                          max={99}
-                          value={field.value?.toString() || '0'}
-                          onChange={e => {
-                            const val = e.target.value
-                            if (val === '') {
-                              field.onChange(0)
-                            } else {
-                              const numVal = parseInt(val, 10)
-                              if (!isNaN(numVal) && numVal >= 0) {
-                                field.onChange(numVal)
-                              }
-                            }
+                        <Checkbox
+                          checked={!!field.value}
+                          onCheckedChange={checked => {
+                            field.onChange(!!checked)
                           }}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
-          </TableCell>
-          <TableCell>
-            <div className='flex items-center gap-x-2'>
-              <FormField
-                control={form.control}
-                name='projects.read'
-                render={({ field }) => (
-                  <FormItem className='space-y-0'>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={checked => {
-                          field.onChange(checked)
-                          form.setValue('projects.readLimit', 'all')
-                        }}
-                        ref={field.ref}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {projects?.read && (
+              </TableCell>
+              <TableCell>
                 <FormField
                   control={form.control}
-                  name='projects.readLimit'
+                  name={`${collection}.delete`}
                   render={({ field }) => (
                     <FormItem className='space-y-0'>
                       <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value || 'all'}>
-                          <FormControl>
-                            <SelectTrigger className='w-[180px]'>
-                              <SelectValue placeholder='Select' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value='all'>All</SelectItem>
-                            <SelectItem value='createdByUser'>
-                              User Specific
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='projects.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='projects.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Servers</TableCell>
-          <TableCell>
-            <div className='flex items-center gap-x-2'>
-              <FormField
-                control={form.control}
-                name='servers.create'
-                render={({ field }) => (
-                  <FormItem className='space-y-0'>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={checked => {
-                          field.onChange(checked)
-                          form.setValue('servers.createLimit', 0)
-                        }}
-                        ref={field.ref}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {servers?.create && (
-                <FormField
-                  control={form.control}
-                  name='servers.createLimit'
-                  render={({ field }) => (
-                    <FormItem className='space-y-0'>
-                      <FormControl>
-                        <Input
-                          className='w-[180px]'
-                          type='number'
-                          placeholder='0'
-                          min={0}
-                          max={99}
-                          value={field.value?.toString() || '0'}
-                          onChange={e => {
-                            const val = e.target.value
-                            if (val === '') {
-                              field.onChange(0)
-                            } else {
-                              const numVal = parseInt(val, 10)
-                              if (!isNaN(numVal) && numVal >= 0) {
-                                field.onChange(numVal)
-                              }
-                            }
+                        <Checkbox
+                          checked={!!field.value}
+                          onCheckedChange={checked => {
+                            field.onChange(!!checked)
                           }}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
-          </TableCell>
-          <TableCell>
-            <div className='flex items-center gap-x-2'>
-              <FormField
-                control={form.control}
-                name='servers.read'
-                render={({ field }) => (
-                  <FormItem className='space-y-0'>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={checked => {
-                          field.onChange(checked)
-                          form.setValue('servers.readLimit', 'all')
-                        }}
-                        ref={field.ref}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {servers?.read && (
-                <FormField
-                  control={form.control}
-                  name='servers.readLimit'
-                  render={({ field }) => (
-                    <FormItem className='space-y-0'>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value || 'all'}>
-                          <FormControl>
-                            <SelectTrigger className='w-[180px]'>
-                              <SelectValue placeholder='Select' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value='all'>All</SelectItem>
-                            <SelectItem value='createdByUser'>
-                              User Specific
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='servers.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='servers.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Services</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='services.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='services.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='services.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='services.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Templates</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='templates.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='templates.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='templates.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='templates.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Roles</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='roles.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='roles.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='roles.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='roles.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Backups</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='backups.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='backups.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='backups.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='backups.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>
-            Security Groups
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='securityGroups.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='securityGroups.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='securityGroups.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='securityGroups.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>SSH Keys</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='sshKeys.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='sshKeys.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='sshKeys.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='sshKeys.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>
-            Cloud Provider Accounts
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='cloudProviderAccounts.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='cloudProviderAccounts.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='cloudProviderAccounts.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='cloudProviderAccounts.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>
-            Docker Registries
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='dockerRegistries.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='dockerRegistries.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='dockerRegistries.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='dockerRegistries.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Git Providers</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='gitProviders.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='gitProviders.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='gitProviders.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='gitProviders.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className='text-md font-semibold'>Team</TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='team.create'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='team.read'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='team.update'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-          <TableCell>
-            <FormField
-              control={form.control}
-              name='team.delete'
-              render={({ field }) => (
-                <FormItem className='space-y-0'>
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      ref={field.ref}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </TableCell>
-        </TableRow>
+              </TableCell>
+            </TableRow>
+          )
+        })}
       </TableBody>
     </Table>
   )
