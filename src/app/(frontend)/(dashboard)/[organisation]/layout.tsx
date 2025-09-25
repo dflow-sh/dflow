@@ -148,7 +148,6 @@ const DashboardLayout = ({ children, params }: PageProps) => {
       </div>
 
       <DocSidebar />
-      <Bubble />
     </div>
   )
 }
@@ -161,6 +160,7 @@ export default async function OrganisationLayout({
     <Provider>
       <Banner />
       <DashboardLayout params={params}>{children}</DashboardLayout>
+      <Bubble />
     </Provider>
   )
 }

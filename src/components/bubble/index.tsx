@@ -10,13 +10,15 @@ import {
   Sparkles,
   Terminal,
 } from 'lucide-react'
-import { motion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useParams, useRouter } from 'next/navigation'
 import {
   type CSSProperties,
   useCallback,
   useEffect,
   useRef,
   useState,
+  useTransition,
 } from 'react'
 
 import { Card } from '@/components/ui/card'
@@ -113,7 +115,7 @@ function useScreenDimensions() {
 }
 
 const Bubble = () => {
-  // Core state - simplified
+  // Core state
   const [isExpanded, setIsExpanded] = useState(false)
   const [currentPanel, setCurrentPanel] = useState<Panel>('menu')
   const [preferences, setPreferences] =
@@ -126,17 +128,32 @@ const Bubble = () => {
     useState<Notification | null>(null)
   const [showNotification, setShowNotification] = useState(false)
 
-  // Minimal refs - only what's absolutely necessary
+  // SSE state for custom messages
+  const [syncMessage, setSyncMessage] = useState(
+    'All platform data is synchronized',
+  )
+
+  // FIX: Add separate state for SSE syncing to avoid isPending confusion
+  const [isSSESyncing, setIsSSESyncing] = useState(false)
+
+  // Refs
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const eventSourceRef = useRef<EventSource | null>(null)
+
+  // EXACT RefreshProvider integration
+  const [isPending, startTransition] = useTransition()
+  const { organisation } = useParams<{ organisation: string }>()
+  const router = useRouter()
 
   const screenDimensions = useScreenDimensions()
 
-  // SIMPLIFIED: Minimal effects only
+  // Basic initialization
   useEffect(() => {
     setIsVisible(true)
   }, [])
 
+  // Load preferences
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('bubble-preferences')
@@ -151,49 +168,159 @@ const Bubble = () => {
     }
   }, [])
 
+  // Save preferences
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('bubble-preferences', JSON.stringify(preferences))
     }
   }, [preferences])
 
-  // SIMPLIFIED: Basic sync effect without complex logic
-  useEffect(() => {
-    if (isSyncing) {
-      setActiveProcesses(prev => new Set(prev).add('sync'))
+  // Helper function to show notification with auto-dismiss
+  const showNotificationWithTimeout = useCallback(
+    (notification: Notification, duration: number = 3000) => {
+      if (isExpanded) return // Don't show notifications when expanded
 
+      // Clear any existing timeout first
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current)
+        notificationTimeoutRef.current = null
+      }
+
+      // Only show if there's no current notification or it's a different one
+      if (!currentNotification || currentNotification.id !== notification.id) {
+        setCurrentNotification(notification)
+        setShowNotification(true)
+
+        // Set new timeout to hide notification
+        notificationTimeoutRef.current = setTimeout(() => {
+          setShowNotification(false)
+          // Clear notification after animation completes
+          setTimeout(() => {
+            setCurrentNotification(null)
+          }, 300)
+        }, duration)
+      }
+    },
+    [isExpanded, currentNotification],
+  )
+
+  // EXACT RefreshProvider SSE logic
+  useEffect(() => {
+    if (!organisation) return
+
+    // Initializing a SSE for listening changes to update UI
+    const eventSource = new EventSource(
+      `/api/refresh?organisation=${organisation}`,
+    )
+    eventSourceRef.current = eventSource
+
+    eventSource.onmessage = event => {
+      const data = JSON.parse(event.data) ?? {}
+
+      if (data?.refresh) {
+        // Extract custom message or use default (like toast)
+        const customMessage = data?.message || 'Syncing with latest changes...'
+        setSyncMessage(customMessage)
+
+        // FIX: Start SSE syncing state immediately
+        setIsSSESyncing(true)
+        setActiveProcesses(prev => new Set(prev).add('sync'))
+        setSyncProgress(0)
+
+        // Starting react transition hook (EXACT same as RefreshProvider)
+        startTransition(() => {
+          router.refresh()
+        })
+
+        // Add notification for bubble (only show when collapsed)
+        const notification: Notification = {
+          id: Date.now().toString(),
+          type: 'sync',
+          message: customMessage,
+          timestamp: Date.now(),
+        }
+
+        // Show sync notification with longer duration since it's active
+        showNotificationWithTimeout(notification, 5000)
+      }
+
+      // redirecting user to respective page on page-event (EXACT same as RefreshProvider)
+      if (data?.path) {
+        router.push(data?.path)
+      }
+    }
+
+    // On component unmount close the event source (EXACT same as RefreshProvider)
+    return () => {
+      if (eventSource) {
+        eventSource.close()
+      }
+      if (syncIntervalRef.current) {
+        clearInterval(syncIntervalRef.current)
+        syncIntervalRef.current = null
+      }
+    }
+  }, [organisation, router, showNotificationWithTimeout])
+
+  // FIX: Monitor isPending changes and complete SSE sync when transition finishes
+  useEffect(() => {
+    if (isSSESyncing && !isPending) {
+      // SSE transition completed, start progress animation to finish sync
       if (syncIntervalRef.current) {
         clearInterval(syncIntervalRef.current)
       }
 
+      // Simulate completion with progress animation
+      setSyncProgress(80) // Start from high progress since refresh completed
+
       syncIntervalRef.current = setInterval(() => {
         setSyncProgress(prev => {
           if (prev >= 100) {
-            setIsSyncing(false)
+            // Complete SSE sync
+            setIsSSESyncing(false)
             setActiveProcesses(prev => {
               const newSet = new Set(prev)
               newSet.delete('sync')
               return newSet
             })
+            setSyncMessage('All platform data is synchronized')
+
+            // Success notification
+            const successNotification: Notification = {
+              id: (Date.now() + 1).toString(),
+              type: 'success',
+              message: 'Platform synchronized successfully',
+              timestamp: Date.now(),
+            }
+
+            // Show success notification for shorter duration
+            showNotificationWithTimeout(successNotification, 2000)
+
             return 0
           }
-          return prev + 10
+          return prev + 5
         })
-      }, 300)
-    } else {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-        syncIntervalRef.current = null
-      }
+      }, 100)
     }
+  }, [isSSESyncing, isPending, showNotificationWithTimeout])
 
-    return () => {
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-        syncIntervalRef.current = null
+  // Hide notification when bubble expands
+  useEffect(() => {
+    if (isExpanded) {
+      // Immediately hide notification when expanding
+      if (showNotification) {
+        setShowNotification(false)
+        if (notificationTimeoutRef.current) {
+          clearTimeout(notificationTimeoutRef.current)
+          notificationTimeoutRef.current = null
+        }
+        // Clear notification after animation
+        setTimeout(() => {
+          setCurrentNotification(null)
+        }, 300)
       }
     }
-  }, [isSyncing])
+  }, [isExpanded, showNotification])
 
   // Cleanup
   useEffect(() => {
@@ -201,10 +328,11 @@ const Bubble = () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
       if (notificationTimeoutRef.current)
         clearTimeout(notificationTimeoutRef.current)
+      if (eventSourceRef.current) eventSourceRef.current.close()
     }
   }, [])
 
-  // SIMPLIFIED: Basic callbacks
+  // Basic callbacks
   const updatePreference = useCallback(
     <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
       setPreferences(prev => ({ ...prev, [key]: value }))
@@ -227,16 +355,80 @@ const Bubble = () => {
     setCurrentPanel('menu')
   }, [])
 
+  // FIX: Restore manual sync with proper async refresh handling to prevent infinite loop
   const startSync = useCallback(() => {
+    if (isSyncing || isSSESyncing) return
+
+    setSyncMessage('Manual sync initiated...')
     setIsSyncing(true)
-  }, [])
+    setActiveProcesses(prev => new Set(prev).add('sync'))
+    setSyncProgress(0)
+
+    // Show manual sync notification
+    const notification: Notification = {
+      id: Date.now().toString(),
+      type: 'sync',
+      message: 'Manual sync initiated...',
+      timestamp: Date.now(),
+    }
+
+    showNotificationWithTimeout(notification, 4000)
+
+    if (syncIntervalRef.current) {
+      clearInterval(syncIntervalRef.current)
+    }
+
+    syncIntervalRef.current = setInterval(() => {
+      setSyncProgress(prev => {
+        if (prev >= 100) {
+          // Clear the interval first to prevent re-entry
+          if (syncIntervalRef.current) {
+            clearInterval(syncIntervalRef.current)
+            syncIntervalRef.current = null
+          }
+
+          setIsSyncing(false)
+          setActiveProcesses(prev => {
+            const newSet = new Set(prev)
+            newSet.delete('sync')
+            return newSet
+          })
+          setSyncMessage('Manual sync completed successfully!')
+
+          // FIX: Use setTimeout to defer router.refresh and prevent infinite loop
+          setTimeout(() => {
+            startTransition(() => {
+              router.refresh()
+            })
+          }, 100) // Small delay to ensure state updates are completed
+
+          // Show manual sync success
+          const successNotification: Notification = {
+            id: (Date.now() + 1).toString(),
+            type: 'success',
+            message: 'Manual sync completed successfully!',
+            timestamp: Date.now(),
+          }
+
+          showNotificationWithTimeout(successNotification, 2000)
+
+          setTimeout(() => {
+            setSyncMessage('All platform data is synchronized')
+          }, 2000)
+
+          return 0
+        }
+        return prev + 12
+      })
+    }, 150)
+  }, [isSyncing, isSSESyncing, router, showNotificationWithTimeout])
 
   if (!preferences.visible || !isVisible) return null
 
   const bubbleSize = sizeMap[preferences.size]
   const position = positionMap[preferences.position]
 
-  // SIMPLIFIED: Direct panel rendering without complex memoization
+  // Panel rendering - pass syncMessage to SyncPanel
   const renderPanel = () => {
     switch (currentPanel) {
       case 'menu':
@@ -246,7 +438,7 @@ const Bubble = () => {
             onStartSync={startSync}
             onClose={() => setIsExpanded(false)}
             activeProcesses={activeProcesses}
-            isSyncing={isSyncing}
+            isSyncing={isSyncing || isSSESyncing}
           />
         )
       case 'preferences':
@@ -266,8 +458,12 @@ const Bubble = () => {
           <SyncPanel
             onBack={goBack}
             progress={syncProgress}
-            isSyncing={isSyncing}
+            isSyncing={isSyncing || isSSESyncing}
             onStartSync={startSync}
+            // Pass custom message from SSE
+            syncMessage={syncMessage}
+            // FIX: Don't pass isPending to avoid confusion
+            isPending={false}
           />
         )
       default:
@@ -278,7 +474,8 @@ const Bubble = () => {
   const getBubbleIcon = () => {
     const iconSize = bubbleSize.icon
 
-    if (activeProcesses.has('sync')) {
+    // FIX: Use our managed sync states instead of isPending
+    if (isSyncing || isSSESyncing) {
       return <Loader2 size={iconSize} className='text-primary animate-spin' />
     }
     if (activeProcesses.has('queue')) {
@@ -290,6 +487,18 @@ const Bubble = () => {
       )
     }
     return <Sparkles size={iconSize} className='text-muted-foreground' />
+  }
+
+  const getNotificationPosition = () => {
+    const isRight = preferences.position.includes('right')
+    const isTop = preferences.position.includes('top')
+
+    return {
+      [isRight ? 'right' : 'left']: bubbleSize.bubbleSize / 2, // Position from bubble center
+      [isTop ? 'top' : 'bottom']:
+        (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
+      transformOrigin: isRight ? 'right center' : 'left center',
+    }
   }
 
   const getPanelPosition = (): CSSProperties => {
@@ -360,32 +569,58 @@ const Bubble = () => {
   }
 
   const panelStyle = getPanelPosition()
+  const notificationPosition = getNotificationPosition()
 
   return (
     <>
       {/* Main Bubble Container */}
       <div className={cn('fixed z-50', position)}>
-        {/* ENHANCED: Expanded Panel with ScrollArea */}
-        {isExpanded && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            style={{
-              ...panelStyle,
-              transformOrigin: getExpansionOrigin(),
-            }}>
-            <Card className='bg-background/90 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
-              <ScrollArea className='h-full w-full'>
-                <div className='flex h-full min-h-full flex-col'>
-                  {/* Panel content with proper scrolling */}
-                  <div className='h-full min-h-0'>{renderPanel()}</div>
-                </div>
-              </ScrollArea>
-            </Card>
-          </motion.div>
-        )}
+        {/* Notification Pill - Now positioned relative to the bubble container */}
+        <AnimatePresence>
+          {showNotification && currentNotification && !isExpanded && (
+            <motion.div
+              key={currentNotification.id}
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              exit={{ scaleX: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+              className='bg-background/95 ring-border absolute flex items-center rounded-full border px-4 py-2 shadow-xl ring-1 backdrop-blur-xl'
+              style={{
+                ...notificationPosition,
+                minWidth: 200,
+                height: bubbleSize.pillHeight,
+                zIndex: 0,
+              }}>
+              <NotificationIcon type={currentNotification.type} />
+              <span className='text-foreground mr-1 ml-2 truncate text-sm font-medium'>
+                {currentNotification.message}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Expanded Panel */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              style={{
+                ...panelStyle,
+                transformOrigin: getExpansionOrigin(),
+              }}>
+              <Card className='bg-background/90 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
+                <ScrollArea className='h-full w-full'>
+                  <div className='flex h-full min-h-full flex-col'>
+                    <div className='h-full min-h-0'>{renderPanel()}</div>
+                  </div>
+                </ScrollArea>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Bubble Button */}
         <motion.button
@@ -399,7 +634,7 @@ const Bubble = () => {
           whileTap={{ scale: 0.95 }}
           transition={{ type: 'spring', stiffness: 400, damping: 17 }}>
           {/* Sync Progress Ring */}
-          {isSyncing && (
+          {(isSyncing || isSSESyncing) && (
             <svg
               className='absolute inset-0 h-full w-full -rotate-90'
               viewBox='0 0 100 100'>
@@ -430,7 +665,7 @@ const Bubble = () => {
           )}
 
           {/* Activity Ring */}
-          {activeProcesses.size > 0 && !isSyncing && (
+          {activeProcesses.size > 0 && !isSyncing && !isSSESyncing && (
             <motion.div
               className='border-primary/40 absolute inset-0 rounded-full border-2'
               animate={{
@@ -471,14 +706,14 @@ const Bubble = () => {
           {/* Icon */}
           <motion.div
             animate={
-              isSyncing
+              isSyncing || isSSESyncing
                 ? { rotate: 360 }
                 : activeProcesses.has('queue')
                   ? { scale: [1, 1.1, 1] }
                   : { rotate: 0, scale: 1 }
             }
             transition={
-              isSyncing
+              isSyncing || isSSESyncing
                 ? { duration: 2, repeat: Infinity, ease: 'linear' }
                 : activeProcesses.has('queue')
                   ? { duration: 2, repeat: Infinity, ease: 'easeInOut' }

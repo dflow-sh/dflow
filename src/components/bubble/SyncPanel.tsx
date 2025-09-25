@@ -14,11 +14,16 @@ const SyncPanel = ({
   progress,
   isSyncing,
   onStartSync,
+  // Add SSE props - custom message and isPending state
+  syncMessage = 'All platform data is synchronized',
+  isPending = false,
 }: {
   onBack: () => void
   progress: number
   isSyncing: boolean
   onStartSync: () => void
+  syncMessage?: string
+  isPending?: boolean
 }) => {
   return (
     <div className='flex h-full flex-col'>
@@ -46,18 +51,18 @@ const SyncPanel = ({
       {/* SCROLLABLE CONTENT */}
       <ScrollArea className='flex-1'>
         <div className='space-y-6 p-4'>
-          {/* Current Status Display */}
+          {/* Current Status Display - Show SSE sync status */}
           <div className='bg-muted/30 rounded-lg border p-4'>
             <div className='flex items-center gap-4'>
               <motion.div
                 className={cn(
                   'flex h-12 w-12 items-center justify-center rounded-full border-2',
-                  isSyncing
+                  isSyncing || isPending
                     ? 'border-primary/50 bg-primary/10'
                     : 'border-border bg-background',
                 )}
                 animate={
-                  isSyncing
+                  isSyncing || isPending
                     ? {
                         borderColor: [
                           'hsl(var(--primary) / 0.5)',
@@ -67,15 +72,18 @@ const SyncPanel = ({
                       }
                     : {}
                 }
-                transition={{ duration: 2, repeat: isSyncing ? Infinity : 0 }}>
+                transition={{
+                  duration: 2,
+                  repeat: isSyncing || isPending ? Infinity : 0,
+                }}>
                 <motion.div
-                  animate={isSyncing ? { rotate: 360 } : {}}
+                  animate={isSyncing || isPending ? { rotate: 360 } : {}}
                   transition={{
                     duration: 2,
-                    repeat: isSyncing ? Infinity : 0,
+                    repeat: isSyncing || isPending ? Infinity : 0,
                     ease: 'linear',
                   }}>
-                  {isSyncing ? (
+                  {isSyncing || isPending ? (
                     <RefreshCw size={20} className='text-primary' />
                   ) : (
                     <CheckCircle2 size={20} className='text-primary' />
@@ -86,25 +94,27 @@ const SyncPanel = ({
               <div className='flex-1'>
                 <div className='mb-1 flex items-center gap-2'>
                   <span className='text-foreground text-sm font-medium'>
-                    Status: {isSyncing ? 'Synchronizing...' : 'Up to date'}
+                    Status:{' '}
+                    {isSyncing || isPending ? 'Synchronizing...' : 'Up to date'}
                   </span>
                   <Badge
-                    variant={isSyncing ? 'default' : 'secondary'}
+                    variant={isSyncing || isPending ? 'default' : 'secondary'}
                     className='text-xs'>
-                    {isSyncing ? 'Active' : 'Idle'}
+                    {isSyncing || isPending ? 'Active' : 'Idle'}
                   </Badge>
                 </div>
+                {/* Show custom SSE message */}
                 <p className='text-muted-foreground text-xs'>
-                  {isSyncing
-                    ? 'Updating platform data from server'
+                  {isSyncing || isPending
+                    ? syncMessage
                     : 'All platform data is synchronized'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Progress Section */}
-          {isSyncing && (
+          {/* Progress Section - Show for both manual and SSE sync */}
+          {(isSyncing || isPending) && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -113,17 +123,20 @@ const SyncPanel = ({
                 <span className='text-foreground font-medium'>
                   Sync Progress
                 </span>
-                <span className='text-muted-foreground'>{progress}%</span>
+                <span className='text-muted-foreground'>
+                  {isPending ? 'Processing...' : `${progress}%`}
+                </span>
               </div>
-              <Progress value={progress} className='h-2' />
+              <Progress value={isPending ? 100 : progress} className='h-2' />
               <p className='text-muted-foreground text-center text-xs'>
-                Synchronizing platform configuration and user data...
+                {/* Show custom SSE message in progress */}
+                {syncMessage}
               </p>
             </motion.div>
           )}
 
           {/* Sync Controls */}
-          {!isSyncing && (
+          {!isSyncing && !isPending && (
             <div className='space-y-3'>
               <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
                 Sync Actions
@@ -150,9 +163,16 @@ const SyncPanel = ({
                   <span className='text-foreground text-sm'>Last sync</span>
                 </div>
                 <div className='flex items-center gap-2'>
-                  <div className='bg-primary h-2 w-2 rounded-full' />
+                  <div
+                    className={cn(
+                      'h-2 w-2 rounded-full',
+                      isSyncing || isPending
+                        ? 'bg-primary animate-pulse'
+                        : 'bg-primary',
+                    )}
+                  />
                   <span className='text-muted-foreground text-sm'>
-                    2 minutes ago
+                    {isSyncing || isPending ? 'Syncing now' : 'Auto'}
                   </span>
                 </div>
               </div>
@@ -160,13 +180,13 @@ const SyncPanel = ({
               <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
                 <div className='flex items-center gap-3'>
                   <Zap size={14} className='text-muted-foreground' />
-                  <span className='text-foreground text-sm'>
-                    Next scheduled sync
-                  </span>
+                  <span className='text-foreground text-sm'>Auto-sync</span>
                 </div>
-                <span className='text-muted-foreground text-sm'>
-                  In 8 minutes
-                </span>
+                <Badge
+                  variant='secondary'
+                  className='bg-primary/10 text-primary'>
+                  Enabled
+                </Badge>
               </div>
 
               <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
@@ -177,7 +197,7 @@ const SyncPanel = ({
                 <Badge
                   variant='secondary'
                   className='bg-primary/10 text-primary'>
-                  Healthy
+                  Connected
                 </Badge>
               </div>
             </div>
@@ -185,7 +205,9 @@ const SyncPanel = ({
 
           {/* Help Text */}
           <div className='text-muted-foreground text-center text-xs'>
-            Automatic sync runs every 10 minutes • No errors detected
+            {isSyncing || isPending
+              ? 'Real-time sync in progress • Server connected'
+              : 'Real-time sync enabled • Server connected'}
           </div>
         </div>
       </ScrollArea>
