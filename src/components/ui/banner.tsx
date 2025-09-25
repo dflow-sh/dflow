@@ -162,8 +162,8 @@ export default function BannerComponent({ banners }: BannerProps) {
                 )}
               </div>
 
-              <div className='flex items-center gap-4'>
-                <div className='text-center'>
+              <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-4'>
+                <div className='text-left'>
                   {banner.title && (
                     <span className='mr-2 text-sm font-medium'>
                       {banner.title}

@@ -186,7 +186,7 @@ const LayoutClient = ({
           </div>
 
           <div
-            className='mx-auto mb-4 w-full max-w-6xl overflow-x-scroll'
+            className='mx-auto mb-4 w-full overflow-x-scroll'
             style={{ scrollbarWidth: 'none' }}>
             <Tabs
               tabs={tabsList.map(({ label, disabled }) => ({

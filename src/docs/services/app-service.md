@@ -81,8 +81,8 @@ This tab provides a detailed overview of your service configuration.
 - Add environment variable `NGINX_DEFAULT_REQUEST=index.html` to set default
   request file (usually your main HTML file)
 
-- If your `index.html` is inside a folder (e.g. dist), Add environment variable
-  `NGINX_ROOT=dist` to set root directory:
+- If your `index.html` is in root directory add `NGINX_ROOT=_site`, if it's in
+  (e.g. dist), Add environment variable `NGINX_ROOT=dist` to set root directory.
 
 > ⚠️ Changes to editable fields will trigger a redeployment.
 

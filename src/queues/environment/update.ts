@@ -392,11 +392,20 @@ async function handleReferenceVariables({
 
             // directly populating the url based on the sever-details, exposed-ports
             if (hasExposedPorts.length) {
+              const server = await payload.findByID({
+                collection: 'servers',
+                id: serverDetails.id,
+              })
+
+              const IP =
+                server.preferConnectionType === 'tailscale'
+                  ? server.publicIp
+                  : server.ip
+
               const generatedValue = await updatePublicDatabaseVariables({
                 databaseDetails: databaseExposureDetails.databaseDetails!,
                 variableName: databaseVariableName,
-                // todo: handle tailscale case
-                serverHost: 'ip' in sshDetails ? sshDetails?.ip! : '',
+                serverHost: IP!,
               })
 
               return { [variable]: generatedValue }
@@ -453,12 +462,21 @@ async function handleReferenceVariables({
                         databaseDetails?.exposedPorts ?? []
 
                       if (hasExposedPorts.length) {
+                        const server = await payload.findByID({
+                          collection: 'servers',
+                          id: serverDetails.id,
+                        })
+
+                        const IP =
+                          server.preferConnectionType === 'tailscale'
+                            ? server.publicIp
+                            : server.ip
+
                         const generatedValue =
                           await updatePublicDatabaseVariables({
                             databaseDetails: databaseDetails!,
                             variableName: databaseVariableName,
-                            serverHost:
-                              'ip' in sshDetails ? sshDetails?.ip! : '',
+                            serverHost: IP!,
                           })
 
                         return { [variable]: generatedValue }
