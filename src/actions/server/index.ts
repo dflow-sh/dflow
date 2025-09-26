@@ -27,6 +27,7 @@ import {
   createServerSchema,
   createTailscaleServerSchema,
   deleteServerSchema,
+  getServersWithFieldsInputSchema,
   installDokkuSchema,
   uninstallDokkuSchema,
   updateRailpackSchema,
@@ -37,6 +38,46 @@ import {
 } from './validator'
 
 type DeploymentService = Omit<Service, 'project'>
+
+export const getServersWithFieldsAction = protectedClient
+  .metadata({
+    actionName: 'getServersWithFieldsAction',
+  })
+  .inputSchema(getServersWithFieldsInputSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const {
+      user,
+      payload,
+      userTenant: { tenant, role },
+    } = ctx
+    const selectFields = clientInput.fields ?? { name: true }
+
+    const { docs: servers } = await payload.find({
+      collection: 'servers',
+      select: selectFields,
+      where: {
+        and: [
+          {
+            'tenant.slug': {
+              equals: tenant.slug,
+            },
+          },
+          ...(role?.servers?.readLimit === 'createdByUser'
+            ? [
+                {
+                  createdBy: {
+                    equals: user.id,
+                  },
+                },
+              ]
+            : []),
+        ],
+      },
+      pagination: false,
+    })
+
+    return servers
+  })
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createServerAction = protectedClient

@@ -1,5 +1,6 @@
 export const getActionAccess = {
   // Servers actions
+  getServersWithFieldsAction: ['servers.read'],
   createServerAction: ['servers.create'],
   createTailscaleServerAction: ['servers.create'],
   updateTailscaleServerAction: ['servers.update'],

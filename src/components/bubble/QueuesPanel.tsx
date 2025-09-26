@@ -64,12 +64,21 @@ interface ServerOption {
 
 interface QueuesPanelProps {
   onBack: () => void
-  servers?: ServerOption[] // Pass available servers from parent
+  servers?: ServerOption[]
+  loadingServers?: boolean
+  errorServers?: string | null
+  refreshServers?: () => void
 }
 
-const QueuesPanel = ({ onBack, servers = [] }: QueuesPanelProps) => {
+const QueuesPanel = ({
+  onBack,
+  servers = [],
+  loadingServers,
+  errorServers,
+  refreshServers,
+}: QueuesPanelProps) => {
   const params = useParams()
-  const serverId = params?.serverId as string
+  const serverId = params?.serverId as string // Get server ID from URL if on individual server page
 
   // State management
   const [selectedServerId, setSelectedServerId] = useState<string>('')
@@ -86,8 +95,7 @@ const QueuesPanel = ({ onBack, servers = [] }: QueuesPanelProps) => {
 
   // Auto-select server from URL params
   useEffect(() => {
-    // if (serverId && servers.some(s => s.id === serverId)) {
-    if (serverId && serverId !== selectedServerId) {
+    if (serverId && servers.some(s => s.id === serverId)) {
       setSelectedServerId(serverId)
     } else if (servers.length > 0 && !selectedServerId) {
       // Auto-select first server if none selected
@@ -453,7 +461,48 @@ const QueuesPanel = ({ onBack, servers = [] }: QueuesPanelProps) => {
               </Alert>
             )}
 
-            {!selectedServerId ? (
+            {loadingServers ? (
+              /* Loading Servers */
+              <div className='flex flex-col items-center justify-center space-y-4 py-12'>
+                <Loader2 className='text-muted-foreground h-8 w-8 animate-spin' />
+                <div className='text-muted-foreground text-sm'>
+                  Loading available servers...
+                </div>
+              </div>
+            ) : errorServers ? (
+              /* Server Error State */
+              <div className='flex flex-col items-center justify-center space-y-4 py-12'>
+                <AlertCircle className='text-destructive h-12 w-12' />
+                <div className='space-y-2 text-center'>
+                  <div className='text-lg font-medium'>
+                    Failed to Load Servers
+                  </div>
+                  <div className='text-muted-foreground max-w-md text-sm'>
+                    {errorServers}
+                  </div>
+                  {refreshServers && (
+                    <Button onClick={refreshServers} className='mt-4'>
+                      <RefreshCcw className='mr-2 h-4 w-4' />
+                      Retry Loading Servers
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ) : servers.length === 0 ? (
+              /* No Servers Available */
+              <div className='flex flex-col items-center justify-center space-y-4 py-12'>
+                <Server className='text-muted-foreground/50 h-12 w-12' />
+                <div className='space-y-2 text-center'>
+                  <div className='text-lg font-medium'>
+                    No Servers Available
+                  </div>
+                  <div className='text-muted-foreground max-w-md text-sm'>
+                    There are currently no servers configured. Please add a
+                    server first to manage queues.
+                  </div>
+                </div>
+              </div>
+            ) : !selectedServerId ? (
               /* No Server Selected */
               <div className='flex flex-col items-center justify-center space-y-4 py-12'>
                 <Database className='text-muted-foreground/50 h-12 w-12' />

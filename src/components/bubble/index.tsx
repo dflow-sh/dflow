@@ -23,6 +23,7 @@ import {
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useServers } from '@/providers/ServersProvider'
 
 import LogsPanel from './LogsPanel'
 import MenuPanel from './MenuPanel'
@@ -134,6 +135,13 @@ const Bubble = () => {
 
   // FIX: Add separate state for SSE syncing to avoid isPending confusion
   const [isSSESyncing, setIsSSESyncing] = useState(false)
+
+  const {
+    servers,
+    loading: loadingServers,
+    error: errorServers,
+    refresh: refreshServers,
+  } = useServers()
 
   // Refs
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -451,7 +459,15 @@ const Bubble = () => {
       case 'logs':
         return <LogsPanel onBack={goBack} />
       case 'queues':
-        return <QueuesPanel onBack={goBack} />
+        return (
+          <QueuesPanel
+            onBack={goBack}
+            servers={servers}
+            loadingServers={loadingServers}
+            errorServers={errorServers}
+            refreshServers={refreshServers}
+          />
+        )
       case 'sync':
         return (
           <SyncPanel
