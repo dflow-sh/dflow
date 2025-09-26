@@ -15,7 +15,6 @@ import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 const LogsPanel = ({ onBack }: { onBack: () => void }) => {
@@ -146,96 +145,100 @@ const LogsPanel = ({ onBack }: { onBack: () => void }) => {
       </div>
 
       {/* SCROLLABLE CONTENT */}
-      <ScrollArea className='flex-1'>
-        <div className='space-y-4 p-4'>
-          {/* Log Statistics */}
-          <div className='space-y-3'>
-            <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-              Log Summary
-            </div>
-            <div className='flex flex-wrap gap-2'>
-              {Object.entries(levelStats).map(([level, count]) => (
-                <div
-                  key={level}
-                  className='bg-muted/30 flex items-center gap-2 rounded-lg border px-3 py-2'>
-                  {getLevelIcon(level)}
-                  <span className='text-foreground text-xs font-medium'>
-                    {level}
-                  </span>
-                  <Badge
-                    variant='secondary'
-                    className='h-5 min-w-[20px] text-xs'>
-                    {count}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Log Controls */}
-          <div className='space-y-3'>
-            <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-              Log Controls
-            </div>
-            <div className='flex items-center justify-between gap-2'>
-              <div className='flex gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={() => setAutoScroll(!autoScroll)}
-                  className='gap-2'>
-                  {autoScroll ? <Pause size={14} /> : <Play size={14} />}
-                  {autoScroll ? 'Pause' : 'Resume'}
-                </Button>
-                <Button variant='outline' size='sm' className='gap-2'>
-                  <Download size={14} />
-                  Export
-                </Button>
+      <div className='flex-1 overflow-hidden'>
+        <div className='h-full overflow-y-auto'>
+          <div className='space-y-4 p-4'>
+            {/* Log Statistics */}
+            <div className='space-y-3'>
+              <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+                Log Summary
               </div>
-              <div className='text-muted-foreground text-xs'>
-                Auto-scroll: {autoScroll ? 'ON' : 'OFF'}
-              </div>
-            </div>
-          </div>
-
-          {/* Logs Display */}
-          <div className='bg-muted/20 overflow-hidden rounded-xl border'>
-            <div className='max-h-80 overflow-auto bg-slate-950 p-4 font-mono text-sm'>
-              <div className='space-y-1'>
-                {mockLogs.map((log, index) => (
-                  <motion.div
-                    key={log.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className='flex items-start gap-3 rounded px-2 py-1 transition-colors hover:bg-slate-800/50'>
-                    <div className='flex w-20 shrink-0 items-center gap-2'>
-                      {getLevelIcon(log.level)}
-                      <span className='text-xs text-slate-400'>{log.time}</span>
-                    </div>
-                    <span
-                      className={cn(
-                        'w-16 shrink-0 text-xs font-bold',
-                        getLevelColor(log.level),
-                      )}>
-                      [{log.level}]
+              <div className='flex flex-wrap gap-2'>
+                {Object.entries(levelStats).map(([level, count]) => (
+                  <div
+                    key={level}
+                    className='bg-muted/30 flex items-center gap-2 rounded-lg border px-3 py-2'>
+                    {getLevelIcon(level)}
+                    <span className='text-foreground text-xs font-medium'>
+                      {level}
                     </span>
-                    <span className='flex-1 text-xs leading-relaxed text-slate-200'>
-                      {log.message}
-                    </span>
-                  </motion.div>
+                    <Badge
+                      variant='secondary'
+                      className='h-5 min-w-[20px] text-xs'>
+                      {count}
+                    </Badge>
+                  </div>
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Log Footer Info */}
-          <div className='text-muted-foreground flex items-center justify-between text-xs'>
-            <span>{mockLogs.length} log entries displayed</span>
-            <span>Last updated: now</span>
+            {/* Log Controls */}
+            <div className='space-y-3'>
+              <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+                Log Controls
+              </div>
+              <div className='flex items-center justify-between gap-2'>
+                <div className='flex gap-2'>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => setAutoScroll(!autoScroll)}
+                    className='gap-2'>
+                    {autoScroll ? <Pause size={14} /> : <Play size={14} />}
+                    {autoScroll ? 'Pause' : 'Resume'}
+                  </Button>
+                  <Button variant='outline' size='sm' className='gap-2'>
+                    <Download size={14} />
+                    Export
+                  </Button>
+                </div>
+                <div className='text-muted-foreground text-xs'>
+                  Auto-scroll: {autoScroll ? 'ON' : 'OFF'}
+                </div>
+              </div>
+            </div>
+
+            {/* Logs Display */}
+            <div className='bg-muted/20 overflow-hidden rounded-xl border'>
+              <div className='max-h-80 overflow-auto bg-slate-950 p-4 font-mono text-sm'>
+                <div className='space-y-1'>
+                  {mockLogs.map((log, index) => (
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className='flex items-start gap-3 rounded px-2 py-1 transition-colors hover:bg-slate-800/50'>
+                      <div className='flex w-20 shrink-0 items-center gap-2'>
+                        {getLevelIcon(log.level)}
+                        <span className='text-xs text-slate-400'>
+                          {log.time}
+                        </span>
+                      </div>
+                      <span
+                        className={cn(
+                          'w-16 shrink-0 text-xs font-bold',
+                          getLevelColor(log.level),
+                        )}>
+                        [{log.level}]
+                      </span>
+                      <span className='flex-1 text-xs leading-relaxed text-slate-200'>
+                        {log.message}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Log Footer Info */}
+            <div className='text-muted-foreground flex items-center justify-between text-xs'>
+              <span>{mockLogs.length} log entries displayed</span>
+              <span>Last updated: now</span>
+            </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   )
 }

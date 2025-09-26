@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Select,
   SelectContent,
@@ -79,222 +78,227 @@ const PreferencesPanel = ({
       </div>
 
       {/* SCROLLABLE CONTENT */}
-      <ScrollArea className='flex-1'>
-        <div className='space-y-6 p-4'>
-          {/* Position Setting */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className='space-y-3'>
-            <Label className='text-foreground text-sm font-medium'>
-              Bubble Position
-            </Label>
-            <Select
-              value={preferences.position}
-              onValueChange={(value: Position) => onUpdate('position', value)}>
-              <SelectTrigger className='h-12'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='bottom-right'>
-                  <div className='flex items-center gap-3'>
-                    <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
-                      <div className='bg-primary absolute right-0 bottom-0 h-2 w-2 translate-x-0.5 translate-y-0.5 transform rounded-full' />
-                    </div>
-                    Bottom Right
-                  </div>
-                </SelectItem>
-                <SelectItem value='bottom-left'>
-                  <div className='flex items-center gap-3'>
-                    <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
-                      <div className='bg-primary absolute bottom-0 left-0 h-2 w-2 -translate-x-0.5 translate-y-0.5 transform rounded-full' />
-                    </div>
-                    Bottom Left
-                  </div>
-                </SelectItem>
-                <SelectItem value='top-right'>
-                  <div className='flex items-center gap-3'>
-                    <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
-                      <div className='bg-primary absolute top-0 right-0 h-2 w-2 translate-x-0.5 -translate-y-0.5 transform rounded-full' />
-                    </div>
-                    Top Right
-                  </div>
-                </SelectItem>
-                <SelectItem value='top-left'>
-                  <div className='flex items-center gap-3'>
-                    <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
-                      <div className='bg-primary absolute top-0 left-0 h-2 w-2 -translate-x-0.5 -translate-y-0.5 transform rounded-full' />
-                    </div>
-                    Top Left
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-
-          {/* Theme Setting */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className='space-y-3'>
-            <Label className='text-foreground text-sm font-medium'>
-              Theme Mode
-            </Label>
-
-            {/* Current Theme Display */}
-            <div className='bg-muted/30 rounded-lg border p-3'>
-              <div className='flex items-center gap-3'>
-                <div className='bg-background flex h-8 w-8 items-center justify-center rounded-md border'>
-                  {theme === 'dark' ? (
-                    <Moon size={14} className='text-foreground' />
-                  ) : theme === 'light' ? (
-                    <Sun size={14} className='text-foreground' />
-                  ) : (
-                    <Monitor size={14} className='text-foreground' />
-                  )}
-                </div>
-                <div className='flex-1'>
-                  <div className='text-foreground text-sm font-medium'>
-                    Current:{' '}
-                    {theme === 'dark'
-                      ? 'Dark Mode'
-                      : theme === 'light'
-                        ? 'Light Mode'
-                        : 'System Mode'}
-                  </div>
-                  <div className='text-muted-foreground text-xs'>
-                    {theme === 'system'
-                      ? 'Automatically follows your system preference'
-                      : theme === 'dark'
-                        ? 'Dark theme is active'
-                        : 'Light theme is active'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Theme Controls */}
-            <div className='space-y-2'>
-              <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
-                Switch Theme
-              </div>
-              <div className='flex gap-2'>
-                <Button
-                  variant={theme === 'light' ? 'default' : 'outline'}
-                  size='sm'
-                  onClick={() => setTheme('light')}
-                  className={cn(
-                    'flex-1 justify-start gap-2',
-                    theme === 'light' && 'bg-primary text-primary-foreground',
-                  )}>
-                  <Sun size={14} />
-                  Light
-                </Button>
-
-                <Button
-                  variant={theme === 'dark' ? 'default' : 'outline'}
-                  size='sm'
-                  onClick={() => setTheme('dark')}
-                  className={cn(
-                    'flex-1 justify-start gap-2',
-                    theme === 'dark' && 'bg-primary text-primary-foreground',
-                  )}>
-                  <Moon size={14} />
-                  Dark
-                </Button>
-
-                <Button
-                  variant={theme === 'system' ? 'default' : 'outline'}
-                  size='sm'
-                  onClick={() => setTheme('system')}
-                  className={cn(
-                    'flex-1 justify-start gap-2',
-                    theme === 'system' && 'bg-primary text-primary-foreground',
-                  )}>
-                  <Monitor size={14} />
-                  Auto
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Size Setting */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className='space-y-3'>
-            <Label className='text-foreground text-sm font-medium'>
-              Bubble Size
-            </Label>
-            <Select
-              value={preferences.size}
-              onValueChange={(value: Size) => onUpdate('size', value)}>
-              <SelectTrigger className='h-12'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='small'>
-                  <div className='flex items-center gap-2'>
-                    <div className='bg-primary h-3 w-3 rounded-full' />
-                    Small (48px)
-                  </div>
-                </SelectItem>
-                <SelectItem value='medium'>
-                  <div className='flex items-center gap-2'>
-                    <div className='bg-primary h-4 w-4 rounded-full' />
-                    Medium (56px)
-                  </div>
-                </SelectItem>
-                <SelectItem value='large'>
-                  <div className='flex items-center gap-2'>
-                    <div className='bg-primary h-5 w-5 rounded-full' />
-                    Large (64px)
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-
-          {/* Visibility Toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className='bg-muted/30 flex items-center justify-between rounded-xl border p-4'>
-            <div>
+      <div className='flex-1 overflow-hidden'>
+        <div className='h-full overflow-y-auto'>
+          <div className='space-y-6 p-4'>
+            {/* Position Setting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className='space-y-3'>
               <Label className='text-foreground text-sm font-medium'>
-                Show Bubble
+                Bubble Position
               </Label>
-              <p className='text-muted-foreground text-xs'>
-                Toggle bubble visibility
-              </p>
-            </div>
-            <Switch
-              checked={preferences.visible}
-              onCheckedChange={checked => onUpdate('visible', checked)}
-            />
-          </motion.div>
+              <Select
+                value={preferences.position}
+                onValueChange={(value: Position) =>
+                  onUpdate('position', value)
+                }>
+                <SelectTrigger className='h-12'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='bottom-right'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
+                        <div className='bg-primary absolute right-0 bottom-0 h-2 w-2 translate-x-0.5 translate-y-0.5 transform rounded-full' />
+                      </div>
+                      Bottom Right
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='bottom-left'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
+                        <div className='bg-primary absolute bottom-0 left-0 h-2 w-2 -translate-x-0.5 translate-y-0.5 transform rounded-full' />
+                      </div>
+                      Bottom Left
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='top-right'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
+                        <div className='bg-primary absolute top-0 right-0 h-2 w-2 translate-x-0.5 -translate-y-0.5 transform rounded-full' />
+                      </div>
+                      Top Right
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='top-left'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
+                        <div className='bg-primary absolute top-0 left-0 h-2 w-2 -translate-x-0.5 -translate-y-0.5 transform rounded-full' />
+                      </div>
+                      Top Left
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </motion.div>
 
-          {/* Help Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className='bg-muted/20 rounded-xl border p-4'>
-            <div className='text-muted-foreground space-y-2 text-xs'>
-              <p className='text-foreground font-medium'>💡 Tips:</p>
-              <ul className='ml-2 space-y-1'>
-                <li>• Position bubble away from your main work area</li>
-                <li>• Use "Auto" theme to match your system preference</li>
-                <li>• Larger bubbles are easier to click on mobile</li>
-              </ul>
-            </div>
-          </motion.div>
+            {/* Theme Setting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className='space-y-3'>
+              <Label className='text-foreground text-sm font-medium'>
+                Theme Mode
+              </Label>
+
+              {/* Current Theme Display */}
+              <div className='bg-muted/30 rounded-lg border p-3'>
+                <div className='flex items-center gap-3'>
+                  <div className='bg-background flex h-8 w-8 items-center justify-center rounded-md border'>
+                    {theme === 'dark' ? (
+                      <Moon size={14} className='text-foreground' />
+                    ) : theme === 'light' ? (
+                      <Sun size={14} className='text-foreground' />
+                    ) : (
+                      <Monitor size={14} className='text-foreground' />
+                    )}
+                  </div>
+                  <div className='flex-1'>
+                    <div className='text-foreground text-sm font-medium'>
+                      Current:{' '}
+                      {theme === 'dark'
+                        ? 'Dark Mode'
+                        : theme === 'light'
+                          ? 'Light Mode'
+                          : 'System Mode'}
+                    </div>
+                    <div className='text-muted-foreground text-xs'>
+                      {theme === 'system'
+                        ? 'Automatically follows your system preference'
+                        : theme === 'dark'
+                          ? 'Dark theme is active'
+                          : 'Light theme is active'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Theme Controls */}
+              <div className='space-y-2'>
+                <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
+                  Switch Theme
+                </div>
+                <div className='flex gap-2'>
+                  <Button
+                    variant={theme === 'light' ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setTheme('light')}
+                    className={cn(
+                      'flex-1 justify-start gap-2',
+                      theme === 'light' && 'bg-primary text-primary-foreground',
+                    )}>
+                    <Sun size={14} />
+                    Light
+                  </Button>
+
+                  <Button
+                    variant={theme === 'dark' ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setTheme('dark')}
+                    className={cn(
+                      'flex-1 justify-start gap-2',
+                      theme === 'dark' && 'bg-primary text-primary-foreground',
+                    )}>
+                    <Moon size={14} />
+                    Dark
+                  </Button>
+
+                  <Button
+                    variant={theme === 'system' ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setTheme('system')}
+                    className={cn(
+                      'flex-1 justify-start gap-2',
+                      theme === 'system' &&
+                        'bg-primary text-primary-foreground',
+                    )}>
+                    <Monitor size={14} />
+                    Auto
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Size Setting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className='space-y-3'>
+              <Label className='text-foreground text-sm font-medium'>
+                Bubble Size
+              </Label>
+              <Select
+                value={preferences.size}
+                onValueChange={(value: Size) => onUpdate('size', value)}>
+                <SelectTrigger className='h-12'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='small'>
+                    <div className='flex items-center gap-2'>
+                      <div className='bg-primary h-3 w-3 rounded-full' />
+                      Small (48px)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='medium'>
+                    <div className='flex items-center gap-2'>
+                      <div className='bg-primary h-4 w-4 rounded-full' />
+                      Medium (56px)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='large'>
+                    <div className='flex items-center gap-2'>
+                      <div className='bg-primary h-5 w-5 rounded-full' />
+                      Large (64px)
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </motion.div>
+
+            {/* Visibility Toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className='bg-muted/30 flex items-center justify-between rounded-xl border p-4'>
+              <div>
+                <Label className='text-foreground text-sm font-medium'>
+                  Show Bubble
+                </Label>
+                <p className='text-muted-foreground text-xs'>
+                  Toggle bubble visibility
+                </p>
+              </div>
+              <Switch
+                checked={preferences.visible}
+                onCheckedChange={checked => onUpdate('visible', checked)}
+              />
+            </motion.div>
+
+            {/* Help Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className='bg-muted/20 rounded-xl border p-4'>
+              <div className='text-muted-foreground space-y-2 text-xs'>
+                <p className='text-foreground font-medium'>💡 Tips:</p>
+                <ul className='ml-2 space-y-1'>
+                  <li>• Position bubble away from your main work area</li>
+                  <li>• Use "Auto" theme to match your system preference</li>
+                  <li>• Larger bubbles are easier to click on mobile</li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   )
 }

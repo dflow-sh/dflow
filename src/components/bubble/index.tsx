@@ -22,7 +22,6 @@ import {
 } from 'react'
 
 import { Card } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 import LogsPanel from './LogsPanel'
@@ -612,11 +611,11 @@ const Bubble = () => {
                 transformOrigin: getExpansionOrigin(),
               }}>
               <Card className='bg-background/90 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
-                <ScrollArea className='h-full w-full'>
+                <div className='h-full w-full'>
                   <div className='flex h-full min-h-full flex-col'>
                     <div className='h-full min-h-0'>{renderPanel()}</div>
                   </div>
-                </ScrollArea>
+                </div>
               </Card>
             </motion.div>
           )}
