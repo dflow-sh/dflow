@@ -27,7 +27,7 @@ const ClientLayout = ({
   server: Server | string
   projects: { id: string; name: string }[]
 }) => {
-  const params = useParams<{ id: string; organisation: string }>()
+  const params = useParams<{ projectId: string; organisation: string }>()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const ClientLayout = ({
               <svg
                 fill='currentColor'
                 viewBox='0 0 20 20'
-                className='h-5 w-5 shrink-0 stroke-border'
+                className='stroke-border h-5 w-5 shrink-0'
                 aria-hidden='true'>
                 <path d='M5.555 17.776l8-16 .894.448-8 16-.894-.448z'></path>
               </svg>{' '}
@@ -57,7 +57,7 @@ const ClientLayout = ({
             <SelectSearch
               organisationSlug={params.organisation as string}
               projects={projects}
-              projectId={params.id}
+              projectId={params.projectId}
               placeholder='project'
             />
           </div>,

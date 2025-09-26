@@ -26,7 +26,7 @@ import { Project } from '@/payload-types'
 interface PageProps {
   params: Promise<{
     organisation: string
-    id: string
+    projectId: string
     serviceId: string
   }>
   searchParams: Promise<SearchParams>

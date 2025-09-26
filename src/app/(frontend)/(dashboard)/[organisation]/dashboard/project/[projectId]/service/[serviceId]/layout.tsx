@@ -13,7 +13,7 @@ const SuspendedServicePageLayout = async ({
 }: {
   children: React.ReactNode
   params: Promise<{
-    id: string
+    projectId: string
     serviceId: string
   }>
 }) => {
@@ -49,7 +49,7 @@ const ServiceIdLayout = ({
 }: {
   children: React.ReactNode
   params: Promise<{
-    id: string
+    projectId: string
     serviceId: string
   }>
 }) => {

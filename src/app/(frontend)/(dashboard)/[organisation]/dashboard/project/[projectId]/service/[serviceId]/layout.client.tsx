@@ -76,7 +76,7 @@ const LayoutClient = ({
   const params = useParams<{
     serviceId: string
     organisation: string
-    id: string
+    projectId: string
   }>()
   const [isPending, startTransition] = useTransition()
   const { start, stop } = useProgress()
@@ -157,7 +157,7 @@ const LayoutClient = ({
             'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-t-md border-t border-l px-6 pb-20 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'
           }>
           <Link
-            href={`/${params.organisation}/dashboard/project/${params.id}`}
+            href={`/${params.organisation}/dashboard/project/${params.projectId}`}
             title='close'
             className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
             <X className='h-4 w-4' />
@@ -228,7 +228,7 @@ const LayoutClient = ({
                 placeholder='service'
                 services={services}
                 serviceId={params.serviceId}
-                projectId={params.id}
+                projectId={params.projectId}
               />
             </div>,
             document.getElementById('serviceName') ?? document.body,
