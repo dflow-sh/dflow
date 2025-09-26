@@ -58,7 +58,6 @@ export const updateServiceSchema = z
     giteaSettings: gitSettings,
     gitlabSettings: gitSettings,
     bitbucketSettings: gitSettings,
-    environmentVariables: z.record(z.string(), z.unknown()).optional(),
     noRestart: z.boolean().optional(),
     id: z.string(),
     project: z.string().optional(),
@@ -86,7 +85,7 @@ export const updateServiceSchema = z
             /^[a-zA-Z_][a-zA-Z0-9_]*$/,
             'Invalid key format, special-characters & spaces are restricted',
           ),
-        value: z.string().min(1, 'Value must be at-least 1 character'),
+        value: z.string(),
       })
       .array()
       .optional(),

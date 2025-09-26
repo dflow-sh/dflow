@@ -444,7 +444,10 @@ const VariablesForm = ({ service }: { service: Service }) => {
       id: service.id,
       variables:
         Array.isArray(service.variables) && service.variables.length
-          ? service.variables
+          ? service.variables.map(variable => ({
+              ...variable,
+              value: variable.value ?? '',
+            }))
           : [
               {
                 key: '',

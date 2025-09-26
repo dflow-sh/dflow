@@ -805,7 +805,7 @@ export interface Service {
   variables?:
     | {
         key: string;
-        value: string;
+        value?: string | null;
         id?: string | null;
       }[]
     | null;

@@ -82,11 +82,6 @@ const ServiceSettingsTab: React.FC<{
                     Permanently remove this service and all associated data,
                     configurations, and deployments.
                   </p>
-                  <div className='text-muted-foreground flex items-center gap-1 text-xs'>
-                    <AlertTriangle className='h-3 w-3' />
-                    This action cannot be undone and will delete all service
-                    data
-                  </div>
                 </div>
               </div>
               <Button

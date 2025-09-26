@@ -386,9 +386,6 @@ const CreateService = ({
     // }
   }
 
-  const isFormValid = form.formState.isValid
-  const submitDisabled = isPending || !isFormValid
-
   const createButton = (
     <Button
       disabled={disableCreateButton}
@@ -416,6 +413,7 @@ const CreateService = ({
         open={open}
         onOpenChange={state => {
           setOpen(state)
+
           if (!state) {
             form.reset()
           }
@@ -677,15 +675,11 @@ const CreateService = ({
               )}
 
               <DialogFooter>
-                <Button type='submit' disabled={submitDisabled}>
-                  {isPending ? (
-                    <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Service'
-                  )}
+                <Button
+                  type='submit'
+                  disabled={isPending}
+                  isLoading={isPending}>
+                  Create Service
                 </Button>
               </DialogFooter>
             </form>

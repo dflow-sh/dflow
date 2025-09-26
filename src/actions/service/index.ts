@@ -372,14 +372,6 @@ export const deleteServiceAction = protectedClient
         },
       })
 
-      const projectId = typeof project === 'object' ? project.id : project
-
-      // Revalidate the parent project page and the service page
-      revalidatePath(
-        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-      )
-      revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
-
       return {
         deleted: true,
         deletedFromServer: deleteFromServer,

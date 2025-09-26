@@ -698,7 +698,8 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
 
         // step 2: go through variables list, categorize and populate values accordingly
         for await (const variable of variables) {
-          const { key, value } = variable
+          const { key, value: environmentVariableValue } = variable
+          const value = environmentVariableValue ?? ''
 
           // step 2.1: categorize environment variables
           const type = classifyVariableType(value)

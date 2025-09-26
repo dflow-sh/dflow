@@ -526,7 +526,7 @@ export const Services: CollectionConfig = {
         encryptedField({
           name: 'value',
           type: 'text',
-          required: true,
+          defaultValue: '',
         }),
       ],
     },
