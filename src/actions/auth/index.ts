@@ -195,6 +195,7 @@ export const signUpAction = publicClient
       collection: 'roles',
       data: {
         name: 'Admin',
+        isAdminRole: true,
         backups: {
           create: true,
           delete: true,

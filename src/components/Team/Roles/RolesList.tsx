@@ -71,6 +71,7 @@ const RoleActions = ({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
+          disabled={Boolean(role?.isAdminRole)}
           onClickCapture={e => {
             e.stopPropagation()
           }}
@@ -147,7 +148,12 @@ const RoleActions = ({
           )}
           <DialogFooter>
             <Button
-              onClick={() => deleteRole({ id: role.id })}
+              onClick={() =>
+                deleteRole({
+                  id: role.id,
+                  isAdminRole: Boolean(role?.isAdminRole),
+                })
+              }
               variant={'destructive'}
               disabled={
                 isDeleteRolePending ||

@@ -63,7 +63,7 @@ const UpdateRoleDetails = ({
   )
 
   const onSubmit = (data: UpdateRoleType) => {
-    updateRoleDetails({ ...data })
+    updateRoleDetails({ ...data, isAdminRole: Boolean(role?.isAdminRole) })
   }
   return (
     <Dialog defaultOpen open={open} onOpenChange={setOpen}>

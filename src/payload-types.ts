@@ -312,6 +312,7 @@ export interface Role {
   type?: ('engineering' | 'management' | 'marketing' | 'finance' | 'sales') | null;
   createdBy?: (string | null) | User;
   tags?: string[] | null;
+  isAdminRole?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -2156,6 +2157,7 @@ export interface RolesSelect<T extends boolean = true> {
   type?: T;
   createdBy?: T;
   tags?: T;
+  isAdminRole?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

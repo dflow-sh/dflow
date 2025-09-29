@@ -41,8 +41,10 @@ type Collections =
 
 const PermissionsTable = ({
   form,
+  isAdminRole,
 }: {
   form: UseFormReturn<CreateRoleType>
+  isAdminRole?: boolean | null
 }) => {
   const collections: Collections[] = [
     'projects',
@@ -128,6 +130,7 @@ const PermissionsTable = ({
         <TableRow>
           <TableHead className='w-[40px]'>
             <Checkbox
+              disabled={Boolean(isAdminRole)}
               checked={collections.every(
                 c =>
                   form.watch(`${c}.create`) &&
@@ -157,6 +160,7 @@ const PermissionsTable = ({
             <TableRow>
               <TableCell>
                 <Checkbox
+                  disabled={Boolean(isAdminRole)}
                   checked={
                     watched.create &&
                     watched.read &&
@@ -180,6 +184,7 @@ const PermissionsTable = ({
                       <FormItem className='space-y-0'>
                         <FormControl>
                           <Checkbox
+                            disabled={Boolean(isAdminRole)}
                             checked={!!field.value}
                             onCheckedChange={checked => {
                               field.onChange(!!checked)
@@ -207,6 +212,7 @@ const PermissionsTable = ({
                           <FormItem className='space-y-0'>
                             <FormControl>
                               <Input
+                                disabled={Boolean(isAdminRole)}
                                 className='w-[180px]'
                                 type='number'
                                 placeholder='0'
@@ -242,6 +248,7 @@ const PermissionsTable = ({
                       <FormItem className='space-y-0'>
                         <FormControl>
                           <Checkbox
+                            disabled={Boolean(isAdminRole)}
                             checked={!!field.value}
                             onCheckedChange={checked => {
                               field.onChange(!!checked)
@@ -272,7 +279,9 @@ const PermissionsTable = ({
                                 onValueChange={field.onChange}
                                 defaultValue={field.value || 'all'}>
                                 <FormControl>
-                                  <SelectTrigger className='w-[180px]'>
+                                  <SelectTrigger
+                                    disabled={Boolean(isAdminRole)}
+                                    className='w-[180px]'>
                                     <SelectValue placeholder='Select' />
                                   </SelectTrigger>
                                 </FormControl>
@@ -299,6 +308,7 @@ const PermissionsTable = ({
                     <FormItem className='space-y-0'>
                       <FormControl>
                         <Checkbox
+                          disabled={Boolean(isAdminRole)}
                           checked={!!field.value}
                           onCheckedChange={checked => {
                             field.onChange(!!checked)
@@ -319,6 +329,7 @@ const PermissionsTable = ({
                     <FormItem className='space-y-0'>
                       <FormControl>
                         <Checkbox
+                          disabled={Boolean(isAdminRole)}
                           checked={!!field.value}
                           onCheckedChange={checked => {
                             field.onChange(!!checked)
