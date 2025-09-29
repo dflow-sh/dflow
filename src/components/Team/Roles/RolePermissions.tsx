@@ -51,20 +51,24 @@ const RolePermissions = ({ role }: { role: Role }) => {
   const onSubmit = (data: UpdateRoleType) => {
     updateRolePermissions({
       ...data,
+      isAdminRole: Boolean(role?.isAdminRole),
     })
   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='border-border overflow-hidden rounded-lg border'>
-          <PermissionsTable form={form as any} />
+          <PermissionsTable
+            form={form as any}
+            isAdminRole={role?.isAdminRole}
+          />
           {/* !Todo: need proper type safety */}
         </div>
         <div className='mt-4 flex items-center justify-end'>
           <Button
             size={'sm'}
             type='submit'
-            disabled={isUpdateRolePermissionsPending}
+            disabled={isUpdateRolePermissionsPending || !!role.isAdminRole}
             isLoading={isUpdateRolePermissionsPending}>
             Update
           </Button>
