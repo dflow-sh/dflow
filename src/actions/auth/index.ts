@@ -172,15 +172,6 @@ export const signUpAction = publicClient
       throw new Error('Email already exists')
     }
 
-    const tenant = await payload.create({
-      collection: 'tenants',
-      data: {
-        name: username,
-        slug: username,
-        subdomain: username,
-      },
-    })
-
     const user = await payload.create({
       collection: 'users',
       data: {
@@ -190,102 +181,7 @@ export const signUpAction = publicClient
         onboarded: false,
       },
     })
-
-    const role = await payload.create({
-      collection: 'roles',
-      data: {
-        name: 'Admin',
-        isAdminRole: true,
-        backups: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        cloudProviderAccounts: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        dockerRegistries: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        gitProviders: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        projects: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        roles: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        securityGroups: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        servers: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        services: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        sshKeys: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        team: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        templates: {
-          create: true,
-          delete: true,
-          read: true,
-          update: true,
-        },
-        type: 'management',
-        description:
-          'Full access to manage projects, services, and all other features.',
-        tags: ['Admin', 'Full Access'],
-        tenant: tenant,
-        createdBy: user.id,
-      },
-    })
-
-    const updatedUser = await payload.update({
-      collection: 'users',
-      id: user.id,
-      data: {
-        tenants: [{ tenant: tenant, role }],
-      },
-    })
-
-    return updatedUser
+    return user
   })
 
 // export const verifyEmailAction = publicClient
