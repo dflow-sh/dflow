@@ -115,7 +115,7 @@ const DeleteServerDialog = ({
       <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
         <DialogHeader className='shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
-            <Trash2 className='h-5 w-5 text-destructive' />
+            <Trash2 className='text-destructive h-5 w-5' />
             Delete Server
           </DialogTitle>
           <DialogDescription className='pt-2'>
@@ -129,9 +129,9 @@ const DeleteServerDialog = ({
             <div className='max-h-[60vh] pr-3'>
               <div className='space-y-4 pb-6'>
                 {/* Server Info */}
-                <div className='rounded-md border bg-muted/50 p-3'>
+                <div className='bg-muted/50 rounded-md border p-3'>
                   <div className='flex items-center gap-2 text-sm'>
-                    <HardDrive className='h-4 w-4 text-muted-foreground' />
+                    <HardDrive className='text-muted-foreground h-4 w-4' />
                     <span className='font-medium'>Name:</span>
                     <span>{name}</span>
                   </div>
@@ -155,7 +155,7 @@ const DeleteServerDialog = ({
                     <div className='mt-1 flex items-center gap-2 text-sm'>
                       <div className='h-4 w-4' /> {/* Spacer */}
                       <span className='font-medium'>Description:</span>
-                      <span className='line-clamp-1 text-muted-foreground'>
+                      <span className='text-muted-foreground line-clamp-1'>
                         {description}
                       </span>
                     </div>
@@ -210,7 +210,7 @@ const DeleteServerDialog = ({
                         </Badge>
                       )}
                       {isLoadingProjects ? (
-                        <div className='h-3 w-3 animate-spin rounded-full border border-muted-foreground border-t-transparent' />
+                        <div className='border-muted-foreground h-3 w-3 animate-spin rounded-full border border-t-transparent' />
                       ) : showProjects ? (
                         <ChevronDown className='h-3 w-3' />
                       ) : (
@@ -221,9 +221,9 @@ const DeleteServerDialog = ({
 
                   {/* Projects not fetched yet */}
                   {!projectsFetched && !isLoadingProjects && (
-                    <div className='rounded-md border border-dashed bg-muted/25 p-4 text-center'>
-                      <FolderOpen className='mx-auto h-8 w-8 text-muted-foreground' />
-                      <p className='mt-2 text-sm text-muted-foreground'>
+                    <div className='bg-muted/25 rounded-md border border-dashed p-4 text-center'>
+                      <FolderOpen className='text-muted-foreground mx-auto h-8 w-8' />
+                      <p className='text-muted-foreground mt-2 text-sm'>
                         Click "Show Projects" to view server contents
                       </p>
                     </div>
@@ -231,7 +231,7 @@ const DeleteServerDialog = ({
 
                   {/* Projects List */}
                   {showProjects && projects.length > 0 && (
-                    <div className='rounded-md border bg-muted/50 p-3'>
+                    <div className='bg-muted/50 rounded-md border p-3'>
                       <p className='mb-2 text-sm font-medium'>
                         Projects and services to be affected:
                       </p>
@@ -257,7 +257,7 @@ const DeleteServerDialog = ({
                                   )}
                               </div>
                               {project.description && (
-                                <p className='ml-4 text-xs text-muted-foreground'>
+                                <p className='text-muted-foreground ml-4 text-xs'>
                                   {project.description}
                                 </p>
                               )}
@@ -273,7 +273,7 @@ const DeleteServerDialog = ({
                                       return (
                                         <div
                                           key={service?.id}
-                                          className='flex items-center gap-1 rounded bg-muted px-2 py-1 text-xs'>
+                                          className='bg-muted flex items-center gap-1 rounded px-2 py-1 text-xs'>
                                           {service?.type && (
                                             <ServiceIcon
                                               type={
@@ -297,7 +297,7 @@ const DeleteServerDialog = ({
                         </div>
                       </ScrollArea>
                       {hasProjectsData && (
-                        <div className='mt-2 text-xs text-muted-foreground'>
+                        <div className='text-muted-foreground mt-2 text-xs'>
                           Total: {projects.length} project
                           {projects.length !== 1 ? 's' : ''} and {totalServices}{' '}
                           service
@@ -308,8 +308,8 @@ const DeleteServerDialog = ({
                   )}
 
                   {showProjects && projects.length === 0 && (
-                    <div className='rounded-md border border-dashed bg-muted/25 p-4 text-center'>
-                      <p className='text-sm text-muted-foreground'>
+                    <div className='bg-muted/25 rounded-md border border-dashed p-4 text-center'>
+                      <p className='text-muted-foreground text-sm'>
                         No projects found on this server
                       </p>
                     </div>
@@ -333,10 +333,10 @@ const DeleteServerDialog = ({
                       <div className='space-y-1'>
                         <label
                           htmlFor='delete-projects'
-                          className='cursor-pointer text-sm font-medium leading-none'>
+                          className='cursor-pointer text-sm leading-none font-medium'>
                           Delete Projects & Services
                         </label>
-                        <p className='text-xs text-muted-foreground'>
+                        <p className='text-muted-foreground text-xs'>
                           All Projects & Services will be permanently deleted
                           from your {server.name}
                           {hasProjectsData && (
@@ -363,10 +363,10 @@ const DeleteServerDialog = ({
                       <div className='space-y-1'>
                         <label
                           htmlFor='delete-backups'
-                          className='cursor-pointer text-sm font-medium leading-none'>
+                          className='cursor-pointer text-sm leading-none font-medium'>
                           Delete Database Backups
                         </label>
-                        <p className='text-xs text-muted-foreground'>
+                        <p className='text-muted-foreground text-xs'>
                           Permanently remove all backup data for services on
                           this server
                         </p>
@@ -437,19 +437,11 @@ const DeleteServerDialog = ({
           <Button
             variant='destructive'
             disabled={isDeleting}
+            isLoading={isDeleting}
             onClick={handleDelete}
             className='gap-2'>
-            {isDeleting ? (
-              <>
-                <div className='h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent' />
-                Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 size={16} />
-                Delete Server
-              </>
-            )}
+            <Trash2 size={16} />
+            Delete Server
           </Button>
         </DialogFooter>
       </DialogContent>

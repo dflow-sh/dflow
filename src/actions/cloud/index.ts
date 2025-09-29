@@ -85,6 +85,9 @@ export const syncDflowServersAction = protectedClient
         collection: 'servers',
         where: {
           hostname: {
+            in: filteredOrders.map((order: any) => order.instanceResponse.name),
+          },
+          ip: {
             in: filteredOrders.map(
               (order: any) => order.instanceResponse.ipConfig.v4.ip,
             ),
@@ -98,7 +101,9 @@ export const syncDflowServersAction = protectedClient
       // 4. filter the orders to only include those that are not already in the database
       const newOrders = filteredOrders.filter((order: any) => {
         return !existingServers.some(
-          server => server.hostname === order.instanceResponse.name,
+          server =>
+            server.hostname === order.instanceResponse.name ||
+            server.ip === order.instanceResponse.ipConfig.v4.ip,
         )
       })
 
@@ -120,6 +125,16 @@ export const syncDflowServersAction = protectedClient
             provider: 'dflow',
             username: `${order.instanceResponse.defaultUser}`,
             hostname: `${order.instanceResponse.name}`,
+            dflowVpsDetails: {
+              instanceId: order.instanceId,
+              orderId: order.id,
+              status: order.instanceResponse.status,
+              next_billing_date: order.instanceResponse.next_billing_date
+                ? new Date(
+                    order.instanceResponse.next_billing_date,
+                  ).toISOString()
+                : null,
+            },
           },
         })
       }
