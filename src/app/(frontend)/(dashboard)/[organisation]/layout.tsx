@@ -159,16 +159,7 @@ export default async function OrganisationLayout({
   return (
     <Provider>
       <Banner />
-      <DashboardLayout params={params}>
-        <div
-          className='flex-1 overflow-y-auto'
-          style={{
-            height: 'auto',
-            maxHeight: 'calc(100vh - var(--header-height, 0px))',
-          }}>
-          {children}
-        </div>
-      </DashboardLayout>
+      <DashboardLayout params={params}>{children}</DashboardLayout>
       <Bubble />
     </Provider>
   )

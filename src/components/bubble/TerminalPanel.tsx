@@ -302,6 +302,21 @@ const TerminalPanel = ({
   const resizeStartHeightRef = useRef<number>(0)
 
   useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'ns-resize'
+    } else {
+      document.body.style.cursor = ''
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+    }
+  }, [isResizing])
+
+  useEffect(() => {
     if (servers.length > 0 && !activeServerId) {
       setActiveServerId(servers[0].id)
     }
@@ -309,37 +324,27 @@ const TerminalPanel = ({
 
   const handleResizeStart = (e: React.MouseEvent) => {
     if (mode !== 'embedded') return
-
     e.preventDefault()
     setIsResizing(true)
     resizeStartYRef.current = e.clientY
     resizeStartHeightRef.current = embeddedHeight
+  }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isResizing) return
+    const deltaY = resizeStartYRef.current - e.clientY
+    const newHeight = Math.max(
+      200,
+      Math.min(600, resizeStartHeightRef.current + deltaY),
+    )
+    requestAnimationFrame(() => onUpdatePreference('embeddedHeight', newHeight))
+  }
 
-      const deltaY = resizeStartYRef.current - e.clientY
-      const newHeight = Math.max(
-        200,
-        Math.min(600, resizeStartHeightRef.current + deltaY),
-      )
-
-      // Use requestAnimationFrame for smooth updates
-      requestAnimationFrame(() => {
-        onUpdatePreference('embeddedHeight', newHeight)
-      })
-    }
-
-    const handleMouseUp = () => {
-      setIsResizing(false)
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = ''
-    }
-
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-    document.body.style.cursor = 'ns-resize'
+  const handleMouseUp = () => {
+    setIsResizing(false)
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+    document.body.style.cursor = ''
   }
 
   const toggleFullscreen = () => {

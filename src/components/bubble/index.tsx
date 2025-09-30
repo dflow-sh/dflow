@@ -144,23 +144,6 @@ const Bubble = () => {
 
   const screenDimensions = useScreenDimensions()
 
-  // Effect to handle terminal mode changes
-  useEffect(() => {
-    if (preferences.terminalMode === 'embedded') {
-      document.body.style.paddingBottom = `${preferences.embeddedHeight}px`
-      // Add class to body for embedded mode
-      document.body.classList.add('terminal-embedded')
-    } else {
-      document.body.style.paddingBottom = '0px'
-      document.body.classList.remove('terminal-embedded')
-    }
-
-    return () => {
-      document.body.style.paddingBottom = '0px'
-      document.body.classList.remove('terminal-embedded')
-    }
-  }, [preferences.terminalMode, preferences.embeddedHeight])
-
   // Basic initialization
   useEffect(() => {
     setIsVisible(true)
