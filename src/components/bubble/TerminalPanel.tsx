@@ -11,19 +11,14 @@ import {
   PictureInPicture,
   X,
 } from 'lucide-react'
-import dynamic from 'next/dynamic'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+import { XTermLogViewer } from './XTermLogViewer'
 import type { Server, UpdatePreferenceFunction } from './bubble-types'
-
-// Dynamically import the terminal components with ssr: false
-const XTermTerminal = dynamic(() => import('@/components/XTermTerminal'), {
-  ssr: false,
-})
 
 interface TerminalPanelProps {
   onBack: () => void
@@ -43,99 +38,9 @@ interface TerminalContentProps {
 }
 
 const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
-  const terminalRef = useRef<HTMLDivElement>(null)
   const [connectionStatus, setConnectionStatus] = useState<
     'idle' | 'connecting' | 'connected' | 'error'
   >('idle')
-  const [logs, setLogs] = useState<string[]>([])
-  const eventSourceRef = useRef<EventSource | null>(null)
-  const connectionAttemptRef = useRef<number>(0)
-  const isConnectingRef = useRef<boolean>(false)
-
-  const addLog = useCallback((message: string) => {
-    const timestamp = new Date().toLocaleTimeString()
-    setLogs(prev => [...prev, `${timestamp} - ${message}`])
-  }, [])
-
-  const cleanupConnection = useCallback(() => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-      eventSourceRef.current = null
-    }
-    isConnectingRef.current = false
-  }, [])
-
-  const establishConnection = useCallback(() => {
-    if (!serverId || isConnectingRef.current) {
-      return
-    }
-
-    isConnectingRef.current = true
-    connectionAttemptRef.current += 1
-    const attempt = connectionAttemptRef.current
-
-    cleanupConnection()
-
-    setConnectionStatus('connecting')
-    addLog(`Connection attempt ${attempt}: Connecting to server ${serverId}...`)
-
-    try {
-      const url = `/api/server-events?serverId=${serverId}&attempt=${attempt}&t=${Date.now()}`
-
-      eventSourceRef.current = new EventSource(url)
-
-      eventSourceRef.current.onopen = () => {
-        setConnectionStatus('connected')
-        addLog(`✓ Connection established to server ${serverId}`)
-        addLog('Waiting for server logs...')
-      }
-
-      eventSourceRef.current.onmessage = (event: MessageEvent) => {
-        try {
-          const data = JSON.parse(event.data) ?? {}
-          if (data?.message) {
-            addLog(data.message)
-          }
-        } catch (error) {
-          console.error('Error parsing SSE message:', error)
-          addLog(`Error parsing message: ${event.data}`)
-        }
-      }
-
-      eventSourceRef.current.onerror = error => {
-        console.error('SSE Error:', error)
-
-        if (connectionAttemptRef.current === attempt) {
-          setConnectionStatus('error')
-          addLog('✗ Connection failed')
-        }
-
-        cleanupConnection()
-      }
-    } catch (error) {
-      console.error('Failed to create EventSource:', error)
-      setConnectionStatus('error')
-      addLog('✗ Failed to create connection to server')
-      isConnectingRef.current = false
-    }
-  }, [serverId, addLog, cleanupConnection])
-
-  useEffect(() => {
-    if (serverId) {
-      setConnectionStatus('idle')
-      setLogs([])
-      connectionAttemptRef.current = 0
-
-      const timer = setTimeout(() => {
-        establishConnection()
-      }, 100)
-
-      return () => {
-        clearTimeout(timer)
-        cleanupConnection()
-      }
-    }
-  }, [serverId, establishConnection, cleanupConnection])
 
   const getStatusColor = () => {
     switch (connectionStatus) {
@@ -146,7 +51,7 @@ const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
       case 'connecting':
         return 'text-blue-500'
       default:
-        return 'text-slate-500'
+        return 'text-muted-foreground'
     }
   }
 
@@ -165,12 +70,9 @@ const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
 
   return (
     <div
-      className={cn(
-        'flex h-full w-full flex-col overflow-hidden bg-slate-950',
-        className,
-      )}>
+      className={cn('flex h-full w-full flex-col overflow-hidden', className)}>
       {/* Status Bar */}
-      <div className='flex items-center justify-between border-b border-slate-700 bg-slate-900 px-4 py-2'>
+      <div className='bg-card flex items-center justify-between border-b px-4 py-2'>
         <div className='flex items-center gap-2'>
           <div
             className={`h-2 w-2 rounded-full ${getStatusColor().replace('text-', 'bg-')}`}
@@ -182,71 +84,20 @@ const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
             <Loader2 size={14} className='animate-spin text-blue-500' />
           )}
         </div>
-        <div className='text-sm text-slate-400'>Server: {serverId}</div>
+        <div className='text-muted-foreground text-sm'>Server: {serverId}</div>
       </div>
 
-      {/* Terminal Content */}
-      <div className='flex-1 overflow-auto p-4 font-mono text-sm'>
-        {connectionStatus === 'connecting' && (
-          <div className='mb-4 flex items-center gap-2 text-blue-400'>
-            <Loader2 size={16} className='animate-spin' />
-            <span>Establishing connection to server events endpoint...</span>
-          </div>
-        )}
-
-        {connectionStatus === 'error' && (
-          <div className='mb-4 text-red-400'>
-            <div className='mb-2 flex items-center gap-2'>
-              <span>❌ Connection failed</span>
-            </div>
-          </div>
-        )}
-
-        {/* Logs Display */}
-        <div className='space-y-1'>
-          {logs.map((log, index) => (
-            <div
-              key={index}
-              className={cn(
-                'rounded px-2 py-0.5 leading-relaxed break-words transition-colors',
-                log.includes('✓') && 'text-green-400',
-                log.includes('✗') ||
-                  log.includes('Error') ||
-                  log.includes('Failed')
-                  ? 'bg-red-950/20 text-red-400'
-                  : log.includes('🔁') || log.includes('attempt')
-                    ? 'bg-blue-950/20 text-blue-400'
-                    : 'text-slate-200 hover:bg-slate-800/50',
-                log.includes('INFO:') && 'text-blue-400',
-                log.includes('WARN:') && 'text-yellow-400',
-                log.includes('DEBUG:') && 'text-slate-400',
-              )}>
-              {log}
-            </div>
-          ))}
-        </div>
-
-        {/* Empty state messages */}
-        {connectionStatus === 'connected' &&
-          logs.filter(
-            log =>
-              !log.includes('Connecting') &&
-              !log.includes('Successfully connected') &&
-              !log.includes('Waiting for logs'),
-          ).length === 0 && (
-            <div className='py-8 text-center text-slate-500'>
-              <div>✓ Connected to server events stream</div>
-              <div className='mt-2 text-sm'>
-                No server logs available yet. Logs will appear here when the
-                server generates them.
-              </div>
-            </div>
-          )}
-      </div>
-
-      {/* XTerm Terminal (hidden but kept for compatibility) */}
-      <div style={{ display: 'none' }}>
-        <XTermTerminal ref={terminalRef} />
+      {/* XTerm Terminal for Logs */}
+      <div
+        className='bg-background flex-1 p-4'
+        style={{
+          backgroundColor: '#334256',
+        }}>
+        <XTermLogViewer
+          serverId={serverId}
+          onConnectionStatusChange={setConnectionStatus}
+          className='h-full w-full'
+        />
       </div>
     </div>
   )
@@ -372,9 +223,9 @@ const TerminalPanel = ({
   // Render different layouts based on mode
   if (mode === 'fullscreen') {
     return (
-      <div className='fixed inset-0 z-[100] flex flex-col bg-slate-950'>
+      <div className='bg-background fixed inset-0 z-[100] flex flex-col'>
         {/* Fullscreen Header */}
-        <div className='flex items-center justify-between border-b border-slate-700 bg-slate-900 px-6 py-4'>
+        <div className='bg-card flex items-center justify-between border-b px-6 py-4'>
           <div className='flex items-center gap-4'>
             <Button
               variant='ghost'
@@ -387,7 +238,7 @@ const TerminalPanel = ({
               <ArrowLeft size={16} />
             </Button>
             <div>
-              <h2 className='text-foreground text-xl font-semibold'>
+              <h2 className='text-xl font-semibold'>
                 Server Terminal - Fullscreen
               </h2>
               <p className='text-muted-foreground text-sm'>
@@ -412,7 +263,7 @@ const TerminalPanel = ({
         </div>
 
         {/* Server Tabs */}
-        <div className='border-b border-slate-700 bg-slate-800/50 px-6 py-3'>
+        <div className='bg-muted/50 border-b px-6 py-3'>
           <ServerTabs
             servers={servers}
             activeServerId={activeServerId}
@@ -535,7 +386,7 @@ const TerminalPanel = ({
   if (loadingServers) {
     return (
       <div className='flex h-full flex-col'>
-        <div className='border-border/50 border-b p-4'>
+        <div className='border-b p-4'>
           <div className='flex items-center'>
             <Button
               variant='ghost'
@@ -545,9 +396,7 @@ const TerminalPanel = ({
               <ArrowLeft size={14} />
             </Button>
             <div>
-              <h2 className='text-foreground text-lg font-semibold'>
-                Server Terminal
-              </h2>
+              <h2 className='text-lg font-semibold'>Server Terminal</h2>
               <p className='text-muted-foreground text-xs'>
                 Access server terminals
               </p>
@@ -567,7 +416,7 @@ const TerminalPanel = ({
   if (errorServers) {
     return (
       <div className='flex h-full flex-col'>
-        <div className='border-border/50 border-b p-4'>
+        <div className='border-b p-4'>
           <div className='flex items-center'>
             <Button
               variant='ghost'
@@ -577,9 +426,7 @@ const TerminalPanel = ({
               <ArrowLeft size={14} />
             </Button>
             <div>
-              <h2 className='text-foreground text-lg font-semibold'>
-                Server Terminal
-              </h2>
+              <h2 className='text-lg font-semibold'>Server Terminal</h2>
               <p className='text-muted-foreground text-xs'>
                 Access server terminals
               </p>
@@ -605,7 +452,7 @@ const TerminalPanel = ({
   if (!servers.length) {
     return (
       <div className='flex h-full flex-col'>
-        <div className='border-border/50 border-b p-4'>
+        <div className='border-b p-4'>
           <div className='flex items-center'>
             <Button
               variant='ghost'
@@ -615,9 +462,7 @@ const TerminalPanel = ({
               <ArrowLeft size={14} />
             </Button>
             <div>
-              <h2 className='text-foreground text-lg font-semibold'>
-                Server Terminal
-              </h2>
+              <h2 className='text-lg font-semibold'>Server Terminal</h2>
               <p className='text-muted-foreground text-xs'>
                 Access server terminals
               </p>
@@ -636,7 +481,7 @@ const TerminalPanel = ({
 
   return (
     <div className='flex h-full flex-col'>
-      <div className='border-border/50 border-b p-4'>
+      <div className='border-b p-4'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center'>
             <Button
@@ -647,9 +492,7 @@ const TerminalPanel = ({
               <ArrowLeft size={14} />
             </Button>
             <div>
-              <h2 className='text-foreground text-lg font-semibold'>
-                Server Terminal
-              </h2>
+              <h2 className='text-lg font-semibold'>Server Terminal</h2>
               <p className='text-muted-foreground text-xs'>
                 Access server terminals
               </p>
@@ -678,7 +521,7 @@ const TerminalPanel = ({
 
       <div className='flex-1 overflow-hidden'>
         <div className='flex h-full flex-col'>
-          <div className='border-border bg-muted/10 border-b px-4 py-2'>
+          <div className='bg-muted/10 border-b px-4 py-2'>
             <ServerTabs
               servers={servers}
               activeServerId={activeServerId}
