@@ -238,6 +238,16 @@
   }
 }
 
+/* Ensure main content is scrollable when terminal is embedded */
+body.terminal-embedded {
+  overflow: hidden;
+}
+
+body.terminal-embedded .flex-1.overflow-y-auto {
+  height: calc(100vh - var(--terminal-height, 300px));
+  overflow-y: auto;
+}
+
 /* :root {
 --background: hsl(240, 100.0000%, 98.0392%);
 --foreground: hsl(240, 27.5862%, 22.7451%);

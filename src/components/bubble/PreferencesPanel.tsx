@@ -17,6 +17,8 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 
+import { UpdatePreferenceFunction } from './bubble-types'
+
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 type Theme = 'light' | 'dark' | 'system'
 type Size = 'small' | 'medium' | 'large'
@@ -34,7 +36,7 @@ const PreferencesPanel = ({
   onBack,
 }: {
   preferences: Preferences
-  onUpdate: <K extends keyof Preferences>(key: K, value: Preferences[K]) => void
+  onUpdate: UpdatePreferenceFunction
   onBack: () => void
 }) => {
   const [mounted, setMounted] = useState(false)

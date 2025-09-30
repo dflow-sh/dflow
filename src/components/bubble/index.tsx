@@ -30,33 +30,22 @@ import MenuPanel from './MenuPanel'
 import PreferencesPanel from './PreferencesPanel'
 import QueuesPanel from './QueuesPanel'
 import SyncPanel from './SyncPanel'
-
-type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
-type Theme = 'light' | 'dark' | 'system'
-type Size = 'small' | 'medium' | 'large'
-type Panel = 'menu' | 'preferences' | 'logs' | 'queues' | 'sync'
-type NotificationType = 'sync' | 'queue' | 'log' | 'success' | 'error' | 'info'
-
-interface Notification {
-  id: string
-  type: NotificationType
-  message: string
-  timestamp: number
-  dismissed?: boolean
-}
-
-interface Preferences {
-  position: Position
-  theme: Theme
-  size: Size
-  visible: boolean
-}
+import TerminalPanel from './TerminalPanel'
+import type {
+  Notification,
+  NotificationType,
+  Panel,
+  Preferences,
+  UpdatePreferenceFunction,
+} from './bubble-types'
 
 const defaultPreferences: Preferences = {
   position: 'bottom-right',
   theme: 'system',
   size: 'medium',
   visible: true,
+  terminalMode: 'floating',
+  embeddedHeight: 300,
 }
 
 const sizeMap = {
@@ -154,6 +143,23 @@ const Bubble = () => {
   const router = useRouter()
 
   const screenDimensions = useScreenDimensions()
+
+  // Effect to handle terminal mode changes
+  useEffect(() => {
+    if (preferences.terminalMode === 'embedded') {
+      document.body.style.paddingBottom = `${preferences.embeddedHeight}px`
+      // Add class to body for embedded mode
+      document.body.classList.add('terminal-embedded')
+    } else {
+      document.body.style.paddingBottom = '0px'
+      document.body.classList.remove('terminal-embedded')
+    }
+
+    return () => {
+      document.body.style.paddingBottom = '0px'
+      document.body.classList.remove('terminal-embedded')
+    }
+  }, [preferences.terminalMode, preferences.embeddedHeight])
 
   // Basic initialization
   useEffect(() => {
@@ -340,8 +346,8 @@ const Bubble = () => {
   }, [])
 
   // Basic callbacks
-  const updatePreference = useCallback(
-    <K extends keyof Preferences>(key: K, value: Preferences[K]) => {
+  const updatePreference: UpdatePreferenceFunction = useCallback(
+    (key, value) => {
       setPreferences(prev => ({ ...prev, [key]: value }))
     },
     [],
@@ -430,6 +436,26 @@ const Bubble = () => {
     }, 150)
   }, [isSyncing, isSSESyncing, router, showNotificationWithTimeout])
 
+  // Don't render anything if terminal is in external mode
+  if (preferences.terminalMode !== 'floating') {
+    return (
+      <TerminalPanel
+        onBack={goBack}
+        servers={servers}
+        loadingServers={loadingServers}
+        errorServers={errorServers}
+        refreshServers={refreshServers}
+        mode={preferences.terminalMode}
+        embeddedHeight={preferences.embeddedHeight}
+        onUpdatePreference={updatePreference}
+        onClose={() => {
+          // When closing external terminal, switch back to floating mode
+          updatePreference('terminalMode', 'floating')
+        }}
+      />
+    )
+  }
+
   if (!preferences.visible || !isVisible) return null
 
   const bubbleSize = sizeMap[preferences.size]
@@ -446,6 +472,8 @@ const Bubble = () => {
             onClose={() => setIsExpanded(false)}
             activeProcesses={activeProcesses}
             isSyncing={isSyncing || isSSESyncing}
+            preferences={preferences}
+            onUpdatePreference={updatePreference}
           />
         )
       case 'preferences':
@@ -479,6 +507,20 @@ const Bubble = () => {
             syncMessage={syncMessage}
             // FIX: Don't pass isPending to avoid confusion
             isPending={false}
+          />
+        )
+      case 'terminal':
+        return (
+          <TerminalPanel
+            onBack={goBack}
+            servers={servers}
+            loadingServers={loadingServers}
+            errorServers={errorServers}
+            refreshServers={refreshServers}
+            mode={preferences.terminalMode}
+            embeddedHeight={preferences.embeddedHeight}
+            onUpdatePreference={updatePreference}
+            onClose={() => setIsExpanded(false)}
           />
         )
       default:

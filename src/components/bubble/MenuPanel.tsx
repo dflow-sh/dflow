@@ -2,6 +2,8 @@
 
 import {
   Clock,
+  Maximize2,
+  PictureInPicture,
   List as Queue,
   RefreshCw,
   Server,
@@ -11,10 +13,15 @@ import {
 } from 'lucide-react'
 import { motion } from 'motion/react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-type Panel = 'menu' | 'preferences' | 'logs' | 'queues' | 'sync'
+import type {
+  Panel,
+  Preferences,
+  UpdatePreferenceFunction,
+} from './bubble-types'
 
 const MenuPanel = ({
   onNavigate,
@@ -22,12 +29,16 @@ const MenuPanel = ({
   onClose,
   activeProcesses,
   isSyncing,
+  preferences,
+  onUpdatePreference,
 }: {
   onNavigate: (panel: Panel) => void
   onStartSync: () => void
   onClose: () => void
   activeProcesses: Set<string>
   isSyncing: boolean
+  preferences: Preferences
+  onUpdatePreference: UpdatePreferenceFunction
 }) => {
   const menuItems = [
     {
@@ -45,6 +56,14 @@ const MenuPanel = ({
       color: 'text-primary',
     },
     {
+      icon: Server,
+      label: 'Server Terminal',
+      panel: 'terminal' as Panel,
+      description: 'Access server terminals',
+      color: 'text-primary',
+      badge: 'Enhanced',
+    },
+    {
       icon: Queue,
       label: 'Job Queues',
       panel: 'queues' as Panel,
@@ -59,6 +78,37 @@ const MenuPanel = ({
       color: 'text-primary',
     },
   ]
+
+  const terminalModes = [
+    {
+      icon: Terminal,
+      label: 'Floating',
+      mode: 'floating' as const,
+      description: 'Terminal in floating panel',
+      current: preferences.terminalMode === 'floating',
+    },
+    {
+      icon: PictureInPicture,
+      label: 'Embedded',
+      mode: 'embedded' as const,
+      description: 'Terminal at bottom of page',
+      current: preferences.terminalMode === 'embedded',
+    },
+    {
+      icon: Maximize2,
+      label: 'Fullscreen',
+      mode: 'fullscreen' as const,
+      description: 'Terminal in full screen',
+      current: preferences.terminalMode === 'fullscreen',
+    },
+  ]
+
+  const handleTerminalModeChange = (
+    mode: 'floating' | 'embedded' | 'fullscreen',
+  ) => {
+    onUpdatePreference('terminalMode', mode)
+    onNavigate('terminal')
+  }
 
   return (
     <div className='flex h-full flex-col'>
@@ -86,7 +136,48 @@ const MenuPanel = ({
       {/* SCROLLABLE CONTENT */}
       <div className='flex-1 overflow-hidden'>
         <div className='h-full overflow-y-auto'>
-          <div className='space-y-3 p-4'>
+          {/* Quick Terminal Mode Selector */}
+          <div className='p-4'>
+            <div className='mb-4'>
+              <h3 className='text-foreground mb-3 text-sm font-medium'>
+                Terminal Display
+              </h3>
+              <div className='grid grid-cols-3 gap-2'>
+                {terminalModes.map(mode => (
+                  <button
+                    key={mode.mode}
+                    onClick={() => handleTerminalModeChange(mode.mode)}
+                    className={cn(
+                      'group hover:bg-accent/50 flex flex-col items-center gap-2 rounded-lg border p-3 text-center transition-all',
+                      mode.current
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border',
+                    )}>
+                    <mode.icon
+                      size={20}
+                      className={cn(
+                        'transition-colors',
+                        mode.current ? 'text-primary' : 'text-muted-foreground',
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        'text-xs font-medium',
+                        mode.current ? 'text-primary' : 'text-foreground',
+                      )}>
+                      {mode.label}
+                    </span>
+                    <span className='text-muted-foreground text-[10px] leading-tight'>
+                      {mode.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Menu Items */}
+          <div className='space-y-3 p-4 pt-0'>
             {menuItems.map((item, index) => (
               <motion.div
                 key={item.panel}
@@ -107,8 +198,13 @@ const MenuPanel = ({
                       <item.icon size={20} className={item.color} />
                     </div>
                     <div className='min-w-0 flex-1'>
-                      <div className='text-foreground truncate text-sm font-semibold'>
+                      <div className='text-foreground flex items-center gap-2 truncate text-sm font-semibold'>
                         {item.label}
+                        {item.badge && (
+                          <Badge variant='secondary' className='text-xs'>
+                            {item.badge}
+                          </Badge>
+                        )}
                       </div>
                       <div className='text-muted-foreground truncate text-xs'>
                         {item.description}
