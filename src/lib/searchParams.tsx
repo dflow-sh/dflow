@@ -38,6 +38,7 @@ export const serverPageTabs = {
 export const serviceLogs = {
   serviceId: parseAsString.withDefault(''),
   serverId: parseAsString.withDefault(''),
+  deploymentId: parseAsString.withDefault(''),
 }
 
 export const loadOnboardingSelectedServer = createLoader(

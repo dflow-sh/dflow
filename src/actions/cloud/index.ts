@@ -63,9 +63,24 @@ export const syncDflowServersAction = protectedClient
     if (account.type === 'dFlow') {
       const key = account?.dFlowDetails?.accessToken!
 
+      const { docs: users } = await payload.find({
+        collection: 'users',
+        where: {
+          username: {
+            equals: userTenant.tenant.slug,
+          },
+        },
+        select: {
+          email: true,
+        },
+        depth: 1,
+      })
+
+      const tenantUserEmail = users[0].email
+
       // 1. Fetching all servers
       const ordersResponse = await axios.get(
-        `${DFLOW_CONFIG.URL}/api/vpsOrders?pagination=false`,
+        `${DFLOW_CONFIG.URL}/api/vpsOrders?limit=10&where[or][0][and][0][user.email][equals]=${tenantUserEmail}&pagination=false`,
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
@@ -84,17 +99,31 @@ export const syncDflowServersAction = protectedClient
       const { docs: existingServers } = await payload.find({
         collection: 'servers',
         where: {
-          hostname: {
-            in: filteredOrders.map((order: any) => order.instanceResponse.name),
-          },
-          ip: {
-            in: filteredOrders.map(
-              (order: any) => order.instanceResponse.ipConfig.v4.ip,
-            ),
-          },
-          'tenant.slug': {
-            equals: userTenant.tenant?.slug,
-          },
+          and: [
+            {
+              or: [
+                {
+                  hostname: {
+                    in: filteredOrders.map(
+                      (order: any) => order.instanceResponse.name,
+                    ),
+                  },
+                },
+                {
+                  ip: {
+                    in: filteredOrders.map(
+                      (order: any) => order.instanceResponse.ipConfig.v4.ip,
+                    ),
+                  },
+                },
+              ],
+            },
+            {
+              'tenant.slug': {
+                equals: userTenant.tenant?.slug,
+              },
+            },
+          ],
         },
       })
 
