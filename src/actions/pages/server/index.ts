@@ -233,6 +233,7 @@ export const getServerGeneralTabDetails = protectedClient
         payload.find({
           collection: 'projects',
           pagination: false,
+          depth: 1,
           where: {
             and: [
               {
@@ -244,7 +245,9 @@ export const getServerGeneralTabDetails = protectedClient
                 server: { equals: id },
               },
               {
-                hidden: { equals: false },
+                hidden: {
+                  not_equals: true,
+                },
               },
               ...(role?.projects?.readLimit === 'createdByUser'
                 ? [
@@ -257,6 +260,7 @@ export const getServerGeneralTabDetails = protectedClient
                 : []),
             ],
           },
+          sort: '-createdAt',
           joins: {
             services: {
               limit: 1000,
