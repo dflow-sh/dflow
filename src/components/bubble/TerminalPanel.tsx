@@ -12,10 +12,12 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useTerminal } from '@/providers/TerminalProvider'
 
 import { XTermLogViewer } from './XTermLogViewer'
 import type { Server, UpdatePreferenceFunction } from './bubble-types'
@@ -149,21 +151,59 @@ const TerminalPanel = ({
   const [activeServerId, setActiveServerId] = useState(servers[0]?.id || '')
   const [isResizing, setIsResizing] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const resizeStartYRef = useRef<number>(0)
   const resizeStartHeightRef = useRef<number>(0)
+  const { setEmbedded, setEmbeddedHeight } = useTerminal()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mode === 'embedded') {
+      setEmbedded(true)
+      setEmbeddedHeight(embeddedHeight)
+
+      // Adjust main content height
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = `calc(100vh - ${embeddedHeight}px)`
+      }
+    } else {
+      setEmbedded(false)
+
+      // Reset main content height
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = ''
+      }
+    }
+
+    return () => {
+      setEmbedded(false)
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = ''
+      }
+    }
+  }, [mode, embeddedHeight, setEmbedded, setEmbeddedHeight])
 
   useEffect(() => {
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'ns-resize'
+      document.body.style.userSelect = 'none'
     } else {
       document.body.style.cursor = ''
+      document.body.style.userSelect = ''
     }
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = ''
+      document.body.style.userSelect = ''
     }
   }, [isResizing])
 
@@ -186,9 +226,19 @@ const TerminalPanel = ({
     const deltaY = resizeStartYRef.current - e.clientY
     const newHeight = Math.max(
       200,
-      Math.min(600, resizeStartHeightRef.current + deltaY),
+      Math.min(window.innerHeight - 100, resizeStartHeightRef.current + deltaY),
     )
-    requestAnimationFrame(() => onUpdatePreference('embeddedHeight', newHeight))
+
+    requestAnimationFrame(() => {
+      onUpdatePreference('embeddedHeight', newHeight)
+      setEmbeddedHeight(newHeight)
+
+      // Update main content height in real-time
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = `calc(100vh - ${newHeight}px)`
+      }
+    })
   }
 
   const handleMouseUp = () => {
@@ -196,6 +246,7 @@ const TerminalPanel = ({
     document.removeEventListener('mousemove', handleMouseMove)
     document.removeEventListener('mouseup', handleMouseUp)
     document.body.style.cursor = ''
+    document.body.style.userSelect = ''
   }
 
   const toggleFullscreen = () => {
@@ -218,13 +269,25 @@ const TerminalPanel = ({
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed)
+    if (!isCollapsed) {
+      // Collapsing: restore full height to main content
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = 'calc(100vh - 48px)' // Just header height
+      }
+    } else {
+      // Expanding: reduce main content height
+      const mainContent = document.getElementById('main-content')
+      if (mainContent) {
+        mainContent.style.height = `calc(100vh - ${embeddedHeight}px)`
+      }
+    }
   }
 
-  // Render different layouts based on mode
+  // Fullscreen mode
   if (mode === 'fullscreen') {
     return (
       <div className='bg-background fixed inset-0 z-[100] flex flex-col'>
-        {/* Fullscreen Header */}
         <div className='bg-card flex items-center justify-between border-b px-6 py-4'>
           <div className='flex items-center gap-4'>
             <Button
@@ -262,7 +325,6 @@ const TerminalPanel = ({
           </div>
         </div>
 
-        {/* Server Tabs */}
         <div className='bg-muted/50 border-b px-6 py-3'>
           <ServerTabs
             servers={servers}
@@ -271,7 +333,6 @@ const TerminalPanel = ({
           />
         </div>
 
-        {/* Terminal Content */}
         <div className='flex-1 overflow-hidden'>
           <TerminalContent serverId={activeServerId} className='h-full' />
         </div>
@@ -279,34 +340,37 @@ const TerminalPanel = ({
     )
   }
 
-  if (mode === 'embedded') {
-    return (
+  // Embedded mode - Portal to bottom container
+  if (mode === 'embedded' && mounted) {
+    const container = document.getElementById('embedded-terminal-container')
+    if (!container) return null
+
+    return createPortal(
       <div
         className={cn(
-          'bg-background fixed right-0 bottom-0 left-0 z-[90] border-t shadow-2xl transition-all duration-300',
-          isCollapsed ? 'h-12' : 'h-[300px]',
+          'bg-background border-t shadow-2xl transition-all duration-300 ease-out',
         )}
         style={{
           height: isCollapsed ? '48px' : `${embeddedHeight}px`,
-          transition: isResizing ? 'none' : 'height 150ms ease-out',
         }}>
         {/* Resize Handle */}
         {!isCollapsed && (
           <div
             className={cn(
-              'hover:bg-primary/40 absolute top-0 right-0 left-0 h-2 cursor-ns-resize transition-colors',
-              isResizing ? 'bg-primary/60' : 'bg-border',
+              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-1.5 cursor-ns-resize items-center justify-center transition-all',
+              isResizing ? 'bg-primary h-2' : 'bg-border',
             )}
-            onMouseDown={handleResizeStart}
-          />
+            onMouseDown={handleResizeStart}>
+            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-1 w-16 rounded-full transition-colors' />
+          </div>
         )}
 
-        {/* Embedded Header */}
-        <div className='bg-muted/50 flex items-center justify-between border-b px-4 py-2'>
+        {/* Header */}
+        <div className='bg-muted/30 flex items-center justify-between border-b px-4 py-2 backdrop-blur-sm'>
           <div className='flex items-center gap-3'>
             <button
               onClick={toggleCollapse}
-              className='hover:bg-muted flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium transition-colors'>
+              className='hover:bg-muted flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors'>
               <HardDrive size={16} className='text-primary' />
               <span>Server Terminal</span>
               {isCollapsed ? (
@@ -333,7 +397,7 @@ const TerminalPanel = ({
                   variant='ghost'
                   size='sm'
                   onClick={toggleFullscreen}
-                  className='h-8 gap-1 text-xs'>
+                  className='h-8 gap-1.5 text-xs'>
                   <Maximize2 size={14} />
                   Fullscreen
                 </Button>
@@ -344,7 +408,7 @@ const TerminalPanel = ({
                     onUpdatePreference('terminalMode', 'floating')
                     onClose()
                   }}
-                  className='h-8 gap-1 text-xs'>
+                  className='h-8 gap-1.5 text-xs'>
                   <PictureInPicture size={14} />
                   Floating
                 </Button>
@@ -363,10 +427,10 @@ const TerminalPanel = ({
           </div>
         </div>
 
-        {/* Terminal Content */}
+        {/* Content */}
         {!isCollapsed && (
           <div className='flex h-[calc(100%-48px)] flex-col'>
-            <div className='bg-muted/10 border-b px-4 py-2'>
+            <div className='bg-muted/20 border-b px-4 py-2'>
               <ServerTabs
                 servers={servers}
                 activeServerId={activeServerId}
@@ -378,7 +442,8 @@ const TerminalPanel = ({
             </div>
           </div>
         )}
-      </div>
+      </div>,
+      container,
     )
   }
 
@@ -503,7 +568,7 @@ const TerminalPanel = ({
               variant='outline'
               size='sm'
               onClick={toggleEmbedded}
-              className='h-8 gap-1 text-xs'>
+              className='h-8 gap-1.5 text-xs'>
               <PictureInPicture size={14} />
               Embed
             </Button>
@@ -511,7 +576,7 @@ const TerminalPanel = ({
               variant='outline'
               size='sm'
               onClick={toggleFullscreen}
-              className='h-8 gap-1 text-xs'>
+              className='h-8 gap-1.5 text-xs'>
               <Maximize2 size={14} />
               Fullscreen
             </Button>
