@@ -39,7 +39,7 @@ const DeploymentDialog = memo(
     setNodes: Dispatch<SetStateAction<Node[]>>
     setEdges: Dispatch<SetStateAction<Edge[]>>
   }) => {
-    const params = useParams<{ id: string; organisation: string }>()
+    const params = useParams<{ projectId: string; organisation: string }>()
     const { deploy, isDeploying } = useArchitectureContext()
     const services = convertNodesToServices(nodes)
 
@@ -117,7 +117,7 @@ const DeploymentDialog = memo(
               <Button
                 onClick={() => {
                   deploy({
-                    projectId: params.id,
+                    projectId: params.projectId,
                     services,
                   })
                 }}

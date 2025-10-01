@@ -44,7 +44,7 @@ import {
 
 const DomainForm = ({ ip }: { ip: string }) => {
   const [open, setOpen] = useState(false)
-  const params = useParams<{ id: string; serviceId: string }>()
+  const params = useParams<{ serviceId: string }>()
 
   const form = useForm<z.infer<typeof updateServiceDomainSchema>>({
     resolver: zodResolver(updateServiceDomainSchema),

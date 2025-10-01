@@ -174,7 +174,7 @@ const ResourceStatusCard = ({
           </div>
 
           {/* Quick Overview */}
-          <div className='flex gap-4 text-xs text-muted-foreground'>
+          <div className='text-muted-foreground flex gap-4 text-xs'>
             <span>
               CPU: <span className={getUsageColor(cpuUsage)}>{cpuUsage}%</span>
             </span>
@@ -191,15 +191,15 @@ const ResourceStatusCard = ({
 
           <Accordion type='single' collapsible className='w-full'>
             <AccordionItem value='details' className='border-none'>
-              <AccordionTrigger className='py-2 text-xs text-muted-foreground hover:text-foreground'>
+              <AccordionTrigger className='text-muted-foreground hover:text-foreground py-2 text-xs'>
                 View Detailed Breakdown
               </AccordionTrigger>
               <AccordionContent className='pt-2'>
                 <div className='space-y-3 text-xs'>
                   {/* CPU Section */}
-                  <div className='rounded-md bg-muted/30 p-2'>
+                  <div className='bg-muted/30 rounded-md p-2'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <span className='font-medium text-muted-foreground'>
+                      <span className='text-muted-foreground font-medium'>
                         CPU ({status.cpuCores} cores)
                       </span>
                       <span
@@ -207,16 +207,16 @@ const ResourceStatusCard = ({
                         {cpuUsage}% used
                       </span>
                     </div>
-                    <div className='flex justify-between text-xs text-muted-foreground'>
+                    <div className='text-muted-foreground flex justify-between text-xs'>
                       <span>Available: {100 - cpuUsage}%</span>
                       <span>Load: {status.cpuLoad.toFixed(2)}</span>
                     </div>
                   </div>
 
                   {/* Memory Section */}
-                  <div className='rounded-md bg-muted/30 p-2'>
+                  <div className='bg-muted/30 rounded-md p-2'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <span className='font-medium text-muted-foreground'>
+                      <span className='text-muted-foreground font-medium'>
                         Memory
                       </span>
                       <span
@@ -224,16 +224,16 @@ const ResourceStatusCard = ({
                         {formatBytes(memoryUsed)} used ({memoryUsage}%)
                       </span>
                     </div>
-                    <div className='flex justify-between text-xs text-muted-foreground'>
+                    <div className='text-muted-foreground flex justify-between text-xs'>
                       <span>Available: {formatBytes(status.memoryMB)}</span>
                       <span>Total: {formatBytes(status.totalMemoryMB)}</span>
                     </div>
                   </div>
 
                   {/* Storage Section */}
-                  <div className='rounded-md bg-muted/30 p-2'>
+                  <div className='bg-muted/30 rounded-md p-2'>
                     <div className='mb-1 flex items-center justify-between'>
-                      <span className='font-medium text-muted-foreground'>
+                      <span className='text-muted-foreground font-medium'>
                         Storage
                       </span>
                       <span
@@ -241,7 +241,7 @@ const ResourceStatusCard = ({
                         {formatBytes(diskUsed, 'GB')} used ({diskUsage}%)
                       </span>
                     </div>
-                    <div className='flex justify-between text-xs text-muted-foreground'>
+                    <div className='text-muted-foreground flex justify-between text-xs'>
                       <span>Available: {formatBytes(status.diskGB, 'GB')}</span>
                       <span>
                         Total: {formatBytes(status.totalDiskGB, 'GB')}
@@ -250,9 +250,9 @@ const ResourceStatusCard = ({
                   </div>
 
                   {/* Containers Section */}
-                  <div className='rounded-md bg-muted/30 p-2'>
+                  <div className='bg-muted/30 rounded-md p-2'>
                     <div className='flex items-center justify-between'>
-                      <span className='font-medium text-muted-foreground'>
+                      <span className='text-muted-foreground font-medium'>
                         Containers Running
                       </span>
                       <span className='font-semibold'>
@@ -295,7 +295,7 @@ const CreateService = ({
 }) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const params = useParams<{ id: string; organisation: string }>()
+  const params = useParams<{ projectId: string; organisation: string }>()
   const { plugins = [] } = server
 
   const projectName = project.name ? slugify(project.name) : ''
@@ -344,7 +344,7 @@ const CreateService = ({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
       name: '',
-      projectId: params.id,
+      projectId: params.projectId,
     },
   })
 
@@ -480,7 +480,7 @@ const CreateService = ({
                     <FormControl>
                       <div className='flex'>
                         {projectName && (
-                          <div className='inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground'>
+                          <div className='border-input bg-muted text-muted-foreground inline-flex items-center rounded-l-md border border-r-0 px-3 text-sm'>
                             {`${projectName}-`}
                           </div>
                         )}
@@ -653,7 +653,7 @@ const CreateService = ({
                             }
                           />
                         </FormControl>
-                        <p className='text-xs text-muted-foreground'>
+                        <p className='text-muted-foreground text-xs'>
                           Default:{' '}
                           {server.defaultResourceLimits?.cpu || 'Not set'} (from
                           server settings)
@@ -680,7 +680,7 @@ const CreateService = ({
                             }
                           />
                         </FormControl>
-                        <p className='text-xs text-muted-foreground'>
+                        <p className='text-muted-foreground text-xs'>
                           Default:{' '}
                           {server.defaultResourceLimits?.memory || 'Not set'}{' '}
                           (from server settings)

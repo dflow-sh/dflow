@@ -169,7 +169,7 @@ const PluginConfigurationForm = ({
   plugin: PluginListType | NonNullable<ServerType['plugins']>[number]
 }) => {
   const pluginName = 'name' in plugin ? plugin.name : plugin.value
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ serverId: string }>()
   const [open, setOpen] = useState(false)
 
   return (
@@ -187,7 +187,7 @@ const PluginConfigurationForm = ({
           <LetsencryptForm
             plugin={plugin}
             setOpen={setOpen}
-            serverId={params.id}
+            serverId={params.serverId}
           />
         </DialogContent>
       )}

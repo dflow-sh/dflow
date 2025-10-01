@@ -165,7 +165,7 @@ const PluginCard = ({
   const handlePluginUninstall = () => {
     if (notCustomPlugin) {
       checkPluginUsage({
-        serverId: params.id,
+        serverId: params.serverId,
         category,
         pluginName: plugin.value,
         connectionType: server.preferConnectionType,
@@ -178,7 +178,7 @@ const PluginCard = ({
       deletePlugin({
         pluginName: plugin.value,
         pluginURL: plugin.githubURL,
-        serverId: params.id,
+        serverId: params.serverId,
       })
     }
   }
@@ -188,7 +188,7 @@ const PluginCard = ({
     setUsageData(null)
   }
 
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ serverId: string }>()
   const defaultPlugins = server.plugins ?? []
   const notCustomPlugin = 'value' in plugin
   const pluginName = notCustomPlugin ? plugin.value : plugin.name
@@ -285,7 +285,7 @@ const PluginCard = ({
                   installPlugin({
                     pluginName: plugin.value,
                     pluginURL: plugin.githubURL,
-                    serverId: params.id,
+                    serverId: params.serverId,
                   })
                 }
               }}>

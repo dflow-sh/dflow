@@ -241,7 +241,7 @@ const TemplateDeploymentForm = ({
 }) => {
   const router = useRouter()
   const dialogRef = useRef<HTMLButtonElement>(null)
-  const params = useParams<{ id: string; organisation: string }>()
+  const params = useParams<{ projectId: string; organisation: string }>()
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('')
 
   const { execute: deployTemplate, isPending: deployingTemplate } = useAction(
@@ -266,7 +266,7 @@ const TemplateDeploymentForm = ({
   const form = useForm<z.infer<typeof deployTemplateSchema>>({
     resolver: zodResolver(deployTemplateSchema),
     defaultValues: {
-      projectId: params.id,
+      projectId: params.projectId,
     },
   })
 

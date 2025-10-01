@@ -52,7 +52,7 @@ const GithubForm = ({
   const [repoType, setRepoType] = useState(
     service?.provider ? 'private' : 'public',
   )
-  const params = useParams<{ id: string; serviceId: string }>()
+  const params = useParams<{ serviceId: string }>()
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
@@ -217,7 +217,7 @@ const GithubForm = ({
               }
             }}
             className='flex gap-4'>
-            <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+            <div className='has-data-[state=checked]:border-ring border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
               <RadioGroupItem
                 value='public'
                 id='r2'
@@ -227,13 +227,13 @@ const GithubForm = ({
                 <div className='grid grow gap-2'>
                   <Label>Manual deployment</Label>
 
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     Automatic deployment is not available.
                   </p>
                 </div>
               </div>
             </div>
-            <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+            <div className='has-data-[state=checked]:border-ring border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
               <RadioGroupItem
                 value='private'
                 id='r3'
@@ -243,7 +243,7 @@ const GithubForm = ({
                 <div className='grid grow gap-2'>
                   <Label>Github-App deployment</Label>
 
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     Automatic deployment is enabled
                   </p>
                 </div>
@@ -621,10 +621,10 @@ const GithubForm = ({
                   className='flex w-full flex-col gap-4 md:flex-row'>
                   {buildOptions.map(({ value, label, icon, description }) => (
                     <FormItem
-                      className='flex w-full items-center space-x-3 space-y-0'
+                      className='flex w-full items-center space-y-0 space-x-3'
                       key={value}>
                       <FormControl>
-                        <div className='has-data-[state=checked]:border-ring shadow-2xs relative flex w-full items-start gap-2 rounded-md border border-input p-4 outline-hidden'>
+                        <div className='has-data-[state=checked]:border-ring border-input relative flex w-full items-start gap-2 rounded-md border p-4 shadow-2xs outline-hidden'>
                           <RadioGroupItem
                             value={value}
                             id={value}
@@ -639,7 +639,7 @@ const GithubForm = ({
                             <div className='grid grow gap-2'>
                               <Label htmlFor={value}>{label}</Label>
 
-                              <p className='text-xs text-muted-foreground'>
+                              <p className='text-muted-foreground text-xs'>
                                 {description}
                               </p>
                             </div>
