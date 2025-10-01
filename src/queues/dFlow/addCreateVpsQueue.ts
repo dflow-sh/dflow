@@ -145,6 +145,12 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
               status: createdVpsOrder.instanceResponse.status as NonNullable<
                 Server['dflowVpsDetails']
               >['status'],
+              next_billing_date: createdVpsOrder.instanceResponse
+                ?.next_billing_date
+                ? new Date(
+                    createdVpsOrder.instanceResponse.next_billing_date,
+                  ).toISOString()
+                : null,
             },
             cloudInitStatus: 'running',
             connectionAttempts: 0,

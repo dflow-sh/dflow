@@ -52,10 +52,12 @@ export type CreateRoleType = z.infer<typeof createRoleSchema>
 
 export const updateRoleSchema = createRoleSchema.extend({
   id: z.string(),
+  isAdminRole: z.boolean().optional().nullable(),
 })
 
 export type UpdateRoleType = z.infer<typeof updateRoleSchema>
 
 export const deleteRoleSchema = z.object({
   id: z.string(),
+  isAdminRole: z.boolean(),
 })

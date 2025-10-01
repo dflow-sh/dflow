@@ -41,6 +41,7 @@ export interface ServiceNode {
     | 'dockerfile'
     | 'herokuBuildPacks'
     | 'buildPacks'
+    | 'static'
     | null
   provider?: string | GitProvider | null
   providerType?:

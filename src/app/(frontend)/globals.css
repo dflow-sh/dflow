@@ -200,6 +200,10 @@
   }
 }
 
+html {
+  overscroll-behavior: none;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -211,18 +215,23 @@
 }
 
 /* react flow */
-.react-flow__controls {
-  background: hsl(var(--muted) / 0.3) !important; /* Dark background */
-  color: var(--foreground) !important;
-}
-
 .react-flow__controls-button {
   background-color: hsl(
     var(--muted) / 0.3
   ) !important; /* Tailwind bg-gray-700 */
   color: var(--foreground) !important;
   margin: 0.25rem 0;
-  border-bottom: 2px solid var(--input) !important;
+  border-bottom: 1px solid var(--input) !important;
+}
+
+.react-flow__controls {
+  background: var(--muted) !important; /* Dark background */
+  color: var(--foreground) !important;
+  border-radius: var(--radius);
+
+  .react-flow__controls-button:last-child {
+    border-bottom: 0 !important;
+  }
 }
 
 .animate-progress {
@@ -237,63 +246,3 @@
     transform: translateX(200%);
   }
 }
-
-/* :root {
---background: hsl(240, 100.0000%, 98.0392%);
---foreground: hsl(240, 27.5862%, 22.7451%);
---card: hsl(0, 0%, 100%);
---cardForeground: hsl(240, 27.5862%, 22.7451%);
---popover: hsl(0, 0%, 100%);
---popoverForeground: hsl(240, 27.5862%, 22.7451%);
---primary: hsl(251.9008, 55.7604%, 57.4510%);
---primaryForeground: hsl(0, 0%, 100%);
---secondary: hsl(249.3750, 100%, 93.7255%);
---secondaryForeground: hsl(249.3750, 33.3333%, 37.6471%);
---muted: hsl(240, 50.0000%, 96.0784%);
---mutedForeground: hsl(240, 12.1951%, 48.2353%);
---accent: hsl(218.4615, 100.0000%, 92.3529%);
---accentForeground: hsl(240, 27.5862%, 22.7451%);
---destructive: hsl(350.1754, 100%, 66.4706%);
---destructiveForeground: hsl(0, 0%, 100%);
---border: hsl(240, 34.7826%, 90.9804%);
---input: hsl(240, 34.7826%, 90.9804%);
---ring: hsl(251.9008, 55.7604%, 57.4510%);
---sidebar: hsl(240, 50.0000%, 96.0784%);
---sidebarForeground: hsl(240, 27.5862%, 22.7451%);
---sidebarPrimary: hsl(251.9008, 55.7604%, 57.4510%);
---sidebarPrimaryForeground: hsl(0, 0%, 100%);
---sidebarAccent: hsl(218.4615, 100.0000%, 92.3529%);
---sidebarAccentForeground: hsl(240, 27.5862%, 22.7451%);
---sidebarBorder: hsl(240, 34.7826%, 90.9804%);
---sidebarRing: hsl(251.9008, 55.7604%, 57.4510%);
-}
-
-.dark {
---background: hsl(221, 50%, 11%);
---foreground: hsl(240, 66.67%, 94.12%);
---card: hsl(240, 27.59%, 22.75%);
---cardForeground: hsl(240, 100%, 97.06%);
---popover: hsl(217, 33%, 17%);
---popoverForeground: oklch(93.09% 0.02705 285.814);
---primary: hsl(258, 71%, 61%);
---primaryForeground: oklch(100% 0.00011 271.152);
---secondary: hsl(235, 31.49%, 35.49%);
---secondaryForeground: hsl(240, 34.78%, 90.98%);
---muted: hsl(240, 27.59%, 22.75%);
---mutedForeground: hsl(215, 20%, 65%);
---accent: hsl(217, 19%, 27%);
---accentForeground: hsl( 240, 66.67%, 94.12%);
---destructive: hsl(0, 73.46%, 41.37%);
---destructiveForeground: hsl(0, 0%, 100%);
---border: hsl(215, 25%, 27%);
---input: hsl(215, 25%, 27%);
---ring: hsl(291, 63.72%, 42.16%);
---sidebar: hsl(30, 3.3333%, 11.7647%);
---sidebarForeground: hsl(240, 100%, 90.78%);
---sidebarPrimary: hsl(262, 51.87%, 47.25%);
---sidebarPrimaryForeground: hsl(0, 0%, 100%);
---sidebarAccent: hsl(240, 24.49%, 38.43%);
---sidebarAccentForeground: hsl(0, 0%, 87.84%);
---sidebarBorder: hsl(240, 24.49%, 38.43%);
---sidebarRing: hsl(291, 63.72%, 42.16%);
-} */

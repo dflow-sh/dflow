@@ -1,6 +1,7 @@
 import { LoaderInput } from 'nuqs'
 import { APIError, PayloadHandler } from 'payload'
 
+import { pub } from '@/lib/redis'
 import { loadServiceLogs } from '@/lib/searchParams'
 
 export const serverEvents: PayloadHandler = async ({
@@ -17,7 +18,9 @@ export const serverEvents: PayloadHandler = async ({
     throw new APIError('Unauthenticated', 401)
   }
 
-  const { serverId, serviceId } = loadServiceLogs(query as LoaderInput)
+  const { serverId, serviceId, deploymentId } = loadServiceLogs(
+    query as LoaderInput,
+  )
 
   const channel = `channel-${serverId}${serviceId ? `-${serviceId}` : ''}`
   const encoder = new TextEncoder()
@@ -66,7 +69,7 @@ export const serverEvents: PayloadHandler = async ({
       }, 29000)
 
       // Subscribe to a Redis channel
-      duplicateSubscriber.subscribe(channel, err => {
+      duplicateSubscriber.subscribe(channel, async err => {
         if (err) {
           console.error('Redis Subscribe Error:', err)
           controller.enqueue(
@@ -80,11 +83,20 @@ export const serverEvents: PayloadHandler = async ({
           return
         }
 
+        let logs: string[] = []
+
+        // For showing previous logs during deployment fetching logs and passing them in success method
+        // Here used new redis instance because duplicateSubscriber -> redis instance can only be used for subscription events
+        if (deploymentId) {
+          logs = (await pub.lrange(deploymentId, 0, -1)).reverse()
+        }
+
         // Send success message to client
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
               message: `✅ Successfully connected to channel: ${channel}`,
+              logs,
             })}\n\n`,
           ),
         )

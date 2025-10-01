@@ -19,12 +19,15 @@ const TerminalContent = ({
   logs,
   serviceId,
   serverId,
+  deploymentId,
 }: {
   serviceId: string
   serverId: string
   logs: unknown[]
+  deploymentId: string
 }) => {
   const eventSourceRef = useRef<EventSource>(null)
+  const previousLogsRef = useRef(false)
   const { terminalRef, writeLog, terminalInstance } = useXterm()
 
   useEffect(() => {
@@ -38,15 +41,27 @@ const TerminalContent = ({
     }
 
     const eventSource = new EventSource(
-      `/api/server-events?serviceId=${serviceId}&serverId=${serverId}`,
+      `/api/server-events?serviceId=${serviceId}&serverId=${serverId}&deploymentId=${deploymentId}`,
     )
 
     eventSource.onmessage = event => {
       const data = JSON.parse(event.data) ?? {}
+      const logs = data?.logs ?? []
+      const updatedPreviousLogs = previousLogsRef.current
+
+      console.log({ data })
 
       if (data?.message) {
         const formattedLog = `${data?.message}`
         writeLog({ message: formattedLog })
+      }
+
+      if (!!logs?.length && !updatedPreviousLogs) {
+        logs.forEach((log: any) => {
+          writeLog({ message: `${log}` })
+        })
+
+        previousLogsRef.current = true
       }
     }
 
@@ -103,6 +118,7 @@ const DeploymentTerminal = ({
           serverId={serverId}
           serviceId={serviceId}
           logs={logs}
+          deploymentId={deployment.id}
         />
       </DialogContent>
     </Dialog>

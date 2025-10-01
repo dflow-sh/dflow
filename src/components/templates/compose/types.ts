@@ -24,6 +24,7 @@ export const GithubServiceSchema = z
         'herokuBuildPacks',
         'buildPacks',
         'railpack',
+        'static',
       ])
       .default('buildPacks')
       .optional(),

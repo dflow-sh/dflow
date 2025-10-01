@@ -120,6 +120,12 @@ export default async function RootLayout({
           />
         )} */}
 
+        <script
+          id='chatway'
+          async
+          src='https://cdn.chatway.app/widget.js?id=J34Fw4u1288m'
+        />
+
         {theme && <Branding theme={theme} />}
       </head>
 

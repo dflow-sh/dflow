@@ -62,18 +62,18 @@ const UnPublishedTemplates = ({
           ))}
         </div>
       ) : (
-        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+        <div className='bg-muted/10 rounded-2xl border p-8 text-center shadow-sm'>
           <div className='grid min-h-[20vh] place-items-center'>
             <div>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <LayoutTemplate className='h-8 w-8 animate-pulse text-muted-foreground' />
+              <div className='bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full'>
+                <LayoutTemplate className='text-muted-foreground h-8 w-8 animate-pulse' />
               </div>
 
               <div className='my-4'>
-                <h3 className='text-xl font-semibold text-foreground'>
+                <h3 className='text-foreground text-xl font-semibold'>
                   All templates published
                 </h3>
-                <p className='text-base text-muted-foreground'>
+                <p className='text-muted-foreground text-base'>
                   Looks like you have not published any templates
                 </p>
               </div>
@@ -104,7 +104,7 @@ const PublishedTemplates = ({
   return (
     <section>
       <h3 className='text-xl font-semibold'>Published Templates</h3>
-      <p className='mb-6 text-sm text-muted-foreground'>
+      <p className='text-muted-foreground mb-6 text-sm'>
         A list of templates published to the dFlow template marketplace
       </p>
       {templates && templates?.length > 0 ? (
@@ -118,18 +118,18 @@ const PublishedTemplates = ({
           ))}
         </div>
       ) : (
-        <div className='rounded-2xl border bg-muted/10 p-8 text-center shadow-sm'>
+        <div className='bg-muted/10 rounded-2xl border p-8 text-center shadow-sm'>
           <div className='grid min-h-[20vh] place-items-center'>
             <div>
-              <div className='mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted'>
-                <LayoutTemplate className='h-8 w-8 animate-pulse text-muted-foreground' />
+              <div className='bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full'>
+                <LayoutTemplate className='text-muted-foreground h-8 w-8 animate-pulse' />
               </div>
 
               <div className='my-4'>
-                <h3 className='text-xl font-semibold text-foreground'>
+                <h3 className='text-foreground text-xl font-semibold'>
                   No published templates found
                 </h3>
-                <p className='text-base text-muted-foreground'>
+                <p className='text-muted-foreground text-base'>
                   Looks like you have not published any templates
                 </p>
               </div>
@@ -225,13 +225,13 @@ const TemplateCard = ({
               <p className='line-clamp-1 text-lg font-semibold'>
                 {template.name}
               </p>
-              <p className='line-clamp-2 text-sm text-muted-foreground'>
+              <p className='text-muted-foreground line-clamp-2 text-sm'>
                 {template.description}
               </p>
             </div>
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger className='absolute right-4 top-4 text-muted-foreground'>
+            <DropdownMenuTrigger className='text-muted-foreground absolute top-4 right-4'>
               <EllipsisVertical size={20} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
@@ -285,6 +285,7 @@ const TemplateCard = ({
           <DialogFooter>
             <Button
               disabled={isPending}
+              isLoading={isPending}
               onClick={() => {
                 execute({ id: template.id, accountId: account?.id ?? '' })
               }}

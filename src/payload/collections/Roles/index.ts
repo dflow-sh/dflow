@@ -638,5 +638,14 @@ export const Roles: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      type: 'checkbox',
+      name: 'isAdminRole',
+      label: 'isAdminRole',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+      },
+    },
   ],
 }

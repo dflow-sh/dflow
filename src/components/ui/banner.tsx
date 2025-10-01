@@ -37,12 +37,6 @@ const ctaButtonStyles = {
   success: 'bg-success/50 hover:bg-success/30 text-white',
 }
 
-const closeButtonStyles = {
-  info: 'hover:bg-blue-200 text-blue-700',
-  warning: 'hover:bg-amber-200 text-amber-700',
-  success: 'hover:bg-green-200 text-green-700',
-}
-
 const DISMISSAL_DURATION = 24 * 60 * 60 * 1000
 const STORAGE_KEY = 'dismissed-banners'
 
@@ -168,8 +162,8 @@ export default function BannerComponent({ banners }: BannerProps) {
                 )}
               </div>
 
-              <div className='flex items-center gap-4'>
-                <div className='text-center'>
+              <div className='flex flex-col gap-2 md:flex-row md:items-center md:gap-4'>
+                <div className='text-left'>
                   {banner.title && (
                     <span className='mr-2 text-sm font-medium'>
                       {banner.title}
@@ -206,7 +200,7 @@ export default function BannerComponent({ banners }: BannerProps) {
                   size='icon'
                   className='size-6'
                   onClick={() => dismissBanner(banner.id)}>
-                  <X className='h-3.5 w-3.5 cursor-pointer stroke-white' />
+                  <X className='stroke-foreground h-3.5 w-3.5' />
                 </Button>
               )}
             </div>

@@ -24,7 +24,7 @@ export const servicesSchema = z.array(
             /^[a-zA-Z_][a-zA-Z0-9_]*$/,
             'Invalid key format, special-characters & spaces are restricted',
           ),
-        value: z.string().min(1, 'Value must be at-least 1 character'),
+        value: z.string(),
       })
       .array()
       .optional(),
@@ -82,6 +82,7 @@ export const servicesSchema = z.array(
         'buildPacks',
         'herokuBuildPacks',
         'nixpacks',
+        'static',
       ])
       .default('buildPacks')
       .optional(),

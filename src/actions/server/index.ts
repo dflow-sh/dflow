@@ -4,6 +4,7 @@ import dns from 'dns/promises'
 import isPortReachable from 'is-port-reachable'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { extractID } from 'payload/shared'
 
 import updateRailpack from '@/lib/axios/updateRailpack'
 import { dokku } from '@/lib/dokku'
@@ -297,13 +298,69 @@ export const deleteServerAction = protectedClient
   .action(async ({ clientInput, ctx }) => {
     const { id, deleteProjects, deleteBackups } = clientInput
     const { payload, userTenant } = ctx
+    const { tenant } = userTenant
 
-    const response = await payload.update({
+    // soft delete services
+    const { docs: services } = await payload.update({
+      collection: 'services',
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
+      where: {
+        and: [
+          { 'project.server.id': { equals: id } },
+          {
+            deletedAt: {
+              exists: false,
+            },
+          },
+          {
+            tenant: {
+              equals: tenant.id,
+            },
+          },
+        ],
+      },
+      depth: 0,
+      select: {
+        name: true,
+        project: true,
+      },
+    })
+
+    // soft delete projects
+    const { docs: projects } = await payload.update({
+      collection: 'projects',
+      data: {
+        deletedAt: new Date().toISOString(),
+      },
+      where: {
+        and: [
+          { 'server.id': { equals: id } },
+          {
+            deletedAt: {
+              exists: false,
+            },
+          },
+          {
+            tenant: {
+              equals: tenant.id,
+            },
+          },
+        ],
+      },
+      depth: 0,
+      select: {},
+    })
+
+    // soft delete server
+    const server = await payload.update({
       collection: 'servers',
       id,
       data: {
         deletedAt: new Date().toISOString(),
       },
+      depth: 0,
     })
 
     const installationResponse = await addDeleteProjectsQueue({
@@ -315,12 +372,17 @@ export const deleteServerAction = protectedClient
       tenant: {
         slug: userTenant.tenant.slug,
       },
+      projects: projects.map(project => project.id),
+      services: services.map(service => ({
+        id: service.id,
+        projectId: extractID(service.project),
+      })),
     })
 
-    if (response && installationResponse.id) {
-      revalidatePath(`${userTenant.tenant}/dashboard`)
-      revalidatePath(`${userTenant.tenant}/servers`)
-      revalidatePath(`${userTenant.tenant}/servers/${id}`)
+    if (server && installationResponse.id) {
+      revalidatePath(`/${userTenant.tenant.slug}/servers`)
+      revalidatePath(`/${userTenant.tenant.slug}/servers/${id}`)
+
       return { deleted: true }
     }
   })

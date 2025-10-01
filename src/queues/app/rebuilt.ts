@@ -23,7 +23,7 @@ interface QueueArgs {
 }
 
 export const addRebuildAppQueue = async (data: QueueArgs) => {
-  const QUEUE_NAME = `server-${data?.serverDetails?.id}-rebuild-app`
+  const QUEUE_NAME = `server-${data?.serverDetails?.id}-deploy-app`
 
   const restartAppQueue = getQueue({
     name: QUEUE_NAME,

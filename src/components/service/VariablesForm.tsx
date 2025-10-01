@@ -13,7 +13,7 @@ import {
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Braces, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
+import { Braces, FileText, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import {
@@ -325,6 +325,7 @@ const KeyValuePair = memo(
     parsedValues,
     databaseList,
     gettingDatabases,
+    handlePaste,
   }: {
     id: number
     serviceName: string
@@ -332,6 +333,7 @@ const KeyValuePair = memo(
     parsedValues: Record<string, string>
     databaseList: Service[]
     gettingDatabases: boolean
+    handlePaste: (e: React.ClipboardEvent<HTMLInputElement>, id: number) => void
   }) => {
     const { control } = useFormContext()
 
@@ -343,7 +345,7 @@ const KeyValuePair = memo(
           render={({ field }) => (
             <FormItem className='col-span-1'>
               <FormControl>
-                <Input {...field} />
+                <Input onPaste={e => handlePaste(e, id)} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -395,6 +397,9 @@ const KeyValuePair = memo(
 KeyValuePair.displayName = 'KeyValuePair'
 
 const VariablesForm = ({ service }: { service: Service }) => {
+  const [file, setFile] = useState<string | ArrayBuffer | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const noRestartRef = useRef(true)
   const { setDisable: disableDeployment } = useDisableDeploymentContext()
   const defaultPopulatedVariables = service?.populatedVariables ?? '{}'
@@ -439,7 +444,10 @@ const VariablesForm = ({ service }: { service: Service }) => {
       id: service.id,
       variables:
         Array.isArray(service.variables) && service.variables.length
-          ? service.variables
+          ? service.variables.map(variable => ({
+              ...variable,
+              value: variable.value ?? '',
+            }))
           : [
               {
                 key: '',
@@ -464,6 +472,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
     fields,
     append: appendVariable,
     remove: removeVariable,
+    insert: insertVariable,
   } = useFieldArray({
     control: form.control,
     name: 'variables',
@@ -475,6 +484,115 @@ const VariablesForm = ({ service }: { service: Service }) => {
       noRestart: noRestartRef.current,
     })
     disableDeployment(true)
+  }
+
+  const parseEnv = (text: string | null) => {
+    const parsedBulkVariables = text
+      ?.split('\n')
+      ?.map((line: string) => {
+        const trimmedLine = line.trim()
+        if (
+          !trimmedLine ||
+          trimmedLine.startsWith('#') ||
+          trimmedLine.startsWith('//')
+        ) {
+          return null // Ignore empty lines or comments
+        }
+
+        const regex = /^([^=]+)=(.*)$/
+        const match = trimmedLine.match(regex)
+
+        if (match) {
+          const [, key, value] = match
+          return {
+            key: key.trim(),
+            value: value.trim().replace(/^"(.*)"$/, '$1'), // Trim quotes only if they wrap the entire value
+          }
+        } else {
+          // Handle cases with only a key and no "=" sign
+          return {
+            key: trimmedLine,
+            value: '',
+          }
+        }
+      })
+      ?.filter(Boolean)
+
+    return parsedBulkVariables
+  }
+
+  const handlePaste = (
+    event: React.ClipboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
+    event.preventDefault()
+    const pastedText = event.clipboardData.getData('text/plain')
+    const parsedBulkVariables = parseEnv(pastedText)
+    if (parsedBulkVariables?.length) {
+      removeVariable(index) // Remove the current field where the paste occurred
+      const reversedVariables = [...parsedBulkVariables].reverse()
+      reversedVariables.forEach((row: any) => {
+        insertVariable(index, { key: row.key, value: row.value })
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (!file || typeof file !== 'string') return
+    const parsedBulkVariables = parseEnv(file)
+    if (!parsedBulkVariables?.length) return
+
+    const lastIndex = fields.length - 1
+    const lastItem = fields[lastIndex]
+
+    if (lastItem && !lastItem.key && !lastItem.value) {
+      removeVariable(lastIndex) // remove empty row
+    }
+
+    parsedBulkVariables.forEach(row => {
+      if (row) appendVariable({ key: row.key, value: row.value })
+    })
+  }, [file, appendVariable])
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0]
+    if (selectedFile) {
+      await handleFile(selectedFile)
+    }
+  }
+
+  const isEnvFile = (filename: string) => {
+    // Check if file starts with .env or matches pattern like env.local, etc.
+    return filename.startsWith('.env') || filename.match(/^\.?env(\.|$)/i)
+  }
+  const handleFile = async (selectedFile: File) => {
+    setIsLoading(true)
+
+    if (!isEnvFile(selectedFile.name)) {
+      toast.error(
+        `Invalid file: ${selectedFile.name}. Only .env files are allowed.`,
+      )
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      const reader = new FileReader()
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target?.result) {
+          setFile(e.target.result)
+        }
+      }
+      reader.readAsText(selectedFile)
+    } catch (err: any) {
+      toast.error(`Error reading file: ${err.message}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const selectFile = () => {
+    fileInputRef.current?.click()
   }
 
   return (
@@ -504,6 +622,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
             {fields.map((field, index) => {
               return (
                 <KeyValuePair
+                  handlePaste={handlePaste}
                   key={field.id} // use stable id provided by RHF
                   id={index} // pass real index, not used as key
                   databaseList={databaseList?.data ?? []}
@@ -528,22 +647,46 @@ const VariablesForm = ({ service }: { service: Service }) => {
             </Button>
           </div>
 
-          <div className='flex w-full justify-end gap-3'>
-            <Button
-              type='submit'
-              variant='outline'
-              disabled={savingEnvironmentVariables}
-              onClick={() => (noRestartRef.current = true)}>
-              Save
-            </Button>
+          <div className='flex w-full justify-between gap-3'>
+            <div className='inline-flex items-center gap-x-2'>
+              <Button
+                type='button'
+                variant={'outline'}
+                onClick={e => {
+                  e.stopPropagation(), selectFile()
+                }}
+                disabled={isLoading}>
+                <FileText size={10} />
+                Import .env
+              </Button>
+              <p className='text-muted-foreground'>
+                or paste the .env contents above
+              </p>
+              <input
+                ref={fileInputRef}
+                type='file'
+                className='hidden'
+                accept='.env,.env.*'
+                onChange={handleFileChange}
+              />
+            </div>
+            <div className='inline-flex gap-x-2'>
+              <Button
+                type='submit'
+                variant='outline'
+                disabled={savingEnvironmentVariables}
+                onClick={() => (noRestartRef.current = true)}>
+                Save
+              </Button>
 
-            <Button
-              type='submit'
-              variant='secondary'
-              disabled={savingEnvironmentVariables}
-              onClick={() => (noRestartRef.current = false)}>
-              Save & Restart
-            </Button>
+              <Button
+                type='submit'
+                variant='secondary'
+                disabled={savingEnvironmentVariables}
+                onClick={() => (noRestartRef.current = false)}>
+                Save & Restart
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

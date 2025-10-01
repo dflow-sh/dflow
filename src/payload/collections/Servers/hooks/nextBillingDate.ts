@@ -21,11 +21,13 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
 
   const isMissing = !existingBillingDate
   const isExpired = existingBillingDate && existingBillingDate < now
+
   if (!isMissing && !isExpired) {
     return doc
   }
 
   let token: string | undefined
+
   try {
     if (typeof doc.cloudProviderAccount === 'object') {
       token = doc.cloudProviderAccount?.dFlowDetails?.accessToken
@@ -37,6 +39,7 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
 
       token = dFlowDetails?.accessToken
     }
+
     const res = await fetch(
       `${DFLOW_CONFIG.URL}/api/vpsOrders?pagination=false&where[or][0][and][0][instanceId][equals]=${instanceId}`,
       {
@@ -47,6 +50,7 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
         },
       },
     )
+
     const data = await res.json()
     const externalOrder = Array.isArray(data) ? data[0] : data
 

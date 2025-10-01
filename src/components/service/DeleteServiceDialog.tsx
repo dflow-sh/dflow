@@ -14,6 +14,7 @@ import {
 import { ScrollArea } from '../ui/scroll-area'
 import { AlertCircle, Folder, HardDrive, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useParams, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -32,6 +33,8 @@ const DeleteServiceContent = ({
 }) => {
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
   const [deleteFromServer, setDeleteFromServer] = useState<boolean>(true)
+  const router = useRouter()
+  const params = useParams<{ organisation: string; id: string }>()
 
   const serverName = (project.server as Server)?.name
 
@@ -39,6 +42,7 @@ const DeleteServiceContent = ({
     onSuccess: ({ data }) => {
       if (data?.deleted) {
         setOpen(false)
+
         toast.info('Added to queue', {
           description: 'Added deleting service to queue',
         })
@@ -47,6 +51,10 @@ const DeleteServiceContent = ({
     onError: ({ error }) => {
       setOpen(false)
       toast.error(`Failed to delete service: ${error.serverError}`)
+    },
+    onExecute: () => {
+      const { organisation, id } = params
+      router.replace(`/${organisation}/dashboard/project/${id}`)
     },
   })
 
@@ -65,12 +73,12 @@ const DeleteServiceContent = ({
           <div className='max-h-[60vh] pr-3'>
             <div className='space-y-4 pb-6'>
               {/* Service Info */}
-              <div className='space-y-3 rounded-md border bg-muted/50 p-3 text-sm'>
+              <div className='bg-muted/50 space-y-3 rounded-md border p-3 text-sm'>
                 <div>
                   <span className='font-medium'>Server</span>
 
                   <div className='flex items-center gap-2'>
-                    <HardDrive className='h-4 w-4 text-muted-foreground' />
+                    <HardDrive className='text-muted-foreground h-4 w-4' />
                     <span>{serverName || 'Unknown server'}</span>
                   </div>
                 </div>
@@ -79,7 +87,7 @@ const DeleteServiceContent = ({
                   <span className='font-medium'>Project</span>
 
                   <div className='flex items-center gap-2'>
-                    <Folder className='h-4 w-4 text-muted-foreground' />
+                    <Folder className='text-muted-foreground h-4 w-4' />
                     <span>{project.name}</span>
                   </div>
                 </div>
@@ -116,10 +124,10 @@ const DeleteServiceContent = ({
                   <div className='space-y-1'>
                     <label
                       htmlFor='delete-from-server'
-                      className='cursor-pointer text-sm font-medium leading-none'>
+                      className='cursor-pointer text-sm leading-none font-medium'>
                       Delete service files from server
                     </label>
-                    <p className='text-xs text-muted-foreground'>
+                    <p className='text-muted-foreground text-xs'>
                       Remove Docker containers, volumes, and service files from{' '}
                       {serverName}
                     </p>
@@ -138,10 +146,10 @@ const DeleteServiceContent = ({
                   <div className='space-y-1'>
                     <label
                       htmlFor='delete-backups'
-                      className='cursor-pointer text-sm font-medium leading-none'>
+                      className='cursor-pointer text-sm leading-none font-medium'>
                       Delete all associated backups
                     </label>
-                    <p className='text-xs text-muted-foreground'>
+                    <p className='text-muted-foreground text-xs'>
                       Permanently remove all backup data for this service
                     </p>
                   </div>
@@ -214,7 +222,7 @@ const DeleteServiceDialog = ({
       <DialogContent className='flex max-h-[90vh] w-full max-w-2xl flex-col'>
         <DialogHeader className='shrink-0'>
           <DialogTitle className='flex items-center gap-2 text-lg'>
-            <Trash2 className='h-5 w-5 text-destructive' />
+            <Trash2 className='text-destructive h-5 w-5' />
             Delete Service
           </DialogTitle>
           <DialogDescription className='pt-2'>

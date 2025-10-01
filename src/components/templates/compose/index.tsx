@@ -20,6 +20,7 @@ import {
   colors,
   uniqueNamesGenerator,
 } from 'unique-names-generator'
+import { useLocalStorage, useReadLocalStorage } from 'usehooks-ts'
 
 import {
   createTemplateAction,
@@ -42,15 +43,39 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
 import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
 
+type FlowStorage = {
+  nodes: Node[]
+  edges: Edge[]
+}
+
 const CreateNewTemplate = () => {
   const [openCreateTemplate, setOpenCreateTemplate] = useState<boolean>(false)
+  const storedFlow = useReadLocalStorage<FlowStorage>('create-new-template')
+  const { nodes: storedNodes, edges: storedEdges } = storedFlow ?? {
+    nodes: [],
+    edges: [],
+  }
+  const [flow, setFlow, removeFlow] = useLocalStorage<FlowStorage>(
+    'create-new-template',
+    {
+      nodes: storedNodes,
+      edges: storedEdges,
+    },
+  )
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const services = convertNodesToServices(nodes)
@@ -62,14 +87,7 @@ const CreateNewTemplate = () => {
   const { organisation } = useParams()
   let template: any
 
-  const {
-    register,
-    reset,
-    formState: { errors },
-    handleSubmit,
-    setValue,
-    control,
-  } = useForm<CreateTemplateSchemaType>({
+  const form = useForm<CreateTemplateSchemaType>({
     resolver: zodResolver(createTemplateSchema),
     defaultValues: {
       name: uniqueNamesGenerator({
@@ -89,6 +107,7 @@ const CreateNewTemplate = () => {
         if (data) {
           toast.success(`Template created successfully`)
           router.push(`/${organisation}/templates`)
+          removeFlow()
         }
       },
       onError: ({ error }) => {
@@ -156,7 +175,30 @@ const CreateNewTemplate = () => {
   }
 
   useEffect(() => {
-    if (!templateId) return
+    if (!templateId) {
+      setFlow({ nodes, edges })
+    }
+  }, [nodes, edges])
+
+  useEffect(() => {
+    if (!templateId) {
+      if (storedFlow?.nodes) {
+        const initialNodes =
+          storedNodes && storedNodes?.length > 0
+            ? storedNodes?.map(node => ({
+                ...node,
+                data: {
+                  ...node.data,
+                  onClick: () => callChildFunction({ serviceId: node.id! }),
+                },
+                type: 'custom',
+              }))
+            : []
+        setNodes(initialNodes || [])
+        setEdges(storedEdges)
+      }
+      return
+    }
     if (type === 'personal') {
       getTemplateById({ id: templateId })
     } else if (type === 'official') {
@@ -168,9 +210,9 @@ const CreateNewTemplate = () => {
 
   useEffect(() => {
     if (!template.data?.services) return
-    setValue('name', template.data?.name ?? '')
-    setValue('description', template?.data?.description ?? '')
-    setValue('imageUrl', template.data?.imageUrl || '')
+    form.setValue('name', template.data?.name ?? '')
+    form.setValue('description', template?.data?.description ?? '')
+    form.setValue('imageUrl', template.data?.imageUrl || '')
 
     const { edges: edgesData, nodes: nodesData } = convertToGraph(
       template?.data?.services!,
@@ -235,6 +277,7 @@ const CreateNewTemplate = () => {
       </ReactFlowConfig>
     )
   }
+
   return (
     <div className='w-full'>
       <div className='flex w-full items-center justify-end gap-x-2 px-2 pt-2'>
@@ -263,36 +306,67 @@ const CreateNewTemplate = () => {
               {templateId && template?.data ? 'Update' : 'Create'} Template
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className='space-y-4'>
-              <div>
-                <Label>
-                  Name <span className='text-red-500'>*</span>
-                </Label>
-                <Input {...register('name')} />
-                {errors.name?.message && <p>{errors.name?.message}</p>}
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea {...register('description')} className='min-h-44' />
-              </div>
-              <div>
-                <Label>Image</Label>
-                <Input {...register('imageUrl')} type='text' />
-              </div>
-            </div>
-            <DialogFooter className='mt-4'>
-              <Button
-                disabled={
-                  isCreateNewTemplatePending ||
-                  isUpdateTemplatePending ||
-                  type === 'official'
-                }
-                type='submit'>
-                {templateId && template?.data ? 'Update' : 'Create'}
-              </Button>
-            </DialogFooter>
-          </form>
+
+          <Form {...form}>
+            <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+              <FormField
+                control={form.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input type='text' {...field} value={field.value || ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='imageUrl'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input type='text' {...field} value={field.value || ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='description'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} value={field.value || ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className='mt-4'>
+                <Button
+                  disabled={
+                    isCreateNewTemplatePending ||
+                    isUpdateTemplatePending ||
+                    type === 'official'
+                  }
+                  isLoading={
+                    isCreateNewTemplatePending || isUpdateTemplatePending
+                  }
+                  type='submit'>
+                  {templateId && template?.data ? 'Update' : 'Create'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>

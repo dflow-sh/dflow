@@ -312,6 +312,7 @@ export interface Role {
   type?: ('engineering' | 'management' | 'marketing' | 'finance' | 'sales') | null;
   createdBy?: (string | null) | User;
   tags?: string[] | null;
+  isAdminRole?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -805,7 +806,7 @@ export interface Service {
   variables?:
     | {
         key: string;
-        value: string;
+        value?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -818,7 +819,7 @@ export interface Service {
       }[]
     | null;
   populatedVariables?: string | null;
-  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
+  builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'static') | null;
   provider?: (string | null) | GitProvider;
   providerType?: ('github' | 'gitlab' | 'bitbucket' | 'azureDevOps' | 'gitea') | null;
   githubSettings?: {
@@ -1092,7 +1093,7 @@ export interface Template {
               }[]
             | null;
         };
-        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks') | null;
+        builder?: ('buildPacks' | 'railpack' | 'nixpacks' | 'dockerfile' | 'herokuBuildPacks' | 'static') | null;
         name: string;
         description?: string | null;
         volumes?:
@@ -2156,6 +2157,7 @@ export interface RolesSelect<T extends boolean = true> {
   type?: T;
   createdBy?: T;
   tags?: T;
+  isAdminRole?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

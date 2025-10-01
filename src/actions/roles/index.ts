@@ -67,7 +67,12 @@ export const updateRolePermissionsAction = protectedClient
       securityGroups,
       sshKeys,
       team,
+      isAdminRole,
     } = clientInput
+
+    if (isAdminRole) {
+      throw new Error('Admin role updates are not allowed.')
+    }
 
     const response = await payload.update({
       collection: 'roles',
@@ -169,7 +174,11 @@ export const deleteRoleAction = protectedClient
       payload,
       userTenant: { tenant },
     } = ctx
-    const { id } = clientInput
+    const { id, isAdminRole } = clientInput
+
+    if (isAdminRole) {
+      throw new Error('Admin role deletions are not allowed.')
+    }
 
     const response = await payload.update({
       collection: 'roles',

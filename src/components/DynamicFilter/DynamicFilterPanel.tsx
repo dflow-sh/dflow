@@ -187,9 +187,10 @@ export const DynamicFilterPanel = <T,>({
                 {/* <ChevronDown className='h-3 w-3' /> */}
               </Button>
             </SheetTrigger>
+
             <SheetContent side='left' className='w-full md:w-sm'>
               <SheetHeader>
-                <div className='flex items-center justify-between border-b p-4'>
+                <div className='flex items-center justify-between border-b py-2'>
                   <h4 className='font-medium'>Filters</h4>
                   {activeFilterCount > 0 && (
                     <Button
@@ -203,8 +204,8 @@ export const DynamicFilterPanel = <T,>({
                 </div>
               </SheetHeader>
 
-              <ScrollArea className='h-full overflow-auto pb-4'>
-                <div className='space-y-4 p-4'>
+              <ScrollArea className='h-full overflow-auto'>
+                <div className='space-y-4 pt-4 pb-20'>
                   {Object.entries(groupedSchema).map(
                     ([category, configs], groupIndex) => (
                       <div key={category}>

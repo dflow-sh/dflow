@@ -14,7 +14,7 @@ export const getGithubStarsAction = publicClient
       `${DFLOW_CONFIG.URL}/api/globals/github?depth=2&draft=false`,
     )
 
-    const stars = res.data.githubStars ?? 0
+    const stars = res.data.githubStars
 
     return {
       stars,

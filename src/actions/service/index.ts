@@ -3,6 +3,7 @@
 import { env } from 'env'
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
+import { extractID } from 'payload/shared'
 
 import { dokku } from '@/lib/dokku'
 import { protectedClient } from '@/lib/safe-action'
@@ -231,9 +232,16 @@ export const createServiceWithPluginAction = protectedClient
     const {
       userTenant: { tenant },
       user,
+      payload,
     } = ctx
 
     try {
+      const project = await payload.findByID({
+        collection: 'projects',
+        id: projectId,
+        depth: 0,
+      })
+
       const job = await addCreateServiceWithPluginsQueue({
         name,
         description,
@@ -243,6 +251,9 @@ export const createServiceWithPluginAction = protectedClient
         userId: user.id,
         tenantId: tenant.id,
         tenantSlug: tenant.slug,
+        serverDetails: {
+          id: extractID(project.server),
+        },
       })
 
       revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
@@ -360,14 +371,6 @@ export const deleteServiceAction = protectedClient
           },
         },
       })
-
-      const projectId = typeof project === 'object' ? project.id : project
-
-      // Revalidate the parent project page and the service page
-      revalidatePath(
-        `/${tenant.slug}/dashboard/project/${projectId}/service/${id}`,
-      )
-      revalidatePath(`/${tenant.slug}/dashboard/project/${projectId}`)
 
       return {
         deleted: true,
@@ -509,9 +512,9 @@ export const restartServiceAction = protectedClient
     }
   })
 
-export const stopServerAction = protectedClient
+export const stopServiceAction = protectedClient
   .metadata({
-    actionName: 'stopServerAction',
+    actionName: 'stopServiceAction',
   })
   .inputSchema(stopServiceSchema)
   .action(async ({ clientInput, ctx }) => {

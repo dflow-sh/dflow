@@ -62,9 +62,27 @@ This tab provides a detailed overview of your service configuration.
 
 ### Builder Options
 
-- **Buildpacks (Default)**: Uses a zero-config, optimized builder setup
-- **Dockerfile**: Custom build using a `Dockerfile` in your repository
-- **Railpack**: Alternative zero-config builder option
+1. **Buildpacks (Default)**: Uses a zero-config, optimized builder setup
+2. **Dockerfile**: Custom build using a `Dockerfile` in your repository
+3. **Railpack**: Alternative zero-config builder option
+4. **Static**: Deploy static websites (HTML/CSS/JS)
+
+> Note: For the static builder to work, make sure you set up your repository as
+> follows
+
+- Add a `.static` file (empty) in the root directory:
+
+```
+|- index.html
+|- .static
+|- styles.css
+```
+
+- Add environment variable `NGINX_DEFAULT_REQUEST=index.html` to set default
+  request file (usually your main HTML file)
+
+- If your `index.html` is in root directory add `NGINX_ROOT=_site`, if it's in
+  (e.g. dist), Add environment variable `NGINX_ROOT=dist` to set root directory.
 
 > ⚠️ Changes to editable fields will trigger a redeployment.
 

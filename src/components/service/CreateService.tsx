@@ -30,7 +30,6 @@ import { z } from 'zod'
 import {
   checkServerResourcesAction,
   createServiceAction,
-  createServiceWithPluginAction,
 } from '@/actions/service'
 import { createServiceSchema } from '@/actions/service/validator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -325,21 +324,6 @@ const CreateService = ({
     },
   })
 
-  const { execute: createServiceWithPlugin, isPending: isPluginPending } =
-    useAction(createServiceWithPluginAction, {
-      onSuccess: ({ data, input }) => {
-        if (data?.success) {
-          toast.success(
-            `Service creation started for ${input.name}. Installing required plugins...`,
-          )
-          setOpen(false)
-        }
-      },
-      onError: ({ error }) => {
-        toast.error(`Failed to create service: ${error.serverError}`)
-      },
-    })
-
   const form = useForm<z.infer<typeof createServiceSchema>>({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
@@ -402,14 +386,11 @@ const CreateService = ({
     // }
   }
 
-  const isFormValid = form.formState.isValid
-  const submitDisabled = isPending || isPluginPending || !isFormValid
-
   const createButton = (
     <Button
       disabled={disableCreateButton}
       className='disabled:cursor-not-allowed'>
-      {isPending || isPluginPending ? (
+      {isPending ? (
         <>
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />
           {needsPluginInstallation ? 'Installing & Creating...' : 'Creating...'}
@@ -432,6 +413,7 @@ const CreateService = ({
         open={open}
         onOpenChange={state => {
           setOpen(state)
+
           if (!state) {
             form.reset()
           }
@@ -693,15 +675,11 @@ const CreateService = ({
               )}
 
               <DialogFooter>
-                <Button type='submit' disabled={submitDisabled}>
-                  {isPending || isPluginPending ? (
-                    <>
-                      <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Service'
-                  )}
+                <Button
+                  type='submit'
+                  disabled={isPending}
+                  isLoading={isPending}>
+                  Create Service
                 </Button>
               </DialogFooter>
             </form>

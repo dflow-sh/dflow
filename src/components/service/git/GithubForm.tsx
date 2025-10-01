@@ -311,7 +311,7 @@ const GithubForm = ({
                 control={form.control}
                 name='githubSettings.branch'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='self-end'>
                     <FormLabel>Branch</FormLabel>
                     <FormControl>
                       <Input
@@ -618,7 +618,7 @@ const GithubForm = ({
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
-                  className='flex w-full flex-col gap-4 md:flex-row'>
+                  className='grid w-full gap-4 md:grid-cols-2'>
                   {buildOptions.map(({ value, label, icon, description }) => (
                     <FormItem
                       className='flex w-full items-center space-y-0 space-x-3'

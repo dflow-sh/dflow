@@ -19,6 +19,13 @@ const DeploymentTerminal = dynamic(() => import('./DeploymentTerminal'), {
   ssr: false,
 })
 
+const variant = {
+  building: 'info',
+  failed: 'destructive',
+  success: 'success',
+  queued: 'warning',
+} as const
+
 const DeploymentList = ({
   deployments,
   serverId,
@@ -49,17 +56,7 @@ const DeploymentList = ({
                 <div className='flex items-center gap-6'>
                   <Badge
                     className='inline-block rounded-md px-2 py-1 text-[0.75rem] font-semibold uppercase'
-                    variant={
-                      status === 'building'
-                        ? 'info'
-                        : status === 'failed'
-                          ? 'destructive'
-                          : status === 'success'
-                            ? 'success'
-                            : status === 'queued'
-                              ? 'warning'
-                              : 'default'
-                    }>
+                    variant={status ? variant[status] : 'default'}>
                     {status}
                   </Badge>
 

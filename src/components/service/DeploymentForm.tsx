@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { createDeploymentAction } from '@/actions/deployment'
-import { restartServiceAction, stopServerAction } from '@/actions/service'
+import { restartServiceAction, stopServiceAction } from '@/actions/service'
 import {
   Dialog,
   DialogContent,
@@ -182,7 +182,7 @@ const Deploy = ({ service }: { service: Service }) => {
 }
 
 const DeploymentForm = ({ service }: { service: Service }) => {
-  const { deployments } = service
+  const { deployments, databaseDetails, type } = service
   const { disable: deploymentDisabled } = useDisableDeploymentContext()
 
   const { execute: restartService, isPending: isRestartingService } = useAction(
@@ -201,8 +201,8 @@ const DeploymentForm = ({ service }: { service: Service }) => {
     },
   )
 
-  const { execute: stopServer, isPending: isStoppingServer } = useAction(
-    stopServerAction,
+  const { execute: stopService, isPending: isStoppingServer } = useAction(
+    stopServiceAction,
     {
       onSuccess: ({ data }) => {
         if (data) {
@@ -218,6 +218,8 @@ const DeploymentForm = ({ service }: { service: Service }) => {
   )
 
   const noDeployments = deployments?.docs?.length === 0
+  const databaseWithExposedPorts =
+    type === 'database' && !!databaseDetails?.exposedPorts?.length
 
   return (
     <div className='mt-6 flex gap-x-2 md:mt-0'>
@@ -240,10 +242,18 @@ const DeploymentForm = ({ service }: { service: Service }) => {
       <Button
         disabled={isStoppingServer || deploymentDisabled}
         onClick={() => {
+          if (databaseWithExposedPorts) {
+            toast.warning('Please unexpose database before stopping!', {
+              duration: 5000,
+            })
+
+            return
+          }
+
           if (noDeployments) {
             toast.warning('Please deploy the service before stopping')
           } else {
-            stopServer({ id: service.id })
+            stopService({ id: service.id })
           }
         }}
         variant='destructive'>

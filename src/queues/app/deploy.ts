@@ -513,6 +513,119 @@ const buildpacksBuild = async ({
   }
 }
 
+const staticBuild = async ({
+  pub,
+  appName,
+  serviceDetails,
+  ssh,
+  buildDetails,
+}: {
+  pub: Redis
+  serviceDetails: QueueArgs['serviceDetails']
+  appName: string
+  ssh: NodeSSH
+  buildDetails: BuildDetailsType
+}) => {
+  const { serverId, serviceId } = serviceDetails
+
+  const buildpacksResponse = await dokku.buildpacks.set({
+    appName,
+    buildPack: 'https://github.com/dokku/buildpack-nginx.git',
+    ssh,
+    options: {
+      onStdout: async chunk => {
+        sendEvent({
+          message: chunk.toString(),
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      },
+      onStderr: async chunk => {
+        sendEvent({
+          message: chunk.toString(),
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      },
+    },
+  })
+
+  if (buildpacksResponse.code === 0) {
+    sendEvent({
+      message: `✅ Successfully set static builder`,
+      pub,
+      serverId,
+      serviceId,
+      channelId: serviceDetails.deploymentId,
+    })
+  } else {
+    sendEvent({
+      message: `❌ Failed to set static builder`,
+      pub,
+      serverId,
+      serviceId,
+      channelId: serviceDetails.deploymentId,
+    })
+
+    // exiting from the flow
+    throw new Error('failed to set static builder')
+  }
+
+  const cloningResponse = await dokku.git.sync({
+    ssh,
+    appName: appName,
+    build: true,
+    // if provider is given deploying from github-app else considering as public repository
+    gitRepoUrl: buildDetails.url,
+    branchName: buildDetails.branch,
+    options: {
+      onStdout: async chunk => {
+        sendEvent({
+          message: chunk.toString(),
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      },
+      onStderr: async chunk => {
+        sendEvent({
+          message: chunk.toString(),
+          pub,
+          serverId,
+          serviceId,
+          channelId: serviceDetails.deploymentId,
+        })
+      },
+    },
+  })
+
+  if (cloningResponse.code === 0) {
+    sendEvent({
+      message: `✅ Successfully cloned repository`,
+      pub,
+      serverId,
+      serviceId,
+      channelId: serviceDetails.deploymentId,
+    })
+  } else {
+    sendEvent({
+      message: `❌ Failed to clone repository`,
+      pub,
+      serverId,
+      serviceId,
+      channelId: serviceDetails.deploymentId,
+    })
+
+    // exiting from the flow
+    throw new Error('failed to clone repository')
+  }
+}
+
 export const addDeployQueue = async (data: QueueArgs) => {
   const QUEUE_NAME = `server-${data.serviceDetails.serverId}-deploy-app`
 
@@ -739,6 +852,14 @@ export const addDeployQueue = async (data: QueueArgs) => {
           })
         } else if (builder === 'buildPacks') {
           await buildpacksBuild({
+            pub,
+            appName,
+            serviceDetails,
+            ssh,
+            buildDetails,
+          })
+        } else if (builder === 'static') {
+          await staticBuild({
             pub,
             appName,
             serviceDetails,

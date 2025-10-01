@@ -28,7 +28,12 @@ export function convertToGraph(
       type: item.type,
       displayName: 'displayName' in item ? item.displayName : undefined,
       description: item.description,
-      variables: item.variables ?? undefined,
+      variables: item.variables
+        ? item.variables.map(variable => ({
+            ...variable,
+            value: variable.value ?? '',
+          }))
+        : undefined,
       ...(createdAt ? { createdAt } : {}),
       ...(deployments.length
         ? {

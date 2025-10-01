@@ -6,6 +6,7 @@ import { ResetPassword } from '@/emails/reset-password'
 import { isAdmin } from '@/payload/access/isAdmin'
 
 import { createBeszelUser } from './hooks/createBeszelUser'
+import { createTenantAndRole } from './hooks/createTenantAndRole'
 import { handleUserRoles } from './hooks/handleUserRoles'
 
 const defaultTenantArrayField = tenantsArrayField({
@@ -75,7 +76,7 @@ export const Users: CollectionConfig = {
     useSessions: false,
   },
   hooks: {
-    beforeChange: [handleUserRoles],
+    beforeChange: [handleUserRoles, createTenantAndRole],
     afterChange: [createBeszelUser],
   },
   access: {
