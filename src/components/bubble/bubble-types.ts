@@ -1,13 +1,7 @@
 export type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 export type Theme = 'light' | 'dark' | 'system'
 export type Size = 'small' | 'medium' | 'large'
-export type Panel =
-  | 'menu'
-  | 'preferences'
-  | 'logs'
-  | 'queues'
-  | 'sync'
-  | 'terminal'
+export type Panel = 'menu' | 'preferences' | 'queues' | 'sync' | 'terminal'
 export type TerminalMode = 'floating' | 'embedded' | 'fullscreen'
 export type NotificationType =
   | 'sync'

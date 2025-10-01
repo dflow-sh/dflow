@@ -467,8 +467,6 @@ const Bubble = () => {
             onBack={goBack}
           />
         )
-      case 'logs':
-        return <LogsPanel onBack={goBack} />
       case 'queues':
         return (
           <QueuesPanel

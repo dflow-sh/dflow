@@ -1,17 +1,17 @@
 'use client'
 
 import {
-  Clock,
+  LucideProps,
   Maximize2,
   PictureInPicture,
   List as Queue,
   RefreshCw,
-  Server,
   Settings,
   Terminal,
   X,
 } from 'lucide-react'
 import { motion } from 'motion/react'
+import { ForwardRefExoticComponent, RefAttributes } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -40,7 +40,16 @@ const MenuPanel = ({
   preferences: Preferences
   onUpdatePreference: UpdatePreferenceFunction
 }) => {
-  const menuItems = [
+  const menuItems: {
+    icon: ForwardRefExoticComponent<
+      Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
+    >
+    label: string
+    panel: Panel
+    description: string
+    color: string
+    badge?: string
+  }[] = [
     {
       icon: Settings,
       label: 'Settings',
@@ -50,18 +59,10 @@ const MenuPanel = ({
     },
     {
       icon: Terminal,
-      label: 'Application Logs',
-      panel: 'logs' as Panel,
-      description: 'View deployment & runtime logs',
-      color: 'text-primary',
-    },
-    {
-      icon: Server,
-      label: 'Server Terminal',
+      label: 'Server Terminal Logs',
       panel: 'terminal' as Panel,
-      description: 'Access server terminals',
+      description: 'View real-time server logs',
       color: 'text-primary',
-      badge: 'Enhanced',
     },
     {
       icon: Queue,
@@ -140,7 +141,7 @@ const MenuPanel = ({
           <div className='p-4'>
             <div className='mb-4'>
               <h3 className='text-foreground mb-3 text-sm font-medium'>
-                Terminal Display
+                Quick Terminal Mode Selector
               </h3>
               <div className='grid grid-cols-3 gap-2'>
                 {terminalModes.map(mode => (
@@ -225,8 +226,8 @@ const MenuPanel = ({
             ))}
           </div>
 
-          {/* Platform Status */}
-          <div className='p-4'>
+          {/* Platform Status - Commented out to remove static data */}
+          {/* <div className='p-4'>
             <div className='bg-muted/30 rounded-lg border p-4 backdrop-blur-sm'>
               <h3 className='text-foreground mb-3 text-sm font-medium'>
                 Platform Status
@@ -262,7 +263,7 @@ const MenuPanel = ({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
