@@ -16,39 +16,26 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
-
-import { UpdatePreferenceFunction } from './bubble-types'
+import { useBubble } from '@/providers/BubbleProvider'
+import { useTerminal } from '@/providers/TerminalProvider'
 
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 type Theme = 'light' | 'dark' | 'system'
 type Size = 'small' | 'medium' | 'large'
 
-interface Preferences {
-  position: Position
-  theme: Theme
-  size: Size
-  visible: boolean
-}
-
-const PreferencesPanel = ({
-  preferences,
-  onUpdate,
-  onBack,
-}: {
-  preferences: Preferences
-  onUpdate: UpdatePreferenceFunction
-  onBack: () => void
-}) => {
+const PreferencesPanel = () => {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const { goBack } = useBubble()
+  const { preferences, updatePreference } = useTerminal()
 
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (mounted && theme) {
-      onUpdate('theme', theme as Theme)
+      updatePreference('theme', theme as Theme)
     }
-  }, [theme, mounted, onUpdate])
+  }, [theme, mounted, updatePreference])
 
   if (!mounted) {
     return (
@@ -66,7 +53,7 @@ const PreferencesPanel = ({
           <Button
             variant='ghost'
             size='icon'
-            onClick={onBack}
+            onClick={goBack}
             className='mr-3 h-8 w-8'>
             <ArrowLeft size={14} />
           </Button>
@@ -95,7 +82,7 @@ const PreferencesPanel = ({
               <Select
                 value={preferences.position}
                 onValueChange={(value: Position) =>
-                  onUpdate('position', value)
+                  updatePreference('position', value)
                 }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
@@ -236,7 +223,9 @@ const PreferencesPanel = ({
               </Label>
               <Select
                 value={preferences.size}
-                onValueChange={(value: Size) => onUpdate('size', value)}>
+                onValueChange={(value: Size) =>
+                  updatePreference('size', value)
+                }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
                 </SelectTrigger>
@@ -279,7 +268,9 @@ const PreferencesPanel = ({
               </div>
               <Switch
                 checked={preferences.visible}
-                onCheckedChange={checked => onUpdate('visible', checked)}
+                onCheckedChange={checked =>
+                  updatePreference('visible', checked)
+                }
               />
             </motion.div>
 

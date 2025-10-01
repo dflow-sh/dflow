@@ -51,34 +51,25 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { useBubble } from '@/providers/BubbleProvider'
+import { useServers } from '@/providers/ServersProvider'
 
 interface QueueStats {
   name: string
   counts: Record<string, number>
 }
 
-interface ServerOption {
-  id: string
-  name: string
-}
+const QueuesPanel = () => {
+  const { goBack } = useBubble()
+  const {
+    servers,
+    loading: loadingServers,
+    error: errorServers,
+    refresh: refreshServers,
+  } = useServers()
 
-interface QueuesPanelProps {
-  onBack: () => void
-  servers?: ServerOption[]
-  loadingServers?: boolean
-  errorServers?: string | null
-  refreshServers?: () => void
-}
-
-const QueuesPanel = ({
-  onBack,
-  servers = [],
-  loadingServers,
-  errorServers,
-  refreshServers,
-}: QueuesPanelProps) => {
   const params = useParams()
-  const serverId = params?.serverId as string // Get server ID from URL if on individual server page
+  const serverId = params?.serverId as string
 
   // State management
   const [selectedServerId, setSelectedServerId] = useState<string>('')
@@ -98,7 +89,6 @@ const QueuesPanel = ({
     if (serverId && servers.some(s => s.id === serverId)) {
       setSelectedServerId(serverId)
     } else if (servers.length > 0 && !selectedServerId) {
-      // Auto-select first server if none selected
       setSelectedServerId(servers[0].id)
     }
   }, [serverId, servers, selectedServerId])
@@ -121,7 +111,6 @@ const QueuesPanel = ({
 
     setIsLoadingMore(true)
 
-    // Simulate network delay for better UX
     setTimeout(() => {
       const currentCount = displayedQueues.length
       const nextBatch = stats.slice(currentCount, currentCount + ITEMS_PER_PAGE)
@@ -137,7 +126,6 @@ const QueuesPanel = ({
     (e: React.UIEvent<HTMLDivElement>) => {
       const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
 
-      // Load more when user scrolls to bottom (with 50px buffer)
       if (scrollHeight - scrollTop <= clientHeight + 50) {
         loadMoreQueues()
       }
@@ -207,7 +195,6 @@ const QueuesPanel = ({
     if (selectedServerId) {
       refreshData()
     } else {
-      // Clear data when no server selected
       setQueues([])
       setStats([])
       setError(null)
@@ -293,7 +280,7 @@ const QueuesPanel = ({
 
     if (hasActive) {
       status = 'running'
-      progress = Math.random() * 100 // Simulate progress for active jobs
+      progress = Math.random() * 100
     } else if (hasFailed) {
       status = 'failed'
       progress = 0
@@ -306,7 +293,7 @@ const QueuesPanel = ({
       name: queue.name,
       status,
       progress: Math.round(progress),
-      time: `${index + 1}m ago`, // Simulate timestamps
+      time: `${index + 1}m ago`,
       counts: queue.counts,
     }
   })
@@ -344,7 +331,7 @@ const QueuesPanel = ({
           <Button
             variant='ghost'
             size='icon'
-            onClick={onBack}
+            onClick={goBack}
             className='mr-3 h-8 w-8'>
             <ArrowLeft size={14} />
           </Button>

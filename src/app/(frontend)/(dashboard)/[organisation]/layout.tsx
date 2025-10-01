@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { getCurrentUser } from '@/lib/getCurrentUser'
+import BubbleProvider from '@/providers/BubbleProvider'
 import Provider from '@/providers/Provider'
 import TerminalProvider from '@/providers/TerminalProvider'
 
@@ -147,23 +148,25 @@ export default async function OrganisationLayout({
   return (
     <Provider>
       <TerminalProvider>
-        <Banner />
-        <div className='relative flex h-screen w-full flex-col overflow-hidden'>
-          {/* Main content area - will shrink when terminal is embedded */}
-          <div
-            id='main-content'
-            className='flex flex-1 overflow-hidden transition-all duration-300'>
-            <div className='flex-1 overflow-y-auto'>
-              <DashboardLayoutInner params={params} />
-              {children}
+        <BubbleProvider>
+          <Banner />
+          <div className='relative flex h-screen w-full flex-col overflow-hidden'>
+            {/* Main content area - will shrink when terminal is embedded */}
+            <div
+              id='main-content'
+              className='flex flex-1 overflow-hidden transition-all duration-300'>
+              <div className='flex-1 overflow-y-auto'>
+                <DashboardLayoutInner params={params} />
+                {children}
+              </div>
+              <DocSidebar />
             </div>
-            <DocSidebar />
-          </div>
 
-          {/* Terminal container - will be positioned at bottom */}
-          <div id='embedded-terminal-container' />
-        </div>
-        <Bubble />
+            {/* Terminal container - will be positioned at bottom */}
+            <div id='embedded-terminal-container' />
+          </div>
+          <Bubble />
+        </BubbleProvider>
       </TerminalProvider>
     </Provider>
   )

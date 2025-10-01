@@ -16,30 +16,23 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useBubble } from '@/providers/BubbleProvider'
+import { useTerminal } from '@/providers/TerminalProvider'
 
-import type {
-  Panel,
-  Preferences,
-  UpdatePreferenceFunction,
-} from './bubble-types'
+import type { Panel } from './bubble-types'
 
-const MenuPanel = ({
-  onNavigate,
-  onStartSync,
-  onClose,
-  activeProcesses,
-  isSyncing,
-  preferences,
-  onUpdatePreference,
-}: {
-  onNavigate: (panel: Panel) => void
-  onStartSync: () => void
-  onClose: () => void
-  activeProcesses: Set<string>
-  isSyncing: boolean
-  preferences: Preferences
-  onUpdatePreference: UpdatePreferenceFunction
-}) => {
+const MenuPanel = () => {
+  const {
+    navigateToPanel,
+    startSync,
+    setIsExpanded,
+    activeProcesses,
+    isSyncing,
+    isSSESyncing,
+  } = useBubble()
+
+  const { preferences, updatePreference } = useTerminal()
+
   const menuItems: {
     icon: ForwardRefExoticComponent<
       Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
@@ -107,8 +100,8 @@ const MenuPanel = ({
   const handleTerminalModeChange = (
     mode: 'floating' | 'embedded' | 'fullscreen',
   ) => {
-    onUpdatePreference('terminalMode', mode)
-    onNavigate('terminal')
+    updatePreference('terminalMode', mode)
+    navigateToPanel('terminal')
   }
 
   return (
@@ -127,7 +120,7 @@ const MenuPanel = ({
           <Button
             variant='ghost'
             size='icon'
-            onClick={onClose}
+            onClick={() => setIsExpanded(false)}
             className='ml-2 h-8 w-8 flex-shrink-0'>
             <X size={14} />
           </Button>
@@ -191,8 +184,8 @@ const MenuPanel = ({
                   variant='ghost'
                   className='group hover:bg-accent/50 h-16 w-full justify-start px-4 text-left transition-all duration-200'
                   onClick={() => {
-                    if (item.panel === 'sync') onStartSync()
-                    onNavigate(item.panel)
+                    if (item.panel === 'sync') startSync()
+                    navigateToPanel(item.panel)
                   }}>
                   <div className='flex w-full items-center space-x-4'>
                     <div className='group-hover:bg-accent flex-shrink-0 rounded-xl p-2 transition-colors group-hover:shadow-sm'>
@@ -225,45 +218,6 @@ const MenuPanel = ({
               </motion.div>
             ))}
           </div>
-
-          {/* Platform Status - Commented out to remove static data */}
-          {/* <div className='p-4'>
-            <div className='bg-muted/30 rounded-lg border p-4 backdrop-blur-sm'>
-              <h3 className='text-foreground mb-3 text-sm font-medium'>
-                Platform Status
-              </h3>
-              <div className='grid grid-cols-2 gap-3 text-xs'>
-                <div className='flex items-center gap-2'>
-                  <div className='bg-primary h-2 w-2 animate-pulse rounded-full'></div>
-                  <span className='text-muted-foreground'>Services Online</span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <div
-                    className={cn(
-                      'h-2 w-2 rounded-full',
-                      activeProcesses.has('queue')
-                        ? 'bg-secondary-foreground animate-pulse'
-                        : 'bg-muted-foreground',
-                    )}></div>
-                  <span className='text-muted-foreground'>
-                    {activeProcesses.has('queue')
-                      ? 'Deployments Active'
-                      : 'Deploy Queue Idle'}
-                  </span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <Clock size={10} className='text-muted-foreground' />
-                  <span className='text-muted-foreground'>
-                    Last sync: 2m ago
-                  </span>
-                </div>
-                <div className='flex items-center gap-2'>
-                  <Server size={10} className='text-muted-foreground' />
-                  <span className='text-muted-foreground'>98.5% uptime</span>
-                </div>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>

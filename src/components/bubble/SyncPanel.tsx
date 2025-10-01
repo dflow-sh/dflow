@@ -7,23 +7,20 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
+import { useBubble } from '@/providers/BubbleProvider'
 
-const SyncPanel = ({
-  onBack,
-  progress,
-  isSyncing,
-  onStartSync,
-  // Add SSE props - custom message and isPending state
-  syncMessage = 'All platform data is synchronized',
-  isPending = false,
-}: {
-  onBack: () => void
-  progress: number
-  isSyncing: boolean
-  onStartSync: () => void
-  syncMessage?: string
-  isPending?: boolean
-}) => {
+const SyncPanel = () => {
+  const {
+    goBack,
+    syncProgress,
+    isSyncing,
+    isSSESyncing,
+    startSync,
+    syncMessage,
+  } = useBubble()
+
+  const isActive = isSyncing || isSSESyncing
+
   return (
     <div className='flex h-full flex-col'>
       {/* STICKY HEADER */}
@@ -32,7 +29,7 @@ const SyncPanel = ({
           <Button
             variant='ghost'
             size='icon'
-            onClick={onBack}
+            onClick={goBack}
             className='mr-3 h-8 w-8'>
             <ArrowLeft size={14} />
           </Button>
@@ -51,18 +48,18 @@ const SyncPanel = ({
       <div className='flex-1 overflow-hidden'>
         <div className='h-full overflow-y-auto'>
           <div className='space-y-6 p-4'>
-            {/* Current Status Display - Show SSE sync status */}
+            {/* Current Status Display */}
             <div className='bg-muted/30 rounded-lg border p-4'>
               <div className='flex items-center gap-4'>
                 <motion.div
                   className={cn(
                     'flex h-12 w-12 items-center justify-center rounded-full border-2',
-                    isSyncing || isPending
+                    isActive
                       ? 'border-primary/50 bg-primary/10'
                       : 'border-border bg-background',
                   )}
                   animate={
-                    isSyncing || isPending
+                    isActive
                       ? {
                           borderColor: [
                             'hsl(var(--primary) / 0.5)',
@@ -74,16 +71,16 @@ const SyncPanel = ({
                   }
                   transition={{
                     duration: 2,
-                    repeat: isSyncing || isPending ? Infinity : 0,
+                    repeat: isActive ? Infinity : 0,
                   }}>
                   <motion.div
-                    animate={isSyncing || isPending ? { rotate: 360 } : {}}
+                    animate={isActive ? { rotate: 360 } : {}}
                     transition={{
                       duration: 2,
-                      repeat: isSyncing || isPending ? Infinity : 0,
+                      repeat: isActive ? Infinity : 0,
                       ease: 'linear',
                     }}>
-                    {isSyncing || isPending ? (
+                    {isActive ? (
                       <RefreshCw size={20} className='text-primary' />
                     ) : (
                       <CheckCircle2 size={20} className='text-primary' />
@@ -94,20 +91,16 @@ const SyncPanel = ({
                 <div className='flex-1'>
                   <div className='mb-1 flex items-center gap-2'>
                     <span className='text-foreground text-sm font-medium'>
-                      Status:{' '}
-                      {isSyncing || isPending
-                        ? 'Synchronizing...'
-                        : 'Up to date'}
+                      Status: {isActive ? 'Synchronizing...' : 'Up to date'}
                     </span>
                     <Badge
-                      variant={isSyncing || isPending ? 'default' : 'secondary'}
+                      variant={isActive ? 'default' : 'secondary'}
                       className='text-xs'>
-                      {isSyncing || isPending ? 'Active' : 'Idle'}
+                      {isActive ? 'Active' : 'Idle'}
                     </Badge>
                   </div>
-                  {/* Show custom SSE message */}
                   <p className='text-muted-foreground text-xs'>
-                    {isSyncing || isPending
+                    {isActive
                       ? syncMessage
                       : 'All platform data is synchronized'}
                   </p>
@@ -115,8 +108,8 @@ const SyncPanel = ({
               </div>
             </div>
 
-            {/* Progress Section - Show for both manual and SSE sync */}
-            {(isSyncing || isPending) && (
+            {/* Progress Section */}
+            {isActive && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -126,27 +119,26 @@ const SyncPanel = ({
                     Sync Progress
                   </span>
                   <span className='text-muted-foreground'>
-                    {isPending ? 'Processing...' : `${progress}%`}
+                    {isSSESyncing ? 'Processing...' : `${syncProgress}%`}
                   </span>
                 </div>
-                <Progress value={isPending ? 100 : progress} className='h-2' />
+                <Progress
+                  value={isSSESyncing ? 100 : syncProgress}
+                  className='h-2'
+                />
                 <p className='text-muted-foreground text-center text-xs'>
-                  {/* Show custom SSE message in progress */}
                   {syncMessage}
                 </p>
               </motion.div>
             )}
 
             {/* Sync Controls */}
-            {!isSyncing && !isPending && (
+            {!isActive && (
               <div className='space-y-3'>
                 <div className='text-muted-foreground text-xs font-medium tracking-wider uppercase'>
                   Sync Actions
                 </div>
-                <Button
-                  onClick={onStartSync}
-                  className='w-full gap-2'
-                  size='lg'>
+                <Button onClick={startSync} className='w-full gap-2' size='lg'>
                   <RefreshCw size={16} />
                   Start Manual Sync
                 </Button>
@@ -171,13 +163,11 @@ const SyncPanel = ({
                     <div
                       className={cn(
                         'h-2 w-2 rounded-full',
-                        isSyncing || isPending
-                          ? 'bg-primary animate-pulse'
-                          : 'bg-primary',
+                        isActive ? 'bg-primary animate-pulse' : 'bg-primary',
                       )}
                     />
                     <span className='text-muted-foreground text-sm'>
-                      {isSyncing || isPending ? 'Syncing now' : 'Auto'}
+                      {isActive ? 'Syncing now' : 'Auto'}
                     </span>
                   </div>
                 </div>
@@ -210,7 +200,7 @@ const SyncPanel = ({
 
             {/* Help Text */}
             <div className='text-muted-foreground text-center text-xs'>
-              {isSyncing || isPending
+              {isActive
                 ? 'Real-time sync in progress • Server connected'
                 : 'Real-time sync enabled • Server connected'}
             </div>

@@ -11,44 +11,31 @@ import {
   Terminal,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useParams, useRouter } from 'next/navigation'
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from 'react'
+import { type CSSProperties, useEffect, useState } from 'react'
 
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { useServers } from '@/providers/ServersProvider'
+import { useBubble } from '@/providers/BubbleProvider'
+import { useTerminal } from '@/providers/TerminalProvider'
 
-import LogsPanel from './LogsPanel'
 import MenuPanel from './MenuPanel'
 import PreferencesPanel from './PreferencesPanel'
 import QueuesPanel from './QueuesPanel'
 import SyncPanel from './SyncPanel'
 import TerminalPanel from './TerminalPanel'
-import type {
-  Notification,
-  NotificationType,
-  Panel,
-  Preferences,
-  UpdatePreferenceFunction,
-} from './bubble-types'
+import type { NotificationType, Position, Size } from './bubble-types'
 
-const defaultPreferences: Preferences = {
-  position: 'bottom-right',
-  theme: 'system',
-  size: 'medium',
-  visible: true,
-  terminalMode: 'floating',
-  embeddedHeight: 300,
-}
-
-const sizeMap = {
+// Type-safe maps
+const sizeMap: Record<
+  Size,
+  {
+    bubble: string
+    expanded: { width: number; height: number }
+    icon: number
+    pillHeight: number
+    bubbleSize: number
+  }
+> = {
   small: {
     bubble: 'w-12 h-12',
     expanded: { width: 380, height: 520 },
@@ -72,7 +59,7 @@ const sizeMap = {
   },
 }
 
-const positionMap = {
+const positionMap: Record<Position, string> = {
   'bottom-right': 'bottom-6 right-6',
   'bottom-left': 'bottom-6 left-6',
   'top-right': 'top-6 right-6',
@@ -104,333 +91,30 @@ function useScreenDimensions() {
 }
 
 const Bubble = () => {
-  // Core state
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [currentPanel, setCurrentPanel] = useState<Panel>('menu')
-  const [preferences, setPreferences] =
-    useState<Preferences>(defaultPreferences)
-  const [isSyncing, setIsSyncing] = useState(false)
-  const [syncProgress, setSyncProgress] = useState(0)
-  const [activeProcesses, setActiveProcesses] = useState<Set<string>>(new Set())
-  const [isVisible, setIsVisible] = useState(false)
-  const [currentNotification, setCurrentNotification] =
-    useState<Notification | null>(null)
-  const [showNotification, setShowNotification] = useState(false)
-
-  // SSE state for custom messages
-  const [syncMessage, setSyncMessage] = useState(
-    'All platform data is synchronized',
-  )
-
-  // FIX: Add separate state for SSE syncing to avoid isPending confusion
-  const [isSSESyncing, setIsSSESyncing] = useState(false)
-
+  // Use context for all state
   const {
-    servers,
-    loading: loadingServers,
-    error: errorServers,
-    refresh: refreshServers,
-  } = useServers()
+    isExpanded,
+    currentPanel,
+    isVisible,
+    isSyncing,
+    isSSESyncing,
+    syncProgress,
+    activeProcesses,
+    currentNotification,
+    showNotification,
+    handleBubbleClick,
+    setIsExpanded,
+  } = useBubble()
 
-  // Refs
-  const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const eventSourceRef = useRef<EventSource | null>(null)
-
-  // EXACT RefreshProvider integration
-  const [isPending, startTransition] = useTransition()
-  const { organisation } = useParams<{ organisation: string }>()
-  const router = useRouter()
+  const { preferences, updatePreference } = useTerminal()
 
   const screenDimensions = useScreenDimensions()
-
-  // Basic initialization
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
-
-  // Load preferences
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('bubble-preferences')
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          setPreferences(parsed)
-        } catch (error) {
-          console.warn('Failed to parse preferences:', error)
-        }
-      }
-    }
-  }, [])
-
-  // Save preferences
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('bubble-preferences', JSON.stringify(preferences))
-    }
-  }, [preferences])
-
-  // Helper function to show notification with auto-dismiss
-  const showNotificationWithTimeout = useCallback(
-    (notification: Notification, duration: number = 3000) => {
-      if (isExpanded) return // Don't show notifications when expanded
-
-      // Clear any existing timeout first
-      if (notificationTimeoutRef.current) {
-        clearTimeout(notificationTimeoutRef.current)
-        notificationTimeoutRef.current = null
-      }
-
-      // Only show if there's no current notification or it's a different one
-      if (!currentNotification || currentNotification.id !== notification.id) {
-        setCurrentNotification(notification)
-        setShowNotification(true)
-
-        // Set new timeout to hide notification
-        notificationTimeoutRef.current = setTimeout(() => {
-          setShowNotification(false)
-          // Clear notification after animation completes
-          setTimeout(() => {
-            setCurrentNotification(null)
-          }, 300)
-        }, duration)
-      }
-    },
-    [isExpanded, currentNotification],
-  )
-
-  // EXACT RefreshProvider SSE logic
-  useEffect(() => {
-    if (!organisation) return
-
-    // Initializing a SSE for listening changes to update UI
-    const eventSource = new EventSource(
-      `/api/refresh?organisation=${organisation}`,
-    )
-    eventSourceRef.current = eventSource
-
-    eventSource.onmessage = event => {
-      const data = JSON.parse(event.data) ?? {}
-
-      if (data?.refresh) {
-        // Extract custom message or use default (like toast)
-        const customMessage = data?.message || 'Syncing with latest changes...'
-        setSyncMessage(customMessage)
-
-        // FIX: Start SSE syncing state immediately
-        setIsSSESyncing(true)
-        setActiveProcesses(prev => new Set(prev).add('sync'))
-        setSyncProgress(0)
-
-        // Starting react transition hook (EXACT same as RefreshProvider)
-        startTransition(() => {
-          router.refresh()
-        })
-
-        // Add notification for bubble (only show when collapsed)
-        const notification: Notification = {
-          id: Date.now().toString(),
-          type: 'sync',
-          message: customMessage,
-          timestamp: Date.now(),
-        }
-
-        // Show sync notification with longer duration since it's active
-        showNotificationWithTimeout(notification, 5000)
-      }
-
-      // redirecting user to respective page on page-event (EXACT same as RefreshProvider)
-      if (data?.path) {
-        router.push(data?.path)
-      }
-    }
-
-    // On component unmount close the event source (EXACT same as RefreshProvider)
-    return () => {
-      if (eventSource) {
-        eventSource.close()
-      }
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-        syncIntervalRef.current = null
-      }
-    }
-  }, [organisation, router, showNotificationWithTimeout])
-
-  // FIX: Monitor isPending changes and complete SSE sync when transition finishes
-  useEffect(() => {
-    if (isSSESyncing && !isPending) {
-      // SSE transition completed, start progress animation to finish sync
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-      }
-
-      // Simulate completion with progress animation
-      setSyncProgress(80) // Start from high progress since refresh completed
-
-      syncIntervalRef.current = setInterval(() => {
-        setSyncProgress(prev => {
-          if (prev >= 100) {
-            // Complete SSE sync
-            setIsSSESyncing(false)
-            setActiveProcesses(prev => {
-              const newSet = new Set(prev)
-              newSet.delete('sync')
-              return newSet
-            })
-            setSyncMessage('All platform data is synchronized')
-
-            // Success notification
-            const successNotification: Notification = {
-              id: (Date.now() + 1).toString(),
-              type: 'success',
-              message: 'Platform synchronized successfully',
-              timestamp: Date.now(),
-            }
-
-            // Show success notification for shorter duration
-            showNotificationWithTimeout(successNotification, 2000)
-
-            return 0
-          }
-          return prev + 5
-        })
-      }, 100)
-    }
-  }, [isSSESyncing, isPending, showNotificationWithTimeout])
-
-  // Hide notification when bubble expands
-  useEffect(() => {
-    if (isExpanded) {
-      // Immediately hide notification when expanding
-      if (showNotification) {
-        setShowNotification(false)
-        if (notificationTimeoutRef.current) {
-          clearTimeout(notificationTimeoutRef.current)
-          notificationTimeoutRef.current = null
-        }
-        // Clear notification after animation
-        setTimeout(() => {
-          setCurrentNotification(null)
-        }, 300)
-      }
-    }
-  }, [isExpanded, showNotification])
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
-      if (notificationTimeoutRef.current)
-        clearTimeout(notificationTimeoutRef.current)
-      if (eventSourceRef.current) eventSourceRef.current.close()
-    }
-  }, [])
-
-  // Basic callbacks
-  const updatePreference: UpdatePreferenceFunction = useCallback(
-    (key, value) => {
-      setPreferences(prev => ({ ...prev, [key]: value }))
-    },
-    [],
-  )
-
-  const handleBubbleClick = useCallback(() => {
-    setIsExpanded(!isExpanded)
-    if (!isExpanded) {
-      setCurrentPanel('menu')
-    }
-  }, [isExpanded])
-
-  const navigateToPanel = useCallback((panel: Panel) => {
-    setCurrentPanel(panel)
-  }, [])
-
-  const goBack = useCallback(() => {
-    setCurrentPanel('menu')
-  }, [])
-
-  // FIX: Restore manual sync with proper async refresh handling to prevent infinite loop
-  const startSync = useCallback(() => {
-    if (isSyncing || isSSESyncing) return
-
-    setSyncMessage('Manual sync initiated...')
-    setIsSyncing(true)
-    setActiveProcesses(prev => new Set(prev).add('sync'))
-    setSyncProgress(0)
-
-    // Show manual sync notification
-    const notification: Notification = {
-      id: Date.now().toString(),
-      type: 'sync',
-      message: 'Manual sync initiated...',
-      timestamp: Date.now(),
-    }
-
-    showNotificationWithTimeout(notification, 4000)
-
-    if (syncIntervalRef.current) {
-      clearInterval(syncIntervalRef.current)
-    }
-
-    syncIntervalRef.current = setInterval(() => {
-      setSyncProgress(prev => {
-        if (prev >= 100) {
-          // Clear the interval first to prevent re-entry
-          if (syncIntervalRef.current) {
-            clearInterval(syncIntervalRef.current)
-            syncIntervalRef.current = null
-          }
-
-          setIsSyncing(false)
-          setActiveProcesses(prev => {
-            const newSet = new Set(prev)
-            newSet.delete('sync')
-            return newSet
-          })
-          setSyncMessage('Manual sync completed successfully!')
-
-          // FIX: Use setTimeout to defer router.refresh and prevent infinite loop
-          setTimeout(() => {
-            startTransition(() => {
-              router.refresh()
-            })
-          }, 100) // Small delay to ensure state updates are completed
-
-          // Show manual sync success
-          const successNotification: Notification = {
-            id: (Date.now() + 1).toString(),
-            type: 'success',
-            message: 'Manual sync completed successfully!',
-            timestamp: Date.now(),
-          }
-
-          showNotificationWithTimeout(successNotification, 2000)
-
-          setTimeout(() => {
-            setSyncMessage('All platform data is synchronized')
-          }, 2000)
-
-          return 0
-        }
-        return prev + 12
-      })
-    }, 150)
-  }, [isSyncing, isSSESyncing, router, showNotificationWithTimeout])
 
   // Don't render anything if terminal is in external mode
   if (preferences.terminalMode !== 'floating') {
     return (
       <TerminalPanel
-        onBack={goBack}
-        servers={servers}
-        loadingServers={loadingServers}
-        errorServers={errorServers}
-        refreshServers={refreshServers}
         mode={preferences.terminalMode}
-        embeddedHeight={preferences.embeddedHeight}
-        onUpdatePreference={updatePreference}
         onClose={() => {
           // When closing external terminal, switch back to floating mode
           updatePreference('terminalMode', 'floating')
@@ -441,66 +125,25 @@ const Bubble = () => {
 
   if (!preferences.visible || !isVisible) return null
 
+  // These are now type-safe
   const bubbleSize = sizeMap[preferences.size]
   const position = positionMap[preferences.position]
 
-  // Panel rendering - pass syncMessage to SyncPanel
+  // Panel rendering
   const renderPanel = () => {
     switch (currentPanel) {
       case 'menu':
-        return (
-          <MenuPanel
-            onNavigate={navigateToPanel}
-            onStartSync={startSync}
-            onClose={() => setIsExpanded(false)}
-            activeProcesses={activeProcesses}
-            isSyncing={isSyncing || isSSESyncing}
-            preferences={preferences}
-            onUpdatePreference={updatePreference}
-          />
-        )
+        return <MenuPanel />
       case 'preferences':
-        return (
-          <PreferencesPanel
-            preferences={preferences}
-            onUpdate={updatePreference}
-            onBack={goBack}
-          />
-        )
+        return <PreferencesPanel />
       case 'queues':
-        return (
-          <QueuesPanel
-            onBack={goBack}
-            servers={servers}
-            loadingServers={loadingServers}
-            errorServers={errorServers}
-            refreshServers={refreshServers}
-          />
-        )
+        return <QueuesPanel />
       case 'sync':
-        return (
-          <SyncPanel
-            onBack={goBack}
-            progress={syncProgress}
-            isSyncing={isSyncing || isSSESyncing}
-            onStartSync={startSync}
-            // Pass custom message from SSE
-            syncMessage={syncMessage}
-            // FIX: Don't pass isPending to avoid confusion
-            isPending={false}
-          />
-        )
+        return <SyncPanel />
       case 'terminal':
         return (
           <TerminalPanel
-            onBack={goBack}
-            servers={servers}
-            loadingServers={loadingServers}
-            errorServers={errorServers}
-            refreshServers={refreshServers}
             mode={preferences.terminalMode}
-            embeddedHeight={preferences.embeddedHeight}
-            onUpdatePreference={updatePreference}
             onClose={() => setIsExpanded(false)}
           />
         )
@@ -512,7 +155,6 @@ const Bubble = () => {
   const getBubbleIcon = () => {
     const iconSize = bubbleSize.icon
 
-    // FIX: Use our managed sync states instead of isPending
     if (isSyncing || isSSESyncing) {
       return <Loader2 size={iconSize} className='text-primary animate-spin' />
     }
@@ -532,7 +174,7 @@ const Bubble = () => {
     const isTop = preferences.position.includes('top')
 
     return {
-      [isRight ? 'right' : 'left']: bubbleSize.bubbleSize / 2, // Position from bubble center
+      [isRight ? 'right' : 'left']: bubbleSize.bubbleSize / 2,
       [isTop ? 'top' : 'bottom']:
         (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
       transformOrigin: isRight ? 'right center' : 'left center',
@@ -613,7 +255,7 @@ const Bubble = () => {
     <>
       {/* Main Bubble Container */}
       <div className={cn('fixed z-50', position)}>
-        {/* Notification Pill - Now positioned relative to the bubble container */}
+        {/* Notification Pill */}
         <AnimatePresence>
           {showNotification && currentNotification && !isExpanded && (
             <motion.div

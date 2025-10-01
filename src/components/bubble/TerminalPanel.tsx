@@ -17,20 +17,15 @@ import { createPortal } from 'react-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useBubble } from '@/providers/BubbleProvider'
+import { useServers } from '@/providers/ServersProvider'
 import { useTerminal } from '@/providers/TerminalProvider'
 
 import { XTermLogViewer } from './XTermLogViewer'
-import type { Server, UpdatePreferenceFunction } from './bubble-types'
+import type { Server } from './bubble-types'
 
 interface TerminalPanelProps {
-  onBack: () => void
-  servers: Server[]
-  loadingServers: boolean
-  errorServers: string | null
-  refreshServers: () => void
   mode: 'floating' | 'embedded' | 'fullscreen'
-  embeddedHeight: number
-  onUpdatePreference: UpdatePreferenceFunction
   onClose: () => void
 }
 
@@ -137,24 +132,31 @@ const ServerTabs = ({
   )
 }
 
-const TerminalPanel = ({
-  onBack,
-  servers,
-  loadingServers,
-  errorServers,
-  refreshServers,
-  mode = 'floating',
-  embeddedHeight = 300,
-  onUpdatePreference,
-  onClose,
-}: TerminalPanelProps) => {
+const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
+  const { goBack } = useBubble()
+  const {
+    servers,
+    loading: loadingServers,
+    error: errorServers,
+    refresh: refreshServers,
+  } = useServers()
+
   const [activeServerId, setActiveServerId] = useState(servers[0]?.id || '')
-  const [isResizing, setIsResizing] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  const {
+    embeddedHeight,
+    setEmbedded,
+    setEmbeddedHeight,
+    isResizing,
+    setIsResizing,
+    preferences,
+    updatePreference,
+  } = useTerminal()
+
   const resizeStartYRef = useRef<number>(0)
   const resizeStartHeightRef = useRef<number>(0)
-  const { setEmbedded, setEmbeddedHeight } = useTerminal()
 
   useEffect(() => {
     setMounted(true)
@@ -163,55 +165,77 @@ const TerminalPanel = ({
   useEffect(() => {
     if (mode === 'embedded') {
       setEmbedded(true)
-      setEmbeddedHeight(embeddedHeight)
-
-      // Adjust main content height
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = `calc(100vh - ${embeddedHeight}px)`
-      }
+      adjustMainContentHeight(embeddedHeight)
     } else {
       setEmbedded(false)
-
-      // Reset main content height
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = ''
-      }
+      resetMainContentHeight()
     }
 
     return () => {
       setEmbedded(false)
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = ''
-      }
+      resetMainContentHeight()
     }
-  }, [mode, embeddedHeight, setEmbedded, setEmbeddedHeight])
+  }, [mode, embeddedHeight, setEmbedded])
 
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const deltaY = resizeStartYRef.current - e.clientY
+      const newHeight = Math.max(
+        200,
+        Math.min(
+          window.innerHeight - 100,
+          resizeStartHeightRef.current + deltaY,
+        ),
+      )
+
+      setEmbeddedHeight(newHeight)
+      adjustMainContentHeight(newHeight)
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
       document.body.style.cursor = 'ns-resize'
       document.body.style.userSelect = 'none'
-    } else {
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
     }
+
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
-      document.body.style.cursor = ''
-      document.body.style.userSelect = ''
+      if (isResizing) {
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
     }
-  }, [isResizing])
+  }, [isResizing, setEmbeddedHeight])
 
   useEffect(() => {
     if (servers.length > 0 && !activeServerId) {
       setActiveServerId(servers[0].id)
     }
   }, [servers, activeServerId])
+
+  const adjustMainContentHeight = (height: number) => {
+    const mainContent = document.getElementById('main-content')
+    if (mainContent) {
+      mainContent.style.height = `calc(100vh - ${height}px)`
+    }
+  }
+
+  const resetMainContentHeight = () => {
+    const mainContent = document.getElementById('main-content')
+    if (mainContent) {
+      mainContent.style.height = ''
+    }
+  }
 
   const handleResizeStart = (e: React.MouseEvent) => {
     if (mode !== 'embedded') return
@@ -221,66 +245,30 @@ const TerminalPanel = ({
     resizeStartHeightRef.current = embeddedHeight
   }
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isResizing) return
-    const deltaY = resizeStartYRef.current - e.clientY
-    const newHeight = Math.max(
-      200,
-      Math.min(window.innerHeight - 100, resizeStartHeightRef.current + deltaY),
-    )
-
-    requestAnimationFrame(() => {
-      onUpdatePreference('embeddedHeight', newHeight)
-      setEmbeddedHeight(newHeight)
-
-      // Update main content height in real-time
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = `calc(100vh - ${newHeight}px)`
-      }
-    })
-  }
-
-  const handleMouseUp = () => {
-    setIsResizing(false)
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-    document.body.style.cursor = ''
-    document.body.style.userSelect = ''
-  }
-
   const toggleFullscreen = () => {
     if (mode === 'fullscreen') {
-      onUpdatePreference('terminalMode', 'floating')
+      updatePreference('terminalMode', 'floating')
       onClose()
     } else {
-      onUpdatePreference('terminalMode', 'fullscreen')
+      updatePreference('terminalMode', 'fullscreen')
     }
   }
 
   const toggleEmbedded = () => {
     if (mode === 'embedded') {
-      onUpdatePreference('terminalMode', 'floating')
+      updatePreference('terminalMode', 'floating')
       onClose()
     } else {
-      onUpdatePreference('terminalMode', 'embedded')
+      updatePreference('terminalMode', 'embedded')
     }
   }
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed)
     if (!isCollapsed) {
-      // Collapsing: restore full height to main content
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = 'calc(100vh - 48px)' // Just header height
-      }
+      resetMainContentHeight()
     } else {
-      // Expanding: reduce main content height
-      const mainContent = document.getElementById('main-content')
-      if (mainContent) {
-        mainContent.style.height = `calc(100vh - ${embeddedHeight}px)`
-      }
+      adjustMainContentHeight(embeddedHeight)
     }
   }
 
@@ -294,7 +282,7 @@ const TerminalPanel = ({
               variant='ghost'
               size='icon'
               onClick={() => {
-                onUpdatePreference('terminalMode', 'floating')
+                updatePreference('terminalMode', 'floating')
                 onClose()
               }}
               className='h-8 w-8'>
@@ -348,7 +336,7 @@ const TerminalPanel = ({
     return createPortal(
       <div
         className={cn(
-          'bg-background border-t shadow-2xl transition-all duration-300 ease-out',
+          'bg-background relative border-t shadow-2xl transition-all duration-300 ease-out',
         )}
         style={{
           height: isCollapsed ? '48px' : `${embeddedHeight}px`,
@@ -357,16 +345,18 @@ const TerminalPanel = ({
         {!isCollapsed && (
           <div
             className={cn(
-              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-1.5 cursor-ns-resize items-center justify-center transition-all',
-              isResizing ? 'bg-primary h-2' : 'bg-border',
+              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-1 cursor-ns-resize items-center justify-center transition-all',
+              isResizing ? 'bg-primary' : 'bg-border',
             )}
             onMouseDown={handleResizeStart}>
-            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-1 w-16 rounded-full transition-colors' />
+            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-0.5 w-16 rounded-full transition-colors' />
           </div>
         )}
 
         {/* Header */}
-        <div className='bg-muted/30 flex items-center justify-between border-b px-4 py-2 backdrop-blur-sm'>
+        <div
+          className='bg-muted/30 flex items-center justify-between border-b px-4 py-2 backdrop-blur-sm'
+          style={{ marginTop: isCollapsed ? '0' : '3px' }}>
           <div className='flex items-center gap-3'>
             <button
               onClick={toggleCollapse}
@@ -405,7 +395,7 @@ const TerminalPanel = ({
                   variant='ghost'
                   size='sm'
                   onClick={() => {
-                    onUpdatePreference('terminalMode', 'floating')
+                    updatePreference('terminalMode', 'floating')
                     onClose()
                   }}
                   className='h-8 gap-1.5 text-xs'>
@@ -418,7 +408,7 @@ const TerminalPanel = ({
               variant='ghost'
               size='icon'
               onClick={() => {
-                onUpdatePreference('terminalMode', 'floating')
+                updatePreference('terminalMode', 'floating')
                 onClose()
               }}
               className='h-8 w-8'>
@@ -456,7 +446,7 @@ const TerminalPanel = ({
             <Button
               variant='ghost'
               size='icon'
-              onClick={onBack}
+              onClick={goBack}
               className='mr-3 h-8 w-8'>
               <ArrowLeft size={14} />
             </Button>
@@ -486,7 +476,7 @@ const TerminalPanel = ({
             <Button
               variant='ghost'
               size='icon'
-              onClick={onBack}
+              onClick={goBack}
               className='mr-3 h-8 w-8'>
               <ArrowLeft size={14} />
             </Button>
@@ -522,7 +512,7 @@ const TerminalPanel = ({
             <Button
               variant='ghost'
               size='icon'
-              onClick={onBack}
+              onClick={goBack}
               className='mr-3 h-8 w-8'>
               <ArrowLeft size={14} />
             </Button>
@@ -552,7 +542,7 @@ const TerminalPanel = ({
             <Button
               variant='ghost'
               size='icon'
-              onClick={onBack}
+              onClick={goBack}
               className='mr-3 h-8 w-8'>
               <ArrowLeft size={14} />
             </Button>
