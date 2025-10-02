@@ -153,8 +153,21 @@ export default function BubbleProvider({
   }, [])
 
   const handleBubbleClick = useCallback(() => {
-    setIsExpanded(!isExpanded)
-    if (!isExpanded) {
+    if (isExpanded) {
+      // If already expanded, close it immediately
+      setIsExpanded(false)
+    } else {
+      // If not expanded, close Chatway first and then open bubble immediately
+      if (window.$chatway?.closeChatwayWidget) {
+        try {
+          window.$chatway.closeChatwayWidget()
+        } catch (error) {
+          console.warn('Failed to close Chatway:', error)
+        }
+      }
+
+      // Open the bubble immediately without delay
+      setIsExpanded(true)
       setCurrentPanel('menu')
     }
   }, [isExpanded])

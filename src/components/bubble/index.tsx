@@ -60,7 +60,7 @@ const sizeMap: Record<
 }
 
 const positionMap: Record<Position, string> = {
-  'bottom-right': 'bottom-6 right-6',
+  'bottom-right': 'bottom-6 right-24', // Move left to accommodate Chatway
   'bottom-left': 'bottom-6 left-6',
   'top-right': 'top-6 right-6',
   'top-left': 'top-6 left-6',
@@ -88,6 +88,15 @@ function useScreenDimensions() {
   }, [])
 
   return dimensions
+}
+
+declare global {
+  interface Window {
+    $chatway?: {
+      openChatwayWidget: () => void
+      closeChatwayWidget: () => void
+    }
+  }
 }
 
 const Bubble = () => {
@@ -203,13 +212,17 @@ const Bubble = () => {
     const margin = 20
     const screenPadding = 24
 
+    // Adjust for Chatway widget when bubble is at bottom-right
+    const chatwayOffset = preferences.position === 'bottom-right' ? 96 : 0
+
     let left: string | undefined = undefined
     let right: string | undefined = undefined
     let top: string | undefined = undefined
     let bottom: string | undefined = undefined
 
     if (isRight) {
-      right = `${screenPadding}px`
+      // Add chatway offset for bottom-right position
+      right = `${screenPadding + chatwayOffset}px`
     } else {
       left = `${screenPadding}px`
     }
@@ -254,7 +267,7 @@ const Bubble = () => {
   return (
     <>
       {/* Main Bubble Container */}
-      <div className={cn('fixed z-50', position)}>
+      <div className={cn('fixed z-[2147483647]', position)}>
         {/* Notification Pill */}
         <AnimatePresence>
           {showNotification && currentNotification && !isExpanded && (
@@ -291,7 +304,7 @@ const Bubble = () => {
                 ...panelStyle,
                 transformOrigin: getExpansionOrigin(),
               }}>
-              <Card className='bg-background/90 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
+              <Card className='bg-background/95 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
                 <div className='h-full w-full'>
                   <div className='flex h-full min-h-full flex-col'>
                     <div className='h-full min-h-0'>{renderPanel()}</div>
