@@ -246,3 +246,26 @@ html {
     transform: translateX(200%);
   }
 }
+
+/* Chatway customizations */
+
+.chatway--trigger-container {
+  bottom: 1.5rem !important; /* positions the trigger container 24px from bottom */
+  right: 1.5rem !important; /* positions it 24px from right */
+}
+
+.chatway--frame-container {
+  bottom: 6rem !important; /* positions the frame container 96px from bottom */
+  right: 1.5rem !important; /* 24px from right */
+}
+
+.chatway--trigger-icon-container {
+  width: 3.5rem !important; /* 56px wide */
+  height: 3.5rem !important; /* 56px tall */
+}
+
+.chatway--trigger-icon-container .launcher-default-open-icon svg,
+.chatway--trigger-icon-container .launcher-minimize-icon svg {
+  width: 22px !important; /* chat open and minimize icons both 22px wide */
+  height: 22px !important; /* and 22px tall */
+}

@@ -25,7 +25,7 @@ import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 const Deploy = ({ service }: { service: Service }) => {
   const { deployments } = service
 
-  const params = useParams<{ id: string; serviceId: string }>()
+  const params = useParams<{ projectId: string; serviceId: string }>()
   const [showRedeploymentDialog, setShowRedeploymentDialog] = useState(false)
   const [cacheOption, setCacheOption] = useState<'no-cache' | 'cache'>(
     'no-cache',
@@ -96,7 +96,7 @@ const Deploy = ({ service }: { service: Service }) => {
           } else {
             createDeployment({
               serviceId: params.serviceId,
-              projectId: params.id,
+              projectId: params.projectId,
             })
           }
         }}>
@@ -166,7 +166,7 @@ const Deploy = ({ service }: { service: Service }) => {
               onClick={() => {
                 createDeployment({
                   serviceId: params.serviceId,
-                  projectId: params.id,
+                  projectId: params.projectId,
                   cache: cacheOption,
                 })
 

@@ -1,5 +1,16 @@
 import { z } from 'zod'
 
+import { Server } from '@/payload-types'
+
+export const getServersWithFieldsInputSchema = z.object({
+  fields: z
+    .record(z.string(), z.boolean())
+    .refine(obj => Object.keys(obj || {}).every(key => key in ({} as Server)), {
+      message: 'Only valid Server fields allowed',
+    })
+    .default({ name: true })
+    .optional(),
+})
 export const createServerSchema = z.object({
   name: z
     .string()

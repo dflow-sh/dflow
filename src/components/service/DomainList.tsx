@@ -67,7 +67,7 @@ const DomainCard = ({
   service: Service
   isProxyDomainExists: boolean
 }) => {
-  const { serviceId } = useParams<{ id: string; serviceId: string }>()
+  const { serviceId } = useParams<{ serviceId: string }>()
 
   const { execute, isPending } = useAction(updateServiceDomainAction, {
     onSuccess: ({ data, input }) => {

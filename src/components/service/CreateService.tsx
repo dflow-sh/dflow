@@ -294,7 +294,7 @@ const CreateService = ({
 }) => {
   const [open, setOpen] = useState(false)
   const router = useRouter()
-  const params = useParams<{ id: string; organisation: string }>()
+  const params = useParams<{ projectId: string; organisation: string }>()
   const { plugins = [] } = server
 
   const projectName = project.name ? slugify(project.name) : ''
@@ -328,7 +328,7 @@ const CreateService = ({
     resolver: zodResolver(createServiceSchema),
     defaultValues: {
       name: '',
-      projectId: params.id,
+      projectId: params.projectId,
     },
   })
 

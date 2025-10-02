@@ -19,7 +19,7 @@ import {
 
 const ResetServerDialog = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ serverId: string }>()
 
   const { execute, isPending } = useAction(resetServerAction, {
     onSuccess: ({ data }) => {
@@ -70,7 +70,7 @@ const ResetServerDialog = ({ children }: { children: ReactNode }) => {
             disabled={isPending}
             isLoading={isPending}
             onClick={() => {
-              execute({ serverId: params.id })
+              execute({ serverId: params.serverId })
             }}>
             Reset Server
           </Button>

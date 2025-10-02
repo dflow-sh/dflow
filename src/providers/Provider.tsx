@@ -4,8 +4,7 @@ import { ReactFlowProvider } from '@xyflow/react'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import React from 'react'
 
-import RefreshProvider from '@/providers/RefreshProvider'
-
+import { ServersProvider } from './ServersProvider'
 import { SidebarDocsProvider } from './SidebarDocsProvider'
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
@@ -14,7 +13,7 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
       <NuqsAdapter>
         <ReactFlowProvider>
           <SidebarDocsProvider>
-            <RefreshProvider>{children}</RefreshProvider>
+            <ServersProvider>{children}</ServersProvider>
           </SidebarDocsProvider>
         </ReactFlowProvider>
       </NuqsAdapter>

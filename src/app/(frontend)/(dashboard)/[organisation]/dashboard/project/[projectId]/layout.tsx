@@ -21,7 +21,7 @@ import ClientLayout from './layout.client'
 
 interface Props {
   params: Promise<{
-    id: string
+    projectId: string
     organisation: string
   }>
   children: React.ReactNode
@@ -120,11 +120,11 @@ const GeneralTab: React.FC<{
 const SuspendedPage = async ({
   params,
 }: {
-  params: { id: string; organisation: string }
+  params: { projectId: string; organisation: string }
 }) => {
-  const { id, organisation } = params
+  const { projectId, organisation } = params
 
-  const result = await getProjectDetails({ id })
+  const result = await getProjectDetails({ id: projectId })
 
   const data = result?.data
   const project = data?.Projects?.[0]
@@ -157,8 +157,8 @@ const SuspendedPage = async ({
 
 const layout = async ({ children, params }: Props) => {
   const syncParams = await params
-  const { id } = syncParams
-  const result = await getProjectBreadcrumbs({ id })
+  const { projectId } = syncParams
+  const result = await getProjectBreadcrumbs({ id: projectId })
 
   const project = result?.data?.project?.docs?.at(0)
 

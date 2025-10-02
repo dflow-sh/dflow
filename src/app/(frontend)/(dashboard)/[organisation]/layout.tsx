@@ -10,6 +10,7 @@ import Banner from '@/components/Banner'
 import DocSidebar from '@/components/DocSidebar'
 import Logo from '@/components/Logo'
 import ToggleTheme from '@/components/ToggleTheme'
+import Bubble from '@/components/bubble'
 import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
@@ -24,7 +25,9 @@ import {
 } from '@/components/ui/dialog'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { getCurrentUser } from '@/lib/getCurrentUser'
+import BubbleProvider from '@/providers/BubbleProvider'
 import Provider from '@/providers/Provider'
+import TerminalProvider from '@/providers/TerminalProvider'
 
 interface PageProps {
   params: Promise<{
@@ -138,27 +141,33 @@ const DashboardLayoutInner = async ({
   )
 }
 
-const DashboardLayout = ({ children, params }: PageProps) => {
-  return (
-    <div className='relative flex h-screen w-full overflow-hidden'>
-      <div className='flex-1 overflow-y-auto'>
-        <DashboardLayoutInner params={params} />
-        {children}
-      </div>
-
-      <DocSidebar />
-    </div>
-  )
-}
-
 export default async function OrganisationLayout({
   children,
   params,
 }: PageProps) {
   return (
     <Provider>
-      <Banner />
-      <DashboardLayout params={params}>{children}</DashboardLayout>
+      <TerminalProvider>
+        <BubbleProvider>
+          <Banner />
+          <div className='relative flex h-screen w-full flex-col overflow-hidden'>
+            {/* Main content area - will shrink when terminal is embedded */}
+            <div
+              id='main-content'
+              className='flex flex-1 overflow-hidden transition-all duration-300'>
+              <div className='flex-1 overflow-y-auto'>
+                <DashboardLayoutInner params={params} />
+                {children}
+              </div>
+              <DocSidebar />
+            </div>
+
+            {/* Terminal container - will be positioned at bottom */}
+            <div id='embedded-terminal-container' />
+          </div>
+          <Bubble />
+        </BubbleProvider>
+      </TerminalProvider>
     </Provider>
   )
 }

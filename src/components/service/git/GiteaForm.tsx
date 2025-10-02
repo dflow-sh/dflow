@@ -29,7 +29,7 @@ import { buildOptions } from '@/lib/buildOptions'
 import { Service } from '@/payload-types'
 
 const GiteaForm = ({ service }: { service: Service }) => {
-  const params = useParams<{ id: string; serviceId: string }>()
+  const params = useParams<{ serviceId: string }>()
 
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),

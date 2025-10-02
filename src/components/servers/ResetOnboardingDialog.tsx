@@ -18,7 +18,7 @@ import {
 
 const ResetOnboardingDialog = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ serverId: string }>()
   const { execute, isPending } = useAction(resetServerOnboardingAction, {
     // onSuccess, close the dialog
     onSuccess: () => {
@@ -61,7 +61,7 @@ const ResetOnboardingDialog = ({ children }: { children: ReactNode }) => {
             disabled={isPending}
             isLoading={isPending}
             onClick={() => {
-              execute({ serverId: params.id })
+              execute({ serverId: params.serverId })
             }}>
             Reset Onboarding
           </Button>

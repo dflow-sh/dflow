@@ -55,7 +55,7 @@ import LayoutClient from './layout.client'
 
 interface PageProps {
   params: Promise<{
-    id: string
+    serverId: string
     organisation: string
   }>
   searchParams: Promise<{
@@ -300,7 +300,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
   const [syncParams, syncSearchParams] = use(
     Promise.all([params, searchParams]),
   )
-  const { id, organisation } = syncParams
+  const { serverId, organisation } = syncParams
   const { refreshServerDetails } = syncSearchParams
 
   const { tab } = use(loadServerPageTabs(searchParams))
@@ -309,7 +309,7 @@ const SuspendedPage = ({ params, searchParams }: PageProps) => {
 
   const result = use(
     getServerBreadcrumbs({
-      id,
+      id: serverId,
       populateServerDetails: !isRefreshServerDetails,
       refreshServerDetails: isRefreshServerDetails,
     }),

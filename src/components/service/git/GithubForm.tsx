@@ -52,7 +52,7 @@ const GithubForm = ({
   const [repoType, setRepoType] = useState(
     service?.provider ? 'private' : 'public',
   )
-  const params = useParams<{ id: string; serviceId: string }>()
+  const params = useParams<{ serviceId: string }>()
   const form = useForm<z.infer<typeof updateServiceSchema>>({
     resolver: zodResolver(updateServiceSchema),
     defaultValues: {
