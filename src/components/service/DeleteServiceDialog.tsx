@@ -34,7 +34,7 @@ const DeleteServiceContent = ({
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
   const [deleteFromServer, setDeleteFromServer] = useState<boolean>(true)
   const router = useRouter()
-  const params = useParams<{ organisation: string; id: string }>()
+  const params = useParams<{ organisation: string; projectId: string }>()
 
   const serverName = (project.server as Server)?.name
 
@@ -53,8 +53,8 @@ const DeleteServiceContent = ({
       toast.error(`Failed to delete service: ${error.serverError}`)
     },
     onExecute: () => {
-      const { organisation, id } = params
-      router.replace(`/${organisation}/dashboard/project/${id}`)
+      const { organisation, projectId } = params
+      router.replace(`/${organisation}/dashboard/project/${projectId}`)
     },
   })
 
