@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 export const createGitHubAppSchema = z.object({
   onboarding: z.boolean().default(false),
+  organizationName: z.string().optional(),
 })
 
 export const installGitHubAppSchema = z.object({

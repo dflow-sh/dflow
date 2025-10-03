@@ -21,7 +21,7 @@ export const createGithubAppAction = protectedClient
   })
   .inputSchema(createGitHubAppSchema)
   .action(async ({ clientInput }) => {
-    const { onboarding } = clientInput
+    const { onboarding, organizationName } = clientInput
     const date = new Date()
     const formattedDate = date.toISOString().split('T')[0]
 
@@ -48,7 +48,9 @@ export const createGithubAppAction = protectedClient
     }
 
     const state = 'gh_init'
-    const githubAppUrl = `https://github.com/settings/apps/new?state=${state}`
+    const githubAppUrl = organizationName
+      ? `https://github.com/organizations/${organizationName}/settings/apps/new?state=${state}`
+      : `https://github.com/settings/apps/new?state=${state}`
 
     return {
       manifest: JSON.stringify(manifest),

@@ -1,10 +1,33 @@
-import { Button } from '../ui/button'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
 import { PlusIcon } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { createGithubAppAction } from '@/actions/gitProviders'
+import { createGitHubAppSchema } from '@/actions/gitProviders/validator'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]
@@ -12,7 +35,20 @@ const formattedDate = date.toISOString().split('T')[0]
 const githubCallbackURL =
   env.NEXT_PUBLIC_WEBHOOK_URL ?? env.NEXT_PUBLIC_WEBSITE_URL
 
-const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
+const CreateGitAppForm = ({
+  children,
+  onboarding = false,
+}: {
+  children: React.ReactNode
+  onboarding?: boolean
+}) => {
+  const form = useForm<z.infer<typeof createGitHubAppSchema>>({
+    resolver: zodResolver(createGitHubAppSchema),
+    defaultValues: {
+      organizationName: '',
+    },
+  })
+
   const { execute, result, isPending } = useAction(createGithubAppAction, {
     onSuccess: ({ data }) => {
       if (data?.githubAppUrl && data?.manifest) {
@@ -37,21 +73,63 @@ const CreateGitAppForm = ({ onboarding = false }: { onboarding?: boolean }) => {
     },
   })
 
-  const handleCreateApp = async () => {
-    execute({ onboarding })
+  const onSubmit = async (values: z.infer<typeof createGitHubAppSchema>) => {
+    execute({
+      onboarding,
+      organizationName: values.organizationName?.trim() || undefined,
+    })
   }
 
   return (
-    <div className='flex w-full items-center justify-end gap-3 pt-4'>
-      {/* Added github option in GitProviders collection */}
-      <Button
-        disabled={isPending}
-        isLoading={isPending}
-        onClick={handleCreateApp}>
-        <PlusIcon />
-        Create Github App
-      </Button>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+
+      <DialogContent className='sm:max-w-lg'>
+        <DialogHeader className='space-y-3'>
+          <DialogTitle className='text-xl'>Create GitHub App</DialogTitle>
+          <DialogDescription className='text-muted-foreground text-sm'>
+            Create a new GitHub App to connect repositories from your GitHub
+            account. This will redirect you to GitHub to complete the setup.
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+            <div className='space-y-4'>
+              <FormField
+                control={form.control}
+                name='organizationName'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='text-sm font-medium'>
+                      Organization Name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder='Enter your organization name'
+                        className='h-10'
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Leave it blank in case of personal account
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <DialogFooter className='flex-col gap-4 sm:flex-row sm:justify-end'>
+              <Button type='submit' disabled={isPending} isLoading={isPending}>
+                <PlusIcon className='mr-2 h-4 w-4' />
+                Create GitHub App
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
