@@ -1,5 +1,6 @@
 'use client'
 
+import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
@@ -8,6 +9,7 @@ import { getAllAppsAction } from '@/actions/gitProviders'
 import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
 import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
 import GitProviderList from '@/components/gitProviders/GitProviderList'
+import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sheet,
@@ -78,7 +80,12 @@ const GitHubDrawer = () => {
         )}
 
         <SheetFooter>
-          <CreateGitAppForm />
+          <CreateGitAppForm>
+            <Button>
+              <Link />
+              Connect account
+            </Button>
+          </CreateGitAppForm>
         </SheetFooter>
       </SheetContent>
     </Sheet>
