@@ -20,6 +20,8 @@ import { DFLOW_CONFIG } from '@/lib/constants'
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
+import { ImageLicenseField } from './form-fields/ImageLicenseField'
+import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
@@ -56,6 +58,8 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const onSubmit: SubmitHandler<VpsFormData> = data => {
     if (!isFormValid) return
 
+    const license = data.license
+
     executeCreateVPSOrderAction({
       accountId: selectedAccount.id,
       sshKeyIds: data.login.sshKeyIds,
@@ -66,6 +70,11 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           imageId: data.image.versionId,
           priceId: data.image.priceId,
         },
+        ...(license
+          ? {
+              license,
+            }
+          : {}),
         product: {
           productId: data.storageType.productId,
           priceId: data.storageType.priceId,
@@ -112,8 +121,9 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <TermLengthSection />
           <RegionField />
           <StorageTypeField />
-          {/* <ImageSelection /> */}
+          <ImageSelection />
           <ImageVersionField />
+          <ImageLicenseField />
           {/* <LoginDetailsSection /> */}
           {/* <SshKeySection /> */}
           <BackupOptionsSection />

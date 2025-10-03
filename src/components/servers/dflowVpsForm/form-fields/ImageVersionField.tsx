@@ -23,7 +23,7 @@ export const ImageVersionField = () => {
   if (
     !selectedImage ||
     !selectedImage.versions ||
-    selectedImage.versions.length <= 1
+    !selectedImage.versions.length
   ) {
     return null
   }
@@ -36,12 +36,13 @@ export const ImageVersionField = () => {
         render={({ field }) => {
           return (
             <FormItem>
-              <FormLabel className='mb-3 text-lg font-semibold text-foreground'>
-                Image Version <span className='text-destructive'>*</span>
+              <FormLabel className='text-foreground mb-3 text-lg font-semibold'>
+                Version <span className='text-destructive'>*</span>
               </FormLabel>
 
               <FormControl>
                 <RadioGroup
+                  key={selectedImageId}
                   onValueChange={value => {
                     const selectedVersion = selectedImage.versions?.find(
                       v => v.imageId === value,
@@ -67,9 +68,9 @@ export const ImageVersionField = () => {
                           <div
                             className={`relative flex items-start rounded-md border ${
                               field?.value === version.imageId
-                                ? 'border-2 border-primary'
+                                ? 'border-primary border-2'
                                 : 'border-input'
-                            } cursor-pointer p-4 transition-all duration-200 hover:border-primary/50`}>
+                            } hover:border-primary/50 cursor-pointer p-4 transition-all duration-200`}>
                             <RadioGroupItem
                               value={version.imageId}
                               id={version.imageId}
@@ -77,7 +78,7 @@ export const ImageVersionField = () => {
                             />
 
                             <div className='flex grow gap-4'>
-                              <div className='flex h-10 w-10 items-center justify-center rounded-full bg-secondary/50'>
+                              <div className='bg-secondary/50 flex h-10 w-10 items-center justify-center rounded-full'>
                                 {/* <p className='text-xl'>{flagDetails?.flag}</p> */}
                                 <Ubuntu className='size-5' />
                               </div>
@@ -92,7 +93,7 @@ export const ImageVersionField = () => {
                                 <p className='font-semibold'>
                                   {version.price.type === 'included'
                                     ? 'Free'
-                                    : `(${formatValue(version.price.amount || 0)})`}
+                                    : `${formatValue(version.price.amount || 0)}`}
                                 </p>
                               </div>
                             </div>

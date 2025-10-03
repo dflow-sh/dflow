@@ -86,6 +86,7 @@ type PricingData = {
   selectedStorage: StorageOption | undefined
   selectedImage: ImageOption | undefined
   selectedBackup: BackupOption | undefined
+  selectedLicense: any
   calculateTotalCost: () => number
   planCost: number
   paymentStatus: PaymentStatus
@@ -200,6 +201,7 @@ export const DflowVpsFormProvider = ({
       selectedRegion?.price.type === 'paid'
         ? selectedRegion.price.amount || 0
         : 0
+
     const imageCost =
       selectedImage?.versions?.find(v => v.imageId === watch('image.versionId'))
         ?.price.type === 'paid'
@@ -207,12 +209,25 @@ export const DflowVpsFormProvider = ({
             v => v.imageId === watch('image.versionId'),
           )?.price.amount || 0
         : 0
+
+    // Adding license pricing
+    const selectedLicenseCode = watch('license.licenseCode')
+    const selectedImageLicenseObj = selectedImage?.licenses?.find(
+      v => v.licenseCode === selectedLicenseCode,
+    )
+
+    const licenseCost = (
+      selectedImageLicenseObj && selectedImageLicenseObj.price.type === 'paid'
+        ? selectedImageLicenseObj.price.amount
+        : 0
+    ) as number
+
     const backupCost =
       selectedBackup?.price.type === 'paid'
         ? selectedBackup.price.amount || 0
         : 0
 
-    return pricingCost + regionCost + imageCost + backupCost
+    return pricingCost + regionCost + imageCost + backupCost + licenseCost
   }
 
   const pricing = useMemo((): PricingData => {
@@ -232,6 +247,12 @@ export const DflowVpsFormProvider = ({
       backup => backup.id === watch('backup.id'),
     )
 
+    const licenseCode = watch('license.licenseCode')
+
+    const selectedLicense = selectedImage?.licenses?.find(
+      license => license.licenseCode === licenseCode,
+    )
+
     const planCost = calculateTotalCost()
 
     return {
@@ -240,6 +261,7 @@ export const DflowVpsFormProvider = ({
       selectedStorage,
       selectedImage,
       selectedBackup,
+      selectedLicense,
       calculateTotalCost,
       planCost,
       paymentStatus,
@@ -253,6 +275,7 @@ export const DflowVpsFormProvider = ({
     watch('backup.id'),
     watch('image.imageId'),
     watch('image.versionId'),
+    watch('license.licenseCode'),
     paymentStatus,
   ])
 
@@ -315,15 +338,27 @@ export const DflowVpsFormProvider = ({
         },
         { shouldValidate: true },
       )
-      setValue(
-        'image',
-        {
-          imageId: vpsPlan?.images?.at(0)?.id || '',
-          versionId: vpsPlan?.images?.at(0)?.versions?.at(0)?.imageId || '',
-          priceId: vpsPlan?.images?.at(0)?.versions?.at(0)?.stripePriceId || '',
-        },
-        { shouldValidate: true },
-      )
+
+      // Selecting first image of plan
+      const firstImage = vpsPlan.images?.[0]
+
+      setValue('imageType', firstImage?.category!)
+
+      // Setting first version
+      setValue('image', {
+        imageId: firstImage?.id!,
+        versionId: firstImage?.versions?.at(0)?.imageId || '',
+        priceId: firstImage?.versions?.at(0)?.stripePriceId || '',
+      })
+
+      // Setting first license if type is panel
+      if (firstImage?.category === 'panels') {
+        setValue('license', {
+          licenseCode: firstImage?.licenses?.at(0)?.licenseCode || '',
+          priceId: firstImage?.licenses?.at(0)?.stripePriceId || '',
+        })
+      }
+
       setValue(
         'backup',
         {

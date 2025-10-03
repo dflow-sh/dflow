@@ -29,6 +29,10 @@ interface CreateVpsQueueArgs {
       imageId: string
       priceId: string
     }
+    license?: {
+      licenseCode: string
+      priceId: string
+    }
     product: {
       productId: string
       priceId: string
@@ -91,6 +95,7 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
           plan: vps.plan,
           userData: {
             image: vps.image,
+            ...(vps.license ? { license: vps.license } : {}),
             product: vps.product,
             displayName: vps.displayName,
             region: vps.region,
