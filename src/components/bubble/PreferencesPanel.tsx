@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useTerminal } from '@/providers/TerminalProvider'
@@ -87,7 +86,7 @@ const PreferencesPanel = () => {
                 <SelectTrigger className='h-12'>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='z-[2147483600]'>
                   <SelectItem value='bottom-right'>
                     <div className='flex items-center gap-3'>
                       <div className='border-border bg-muted relative h-5 w-5 rounded-sm border'>
@@ -229,7 +228,7 @@ const PreferencesPanel = () => {
                 <SelectTrigger className='h-12'>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className='z-[2147483600]'>
                   <SelectItem value='small'>
                     <div className='flex items-center gap-2'>
                       <div className='bg-primary h-3 w-3 rounded-full' />
@@ -253,7 +252,7 @@ const PreferencesPanel = () => {
             </motion.div>
 
             {/* Visibility Toggle */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -272,7 +271,7 @@ const PreferencesPanel = () => {
                   updatePreference('visible', checked)
                 }
               />
-            </motion.div>
+            </motion.div> */}
 
             {/* Help Section */}
             <motion.div

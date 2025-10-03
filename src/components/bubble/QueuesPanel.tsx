@@ -355,7 +355,7 @@ const QueuesPanel = () => {
                   {selectedServer ? selectedServer.name : 'Select server...'}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className='z-[2147483600]'>
                 {servers.map(server => (
                   <SelectItem key={server.id} value={server.id}>
                     <div className='flex items-center gap-2'>

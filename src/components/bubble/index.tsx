@@ -267,7 +267,7 @@ const Bubble = () => {
   return (
     <>
       {/* Main Bubble Container */}
-      <div className={cn('fixed z-[2147483647]', position)}>
+      <div className={cn('fixed z-[2147483001]', position)}>
         {/* Notification Pill */}
         <AnimatePresence>
           {showNotification && currentNotification && !isExpanded && (
