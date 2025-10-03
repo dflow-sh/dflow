@@ -5,7 +5,6 @@ import {
   getSecurityDetailsAction,
   getSshKeysAction,
 } from '@/actions/pages/security'
-import ServerTerminalClient from '@/components/ServerTerminalClient'
 import SecurityTabs from '@/components/security/SecurityTabs'
 import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
 
@@ -41,7 +40,7 @@ const SuspendedPage = async () => {
         securityGroupError={securityGroupError}
       />
 
-      <ServerTerminalClient servers={sshServers || securityGroupServers} />
+      {/* <ServerTerminalClient servers={sshServers || securityGroupServers} /> */}
     </>
   )
 }
@@ -51,7 +50,7 @@ const SecurityPage = async () => {
     <LayoutClient>
       <div className='mb-8'>
         <div className='text-2xl font-semibold'>Security Settings</div>
-        <p className='mt-2 text-sm text-muted-foreground'>
+        <p className='text-muted-foreground mt-2 text-sm'>
           Manage your SSH keys and security groups for secure access to your
           infrastructure.
         </p>

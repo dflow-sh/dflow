@@ -5,7 +5,6 @@ import { Suspense } from 'react'
 
 import { getProjectsAndServers } from '@/actions/pages/dashboard'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import ServerTerminalClient from '@/components/ServerTerminalClient'
 import CreateProjectButton from '@/components/project/CreateProjectButton'
 import ProjectFiltersSection from '@/components/project/ProjectFiltersSection'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
@@ -186,7 +185,7 @@ const SuspendedDashboard = async ({
         )}
       </section>
 
-      <ServerTerminalClient servers={servers} />
+      {/* <ServerTerminalClient servers={servers} /> */}
     </>
   )
 }
