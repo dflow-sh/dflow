@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, CheckCircle2, Clock, RefreshCw, Zap } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, RefreshCw, Zap } from 'lucide-react'
 import { motion } from 'motion/react'
 
 import { Badge } from '@/components/ui/badge'
@@ -154,7 +154,7 @@ const SyncPanel = () => {
                 Sync Information
               </div>
               <div className='grid gap-3'>
-                <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
+                {/* <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
                   <div className='flex items-center gap-3'>
                     <Clock size={14} className='text-muted-foreground' />
                     <span className='text-foreground text-sm'>Last sync</span>
@@ -170,7 +170,7 @@ const SyncPanel = () => {
                       {isActive ? 'Syncing now' : 'Auto'}
                     </span>
                   </div>
-                </div>
+                </div> */}
 
                 <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
                   <div className='flex items-center gap-3'>
@@ -184,7 +184,7 @@ const SyncPanel = () => {
                   </Badge>
                 </div>
 
-                <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
+                {/* <div className='bg-muted/20 flex items-center justify-between rounded-lg border p-3'>
                   <div className='flex items-center gap-3'>
                     <CheckCircle2 size={14} className='text-muted-foreground' />
                     <span className='text-foreground text-sm'>Sync health</span>
@@ -194,16 +194,16 @@ const SyncPanel = () => {
                     className='bg-primary/10 text-primary'>
                     Connected
                   </Badge>
-                </div>
+                </div> */}
               </div>
             </div>
 
             {/* Help Text */}
-            <div className='text-muted-foreground text-center text-xs'>
+            {/* <div className='text-muted-foreground text-center text-xs'>
               {isActive
                 ? 'Real-time sync in progress • Server connected'
                 : 'Real-time sync enabled • Server connected'}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

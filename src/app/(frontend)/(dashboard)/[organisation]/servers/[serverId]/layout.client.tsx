@@ -142,7 +142,7 @@ const LayoutClient = ({
           document.getElementById('serverName') ?? document.body,
         )}
 
-      <ProjectTerminal server={server} />
+      {/* <ProjectTerminal server={server} /> */}
     </>
   )
 }
