@@ -23,7 +23,7 @@ const SidebarToggleButton = ({
       variant='link'
       size='icon'
       type='button'
-      className='text-sm text-primary'>
+      className='text-primary -my-4 text-sm'>
       <Info />
     </Button>
   )
