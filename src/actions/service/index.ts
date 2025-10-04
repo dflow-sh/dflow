@@ -402,7 +402,9 @@ export const updateServiceAction = protectedClient
       collection: 'services',
       data: {
         ...data,
-        provider: data?.provider ?? null,
+        provider:
+          (data?.providerType ? data?.provider : previousDetails.provider) ??
+          null,
       },
       id,
       depth: 3,
