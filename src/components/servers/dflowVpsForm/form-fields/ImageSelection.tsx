@@ -2,7 +2,7 @@ import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { VpsFormData } from '../schemas'
 import { useFormContext } from 'react-hook-form'
 
-import { Plesk, Ubuntu, cPanel } from '@/components/icons'
+import { CPanel, Plesk, Ubuntu } from '@/components/icons'
 import {
   FormControl,
   FormField,
@@ -16,7 +16,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 const icons = {
   ubuntu: Ubuntu,
   plesk: Plesk,
-  cpanel: cPanel,
+  cpanel: CPanel,
 }
 
 type Icon = keyof typeof icons

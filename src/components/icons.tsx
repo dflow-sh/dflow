@@ -1,5 +1,7 @@
 import type { SVGProps } from 'react'
 
+import { cn } from '@/lib/utils'
+
 export const Linux = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
@@ -1078,7 +1080,8 @@ export const Plesk = (props: SVGProps<SVGSVGElement>) => (
     xmlns='http://www.w3.org/2000/svg'
     id='b'
     viewBox='0 0 300.17 124.54'
-    {...props}>
+    {...props}
+    className={cn('fill-foreground', props.className)}>
     <g id='c'>
       <g>
         <g>
@@ -1094,7 +1097,7 @@ export const Plesk = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export const cPanel = (props: SVGProps<SVGSVGElement>) => (
+export const CPanel = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props} viewBox='0 0 407.66 240'>
     <g>
       <g>
