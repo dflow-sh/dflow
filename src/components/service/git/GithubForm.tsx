@@ -536,32 +536,6 @@ const GithubForm = ({
             />
 
             <div className='grid gap-4 md:grid-cols-2'>
-              {/* Build path */}
-              <FormField
-                control={form.control}
-                name='githubSettings.buildPath'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Build path{' '}
-                      <SidebarToggleButton
-                        directory='services'
-                        fileName='app-service'
-                        sectionId='#build-path--editable'
-                      />
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value || ''}
-                        onChange={handleBuildPathInputChange(field.onChange)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Port field */}
               <FormField
                 control={form.control}
@@ -587,6 +561,32 @@ const GithubForm = ({
                             : ''
                           field.onChange(value)
                         }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Build path */}
+              <FormField
+                control={form.control}
+                name='githubSettings.buildPath'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Build path{' '}
+                      <SidebarToggleButton
+                        directory='services'
+                        fileName='app-service'
+                        sectionId='#build-path--editable'
+                      />
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value || ''}
+                        onChange={handleBuildPathInputChange(field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
