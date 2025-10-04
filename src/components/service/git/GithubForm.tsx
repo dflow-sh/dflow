@@ -386,160 +386,156 @@ const GithubForm = ({
             </div>
           </>
         ) : (
-          <div className='space-y-6'>
-            <div className='grid gap-4 md:grid-cols-2'>
-              {/* Account field */}
-              <FormField
-                control={form.control}
-                name='provider'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <SelectSearch
-                        fieldValue={field.value}
-                        label='Account'
-                        info={
-                          <SidebarToggleButton
-                            directory='services'
-                            fileName='app-service'
-                            sectionId='#account--editable'
-                          />
+          <div className='grid gap-4 md:grid-cols-2'>
+            {/* Account field */}
+            <FormField
+              control={form.control}
+              name='provider'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectSearch
+                      fieldValue={field.value}
+                      label='Account'
+                      info={
+                        <SidebarToggleButton
+                          directory='services'
+                          fileName='app-service'
+                          sectionId='#account--editable'
+                        />
+                      }
+                      inputPlaceholder={'account'}
+                      gitProviders={gitProviders}
+                      onSelect={(value: string) => {
+                        field.onChange(value)
+
+                        const provider = gitProviders.find(
+                          ({ id }) => id === value,
+                        )
+
+                        if (
+                          provider &&
+                          provider.github &&
+                          provider.github.installationId
+                        ) {
+                          const { appId, installationId, privateKey } =
+                            provider.github
+                          getRepositories({
+                            appId: `${appId}`,
+                            installationId,
+                            privateKey,
+                            limit: 100,
+                            page: 1,
+                          })
+                        } else {
+                          resetRepositoriesList()
                         }
-                        inputPlaceholder={'account'}
-                        gitProviders={gitProviders}
-                        onSelect={(value: string) => {
-                          field.onChange(value)
+
+                        // Resetting the repository, branch value whenever account is changed
+                        form.setValue('githubSettings.repository', '')
+                        form.setValue('githubSettings.branch', '')
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Repository field */}
+            <FormField
+              control={form.control}
+              name='githubSettings.repository'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectSearch
+                      fieldValue={field.value}
+                      label='Repository'
+                      inputPlaceholder={
+                        repositoriesLoading
+                          ? 'fetching repositories...'
+                          : 'repository'
+                      }
+                      gitProviders={repositoryOptions}
+                      disabled={!provider || repositoriesLoading}
+                      onSelect={(value: any) => {
+                        field.onChange(value)
+
+                        if (repositoriesList) {
+                          const { repositories } = repositoriesList
+
+                          const providerId = form.getValues('provider')
 
                           const provider = gitProviders.find(
-                            ({ id }) => id === value,
+                            ({ id }) => id === providerId,
                           )
 
+                          const owner = repositories.find(
+                            repo => repo.name === value,
+                          )?.owner?.login
+
+                          // On changing repository fetching branches based on that
                           if (
+                            owner &&
                             provider &&
                             provider.github &&
                             provider.github.installationId
                           ) {
-                            const { appId, installationId, privateKey } =
-                              provider.github
-                            getRepositories({
-                              appId: `${appId}`,
-                              installationId,
-                              privateKey,
+                            getBranches({
+                              owner,
+                              appId: `${provider.github.appId}`,
+                              installationId:
+                                provider.github.installationId ?? '',
+                              privateKey: provider.github.privateKey,
+                              repository: value,
                               limit: 100,
                               page: 1,
                             })
                           } else {
-                            resetRepositoriesList()
+                            resetBranchesList()
                           }
 
-                          // Resetting the repository, branch value whenever account is changed
-                          form.setValue('githubSettings.repository', '')
+                          form.setValue('githubSettings.owner', owner ?? '')
+                          // resetting branch name whenever repository is changed
                           form.setValue('githubSettings.branch', '')
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Repository field */}
-              <FormField
-                control={form.control}
-                name='githubSettings.repository'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <SelectSearch
-                        fieldValue={field.value}
-                        label='Repository'
-                        inputPlaceholder={
-                          repositoriesLoading
-                            ? 'fetching repositories...'
-                            : 'repository'
                         }
-                        gitProviders={repositoryOptions}
-                        disabled={!provider || repositoriesLoading}
-                        onSelect={(value: any) => {
-                          field.onChange(value)
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                          if (repositoriesList) {
-                            const { repositories } = repositoriesList
+            {/* Branch field */}
+            <FormField
+              control={form.control}
+              name='githubSettings.branch'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectSearch
+                      fieldValue={field.value}
+                      label='Branch'
+                      inputPlaceholder={
+                        branchesLoading ? 'fetching branches...' : 'branch'
+                      }
+                      gitProviders={branchOptions}
+                      disabled={
+                        !provider ||
+                        branchesLoading ||
+                        !githubSettings?.repository
+                      }
+                      onSelect={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                            const providerId = form.getValues('provider')
-
-                            const provider = gitProviders.find(
-                              ({ id }) => id === providerId,
-                            )
-
-                            const owner = repositories.find(
-                              repo => repo.name === value,
-                            )?.owner?.login
-
-                            // On changing repository fetching branches based on that
-                            if (
-                              owner &&
-                              provider &&
-                              provider.github &&
-                              provider.github.installationId
-                            ) {
-                              getBranches({
-                                owner,
-                                appId: `${provider.github.appId}`,
-                                installationId:
-                                  provider.github.installationId ?? '',
-                                privateKey: provider.github.privateKey,
-                                repository: value,
-                                limit: 100,
-                                page: 1,
-                              })
-                            } else {
-                              resetBranchesList()
-                            }
-
-                            form.setValue('githubSettings.owner', owner ?? '')
-                            // resetting branch name whenever repository is changed
-                            form.setValue('githubSettings.branch', '')
-                          }
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className='grid gap-4 md:grid-cols-4'>
-              <div className='md:col-span-2'>
-                {/* Branch field */}
-                <FormField
-                  control={form.control}
-                  name='githubSettings.branch'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <SelectSearch
-                          fieldValue={field.value}
-                          label='Branch'
-                          inputPlaceholder={
-                            branchesLoading ? 'fetching branches...' : 'branch'
-                          }
-                          gitProviders={branchOptions}
-                          disabled={
-                            !provider ||
-                            branchesLoading ||
-                            !githubSettings?.repository
-                          }
-                          onSelect={field.onChange}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
+            <div className='grid gap-4 md:grid-cols-2'>
               {/* Build path */}
               <FormField
                 control={form.control}
