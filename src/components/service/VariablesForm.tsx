@@ -609,7 +609,7 @@ const VariablesForm = ({ service }: { service: Service }) => {
             {fields.length ? (
               <div className='text-muted-foreground grid grid-cols-[1fr_1fr_2.5rem] gap-4 text-sm'>
                 <p className='font-semibold'>Key</p>
-                <p className='font-semibold'>
+                <p className='flex items-center font-semibold'>
                   Value{' '}
                   <SidebarToggleButton
                     directory='services'
