@@ -64,7 +64,7 @@ const ClientLayout = ({
           document.getElementById('projectName') ?? document.body,
         )}
 
-      {typeof server === 'object' && <ProjectTerminal server={server} />}
+      {/* {typeof server === 'object' && <ProjectTerminal server={server} />} */}
     </>
   )
 }
