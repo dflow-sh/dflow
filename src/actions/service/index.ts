@@ -719,7 +719,7 @@ export const updateServiceDomainAction = protectedClient
         typeof updatedServiceDomainResponse.project === 'object' &&
         typeof updatedServiceDomainResponse.project.server === 'object'
       ) {
-        const sshDetails = extractSSHDetails({ project })
+        const sshDetails = extractSSHDetails({ project: updatedServiceDomainResponse.project })
         const isProxyDomain = domain.hostname.endsWith(
           env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
         )
