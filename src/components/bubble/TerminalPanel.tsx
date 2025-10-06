@@ -11,6 +11,7 @@ import {
   PictureInPicture,
   X,
 } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -140,8 +141,11 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     error: errorServers,
     refresh: refreshServers,
   } = useServers()
+  const { serverId } = useParams<{ serverId: string }>()
 
-  const [activeServerId, setActiveServerId] = useState(servers[0]?.id || '')
+  const [activeServerId, setActiveServerId] = useState(
+    serverId || servers[0]?.id || '',
+  )
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -218,10 +222,18 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
   }, [isResizing, setEmbeddedHeight])
 
   useEffect(() => {
+    if (serverId && servers.find(s => s.id === serverId)) {
+      setActiveServerId(serverId)
+    } else if (servers.length > 0 && !activeServerId) {
+      setActiveServerId(servers[0].id)
+    }
+  }, [serverId, servers])
+
+  useEffect(() => {
     if (servers.length > 0 && !activeServerId) {
       setActiveServerId(servers[0].id)
     }
-  }, [servers, activeServerId])
+  }, [servers, activeServerId, serverId])
 
   const adjustMainContentHeight = (height: number) => {
     const mainContent = document.getElementById('main-content')
