@@ -4,10 +4,8 @@ export interface VpsPlan {
    * The name of the VPS plan (e.g., Cloud VPS 4C)
    */
   name: string
-  /**
-   * Contains only lowercase letters, numbers, and dashes.
-   */
   slug?: string | null
+  slugLock?: boolean | null
   /**
    * The name of the hosting platform (e.g., Contabo, HostUp)
    */
@@ -173,6 +171,33 @@ export interface VpsPlan {
                * Enter a user-friendly label for the version
                */
               label: string
+              price: {
+                /**
+                 * Specify if the version is included or paid
+                 */
+                type: 'included' | 'paid'
+                /**
+                 * Specify the additional cost if paid
+                 */
+                amount?: number | null
+              }
+              /**
+               * Unique priceId for the selected product
+               */
+              stripePriceId: string
+              id?: string | null
+            }[]
+          | null
+        licenses?:
+          | {
+              /**
+               * Enter a user-friendly label for the license
+               */
+              label: string
+              /**
+               * Specify the code of the license (e.g., cPanel, Plesk, etc.)
+               */
+              licenseCode: string
               price: {
                 /**
                  * Specify if the version is included or paid

@@ -35,6 +35,12 @@ export const createVPSOrderActionSchema = z.object({
       imageId: z.string(),
       priceId: z.string(),
     }),
+    license: z
+      .object({
+        licenseCode: z.string().min(1, { message: 'License code is required' }),
+        priceId: z.string().min(1, { message: 'PriceId is required' }),
+      })
+      .optional(),
     product: z.object({
       productId: z.string(),
       priceId: z.string(),

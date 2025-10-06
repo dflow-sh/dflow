@@ -1,81 +1,123 @@
 import { useDflowVpsForm } from '../DflowVpsFormProvider'
-import { formatValue } from '../utils'
-import { CheckCircle } from 'lucide-react'
+import { VpsFormData } from '../schemas'
 import { useFormContext } from 'react-hook-form'
 
+import { CPanel, Plesk, Ubuntu } from '@/components/icons'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
+const icons = {
+  ubuntu: Ubuntu,
+  plesk: Plesk,
+  cpanel: CPanel,
+}
+
+type Icon = keyof typeof icons
+
 export const ImageSelection = () => {
-  const form = useFormContext()
+  const { control, setValue } = useFormContext<VpsFormData>()
   const { vpsPlan } = useDflowVpsForm()
 
-  const selectedImageId = form.watch('image.imageId')
-
   return (
-    <div className='mb-6'>
-      <h2 className='mb-3 text-lg font-semibold text-foreground'>
-        Image <span className='text-destructive'>*</span>
-      </h2>
-      <RadioGroup
-        value={selectedImageId}
-        onValueChange={value => {
-          const selectedImage = vpsPlan?.images?.find(i => i.id === value)
-          if (selectedImage && selectedImage.versions?.length) {
-            form.setValue(
-              'image',
-              {
-                imageId: selectedImage.id as string,
-                versionId: selectedImage.versions[0].imageId,
-                priceId: selectedImage.versions[0].stripePriceId || '',
-              },
-              { shouldValidate: true },
-            )
-          }
-        }}
-        className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
-        {vpsPlan?.images?.map(image => {
-          const selectedVersion = image.versions?.find(
-            version => version.imageId === form.watch('image.versionId'),
-          )
+    <FormField
+      control={control}
+      name='image.imageId'
+      render={({ field }) => {
+        return (
+          <FormItem className='mb-6'>
+            <FormLabel className='text-foreground mb-3 text-lg font-semibold'>
+              Image <span className='text-destructive'>*</span>
+            </FormLabel>
 
-          return (
-            <div
-              key={image.id}
-              className={`relative transition-transform duration-300 ${
-                selectedImageId === image.id ? 'scale-100' : 'scale-95'
-              }`}>
-              {selectedImageId === image.id && (
-                <CheckCircle
-                  className='absolute right-4 top-3 text-primary'
-                  size={20}
-                />
-              )}
-              <RadioGroupItem
-                value={image.id as string}
-                id={`image-${image.id}`}
-                className='hidden h-4 w-4'
-              />
-              <label
-                htmlFor={`image-${image.id}`}
-                className={`flex h-full w-full cursor-pointer flex-col rounded-lg p-4 transition-all duration-300 ease-in-out ${
-                  selectedImageId === image.id
-                    ? 'border-2 border-primary bg-secondary/10'
-                    : 'border-2 border-transparent bg-secondary/5'
-                }`}>
-                <div className='text-lg text-foreground'>{image.label}</div>
-                <div className='text-muted-foreground'>
-                  {selectedVersion?.label || 'Latest'}
-                </div>
-                <div className='mt-2 text-primary'>
-                  {selectedVersion?.price.type === 'included'
-                    ? 'Included'
-                    : formatValue(selectedVersion?.price.amount as number)}
-                </div>
-              </label>
-            </div>
-          )
-        })}
-      </RadioGroup>
-    </div>
+            <FormControl>
+              <RadioGroup
+                onValueChange={value => {
+                  if (vpsPlan) {
+                    const firstImage = vpsPlan.images?.find(
+                      image => image.id === value,
+                    )
+
+                    setValue('image.imageId', value, {
+                      shouldValidate: true,
+                    })
+
+                    setValue('imageType', firstImage?.category!, {
+                      shouldValidate: true,
+                    })
+
+                    if (firstImage?.category !== 'panels') {
+                      setValue('license', undefined)
+                    }
+
+                    setValue('image', {
+                      imageId: firstImage?.id!,
+                      versionId: firstImage?.versions?.at(0)?.imageId || '',
+                      priceId: firstImage?.versions?.at(0)?.stripePriceId || '',
+                    })
+
+                    // Setting first license if type is panel
+                    if (firstImage?.category === 'panels') {
+                      setValue('license', {
+                        licenseCode:
+                          firstImage?.licenses?.at(0)?.licenseCode || '',
+                        priceId:
+                          firstImage?.licenses?.at(0)?.stripePriceId || '',
+                      })
+                    }
+                  }
+                }}
+                value={field?.value}
+                className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+                {vpsPlan?.images?.map(image => {
+                  const name = image.name.toLowerCase() as Icon
+                  const ImageIcon = icons[name]
+
+                  return (
+                    <FormItem key={image.id}>
+                      <FormControl>
+                        <div
+                          className={`relative flex items-start rounded-md border ${
+                            field?.value === image.id
+                              ? 'border-primary border-2'
+                              : 'border-input'
+                          } hover:border-primary/50 cursor-pointer p-4 transition-all duration-200`}>
+                          <RadioGroupItem
+                            value={image.id!}
+                            id={image.id!}
+                            className='order-1 after:absolute after:inset-0'
+                          />
+
+                          <div className='flex grow gap-4'>
+                            <div className='bg-secondary/50 flex h-10 w-10 items-center justify-center rounded-full'>
+                              <ImageIcon className='text-foreground size-5' />
+                            </div>
+
+                            <div>
+                              <Label
+                                htmlFor={image.id!}
+                                className='cursor-pointer font-medium'>
+                                {image.label}
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )
+                })}
+              </RadioGroup>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )
+      }}
+    />
   )
 }
