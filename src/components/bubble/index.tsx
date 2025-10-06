@@ -113,32 +113,34 @@ const Bubble = () => {
     showNotification,
     handleBubbleClick,
     setIsExpanded,
+    navigateToPanel,
   } = useBubble()
 
   const { preferences, updatePreference } = useTerminal()
 
   const screenDimensions = useScreenDimensions()
 
-  // Don't render anything if terminal is in external mode
-  if (preferences.terminalMode !== 'floating') {
-    return (
-      <TerminalPanel
-        mode={preferences.terminalMode}
-        onClose={() => {
-          // When closing external terminal, switch back to floating mode
-          updatePreference('terminalMode', 'floating')
-        }}
-      />
-    )
-  }
-
+  // Don't render bubble if not visible
   if (!preferences.visible || !isVisible) return null
+
+  // Handle bubble click - close if terminal is already open in external mode
+  const handleBubbleButtonClick = () => {
+    if (
+      preferences.terminalMode !== 'floating' &&
+      currentPanel === 'terminal'
+    ) {
+      // Terminal is already open externally, just close the bubble panel
+      setIsExpanded(false)
+    } else {
+      handleBubbleClick()
+    }
+  }
 
   // These are now type-safe
   const bubbleSize = sizeMap[preferences.size]
   const position = positionMap[preferences.position]
 
-  // Panel rendering
+  // Panel rendering - don't render terminal panel in bubble if it's in external mode
   const renderPanel = () => {
     switch (currentPanel) {
       case 'menu':
@@ -150,12 +152,18 @@ const Bubble = () => {
       case 'sync':
         return <SyncPanel />
       case 'terminal':
-        return (
-          <TerminalPanel
-            mode={preferences.terminalMode}
-            onClose={() => setIsExpanded(false)}
-          />
-        )
+        // Only show terminal panel in bubble if mode is floating
+        if (preferences.terminalMode === 'floating') {
+          return (
+            <TerminalPanel
+              mode={preferences.terminalMode}
+              onClose={() => setIsExpanded(false)}
+            />
+          )
+        } else {
+          // Terminal is open externally, show menu instead
+          return <MenuPanel />
+        }
       default:
         return null
     }
@@ -317,7 +325,7 @@ const Bubble = () => {
 
         {/* Bubble Button */}
         <motion.button
-          onClick={handleBubbleClick}
+          onClick={handleBubbleButtonClick}
           className={cn(
             'bg-background ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 backdrop-blur-xl transition-all duration-300 hover:shadow-2xl',
             bubbleSize.bubble,
@@ -417,6 +425,16 @@ const Bubble = () => {
           </motion.div>
         </motion.button>
       </div>
+
+      {/* Render external terminal panels */}
+      {preferences.terminalMode !== 'floating' && (
+        <TerminalPanel
+          mode={preferences.terminalMode}
+          onClose={() => {
+            updatePreference('terminalMode', 'floating')
+          }}
+        />
+      )}
     </>
   )
 }

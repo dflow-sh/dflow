@@ -42,6 +42,7 @@ const MenuPanel = () => {
     description: string
     color: string
     badge?: string
+    onClick?: () => void
   }[] = [
     {
       icon: Settings,
@@ -56,6 +57,14 @@ const MenuPanel = () => {
       panel: 'terminal' as Panel,
       description: 'View real-time server logs',
       color: 'text-primary',
+      onClick: () => {
+        // If terminal is already open externally, just close the bubble
+        if (preferences.terminalMode !== 'floating') {
+          setIsExpanded(false)
+        } else {
+          navigateToPanel('terminal')
+        }
+      },
     },
     {
       icon: Queue,
@@ -101,7 +110,12 @@ const MenuPanel = () => {
     mode: 'floating' | 'embedded' | 'fullscreen',
   ) => {
     updatePreference('terminalMode', mode)
-    navigateToPanel('terminal')
+    // Close bubble when switching to external terminal modes
+    if (mode !== 'floating') {
+      setIsExpanded(false)
+    } else {
+      navigateToPanel('terminal')
+    }
   }
 
   return (
@@ -184,8 +198,12 @@ const MenuPanel = () => {
                   variant='ghost'
                   className='group hover:bg-accent/50 h-16 w-full justify-start px-4 text-left transition-all duration-200'
                   onClick={() => {
-                    if (item.panel === 'sync') startSync()
-                    navigateToPanel(item.panel)
+                    if (item.onClick) {
+                      item.onClick()
+                    } else {
+                      if (item.panel === 'sync') startSync()
+                      navigateToPanel(item.panel)
+                    }
                   }}>
                   <div className='flex w-full items-center space-x-4'>
                     <div className='group-hover:bg-accent flex-shrink-0 rounded-xl p-2 transition-colors group-hover:shadow-sm'>
