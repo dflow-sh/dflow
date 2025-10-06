@@ -704,7 +704,7 @@ export const updateServiceDomainAction = protectedClient
       ]
     }
 
-    const updatedServiceDomainResponse = await payload.update({
+    await payload.update({
       id,
       data: {
         domains: updatedDomains,
@@ -715,40 +715,11 @@ export const updateServiceDomainAction = protectedClient
 
     // for add operation we're not syncing domain as domain verification process not done!
     if (operation !== 'add') {
-      if (
-        typeof updatedServiceDomainResponse.project === 'object' &&
-        typeof updatedServiceDomainResponse.project.server === 'object'
-      ) {
-        const sshDetails = extractSSHDetails({ project: updatedServiceDomainResponse.project })
-        const isProxyDomain = domain.hostname.endsWith(
-          env.NEXT_PUBLIC_PROXY_DOMAIN_URL ?? ' ',
-        )
-
-        await addManageServiceDomainQueue({
-          serviceDetails: {
-            action: operation,
-            domain: domain.hostname,
-            name: updatedServiceDomainResponse.name,
-            certificateType: isProxyDomain ? 'none' : domain.certificateType,
-            autoRegenerateSSL: isProxyDomain ? false : domain.autoRegenerateSSL,
-            id,
-            variables: updatedServiceDomainResponse.variables ?? [],
-          },
-          sshDetails,
-          serverDetails: {
-            id: updatedServiceDomainResponse.project.server.id,
-            hostname:
-              updatedServiceDomainResponse.project.server.hostname ?? '',
-            tailscalePrivateIp:
-              updatedServiceDomainResponse.project.server.tailscalePrivateIp ??
-              '',
-          },
-          tenantDetails: {
-            slug: tenant.slug,
-          },
-          updateEnvironmentVariables: domain.default,
-        })
-      }
+      syncServiceDomainAction({
+        id,
+        domain,
+        operation,
+      })
     }
 
     revalidatePath(
@@ -823,7 +794,7 @@ export const syncServiceDomainAction = protectedClient
           certificateType: isProxyDomain ? 'none' : domain.certificateType,
           autoRegenerateSSL: isProxyDomain ? false : domain.autoRegenerateSSL,
           id,
-          variables,
+          variables: variables ?? [],
         },
         sshDetails,
         serverDetails: {
