@@ -124,6 +124,27 @@ const DomainItem = ({
     server.preferConnectionType === 'tailscale' &&
     server.hostname &&
     domain.domain === `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+  // Manual refresh function
+  const handleRefresh = () => {
+    const proxyDomain = isProxyDomainExists
+      ? env.NEXT_PUBLIC_PROXY_CNAME
+      : undefined
+
+    if (proxyDomain) {
+      checkDNSConfig({
+        domain: domain.domain,
+        proxyDomain,
+      })
+    } else {
+      checkDNSConfig({
+        domain: domain.domain,
+        ip:
+          server.preferConnectionType === 'tailscale'
+            ? (server.publicIp ?? '')
+            : (server.ip ?? ''),
+      })
+    }
+  }
 
   useEffect(() => {
     // Skip if wildcard domain or already synced
@@ -139,29 +160,11 @@ const DomainItem = ({
 
     if (shouldCheck) {
       // Check DNS config
-      checkDNSConfig({
-        ip:
-          server.preferConnectionType === 'tailscale'
-            ? (server.publicIp ?? '')
-            : (server.ip ?? ''),
-        domain: `*.${domain.domain}`,
-        proxyDomain: isProxyDomainExists
-          ? env.NEXT_PUBLIC_PROXY_CNAME
-          : undefined,
-      })
+      handleRefresh()
     } else if (shouldRetry) {
       // Show failure badge for 30 seconds, then retry
       const timeoutId = setTimeout(() => {
-        checkDNSConfig({
-          ip:
-            server.preferConnectionType === 'tailscale'
-              ? (server.publicIp ?? '')
-              : (server.ip ?? ''),
-          domain: `*.${domain.domain}`,
-          proxyDomain: isProxyDomainExists
-            ? env.NEXT_PUBLIC_PROXY_CNAME
-            : undefined,
-        })
+        handleRefresh()
       }, 30000)
 
       return () => clearTimeout(timeoutId)
@@ -216,20 +219,6 @@ const DomainItem = ({
         Pending Verification
       </Badge>
     )
-  }
-
-  // Manual refresh function
-  const handleRefresh = () => {
-    checkDNSConfig({
-      ip:
-        server.preferConnectionType === 'tailscale'
-          ? (server.publicIp ?? '')
-          : (server.ip ?? ''),
-      domain: `*.${domain.domain}`,
-      proxyDomain: isProxyDomainExists
-        ? env.NEXT_PUBLIC_PROXY_CNAME
-        : undefined,
-    })
   }
 
   // if proxy domain url is set, and tailscale is preferred, and hostname is set, and domain is the proxy domain url, then disable delete button

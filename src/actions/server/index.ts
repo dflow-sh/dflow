@@ -628,6 +628,7 @@ export const checkDNSConfigAction = protectedClient
           '2001:4860:4860::8888', // Google
           '2620:fe::fe', // Quad9
         ])
+
         const cnames = await dns.resolveCname(domain).catch(() => [])
 
         if (cnames.length > 0) {
@@ -639,7 +640,7 @@ export const checkDNSConfigAction = protectedClient
       // Fallback: check A record
       const addresses = await dns.resolve4(domain)
 
-      return addresses.includes(ip)
+      return addresses.includes(ip ?? '')
     } catch (e) {
       return false
     }

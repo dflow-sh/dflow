@@ -156,6 +156,25 @@ const DomainCard = ({
       `${service.name}.${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
   const isDefaultDomain = domain.default
 
+  // Manual refresh function
+  const handleRefresh = () => {
+    const proxyDomain = isProxyDomainExists
+      ? env.NEXT_PUBLIC_PROXY_CNAME
+      : undefined
+
+    if (proxyDomain) {
+      checkDNSConfig({
+        domain: domain.domain,
+        proxyDomain,
+      })
+    } else {
+      checkDNSConfig({
+        domain: domain.domain,
+        ip,
+      })
+    }
+  }
+
   useEffect(() => {
     // Skip if wildcard domain or already synced
     if (isWildCardDomain || domain.synced || checkingDNSConfig) {
@@ -170,23 +189,11 @@ const DomainCard = ({
 
     if (shouldCheck) {
       // Check DNS config
-      checkDNSConfig({
-        ip,
-        domain: domain.domain,
-        proxyDomain: isProxyDomainExists
-          ? env.NEXT_PUBLIC_PROXY_CNAME
-          : undefined,
-      })
+      handleRefresh()
     } else if (shouldRetry) {
       // Show failure badge for 30 seconds, then retry
       const timeoutId = setTimeout(() => {
-        checkDNSConfig({
-          ip,
-          domain: domain.domain,
-          proxyDomain: isProxyDomainExists
-            ? env.NEXT_PUBLIC_PROXY_CNAME
-            : undefined,
-        })
+        handleRefresh()
       }, 30000)
 
       return () => clearTimeout(timeoutId)
@@ -241,17 +248,6 @@ const DomainCard = ({
         Pending Verification
       </Badge>
     )
-  }
-
-  // Manual refresh function
-  const handleRefresh = () => {
-    checkDNSConfig({
-      ip,
-      domain: domain.domain,
-      proxyDomain: isProxyDomainExists
-        ? env.NEXT_PUBLIC_PROXY_CNAME
-        : undefined,
-    })
   }
 
   return (
