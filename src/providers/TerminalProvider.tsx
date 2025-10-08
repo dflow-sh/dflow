@@ -8,7 +8,13 @@ import React, {
   useState,
 } from 'react'
 
-import { Preferences } from '@/components/bubble/bubble-types'
+export type TerminalMode = 'floating' | 'embedded' | 'fullscreen'
+
+// Terminal-specific preferences
+interface TerminalPreferences {
+  terminalMode: TerminalMode
+  embeddedHeight: number
+}
 
 interface TerminalContextType {
   isOpen: boolean
@@ -17,8 +23,8 @@ interface TerminalContextType {
   setEmbeddedHeight: (height: number) => void
   isResizing: boolean
   setIsResizing: (resizing: boolean) => void
-  preferences: Preferences
-  updatePreference: (key: keyof Preferences, value: any) => void
+  terminalPreferences: TerminalPreferences
+  updateTerminalPreference: (key: keyof TerminalPreferences, value: any) => void
 }
 
 const TerminalContext = createContext<TerminalContextType | undefined>(
@@ -35,7 +41,7 @@ interface PersistedTerminalState {
 }
 
 interface PersistedTerminalPrefs {
-  preferences: Preferences
+  terminalPreferences: TerminalPreferences
 }
 
 export const useTerminal = () => {
@@ -98,20 +104,17 @@ export default function TerminalProvider({
   )
   const [isResizing, setIsResizing] = useState(false)
 
-  // Load preferences from localStorage with proper typing
-  const [preferences, setPreferences] = useState<Preferences>(() => {
-    const savedPrefs = loadTerminalPrefs()
-    return (
-      savedPrefs.preferences ?? {
-        terminalMode: 'embedded',
-        embeddedHeight: 300,
-        position: 'bottom-right',
-        theme: 'system',
-        size: 'medium',
-        visible: true,
-      }
-    )
-  })
+  // Load terminal-specific preferences from localStorage
+  const [terminalPreferences, setTerminalPreferences] =
+    useState<TerminalPreferences>(() => {
+      const savedPrefs = loadTerminalPrefs()
+      return (
+        savedPrefs.terminalPreferences ?? {
+          terminalMode: 'embedded',
+          embeddedHeight: 300,
+        }
+      )
+    })
 
   // Save terminal state to localStorage
   const saveTerminalState = useCallback((state: PersistedTerminalState) => {
@@ -150,17 +153,26 @@ export default function TerminalProvider({
   // Persist terminal preferences when preferences change
   useEffect(() => {
     const prefs: PersistedTerminalPrefs = {
-      preferences,
+      terminalPreferences,
     }
     saveTerminalPrefs(prefs)
-  }, [preferences, saveTerminalPrefs])
+  }, [terminalPreferences, saveTerminalPrefs])
 
-  const updatePreference = useCallback((key: string, value: any) => {
-    setPreferences(prev => {
-      const newPreferences = { ...prev, [key]: value }
-      return newPreferences
-    })
-  }, [])
+  const updateTerminalPreference = useCallback(
+    (key: keyof TerminalPreferences, value: any) => {
+      setTerminalPreferences(prev => {
+        const newPreferences = { ...prev, [key]: value }
+
+        // If updating embeddedHeight, also update the state
+        if (key === 'embeddedHeight') {
+          setEmbeddedHeight(value)
+        }
+
+        return newPreferences
+      })
+    },
+    [],
+  )
 
   const setOpen = useCallback((open: boolean) => {
     setIsOpen(open)
@@ -169,9 +181,10 @@ export default function TerminalProvider({
   const setEmbeddedHeightValue = useCallback(
     (height: number) => {
       setEmbeddedHeight(height)
-      updatePreference('embeddedHeight', height)
+      // Also update the preference to keep them in sync
+      updateTerminalPreference('embeddedHeight', height)
     },
-    [updatePreference],
+    [updateTerminalPreference],
   )
 
   const setResizing = useCallback((resizing: boolean) => {
@@ -187,8 +200,8 @@ export default function TerminalProvider({
         setEmbeddedHeight: setEmbeddedHeightValue,
         isResizing,
         setIsResizing: setResizing,
-        preferences,
-        updatePreference,
+        terminalPreferences,
+        updateTerminalPreference,
       }}>
       {children}
     </TerminalContext.Provider>

@@ -26,20 +26,20 @@ type TerminalMode = 'embedded' | 'floating' | 'fullscreen'
 const PreferencesPanel = () => {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
-  const { goBack } = useBubble()
-  const { preferences, updatePreference } = useTerminal()
+  const { goBack, bubblePreferences, updateBubblePreference } = useBubble()
+  const { terminalPreferences, updateTerminalPreference } = useTerminal()
 
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (mounted && theme) {
-      updatePreference('theme', theme as Theme)
+      updateBubblePreference('theme', theme as Theme)
     }
-  }, [theme, mounted, updatePreference])
+  }, [theme, mounted])
 
   // Handle terminal mode change - just update preference without opening terminal
   const handleTerminalModeChange = (value: TerminalMode) => {
-    updatePreference('terminalMode', value)
+    updateTerminalPreference('terminalMode', value)
     // Note: This only updates the preference, doesn't open the terminal
   }
 
@@ -86,9 +86,9 @@ const PreferencesPanel = () => {
                 Bubble Position
               </Label>
               <Select
-                value={preferences.position}
+                value={bubblePreferences.position}
                 onValueChange={(value: Position) =>
-                  updatePreference('position', value)
+                  updateBubblePreference('position', value)
                 }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
@@ -228,7 +228,7 @@ const PreferencesPanel = () => {
                 Preferred Terminal Mode
               </Label>
               <Select
-                value={preferences.terminalMode}
+                value={terminalPreferences.terminalMode}
                 onValueChange={handleTerminalModeChange}>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
@@ -277,9 +277,9 @@ const PreferencesPanel = () => {
                 Bubble Size
               </Label>
               <Select
-                value={preferences.size}
+                value={bubblePreferences.size}
                 onValueChange={(value: Size) =>
-                  updatePreference('size', value)
+                  updateBubblePreference('size', value)
                 }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />

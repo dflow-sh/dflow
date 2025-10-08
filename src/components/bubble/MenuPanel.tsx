@@ -34,8 +34,8 @@ const MenuPanel = () => {
   const {
     isOpen: isTerminalOpen,
     setIsOpen: setTerminalOpen,
-    preferences,
-    updatePreference,
+    terminalPreferences,
+    updateTerminalPreference,
   } = useTerminal()
 
   const menuItems: {
@@ -67,7 +67,7 @@ const MenuPanel = () => {
         setTerminalOpen(true)
 
         // If terminal mode is floating, navigate to terminal panel
-        if (preferences.terminalMode === 'floating') {
+        if (terminalPreferences.terminalMode === 'floating') {
           navigateToPanel('terminal')
         } else {
           // For embedded/fullscreen modes, just close the bubble
@@ -97,28 +97,28 @@ const MenuPanel = () => {
       label: 'Floating',
       mode: 'floating' as const,
       description: 'Terminal in floating panel',
-      current: preferences.terminalMode === 'floating',
+      current: terminalPreferences.terminalMode === 'floating',
     },
     {
       icon: Terminal,
       label: 'Embedded',
       mode: 'embedded' as const,
       description: 'Terminal at bottom of page',
-      current: preferences.terminalMode === 'embedded',
+      current: terminalPreferences.terminalMode === 'embedded',
     },
     {
       icon: Maximize2,
       label: 'Fullscreen',
       mode: 'fullscreen' as const,
       description: 'Terminal in full screen',
-      current: preferences.terminalMode === 'fullscreen',
+      current: terminalPreferences.terminalMode === 'fullscreen',
     },
   ]
 
   const handleTerminalModeChange = (
     mode: 'floating' | 'embedded' | 'fullscreen',
   ) => {
-    updatePreference('terminalMode', mode)
+    updateTerminalPreference('terminalMode', mode)
 
     // If switching to floating mode and terminal is open, navigate to terminal panel
     if (mode === 'floating') {
@@ -134,7 +134,7 @@ const MenuPanel = () => {
   const getTerminalStatus = () => {
     if (!isTerminalOpen) return null
 
-    switch (preferences.terminalMode) {
+    switch (terminalPreferences.terminalMode) {
       case 'floating':
         return 'Open in Panel'
       case 'embedded':
@@ -284,7 +284,7 @@ const MenuPanel = () => {
                         <div className='text-muted-foreground truncate text-xs'>
                           {item.description}
                           {isTerminalActive &&
-                            preferences.terminalMode !== 'floating' && (
+                            terminalPreferences.terminalMode !== 'floating' && (
                               <span className='text-primary ml-1'>
                                 • Open externally
                               </span>

@@ -16,7 +16,7 @@ import { type CSSProperties, useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
-import { useTerminal } from '@/providers/TerminalProvider'
+import { TerminalMode, useTerminal } from '@/providers/TerminalProvider'
 
 import MenuPanel from './MenuPanel'
 import PreferencesPanel from './PreferencesPanel'
@@ -190,12 +190,13 @@ const Bubble = () => {
     setIsExpanded,
     navigateToPanel,
     setCurrentPanel,
+    bubblePreferences,
   } = useBubble()
 
   const {
     isOpen: isTerminalOpen,
-    preferences,
-    updatePreference,
+    terminalPreferences,
+    updateTerminalPreference,
     setIsOpen,
     embeddedHeight,
     setEmbeddedHeight,
@@ -205,7 +206,7 @@ const Bubble = () => {
   const safeArea = useViewportSafeArea()
 
   // Don't render bubble if not visible
-  if (!preferences.visible || !isVisible) return null
+  if (!bubblePreferences.visible || !isVisible) return null
 
   // In Bubble.tsx - update the handleBubbleButtonClick
   const handleBubbleButtonClick = () => {
@@ -213,7 +214,7 @@ const Bubble = () => {
       // If already expanded, close it immediately
       setIsExpanded(false)
       setCurrentPanel('menu')
-      if (isTerminalOpen && preferences.terminalMode === 'floating') {
+      if (isTerminalOpen && terminalPreferences.terminalMode === 'floating') {
         // If terminal is open in floating mode, close it as well
         setIsOpen(false)
       }
@@ -233,8 +234,8 @@ const Bubble = () => {
     }
   }
   // These are now type-safe
-  const bubbleSize = sizeMap[preferences.size]
-  const position = positionMap[preferences.position]
+  const bubbleSize = sizeMap[bubblePreferences.size]
+  const position = positionMap[bubblePreferences.position]
 
   // Panel rendering - don't render terminal panel in bubble if it's in external mode
   const renderPanel = () => {
@@ -250,17 +251,15 @@ const Bubble = () => {
       // In Bubble.tsx - update the renderPanel function for terminal case
       case 'terminal':
         // Only show terminal panel in bubble if mode is floating
-        if (preferences.terminalMode === 'floating') {
+        if (terminalPreferences.terminalMode === 'floating') {
           return (
             <TerminalPanel
               mode='floating'
               isOpen={true}
               onClose={() => setIsExpanded(false)}
               setIsTerminalOpen={setIsOpen}
-              onModeChange={(
-                newMode: 'floating' | 'embedded' | 'fullscreen',
-              ) => {
-                updatePreference('terminalMode', newMode)
+              onModeChange={(newMode: TerminalMode) => {
+                updateTerminalPreference('terminalMode', newMode)
                 setIsOpen(true)
                 if (newMode === 'floating') {
                   setIsExpanded(true)
@@ -306,8 +305,8 @@ const Bubble = () => {
   }
 
   const getNotificationPosition = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
 
     return {
       [isRight ? 'right' : 'left']: screenDimensions.isMobile
@@ -359,8 +358,8 @@ const Bubble = () => {
   }
 
   const getPositionValues = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
 
     const margin = screenDimensions.isMobile ? 8 : 20
     const screenPadding = {
@@ -372,7 +371,8 @@ const Bubble = () => {
 
     // Adjust for Chatway widget when bubble is at bottom-right
     const chatwayOffset =
-      preferences.position === 'bottom-right' && screenDimensions.isDesktop
+      bubblePreferences.position === 'bottom-right' &&
+      screenDimensions.isDesktop
         ? 96
         : 0
 
@@ -420,8 +420,8 @@ const Bubble = () => {
   }
 
   const getExpansionOrigin = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
 
     if (screenDimensions.isMobile) {
       return 'bottom right'
@@ -616,16 +616,16 @@ const Bubble = () => {
 
       {/* Render external terminal panels */}
       {/* Only render external terminal when it's open and not in floating mode */}
-      {isTerminalOpen && preferences.terminalMode !== 'floating' && (
+      {isTerminalOpen && terminalPreferences.terminalMode !== 'floating' && (
         <TerminalPanel
-          mode={preferences.terminalMode}
+          mode={terminalPreferences.terminalMode}
           isOpen={isTerminalOpen}
           onClose={() => {
             setIsOpen(false)
           }}
           setIsTerminalOpen={setIsOpen}
-          onModeChange={(newMode: 'floating' | 'embedded' | 'fullscreen') => {
-            updatePreference('terminalMode', newMode)
+          onModeChange={(newMode: TerminalMode) => {
+            updateTerminalPreference('terminalMode', newMode)
             setIsOpen(true)
             if (newMode === 'floating') {
               setIsExpanded(true)

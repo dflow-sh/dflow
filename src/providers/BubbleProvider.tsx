@@ -13,6 +13,14 @@ import React, {
 
 import type { Notification, Panel } from '@/components/bubble/bubble-types'
 
+// Bubble-specific preferences
+interface BubblePreferences {
+  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  theme: 'system' | 'light' | 'dark'
+  size: 'small' | 'medium' | 'large'
+  visible: boolean
+}
+
 interface BubbleContextType {
   // Bubble state
   isExpanded: boolean
@@ -44,6 +52,10 @@ interface BubbleContextType {
   showNotification: boolean
   setShowNotification: (show: boolean) => void
 
+  // Bubble preferences
+  bubblePreferences: BubblePreferences
+  updateBubblePreference: (key: keyof BubblePreferences, value: any) => void
+
   // Actions
   showNotificationWithTimeout: (
     notification: Notification,
@@ -59,12 +71,17 @@ const BubbleContext = createContext<BubbleContextType | undefined>(undefined)
 
 // Bubble persistence keys
 const BUBBLE_STORAGE_KEY = 'bubble-state'
+const BUBBLE_PREFS_KEY = 'bubble-preferences'
 
 interface PersistedBubbleState {
   isExpanded: boolean
   currentPanel: Panel
   isVisible: boolean
   syncMessage: string
+}
+
+interface PersistedBubblePrefs {
+  bubblePreferences: BubblePreferences
 }
 
 export const useBubble = () => {
@@ -98,6 +115,27 @@ export default function BubbleProvider({
     return {}
   }
 
+  // Load initial bubble preferences from localStorage
+  const loadBubblePrefs = (): Partial<PersistedBubblePrefs> => {
+    if (typeof window === 'undefined') {
+      return {}
+    }
+
+    try {
+      const saved = localStorage.getItem(BUBBLE_PREFS_KEY)
+      if (saved) {
+        return JSON.parse(saved) as PersistedBubblePrefs
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to load bubble preferences from localStorage:',
+        error,
+      )
+    }
+
+    return {}
+  }
+
   // Bubble state with persistence
   const [isExpanded, setIsExpanded] = useState(
     () => loadBubbleState().isExpanded ?? false,
@@ -125,6 +163,21 @@ export default function BubbleProvider({
     useState<Notification | null>(null)
   const [showNotification, setShowNotification] = useState(false)
 
+  // Bubble preferences with persistence
+  const [bubblePreferences, setBubblePreferences] = useState<BubblePreferences>(
+    () => {
+      const savedPrefs = loadBubblePrefs()
+      return (
+        savedPrefs.bubblePreferences ?? {
+          position: 'bottom-right',
+          theme: 'system',
+          size: 'medium',
+          visible: true,
+        }
+      )
+    },
+  )
+
   // Refs
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -146,6 +199,17 @@ export default function BubbleProvider({
     }
   }, [])
 
+  // Save bubble preferences to localStorage
+  const saveBubblePrefs = useCallback((prefs: PersistedBubblePrefs) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.setItem(BUBBLE_PREFS_KEY, JSON.stringify(prefs))
+    } catch (error) {
+      console.warn('Failed to save bubble preferences to localStorage:', error)
+    }
+  }, [])
+
   // Persist bubble state when relevant states change
   useEffect(() => {
     const state: PersistedBubbleState = {
@@ -156,6 +220,14 @@ export default function BubbleProvider({
     }
     saveBubbleState(state)
   }, [isExpanded, currentPanel, isVisible, syncMessage, saveBubbleState])
+
+  // Persist bubble preferences when preferences change
+  useEffect(() => {
+    const prefs: PersistedBubblePrefs = {
+      bubblePreferences,
+    }
+    saveBubblePrefs(prefs)
+  }, [bubblePreferences, saveBubblePrefs])
 
   // Process management
   const addActiveProcess = useCallback((process: string) => {
@@ -169,6 +241,14 @@ export default function BubbleProvider({
       return newSet
     })
   }, [])
+
+  // Bubble preferences management
+  const updateBubblePreference = useCallback(
+    (key: keyof BubblePreferences, value: any) => {
+      setBubblePreferences(prev => ({ ...prev, [key]: value }))
+    },
+    [],
+  )
 
   // Notification management
   const showNotificationWithTimeout = useCallback(
@@ -443,6 +523,10 @@ export default function BubbleProvider({
     setCurrentNotification,
     showNotification,
     setShowNotification,
+
+    // Bubble preferences
+    bubblePreferences,
+    updateBubblePreference,
 
     // Actions
     showNotificationWithTimeout,
