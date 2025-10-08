@@ -100,7 +100,7 @@ const serverBackupMethod = async ({
   })
 
   const existingServices = project?.services?.docs ?? []
-  const updatedServices = template.services.map(service => {
+  const updatedServices = template?.services?.map(service => {
     if (service.name === 'app') {
       return {
         ...service,
@@ -134,7 +134,7 @@ const serverBackupMethod = async ({
   const deployServices: Service[] = []
 
   // Update services
-  for await (const service of updatedServices) {
+  for await (const service of updatedServices ?? []) {
     const existingService = existingServices.find(
       s => typeof s === 'object' && s.name?.includes(service.name),
     )
