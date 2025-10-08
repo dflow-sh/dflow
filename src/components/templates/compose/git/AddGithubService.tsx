@@ -662,7 +662,7 @@ const AddGithubService = ({
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className='grid w-full grid-cols-2 gap-4'>
+                        className='grid w-full grid-cols-1 gap-4 md:grid-cols-2'>
                         {buildOptions.map(
                           ({ value, label, icon, description }) => (
                             <FormItem
