@@ -205,9 +205,6 @@ export const getAllOfficialTemplatesAction = publicClient
         },
       },
     })
-
-    console.log(res)
-
     return res.docs
   })
 

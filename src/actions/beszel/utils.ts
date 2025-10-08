@@ -3,8 +3,9 @@ import { Payload } from 'payload'
 
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
 import { Collections } from '@/lib/beszel/types'
-import { DFLOW_CONFIG } from '@/lib/constants'
 import { pub } from '@/lib/redis'
+import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { sendEvent } from '@/lib/sendEvent'
 import { generateRandomString } from '@/lib/utils'
 import { ServerType } from '@/payload-types-overrides'
@@ -194,27 +195,28 @@ export async function setupBeszelSystem(
  * Fetch the official Beszel Agent template
  */
 export async function fetchBeszelTemplate() {
-  const res = await fetch(
-    `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official`,
-  )
+  const { docs: templates } = await dFlowRestSdk.find({
+    collection: 'templates',
+    where: {
+      and: [
+        { name: { equals: 'Beszel Agent' } },
+        { type: { equals: 'official' } },
+      ],
+    },
+  })
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch Beszel template')
-  }
-
-  const data = await res.json()
-  return data.docs[0]
+  return templates[0]
 }
 
 /**
  * Configure template services with Beszel environment variables
  */
 export function configureTemplateServices(
-  services: any[],
+  services: DFlowTemplateType['services'],
   config: any,
   token?: string,
 ) {
-  return services.map(service => {
+  return services?.map(service => {
     if (service.name === 'beszel-agent') {
       return {
         ...service,
@@ -272,7 +274,7 @@ export async function generateUniqueServiceName(
 export async function processServices(
   payload: Payload,
   project: any,
-  templateServices: any[],
+  templateServices: DFlowTemplateType['services'],
   tenantId: string,
   serverId: string,
 ) {
@@ -280,7 +282,7 @@ export async function processServices(
   const newServices = []
   const updatedServices = []
 
-  for (const templateService of templateServices) {
+  for (const templateService of templateServices ?? []) {
     // Check if service already exists
     const existing = existingServices.find((s: any) =>
       s.name?.includes(templateService.name),
