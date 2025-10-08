@@ -4,10 +4,10 @@ import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
-import { VpsPlan } from './types'
 import {
   checkConnectionSchema,
   checkPaymentMethodSchema,
@@ -78,13 +78,10 @@ export const getDFlowPlansAction = publicClient
     actionName: 'getDFlowPlansAction',
   })
   .action(async () => {
-    let vpsPlans: VpsPlan[] = []
-
-    if (DFLOW_CONFIG.URL) {
-      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/vpsPlans`, {})
-
-      vpsPlans = response?.data?.docs ?? []
-    }
+    const { docs: vpsPlans } = await dFlowRestSdk.find({
+      collection: 'vpsPlans',
+      pagination: false,
+    })
 
     return vpsPlans
   })

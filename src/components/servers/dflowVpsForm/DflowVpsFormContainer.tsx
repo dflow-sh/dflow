@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
+import { VpsPlan } from '@/lib/restSDK/types'
 import { CloudProviderAccount, SshKey } from '@/payload-types'
 
 import { AccountConnectionStatus } from './AccountConnectionStatus'

@@ -1,20 +1,20 @@
 import { Camera, CircuitBoard, Cpu, HardDrive } from 'lucide-react'
 
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
 import { Card, CardContent } from '@/components/ui/card'
+import { VpsPlan } from '@/lib/restSDK/types'
 
 export const SpecificationsSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (
-    <div className='mb-6 mt-6'>
-      <h2 className='mb-3 text-lg font-semibold text-foreground'>
+    <div className='mt-6 mb-6'>
+      <h2 className='text-foreground mb-3 text-lg font-semibold'>
         Server Specifications
       </h2>
       <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
         <Card>
           <CardContent className='flex h-full flex-col p-4'>
             <div className='mb-2 flex items-center space-x-2'>
-              <Cpu className='h-5 w-5 text-primary' />
-              <h3 className='font-semibold text-foreground'>CPU</h3>
+              <Cpu className='text-primary h-5 w-5' />
+              <h3 className='text-foreground font-semibold'>CPU</h3>
             </div>
             <p className='text-muted-foreground'>
               {`${vpsPlan?.cpu.cores} ${vpsPlan?.cpu.type === 'virtual' ? 'vCPU' : 'CPU'} Cores`}
@@ -25,8 +25,8 @@ export const SpecificationsSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
         <Card>
           <CardContent className='flex h-full flex-col p-4'>
             <div className='mb-2 flex items-center space-x-2'>
-              <CircuitBoard className='h-5 w-5 text-primary' />
-              <h3 className='font-semibold text-foreground'>RAM</h3>
+              <CircuitBoard className='text-primary h-5 w-5' />
+              <h3 className='text-foreground font-semibold'>RAM</h3>
             </div>
             <p className='text-muted-foreground'>
               {`${vpsPlan?.ram.size} ${vpsPlan?.ram.unit} RAM`}
@@ -37,8 +37,8 @@ export const SpecificationsSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
         <Card>
           <CardContent className='flex h-full flex-col p-4'>
             <div className='mb-2 flex items-center space-x-2'>
-              <HardDrive className='h-5 w-5 text-primary' />
-              <h3 className='font-semibold text-foreground'>Storage</h3>
+              <HardDrive className='text-primary h-5 w-5' />
+              <h3 className='text-foreground font-semibold'>Storage</h3>
             </div>
             <p className='text-muted-foreground'>
               {vpsPlan?.storageOptions
@@ -51,8 +51,8 @@ export const SpecificationsSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
         <Card>
           <CardContent className='flex h-full flex-col p-4'>
             <div className='mb-2 flex items-center space-x-2'>
-              <Camera className='h-5 w-5 text-primary' />
-              <h3 className='font-semibold text-foreground'>Snapshot</h3>
+              <Camera className='text-primary h-5 w-5' />
+              <h3 className='text-foreground font-semibold'>Snapshot</h3>
             </div>
             <p className='text-muted-foreground'>
               {`${vpsPlan?.snapshots} ${vpsPlan?.snapshots === 1 ? 'Snapshot' : 'Snapshots'}`}

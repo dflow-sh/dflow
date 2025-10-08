@@ -1,6 +1,5 @@
 'use client'
 
-import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import SidebarToggleButton from '../SidebarToggleButton'
 import { CPanel, Plesk } from '../icons'
@@ -49,6 +48,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { cloudProvidersList } from '@/lib/integrationList'
+import type { VpsPlan } from '@/lib/restSDK/types'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 

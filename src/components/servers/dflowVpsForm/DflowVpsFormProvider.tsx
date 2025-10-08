@@ -15,7 +15,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
-import { VpsPlan } from '@/actions/cloud/dFlow/types'
+import { VpsPlan } from '@/lib/restSDK/types'
 import { SshKey } from '@/payload-types'
 
 import { dflowVpsSchema } from './schemas'
