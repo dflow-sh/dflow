@@ -1,9 +1,9 @@
 'use server'
 
-import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
 import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { protectedClient, publicClient } from '@/lib/safe-action'
 import { generateRandomString } from '@/lib/utils'
 import { Project, Server, Service, Template } from '@/payload-types'
@@ -117,14 +117,16 @@ export const deleteTemplateAction = protectedClient
       },
     })
 
-    if (response.isPublished) {
-      await axios.delete(
-        `${DFLOW_CONFIG.URL}/api/templates/${response.publishedTemplateId}`,
+    if (response.isPublished && response.publishedTemplateId) {
+      await dFlowRestSdk.delete(
+        {
+          collection: 'templates',
+          id: response.publishedTemplateId,
+        },
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
           },
-          timeout: 10000,
         },
       )
     }
@@ -194,16 +196,19 @@ export const getAllOfficialTemplatesAction = publicClient
   .action(async ({ clientInput }) => {
     const { type } = clientInput
 
-    const res = await fetch(
-      `${DFLOW_CONFIG.URL}/api/templates?where[type][equals]=${type}&pagination=false`,
-    )
+    const res = await dFlowRestSdk.find({
+      collection: 'templates',
+      limit: 1000,
+      where: {
+        type: {
+          equals: type,
+        },
+      },
+    })
 
-    if (!res.ok) {
-      throw new Error('Failed to fetch official templates')
-    }
+    console.log(res)
 
-    const data = await res.json()
-    return (data.docs ?? []) as Template[]
+    return res.docs
   })
 
 export const getPersonalTemplatesAction = protectedClient
@@ -235,14 +240,12 @@ export const getOfficialTemplateByIdAction = publicClient
   .action(async ({ clientInput }) => {
     const { templateId } = clientInput
 
-    const res = await fetch(`${DFLOW_CONFIG.URL}/api/templates/${templateId}`)
+    const templateDetails = await dFlowRestSdk.findByID({
+      collection: 'templates',
+      id: templateId,
+    })
 
-    if (!res.ok) {
-      throw new Error('Failed to fetch template details')
-    }
-
-    const templateDetails = await res.json()
-    return templateDetails as Omit<Template, 'tenant'>
+    return templateDetails
   })
 
 export const publishTemplateAction = protectedClient
@@ -296,40 +299,43 @@ export const publishTemplateAction = protectedClient
       throw new Error('Invalid templateId: No access template.')
     }
 
-    const response = await axios.post(
-      `${DFLOW_CONFIG.URL}/api/templates`,
+    const response = await dFlowRestSdk.create(
       {
-        name: template.name,
-        description: template.description,
-        imageUrl: template.imageUrl,
-        services: template.services,
+        collection: 'templates',
+        data: {
+          name: template.name,
+          description: template.description,
+          imageUrl: template.imageUrl,
+          services: template.services,
+        },
       },
       {
         headers: {
           Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
-        timeout: 10000,
       },
     )
 
-    if (response.data.doc) {
+    if (response) {
       try {
         await payload.update({
           collection: 'templates',
           id: templateId,
           data: {
             isPublished: true,
-            publishedTemplateId: response.data.doc.id,
+            publishedTemplateId: response.id,
           },
         })
       } catch (err) {
-        await axios.delete(
-          `${DFLOW_CONFIG.URL}/api/templates/${response.data.doc.id}`,
+        await dFlowRestSdk.delete(
+          {
+            collection: 'templates',
+            id: response.id,
+          },
           {
             headers: {
               Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
             },
-            timeout: 10000,
           },
         )
         throw new Error('Failed to update template')
@@ -395,14 +401,16 @@ export const unPublishTemplateAction = protectedClient
         publishedTemplateId: '',
       },
     })
-    if (templateData) {
-      await axios.delete(
-        `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+    if (templateData && template.publishedTemplateId) {
+      await dFlowRestSdk.delete(
+        {
+          collection: 'templates',
+          id: template.publishedTemplateId,
+        },
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
           },
-          timeout: 10000,
         },
       )
     }
@@ -460,22 +468,23 @@ export const syncWithPublicTemplateAction = protectedClient
     }
 
     try {
-      await axios.patch(
-        `${DFLOW_CONFIG.URL}/api/templates/${template.publishedTemplateId}`,
+      await dFlowRestSdk.update(
         {
-          name: template.name,
-          description: template.description,
-          imageUrl: template.imageUrl,
-          services: template.services,
+          collection: 'templates',
+          id: template.publishedTemplateId!,
+          data: {
+            name: template.name,
+            description: template.description,
+            imageUrl: template.imageUrl,
+            services: template.services,
+          },
         },
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
           },
-          timeout: 10000,
         },
       )
-
       revalidatePath(`/${tenant.slug}/templates`)
       return { success: true }
     } catch (error) {

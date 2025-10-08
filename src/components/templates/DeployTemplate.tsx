@@ -54,6 +54,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
 import { cn } from '@/lib/utils'
 import { Server, Service, Template } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
@@ -64,10 +65,10 @@ const icon: { [key in Service['type']]: JSX.Element } = {
   docker: <Docker className='size-5' />,
 }
 
-type StatusType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
+type DatabaseType = NonNullable<NonNullable<Service['databaseDetails']>['type']>
 
 const databaseIcons: {
-  [key in StatusType]: JSX.Element
+  [key in DatabaseType]: JSX.Element
 } = {
   postgres: <PostgreSQL className='size-5' />,
   mariadb: <MariaDB className='size-5' />,
@@ -77,7 +78,9 @@ const databaseIcons: {
   clickhouse: <ClickHouse className='size-5' />,
 }
 
-export const formateServices = (services: Template['services']) => {
+export const formateServices = (
+  services: Template['services'] | DFlowTemplateType['services'],
+) => {
   const formattedServices = services?.map(
     ({ type, name, description = '', ...serviceDetails }) => {
       if (type === 'database') {
@@ -108,7 +111,8 @@ export const formateServices = (services: Template['services']) => {
           variables: serviceDetails?.variables,
           githubSettings: serviceDetails?.githubSettings,
           providerType: serviceDetails?.providerType,
-          provider: serviceDetails?.provider,
+          provider:
+            'provider' in serviceDetails ? serviceDetails.provider : undefined,
           volumes: serviceDetails?.volumes ?? [],
         }
       }
@@ -127,7 +131,7 @@ const TemplateCard = ({
   serverName,
   organisationName,
 }: {
-  template: Template
+  template: Template | DFlowTemplateType
   isSelected: boolean
   hasMissingPlugins: boolean
   missingPlugins?: string[]
@@ -235,7 +239,7 @@ const TemplateDeploymentForm = ({
 }: {
   execute: ({ type }: { type: 'official' | 'community' | 'personal' }) => void
   isPending: boolean
-  templates?: Template[]
+  templates?: Template[] | DFlowTemplateType[]
   type: 'official' | 'community' | 'personal'
   server: Server
 }) => {
@@ -316,8 +320,8 @@ const TemplateDeploymentForm = ({
         missingPluginsList
           ?.map(db => db?.databaseDetails?.type)
           .filter(
-            (value): value is Exclude<typeof value, undefined> =>
-              value !== undefined,
+            (value): value is DatabaseType =>
+              value !== undefined && value !== null,
           ),
       ),
     )
@@ -352,7 +356,7 @@ const TemplateDeploymentForm = ({
                           template={template}
                           isSelected={selectedTemplateId === template.id}
                           hasMissingPlugins={template.hasMissingPlugins}
-                          missingPlugins={template.missingPlugins}
+                          missingPlugins={template?.missingPlugins}
                           onSelect={setSelectedTemplateId}
                           serverId={serverId}
                           serverName={serverName}
