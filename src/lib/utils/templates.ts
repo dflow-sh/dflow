@@ -1,4 +1,4 @@
-import { DFLOW_CONFIG } from '../constants'
+import { dFlowRestSdk } from '../restSDK/utils'
 
 import { Service } from '@/payload-types'
 
@@ -13,14 +13,27 @@ export async function fetchOfficialTemplateByName({
 }: {
   name: string
 }) {
-  const res = await fetch(
-    `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=${encodeURIComponent(name)}&where[and][1][type][equals]=official`,
-  )
+  const { docs: templates } = await dFlowRestSdk.find({
+    collection: 'templates',
+    pagination: false,
+    where: {
+      and: [
+        {
+          name: { equals: name },
+        },
+        {
+          type: { equals: 'official' },
+        },
+      ],
+    },
+  })
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${name} template`)
-  }
+  const template = templates[0]
+  if (!template) return undefined
 
-  const data = await res.json()
-  return data.docs[0] as TemplateType
+  return {
+    name: template.name,
+    description: template.description,
+    services: (template.services ?? []) as Service[],
+  } as TemplateType
 }
