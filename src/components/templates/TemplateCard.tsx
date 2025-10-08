@@ -4,9 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { getTenant } from '@/lib/get-tenant'
+import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
 import { Template } from '@/payload-types'
 
-const TemplateCard = async ({ template }: { template: Template }) => {
+const TemplateCard = async ({
+  template,
+}: {
+  template: DFlowTemplateType | Template
+}) => {
   const tenant = await getTenant()
   return (
     <div>

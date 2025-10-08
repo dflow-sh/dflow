@@ -1,8 +1,6 @@
 'use server'
 
-import axios from 'axios'
-
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { publicClient } from '@/lib/safe-action'
 
 export const getGithubStarsAction = publicClient
@@ -10,11 +8,13 @@ export const getGithubStarsAction = publicClient
     actionName: 'getGithubStarsAction',
   })
   .action(async () => {
-    const res = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/globals/github?depth=2&draft=false`,
-    )
+    const res = await dFlowRestSdk.findGlobal({
+      slug: 'github',
+      depth: 2,
+      draft: false,
+    })
 
-    const stars = res.data.githubStars
+    const stars = res.githubStars
 
     return {
       stars,

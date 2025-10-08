@@ -12,7 +12,6 @@ import PersonalTemplates from '@/components/templates/PersonalTemplates'
 import TemplateCard from '@/components/templates/TemplateCard'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Template } from '@/payload-types'
 
 interface PageProps {
   params: Promise<{ organisation: string }>
@@ -64,11 +63,9 @@ const page = async ({ params }: PageProps) => {
           <TabsContent value='official'>
             {officialTemplates?.data && officialTemplates?.data?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {officialTemplates?.data?.map(
-                  (template: Template, index: number) => (
-                    <TemplateCard key={index} template={template} />
-                  ),
-                )}
+                {officialTemplates?.data?.map((template, index) => (
+                  <TemplateCard key={index} template={template} />
+                ))}
               </div>
             ) : (
               <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
@@ -86,7 +83,7 @@ const page = async ({ params }: PageProps) => {
             {communityTemplates?.data &&
             communityTemplates?.data?.length > 0 ? (
               <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-                {communityTemplates?.data?.map((template: Template) => (
+                {communityTemplates?.data?.map(template => (
                   <TemplateCard key={template.id} template={template} />
                 ))}
               </div>
