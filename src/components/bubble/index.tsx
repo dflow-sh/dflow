@@ -189,9 +189,17 @@ const Bubble = () => {
     handleBubbleClick,
     setIsExpanded,
     navigateToPanel,
+    setCurrentPanel,
   } = useBubble()
 
-  const { preferences, updatePreference } = useTerminal()
+  const {
+    isOpen: isTerminalOpen,
+    preferences,
+    updatePreference,
+    setIsOpen,
+    embeddedHeight,
+    setEmbeddedHeight,
+  } = useTerminal()
 
   const screenDimensions = useScreenDimensions()
   const safeArea = useViewportSafeArea()
@@ -199,19 +207,31 @@ const Bubble = () => {
   // Don't render bubble if not visible
   if (!preferences.visible || !isVisible) return null
 
-  // Handle bubble click - close if terminal is already open in external mode
+  // In Bubble.tsx - update the handleBubbleButtonClick
   const handleBubbleButtonClick = () => {
-    if (
-      preferences.terminalMode !== 'floating' &&
-      currentPanel === 'terminal'
-    ) {
-      // Terminal is already open externally, just close the bubble panel
+    if (isExpanded) {
+      // If already expanded, close it immediately
       setIsExpanded(false)
+      setCurrentPanel('menu')
+      if (isTerminalOpen && preferences.terminalMode === 'floating') {
+        // If terminal is open in floating mode, close it as well
+        setIsOpen(false)
+      }
     } else {
-      handleBubbleClick()
+      // If not expanded, close Chatway first and then open bubble immediately
+      if (window.$chatway?.closeChatwayWidget) {
+        try {
+          window.$chatway.closeChatwayWidget()
+        } catch (error) {
+          console.warn('Failed to close Chatway:', error)
+        }
+      }
+
+      // Open the bubble immediately without delay
+      setIsExpanded(true)
+      setCurrentPanel('menu')
     }
   }
-
   // These are now type-safe
   const bubbleSize = sizeMap[preferences.size]
   const position = positionMap[preferences.position]
@@ -227,13 +247,30 @@ const Bubble = () => {
         return <QueuesPanel />
       case 'sync':
         return <SyncPanel />
+      // In Bubble.tsx - update the renderPanel function for terminal case
       case 'terminal':
         // Only show terminal panel in bubble if mode is floating
         if (preferences.terminalMode === 'floating') {
           return (
             <TerminalPanel
-              mode={preferences.terminalMode}
+              mode='floating'
+              isOpen={true}
               onClose={() => setIsExpanded(false)}
+              setIsTerminalOpen={setIsOpen}
+              onModeChange={(
+                newMode: 'floating' | 'embedded' | 'fullscreen',
+              ) => {
+                updatePreference('terminalMode', newMode)
+                setIsOpen(true)
+                if (newMode === 'floating') {
+                  setIsExpanded(true)
+                  navigateToPanel('terminal')
+                } else {
+                  setIsExpanded(false)
+                }
+              }}
+              embeddedHeight={embeddedHeight}
+              onEmbeddedHeightChange={setEmbeddedHeight}
             />
           )
         } else {
@@ -261,7 +298,11 @@ const Bubble = () => {
         />
       )
     }
-    return <Sparkles size={iconSize} className='text-muted-foreground' />
+    // Show terminal icon if terminal is open
+    if (isTerminalOpen) {
+      return <Terminal size={iconSize} className='text-primary' />
+    }
+    return <Sparkles size={iconSize} className='text-primary' />
   }
 
   const getNotificationPosition = () => {
@@ -456,6 +497,10 @@ const Bubble = () => {
             'bg-background ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 backdrop-blur-xl transition-all duration-300 hover:shadow-2xl',
             bubbleSize.bubble,
             'active:scale-95', // Add touch feedback
+            // // Add special styling when terminal is open externally
+            // isTerminalOpen &&
+            //   preferences.terminalMode !== 'floating' &&
+            //   'ring-primary/50 bg-primary/5',
           )}
           style={{ zIndex: 1 }}
           whileHover={{ scale: 1.05 }}
@@ -531,6 +576,22 @@ const Bubble = () => {
             />
           )}
 
+          {/* Terminal Open Indicator */}
+          {isTerminalOpen && (
+            <motion.div
+              className='bg-primary absolute top-0 right-0 h-3 w-3 rounded-full'
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [1, 0.7, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          )}
+
           {/* Icon */}
           <motion.div
             animate={
@@ -554,12 +615,27 @@ const Bubble = () => {
       </div>
 
       {/* Render external terminal panels */}
-      {preferences.terminalMode !== 'floating' && (
+      {/* Only render external terminal when it's open and not in floating mode */}
+      {isTerminalOpen && preferences.terminalMode !== 'floating' && (
         <TerminalPanel
           mode={preferences.terminalMode}
+          isOpen={isTerminalOpen}
           onClose={() => {
-            updatePreference('terminalMode', 'floating')
+            setIsOpen(false)
           }}
+          setIsTerminalOpen={setIsOpen}
+          onModeChange={(newMode: 'floating' | 'embedded' | 'fullscreen') => {
+            updatePreference('terminalMode', newMode)
+            setIsOpen(true)
+            if (newMode === 'floating') {
+              setIsExpanded(true)
+              navigateToPanel('terminal')
+            } else {
+              setIsExpanded(false)
+            }
+          }}
+          embeddedHeight={embeddedHeight}
+          onEmbeddedHeightChange={setEmbeddedHeight}
         />
       )}
     </>

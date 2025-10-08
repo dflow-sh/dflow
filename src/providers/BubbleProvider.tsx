@@ -57,6 +57,16 @@ interface BubbleContextType {
 
 const BubbleContext = createContext<BubbleContextType | undefined>(undefined)
 
+// Bubble persistence keys
+const BUBBLE_STORAGE_KEY = 'bubble-state'
+
+interface PersistedBubbleState {
+  isExpanded: boolean
+  currentPanel: Panel
+  isVisible: boolean
+  syncMessage: string
+}
+
 export const useBubble = () => {
   const context = useContext(BubbleContext)
   if (!context) {
@@ -70,23 +80,47 @@ export default function BubbleProvider({
 }: {
   children: React.ReactNode
 }) {
-  // Bubble state
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [currentPanel, setCurrentPanel] = useState<Panel>('menu')
-  const [isVisible, setIsVisible] = useState(false)
+  // Load initial state from localStorage
+  const loadBubbleState = (): Partial<PersistedBubbleState> => {
+    if (typeof window === 'undefined') {
+      return {}
+    }
 
-  // Sync state
+    try {
+      const saved = localStorage.getItem(BUBBLE_STORAGE_KEY)
+      if (saved) {
+        return JSON.parse(saved) as PersistedBubbleState
+      }
+    } catch (error) {
+      console.warn('Failed to load bubble state from localStorage:', error)
+    }
+
+    return {}
+  }
+
+  // Bubble state with persistence
+  const [isExpanded, setIsExpanded] = useState(
+    () => loadBubbleState().isExpanded ?? false,
+  )
+  const [currentPanel, setCurrentPanel] = useState<Panel>(
+    () => loadBubbleState().currentPanel ?? 'menu',
+  )
+  const [isVisible, setIsVisible] = useState(
+    () => loadBubbleState().isVisible ?? true,
+  )
+
+  // Sync state (not persisted)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isSSESyncing, setIsSSESyncing] = useState(false)
   const [syncProgress, setSyncProgress] = useState(0)
   const [syncMessage, setSyncMessage] = useState(
-    'All platform data is synchronized',
+    () => loadBubbleState().syncMessage ?? 'All platform data is synchronized',
   )
 
-  // Process state
+  // Process state (not persisted)
   const [activeProcesses, setActiveProcesses] = useState<Set<string>>(new Set())
 
-  // Notification state
+  // Notification state (not persisted)
   const [currentNotification, setCurrentNotification] =
     useState<Notification | null>(null)
   const [showNotification, setShowNotification] = useState(false)
@@ -100,6 +134,28 @@ export default function BubbleProvider({
   const [isPending, startTransition] = useTransition()
   const { organisation } = useParams<{ organisation: string }>()
   const router = useRouter()
+
+  // Save bubble state to localStorage
+  const saveBubbleState = useCallback((state: PersistedBubbleState) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.setItem(BUBBLE_STORAGE_KEY, JSON.stringify(state))
+    } catch (error) {
+      console.warn('Failed to save bubble state to localStorage:', error)
+    }
+  }, [])
+
+  // Persist bubble state when relevant states change
+  useEffect(() => {
+    const state: PersistedBubbleState = {
+      isExpanded,
+      currentPanel,
+      isVisible,
+      syncMessage,
+    }
+    saveBubbleState(state)
+  }, [isExpanded, currentPanel, isVisible, syncMessage, saveBubbleState])
 
   // Process management
   const addActiveProcess = useCallback((process: string) => {
@@ -355,11 +411,6 @@ export default function BubbleProvider({
         clearTimeout(notificationTimeoutRef.current)
       if (eventSourceRef.current) eventSourceRef.current.close()
     }
-  }, [])
-
-  // Basic initialization
-  useEffect(() => {
-    setIsVisible(true)
   }, [])
 
   const value: BubbleContextType = {
