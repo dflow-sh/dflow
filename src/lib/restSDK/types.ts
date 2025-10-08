@@ -4,7 +4,6 @@ export interface Config {
   }
   blocks: {}
   collections: {
-    users: User
     templates: Template
     vpsPlans: VpsPlan
   }
@@ -16,9 +15,7 @@ export interface Config {
   globals: {
     github: Github
   }
-  globalsSelect: {
-    github: GithubSelect<false> | GithubSelect<true>
-  }
+  globalsSelect: {}
   locale: null
 }
 
@@ -178,101 +175,6 @@ export interface Github {
     | null
   updatedAt?: string | null
   createdAt?: string | null
-}
-
-export interface GithubSelect<T extends boolean = true> {
-  githubStars?: T
-  issues?: T
-  releases?: T
-  updatedAt?: T
-  createdAt?: T
-  globalType?: T
-}
-
-export interface User {
-  id: string
-  displayName?: string | null
-  username?: string | null
-  type?: ('individual' | 'organization') | null
-  personalDetails?: {
-    firstName?: string | null
-    lastName?: string | null
-    jobTitle?: string | null
-  }
-  organizationDetails?: {
-    companyName?: string | null
-    contactPerson?: string | null
-    jobTitle?: string | null
-  }
-  contactDetails?: {
-    phoneNumber?: number | null
-    alternatePhone?: number | null
-    website?: string | null
-  }
-  addressDetails?: {
-    addressLine1?: string | null
-    addressLine2?: string | null
-    city?: string | null
-    state?: string | null
-    postalCode?: number | null
-    country?: string | null
-  }
-  additionalDetails?: {
-    referralSource?:
-      | (
-          | 'google'
-          | 'social'
-          | 'referral'
-          | 'ad'
-          | 'youtube'
-          | 'blog'
-          | 'linkedin'
-          | 'reddit'
-          | 'other'
-        )
-      | null
-    referralSourceOther?: string | null
-    message?: string | null
-  }
-  imageUrl?: string | null
-  avatarUrl?: string | null
-  role: ('admin' | 'author' | 'user')[]
-  emailVerified?: string | null
-  discord?: {
-    accountId?: string | null
-    username?: string | null
-    globalName?: string | null
-    discriminator?: string | null
-    avatarUrl?: string | null
-    isEligible?: boolean | null
-    accountCreationDate?: string | null
-    accountAge?: number | null
-  }
-  /**
-   * Whether the user has claimed their free credits
-   */
-  hasClaimedFreeCredits?: boolean | null
-  /**
-   * Time at which user accepted terms & conditions
-   */
-  acceptedTermsDate?: string | null
-  stripe_customer_code?: string | null
-  wallet?: number | null
-  updatedAt: string
-  createdAt: string
-  enableAPIKey?: boolean | null
-  apiKey?: string | null
-  apiKeyIndex?: string | null
-  email: string
-  resetPasswordToken?: string | null
-  resetPasswordExpiration?: string | null
-  salt?: string | null
-  hash?: string | null
-  _verified?: boolean | null
-  _verificationToken?: string | null
-  loginAttempts?: number | null
-  lockUntil?: string | null
-  password?: string | null
 }
 
 export interface VpsPlan {
