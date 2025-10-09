@@ -7,11 +7,11 @@ import { getPayload } from 'payload'
 import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
 import { Collections, CreateSystemData } from '@/lib/beszel/types'
 import { getQueue, getWorker } from '@/lib/bullmq'
-import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { generateRandomString } from '@/lib/utils'
-import { Project, Server, Service, Template, User } from '@/payload-types'
+import { Project, Server, Service, User } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
 interface QueueArgs {
@@ -207,16 +207,16 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
         })
 
         // Fetch the official Beszel Agent template from the API
-        const res = await fetch(
-          `${DFLOW_CONFIG.URL}/api/templates?where[and][0][name][equals]=Beszel%20Agent&where[and][1][type][equals]=official`,
-        )
-
-        if (!res.ok) {
-          throw new Error('Failed to fetch official templates')
-        }
-
-        const data = await res.json()
-        const template = (data.docs.at(0) ?? []) as Template
+        const { docs: templates } = await dFlowRestSdk.find({
+          collection: 'templates',
+          where: {
+            and: [
+              { name: { equals: 'Beszel Agent' } },
+              { type: { equals: 'official' } },
+            ],
+          },
+        })
+        const template = templates.at(0)
 
         sendEvent({
           pub,
@@ -225,7 +225,7 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
         })
 
         // Configure Beszel agent service with required environment variables
-        const services = (template.services || []).map(service => {
+        const services = (template?.services || []).map(service => {
           if (service.name === 'beszel-agent') {
             return {
               ...service,
@@ -308,7 +308,10 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
           }>
 
           service?.variables?.forEach(variable => {
-            variables?.push(variable)
+            variables?.push({
+              ...variable,
+              value: variable.value ?? '',
+            })
           })
 
           return { ...service, name: serviceName, variables }
@@ -376,7 +379,6 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
                   variables: service?.variables,
                   githubSettings: service?.githubSettings,
                   providerType: service?.providerType,
-                  provider: service?.provider,
                   builder: service?.builder,
                   volumes: service?.volumes,
                   tenant: tenant.id,
