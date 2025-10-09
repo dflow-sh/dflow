@@ -1,7 +1,7 @@
-import axios from 'axios'
 import { CollectionAfterReadHook } from 'payload'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { Server } from '@/payload-types'
 
 export const populateDflowVpsDetails: CollectionAfterReadHook<Server> = async ({
@@ -49,13 +49,20 @@ export const populateDflowVpsDetails: CollectionAfterReadHook<Server> = async ({
     }
 
     // Fetch instance status using hostname (nested in instanceResponse.name)
-    const { data: instanceStatusRes } = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/vpsOrders?where[instanceResponse.name][equals]=${doc.hostname}`,
+    const instanceStatusRes = await dFlowRestSdk.find(
+      {
+        collection: 'vpsOrders',
+        limit: 1,
+        where: {
+          'instanceResponse.name': {
+            equals: doc.hostname,
+          },
+        },
+      },
       {
         headers: {
           Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
-        timeout: 10000,
       },
     )
 
@@ -77,7 +84,7 @@ export const populateDflowVpsDetails: CollectionAfterReadHook<Server> = async ({
     const dflowVpsDetails = {
       orderId: instanceData.id || null, // The order ID is the document ID
       instanceId: instanceData.instanceId || null,
-      status: instanceData.instanceResponse?.status || 'unknown', // Status is nested in instanceResponse
+      status: (instanceData.instanceResponse as any)?.status || 'unknown', // Status is nested in instanceResponse
       next_billing_date: instanceData.next_billing_date
         ? new Date(instanceData.next_billing_date).toISOString()
         : null,
