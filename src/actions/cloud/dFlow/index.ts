@@ -227,7 +227,7 @@ export const createVPSOrderAction = protectedClient
 
     const { doc: createdVpsOrder } = createdVpsOrderRes
 
-    console.log({ createdVpsOrder })
+    console.dir({ createdVpsOrder }, { depth: null })
 
     let serverData: RequiredDataFromCollection<Server> = {
       name: vps.displayName,
@@ -241,9 +241,9 @@ export const createVPSOrderAction = protectedClient
       cloudProviderAccount: dFlowAccount.id,
       preferConnectionType: 'tailscale',
       dflowVpsDetails: {
-        orderId: createdVpsOrder.id,
-        instanceId: createdVpsOrder.instanceId,
-        status: createdVpsOrder.instanceResponse.status as NonNullable<
+        orderId: createdVpsOrder?.id,
+        instanceId: createdVpsOrder?.instanceId,
+        status: createdVpsOrder?.instanceResponse?.status as NonNullable<
           Server['dflowVpsDetails']
         >['status'],
       },
