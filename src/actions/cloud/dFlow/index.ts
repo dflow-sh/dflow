@@ -291,19 +291,11 @@ export const checkPaymentMethodAction = protectedClient
     }
 
     // Fetch user wallet balance
-    const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
-      headers: {
-        Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+    const { docs: usersDocs } = await dFlowRestSdk.find(
+      {
+        collection: 'users',
+        limit: 1,
       },
-    })
-
-    const usersData = userResponse.data
-    const userData = usersData.docs.at(0) || {}
-    const walletBalance = userData.wallet || 0
-
-    // Fetch user's payment cards
-    const cardsResponse = await axios.get(
-      `${DFLOW_CONFIG.URL}/api/cards/count`,
       {
         headers: {
           Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
@@ -311,8 +303,22 @@ export const checkPaymentMethodAction = protectedClient
       },
     )
 
-    const cardsData = cardsResponse.data
-    const validCardCount = cardsData.totalDocs || 0
+    const userData = usersDocs.at(0)
+    const walletBalance = userData?.wallet || 0
+
+    // Fetch user's payment cards
+    const { totalDocs } = await dFlowRestSdk.count(
+      {
+        collection: 'cards',
+      },
+      {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+      },
+    )
+
+    const validCardCount = totalDocs || 0
 
     return {
       walletBalance,
@@ -338,29 +344,25 @@ export const checkAccountConnection = protectedClient
         }
       }
 
-      const userResponse = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
-        headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+      const userResponse = await dFlowRestSdk.find(
+        {
+          collection: 'users',
+          limit: 1,
         },
-        timeout: 10000, // 10 second timeout
-      })
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          },
+        },
+      )
 
-      const usersData = userResponse?.data?.docs?.at(0)
+      const usersData = userResponse?.docs?.at(0)
 
       if (!usersData || !usersData.id) {
         return {
           isConnected: false,
           user: null,
           error: 'No user data found or invalid response from dFlow API',
-        }
-      }
-
-      // Additional validation for active user
-      if (usersData.status && usersData.status !== 'active') {
-        return {
-          isConnected: false,
-          user: usersData,
-          error: `Account status is ${usersData.status}. Please ensure your dFlow account is active.`,
         }
       }
 
@@ -499,14 +501,19 @@ export const getDflowUser = protectedClient
     let user = null
 
     try {
-      const response = await axios.get(`${DFLOW_CONFIG.URL}/api/users`, {
-        headers: {
-          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+      const response = await dFlowRestSdk.find(
+        {
+          collection: 'users',
+          limit: 1,
         },
-        timeout: 10000,
-      })
+        {
+          headers: {
+            Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+          },
+        },
+      )
 
-      user = response?.data?.docs?.[0]
+      user = response?.docs?.[0]
     } catch (error) {
       console.log(
         `Failed to fetch user details with account: ${dflowAccount.id}`,
