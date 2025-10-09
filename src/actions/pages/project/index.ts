@@ -29,6 +29,11 @@ export const getProjectDetails = protectedClient
               },
             },
             {
+              'project.hidden': {
+                not_equals: true,
+              },
+            },
+            {
               'tenant.slug': {
                 equals: tenant.slug,
               },

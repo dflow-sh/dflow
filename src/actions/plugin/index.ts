@@ -221,6 +221,9 @@ export const checkPluginUsageAction = protectedClient
           'databaseDetails.type': {
             equals: pluginName,
           },
+          'project.hidden': {
+            not_equals: true,
+          },
           'project.server': {
             equals: serverId,
           },

@@ -25,6 +25,11 @@ export const getServiceDetails = protectedClient
             },
           },
           {
+            'project.hidden': {
+              not_equals: true,
+            },
+          },
+          {
             'tenant.slug': {
               equals: tenant.slug,
             },
@@ -56,6 +61,11 @@ export const getServiceDeploymentsBackups = protectedClient
             {
               id: {
                 equals: id,
+              },
+            },
+            {
+              'project.hidden': {
+                not_equals: true,
               },
             },
             {

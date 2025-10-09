@@ -268,6 +268,9 @@ export const getProjectDatabasesAction = protectedClient
         project: {
           equals: id,
         },
+        'project.hidden': {
+          not_equals: true,
+        },
         type: {
           equals: 'database',
         },
