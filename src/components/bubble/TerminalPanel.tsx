@@ -7,10 +7,11 @@ import {
   HardDrive,
   Loader2,
   Maximize2,
-  Minimize2,
   PictureInPicture,
+  Terminal,
   X,
 } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -20,7 +21,6 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useServers } from '@/providers/ServersProvider'
-import { useTerminal } from '@/providers/TerminalProvider'
 
 // import { XTermLogViewer } from './XTermLogViewer'
 import type { Server } from './bubble-types'
@@ -34,7 +34,12 @@ const XTermLogViewer = dynamic(
 
 interface TerminalPanelProps {
   mode: 'floating' | 'embedded' | 'fullscreen'
+  isOpen: boolean
   onClose: () => void
+  setIsTerminalOpen: (open: boolean) => void
+  onModeChange: (mode: 'floating' | 'embedded' | 'fullscreen') => void
+  embeddedHeight: number
+  onEmbeddedHeightChange: (height: number) => void
 }
 
 interface TerminalContentProps {
@@ -92,7 +97,7 @@ const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
         <div className='text-muted-foreground text-sm'>Server: {serverId}</div>
       </div>
 
-      {/* XTerm Terminal for Logs */}
+      {/* XTerm Terminal */}
       <div
         className='bg-background flex-1 p-4'
         style={{
@@ -140,28 +145,30 @@ const ServerTabs = ({
   )
 }
 
-const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
-  const { goBack } = useBubble()
+const TerminalPanel = ({
+  mode = 'floating',
+  isOpen,
+  onClose,
+  setIsTerminalOpen,
+  onModeChange,
+  embeddedHeight,
+  onEmbeddedHeightChange,
+}: TerminalPanelProps) => {
+  const { goBack, navigateToPanel, setIsExpanded } = useBubble()
   const {
     servers,
     loading: loadingServers,
     error: errorServers,
     refresh: refreshServers,
   } = useServers()
+  const { serverId } = useParams<{ serverId: string }>()
 
-  const [activeServerId, setActiveServerId] = useState(servers[0]?.id || '')
+  const [activeServerId, setActiveServerId] = useState(
+    serverId || servers[0]?.id || '',
+  )
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
-
-  const {
-    embeddedHeight,
-    setEmbedded,
-    setEmbeddedHeight,
-    isResizing,
-    setIsResizing,
-    preferences,
-    updatePreference,
-  } = useTerminal()
+  const [isResizing, setIsResizing] = useState(false)
 
   const resizeStartYRef = useRef<number>(0)
   const resizeStartHeightRef = useRef<number>(0)
@@ -170,21 +177,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     setMounted(true)
   }, [])
 
-  useEffect(() => {
-    if (mode === 'embedded') {
-      setEmbedded(true)
-      adjustMainContentHeight(embeddedHeight)
-    } else {
-      setEmbedded(false)
-      resetMainContentHeight()
-    }
-
-    return () => {
-      setEmbedded(false)
-      resetMainContentHeight()
-    }
-  }, [mode, embeddedHeight, setEmbedded])
-
+  // Handle resize
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return
@@ -198,7 +191,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
         ),
       )
 
-      setEmbeddedHeight(newHeight)
+      onEmbeddedHeightChange(newHeight)
       adjustMainContentHeight(newHeight)
     }
 
@@ -223,13 +216,22 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
         document.body.style.userSelect = ''
       }
     }
-  }, [isResizing, setEmbeddedHeight])
+  }, [isResizing, onEmbeddedHeightChange])
+
+  // Handle server selection
+  useEffect(() => {
+    if (serverId && servers.find(s => s.id === serverId)) {
+      setActiveServerId(serverId)
+    } else if (servers.length > 0 && !activeServerId) {
+      setActiveServerId(servers[0].id)
+    }
+  }, [serverId, servers])
 
   useEffect(() => {
     if (servers.length > 0 && !activeServerId) {
       setActiveServerId(servers[0].id)
     }
-  }, [servers, activeServerId])
+  }, [servers, activeServerId, serverId])
 
   const adjustMainContentHeight = (height: number) => {
     const mainContent = document.getElementById('main-content')
@@ -253,21 +255,11 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     resizeStartHeightRef.current = embeddedHeight
   }
 
-  const toggleFullscreen = () => {
-    if (mode === 'fullscreen') {
-      updatePreference('terminalMode', 'floating')
-      onClose()
+  const handleBack = () => {
+    if (mode === 'floating') {
+      goBack()
     } else {
-      updatePreference('terminalMode', 'fullscreen')
-    }
-  }
-
-  const toggleEmbedded = () => {
-    if (mode === 'embedded') {
-      updatePreference('terminalMode', 'floating')
       onClose()
-    } else {
-      updatePreference('terminalMode', 'embedded')
     }
   }
 
@@ -280,8 +272,13 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     }
   }
 
+  // Don't render if terminal is not open
+  if (!isOpen) {
+    return null
+  }
+
   // Fullscreen mode
-  if (mode === 'fullscreen') {
+  if (mode === 'fullscreen' && mounted) {
     return (
       <div className='bg-background fixed inset-0 z-[100] flex flex-col'>
         <div className='bg-card flex items-center justify-between border-b px-6 py-4'>
@@ -289,20 +286,12 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
             <Button
               variant='ghost'
               size='icon'
-              onClick={() => {
-                updatePreference('terminalMode', 'floating')
-                onClose()
-              }}
+              onClick={() => onModeChange('floating')}
               className='h-8 w-8'>
               <ArrowLeft size={16} />
             </Button>
             <div>
-              <h2 className='text-xl font-semibold'>
-                Server Terminal - Fullscreen
-              </h2>
-              <p className='text-muted-foreground text-sm'>
-                Real-time server logs and monitoring
-              </p>
+              <h2 className='text-xl font-semibold'>Server Terminal</h2>
             </div>
           </div>
 
@@ -310,14 +299,23 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
             <Badge variant='secondary' className='text-xs'>
               {servers.length} server{servers.length !== 1 ? 's' : ''}
             </Badge>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={toggleFullscreen}
-              className='gap-2'>
-              <Minimize2 size={16} />
-              Exit Fullscreen
-            </Button>
+            <div className='flex items-center gap-1'>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => onModeChange('embedded')}
+                className='h-8 gap-1.5 text-xs'>
+                <Terminal size={14} />
+                Embedded
+              </Button>
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={onClose}
+                className='h-8 w-8'>
+                <X size={14} />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -336,7 +334,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     )
   }
 
-  // Embedded mode - Portal to bottom container
+  // Embedded mode
   if (mode === 'embedded' && mounted) {
     const container = document.getElementById('embedded-terminal-container')
     if (!container) return null
@@ -379,12 +377,9 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
             </button>
 
             {!isCollapsed && (
-              <>
-                <div className='bg-border h-4 w-px' />
-                <Badge variant='secondary' className='text-xs'>
-                  {servers.length} server{servers.length !== 1 ? 's' : ''}
-                </Badge>
-              </>
+              <Badge variant='secondary' className='text-xs'>
+                {servers.length} server{servers.length !== 1 ? 's' : ''}
+              </Badge>
             )}
           </div>
 
@@ -394,7 +389,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={toggleFullscreen}
+                  onClick={() => onModeChange('fullscreen')}
                   className='h-8 gap-1.5 text-xs'>
                   <Maximize2 size={14} />
                   Fullscreen
@@ -402,10 +397,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => {
-                    updatePreference('terminalMode', 'floating')
-                    onClose()
-                  }}
+                  onClick={() => onModeChange('floating')}
                   className='h-8 gap-1.5 text-xs'>
                   <PictureInPicture size={14} />
                   Floating
@@ -415,10 +407,7 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
             <Button
               variant='ghost'
               size='icon'
-              onClick={() => {
-                updatePreference('terminalMode', 'floating')
-                onClose()
-              }}
+              onClick={onClose}
               className='h-8 w-8'>
               <X size={14} />
             </Button>
@@ -445,24 +434,21 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     )
   }
 
-  // Floating mode (default)
+  // Floating mode (inside bubble)
   if (loadingServers) {
     return (
       <div className='flex h-full flex-col'>
         <div className='border-b p-4'>
-          <div className='flex items-center'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={goBack}
-              className='mr-3 h-8 w-8'>
-              <ArrowLeft size={14} />
-            </Button>
-            <div>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={handleBack}
+                className='mr-3 h-8 w-8'>
+                <ArrowLeft size={16} />
+              </Button>
               <h2 className='text-lg font-semibold'>Server Terminal</h2>
-              <p className='text-muted-foreground text-xs'>
-                Access server terminals
-              </p>
             </div>
           </div>
         </div>
@@ -480,19 +466,16 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     return (
       <div className='flex h-full flex-col'>
         <div className='border-b p-4'>
-          <div className='flex items-center'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={goBack}
-              className='mr-3 h-8 w-8'>
-              <ArrowLeft size={14} />
-            </Button>
-            <div>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={handleBack}
+                className='mr-3 h-8 w-8'>
+                <ArrowLeft size={16} />
+              </Button>
               <h2 className='text-lg font-semibold'>Server Terminal</h2>
-              <p className='text-muted-foreground text-xs'>
-                Access server terminals
-              </p>
             </div>
           </div>
         </div>
@@ -516,19 +499,16 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
     return (
       <div className='flex h-full flex-col'>
         <div className='border-b p-4'>
-          <div className='flex items-center'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={goBack}
-              className='mr-3 h-8 w-8'>
-              <ArrowLeft size={14} />
-            </Button>
-            <div>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              <Button
+                variant='ghost'
+                size='icon'
+                onClick={handleBack}
+                className='mr-3 h-8 w-8'>
+                <ArrowLeft size={16} />
+              </Button>
               <h2 className='text-lg font-semibold'>Server Terminal</h2>
-              <p className='text-muted-foreground text-xs'>
-                Access server terminals
-              </p>
             </div>
           </div>
         </div>
@@ -550,30 +530,28 @@ const TerminalPanel = ({ mode = 'floating', onClose }: TerminalPanelProps) => {
             <Button
               variant='ghost'
               size='icon'
-              onClick={goBack}
+              onClick={() => {
+                setIsTerminalOpen(false)
+                goBack()
+              }}
               className='mr-3 h-8 w-8'>
-              <ArrowLeft size={14} />
+              <ArrowLeft size={16} />
             </Button>
-            <div>
-              <h2 className='text-lg font-semibold'>Server Terminal</h2>
-              <p className='text-muted-foreground text-xs'>
-                Access server terminals
-              </p>
-            </div>
+            <h2 className='text-lg font-semibold'>Server Terminal</h2>
           </div>
           <div className='flex items-center gap-2'>
             <Button
               variant='outline'
               size='sm'
-              onClick={toggleEmbedded}
+              onClick={() => onModeChange('embedded')}
               className='h-8 gap-1.5 text-xs'>
-              <PictureInPicture size={14} />
-              Embed
+              <Terminal size={14} />
+              Embedded
             </Button>
             <Button
               variant='outline'
               size='sm'
-              onClick={toggleFullscreen}
+              onClick={() => onModeChange('fullscreen')}
               className='h-8 gap-1.5 text-xs'>
               <Maximize2 size={14} />
               Fullscreen

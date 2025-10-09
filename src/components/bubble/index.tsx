@@ -16,7 +16,7 @@ import { type CSSProperties, useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
-import { useTerminal } from '@/providers/TerminalProvider'
+import { TerminalMode, useTerminal } from '@/providers/TerminalProvider'
 
 import MenuPanel from './MenuPanel'
 import PreferencesPanel from './PreferencesPanel'
@@ -25,12 +25,17 @@ import SyncPanel from './SyncPanel'
 import TerminalPanel from './TerminalPanel'
 import type { NotificationType, Position, Size } from './bubble-types'
 
-// Type-safe maps
+// Responsive size map with viewport units
 const sizeMap: Record<
   Size,
   {
     bubble: string
-    expanded: { width: number; height: number }
+    expanded: {
+      width: string
+      height: string
+      maxWidth: string
+      maxHeight: string
+    }
     icon: number
     pillHeight: number
     bubbleSize: number
@@ -38,32 +43,48 @@ const sizeMap: Record<
 > = {
   small: {
     bubble: 'w-12 h-12',
-    expanded: { width: 380, height: 520 },
+    expanded: {
+      width: '90vw',
+      height: '80vh',
+      maxWidth: '380px',
+      maxHeight: '520px',
+    },
     icon: 16,
     pillHeight: 32,
     bubbleSize: 48,
   },
   medium: {
     bubble: 'w-14 h-14',
-    expanded: { width: 420, height: 580 },
-    icon: 20,
+    expanded: {
+      width: '92vw',
+      height: '82vh',
+      maxWidth: '420px',
+      maxHeight: '580px',
+    },
+    icon: 18,
     pillHeight: 36,
     bubbleSize: 56,
   },
   large: {
     bubble: 'w-16 h-16',
-    expanded: { width: 460, height: 640 },
-    icon: 24,
+    expanded: {
+      width: '94vw',
+      height: '84vh',
+      maxWidth: '460px',
+      maxHeight: '640px',
+    },
+    icon: 22,
     pillHeight: 40,
     bubbleSize: 64,
   },
 }
 
+// Responsive position map
 const positionMap: Record<Position, string> = {
-  'bottom-right': 'bottom-6 right-24', // Move left to accommodate Chatway
-  'bottom-left': 'bottom-6 left-6',
-  'top-right': 'top-6 right-6',
-  'top-left': 'top-6 left-6',
+  'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6 lg:right-24',
+  'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6',
+  'top-right': 'top-4 right-4 sm:top-6 sm:right-6',
+  'top-left': 'top-4 left-4 sm:top-6 sm:left-6',
 }
 
 function useScreenDimensions() {
@@ -71,14 +92,20 @@ function useScreenDimensions() {
     width: 0,
     height: 0,
     isMobile: false,
+    isTablet: false,
+    isDesktop: false,
   })
 
   useEffect(() => {
     const updateDimensions = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
       setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        isMobile: window.innerWidth < 768,
+        width,
+        height,
+        isMobile: width < 640,
+        isTablet: width >= 640 && width < 1024,
+        isDesktop: width >= 1024,
       })
     }
 
@@ -88,6 +115,54 @@ function useScreenDimensions() {
   }, [])
 
   return dimensions
+}
+
+function useViewportSafeArea() {
+  const [safeArea, setSafeArea] = useState({
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  })
+
+  useEffect(() => {
+    const updateSafeArea = () => {
+      // Calculate safe area considering potential zoom/magnification
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+
+      // Use CSS env variables if available, otherwise fallback
+      const envSafeAreaTop = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--sat') ||
+          '0',
+      )
+      const envSafeAreaRight = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--sar') ||
+          '0',
+      )
+      const envSafeAreaBottom = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--sab') ||
+          '0',
+      )
+      const envSafeAreaLeft = parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--sal') ||
+          '0',
+      )
+
+      setSafeArea({
+        top: envSafeAreaTop || Math.min(20, viewportHeight * 0.02),
+        right: envSafeAreaRight || Math.min(20, viewportWidth * 0.02),
+        bottom: envSafeAreaBottom || Math.min(20, viewportHeight * 0.02),
+        left: envSafeAreaLeft || Math.min(20, viewportWidth * 0.02),
+      })
+    }
+
+    updateSafeArea()
+    window.addEventListener('resize', updateSafeArea)
+    return () => window.removeEventListener('resize', updateSafeArea)
+  }, [])
+
+  return safeArea
 }
 
 declare global {
@@ -113,32 +188,56 @@ const Bubble = () => {
     showNotification,
     handleBubbleClick,
     setIsExpanded,
+    navigateToPanel,
+    setCurrentPanel,
+    bubblePreferences,
   } = useBubble()
 
-  const { preferences, updatePreference } = useTerminal()
+  const {
+    isOpen: isTerminalOpen,
+    terminalPreferences,
+    updateTerminalPreference,
+    setIsOpen,
+    embeddedHeight,
+    setEmbeddedHeight,
+  } = useTerminal()
 
   const screenDimensions = useScreenDimensions()
+  const safeArea = useViewportSafeArea()
 
-  // Don't render anything if terminal is in external mode
-  if (preferences.terminalMode !== 'floating') {
-    return (
-      <TerminalPanel
-        mode={preferences.terminalMode}
-        onClose={() => {
-          // When closing external terminal, switch back to floating mode
-          updatePreference('terminalMode', 'floating')
-        }}
-      />
-    )
+  // Don't render bubble if not visible
+  if (!bubblePreferences.visible || !isVisible) return null
+
+  // In Bubble.tsx - update the handleBubbleButtonClick
+  const handleBubbleButtonClick = () => {
+    if (isExpanded) {
+      // If already expanded, close it immediately
+      setIsExpanded(false)
+      setCurrentPanel('menu')
+      if (isTerminalOpen && terminalPreferences.terminalMode === 'floating') {
+        // If terminal is open in floating mode, close it as well
+        setIsOpen(false)
+      }
+    } else {
+      // If not expanded, close Chatway first and then open bubble immediately
+      if (window.$chatway?.closeChatwayWidget) {
+        try {
+          window.$chatway.closeChatwayWidget()
+        } catch (error) {
+          console.warn('Failed to close Chatway:', error)
+        }
+      }
+
+      // Open the bubble immediately without delay
+      setIsExpanded(true)
+      setCurrentPanel('menu')
+    }
   }
-
-  if (!preferences.visible || !isVisible) return null
-
   // These are now type-safe
-  const bubbleSize = sizeMap[preferences.size]
-  const position = positionMap[preferences.position]
+  const bubbleSize = sizeMap[bubblePreferences.size]
+  const position = positionMap[bubblePreferences.position]
 
-  // Panel rendering
+  // Panel rendering - don't render terminal panel in bubble if it's in external mode
   const renderPanel = () => {
     switch (currentPanel) {
       case 'menu':
@@ -149,20 +248,43 @@ const Bubble = () => {
         return <QueuesPanel />
       case 'sync':
         return <SyncPanel />
+      // In Bubble.tsx - update the renderPanel function for terminal case
       case 'terminal':
-        return (
-          <TerminalPanel
-            mode={preferences.terminalMode}
-            onClose={() => setIsExpanded(false)}
-          />
-        )
+        // Only show terminal panel in bubble if mode is floating
+        if (terminalPreferences.terminalMode === 'floating') {
+          return (
+            <TerminalPanel
+              mode='floating'
+              isOpen={true}
+              onClose={() => setIsExpanded(false)}
+              setIsTerminalOpen={setIsOpen}
+              onModeChange={(newMode: TerminalMode) => {
+                updateTerminalPreference('terminalMode', newMode)
+                setIsOpen(true)
+                if (newMode === 'floating') {
+                  setIsExpanded(true)
+                  navigateToPanel('terminal')
+                } else {
+                  setIsExpanded(false)
+                }
+              }}
+              embeddedHeight={embeddedHeight}
+              onEmbeddedHeightChange={setEmbeddedHeight}
+            />
+          )
+        } else {
+          // Terminal is open externally, show menu instead
+          return <MenuPanel />
+        }
       default:
         return null
     }
   }
 
   const getBubbleIcon = () => {
-    const iconSize = bubbleSize.icon
+    const iconSize = screenDimensions.isMobile
+      ? bubbleSize.icon - 2
+      : bubbleSize.icon
 
     if (isSyncing || isSSESyncing) {
       return <Loader2 size={iconSize} className='text-primary animate-spin' />
@@ -175,15 +297,21 @@ const Bubble = () => {
         />
       )
     }
-    return <Sparkles size={iconSize} className='text-muted-foreground' />
+    // Show terminal icon if terminal is open
+    if (isTerminalOpen) {
+      return <Terminal size={iconSize} className='text-primary' />
+    }
+    return <Sparkles size={iconSize} className='text-primary' />
   }
 
   const getNotificationPosition = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
 
     return {
-      [isRight ? 'right' : 'left']: bubbleSize.bubbleSize / 2,
+      [isRight ? 'right' : 'left']: screenDimensions.isMobile
+        ? bubbleSize.bubbleSize / 2 - 8
+        : bubbleSize.bubbleSize / 2,
       [isTop ? 'top' : 'bottom']:
         (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
       transformOrigin: isRight ? 'right center' : 'left center',
@@ -191,29 +319,62 @@ const Bubble = () => {
   }
 
   const getPanelPosition = (): CSSProperties => {
+    // Mobile-first responsive design
     if (screenDimensions.isMobile) {
       return {
         position: 'fixed',
-        bottom: '1rem',
-        left: '1rem',
-        right: '1rem',
+        bottom: `${safeArea.bottom}px`,
+        left: `${safeArea.left}px`,
+        right: `${safeArea.right}px`,
         top: 'auto',
-        width: 'auto',
-        height: '75vh',
-        minHeight: '400px',
+        width: `calc(100vw - ${safeArea.left + safeArea.right}px)`,
+        height: `calc(85vh - ${safeArea.bottom}px)`,
+        minHeight: '300px',
         maxHeight: '600px',
       } as CSSProperties
     }
 
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
-    const panelWidth = bubbleSize.expanded.width
-    const panelHeight = bubbleSize.expanded.height
-    const margin = 20
-    const screenPadding = 24
+    // Tablet responsive design
+    if (screenDimensions.isTablet) {
+      return {
+        position: 'fixed',
+        width: bubbleSize.expanded.width,
+        height: bubbleSize.expanded.height,
+        maxWidth: bubbleSize.expanded.maxWidth,
+        maxHeight: bubbleSize.expanded.maxHeight,
+        ...getPositionValues(),
+      } as CSSProperties
+    }
+
+    // Desktop responsive design
+    return {
+      position: 'fixed',
+      width: bubbleSize.expanded.width,
+      height: bubbleSize.expanded.height,
+      maxWidth: bubbleSize.expanded.maxWidth,
+      maxHeight: bubbleSize.expanded.maxHeight,
+      ...getPositionValues(),
+    } as CSSProperties
+  }
+
+  const getPositionValues = () => {
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
+
+    const margin = screenDimensions.isMobile ? 8 : 20
+    const screenPadding = {
+      top: safeArea.top,
+      right: safeArea.right,
+      bottom: safeArea.bottom,
+      left: safeArea.left,
+    }
 
     // Adjust for Chatway widget when bubble is at bottom-right
-    const chatwayOffset = preferences.position === 'bottom-right' ? 96 : 0
+    const chatwayOffset =
+      bubblePreferences.position === 'bottom-right' &&
+      screenDimensions.isDesktop
+        ? 96
+        : 0
 
     let left: string | undefined = undefined
     let right: string | undefined = undefined
@@ -221,38 +382,50 @@ const Bubble = () => {
     let bottom: string | undefined = undefined
 
     if (isRight) {
-      // Add chatway offset for bottom-right position
-      right = `${screenPadding + chatwayOffset}px`
+      right = `${screenPadding.right + chatwayOffset}px`
     } else {
-      left = `${screenPadding}px`
+      left = `${screenPadding.left}px`
     }
 
     if (isTop) {
-      top = `${screenPadding + bubbleSize.bubbleSize + margin}px`
+      top = `${screenPadding.top + bubbleSize.bubbleSize + margin}px`
     } else {
-      bottom = `${screenPadding + bubbleSize.bubbleSize + margin}px`
+      bottom = `${screenPadding.bottom + bubbleSize.bubbleSize + margin}px`
     }
 
-    const maxTop = screenDimensions.height - panelHeight - screenPadding
-    if (top && parseInt(top) > maxTop) {
-      top = `${Math.max(screenPadding, maxTop)}px`
+    // Ensure panel stays within viewport bounds
+    if (top) {
+      const maxTop =
+        screenDimensions.height -
+        parseInt(bubbleSize.expanded.maxHeight) -
+        screenPadding.bottom
+      const topValue = parseInt(top)
+      if (topValue > maxTop) {
+        top = `${Math.max(screenPadding.top, maxTop)}px`
+      }
     }
 
-    return {
-      position: 'fixed',
-      left,
-      right,
-      top,
-      bottom,
-      width: `${panelWidth}px`,
-      height: `${panelHeight}px`,
-      maxHeight: `${screenDimensions.height - screenPadding * 2}px`,
-    } as CSSProperties
+    if (bottom) {
+      const maxBottom =
+        screenDimensions.height -
+        parseInt(bubbleSize.expanded.maxHeight) -
+        screenPadding.top
+      const bottomValue = parseInt(bottom)
+      if (bottomValue > maxBottom) {
+        bottom = `${Math.max(screenPadding.bottom, maxBottom)}px`
+      }
+    }
+
+    return { left, right, top, bottom }
   }
 
   const getExpansionOrigin = () => {
-    const isRight = preferences.position.includes('right')
-    const isTop = preferences.position.includes('top')
+    const isRight = bubblePreferences.position.includes('right')
+    const isTop = bubblePreferences.position.includes('top')
+
+    if (screenDimensions.isMobile) {
+      return 'bottom right'
+    }
 
     if (isTop) {
       return isRight ? 'top right' : 'top left'
@@ -277,15 +450,16 @@ const Bubble = () => {
               animate={{ scaleX: 1, opacity: 1 }}
               exit={{ scaleX: 0, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className='bg-background/95 ring-border absolute flex items-center rounded-full border px-4 py-2 shadow-xl ring-1 backdrop-blur-xl'
+              className='bg-background/95 ring-border absolute flex items-center rounded-full border px-3 py-1.5 shadow-xl ring-1 backdrop-blur-xl sm:px-4 sm:py-2'
               style={{
                 ...notificationPosition,
-                minWidth: 200,
+                minWidth: screenDimensions.isMobile ? 160 : 200,
+                maxWidth: screenDimensions.isMobile ? 280 : 320,
                 height: bubbleSize.pillHeight,
                 zIndex: 0,
               }}>
               <NotificationIcon type={currentNotification.type} />
-              <span className='text-foreground mr-1 ml-2 truncate text-sm font-medium'>
+              <span className='text-foreground mr-1 ml-2 truncate text-xs font-medium sm:text-sm'>
                 {currentNotification.message}
               </span>
             </motion.div>
@@ -303,8 +477,9 @@ const Bubble = () => {
               style={{
                 ...panelStyle,
                 transformOrigin: getExpansionOrigin(),
-              }}>
-              <Card className='bg-background/95 ring-border h-full w-full overflow-hidden rounded-2xl border shadow-2xl ring-1 backdrop-blur-xl'>
+              }}
+              className='overflow-hidden'>
+              <Card className='bg-background/95 ring-border h-full w-full overflow-hidden rounded-xl border shadow-2xl ring-1 backdrop-blur-xl sm:rounded-2xl'>
                 <div className='h-full w-full'>
                   <div className='flex h-full min-h-full flex-col'>
                     <div className='h-full min-h-0'>{renderPanel()}</div>
@@ -317,10 +492,15 @@ const Bubble = () => {
 
         {/* Bubble Button */}
         <motion.button
-          onClick={handleBubbleClick}
+          onClick={handleBubbleButtonClick}
           className={cn(
             'bg-background ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 backdrop-blur-xl transition-all duration-300 hover:shadow-2xl',
             bubbleSize.bubble,
+            'active:scale-95', // Add touch feedback
+            // // Add special styling when terminal is open externally
+            // isTerminalOpen &&
+            //   preferences.terminalMode !== 'floating' &&
+            //   'ring-primary/50 bg-primary/5',
           )}
           style={{ zIndex: 1 }}
           whileHover={{ scale: 1.05 }}
@@ -396,6 +576,22 @@ const Bubble = () => {
             />
           )}
 
+          {/* Terminal Open Indicator */}
+          {isTerminalOpen && (
+            <motion.div
+              className='bg-primary absolute top-0 right-0 h-3 w-3 rounded-full'
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [1, 0.7, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            />
+          )}
+
           {/* Icon */}
           <motion.div
             animate={
@@ -417,12 +613,40 @@ const Bubble = () => {
           </motion.div>
         </motion.button>
       </div>
+
+      {/* Render external terminal panels */}
+      {/* Only render external terminal when it's open and not in floating mode */}
+      {isTerminalOpen && terminalPreferences.terminalMode !== 'floating' && (
+        <TerminalPanel
+          mode={terminalPreferences.terminalMode}
+          isOpen={isTerminalOpen}
+          onClose={() => {
+            setIsOpen(false)
+          }}
+          setIsTerminalOpen={setIsOpen}
+          onModeChange={(newMode: TerminalMode) => {
+            updateTerminalPreference('terminalMode', newMode)
+            setIsOpen(true)
+            if (newMode === 'floating') {
+              setIsExpanded(true)
+              navigateToPanel('terminal')
+            } else {
+              setIsExpanded(false)
+            }
+          }}
+          embeddedHeight={embeddedHeight}
+          onEmbeddedHeightChange={setEmbeddedHeight}
+        />
+      )}
     </>
   )
 }
 
 const NotificationIcon = ({ type }: { type: NotificationType }) => {
-  const iconProps = { size: 14, className: '' }
+  const screenDimensions = useScreenDimensions()
+  const iconSize = screenDimensions.isMobile ? 12 : 14
+
+  const iconProps = { size: iconSize, className: '' }
 
   switch (type) {
     case 'sync':

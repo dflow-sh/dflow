@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, Monitor, Moon, Sun } from 'lucide-react'
+import { ArrowLeft, Monitor, Moon, Sun, Terminal } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
@@ -21,20 +21,27 @@ import { useTerminal } from '@/providers/TerminalProvider'
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 type Theme = 'light' | 'dark' | 'system'
 type Size = 'small' | 'medium' | 'large'
+type TerminalMode = 'embedded' | 'floating' | 'fullscreen'
 
 const PreferencesPanel = () => {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
-  const { goBack } = useBubble()
-  const { preferences, updatePreference } = useTerminal()
+  const { goBack, bubblePreferences, updateBubblePreference } = useBubble()
+  const { terminalPreferences, updateTerminalPreference } = useTerminal()
 
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (mounted && theme) {
-      updatePreference('theme', theme as Theme)
+      updateBubblePreference('theme', theme as Theme)
     }
-  }, [theme, mounted, updatePreference])
+  }, [theme, mounted])
+
+  // Handle terminal mode change - just update preference without opening terminal
+  const handleTerminalModeChange = (value: TerminalMode) => {
+    updateTerminalPreference('terminalMode', value)
+    // Note: This only updates the preference, doesn't open the terminal
+  }
 
   if (!mounted) {
     return (
@@ -59,7 +66,7 @@ const PreferencesPanel = () => {
           <div>
             <h2 className='text-foreground text-lg font-semibold'>Settings</h2>
             <p className='text-muted-foreground text-xs'>
-              Customize your interface
+              Customize your interface preferences
             </p>
           </div>
         </div>
@@ -79,9 +86,9 @@ const PreferencesPanel = () => {
                 Bubble Position
               </Label>
               <Select
-                value={preferences.position}
+                value={bubblePreferences.position}
                 onValueChange={(value: Position) =>
-                  updatePreference('position', value)
+                  updateBubblePreference('position', value)
                 }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
@@ -211,6 +218,55 @@ const PreferencesPanel = () => {
               </div>
             </motion.div>
 
+            {/* Preferred Terminal Setting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className='space-y-3'>
+              <Label className='text-foreground text-sm font-medium'>
+                Preferred Terminal Mode
+              </Label>
+              <Select
+                value={terminalPreferences.terminalMode}
+                onValueChange={handleTerminalModeChange}>
+                <SelectTrigger className='h-12'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className='z-[2147483600]'>
+                  <SelectItem value='embedded'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted flex h-5 w-5 items-center justify-center rounded-sm border'>
+                        <Terminal size={12} className='text-foreground' />
+                      </div>
+                      Embedded (Default)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='floating'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted flex h-5 w-5 items-center justify-center rounded-sm border'>
+                        <Terminal size={12} className='text-foreground' />
+                      </div>
+                      Floating Panel
+                    </div>
+                  </SelectItem>
+                  <SelectItem value='fullscreen'>
+                    <div className='flex items-center gap-3'>
+                      <div className='border-border bg-muted flex h-5 w-5 items-center justify-center rounded-sm border'>
+                        <Terminal size={12} className='text-foreground' />
+                      </div>
+                      Full Screen
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className='text-muted-foreground text-xs'>
+                Choose your preferred terminal mode. This only sets the default
+                behavior - the terminal will open in this mode when you click
+                "Open Terminal".
+              </p>
+            </motion.div>
+
             {/* Size Setting */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -221,9 +277,9 @@ const PreferencesPanel = () => {
                 Bubble Size
               </Label>
               <Select
-                value={preferences.size}
+                value={bubblePreferences.size}
                 onValueChange={(value: Size) =>
-                  updatePreference('size', value)
+                  updateBubblePreference('size', value)
                 }>
                 <SelectTrigger className='h-12'>
                   <SelectValue />
@@ -285,6 +341,13 @@ const PreferencesPanel = () => {
                   <li>• Position bubble away from your main work area</li>
                   <li>• Use "Auto" theme to match your system preference</li>
                   <li>• Larger bubbles are easier to click on mobile</li>
+                  <li>• Embedded terminal stays at bottom of page</li>
+                  <li>• Floating terminal appears in the bubble panel</li>
+                  <li>• Fullscreen terminal takes the entire screen</li>
+                  <li>
+                    • Changing preferences doesn't automatically open the
+                    terminal
+                  </li>
                 </ul>
               </div>
             </motion.div>

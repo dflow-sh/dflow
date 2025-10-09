@@ -138,7 +138,14 @@ export default async function RootLayout({
               <BrandingProvider branding={branding}>
                 {children}
               </BrandingProvider>
-              <Toaster richColors duration={3000} closeButton />
+              <Toaster
+                richColors
+                duration={3000}
+                closeButton
+                position='top-right'
+                pauseWhenPageIsHidden
+                visibleToasts={5}
+              />
             </ThemeProvider>
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}

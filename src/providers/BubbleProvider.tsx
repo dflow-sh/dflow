@@ -13,6 +13,14 @@ import React, {
 
 import type { Notification, Panel } from '@/components/bubble/bubble-types'
 
+// Bubble-specific preferences
+interface BubblePreferences {
+  position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  theme: 'system' | 'light' | 'dark'
+  size: 'small' | 'medium' | 'large'
+  visible: boolean
+}
+
 interface BubbleContextType {
   // Bubble state
   isExpanded: boolean
@@ -44,6 +52,10 @@ interface BubbleContextType {
   showNotification: boolean
   setShowNotification: (show: boolean) => void
 
+  // Bubble preferences
+  bubblePreferences: BubblePreferences
+  updateBubblePreference: (key: keyof BubblePreferences, value: any) => void
+
   // Actions
   showNotificationWithTimeout: (
     notification: Notification,
@@ -56,6 +68,21 @@ interface BubbleContextType {
 }
 
 const BubbleContext = createContext<BubbleContextType | undefined>(undefined)
+
+// Bubble persistence keys
+const BUBBLE_STORAGE_KEY = 'bubble-state'
+const BUBBLE_PREFS_KEY = 'bubble-preferences'
+
+interface PersistedBubbleState {
+  isExpanded: boolean
+  currentPanel: Panel
+  isVisible: boolean
+  syncMessage: string
+}
+
+interface PersistedBubblePrefs {
+  bubblePreferences: BubblePreferences
+}
 
 export const useBubble = () => {
   const context = useContext(BubbleContext)
@@ -70,26 +97,86 @@ export default function BubbleProvider({
 }: {
   children: React.ReactNode
 }) {
-  // Bubble state
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [currentPanel, setCurrentPanel] = useState<Panel>('menu')
-  const [isVisible, setIsVisible] = useState(false)
+  // Load initial state from localStorage
+  const loadBubbleState = (): Partial<PersistedBubbleState> => {
+    if (typeof window === 'undefined') {
+      return {}
+    }
 
-  // Sync state
+    try {
+      const saved = localStorage.getItem(BUBBLE_STORAGE_KEY)
+      if (saved) {
+        return JSON.parse(saved) as PersistedBubbleState
+      }
+    } catch (error) {
+      console.warn('Failed to load bubble state from localStorage:', error)
+    }
+
+    return {}
+  }
+
+  // Load initial bubble preferences from localStorage
+  const loadBubblePrefs = (): Partial<PersistedBubblePrefs> => {
+    if (typeof window === 'undefined') {
+      return {}
+    }
+
+    try {
+      const saved = localStorage.getItem(BUBBLE_PREFS_KEY)
+      if (saved) {
+        return JSON.parse(saved) as PersistedBubblePrefs
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to load bubble preferences from localStorage:',
+        error,
+      )
+    }
+
+    return {}
+  }
+
+  // Bubble state with persistence
+  const [isExpanded, setIsExpanded] = useState(
+    () => loadBubbleState().isExpanded ?? false,
+  )
+  const [currentPanel, setCurrentPanel] = useState<Panel>(
+    () => loadBubbleState().currentPanel ?? 'menu',
+  )
+  const [isVisible, setIsVisible] = useState(
+    () => loadBubbleState().isVisible ?? true,
+  )
+
+  // Sync state (not persisted)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isSSESyncing, setIsSSESyncing] = useState(false)
   const [syncProgress, setSyncProgress] = useState(0)
   const [syncMessage, setSyncMessage] = useState(
-    'All platform data is synchronized',
+    () => loadBubbleState().syncMessage ?? 'All platform data is synchronized',
   )
 
-  // Process state
+  // Process state (not persisted)
   const [activeProcesses, setActiveProcesses] = useState<Set<string>>(new Set())
 
-  // Notification state
+  // Notification state (not persisted)
   const [currentNotification, setCurrentNotification] =
     useState<Notification | null>(null)
   const [showNotification, setShowNotification] = useState(false)
+
+  // Bubble preferences with persistence
+  const [bubblePreferences, setBubblePreferences] = useState<BubblePreferences>(
+    () => {
+      const savedPrefs = loadBubblePrefs()
+      return (
+        savedPrefs.bubblePreferences ?? {
+          position: 'bottom-right',
+          theme: 'system',
+          size: 'medium',
+          visible: true,
+        }
+      )
+    },
+  )
 
   // Refs
   const syncIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -100,6 +187,47 @@ export default function BubbleProvider({
   const [isPending, startTransition] = useTransition()
   const { organisation } = useParams<{ organisation: string }>()
   const router = useRouter()
+
+  // Save bubble state to localStorage
+  const saveBubbleState = useCallback((state: PersistedBubbleState) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.setItem(BUBBLE_STORAGE_KEY, JSON.stringify(state))
+    } catch (error) {
+      console.warn('Failed to save bubble state to localStorage:', error)
+    }
+  }, [])
+
+  // Save bubble preferences to localStorage
+  const saveBubblePrefs = useCallback((prefs: PersistedBubblePrefs) => {
+    if (typeof window === 'undefined') return
+
+    try {
+      localStorage.setItem(BUBBLE_PREFS_KEY, JSON.stringify(prefs))
+    } catch (error) {
+      console.warn('Failed to save bubble preferences to localStorage:', error)
+    }
+  }, [])
+
+  // Persist bubble state when relevant states change
+  useEffect(() => {
+    const state: PersistedBubbleState = {
+      isExpanded,
+      currentPanel,
+      isVisible,
+      syncMessage,
+    }
+    saveBubbleState(state)
+  }, [isExpanded, currentPanel, isVisible, syncMessage, saveBubbleState])
+
+  // Persist bubble preferences when preferences change
+  useEffect(() => {
+    const prefs: PersistedBubblePrefs = {
+      bubblePreferences,
+    }
+    saveBubblePrefs(prefs)
+  }, [bubblePreferences, saveBubblePrefs])
 
   // Process management
   const addActiveProcess = useCallback((process: string) => {
@@ -113,6 +241,14 @@ export default function BubbleProvider({
       return newSet
     })
   }, [])
+
+  // Bubble preferences management
+  const updateBubblePreference = useCallback(
+    (key: keyof BubblePreferences, value: any) => {
+      setBubblePreferences(prev => ({ ...prev, [key]: value }))
+    },
+    [],
+  )
 
   // Notification management
   const showNotificationWithTimeout = useCallback(
@@ -357,11 +493,6 @@ export default function BubbleProvider({
     }
   }, [])
 
-  // Basic initialization
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
-
   const value: BubbleContextType = {
     // Bubble state
     isExpanded,
@@ -392,6 +523,10 @@ export default function BubbleProvider({
     setCurrentNotification,
     showNotification,
     setShowNotification,
+
+    // Bubble preferences
+    bubblePreferences,
+    updateBubblePreference,
 
     // Actions
     showNotificationWithTimeout,
