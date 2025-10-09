@@ -1,4 +1,6 @@
-import { Check } from 'lucide-react'
+'use client'
+
+import { type Variants, motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -31,6 +33,19 @@ import { RegionField } from './form-fields/RegionField'
 import { StorageTypeField } from './form-fields/StorageTypeField'
 import { TermLengthSection } from './form-fields/TermLengthSection'
 import type { VpsFormData } from './schemas'
+
+const pathVariants: Variants = {
+  initial: {
+    opacity: 1,
+    pathLength: 1,
+    scale: 1,
+  },
+  animate: {
+    opacity: [0, 1],
+    pathLength: [0, 1],
+    scale: [0.5, 1],
+  },
+}
 
 export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const form = useFormContext<VpsFormData>()
@@ -209,8 +224,31 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <div className='flex items-center justify-center pt-4'>
             {createdVPSOrder ? (
               <div className='flex flex-col items-center justify-center gap-3'>
-                <div className='bg-primary/10 grid size-20 place-items-center rounded-full'>
-                  <Check className='text-primary size-12' />
+                <div
+                  role='status'
+                  className='bg-success-foreground text-success grid size-24 place-items-center rounded-full'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width={60}
+                    height={60}
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'>
+                    <motion.path
+                      variants={pathVariants}
+                      transition={{
+                        duration: 0.4,
+                        opacity: { duration: 0.1 },
+                        delay: 0.2,
+                      }}
+                      initial='initial'
+                      animate='animate'
+                      d='M4 12 9 17L20 6'
+                    />
+                  </svg>
                 </div>
 
                 <p className='text-muted-foreground text-sm'>
