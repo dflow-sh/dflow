@@ -93,11 +93,18 @@ export const completeServerOnboardingSchema = z.object({
   serverId: z.string().min(1, 'Server ID is required'),
 })
 
-export const checkDNSConfigSchema = z.object({
-  domain: z.string().min(1, 'Domain is required'),
-  ip: z.string().ip({ message: 'Invalid IP address' }),
-  proxyDomain: z.string().optional(),
-})
+export const checkDNSConfigSchema = z.union([
+  z.object({
+    domain: z.string().min(1, 'Domain is required'),
+    ip: z.string().ip({ message: 'Invalid IP address' }),
+    proxyDomain: z.undefined(),
+  }),
+  z.object({
+    domain: z.string().min(1, 'Domain is required'),
+    proxyDomain: z.string(),
+    ip: z.undefined(),
+  }),
+])
 
 export const checkServerConnectionSchema = z.discriminatedUnion(
   'connectionType',

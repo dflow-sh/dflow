@@ -25,6 +25,7 @@ export const PriceSummarySection = () => {
     selectedImage,
     selectedBackup,
     planCost,
+    selectedLicense,
   } = pricing
 
   const selectedImageVersionId = form.watch('image.versionId')
@@ -36,11 +37,11 @@ export const PriceSummarySection = () => {
 
   return (
     <div className='mb-6'>
-      <h2 className='mb-3 text-lg font-semibold text-foreground'>
+      <h2 className='text-foreground mb-3 text-lg font-semibold'>
         Price Summary
       </h2>
 
-      <div className='rounded-lg border border-border pt-4'>
+      <div className='border-border rounded-lg border pt-4'>
         <div className='space-y-4 px-4'>
           <div className='flex justify-between'>
             <span className='text-muted-foreground'>
@@ -112,6 +113,19 @@ export const PriceSummarySection = () => {
             </div>
           )}
 
+          {selectedLicense && (
+            <div className='flex justify-between'>
+              <span className='text-muted-foreground'>
+                License: {selectedLicense.label}
+              </span>
+              <span className='text-foreground'>
+                {selectedLicense.price.type === 'included'
+                  ? 'Included'
+                  : formatValue(selectedLicense.price.amount || 0)}
+              </span>
+            </div>
+          )}
+
           {walletUsed > 0 && (
             <div className='flex justify-between'>
               <span className='text-muted-foreground'>Wallet Credits</span>
@@ -124,11 +138,11 @@ export const PriceSummarySection = () => {
 
         <Separator className='mt-2' />
 
-        <div className='flex justify-between rounded-b-lg bg-border/50 px-4 py-4'>
-          <span className='font-bold text-foreground'>
+        <div className='bg-border/50 flex justify-between rounded-b-lg px-4 py-4'>
+          <span className='text-foreground font-bold'>
             Total ({selectedPricing?.period || 1} month)
           </span>
-          <span className='text-lg text-primary'>{formatValue(finalCost)}</span>
+          <span className='text-primary text-lg'>{formatValue(finalCost)}</span>
         </div>
       </div>
     </div>

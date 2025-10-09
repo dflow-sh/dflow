@@ -2,10 +2,11 @@
 
 import axios from 'axios'
 import { revalidatePath } from 'next/cache'
+import { RequiredDataFromCollection } from 'payload'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { protectedClient, publicClient } from '@/lib/safe-action'
-import { CloudProviderAccount } from '@/payload-types'
+import { CloudProviderAccount, Server } from '@/payload-types'
 
 import { VpsPlan } from './types'
 import {
@@ -101,6 +102,7 @@ export const createVPSOrderAction = protectedClient
       '@/queues/dFlow/addCreateVpsQueue'
     )
 
+    // Check user server creation limit
     if (Number(userTenant.role?.servers?.createLimit) > 0) {
       const { totalDocs } = await payload.count({
         collection: 'servers',
@@ -174,45 +176,108 @@ export const createVPSOrderAction = protectedClient
       )
     }
 
-    const { docs: sshKeys } = await payload.find({
-      collection: 'sshKeys',
-      pagination: false,
-      where: {
-        and: [
-          { id: { in: sshKeyIds } },
-          { 'tenant.slug': { equals: userTenant.tenant?.slug } },
-        ],
-      },
-    })
+    // const { docs: sshKeys } = await payload.find({
+    //   collection: 'sshKeys',
+    //   pagination: false,
+    //   where: {
+    //     and: [
+    //       { id: { in: sshKeyIds } },
+    //       { 'tenant.slug': { equals: userTenant.tenant?.slug } },
+    //     ],
+    //   },
+    // })
 
     // 3. Proceed with VPS creation
     console.log('Payment verified. Triggering VPS creation queue...')
 
-    const createVPSresponse = await addCreateVpsQueue({
-      sshKeys,
-      vps,
-      accountDetails: {
-        id: dFlowAccount.id,
-        accessToken: token,
+    // 3.1 Prepare VPS data for API request
+    const vpsData = {
+      plan: vps.plan,
+      userData: {
+        image: vps.image,
+        ...(vps.license ? { license: vps.license } : {}),
+        product: vps.product,
+        displayName: vps.displayName,
+        region: vps.region,
+        card: '',
+        defaultUser: vps.defaultUser,
+        rootPassword: vps.rootPassword,
+        period: vps.period,
+        plan: vps.plan,
+        addOns: vps.addOns || {},
       },
-      userId: user.id,
-      tenant: userTenant.tenant,
+    }
+
+    console.log(
+      `Creating VPS order with data:`,
+      JSON.stringify(vpsData, null, 2),
+    )
+
+    // 3.2 Call dFlow API to create VPS order
+    const { data: createdVpsOrderRes } = await axios.post(
+      `${DFLOW_CONFIG.URL}/api/vpsOrders`,
+      vpsData,
+      {
+        headers: {
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
+        },
+        timeout: 200000, // 2 mins of timeout!
+      },
+    )
+
+    const { doc: createdVpsOrder } = createdVpsOrderRes
+
+    console.dir({ createdVpsOrder }, { depth: null })
+
+    let serverData: RequiredDataFromCollection<Server> = {
+      name: vps.displayName,
+      description: '',
+      publicIp: createdVpsOrder?.instanceResponse?.ipConfig?.v4?.ip || '',
+      hostname: createdVpsOrder?.instanceResponse?.name || 'pending-hostname',
+      username: 'root',
+      provider: 'dflow',
+      createdBy: user.id,
+      tenant: userTenant.tenant.id,
+      cloudProviderAccount: dFlowAccount.id,
       preferConnectionType: 'tailscale',
+      dflowVpsDetails: {
+        orderId: createdVpsOrder?.id,
+        instanceId: createdVpsOrder?.instanceId,
+        status: createdVpsOrder?.instanceResponse?.status as NonNullable<
+          Server['dflowVpsDetails']
+        >['status'],
+      },
+      cloudInitStatus: 'running',
+      connectionAttempts: 0,
+    }
+
+    console.log({ serverData })
+
+    // 3.3 Save server record in Payload CMS
+    const createdServer = await payload.create({
+      collection: 'servers',
+      data: serverData,
     })
 
-    if (createVPSresponse.id) {
-      console.log('VPS creation process initiated successfully')
+    console.log({ createdServer })
 
-      return {
-        success: true,
-        data: {
-          accountId: dFlowAccount.id,
-          vpsName: vps.displayName,
-          estimatedCost: vps.estimatedCost,
-        },
-        message:
-          'VPS creation process started. You will receive updates on the progress.',
-      }
+    // 3.4 Add job to populate server details (hostname, IP) after creation
+    await addCreateVpsQueue({
+      serverId: createdServer.id,
+      orderId: createdVpsOrder.id,
+      accessToken: token,
+      tenant: userTenant.tenant,
+    })
+
+    return {
+      success: true,
+      data: {
+        orderId: createdVpsOrder.id,
+        serverId: createdServer.id,
+        accountId: dFlowAccount.id,
+        vpsName: vps.displayName,
+        estimatedCost: vps.estimatedCost,
+      },
     }
   })
 

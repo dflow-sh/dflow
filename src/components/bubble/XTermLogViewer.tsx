@@ -68,7 +68,7 @@ const darkTheme = {
   brightWhite: '#f8fafc',
 }
 
-export function XTermLogViewer({
+export default function XTermLogViewer({
   serverId,
   onConnectionStatusChange,
   onLogReceived,

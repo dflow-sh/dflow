@@ -204,7 +204,7 @@ const DockerForm = ({
           </div>
 
           <div className='space-y-2'>
-            <Label className='block'>
+            <Label className='flex'>
               Ports
               <SidebarToggleButton
                 directory='services'

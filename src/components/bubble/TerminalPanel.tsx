@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -21,8 +22,15 @@ import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useServers } from '@/providers/ServersProvider'
 
-import { XTermLogViewer } from './XTermLogViewer'
+// import { XTermLogViewer } from './XTermLogViewer'
 import type { Server } from './bubble-types'
+
+const XTermLogViewer = dynamic(
+  () => import('@/components/bubble/XTermLogViewer'),
+  {
+    ssr: false,
+  },
+)
 
 interface TerminalPanelProps {
   mode: 'floating' | 'embedded' | 'fullscreen'

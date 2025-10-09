@@ -1,10 +1,13 @@
-import { Loader2 } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createVPSOrderAction } from '@/actions/cloud/dFlow'
+import Loader from '@/components/Loader'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +23,8 @@ import { DFLOW_CONFIG } from '@/lib/constants'
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
 import { DisplayNameField } from './form-fields/DisplayNameField'
+import { ImageLicenseField } from './form-fields/ImageLicenseField'
+import { ImageSelection } from './form-fields/ImageSelection'
 import { ImageVersionField } from './form-fields/ImageVersionField'
 import { PriceSummarySection } from './form-fields/PriceSummarySection'
 import { RegionField } from './form-fields/RegionField'
@@ -30,16 +35,30 @@ import type { VpsFormData } from './schemas'
 export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const form = useFormContext<VpsFormData>()
   const searchParams = useSearchParams()
+  const params = useParams<{ organisation: string }>()
   const router = useRouter()
+  const [open, setOpen] = useState(false)
   const { pricing, selectedAccount, vpsPlan } = useDflowVpsForm()
 
   const {
     execute: executeCreateVPSOrderAction,
     isPending: isCreatingVpsOrder,
-    hasSucceeded: triggeredVPSOrderCreation,
+    hasSucceeded: createdVPSOrder,
+    result: createdVPSOrderResult,
   } = useAction(createVPSOrderAction, {
+    onExecute: () => {
+      setOpen(true)
+    },
     onError: ({ error }) => {
       toast.error(`Failed to create server instance: ${error.serverError}`)
+      setOpen(false)
+    },
+    onSuccess: ({ data }) => {
+      const { data: createdData } = data
+
+      setTimeout(() => {
+        router.push(`/${params.organisation}/servers/${createdData.serverId}`)
+      }, 5000)
     },
   })
 
@@ -56,6 +75,8 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const onSubmit: SubmitHandler<VpsFormData> = data => {
     if (!isFormValid) return
 
+    const license = data.license
+
     executeCreateVPSOrderAction({
       accountId: selectedAccount.id,
       sshKeyIds: data.login.sshKeyIds,
@@ -66,6 +87,11 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           imageId: data.image.versionId,
           priceId: data.image.priceId,
         },
+        ...(license
+          ? {
+              license,
+            }
+          : {}),
         product: {
           productId: data.storageType.productId,
           priceId: data.storageType.priceId,
@@ -112,8 +138,9 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <TermLengthSection />
           <RegionField />
           <StorageTypeField />
-          {/* <ImageSelection /> */}
+          <ImageSelection />
           <ImageVersionField />
+          <ImageLicenseField />
           {/* <LoginDetailsSection /> */}
           {/* <SshKeySection /> */}
           <BackupOptionsSection />
@@ -156,18 +183,49 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
         </form>
       </Form>
 
-      <Dialog open={isCreatingVpsOrder || triggeredVPSOrderCreation}>
+      <Dialog
+        open={open}
+        onOpenChange={state => {
+          if (isCreatingVpsOrder) {
+            return
+          }
+
+          setOpen(state)
+        }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Processing Your Order</DialogTitle>
+            <DialogTitle>
+              {createdVPSOrder
+                ? `🎉 Successfully placed ${vpsPlan?.name} order`
+                : `Processing Your ${vpsPlan?.name} order`}
+            </DialogTitle>
             <DialogDescription>
-              Your VPS order is being placed. Please wait we'll redirect once
-              server is assigned...
+              {createdVPSOrder
+                ? 'Your VPS order has been successfully placed.'
+                : "Your VPS order is being placed. Please wait we'll redirect once order is placed..."}
             </DialogDescription>
           </DialogHeader>
 
           <div className='flex items-center justify-center pt-4'>
-            <Loader2 className='text-primary h-10 w-10 animate-spin' />
+            {createdVPSOrder ? (
+              <div className='flex flex-col items-center justify-center gap-3'>
+                <div className='bg-primary/10 grid size-20 place-items-center rounded-full'>
+                  <Check className='text-primary size-12' />
+                </div>
+
+                <p className='text-muted-foreground text-sm'>
+                  You'll be redirected to your server page shortly.{' '}
+                  <Link
+                    className='text-primary underline'
+                    href={`/${params.organisation}/servers/${createdVPSOrderResult?.data?.data?.serverId}`}>
+                    Click here
+                  </Link>{' '}
+                  if your not redirected
+                </p>
+              </div>
+            ) : (
+              <Loader className='text-primary h-max w-max [&>svg]:size-12' />
+            )}
           </div>
         </DialogContent>
       </Dialog>

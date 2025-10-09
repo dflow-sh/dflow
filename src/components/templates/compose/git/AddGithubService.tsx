@@ -22,6 +22,7 @@ import {
   getRepositoriesAction,
 } from '@/actions/gitProviders'
 import { ServiceNode } from '@/components/reactflow/types'
+import SecretContent from '@/components/ui/blur-reveal'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import {
@@ -103,6 +104,7 @@ const AddGithubService = ({
         buildPath: service?.githubSettings?.buildPath ?? '/',
         repository: service?.githubSettings?.repository,
         port: service?.githubSettings?.port ?? 3000,
+        gitToken: service?.githubSettings?.gitToken ?? '',
       },
     },
   })
@@ -381,6 +383,22 @@ const AddGithubService = ({
                       )}
                     />
 
+                    <FormField
+                      control={form.control}
+                      name='githubSettings.gitToken'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Git Token</FormLabel>
+                          <FormControl>
+                            <SecretContent defaultHide={!!field.value}>
+                              <Input type='text' {...field} />
+                            </SecretContent>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <div className='grid gap-4 md:grid-cols-2'>
                       {/* Port */}
                       <FormField
@@ -439,7 +457,7 @@ const AddGithubService = ({
                       control={form.control}
                       name='provider'
                       render={({ field }) => (
-                        <FormItem className='-mt-2'>
+                        <FormItem>
                           <FormControl>
                             <SelectSearch
                               fieldValue={field.value}
@@ -554,7 +572,7 @@ const AddGithubService = ({
 
                   <div
                     className={`grid gap-4 ${type === 'update' ? 'md:grid-cols-4' : 'grid-cols-2'} `}>
-                    <div className='mt-2 md:col-span-2'>
+                    <div className='md:col-span-2'>
                       {/* Branch field */}
                       <FormField
                         control={form.control}

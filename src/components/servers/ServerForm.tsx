@@ -3,6 +3,13 @@
 import type { VpsPlan } from '../../actions/cloud/dFlow/types'
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import SidebarToggleButton from '../SidebarToggleButton'
+import { CPanel, Plesk } from '../icons'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip'
 import {
   AlertCircle,
   ArrowRight,
@@ -414,6 +421,19 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                     plan,
                     walletBalance,
                   )
+                  const versionsList =
+                    plan.images
+                      ?.filter(image => image && image.licenses?.length)
+                      .map(image => image.licenses)
+                      .flat()
+                      ?.map(license => license?.label) ?? []
+
+                  const pleskVersionList = versionsList?.filter(version =>
+                    version?.toLowerCase()?.startsWith('plesk'),
+                  )
+                  const cPanelVersionList = versionsList?.filter(version =>
+                    version?.toLowerCase()?.startsWith('cpanel'),
+                  )
 
                   return (
                     <div
@@ -433,7 +453,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                           <Server className='size-4' />
                         </div>
 
-                        <div className='space-y-1'>
+                        <div className='relative space-y-1'>
                           <div className='flex items-center gap-2'>
                             <Label
                               htmlFor={`${id}-${plan.slug}`}
@@ -445,6 +465,7 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                           <p className='text-muted-foreground text-sm'>
                             {formatSpecs(plan)}
                           </p>
+
                           <div className='flex flex-col gap-1'>
                             <div className='flex items-center gap-2'>
                               <span
@@ -452,14 +473,48 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                                 {formatDiscountedPrice(plan, walletBalance)}
                               </span>
                             </div>
+
                             {/* Credits applied note */}
-                            {showCreditsNote && (
-                              <div className='flex items-center gap-1'>
+
+                            <div className='flex items-center gap-1'>
+                              {showCreditsNote && (
                                 <span className='text-xs font-medium text-green-600'>
                                   Credits Applied: -${creditsApplied.toFixed(2)}
                                 </span>
-                              </div>
-                            )}
+                              )}
+                            </div>
+
+                            <div className='flex items-center gap-3'>
+                              {!!pleskVersionList.length && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Plesk className='size-8' />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {pleskVersionList.map(version => (
+                                        <p key={version}>{version}</p>
+                                      ))}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+
+                              {!!cPanelVersionList.length && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <CPanel className='size-6 fill-orange-500' />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {cPanelVersionList.map(version => (
+                                        <p key={version}>{version}</p>
+                                      ))}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
