@@ -756,6 +756,7 @@ export interface User {
   lockUntil?: string | null
   password?: string | null
   wallet?: number | null
+  hasClaimedFreeCredits?: boolean | null
 }
 
 export interface Card {
