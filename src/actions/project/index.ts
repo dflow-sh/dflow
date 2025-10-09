@@ -108,6 +108,11 @@ export const createProjectAction = protectedClient
               },
             },
             {
+              hidden: {
+                not_equals: true,
+              },
+            },
+            {
               createdBy: {
                 equals: user?.id,
               },
