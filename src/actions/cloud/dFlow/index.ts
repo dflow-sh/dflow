@@ -211,26 +211,31 @@ export const createVPSOrderAction = protectedClient
     )
 
     // 3.2 Call dFlow API to create VPS order
-    const { data: createdVpsOrderRes } = await axios.post(
-      `${DFLOW_CONFIG.URL}/api/vpsOrders`,
-      vpsData,
+    const createdVpsOrder = await dFlowRestSdk.create(
+      {
+        collection: 'vpsOrders',
+        data: vpsData,
+      },
       {
         headers: {
           Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
-        timeout: 200000, // 2 mins of timeout!
       },
     )
 
-    const { doc: createdVpsOrder } = createdVpsOrderRes
-
     console.dir({ createdVpsOrder }, { depth: null })
+
+    const instanceResponse = createdVpsOrder?.instanceResponse as {
+      ipConfig?: { v4?: { ip?: string } }
+      name?: string
+      status?: string
+    }
 
     let serverData: RequiredDataFromCollection<Server> = {
       name: vps.displayName,
       description: '',
-      publicIp: createdVpsOrder?.instanceResponse?.ipConfig?.v4?.ip || '',
-      hostname: createdVpsOrder?.instanceResponse?.name || 'pending-hostname',
+      publicIp: instanceResponse?.ipConfig?.v4?.ip || '',
+      hostname: instanceResponse?.name || 'pending-hostname',
       username: 'root',
       provider: 'dflow',
       createdBy: user.id,
@@ -240,7 +245,7 @@ export const createVPSOrderAction = protectedClient
       dflowVpsDetails: {
         orderId: createdVpsOrder?.id,
         instanceId: createdVpsOrder?.instanceId,
-        status: createdVpsOrder?.instanceResponse?.status as NonNullable<
+        status: instanceResponse?.status as NonNullable<
           Server['dflowVpsDetails']
         >['status'],
       },

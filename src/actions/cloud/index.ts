@@ -1,10 +1,11 @@
 'use server'
 
-import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { protectedClient } from '@/lib/safe-action'
+import { Server } from '@/payload-types'
 
 import {
   cloudProviderAccountsSchema,
@@ -79,8 +80,17 @@ export const syncDflowServersAction = protectedClient
       const tenantUserEmail = users[0].email
 
       // 1. Fetching all servers
-      const ordersResponse = await axios.get(
-        `${DFLOW_CONFIG.URL}/api/vpsOrders?limit=10&where[or][0][and][0][user.email][equals]=${tenantUserEmail}&pagination=false`,
+      const { docs } = await dFlowRestSdk.find(
+        {
+          collection: 'vpsOrders',
+          limit: 1000,
+          pagination: false,
+          where: {
+            'user.email': {
+              equals: tenantUserEmail,
+            },
+          },
+        },
         {
           headers: {
             Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${key}`,
@@ -89,7 +99,7 @@ export const syncDflowServersAction = protectedClient
       )
 
       // 2. Filtering orders to get only those with an IP address
-      const orders = ordersResponse?.data?.docs || []
+      const orders = docs || []
 
       const filteredOrders = orders.filter(
         (order: any) => order.instanceResponse?.ipConfig?.v4?.ip,
@@ -142,26 +152,33 @@ export const syncDflowServersAction = protectedClient
 
       // 5. Create new sshKey's, server's in the database for the new orders
       for await (const order of newOrders) {
+        const instanceResponse = order?.instanceResponse as {
+          displayName?: string
+          ipConfig?: { v4?: { ip?: string } }
+          defaultUser?: string
+          name?: string
+          status?: string
+        }
         await payload.create({
           collection: 'servers',
           data: {
-            name: `${order.instanceResponse.displayName}`,
-            ip: `${order.instanceResponse.ipConfig.v4.ip}`,
+            name: `${instanceResponse?.displayName}`,
+            ip: `${instanceResponse?.ipConfig?.v4?.ip}`,
             tenant: userTenant.tenant?.id,
             preferConnectionType: 'tailscale',
             cloudProviderAccount: id,
             port: 22, // Default port for SSH
             provider: 'dflow',
-            username: `${order.instanceResponse.defaultUser}`,
-            hostname: `${order.instanceResponse.name}`,
+            username: `${instanceResponse?.defaultUser}`,
+            hostname: `${instanceResponse?.name}`,
             dflowVpsDetails: {
-              instanceId: order.instanceId,
-              orderId: order.id,
-              status: order.instanceResponse.status,
-              next_billing_date: order.instanceResponse.next_billing_date
-                ? new Date(
-                    order.instanceResponse.next_billing_date,
-                  ).toISOString()
+              instanceId: order?.instanceId,
+              orderId: order?.id,
+              status: instanceResponse?.status as NonNullable<
+                Server['dflowVpsDetails']
+              >['status'],
+              next_billing_date: order?.next_billing_date
+                ? new Date(order?.next_billing_date).toISOString()
                 : null,
             },
           },

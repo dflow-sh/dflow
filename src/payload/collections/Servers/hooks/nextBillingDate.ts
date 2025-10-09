@@ -1,6 +1,7 @@
 import { CollectionAfterReadHook } from 'payload'
 
 import { DFLOW_CONFIG } from '@/lib/constants'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { Server } from '@/payload-types'
 
 export const nextBillingDateAfterRead: CollectionAfterReadHook<
@@ -40,24 +41,20 @@ export const nextBillingDateAfterRead: CollectionAfterReadHook<
       token = dFlowDetails?.accessToken
     }
 
-    const res = await fetch(
-      `${DFLOW_CONFIG.URL}/api/vpsOrders?pagination=false&where[or][0][and][0][instanceId][equals]=${instanceId}`,
+    const { next_billing_date } = await dFlowRestSdk.findByID(
       {
-        method: 'GET',
+        collection: 'vpsOrders',
+        id: instanceId,
+      },
+      {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `users API-Key ${token}`,
+          Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
       },
     )
 
-    const data = await res.json()
-    const externalOrder = Array.isArray(data) ? data[0] : data
-
-    if (!externalOrder?.docs?.at(0)?.next_billing_date) return doc
-    const updatedNextBillingDate = new Date(
-      externalOrder?.docs?.at(0)?.next_billing_date,
-    ).toISOString()
+    if (!next_billing_date) return doc
+    const updatedNextBillingDate = new Date(next_billing_date).toISOString()
 
     // ✅ Use payload.update instead of calling payload
     await payload.update({

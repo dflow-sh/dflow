@@ -1,10 +1,10 @@
 import configPromise from '@payload-config'
-import axios from 'axios'
 import { getPayload } from 'payload'
 
 import { getQueue, getWorker } from '@/lib/bullmq'
 import { DFLOW_CONFIG } from '@/lib/constants'
 import { jobOptions, pub, queueConnection } from '@/lib/redis'
+import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { sendActionEvent } from '@/lib/sendEvent'
 import { Tenant } from '@/payload-types'
 
@@ -68,13 +68,15 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                   `[${jobId}] Checking instance status (attempt ${attempt}/${maxAttempts})`,
                 )
 
-                const { data: order } = await axios.get(
-                  `${DFLOW_CONFIG.URL}/api/vpsOrders/${orderId}`,
+                const order = await dFlowRestSdk.findByID(
+                  {
+                    collection: 'vpsOrders',
+                    id: orderId,
+                  },
                   {
                     headers: {
                       Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${accessToken}`,
                     },
-                    timeout: 10000,
                   },
                 )
 
@@ -82,9 +84,15 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                   `[${jobId}] Order: ${JSON.stringify(order, null, 2)}`,
                 )
 
-                const newStatus = order.instanceResponse.status
-                const newIp = order.instanceResponse?.ipConfig?.v4?.ip
-                const newHostname = order.instanceResponse?.name
+                const instanceResponse = order.instanceResponse as {
+                  status?: string
+                  ipConfig?: { v4?: { ip?: string } }
+                  name?: string
+                }
+
+                const newStatus = instanceResponse?.status
+                const newIp = instanceResponse?.ipConfig?.v4?.ip
+                const newHostname = instanceResponse?.name
 
                 // Build updateData based on preferConnectionType
                 const updateData: any = {
@@ -132,14 +140,6 @@ export const addCreateVpsQueue = async (data: CreateVpsQueueArgs) => {
                     tenantSlug: tenant.slug,
                   })
                 }
-
-                if (order.status === 'failed' || order.status === 'error') {
-                  throw new VpsCreationError(
-                    `VPS creation failed: ${order.message || 'No details provided'}`,
-                    { orderStatus: order.status },
-                  )
-                }
-
                 if (newStatus === 'running' && newHostname && newIp) {
                   console.log(
                     `[${jobId}] VPS is ready with Public IP: ${newIp}, Hostname: ${newHostname}`,
