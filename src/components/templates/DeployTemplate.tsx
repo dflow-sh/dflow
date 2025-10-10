@@ -83,38 +83,66 @@ export const formateServices = (
 ) => {
   const formattedServices = services?.map(
     ({ type, name, description = '', ...serviceDetails }) => {
-      if (type === 'database') {
-        return {
-          type,
-          name,
-          description,
-          databaseDetails: serviceDetails.databaseDetails,
-        }
+      const baseService = {
+        type,
+        name,
+        description,
+        variables: serviceDetails?.variables,
+        volumes: serviceDetails?.volumes ?? [],
       }
 
-      if (type === 'docker') {
-        return {
-          type,
-          name,
-          description,
-          dockerDetails: serviceDetails?.dockerDetails,
-          variables: serviceDetails?.variables,
-          volumes: serviceDetails?.volumes ?? [],
-        }
-      }
-
-      if (type === 'app') {
-        return {
-          type,
-          name,
-          description,
-          variables: serviceDetails?.variables,
-          githubSettings: serviceDetails?.githubSettings,
-          providerType: serviceDetails?.providerType,
-          provider:
-            'provider' in serviceDetails ? serviceDetails.provider : undefined,
-          volumes: serviceDetails?.volumes ?? [],
-        }
+      switch (type) {
+        case 'database':
+          return {
+            ...baseService,
+            databaseDetails: serviceDetails.databaseDetails,
+          }
+        case 'docker':
+          return {
+            ...baseService,
+            dockerDetails: serviceDetails?.dockerDetails,
+          }
+        case 'app':
+          switch (serviceDetails.providerType) {
+            case 'github':
+              return {
+                ...baseService,
+                githubSettings: serviceDetails?.githubSettings,
+                providerType: serviceDetails?.providerType,
+                provider:
+                  'provider' in serviceDetails
+                    ? typeof serviceDetails.provider === 'object'
+                      ? serviceDetails?.provider?.id
+                      : typeof serviceDetails?.provider === 'string'
+                        ? serviceDetails?.provider
+                        : undefined
+                    : undefined,
+              }
+            case 'bitbucket':
+              return {
+                ...baseService,
+                providerType: serviceDetails?.providerType,
+                bitbucketSettings: serviceDetails?.bitbucketSettings,
+              }
+            case 'gitea':
+              return {
+                ...baseService,
+                providerType: serviceDetails?.providerType,
+                giteaSettings: serviceDetails?.giteaSettings,
+              }
+            case 'gitlab':
+              return {
+                ...baseService,
+                providerType: serviceDetails?.providerType,
+                gitlabSettings: serviceDetails?.gitlabSettings,
+              }
+            case 'azureDevOps':
+              return {
+                ...baseService,
+                providerType: serviceDetails?.providerType,
+                azureSettings: serviceDetails.azureSettings,
+              }
+          }
       }
     },
   )

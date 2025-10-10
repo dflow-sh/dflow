@@ -773,26 +773,34 @@ export const templateDeployAction = protectedClient
         createdServices.push(serviceResponse)
       } else if (type === 'app') {
         // todo: handle all git-providers cases
-        if (service?.providerType === 'github' && service?.githubSettings) {
-          const serviceResponse = await payload.create({
-            collection: 'services',
-            data: {
-              name: `${name}`,
-              type,
-              project: projectDetails?.id,
-              variables: service?.variables,
-              githubSettings: service?.githubSettings,
-              providerType: service?.providerType,
-              provider: service?.provider,
-              builder: service?.builder,
-              volumes: service?.volumes,
-              tenant,
-            },
-            depth: 3,
-          })
 
-          createdServices.push(serviceResponse)
-        }
+        const serviceResponse = await payload.create({
+          collection: 'services',
+          data: {
+            name: `${name}`,
+            type,
+            project: projectDetails?.id,
+            variables: service?.variables,
+            githubSettings: service?.githubSettings,
+            azureSettings: service?.azureSettings
+              ? {
+                  ...service.azureSettings,
+                  gitToken: service.azureSettings.gitToken ?? '',
+                }
+              : undefined,
+            bitbucketSettings: service?.bitbucketSettings,
+            giteaSettings: service?.bitbucketSettings,
+            gitlabSettings: service?.gitlabSettings,
+            providerType: service?.providerType,
+            provider: service?.provider,
+            builder: service?.builder,
+            volumes: service?.volumes,
+            tenant,
+          },
+          depth: 3,
+        })
+
+        createdServices.push(serviceResponse)
       }
     }
 
