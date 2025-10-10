@@ -1,6 +1,5 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
@@ -8,13 +7,6 @@ import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
 import { Server } from '@/payload-types'
-
-const ProjectTerminal = dynamic(
-  () => import('@/components/project/ProjectTerminal'),
-  {
-    ssr: false,
-  },
-)
 
 const ClientLayout = ({
   project,
