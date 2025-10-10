@@ -100,105 +100,101 @@ export const addTemplateDeployQueue = async (data: QueueArgs) => {
             const sshDetails = extractSSHDetails({ project })
 
             if (type === 'app') {
-              if (providerType === 'github' && githubSettings) {
-                let ssh: NodeSSH | null = null
-                const builder = serviceDetails.builder ?? 'buildPacks'
+              let ssh: NodeSSH | null = null
+              const builder = serviceDetails.builder ?? 'buildPacks'
 
-                try {
-                  ssh = await dynamicSSH(sshDetails)
-                  const appCreationResponse = await dokku.apps.create(
-                    ssh,
-                    serviceDetails?.name,
-                  )
+              try {
+                ssh = await dynamicSSH(sshDetails)
+                const appCreationResponse = await dokku.apps.create(
+                  ssh,
+                  serviceDetails?.name,
+                )
 
-                  // app creation failed need to thronging an error
-                  if (!appCreationResponse) {
-                    throw new Error(
-                      `❌ Failed to create ${serviceDetails?.name}`,
-                    )
-                  }
+                // app creation failed need to thronging an error
+                if (!appCreationResponse) {
+                  throw new Error(`❌ Failed to create ${serviceDetails?.name}`)
+                }
 
-                  let updatedServiceDetails: Service | null = null
+                let updatedServiceDetails: Service | null = null
 
-                  if (volumes?.length) {
-                    await updateVolumesQueue({
-                      restart: false,
-                      service: createdService,
-                      project: project,
+                if (volumes?.length) {
+                  await updateVolumesQueue({
+                    restart: false,
+                    service: createdService,
+                    project: project,
+                    serverDetails: {
+                      id: project.server.id,
+                    },
+                    tenantDetails,
+                  })
+                }
+
+                // if variables are added updating the variables
+                if (variables?.length) {
+                  const environmentVariablesQueue =
+                    await addUpdateEnvironmentVariablesQueue({
+                      sshDetails,
                       serverDetails: {
-                        id: project.server.id,
+                        id: project?.server?.id,
+                      },
+                      serviceDetails: {
+                        id: serviceDetails.id,
+                        name: serviceDetails.name,
+                        noRestart: true,
+                        previousVariables: [],
+                        variables: variables ?? [],
                       },
                       tenantDetails,
+                      exposeDatabase: true,
+                      showEnvironmentVariableLogs,
                     })
-                  }
 
-                  // if variables are added updating the variables
-                  if (variables?.length) {
-                    const environmentVariablesQueue =
-                      await addUpdateEnvironmentVariablesQueue({
-                        sshDetails,
-                        serverDetails: {
-                          id: project?.server?.id,
-                        },
-                        serviceDetails: {
-                          id: serviceDetails.id,
-                          name: serviceDetails.name,
-                          noRestart: true,
-                          previousVariables: [],
-                          variables: variables ?? [],
-                        },
-                        tenantDetails,
-                        exposeDatabase: true,
-                        showEnvironmentVariableLogs,
-                      })
+                  await waitForJobCompletion(environmentVariablesQueue)
 
-                    await waitForJobCompletion(environmentVariablesQueue)
-
-                    // fetching the latest details of the service
-                    updatedServiceDetails = await payload.findByID({
-                      collection: 'services',
-                      id: serviceDetails.id,
-                    })
-                  }
-
-                  const updatedPopulatedVariables =
-                    updatedServiceDetails?.populatedVariables ||
-                    populatedVariables
-
-                  const updatedVariables =
-                    updatedServiceDetails?.variables || variables
-
-                  // triggering queue with latest values
-                  const deployAppQueue = await addDeployQueue({
-                    appName: serviceDetails.name,
-                    sshDetails: sshDetails,
-                    serviceDetails: {
-                      deploymentId: deploymentResponse.id,
-                      serviceId: serviceDetails.id,
-                      provider,
-                      serverId: project.server.id,
-                      providerType,
-                      azureSettings,
-                      githubSettings,
-                      giteaSettings,
-                      bitbucketSettings,
-                      gitlabSettings,
-                      populatedVariables: updatedPopulatedVariables ?? '{}',
-                      variables: updatedVariables ?? [],
-                      builder,
-                    },
-                    tenantSlug: tenantDetails.slug,
+                  // fetching the latest details of the service
+                  updatedServiceDetails = await payload.findByID({
+                    collection: 'services',
+                    id: serviceDetails.id,
                   })
+                }
 
-                  await waitForJobCompletion(deployAppQueue)
-                } catch (error) {
-                  let message = error instanceof Error ? error.message : ''
-                  throw new Error(message)
-                } finally {
-                  // disposing ssh even on error cases
-                  if (ssh) {
-                    ssh.dispose()
-                  }
+                const updatedPopulatedVariables =
+                  updatedServiceDetails?.populatedVariables ||
+                  populatedVariables
+
+                const updatedVariables =
+                  updatedServiceDetails?.variables || variables
+
+                // triggering queue with latest values
+                const deployAppQueue = await addDeployQueue({
+                  appName: serviceDetails.name,
+                  sshDetails: sshDetails,
+                  serviceDetails: {
+                    deploymentId: deploymentResponse.id,
+                    serviceId: serviceDetails.id,
+                    provider,
+                    serverId: project.server.id,
+                    providerType,
+                    azureSettings,
+                    githubSettings,
+                    giteaSettings,
+                    bitbucketSettings,
+                    gitlabSettings,
+                    populatedVariables: updatedPopulatedVariables ?? '{}',
+                    variables: updatedVariables ?? [],
+                    builder,
+                  },
+                  tenantSlug: tenantDetails.slug,
+                })
+
+                await waitForJobCompletion(deployAppQueue)
+              } catch (error) {
+                let message = error instanceof Error ? error.message : ''
+                throw new Error(message)
+              } finally {
+                // disposing ssh even on error cases
+                if (ssh) {
+                  ssh.dispose()
                 }
               }
             }
