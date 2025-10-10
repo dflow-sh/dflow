@@ -20,6 +20,7 @@ import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
 import VariablesForm from '@/components/service/VariablesForm'
 import VolumesForm from '@/components/service/VolumesForm'
 import ServiceSkeleton from '@/components/skeletons/ServiceSkeleton'
+import TriggerNotFound from '@/components/states/TriggerNotFound'
 import { loadServicePageTabs } from '@/lib/searchParams'
 import { Project } from '@/payload-types'
 
@@ -38,11 +39,15 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
   const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
   const { tab } = await loadServicePageTabs(searchParams)
 
-  if (!serviceDetails?.data?.service || serviceDetails?.serverError) {
-    return <AccessDeniedAlert error={serviceDetails?.serverError!} />
+  if (serviceDetails?.serverError) {
+    return <AccessDeniedAlert error={serviceDetails.serverError} />
   }
 
-  const { service, deployments } = serviceDetails.data
+  if (!serviceDetails?.data?.service) {
+    return <TriggerNotFound />
+  }
+
+  const { service, deployments } = serviceDetails.data as any
 
   const server =
     typeof service.project === 'object' ? service.project.server : ''

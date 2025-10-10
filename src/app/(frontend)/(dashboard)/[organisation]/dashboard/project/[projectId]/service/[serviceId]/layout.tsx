@@ -1,7 +1,8 @@
-import { notFound } from 'next/navigation'
 import React from 'react'
 
 import { getServiceDetails } from '@/actions/pages/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
+import TriggerNotFound from '@/components/states/TriggerNotFound'
 import { Service } from '@/payload-types'
 import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
 
@@ -21,8 +22,12 @@ const SuspendedServicePageLayout = async ({
 
   const service = await getServiceDetails({ id: serviceId })
 
-  if (!service?.data) {
-    return notFound()
+  if (service?.serverError) {
+    return <AccessDeniedAlert error={service.serverError} />
+  }
+
+  if (!service.data) {
+    return <TriggerNotFound />
   }
 
   const { project, ...serviceDetails } = service?.data

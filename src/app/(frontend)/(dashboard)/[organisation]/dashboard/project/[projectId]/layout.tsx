@@ -1,5 +1,6 @@
 import { FolderOpen, ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import React from 'react'
 
 import {
@@ -129,8 +130,12 @@ const SuspendedPage = async ({
   const data = result?.data
   const project = data?.Projects?.[0]
 
+  if (result.serverError) {
+    return <AccessDeniedAlert error={result?.serverError} />
+  }
+
   if (!project) {
-    return <AccessDeniedAlert error={result?.serverError!} />
+    notFound()
   }
 
   const { services } = data
