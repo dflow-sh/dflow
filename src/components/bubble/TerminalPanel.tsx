@@ -11,8 +11,8 @@ import {
   Terminal,
   X,
 } from 'lucide-react'
-import { useParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -342,7 +342,7 @@ const TerminalPanel = ({
     return createPortal(
       <div
         className={cn(
-          'bg-background relative border-t shadow-2xl transition-all duration-300 ease-out',
+          'bg-background relative z-[100] border-t shadow-2xl transition-all duration-300 ease-out',
         )}
         style={{
           height: isCollapsed ? '48px' : `${embeddedHeight}px`,
