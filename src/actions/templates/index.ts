@@ -522,6 +522,11 @@ export const templateDeployAction = protectedClient
                 },
               },
               {
+                hidden: {
+                  not_equals: true,
+                },
+              },
+              {
                 createdBy: {
                   equals: user?.id,
                 },

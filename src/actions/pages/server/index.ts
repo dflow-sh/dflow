@@ -187,7 +187,7 @@ export const getServerProjects = protectedClient
           },
           {
             hidden: {
-              equals: false,
+              not_equals: true,
             },
           },
           ...(role?.projects?.readLimit === 'createdByUser'

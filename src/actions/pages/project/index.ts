@@ -29,6 +29,11 @@ export const getProjectDetails = protectedClient
               },
             },
             {
+              'project.hidden': {
+                not_equals: true,
+              },
+            },
+            {
               'tenant.slug': {
                 equals: tenant.slug,
               },
@@ -49,6 +54,11 @@ export const getProjectDetails = protectedClient
             {
               id: {
                 equals: ProjectId,
+              },
+            },
+            {
+              hidden: {
+                not_equals: true,
               },
             },
             {
@@ -104,6 +114,11 @@ export const getProjectBreadcrumbs = protectedClient
               },
             },
             {
+              hidden: {
+                not_equals: true,
+              },
+            },
+            {
               'tenant.slug': {
                 equals: tenant.slug,
               },
@@ -133,6 +148,11 @@ export const getProjectBreadcrumbs = protectedClient
             {
               'tenant.slug': {
                 equals: tenant.slug,
+              },
+            },
+            {
+              hidden: {
+                not_equals: true,
               },
             },
             ...(role?.projects?.readLimit === 'createdByUser'

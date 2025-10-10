@@ -108,6 +108,11 @@ export const createProjectAction = protectedClient
               },
             },
             {
+              hidden: {
+                not_equals: true,
+              },
+            },
+            {
               createdBy: {
                 equals: user?.id,
               },
@@ -262,6 +267,9 @@ export const getProjectDatabasesAction = protectedClient
       where: {
         project: {
           equals: id,
+        },
+        'project.hidden': {
+          not_equals: true,
         },
         type: {
           equals: 'database',
