@@ -13,6 +13,7 @@ import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
 } from '@/components/skeletons/ServersSkeleton'
+import ServersEmptyState from '@/components/states/ServersEmptyState'
 import { Button } from '@/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -38,52 +39,24 @@ const SuspendedServers = async ({
   })
   const servers = result?.data?.servers ?? []
 
+  if (result?.serverError) {
+    return <AccessDeniedAlert error={result?.serverError} />
+  }
+
+  if (!servers.length) {
+    return <ServersEmptyState />
+  }
+
   return (
-    <>
-      {result?.serverError ? (
-        <AccessDeniedAlert error={result?.serverError} />
-      ) : servers.length ? (
-        <div className='grid gap-4 md:grid-cols-3'>
-          {servers.map(server => (
-            <ServerCard
-              organisationSlug={organisationSlug}
-              server={server as ServerType}
-              key={server.id}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className='bg-muted/10 rounded-2xl border p-8 text-center shadow-xs'>
-          <div className='grid min-h-[40vh] place-items-center'>
-            <div>
-              <div className='bg-muted mx-auto flex h-16 w-16 items-center justify-center rounded-full'>
-                <Server className='text-muted-foreground h-8 w-8 animate-pulse' />
-              </div>
-
-              <div className='my-4'>
-                <h3 className='text-foreground text-xl font-semibold'>
-                  No Servers Added
-                </h3>
-                <p className='text-muted-foreground text-base'>
-                  Get started by adding your first server.
-                </p>
-              </div>
-
-              <Link
-                className='block'
-                href={`/${organisationSlug}/servers/add-new-server`}>
-                <Button className='mt-2'>
-                  <Plus className='h-4 w-4' />
-                  Add Your First Server
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* <ServerTerminalClient servers={servers} /> */}
-    </>
+    <div className='grid gap-4 md:grid-cols-3'>
+      {servers.map(server => (
+        <ServerCard
+          organisationSlug={organisationSlug}
+          server={server as ServerType}
+          key={server.id}
+        />
+      ))}
+    </div>
   )
 }
 

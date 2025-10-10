@@ -8,8 +8,8 @@ import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import CreateProjectButton from '@/components/project/CreateProjectButton'
 import ProjectFiltersSection from '@/components/project/ProjectFiltersSection'
 import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
+import DashboardServersEmptyState from '@/components/states/DashboardServersEmptyState'
 import ProjectsEmptyState from '@/components/states/ProjectsEmptyState'
-import ServersEmptyState from '@/components/states/ServersEmptyState'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
 
@@ -48,7 +48,7 @@ const SuspendedDashboard = async ({
 
   const renderProjectSection = () => {
     if (!hasServers) {
-      return <ServersEmptyState organisationSlug={organisationSlug} />
+      return <DashboardServersEmptyState />
     }
 
     if (!hasProjects) {
