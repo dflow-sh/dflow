@@ -8,8 +8,10 @@ import {
   OnEdgesChange,
   OnNodesChange,
   ReactFlow,
+  useReactFlow,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { useCallback, useEffect } from 'react'
 
 import FloatingEdge from '@/components/reactflow/FloatingEdges'
 import FloatingConnectionLine from '@/components/reactflow/FloatingEdges/FloatingConnectionLine'
@@ -55,6 +57,55 @@ const ReactFlowConfig = ({
     floating: FloatingEdge,
   }
 
+  const { setCenter, getNode, getViewport, fitView } = useReactFlow()
+
+  useEffect(() => {
+    const handleResize = () => {
+      fitView({
+        duration: 400,
+        includeHiddenNodes: false,
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [fitView])
+
+  const onNodeClick = useCallback(
+    (event: any, clickedNode: any) => {
+      // Get the full node data including dimensions
+      const node = getNode(clickedNode.id)
+
+      if (node) {
+        // Calculate the center of the node
+        const nodeX = node.position.x + (node.width || 0) / 2
+        const nodeY = node.position.y + (node.height || 0) / 2
+
+        // Get viewport dimensions
+        const viewportElement = event.target.closest('.react-flow')
+        if (viewportElement) {
+          const viewportWidth = viewportElement.clientWidth
+          const viewportHeight = viewportElement.clientHeight
+
+          const targetScreenX = viewportWidth * 0.2
+          const targetScreenY = viewportHeight * 0.4
+          const { x: vpX, y: vpY, zoom } = getViewport()
+          const offsetX = (viewportWidth / 2 - targetScreenX) / zoom
+          const offsetY = (viewportHeight / 2 - targetScreenY) / zoom
+
+          setCenter(nodeX + offsetX, nodeY + offsetY, {
+            // zoom: zoom,
+            duration: 800,
+          })
+        }
+      }
+    },
+    [setCenter, getNode, getViewport],
+  )
+  console.log({ nodes })
   return (
     <div className={cn('relative h-[calc(100vh-156px)] w-full', className)}>
       <ReactFlow
@@ -69,6 +120,7 @@ const ReactFlowConfig = ({
         connectionLineComponent={FloatingConnectionLine}
         onPaneClick={onPaneClick}
         onNodeContextMenu={onNodeContextMenu}
+        onNodeClick={onNodeClick}
         className='z-10'>
         <Background
           variant={BackgroundVariant.Cross}

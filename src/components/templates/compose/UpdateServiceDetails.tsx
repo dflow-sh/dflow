@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edge, MarkerType, Node } from '@xyflow/react'
+import { Edge, MarkerType, Node, useReactFlow } from '@xyflow/react'
 import {
   Braces,
   Database,
@@ -113,6 +113,7 @@ const UpdateServiceDetails = ({
   setEdges: Function
 }) => {
   const [activeTab, setActiveTab] = useState('settings')
+  const { fitView } = useReactFlow()
   useEffect(() => {
     if (service?.type === 'database' && activeTab === 'environment') {
       setActiveTab('settings')
@@ -129,6 +130,9 @@ const UpdateServiceDetails = ({
             onClick={() => {
               setOpen(false)
               setActiveTab('settings')
+              fitView({
+                duration: 800,
+              })
             }}
             className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none'>
             <X className='h-4 w-4' />

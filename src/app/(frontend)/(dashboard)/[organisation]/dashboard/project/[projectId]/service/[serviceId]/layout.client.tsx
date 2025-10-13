@@ -1,6 +1,7 @@
 'use client'
 
 import { useProgress } from '@bprogress/next'
+import { useReactFlow } from '@xyflow/react'
 import { Database, X } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -149,6 +150,7 @@ const LayoutClient = ({
     return slug === tab
   })
 
+  const { fitView } = useReactFlow()
   return (
     <>
       <main className='mx-auto'>
@@ -156,13 +158,20 @@ const LayoutClient = ({
           className={
             'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-t-md border-t border-l px-6 pb-20 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'
           }>
-          <Link
-            href={`/${params.organisation}/dashboard/project/${params.projectId}`}
-            title='close'
-            className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
-            <X className='h-4 w-4' />
-            <span className='sr-only'>Close</span>
-          </Link>
+          <div
+            onClick={() =>
+              fitView({
+                duration: 800,
+              })
+            }>
+            <Link
+              href={`/${params.organisation}/dashboard/project/${params.projectId}`}
+              title='close'
+              className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
+              <X className='h-4 w-4' />
+              <span className='sr-only'>Close</span>
+            </Link>
+          </div>
 
           <div className='w-full space-y-4 pt-6 pb-2'>
             <div className='flex items-center gap-x-3'>
