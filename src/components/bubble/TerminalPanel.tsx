@@ -22,7 +22,6 @@ import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useServers } from '@/providers/ServersProvider'
 
-// import { XTermLogViewer } from './XTermLogViewer'
 import type { Server } from './bubble-types'
 
 const XTermLogViewer = dynamic(
@@ -98,11 +97,7 @@ const TerminalContent = ({ serverId, className }: TerminalContentProps) => {
       </div>
 
       {/* XTerm Terminal */}
-      <div
-        className='bg-background flex-1 p-4'
-        style={{
-          backgroundColor: '#334256',
-        }}>
+      <div className='flex-1 bg-[#ffffff] p-4 dark:bg-[#334256]'>
         <XTermLogViewer
           serverId={serverId}
           onConnectionStatusChange={setConnectionStatus}
@@ -163,9 +158,10 @@ const TerminalPanel = ({
   } = useServers()
   const { serverId } = useParams<{ serverId: string }>()
 
-  const [activeServerId, setActiveServerId] = useState(
-    serverId || servers[0]?.id || '',
-  )
+  const initialServerId =
+    serverId && servers.find(s => s.id === serverId) ? serverId : servers[0]?.id
+
+  const [activeServerId, setActiveServerId] = useState(initialServerId || '')
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
