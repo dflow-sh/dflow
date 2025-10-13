@@ -1,8 +1,9 @@
 import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { VpsFormData } from '../schemas'
+import { HardDrive } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
-import { CPanel, Plesk, Ubuntu } from '@/components/icons'
+import { CPanel, Plesk, Ubuntu, Windows } from '@/components/icons'
 import {
   FormControl,
   FormField,
@@ -17,6 +18,7 @@ const icons = {
   ubuntu: Ubuntu,
   plesk: Plesk,
   cpanel: CPanel,
+  windows: Windows,
 }
 
 type Icon = keyof typeof icons
@@ -96,7 +98,11 @@ export const ImageSelection = () => {
 
                           <div className='flex grow gap-4'>
                             <div className='bg-secondary/50 flex h-10 w-10 items-center justify-center rounded-full'>
-                              <ImageIcon className='text-foreground size-5' />
+                              {ImageIcon ? (
+                                <ImageIcon className='text-foreground size-5' />
+                              ) : (
+                                <HardDrive className='text-foreground size-5' />
+                              )}
                             </div>
 
                             <div>

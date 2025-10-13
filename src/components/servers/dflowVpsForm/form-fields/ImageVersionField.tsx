@@ -2,7 +2,7 @@ import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { formatValue } from '../utils'
 import { useFormContext } from 'react-hook-form'
 
-import { Ubuntu } from '@/components/icons'
+import { Ubuntu, Windows } from '@/components/icons'
 import {
   FormControl,
   FormField,
@@ -78,9 +78,15 @@ export const ImageVersionField = () => {
                             />
 
                             <div className='flex grow gap-4'>
-                              <div className='bg-secondary/50 flex h-10 w-10 items-center justify-center rounded-full'>
+                              <div className='bg-secondary/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-full'>
                                 {/* <p className='text-xl'>{flagDetails?.flag}</p> */}
-                                <Ubuntu className='size-5' />
+                                {version?.label
+                                  .toLocaleLowerCase()
+                                  .startsWith('windows') ? (
+                                  <Windows className='size-5' />
+                                ) : (
+                                  <Ubuntu className='size-5' />
+                                )}
                               </div>
 
                               <div>
