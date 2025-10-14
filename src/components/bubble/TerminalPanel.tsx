@@ -276,7 +276,7 @@ const TerminalPanel = ({
   // Fullscreen mode
   if (mode === 'fullscreen' && mounted) {
     return (
-      <div className='bg-background fixed inset-0 z-[100] flex flex-col'>
+      <div className='bg-background fixed inset-0 z-50 flex flex-col'>
         <div className='bg-card flex items-center justify-between border-b px-6 py-4'>
           <div className='flex items-center gap-4'>
             <Button
@@ -338,7 +338,7 @@ const TerminalPanel = ({
     return createPortal(
       <div
         className={cn(
-          'bg-background relative z-[100] border-t shadow-2xl transition-all duration-300 ease-out',
+          'bg-background relative z-50 border-t shadow-2xl transition-all duration-300 ease-out',
         )}
         style={{
           height: isCollapsed ? '48px' : `${embeddedHeight}px`,
