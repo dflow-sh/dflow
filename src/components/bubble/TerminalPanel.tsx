@@ -347,11 +347,11 @@ const TerminalPanel = ({
         {!isCollapsed && (
           <div
             className={cn(
-              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-1 cursor-ns-resize items-center justify-center transition-all',
+              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-0.5 cursor-ns-resize items-center justify-center transition-all',
               isResizing ? 'bg-primary' : 'bg-border',
             )}
             onMouseDown={handleResizeStart}>
-            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-0.5 w-16 rounded-full transition-colors' />
+            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-2 w-16 rounded-full transition-colors' />
           </div>
         )}
 
