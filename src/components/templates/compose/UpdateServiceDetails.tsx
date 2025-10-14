@@ -97,18 +97,16 @@ const ProviderTypeIcons: {
 
 const UpdateServiceDetails = ({
   service,
-  open,
-  setOpen,
   nodes,
+  setServiceId,
   setNodes,
   edges,
   setEdges,
 }: {
   service: ServiceNode
-  open: boolean
-  setOpen: Function
   nodes: Node[]
   setNodes: Function
+  setServiceId: (id: string | null) => void
   edges: Edge[]
   setEdges: Function
 }) => {
@@ -121,15 +119,16 @@ const UpdateServiceDetails = ({
   }, [service?.id])
   return (
     <div>
-      {open && (
+      {service && (
         <div
           className={cn(
             'border-border bg-background fixed top-38 right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-t border-l px-6 pb-20 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
           )}>
           <div
             onClick={() => {
-              setOpen(false)
               setActiveTab('settings')
+              sessionStorage.removeItem('nodeId')
+              setServiceId(null)
               fitView({
                 duration: 800,
               })
@@ -141,9 +140,9 @@ const UpdateServiceDetails = ({
 
           <div className='w-full space-y-4 pt-6 pb-2'>
             <div className='flex items-center gap-x-3'>
-              {service.type === 'database' && service.databaseDetails?.type
+              {service?.type === 'database' && service?.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
-                : service.type === 'app' && service?.providerType
+                : service?.type === 'app' && service?.providerType
                   ? ProviderTypeIcons[service?.providerType]
                   : icon[service.type]}
               <EditServiceName
@@ -181,9 +180,9 @@ const UpdateServiceDetails = ({
                   <Settings
                     key={service?.id}
                     service={service}
+                    setServiceId={setServiceId}
                     nodes={nodes}
                     setNodes={setNodes}
-                    setOpen={setOpen}
                   />
                 </TabsContent>
                 <TabsContent className='w-full' value='environment'>
@@ -209,19 +208,22 @@ export default UpdateServiceDetails
 const Settings = ({
   service,
   nodes,
-  setOpen,
   setNodes,
+  setServiceId,
 }: {
   service: ServiceNode
   nodes: Node[]
   setNodes: Function
-  setOpen: Function
+  setServiceId: (id: string | null) => void
 }) => {
   const deleteNode = (nodeId: string) => {
     setNodes((prevNodes: Node[]) =>
       prevNodes.filter(node => node.id !== nodeId),
     )
-    setOpen(false)
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('nodeId')
+      setServiceId(null)
+    }
   }
   return (
     <div>

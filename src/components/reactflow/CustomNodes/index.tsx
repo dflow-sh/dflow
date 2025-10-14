@@ -11,7 +11,7 @@ import {
   Hammer,
   Package2,
 } from 'lucide-react'
-import { JSX } from 'react'
+import { JSX, useEffect, useState } from 'react'
 
 import {
   Bitbucket,
@@ -36,6 +36,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { getSessionValue } from '@/lib/getSessionValue'
 import { Service } from '@/payload-types'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
@@ -85,6 +86,12 @@ const CustomNode = ({
   const deployment = data?.deployments?.[0]
   const createdAt = data?.createdAt
   const isDisabled = !!data.disableNode
+
+  const [nodeId, setNodeId] = useState<string | null>()
+  useEffect(() => {
+    const nodeId = getSessionValue('nodeId')
+    setNodeId(nodeId)
+  }, [])
 
   const architectureContext = function useSafeArchitectureContext() {
     try {
@@ -142,7 +149,9 @@ const CustomNode = ({
         className={`relative z-10 h-full min-h-36 backdrop-blur-md ${
           isDisabled
             ? 'cursor-not-allowed'
-            : 'hover:border-primary/50 hover:bg-primary/5 cursor-pointer hover:shadow-md'
+            : nodeId === data.id
+              ? 'bg-primary/5 border-primary shadow-md'
+              : 'hover:border-primary/50 hover:bg-primary/5 cursor-pointer hover:shadow-md'
         }`}>
         {/* {menuOptions && menuOptions(data)} */}
         <CardHeader className='w-64 flex-row justify-between pb-2'>
