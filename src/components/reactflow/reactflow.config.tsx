@@ -80,6 +80,7 @@ const ReactFlowConfig = ({
       const node = getNode(clickedNode.id)
 
       if (node) {
+        sessionStorage.setItem('nodeId', node.id)
         // Calculate the center of the node
         const nodeX = node.position.x + (node.width || 0) / 2
         const nodeY = node.position.y + (node.height || 0) / 2

@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { getSessionValue } from '@/lib/getSessionValue'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
 import AddDatabaseService from './AddDatabaseService'
@@ -82,6 +83,9 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   ref: parentRef,
   children,
 }) => {
+  const ref = useRef(null)
+  const nodeId = getSessionValue('nodeId')
+  const availableNodeId = nodeId && nodes?.find(node => node.id === nodeId)?.id
   const [open, setOpen] = useState<boolean>(false)
   const [showOptions, setShowOptions] = useState<boolean>(false)
   const [showApp, setShowApp] = useState<boolean>(false)
@@ -89,10 +93,9 @@ const ChooseService: React.FC<ChooseServiceType> = ({
   const [showDatabases, setShowDatabases] = useState<boolean>(false)
   const [showVolumeServices, setShowVolumeServices] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
-
-  const [openDrawer, setOpenDrawer] = useState<boolean>(false)
-  const [serviceId, setServiceId] = useState<string>('')
-  const ref = useRef(null)
+  const [serviceId, setServiceId] = useState<string | null>(
+    availableNodeId ?? null,
+  )
   const [menu, setMenu] = useState<Menu | null>(null)
 
   const architectureContext = function useSafeArchitectureContext() {
@@ -148,7 +151,6 @@ const ChooseService: React.FC<ChooseServiceType> = ({
 
   const handleOnClick = ({ serviceId }: { serviceId: string }) => {
     setServiceId(serviceId)
-    setOpenDrawer(true)
   }
 
   useImperativeHandle(
@@ -343,12 +345,11 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         )}
 
         <UpdateServiceDetails
-          open={openDrawer}
-          setOpen={setOpenDrawer}
           nodes={nodes}
           setNodes={setNodes}
           edges={edges}
           setEdges={setEdges}
+          setServiceId={setServiceId}
           service={nodes?.find(node => node?.id === serviceId)?.data as any}
         />
 
