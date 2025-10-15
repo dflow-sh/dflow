@@ -153,12 +153,19 @@ export default function XTermLogViewer({
     fitAddonRef.current = fitAddon
     lastRenderedLogCountRef.current = 0
 
+    if (serverState.logs.length > 0) {
+      serverState.logs.forEach(log => {
+        terminal.write(log.styled)
+      })
+      lastRenderedLogCountRef.current = serverState.logs.length
+    }
+
     return () => {
       if (terminalInstanceRef.current) {
         terminalInstanceRef.current.dispose()
       }
     }
-  }, [currentTheme])
+  }, [currentTheme, serverId, serverState.logs])
 
   // Initialize terminal on mount
   useEffect(() => {
@@ -254,7 +261,7 @@ export default function XTermLogViewer({
         width: '100%',
         height: '100%',
         backgroundColor: colors.background,
-        overflow: 'hidden',
+        overflow: 'scroll',
         position: 'relative',
       }}
     />
