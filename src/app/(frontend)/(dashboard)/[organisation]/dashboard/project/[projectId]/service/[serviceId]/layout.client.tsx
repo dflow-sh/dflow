@@ -28,7 +28,6 @@ import {
   Redis,
 } from '@/components/icons'
 import { Badge } from '@/components/ui/badge'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Service } from '@/payload-types'
 import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
 
@@ -160,16 +159,12 @@ const LayoutClient = ({
   return (
     <>
       <main className='mx-auto'>
-        <div
-          className={
-            'border-border bg-background fixed top-[9.5rem] right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-t-md border-t border-l px-6 pb-40 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'
-          }>
+        <div className='border-border bg-background fixed top-[9.5rem] right-0 z-50 flex h-[calc(100vh-5rem)] w-full min-w-full flex-col rounded-t-md border-t border-l px-6 pb-40 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'>
+          {/* Close Button */}
           <div
             onClick={() => {
               onCloseService()
-              fitView({
-                duration: 800,
-              })
+              fitView({ duration: 800 })
             }}>
             <Link
               href={`/${params.organisation}/dashboard/project/${params.projectId}`}
@@ -180,7 +175,8 @@ const LayoutClient = ({
             </Link>
           </div>
 
-          <div className='w-full space-y-4 pt-6 pb-2'>
+          {/* Header */}
+          <div className='w-full shrink-0 space-y-4 pt-6 pb-2'>
             <div className='flex items-center gap-x-3'>
               {service?.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]
@@ -193,17 +189,23 @@ const LayoutClient = ({
                   {service?.databaseDetails?.status}
                 </Badge>
               )}
-
               <SidebarToggleButton
                 directory='services'
-                fileName={`${service?.type === 'app' ? 'app-service' : service?.type === 'database' ? 'database-service' : service?.type === 'docker' ? 'docker-service' : ''}`}
+                fileName={
+                  service?.type === 'app'
+                    ? 'app-service'
+                    : service?.type === 'database'
+                      ? 'database-service'
+                      : service?.type === 'docker'
+                        ? 'docker-service'
+                        : ''
+                }
               />
             </div>
           </div>
 
-          <div
-            className='mx-auto mb-4 w-full overflow-x-scroll'
-            style={{ scrollbarWidth: 'none' }}>
+          {/* Tabs (Horizontal scroll) */}
+          <div className='scrollbar-hide mx-auto mb-4 w-full shrink-0 overflow-x-auto'>
             <Tabs
               tabs={tabsList.map(({ label, disabled }) => ({
                 label,
@@ -211,11 +213,8 @@ const LayoutClient = ({
               }))}
               onTabChange={index => {
                 const tab = tabsList[index]
-
                 startTransition(() => {
-                  setTab(tab.slug, {
-                    shallow: false,
-                  })
+                  setTab(tab.slug, { shallow: false })
                 })
               }}
               activeTab={activeTab >= 0 ? activeTab : 0}
@@ -223,7 +222,10 @@ const LayoutClient = ({
             />
           </div>
 
-          <ScrollArea className='h-[calc(100%-8.5rem)]'>{children}</ScrollArea>
+          {/* Scrollable Content */}
+          <div className='scrollbar-custom w-full flex-1 overflow-x-auto overflow-y-auto'>
+            <div className='min-w-xl p-4'>{children}</div>
+          </div>
         </div>
       </main>
 

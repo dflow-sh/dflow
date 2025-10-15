@@ -214,11 +214,47 @@ html {
   scrollbar-width: none; /* Firefox */
 }
 
+.scrollbar-custom {
+  scrollbar-gutter: stable;
+  overflow: overlay;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-button,
+.scrollbar-custom::-webkit-scrollbar-button:single-button,
+.scrollbar-custom::-webkit-scrollbar-button:horizontal:decrement,
+.scrollbar-custom::-webkit-scrollbar-button:horizontal:increment,
+.scrollbar-custom::-webkit-scrollbar-button:vertical:decrement,
+.scrollbar-custom::-webkit-scrollbar-button:vertical:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Only show thumb, no track background */
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px;
+  border: none;
+}
+
+/* Works on Firefox */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 /* react flow */
 .react-flow__controls-button {
-  background-color: hsl(
-    var(--muted) / 0.3
-  ) !important; /* Tailwind bg-gray-700 */
+  background-color: hsl(var(--muted) / 0.3) !important;
   color: var(--foreground) !important;
   margin: 0.25rem 0;
   border-bottom: 1px solid var(--input) !important;
