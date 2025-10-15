@@ -351,7 +351,12 @@ const TerminalPanel = ({
               isResizing ? 'bg-primary' : 'bg-border',
             )}
             onMouseDown={handleResizeStart}>
-            <div className='bg-muted-foreground/30 group-hover:bg-primary/60 h-2 w-16 rounded-full transition-colors' />
+            <div
+              className={cn(
+                'bg-border group-hover:bg-primary/50 flex h-2 w-16 items-center justify-center rounded-full',
+                isResizing ? 'bg-primary' : 'bg-border',
+              )}
+            />
           </div>
         )}
 

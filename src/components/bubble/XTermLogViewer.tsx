@@ -145,58 +145,49 @@ export default function XTermLogViewer({
     terminal.loadAddon(webLinksAddon)
     terminal.open(terminalRef.current)
 
-    setTimeout(() => {
-      fitAddon.fit()
-    }, 100)
-
     terminalInstanceRef.current = terminal
     fitAddonRef.current = fitAddon
     lastRenderedLogCountRef.current = 0
 
-    if (serverState.logs.length > 0) {
-      serverState.logs.forEach(log => {
-        terminal.write(log.styled)
-      })
-      lastRenderedLogCountRef.current = serverState.logs.length
-    }
+    setTimeout(() => {
+      fitAddon.fit()
+
+      if (serverState.logs.length > 0) {
+        serverState.logs.forEach(log => {
+          terminal.write(log.styled)
+        })
+        lastRenderedLogCountRef.current = serverState.logs.length
+      }
+    }, 100)
 
     return () => {
       if (terminalInstanceRef.current) {
         terminalInstanceRef.current.dispose()
       }
     }
-  }, [currentTheme, serverId, serverState.logs])
+  }, [currentTheme, serverId])
 
-  // Initialize terminal on mount
   useEffect(() => {
     initializeTerminal()
   }, [initializeTerminal])
 
-  // Switch to server when serverId changes
   useEffect(() => {
     if (serverId && serverId !== activeServerId) {
       switchToServer(serverId)
     }
   }, [serverId, activeServerId, switchToServer])
 
-  // Render logs when server changes or new logs arrive
   useEffect(() => {
     if (!terminalInstanceRef.current) return
 
     const terminal = terminalInstanceRef.current
     const serverChanged = previousServerIdRef.current !== serverId
 
-    // If server changed, clear terminal and render all logs
     if (serverChanged) {
       terminal.clear()
       lastRenderedLogCountRef.current = 0
       previousServerIdRef.current = serverId
 
-      // Show server header
-      const serverHeader = `\x1b[96m=== Connected to Server: ${serverId} ===\x1b[0m\r\n\r\n`
-      terminal.write(serverHeader)
-
-      // Render all existing logs for this server
       if (serverState.logs.length > 0) {
         serverState.logs.forEach(log => {
           terminal.write(log.styled)
@@ -204,7 +195,6 @@ export default function XTermLogViewer({
         lastRenderedLogCountRef.current = serverState.logs.length
       }
     } else {
-      // Same server - only render new logs
       const newLogs = serverState.logs.slice(lastRenderedLogCountRef.current)
       newLogs.forEach(log => {
         terminal.write(log.styled)
@@ -213,12 +203,10 @@ export default function XTermLogViewer({
     }
   }, [serverId, serverState.logs])
 
-  // Update connection status callback
   useEffect(() => {
     onConnectionStatusChange?.(serverState.status)
   }, [serverState.status, onConnectionStatusChange])
 
-  // Fit terminal on resize
   useEffect(() => {
     const handleResize = () => {
       if (fitAddonRef.current) {
@@ -232,7 +220,6 @@ export default function XTermLogViewer({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Handle container resize with ResizeObserver
   useEffect(() => {
     if (!terminalRef.current) return
 
@@ -261,7 +248,7 @@ export default function XTermLogViewer({
         width: '100%',
         height: '100%',
         backgroundColor: colors.background,
-        overflow: 'scroll',
+        overflow: 'hidden',
         position: 'relative',
       }}
     />
