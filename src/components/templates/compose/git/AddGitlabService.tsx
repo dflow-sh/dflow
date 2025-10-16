@@ -323,9 +323,8 @@ const AddGitlabService = ({
                 !gitlabSettings?.branch ||
                 !gitlabSettings?.owner ||
                 !gitlabSettings?.buildPath
-              }
-              variant='outline'>
-              Save
+              }>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

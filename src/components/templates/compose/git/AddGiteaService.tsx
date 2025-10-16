@@ -322,9 +322,8 @@ const AddGiteaService = ({
                 !giteaSettings?.branch ||
                 !giteaSettings?.owner ||
                 !giteaSettings?.branch
-              }
-              variant='outline'>
-              Save
+              }>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

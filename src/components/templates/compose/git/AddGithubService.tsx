@@ -714,9 +714,8 @@ const AddGithubService = ({
                   (!githubSettings?.branch ||
                     !githubSettings?.owner ||
                     !githubSettings?.repository))
-              }
-              variant='outline'>
-              Save
+              }>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

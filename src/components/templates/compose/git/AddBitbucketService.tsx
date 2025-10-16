@@ -327,9 +327,8 @@ const AddBitbucketService = ({
                 !bitbucketSettings?.branch ||
                 !bitbucketSettings?.owner ||
                 !bitbucketSettings?.buildPath
-              }
-              variant='outline'>
-              Save
+              }>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

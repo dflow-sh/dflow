@@ -65,6 +65,7 @@ import { Service } from '@/payload-types'
 
 import { PortForm } from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
+import { VolumesForm } from './AddVolumeToService'
 import EditServiceName from './EditServiceName'
 import AddAzureDevopsService from './git/AddAzureDevopsService'
 import AddBitbucketService from './git/AddBitbucketService'
@@ -133,6 +134,11 @@ const UpdateServiceDetails = ({
         slug: 'environment',
         disabled: service?.type === 'database',
       },
+      {
+        label: 'Volumes',
+        slug: 'volumes',
+        disabled: service?.type === 'database',
+      },
     ]
   }, [service?.id])
 
@@ -158,6 +164,30 @@ const UpdateServiceDetails = ({
             nodes={nodes}
             setNodes={setNodes}
             setEdges={setEdges}
+          />
+        )
+      case 'volumes':
+        return (
+          <motion.div
+            initial={{ x: '5%', opacity: 0.25 }}
+            animate={{ x: 0, opacity: [0.25, 1] }}
+            exit={{ x: '100%', opacity: 1 }}
+            className='w-full'>
+            <VolumesForm
+              service={service}
+              setNodes={setNodes}
+              className='h-full'
+            />
+          </motion.div>
+        )
+      default:
+        return (
+          <Settings
+            key={service?.id}
+            service={service}
+            setServiceId={setServiceId}
+            nodes={nodes}
+            setNodes={setNodes}
           />
         )
     }
@@ -211,7 +241,7 @@ const UpdateServiceDetails = ({
               }}
             />
             <div className='scrollbar-custom w-full flex-1 overflow-x-auto overflow-y-auto'>
-              <div className='min-w-xl p-4'>{TabsContent()}</div>
+              <div className='w-full min-w-xl pt-4'>{TabsContent()}</div>
             </div>
           </div>
         </div>
@@ -311,7 +341,7 @@ const Settings = ({
         </>
       ) : null}
 
-      <div className='space-y-2'>
+      <div className='space-y-2 pt-4'>
         <h2 className='text-md font-semibold'>Remove Service</h2>
         <motion.div
           initial={{ x: '5%', opacity: 0.25 }}

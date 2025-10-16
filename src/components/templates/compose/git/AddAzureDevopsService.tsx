@@ -323,9 +323,8 @@ const AddAzureDevopsService = ({
                 !azureSettings?.owner ||
                 !azureSettings?.buildPath ||
                 !azureSettings?.gitToken
-              }
-              variant='outline'>
-              Save
+              }>
+              {type === 'update' ? 'Save' : 'Add'}
             </Button>
           </DialogFooter>
         </form>

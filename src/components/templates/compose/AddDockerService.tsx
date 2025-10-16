@@ -370,9 +370,8 @@ const AddDockerService = ({
               </div>
             </div>
           </ScrollArea>
-          <DialogFooter className='flex w-full justify-end'>
+          <DialogFooter className='flex w-full justify-end pt-4'>
             <Button
-              variant={type === 'update' ? 'outline' : 'default'}
               type='submit'
               disabled={
                 !dockerDetails?.url ||

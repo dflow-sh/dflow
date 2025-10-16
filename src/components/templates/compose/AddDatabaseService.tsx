@@ -217,7 +217,6 @@ export const PortForm = ({
         <div className='flex w-full justify-end'>
           <Button
             type='submit'
-            variant='outline'
             disabled={!tags.length}
             onClick={() => {
               if (
