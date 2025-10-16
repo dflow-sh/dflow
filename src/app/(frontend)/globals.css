@@ -215,40 +215,39 @@ html {
 }
 
 .scrollbar-custom {
-  scrollbar-gutter: stable;
   overflow: overlay;
+  scrollbar-gutter: stable;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
 }
 
+/* Webkit browsers (Chrome, Edge, Safari) */
 .scrollbar-custom::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.scrollbar-custom::-webkit-scrollbar-button,
-.scrollbar-custom::-webkit-scrollbar-button:single-button,
-.scrollbar-custom::-webkit-scrollbar-button:horizontal:decrement,
-.scrollbar-custom::-webkit-scrollbar-button:horizontal:increment,
-.scrollbar-custom::-webkit-scrollbar-button:vertical:decrement,
-.scrollbar-custom::-webkit-scrollbar-button:vertical:increment {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* Only show thumb, no track background */
 .scrollbar-custom::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .scrollbar-custom::-webkit-scrollbar-thumb {
-  background-color: var(--border);
+  background-color: transparent;
   border-radius: 9999px;
   border: none;
+  transition: background-color 0.3s;
 }
 
-/* Works on Firefox */
-.scrollbar-custom {
-  scrollbar-width: thin;
+/* Show scrollbar on hover over the container */
+.scrollbar-custom:hover::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+}
+
+/* Firefox */
+.scrollbar-custom:hover {
   scrollbar-color: var(--border) transparent;
 }
 
