@@ -42,7 +42,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import { ServerType } from '@/payload-types-overrides'
+import { Server } from '@/payload-types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 
@@ -50,13 +50,13 @@ const ServerCard = ({
   server,
   organisationSlug,
 }: {
-  server: ServerType
+  server: Server
   organisationSlug: string
 }) => {
   const [open, setOpen] = useState(false)
 
   // Get complete server status logic
-  const getServerStatus = (server: ServerType) => {
+  const getServerStatus = (server: Server) => {
     const isDflow = server?.provider?.toLowerCase() === 'dflow'
     const dflowStatus = server.dflowVpsDetails?.status
     const connectionAttempts = server.connectionAttempts ?? 0
@@ -196,54 +196,54 @@ const ServerCard = ({
     }
 
     // 7. dpkg locked state (after onboarding check)
-    if (
-      isConnected &&
-      !isCloudInitRunning &&
-      !isOnboarded &&
-      server.dpkgLocked
-    ) {
-      return {
-        type: 'dpkg-locked' as const,
-        title: 'dpkg Locked',
-        subtitle:
-          'System package manager (dpkg) is currently locked. Wait for ongoing operations to finish.',
-        badge: {
-          variant: 'warning' as const,
-          text: 'dpkg Locked',
-          tooltip: 'dpkg is locked. Wait for package operations to complete.',
-        },
-        borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
-        showBanner: false,
-        bannerProps: {
-          serverName: server.name,
-        },
-      }
-    }
+    // if (
+    //   isConnected &&
+    //   !isCloudInitRunning &&
+    //   !isOnboarded &&
+    //   server.dpkgLocked
+    // ) {
+    //   return {
+    //     type: 'dpkg-locked' as const,
+    //     title: 'dpkg Locked',
+    //     subtitle:
+    //       'System package manager (dpkg) is currently locked. Wait for ongoing operations to finish.',
+    //     badge: {
+    //       variant: 'warning' as const,
+    //       text: 'dpkg Locked',
+    //       tooltip: 'dpkg is locked. Wait for package operations to complete.',
+    //     },
+    //     borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
+    //     showBanner: false,
+    //     bannerProps: {
+    //       serverName: server.name,
+    //     },
+    //   }
+    // }
 
     // 8. Onboarded but dpkg locked
-    if (
-      isConnected &&
-      !isCloudInitRunning &&
-      isOnboarded &&
-      server.dpkgLocked
-    ) {
-      return {
-        type: 'dpkg-locked-onboarded' as const,
-        title: 'dpkg Locked (Onboarded)',
-        subtitle:
-          'Server is onboarded, but dpkg is currently locked. Wait for package operations to finish.',
-        badge: {
-          variant: 'warning' as const,
-          text: 'dpkg Locked',
-          tooltip: 'dpkg is locked. Wait for package operations to complete.',
-        },
-        borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
-        showBanner: false,
-        bannerProps: {
-          serverName: server.name,
-        },
-      }
-    }
+    // if (
+    //   isConnected &&
+    //   !isCloudInitRunning &&
+    //   isOnboarded &&
+    //   server.dpkgLocked
+    // ) {
+    //   return {
+    //     type: 'dpkg-locked-onboarded' as const,
+    //     title: 'dpkg Locked (Onboarded)',
+    //     subtitle:
+    //       'Server is onboarded, but dpkg is currently locked. Wait for package operations to finish.',
+    //     badge: {
+    //       variant: 'warning' as const,
+    //       text: 'dpkg Locked',
+    //       tooltip: 'dpkg is locked. Wait for package operations to complete.',
+    //     },
+    //     borderColor: 'border-l-yellow-500 hover:border-l-yellow-600',
+    //     showBanner: false,
+    //     bannerProps: {
+    //       serverName: server.name,
+    //     },
+    //   }
+    // }
 
     // 9. Connected and ready state
     if (isConnected && !isCloudInitRunning && isOnboarded) {
@@ -284,7 +284,7 @@ const ServerCard = ({
 
   const serverStatus = getServerStatus(server)
 
-  const getIpDetails = (server: ServerType) => {
+  const getIpDetails = (server: Server) => {
     // For SSH connections, prioritize the IP field
     if (server.preferConnectionType === 'ssh') {
       return {
@@ -334,7 +334,7 @@ const ServerCard = ({
     }
   }
 
-  const shouldShowNoPublicIpBadge = (server: ServerType) => {
+  const shouldShowNoPublicIpBadge = (server: Server) => {
     // Show badge if using Tailscale IP (no public IP available)
     return (
       server.preferConnectionType !== 'ssh' &&

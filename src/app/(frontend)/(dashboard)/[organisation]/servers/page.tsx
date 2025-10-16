@@ -15,7 +15,6 @@ import {
 } from '@/components/skeletons/ServersSkeleton'
 import ServersEmptyState from '@/components/states/ServersEmptyState'
 import { Button } from '@/components/ui/button'
-import { ServerType } from '@/payload-types-overrides'
 
 interface PageProps {
   params: Promise<{
@@ -34,7 +33,6 @@ const SuspendedServers = async ({
   refreshServerDetails: boolean
 }) => {
   const result = await getServersDetailsAction({
-    populateServerDetails: !refreshServerDetails,
     refreshServerDetails,
   })
   const servers = result?.data?.servers ?? []
@@ -52,7 +50,7 @@ const SuspendedServers = async ({
       {servers.map(server => (
         <ServerCard
           organisationSlug={organisationSlug}
-          server={server as ServerType}
+          server={server}
           key={server.id}
         />
       ))}
