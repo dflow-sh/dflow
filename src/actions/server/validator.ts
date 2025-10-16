@@ -2,15 +2,15 @@ import { z } from 'zod'
 
 import { Server } from '@/payload-types'
 
+type ServerKeys = keyof Server
+
+// Define a reusable schema for fields
+const fieldsSchema = z.custom<Partial<Record<ServerKeys, boolean>>>()
+
 export const getServersWithFieldsInputSchema = z.object({
-  fields: z
-    .record(z.string(), z.boolean())
-    .refine(obj => Object.keys(obj || {}).every(key => key in ({} as Server)), {
-      message: 'Only valid Server fields allowed',
-    })
-    .default({ name: true })
-    .optional(),
+  fields: fieldsSchema.default({ name: true }).optional(),
 })
+
 export const createServerSchema = z.object({
   name: z
     .string()

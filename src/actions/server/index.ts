@@ -12,7 +12,7 @@ import { protectedClient, userClient } from '@/lib/safe-action'
 import { server } from '@/lib/server'
 import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
 import { generateRandomString } from '@/lib/utils'
-import { Service } from '@/payload-types'
+import { ServersSelect, Service } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
 import { addInstallDokkuQueue } from '@/queues/dokku/install'
@@ -41,9 +41,7 @@ import {
 type DeploymentService = Omit<Service, 'project'>
 
 export const getServersWithFieldsAction = protectedClient
-  .metadata({
-    actionName: 'getServersWithFieldsAction',
-  })
+  .metadata({ actionName: 'getServersWithFieldsAction' })
   .inputSchema(getServersWithFieldsInputSchema)
   .action(async ({ clientInput, ctx }) => {
     const {
@@ -51,26 +49,19 @@ export const getServersWithFieldsAction = protectedClient
       payload,
       userTenant: { tenant, role },
     } = ctx
-    const selectFields = clientInput.fields ?? { name: true }
+
+    const selectFields = (clientInput.fields as ServersSelect<false>) ?? {
+      name: true,
+    }
 
     const { docs: servers } = await payload.find({
       collection: 'servers',
       select: selectFields,
       where: {
         and: [
-          {
-            'tenant.slug': {
-              equals: tenant.slug,
-            },
-          },
+          { 'tenant.slug': { equals: tenant.slug } },
           ...(role?.servers?.readLimit === 'createdByUser'
-            ? [
-                {
-                  createdBy: {
-                    equals: user.id,
-                  },
-                },
-              ]
+            ? [{ createdBy: { equals: user.id } }]
             : []),
         ],
       },

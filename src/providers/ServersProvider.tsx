@@ -50,7 +50,7 @@ export function ServersProvider({ children }: { children: ReactNode }) {
   })
 
   const refresh = () => {
-    execute({}) // No input = default { name: true }
+    execute({ fields: { name: true, connection: true } }) // No input = default { name: true }
   }
 
   useEffect(() => {
