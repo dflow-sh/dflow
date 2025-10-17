@@ -2,13 +2,6 @@
 
 import { ComingSoonBadge } from '../ComingSoonBadge'
 import SidebarToggleButton from '../SidebarToggleButton'
-import { CPanel, Plesk } from '../icons'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../ui/tooltip'
 import {
   AlertCircle,
   ArrowRight,
@@ -481,38 +474,6 @@ const ServerSelectionForm: React.FC<ServerSelectionFormProps> = ({
                                 <span className='text-xs font-medium text-green-600'>
                                   Credits Applied: -${creditsApplied.toFixed(2)}
                                 </span>
-                              )}
-                            </div>
-
-                            <div className='flex items-center gap-3'>
-                              {!!pleskVersionList.length && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <Plesk className='size-8' />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      {pleskVersionList.map(version => (
-                                        <p key={version}>{version}</p>
-                                      ))}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              )}
-
-                              {!!cPanelVersionList.length && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <CPanel className='size-6 fill-orange-500' />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      {cPanelVersionList.map(version => (
-                                        <p key={version}>{version}</p>
-                                      ))}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
                               )}
                             </div>
                           </div>

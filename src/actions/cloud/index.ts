@@ -102,7 +102,9 @@ export const syncDflowServersAction = protectedClient
       const orders = docs || []
 
       const filteredOrders = orders.filter(
-        (order: any) => order.instanceResponse?.ipConfig?.v4?.ip,
+        (order: any) =>
+          order.instanceResponse?.ipConfig?.v4?.ip &&
+          order.instanceResponse?.osType === 'Linux', // Only include Linux OS types
       )
 
       // 3. finding existing servers in the database with the same hostname
@@ -159,6 +161,7 @@ export const syncDflowServersAction = protectedClient
           name?: string
           status?: string
         }
+
         await payload.create({
           collection: 'servers',
           data: {

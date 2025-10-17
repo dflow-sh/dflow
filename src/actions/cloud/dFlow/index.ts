@@ -218,7 +218,7 @@ export const createVPSOrderAction = protectedClient
         headers: {
           Authorization: `${DFLOW_CONFIG.AUTH_SLUG} API-Key ${token}`,
         },
-        timeout: 200000, // 2 mins of timeout!
+        timeout: 600000, // 10 mins of timeout!
       },
     )
 
