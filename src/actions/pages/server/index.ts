@@ -2,6 +2,7 @@
 
 import { protectedClient } from '@/lib/safe-action'
 import { ServerType } from '@/payload-types-overrides'
+import { checkServersSSHConnectionQueue } from '@/queues/server/checkSSHConnection'
 
 import { getServerDetailsSchema, getServersDetailsSchema } from './validator'
 
@@ -47,6 +48,15 @@ export const getServersDetailsAction = protectedClient
         checkDflowNextBillingDate: true,
       },
     })
+
+    await checkServersSSHConnectionQueue({
+      tenant: {
+        slug: tenant.slug,
+        id: tenant.id,
+      },
+      refreshServerDetails,
+    })
+
     return { servers }
   })
 

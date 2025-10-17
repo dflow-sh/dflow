@@ -267,6 +267,22 @@ const UpdateTailscaleServerForm = ({
           )}
         />
 
+        <FormItem>
+          <FormLabel>Public IP</FormLabel>
+          <FormControl>
+            <Input value={server?.publicIp || server?.ip || '-'} disabled />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+
+        <FormItem>
+          <FormLabel>Private IP</FormLabel>
+          <FormControl>
+            <Input value={server?.tailscalePrivateIp || '-'} disabled />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+
         <FormField
           control={form.control}
           name='username'
@@ -299,10 +315,10 @@ const UpdateTailscaleServerForm = ({
         <div className='space-y-4 rounded-lg border p-4'>
           <div className='flex items-center justify-between gap-3'>
             <div className='flex-1'>
-              <p className='text-sm font-medium text-foreground'>
+              <p className='text-foreground text-sm font-medium'>
                 Tailscale Connection Test
               </p>
-              <p className='text-xs text-muted-foreground'>
+              <p className='text-muted-foreground text-xs'>
                 Verify Tailscale network connectivity before saving
               </p>
             </div>

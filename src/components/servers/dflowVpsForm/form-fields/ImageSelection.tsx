@@ -81,6 +81,11 @@ export const ImageSelection = () => {
                   const name = image.name.toLowerCase() as Icon
                   const ImageIcon = icons[name]
 
+                  // Hiding panel images from this selection
+                  if (image.name !== 'ubuntu') {
+                    return null
+                  }
+
                   return (
                     <FormItem key={image.id}>
                       <FormControl>
