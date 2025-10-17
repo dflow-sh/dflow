@@ -450,7 +450,7 @@ const Bubble = () => {
               animate={{ scaleX: 1, opacity: 1 }}
               exit={{ scaleX: 0, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className='bg-background/95 ring-border absolute flex items-center rounded-full border px-3 py-1.5 shadow-xl ring-1 backdrop-blur-xl sm:px-4 sm:py-2'
+              className='bg-popover ring-border absolute flex items-center rounded-full border px-3 py-1.5 shadow-xl ring-1 sm:px-4 sm:py-2'
               style={{
                 ...notificationPosition,
                 minWidth: screenDimensions.isMobile ? 160 : 200,
@@ -477,13 +477,10 @@ const Bubble = () => {
               style={{
                 ...panelStyle,
                 transformOrigin: getExpansionOrigin(),
-              }}
-              className='overflow-hidden'>
-              <Card className='bg-background/95 ring-border h-full w-full overflow-hidden rounded-xl border shadow-2xl ring-1 backdrop-blur-xl sm:rounded-2xl'>
-                <div className='h-full w-full'>
-                  <div className='flex h-full min-h-full flex-col'>
-                    <div className='h-full min-h-0'>{renderPanel()}</div>
-                  </div>
+              }}>
+              <Card className='hover:border-input/50 h-full w-full overflow-hidden border shadow-2xl'>
+                <div className='flex h-full min-h-full flex-col'>
+                  <div className='h-full min-h-0'>{renderPanel()}</div>
                 </div>
               </Card>
             </motion.div>
@@ -494,13 +491,9 @@ const Bubble = () => {
         <motion.button
           onClick={handleBubbleButtonClick}
           className={cn(
-            'bg-background ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 backdrop-blur-xl transition-all duration-300 hover:shadow-2xl',
+            'bg-popover ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 transition-all duration-300 hover:shadow-2xl',
             bubbleSize.bubble,
             'active:scale-95', // Add touch feedback
-            // // Add special styling when terminal is open externally
-            // isTerminalOpen &&
-            //   preferences.terminalMode !== 'floating' &&
-            //   'ring-primary/50 bg-primary/5',
           )}
           style={{ zIndex: 1 }}
           whileHover={{ scale: 1.05 }}

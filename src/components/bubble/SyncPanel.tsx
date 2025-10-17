@@ -24,7 +24,7 @@ const SyncPanel = () => {
   return (
     <div className='flex h-full flex-col'>
       {/* STICKY HEADER */}
-      <div className='bg-background/95 border-border/50 sticky top-0 z-10 border-b backdrop-blur-sm'>
+      <div className='bg-muted/30 border-border/50 sticky top-0 z-10 border-b backdrop-blur-sm'>
         <div className='flex items-center p-4'>
           <Button
             variant='ghost'

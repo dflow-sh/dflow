@@ -10,11 +10,7 @@ import {
 } from 'react'
 
 import { getServersWithFieldsAction } from '@/actions/server'
-
-interface Server {
-  id: string
-  name: string
-}
+import { Server } from '@/payload-types'
 
 type ServersContextType = {
   servers: Server[]

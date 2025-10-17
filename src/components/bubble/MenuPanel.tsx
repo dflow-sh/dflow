@@ -50,18 +50,11 @@ const MenuPanel = () => {
     onClick?: () => void
   }[] = [
     {
-      icon: Settings,
-      label: 'Settings',
-      panel: 'preferences' as Panel,
-      description: 'Customize interface settings',
-      color: 'text-primary',
-    },
-    {
       icon: Terminal,
-      label: 'Server Terminal Logs',
+      label: 'Console',
       panel: 'terminal' as Panel,
-      description: 'View real-time server logs',
-      color: 'text-primary',
+      description: 'View real-time logs',
+      color: 'text-foreground',
       onClick: () => {
         // Set terminal as open when user clicks the menu item
         setTerminalOpen(true)
@@ -80,14 +73,21 @@ const MenuPanel = () => {
       label: 'Job Queues',
       panel: 'queues' as Panel,
       description: 'Monitor deployment queues',
-      color: 'text-primary',
+      color: 'text-foreground',
     },
     {
       icon: RefreshCw,
       label: 'Sync Status',
       panel: 'sync' as Panel,
       description: 'Platform synchronization',
-      color: 'text-primary',
+      color: 'text-foreground',
+    },
+    {
+      icon: Settings,
+      label: 'Settings',
+      panel: 'preferences' as Panel,
+      description: 'Customize interface settings',
+      color: 'text-foreground',
     },
   ]
 
@@ -149,7 +149,7 @@ const MenuPanel = () => {
   return (
     <div className='flex h-full flex-col'>
       {/* STICKY HEADER */}
-      <div className='bg-background/95 border-border/50 sticky top-0 z-10 border-b backdrop-blur-sm'>
+      <div className='bg-muted/30 border-border/50 sticky top-0 z-10 border-b'>
         <div className='flex items-center justify-between p-4'>
           <div className='min-w-0 flex-1'>
             <h2 className='text-foreground truncate text-lg font-semibold'>
@@ -173,7 +173,7 @@ const MenuPanel = () => {
       <div className='flex-1 overflow-hidden'>
         <div className='h-full overflow-y-auto'>
           {/* Quick Terminal Mode Selector */}
-          <div className='p-4'>
+          {/* <div className='p-4'>
             <div className='mb-3 flex items-center justify-between'>
               <h3 className='text-foreground text-sm font-medium'>
                 Terminal Mode
@@ -222,10 +222,10 @@ const MenuPanel = () => {
                 ? 'Terminal is currently open. Changing mode will reopen it.'
                 : 'Choose how the terminal opens when you access it.'}
             </p>
-          </div>
+          </div> */}
 
           {/* Main Menu Items */}
-          <div className='space-y-3 p-4 pt-0'>
+          <div className='space-y-3 p-4'>
             {menuItems.map((item, index) => {
               const isTerminalActive =
                 item.panel === 'terminal' && isTerminalOpen
@@ -235,15 +235,13 @@ const MenuPanel = () => {
                   key={item.panel}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}>
+                  transition={{ delay: index * 0.1 }}>
                   <Button
-                    variant='ghost'
+                    variant='outline'
                     className={cn(
-                      'group hover:bg-accent/50 h-16 w-full justify-start px-4 text-left transition-all duration-200',
+                      'group bg-popover/60 hover:bg-popover h-16 w-full justify-start px-4 text-left',
                       isTerminalActive &&
-                        'bg-primary/5 border-primary/20 border',
+                        'bg-primary/5 border-primary/20 hover:bg-primary/10 hover:border-primary/30 border',
                     )}
                     onClick={() => {
                       if (item.onClick) {
@@ -254,10 +252,12 @@ const MenuPanel = () => {
                       }
                     }}>
                     <div className='flex w-full items-center space-x-4'>
-                      <div
+                      <Badge
+                        variant={'secondary'}
                         className={cn(
-                          'group-hover:bg-accent flex-shrink-0 rounded-xl p-2 transition-colors group-hover:shadow-sm',
-                          isTerminalActive && 'bg-primary/10',
+                          'group-hover:bg-secondary p-2',
+                          isTerminalActive &&
+                            'bg-primary/10 hover:bg-primary/20',
                         )}>
                         <item.icon
                           size={20}
@@ -266,7 +266,7 @@ const MenuPanel = () => {
                             isTerminalActive && 'text-primary',
                           )}
                         />
-                      </div>
+                      </Badge>
                       <div className='min-w-0 flex-1'>
                         <div className='text-foreground flex items-center gap-2 truncate text-sm font-semibold'>
                           {item.label}

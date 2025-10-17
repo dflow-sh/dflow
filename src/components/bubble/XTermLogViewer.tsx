@@ -43,7 +43,7 @@ const lightTheme = {
 }
 
 const darkTheme = {
-  background: '#334256',
+  background: '#171d35',
   foreground: '#f1f5f9',
   selection: '#475569',
   selectionForeground: '#ffffff',

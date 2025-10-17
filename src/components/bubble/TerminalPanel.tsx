@@ -8,6 +8,7 @@ import {
   Loader2,
   Maximize2,
   PictureInPicture,
+  Server as ServerIcon,
   Terminal,
   X,
 } from 'lucide-react'
@@ -19,10 +20,9 @@ import { createPortal } from 'react-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { Server } from '@/payload-types'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useServers } from '@/providers/ServersProvider'
-
-import type { Server } from './bubble-types'
 
 const XTermLogViewer = dynamic(
   () => import('@/components/bubble/XTermLogViewer'),
@@ -57,7 +57,7 @@ const TerminalContent = ({
   return (
     <div
       className={cn('flex h-full w-full flex-col overflow-hidden', className)}>
-      <div className='flex-1 bg-[#ffffff] p-3 dark:bg-[#334256]'>
+      <div className='bg-card flex-1 p-3'>
         <XTermLogViewer
           serverId={serverId}
           onConnectionStatusChange={onConnectionStatusChange}
@@ -106,15 +106,15 @@ const ServerTabs = ({
               'flex items-center gap-1.5 rounded border whitespace-nowrap transition-colors',
               compact ? 'px-2.5 py-1 text-sm' : 'px-3 py-1.5 text-base',
               isActive
-                ? 'bg-primary/10 text-primary border-primary/20'
+                ? 'bg-primary/10 border-primary/20'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border-transparent',
             )}>
-            <HardDrive size={14} />
+            <ServerIcon size={14} />
             {server.name}
             {isActive && (
               <>
                 {connectionStatus === 'connecting' ? (
-                  <Loader2 size={12} className='animate-spin text-blue-500' />
+                  <Loader2 size={12} className='text-info animate-spin' />
                 ) : (
                   <div
                     className={`h-1.5 w-1.5 rounded-full ${getStatusColor()}`}
@@ -362,7 +362,7 @@ const TerminalPanel = ({
               <ArrowLeft size={16} />
             </Button>
             <div>
-              <h2 className='text-xl font-semibold'>Server Terminal</h2>
+              <h2 className='text-xl font-semibold'>Console</h2>
             </div>
           </div>
 
@@ -430,8 +430,8 @@ const TerminalPanel = ({
             <button
               onClick={toggleCollapse}
               className='hover:bg-muted flex items-center gap-2 rounded px-2 py-1 text-sm font-medium transition-colors'>
-              <HardDrive size={15} className='text-primary' />
-              <span>Server Terminal</span>
+              <Terminal size={15} className='text-muted-foreground' />
+              <span>Console</span>
               {isCollapsed ? (
                 <ChevronUp size={15} />
               ) : (
@@ -442,11 +442,11 @@ const TerminalPanel = ({
             {isCollapsed && activeServer && (
               <>
                 <div className='bg-border h-3 w-px' />
-                <div className='bg-primary/10 text-primary border-primary/20 flex items-center gap-1.5 rounded border px-2 py-0.5 text-sm'>
+                <div className='bg-primary/10 border-primary/20 flex items-center gap-1.5 rounded border px-2 py-0.5 text-sm'>
                   <HardDrive size={12} />
                   {activeServer.name}
                   {connectionStatus === 'connecting' ? (
-                    <Loader2 size={11} className='animate-spin text-blue-500' />
+                    <Loader2 size={11} className='text-info animate-spin' />
                   ) : (
                     <div
                       className={`h-1.5 w-1.5 rounded-full ${getStatusColor()}`}
@@ -500,7 +500,7 @@ const TerminalPanel = ({
 
   return (
     <div className='flex h-full flex-col'>
-      <div className='border-b p-4'>
+      <div className='bg-muted/30 border-border/50 sticky top-0 z-10 border-b p-4'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center'>
             <Button
@@ -513,8 +513,9 @@ const TerminalPanel = ({
               className='mr-1 h-8 w-8'>
               <ArrowLeft size={16} />
             </Button>
-            <h2 className='text-sm font-semibold'>Server Terminal</h2>
+            <h2 className='text-sm font-semibold'>Console</h2>
           </div>
+
           <div className='flex items-center gap-2'>
             <Button
               variant='outline'
