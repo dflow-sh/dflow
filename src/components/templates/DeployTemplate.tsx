@@ -10,6 +10,7 @@ import {
   Redis,
 } from '../icons'
 import { Badge } from '../ui/badge'
+import { ScrollArea } from '../ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { useRouter } from '@bprogress/next'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -364,46 +365,47 @@ const TemplateDeploymentForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
-        <FormField
-          control={form.control}
-          name='id'
-          render={() => (
-            <FormItem>
-              <FormControl>
-                <div className='space-y-4'>
-                  {isPending ? (
-                    <div className='text-muted-foreground flex flex-col items-center justify-center space-y-2 py-8 text-sm'>
-                      <Loader2 className='h-5 w-5 animate-spin' />
-                      <div>Fetching {type} templates...</div>
-                    </div>
-                  ) : processedTemplates?.length ? (
-                    <div className='grid max-h-96 grid-cols-1 gap-3 overflow-y-auto md:grid-cols-2'>
-                      {processedTemplates.map(template => (
-                        <TemplateCard
-                          key={template.id}
-                          template={template}
-                          isSelected={selectedTemplateId === template.id}
-                          hasMissingPlugins={template.hasMissingPlugins}
-                          missingPlugins={template?.missingPlugins}
-                          onSelect={setSelectedTemplateId}
-                          serverId={serverId}
-                          serverName={serverName}
-                          organisationName={params.organisation}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className='text-muted-foreground flex items-center justify-center py-8 text-sm'>
-                      No {type} templates available
-                    </div>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <ScrollArea className='h-[60vh]'>
+          <FormField
+            control={form.control}
+            name='id'
+            render={() => (
+              <FormItem>
+                <FormControl>
+                  <div className='space-y-4'>
+                    {isPending ? (
+                      <div className='text-muted-foreground flex flex-col items-center justify-center space-y-2 py-8 text-sm'>
+                        <Loader2 className='h-5 w-5 animate-spin' />
+                        <div>Fetching {type} templates...</div>
+                      </div>
+                    ) : processedTemplates?.length ? (
+                      <div className='grid grid-cols-1 gap-3 md:grid-cols-2'>
+                        {processedTemplates.map(template => (
+                          <TemplateCard
+                            key={template.id}
+                            template={template}
+                            isSelected={selectedTemplateId === template.id}
+                            hasMissingPlugins={template.hasMissingPlugins}
+                            missingPlugins={template?.missingPlugins}
+                            onSelect={setSelectedTemplateId}
+                            serverId={serverId}
+                            serverName={serverName}
+                            organisationName={params.organisation}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className='text-muted-foreground flex items-center justify-center py-8 text-sm'>
+                        No {type} templates available
+                      </div>
+                    )}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </ScrollArea>
         <DialogFooter>
           <DialogClose ref={dialogRef} className='sr-only' />
           <Button
@@ -482,7 +484,7 @@ const DeployTemplate = ({
         <DialogTrigger asChild>{deployButton}</DialogTrigger>
       )}
 
-      <DialogContent className='flex max-h-[80vh] max-w-4xl flex-col overflow-hidden'>
+      <DialogContent className='flex max-w-4xl flex-col'>
         <DialogHeader>
           <DialogTitle>Deploy from Template</DialogTitle>
           <DialogDescription>
@@ -490,47 +492,43 @@ const DeployTemplate = ({
             installed automatically.
           </DialogDescription>
         </DialogHeader>
-        <div className='flex-1 overflow-hidden'>
-          <Tabs defaultValue='official' className='flex h-full flex-col'>
-            <TabsList className='grid w-full grid-cols-3'>
-              <TabsTrigger value='official'>Official</TabsTrigger>
-              <TabsTrigger value='community'>Community</TabsTrigger>
-              <TabsTrigger value='personal'>Personal</TabsTrigger>
-            </TabsList>
 
-            <div className='flex-1 overflow-hidden'>
-              <TabsContent value='official' className='h-full'>
-                <TemplateDeploymentForm
-                  execute={execute}
-                  templates={result.data}
-                  isPending={isPending}
-                  server={server}
-                  type='official'
-                />
-              </TabsContent>
+        <Tabs defaultValue='official' className='flex h-full flex-col'>
+          <TabsList className='grid w-full grid-cols-3'>
+            <TabsTrigger value='official'>Official</TabsTrigger>
+            <TabsTrigger value='community'>Community</TabsTrigger>
+            <TabsTrigger value='personal'>Personal</TabsTrigger>
+          </TabsList>
+          <TabsContent value='official' className='h-full'>
+            <TemplateDeploymentForm
+              execute={execute}
+              templates={result.data}
+              isPending={isPending}
+              server={server}
+              type='official'
+            />
+          </TabsContent>
 
-              <TabsContent value='community' className='h-full'>
-                <TemplateDeploymentForm
-                  execute={execute}
-                  templates={result.data}
-                  isPending={isPending}
-                  server={server}
-                  type='community'
-                />
-              </TabsContent>
+          <TabsContent value='community' className='h-full'>
+            <TemplateDeploymentForm
+              execute={execute}
+              templates={result.data}
+              isPending={isPending}
+              server={server}
+              type='community'
+            />
+          </TabsContent>
 
-              <TabsContent value='personal' className='h-full'>
-                <TemplateDeploymentForm
-                  execute={getPersonalTemplates}
-                  templates={personalTemplates.data}
-                  isPending={isGetTemplatesPending}
-                  server={server}
-                  type='personal'
-                />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
+          <TabsContent value='personal' className='h-full'>
+            <TemplateDeploymentForm
+              execute={getPersonalTemplates}
+              templates={personalTemplates.data}
+              isPending={isGetTemplatesPending}
+              server={server}
+              type='personal'
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   )

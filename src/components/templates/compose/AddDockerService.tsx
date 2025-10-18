@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 import { getPositionForNewNode } from './ChooseService'
 import { DockerServiceSchema, DockerServiceType } from './types'
@@ -159,7 +160,7 @@ const AddDockerService = ({
       className='w-full'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleDockerNodeSubmit)}>
-          <ScrollArea className='h-[60vh]'>
+          <ScrollArea className={cn(type == 'create' ? 'h-[60vh]' : 'h-full')}>
             <div className='space-y-4'>
               <div className='space-y-2 pt-2'>
                 <RadioGroup

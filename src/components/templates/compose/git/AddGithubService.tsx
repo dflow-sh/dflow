@@ -39,6 +39,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import SelectSearch from '@/components/ui/select-search'
 import { buildOptions } from '@/lib/buildOptions'
+import { cn } from '@/lib/utils'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 
@@ -238,7 +239,7 @@ const AddGithubService = ({
       className='w-full'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(addGithubNode)}>
-          <ScrollArea className='h-[60vh]'>
+          <ScrollArea className={cn(type == 'create' ? 'h-[60vh]' : 'h-full')}>
             <div className='space-y-6'>
               <div className='space-y-4'>
                 <RadioGroup

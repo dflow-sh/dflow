@@ -33,6 +33,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { buildOptions } from '@/lib/buildOptions'
+import { cn } from '@/lib/utils'
 
 const AddAzureDevopsService = ({
   setNodes,
@@ -132,7 +133,7 @@ const AddAzureDevopsService = ({
       className='w-full'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(addAzureDevopsNode)}>
-          <ScrollArea className='h-[60vh]'>
+          <ScrollArea className={cn(type == 'create' ? 'h-[60vh]' : 'h-full')}>
             <div className='space-y-6'>
               <Alert variant='info'>
                 <Workflow className='h-4 w-4' />
