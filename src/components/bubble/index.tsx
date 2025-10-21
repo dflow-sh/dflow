@@ -312,8 +312,8 @@ const Bubble = () => {
 
     return {
       [isRight ? 'right' : 'left']: screenDimensions.isMobile
-        ? bubbleSize.bubbleSize / 2 - 8
-        : bubbleSize.bubbleSize / 2,
+        ? bubbleSize.bubbleSize
+        : bubbleSize.bubbleSize,
       [isTop ? 'top' : 'bottom']:
         (bubbleSize.bubbleSize - bubbleSize.pillHeight) / 2,
       transformOrigin: isRight ? 'right center' : 'left center',
