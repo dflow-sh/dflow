@@ -389,7 +389,7 @@ const CreateService = ({
   const createButton = (
     <Button
       disabled={disableCreateButton}
-      className='disabled:cursor-not-allowed'>
+      className='w-full disabled:cursor-not-allowed'>
       {isPending ? (
         <>
           <Loader2 className='mr-2 h-4 w-4 animate-spin' />

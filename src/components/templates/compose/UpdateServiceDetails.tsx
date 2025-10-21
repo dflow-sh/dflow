@@ -11,7 +11,15 @@ import {
   X,
 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { Fragment, JSX, useEffect, useRef, useState } from 'react'
+import {
+  Fragment,
+  JSX,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
@@ -19,6 +27,7 @@ import {
   UpdateServiceSchema,
   UpdateServiceType,
 } from '@/actions/templates/validator'
+import Tabs from '@/components/Tabs'
 import {
   Bitbucket,
   ClickHouse,
@@ -51,12 +60,12 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Service } from '@/payload-types'
 
 import { PortForm } from './AddDatabaseService'
 import AddDockerService from './AddDockerService'
+import { VolumesForm } from './AddVolumeToService'
 import EditServiceName from './EditServiceName'
 import AddAzureDevopsService from './git/AddAzureDevopsService'
 import AddBitbucketService from './git/AddBitbucketService'
@@ -110,23 +119,89 @@ const UpdateServiceDetails = ({
   edges: Edge[]
   setEdges: Function
 }) => {
-  const [activeTab, setActiveTab] = useState('settings')
+  const [tab, setTab] = useState(0)
   const { fitView } = useReactFlow()
-  useEffect(() => {
-    if (service?.type === 'database' && activeTab === 'environment') {
-      setActiveTab('settings')
-    }
+
+  const tabs = useMemo(() => {
+    return [
+      {
+        label: 'Settings',
+        slug: 'settings',
+        disabled: false,
+      },
+      {
+        label: 'Environment',
+        slug: 'environment',
+        disabled: service?.type === 'database',
+      },
+      {
+        label: 'Volumes',
+        slug: 'volumes',
+        disabled: service?.type === 'database',
+      },
+    ]
   }, [service?.id])
+
+  const currentTab = tabs[tab]?.slug
+  const TabsContent = useCallback(() => {
+    console.log({ currentTab })
+    switch (currentTab) {
+      case 'settings':
+        return (
+          <Settings
+            key={service?.id}
+            service={service}
+            setServiceId={setServiceId}
+            nodes={nodes}
+            setNodes={setNodes}
+          />
+        )
+      case 'environment':
+        return (
+          <VariablesForm
+            key={service?.id}
+            service={service}
+            nodes={nodes}
+            setNodes={setNodes}
+            setEdges={setEdges}
+          />
+        )
+      case 'volumes':
+        return (
+          <motion.div
+            initial={{ x: '5%', opacity: 0.25 }}
+            animate={{ x: 0, opacity: [0.25, 1] }}
+            exit={{ x: '100%', opacity: 1 }}
+            className='w-full'>
+            <VolumesForm
+              service={service}
+              setNodes={setNodes}
+              className='h-full'
+            />
+          </motion.div>
+        )
+      default:
+        return (
+          <Settings
+            key={service?.id}
+            service={service}
+            setServiceId={setServiceId}
+            nodes={nodes}
+            setNodes={setNodes}
+          />
+        )
+    }
+  }, [tab, service?.id])
+
   return (
     <div>
       {service && (
         <div
           className={cn(
-            'border-border bg-background fixed top-38 right-4 z-50 flex h-[calc(100vh-5rem)] w-3/4 min-w-[calc(100%-30px)] flex-col overflow-hidden rounded-md border-t border-l px-6 pb-40 shadow-lg transition ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] lg:min-w-[55%]',
+            'border-border bg-background fixed top-[9.5rem] right-0 z-50 flex h-[calc(100vh-5rem)] w-full min-w-full flex-col rounded-t-md border-t border-l px-6 pb-40 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]',
           )}>
           <div
             onClick={() => {
-              setActiveTab('settings')
               sessionStorage.removeItem('nodeId')
               setServiceId(null)
               fitView({
@@ -156,46 +231,18 @@ const UpdateServiceDetails = ({
             </div>
           </div>
 
-          {/* Tabs section */}
           <div className='relative flex h-full flex-col overflow-hidden'>
             <Tabs
-              onValueChange={setActiveTab}
-              value={activeTab}
-              defaultValue='settings'
-              className='flex h-full flex-col'>
-              <div className='bg-background sticky top-0 z-10 pt-2'>
-                <TabsList className='bg-primary/10 rounded'>
-                  <TabsTrigger value='settings'>Settings</TabsTrigger>
-                  <TabsTrigger
-                    disabled={service?.type == 'database'}
-                    value='environment'>
-                    Environment
-                  </TabsTrigger>
-                </TabsList>
-                <div className='border-base-content/40 w-full border-b pt-2' />
-              </div>
-
-              <div className='flex-1 overflow-x-hidden overflow-y-auto px-1 pt-4 pb-8'>
-                <TabsContent className='w-full' value='settings'>
-                  <Settings
-                    key={service?.id}
-                    service={service}
-                    setServiceId={setServiceId}
-                    nodes={nodes}
-                    setNodes={setNodes}
-                  />
-                </TabsContent>
-                <TabsContent className='w-full' value='environment'>
-                  <VariablesForm
-                    key={service?.id}
-                    service={service}
-                    nodes={nodes}
-                    setNodes={setNodes}
-                    setEdges={setEdges}
-                  />
-                </TabsContent>
-              </div>
-            </Tabs>
+              tabs={tabs}
+              activeTab={tab}
+              defaultActiveTab={tab}
+              onTabChange={index => {
+                setTab(index)
+              }}
+            />
+            <div className='scrollbar-custom w-full flex-1 overflow-x-auto overflow-y-auto'>
+              <div className='w-full min-w-xl pt-4'>{TabsContent()}</div>
+            </div>
           </div>
         </div>
       )}
@@ -294,7 +341,7 @@ const Settings = ({
         </>
       ) : null}
 
-      <div className='space-y-2'>
+      <div className='space-y-2 pt-4'>
         <h2 className='text-md font-semibold'>Remove Service</h2>
         <motion.div
           initial={{ x: '5%', opacity: 0.25 }}

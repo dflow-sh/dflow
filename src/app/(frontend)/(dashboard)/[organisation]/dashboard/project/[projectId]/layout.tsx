@@ -10,6 +10,7 @@ import {
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import SidebarToggleButton from '@/components/SidebarToggleButton'
 import CreateTemplateFromProject from '@/components/project/CreateTemplateFromProject'
+import ProjectOptionsDropdown from '@/components/project/ProjectOptionsDropdown'
 import CreateService from '@/components/service/CreateService'
 import ServiceList from '@/components/service/ServiceList'
 import ServicesArchitecture from '@/components/service/ServicesArchitecture'
@@ -58,31 +59,42 @@ const GeneralTab: React.FC<{
         </div>
 
         {typeof project.server === 'object' && (
-          <div className='flex items-center gap-3'>
-            <DeployTemplate
-              server={project.server}
-              disableDeployButton={!isServerConnected}
-              disableReason={'Cannot deploy template: Server is not connected'}
-            />
+          <>
+            <div className='inline md:hidden'>
+              <ProjectOptionsDropdown
+                isServerConnected={isServerConnected}
+                project={project}
+                services={services}
+              />
+            </div>
+            <div className='hidden items-center gap-3 md:flex'>
+              <DeployTemplate
+                server={project.server}
+                disableDeployButton={!isServerConnected}
+                disableReason={
+                  'Cannot deploy template: Server is not connected'
+                }
+              />
 
-            {services?.length ? (
-              <>
-                <CreateTemplateFromProject
-                  services={services}
-                  projectName={project?.name!}
-                />
+              {services?.length ? (
+                <>
+                  <CreateTemplateFromProject
+                    services={services}
+                    projectName={project?.name!}
+                  />
 
-                <CreateService
-                  server={project.server}
-                  project={project}
-                  disableCreateButton={!isServerConnected}
-                  disableReason={
-                    'Cannot create service: Server is not connected'
-                  }
-                />
-              </>
-            ) : null}
-          </div>
+                  <CreateService
+                    server={project.server}
+                    project={project}
+                    disableCreateButton={!isServerConnected}
+                    disableReason={
+                      'Cannot create service: Server is not connected'
+                    }
+                  />
+                </>
+              ) : null}
+            </div>
+          </>
         )}
       </div>
       <div className='w-full border-b pt-4' />

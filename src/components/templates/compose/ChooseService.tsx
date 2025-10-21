@@ -345,6 +345,7 @@ const ChooseService: React.FC<ChooseServiceType> = ({
         )}
 
         <UpdateServiceDetails
+          key={serviceId}
           nodes={nodes}
           setNodes={setNodes}
           edges={edges}

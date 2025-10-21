@@ -171,7 +171,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
 
   return (
     <>
-      <div className='mb-4 flex items-center gap-1.5'>
+      <div className='mb-4 flex w-full items-center gap-1.5'>
         <HardDrive />
         <h4 className='text-lg font-semibold'>Volumes</h4>
       </div>

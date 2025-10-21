@@ -11,6 +11,7 @@ import {
   useForm,
   useFormContext,
 } from 'react-hook-form'
+import { toast } from 'sonner'
 
 import { Docker } from '@/components/icons'
 import { ServiceNode } from '@/components/reactflow/types'
@@ -33,6 +34,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { slugifyWithUnderscore } from '@/lib/slugify'
+import { cn } from '@/lib/utils'
 
 import { VolumesType, volumesSchema } from './types'
 
@@ -113,21 +115,21 @@ const HostContainerPair = memo(
 
 HostContainerPair.displayName = 'HostContainerPair'
 
-const AddVolumeToService = ({
+export const VolumesForm = ({
   service,
   setNodes,
   onCloseContextMenu,
-  type = 'sideBar',
   setOpenDialog,
+  setOpen,
+  className,
 }: {
   setNodes: Function
   service: ServiceNode
   onCloseContextMenu?: () => void
-  type: type
   setOpenDialog?: (open: boolean) => void
+  setOpen?: (open: boolean) => void
+  className?: string
 }) => {
-  const [open, setOpen] = useState(false)
-
   const form = useForm<VolumesType>({
     resolver: zodResolver(volumesSchema),
     defaultValues: {
@@ -168,10 +170,73 @@ const AddVolumeToService = ({
       }),
     )
 
+    toast.success(`Volumes updated successfully`)
+
     onCloseContextMenu?.()
     setOpenDialog?.(false)
-    setOpen(false)
+    setOpen?.(false)
   }
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className='space-y-2'>
+          {fields.length ? (
+            <div className='text-muted-foreground grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-sm'>
+              <p className='font-semibold'>Host Path</p>
+              <span />
+              <p className='font-semibold'>Container Path</p>
+            </div>
+          ) : null}
+          <ScrollArea className={cn('h-72', className)}>
+            <div className='space-y-2 p-1'>
+              {fields.map((field, index) => {
+                return (
+                  <HostContainerPair
+                    key={field.id}
+                    id={index}
+                    removeVariable={removeVariable}
+                    serviceName={service.name}
+                  />
+                )
+              })}
+
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => {
+                  appendVariable({
+                    hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
+                    containerPath: '',
+                  })
+                }}>
+                <Plus /> New Volume
+              </Button>
+            </div>
+          </ScrollArea>
+        </div>
+        <DialogFooter className='flex items-end justify-end'>
+          <Button type='submit'>Save</Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  )
+}
+
+const AddVolumeToService = ({
+  service,
+  setNodes,
+  onCloseContextMenu,
+  type = 'sideBar',
+  setOpenDialog,
+}: {
+  setNodes: Function
+  service: ServiceNode
+  onCloseContextMenu?: () => void
+  type: type
+  setOpenDialog?: (open: boolean) => void
+}) => {
+  const [open, setOpen] = useState(false)
+
   return (
     <div>
       <div onClick={() => setOpen(true)}>
@@ -209,48 +274,13 @@ const AddVolumeToService = ({
               to keep your data safe across restarts and updates.
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className='space-y-2'>
-                {fields.length ? (
-                  <div className='text-muted-foreground grid grid-cols-[1fr_min-content_1fr_auto] gap-2 text-sm'>
-                    <p className='font-semibold'>Host Path</p>
-                    <span />
-                    <p className='font-semibold'>Container Path</p>
-                  </div>
-                ) : null}
-                <ScrollArea className='h-72'>
-                  <div className='space-y-2 p-1'>
-                    {fields.map((field, index) => {
-                      return (
-                        <HostContainerPair
-                          key={field.id}
-                          id={index}
-                          removeVariable={removeVariable}
-                          serviceName={service.name}
-                        />
-                      )
-                    })}
-
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() => {
-                        appendVariable({
-                          hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-                          containerPath: '',
-                        })
-                      }}>
-                      <Plus /> New Volume
-                    </Button>
-                  </div>
-                </ScrollArea>
-              </div>
-              <DialogFooter>
-                <Button type='submit'>Save</Button>
-              </DialogFooter>
-            </form>
-          </Form>
+          <VolumesForm
+            service={service}
+            setNodes={setNodes}
+            onCloseContextMenu={onCloseContextMenu}
+            setOpen={setOpen}
+            setOpenDialog={setOpenDialog}
+          />
         </DialogContent>
       </Dialog>
     </div>

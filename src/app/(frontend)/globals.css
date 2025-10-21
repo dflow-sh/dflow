@@ -214,11 +214,46 @@ html {
   scrollbar-width: none; /* Firefox */
 }
 
+.scrollbar-custom {
+  overflow: overlay;
+  scrollbar-gutter: stable;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
+}
+
+/* Webkit browsers (Chrome, Edge, Safari) */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+/* Show scrollbar on hover over the container */
+.scrollbar-custom:hover::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+}
+
+/* Firefox */
+.scrollbar-custom:hover {
+  scrollbar-color: var(--border) transparent;
+}
+
 /* react flow */
 .react-flow__controls-button {
-  background-color: hsl(
-    var(--muted) / 0.3
-  ) !important; /* Tailwind bg-gray-700 */
+  background-color: hsl(var(--muted) / 0.3) !important;
   color: var(--foreground) !important;
   margin: 0.25rem 0;
   border-bottom: 1px solid var(--input) !important;
