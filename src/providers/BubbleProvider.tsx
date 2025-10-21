@@ -147,7 +147,7 @@ export default function BubbleProvider({
     () => loadBubbleState().isVisible ?? true,
   )
 
-  // Sync state (not persisted)
+  // Sync state (kept in memory, not persisted)
   const [isSyncing, setIsSyncing] = useState(false)
   const [isSSESyncing, setIsSSESyncing] = useState(false)
   const [syncProgress, setSyncProgress] = useState(0)
@@ -422,10 +422,7 @@ export default function BubbleProvider({
       if (eventSource) {
         eventSource.close()
       }
-      if (syncIntervalRef.current) {
-        clearInterval(syncIntervalRef.current)
-        syncIntervalRef.current = null
-      }
+      // Note: Don't clear syncIntervalRef - let sync continue in background
     }
   }, [organisation, router, showNotificationWithTimeout, addActiveProcess])
 
@@ -441,6 +438,11 @@ export default function BubbleProvider({
       syncIntervalRef.current = setInterval(() => {
         setSyncProgress(prev => {
           if (prev >= 100) {
+            if (syncIntervalRef.current) {
+              clearInterval(syncIntervalRef.current)
+              syncIntervalRef.current = null
+            }
+
             setIsSSESyncing(false)
             removeActiveProcess('sync')
             setSyncMessage('All platform data is synchronized')
@@ -483,13 +485,13 @@ export default function BubbleProvider({
     }
   }, [isExpanded, showNotification])
 
-  // Cleanup
+  // Cleanup only notification timeouts and SSE on unmount
   useEffect(() => {
     return () => {
-      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current)
       if (notificationTimeoutRef.current)
         clearTimeout(notificationTimeoutRef.current)
       if (eventSourceRef.current) eventSourceRef.current.close()
+      // syncIntervalRef is intentionally NOT cleared - sync continues
     }
   }, [])
 

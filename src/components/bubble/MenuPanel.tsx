@@ -1,12 +1,12 @@
 'use client'
 
 import {
+  Cog,
   LucideProps,
   Maximize2,
   PictureInPicture,
   List as Queue,
   RefreshCw,
-  Settings,
   Terminal,
   X,
 } from 'lucide-react'
@@ -83,8 +83,8 @@ const MenuPanel = () => {
       color: 'text-foreground',
     },
     {
-      icon: Settings,
-      label: 'Settings',
+      icon: Cog,
+      label: 'Preferences',
       panel: 'preferences' as Panel,
       description: 'Customize interface settings',
       color: 'text-foreground',

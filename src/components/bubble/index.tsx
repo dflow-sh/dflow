@@ -7,6 +7,7 @@ import {
   Loader2,
   List as Queue,
   RefreshCw,
+  Settings2,
   Sparkles,
   Terminal,
 } from 'lucide-react'
@@ -301,7 +302,8 @@ const Bubble = () => {
     if (isTerminalOpen) {
       return <Terminal size={iconSize} className='text-primary' />
     }
-    return <Sparkles size={iconSize} className='text-primary' />
+
+    return <Settings2 size={iconSize} className='text-foreground' />
   }
 
   const getNotificationPosition = () => {
@@ -491,7 +493,7 @@ const Bubble = () => {
         <motion.button
           onClick={handleBubbleButtonClick}
           className={cn(
-            'bg-popover ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 transition-all duration-300 hover:shadow-2xl',
+            'bg-card ring-border relative flex items-center justify-center rounded-full border shadow-xl ring-1 transition-all duration-300 hover:shadow-2xl',
             bubbleSize.bubble,
             'active:scale-95', // Add touch feedback
           )}
