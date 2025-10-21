@@ -214,7 +214,10 @@ const CreateTemplateFromProject = ({
 
   return (
     <>
-      <Button variant='outline' onClick={() => setOpen(true)}>
+      <Button
+        variant='outline'
+        className='w-full'
+        onClick={() => setOpen(true)}>
         <Puzzle />
         Convert as Template
       </Button>
@@ -226,7 +229,7 @@ const CreateTemplateFromProject = ({
             <DialogDescription>Deploy Template</DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
               <FormField
                 control={form.control}
                 name='name'

@@ -106,7 +106,6 @@ const ReactFlowConfig = ({
     },
     [setCenter, getNode, getViewport],
   )
-  console.log({ nodes })
   return (
     <div className={cn('relative h-[calc(100vh-156px)] w-full', className)}>
       <ReactFlow

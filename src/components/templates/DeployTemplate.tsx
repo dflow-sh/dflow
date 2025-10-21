@@ -462,7 +462,7 @@ const DeployTemplate = ({
   const isButtonDisabled = disableDeployButton || isDeploying
 
   const deployButton = (
-    <Button variant='outline' disabled={isButtonDisabled}>
+    <Button variant='outline' className='w-full' disabled={isButtonDisabled}>
       <Rocket className='mr-2' /> Deploy from Template
     </Button>
   )
