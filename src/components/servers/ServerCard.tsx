@@ -368,18 +368,6 @@ const ServerCard = ({
 
   const statusIcon = getStatusIcon()
 
-  // Get connection attempts info for DFlow servers
-  const getConnectionAttemptsInfo = () => {
-    if (
-      server?.provider?.toLowerCase() === 'dflow' &&
-      serverStatus.type === 'connecting'
-    ) {
-      const attempts = server.connectionAttempts ?? 0
-      return ` (${attempts + 1}/30)`
-    }
-    return ''
-  }
-
   return (
     <>
       <div className='relative'>
@@ -496,7 +484,6 @@ const ServerCard = ({
                             className: 'mr-1.5 h-3 w-3',
                           })}
                         {serverStatus.badge.text}
-                        {getConnectionAttemptsInfo()}
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -513,7 +500,6 @@ const ServerCard = ({
                       className: 'mr-1.5 h-3 w-3',
                     })}
                   {serverStatus.badge.text}
-                  {getConnectionAttemptsInfo()}
                 </Badge>
               )}
             </div>

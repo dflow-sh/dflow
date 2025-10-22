@@ -340,7 +340,9 @@ export const DflowVpsFormProvider = ({
       )
 
       // Selecting first image of plan
-      const firstImage = vpsPlan.images?.[0]
+      const firstImage = vpsPlan.images?.find(
+        image => image.category === 'os' && image.name === 'ubuntu',
+      )
 
       setValue('imageType', firstImage?.category!)
 

@@ -240,9 +240,8 @@ export const createVPSOrderAction = protectedClient
       dflowVpsDetails: {
         orderId: createdVpsOrder?.id,
         instanceId: createdVpsOrder?.instanceId,
-        status: createdVpsOrder?.instanceResponse?.status as NonNullable<
-          Server['dflowVpsDetails']
-        >['status'],
+        status: (createdVpsOrder?.instanceResponse?.status ??
+          'unknown') as NonNullable<Server['dflowVpsDetails']>['status'],
       },
       cloudInitStatus: 'running',
       connectionAttempts: 0,

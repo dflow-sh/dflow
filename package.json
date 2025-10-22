@@ -1,7 +1,7 @@
 {
   "name": "dflow",
   "version": "0.1",
-  "description": "A blank template to get started with Payload 3.0",
+  "description": "dFlow is a open source alternative to Railway, Heroku & Vercel",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -64,6 +64,7 @@
     "@xyflow/react": "^12.5.5",
     "axios": "^1.8.3",
     "bullmq": "^5.40.0",
+    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
@@ -116,6 +117,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/debug": "^4.1.12",
     "@types/node": "^22.5.4",
     "@types/nunjucks": "^3.2.6",

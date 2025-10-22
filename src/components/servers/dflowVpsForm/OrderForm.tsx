@@ -1,15 +1,16 @@
 'use client'
 
-import { type Variants, motion } from 'motion/react'
+import confetti from 'canvas-confetti'
 import { useAction } from 'next-safe-action/hooks'
-import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createVPSOrderAction } from '@/actions/cloud/dFlow'
-import Loader from '@/components/Loader'
+import AnimatedCheckIcon from '@/components/icons/AnimatedCheckIcon'
+import AnimatedCoinIcon from '@/components/icons/AnimatedCoinIcon'
+import AnimatedCrossIcon from '@/components/icons/AnimatedCrossIcon'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -34,19 +35,6 @@ import { StorageTypeField } from './form-fields/StorageTypeField'
 import { TermLengthSection } from './form-fields/TermLengthSection'
 import type { VpsFormData } from './schemas'
 
-const pathVariants: Variants = {
-  initial: {
-    opacity: 1,
-    pathLength: 1,
-    scale: 1,
-  },
-  animate: {
-    opacity: [0, 1],
-    pathLength: [0, 1],
-    scale: [0.5, 1],
-  },
-}
-
 export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const form = useFormContext<VpsFormData>()
   const searchParams = useSearchParams()
@@ -59,7 +47,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
     execute: executeCreateVPSOrderAction,
     isPending: isCreatingVpsOrder,
     hasSucceeded: createdVPSOrder,
-    result: createdVPSOrderResult,
+    hasErrored: failedCreatingVPSOrder,
   } = useAction(createVPSOrderAction, {
     onExecute: () => {
       setOpen(true)
@@ -73,7 +61,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
 
       setTimeout(() => {
         router.push(`/${params.organisation}/servers/${createdData.serverId}`)
-      }, 5000)
+      }, 3000)
     },
   })
 
@@ -136,6 +124,38 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   }
 
   const onboardingCompleted = !!dFlowUser?.acceptedTermsDate
+
+  const paymentStatus = useMemo(() => {
+    if (isCreatingVpsOrder) {
+      return {
+        icon: <AnimatedCoinIcon className='-translate-x-6 -translate-y-6' />,
+        heading: `Processing your ${vpsPlan?.name} order`,
+        description: 'Please do not close this window.',
+      }
+    }
+
+    if (createdVPSOrder) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.8 },
+      })
+
+      return {
+        icon: <AnimatedCheckIcon />,
+        heading: `Order ${vpsPlan?.name} successfully placed`,
+        description: "You'll be redirected to servers page.",
+      }
+    }
+
+    if (failedCreatingVPSOrder) {
+      return {
+        icon: <AnimatedCrossIcon />,
+        heading: `Failed to place ${vpsPlan?.name} order`,
+        description: 'Please try again or contact our support!',
+      }
+    }
+  }, [failedCreatingVPSOrder, createdVPSOrder, isCreatingVpsOrder])
 
   return (
     <>
@@ -207,63 +227,23 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
 
           setOpen(state)
         }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {createdVPSOrder
-                ? `🎉 Successfully placed ${vpsPlan?.name} order`
-                : `Processing Your ${vpsPlan?.name} order`}
-            </DialogTitle>
-            <DialogDescription>
-              {createdVPSOrder
-                ? 'Your VPS order has been successfully placed.'
-                : "Your VPS order is being placed. Please wait we'll redirect once order is placed..."}
+        <DialogContent className='flex flex-col items-center gap-4 py-6'>
+          <DialogHeader className='text-center'>
+            <DialogTitle className='sr-only'>Payment Status</DialogTitle>
+            <DialogDescription className='sr-only'>
+              Your VPS order payment status displayed here
             </DialogDescription>
           </DialogHeader>
 
-          <div className='flex items-center justify-center pt-4'>
-            {createdVPSOrder ? (
-              <div className='flex flex-col items-center justify-center gap-3'>
-                <div
-                  role='status'
-                  className='bg-success-foreground text-success grid size-24 place-items-center rounded-full'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width={60}
-                    height={60}
-                    viewBox='0 0 24 24'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'>
-                    <motion.path
-                      variants={pathVariants}
-                      transition={{
-                        duration: 0.4,
-                        opacity: { duration: 0.1 },
-                        delay: 0.2,
-                      }}
-                      initial='initial'
-                      animate='animate'
-                      d='M4 12 9 17L20 6'
-                    />
-                  </svg>
-                </div>
+          <div className='flex flex-col items-center justify-center pt-4'>
+            {paymentStatus?.icon}
 
-                <p className='text-muted-foreground text-sm'>
-                  You'll be redirected to your server page shortly.{' '}
-                  <Link
-                    className='text-primary underline'
-                    href={`/${params.organisation}/servers/${createdVPSOrderResult?.data?.data?.serverId}`}>
-                    Click here
-                  </Link>{' '}
-                  if your not redirected
-                </p>
-              </div>
-            ) : (
-              <Loader className='text-primary h-max w-max [&>svg]:size-12' />
-            )}
+            <h2 className='mt-14 text-xl font-semibold'>
+              {paymentStatus?.heading}
+            </h2>
+            <p className='text-muted-foreground text-sm'>
+              {paymentStatus?.description}
+            </p>
           </div>
         </DialogContent>
       </Dialog>
