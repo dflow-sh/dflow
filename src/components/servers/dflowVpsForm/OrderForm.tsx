@@ -56,11 +56,9 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
       toast.error(`Failed to create server instance: ${error.serverError}`)
       setOpen(false)
     },
-    onSuccess: ({ data }) => {
-      const { data: createdData } = data
-
+    onSuccess: () => {
       setTimeout(() => {
-        router.push(`/${params.organisation}/servers/${createdData.serverId}`)
+        router.push(`/${params.organisation}/servers`)
       }, 3000)
     },
   })
