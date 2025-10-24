@@ -2,17 +2,20 @@ import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams, useSearchParams } from 'next/navigation'
 
-import { getTenant } from '@/lib/get-tenant'
 import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
 import { Template } from '@/payload-types'
 
-const TemplateCard = async ({
+const TemplateCard = ({
   template,
 }: {
   template: DFlowTemplateType | Template
 }) => {
-  const tenant = await getTenant()
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const type = searchParams.get('tab') || 'official'
+  const tenant = params?.organisation
   return (
     <div>
       <Card>
@@ -39,7 +42,7 @@ const TemplateCard = async ({
 
           <div className='flex items-end justify-end'>
             <Link
-              href={`/${tenant}/templates/compose?templateId=${template.id}&type=official`}>
+              href={`/${tenant}/templates/compose?templateId=${template.id}&type=${type}`}>
               <Button variant={'outline'}>Deploy</Button>
             </Link>
           </div>

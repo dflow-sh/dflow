@@ -106,7 +106,7 @@ const CreateNewTemplate = () => {
       onSuccess: ({ data, input }) => {
         if (data) {
           toast.success(`Template created successfully`)
-          router.push(`/${organisation}/templates`)
+          router.push(`/${organisation}/templates${type ? `?tab=${type}` : ''}`)
           removeFlow()
         }
       },
@@ -122,7 +122,7 @@ const CreateNewTemplate = () => {
     onSuccess: ({ data, input }) => {
       if (data) {
         toast.success(`Template updated successfully`)
-        router.push(`/${organisation}/templates`)
+        router.push(`/${organisation}/templates${type ? `?tab=${type}` : ''}`)
       }
     },
     onError: ({ error }) => {
@@ -201,12 +201,15 @@ const CreateNewTemplate = () => {
     }
     if (type === 'personal') {
       getTemplateById({ id: templateId })
-    } else if (type === 'official') {
+    } else if (type === 'official' || type === 'community') {
       getOfficialTemplateById({ templateId })
     }
   }, [templateId, type])
 
-  template = type === 'official' ? officialTemplate : personalTemplate
+  template =
+    type === 'official' || type === 'community'
+      ? officialTemplate
+      : personalTemplate
 
   useEffect(() => {
     if (!template.data?.services) return
@@ -284,7 +287,9 @@ const CreateNewTemplate = () => {
         <DeployTemplateWithProjectForm services={services} />
         <Button
           variant={'default'}
-          disabled={nodes?.length <= 0 || type === 'official'}
+          disabled={
+            nodes?.length <= 0 || type === 'official' || type === 'community'
+          }
           onClick={() => setOpenCreateTemplate(true)}>
           {templateId && template?.data ? 'Update template' : 'Save template'}
         </Button>
@@ -356,7 +361,8 @@ const CreateNewTemplate = () => {
                   disabled={
                     isCreateNewTemplatePending ||
                     isUpdateTemplatePending ||
-                    type === 'official'
+                    type === 'official' ||
+                    type === 'community'
                   }
                   isLoading={
                     isCreateNewTemplatePending || isUpdateTemplatePending

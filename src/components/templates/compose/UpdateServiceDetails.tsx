@@ -144,7 +144,6 @@ const UpdateServiceDetails = ({
 
   const currentTab = tabs[tab]?.slug
   const TabsContent = useCallback(() => {
-    console.log({ currentTab })
     switch (currentTab) {
       case 'settings':
         return (
