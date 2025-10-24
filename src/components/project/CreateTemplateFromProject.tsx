@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert } from '../ui/alert'
 import { Button } from '../ui/button'
 import {
   Dialog,
@@ -60,10 +61,27 @@ export const servicesToTemplate = (
           return `{{ ${cleanedInner} }}`
         },
       )
-
       return {
         ...variable,
         value: updatedValue,
+      }
+    })
+    const updatedVolumes = (service.volumes || []).map(volume => {
+      if (typeof volume.hostPath !== 'string') return volume
+
+      const basePath = '/var/lib/dokku/data/storage/'
+      const projectPrefix = `${projectName}-`
+
+      if (!volume.hostPath.startsWith(basePath)) return volume
+
+      const cleanedHostPath = volume.hostPath.replace(
+        new RegExp(`^(${basePath})${projectPrefix}`),
+        basePath,
+      )
+
+      return {
+        ...volume,
+        hostPath: cleanedHostPath,
       }
     })
 
@@ -83,7 +101,7 @@ export const servicesToTemplate = (
               ? service.provider
               : undefined,
         builder: service.builder || 'buildPacks',
-        volumes: service.volumes || [],
+        volumes: updatedVolumes || [],
       }
       // Dynamically map provider-specific settings
       switch (service.providerType) {
@@ -158,7 +176,7 @@ export const servicesToTemplate = (
               ports: service.dockerDetails.ports,
             }
           : undefined,
-        volumes: service.volumes || [],
+        volumes: updatedVolumes || [],
       }
     }
 
@@ -228,6 +246,12 @@ const CreateTemplateFromProject = ({
             <DialogTitle>Create Template from Project</DialogTitle>
             <DialogDescription>Deploy Template</DialogDescription>
           </DialogHeader>
+          {form?.formState?.errors && form?.formState?.errors?.services && (
+            <Alert variant={'destructive'}>
+              Please fill in all required details in the services to convert
+              them into a template.
+            </Alert>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
               <FormField

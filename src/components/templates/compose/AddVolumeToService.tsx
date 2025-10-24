@@ -136,12 +136,7 @@ export const VolumesForm = ({
       volumes:
         Array.isArray(service?.volumes) && service.volumes.length
           ? service.volumes
-          : [
-              {
-                containerPath: '',
-                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-              },
-            ],
+          : [],
     },
   })
 

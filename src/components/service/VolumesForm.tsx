@@ -129,12 +129,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
       volumes:
         Array.isArray(service?.volumes) && service.volumes.length
           ? service.volumes
-          : [
-              {
-                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-                containerPath: '',
-              },
-            ],
+          : [],
     },
   })
 
@@ -157,14 +152,7 @@ const VolumesForm = ({ service }: { service: Service }) => {
   useEffect(() => {
     if (Array.isArray(service?.volumes)) {
       form.reset({
-        volumes: service.volumes.length
-          ? service.volumes
-          : [
-              {
-                containerPath: '',
-                hostPath: `/var/lib/dokku/data/storage/${service.name}/default`,
-              },
-            ],
+        volumes: service.volumes.length ? service.volumes : [],
       })
     }
   }, [service?.volumes])
