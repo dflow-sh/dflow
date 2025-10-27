@@ -2,6 +2,7 @@ import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
 import React from 'react'
 
 import { getBranding, getTheme } from '@/actions/branding'
@@ -126,6 +127,20 @@ export default async function RootLayout({
           src='https://cdn.chatway.app/widget.js?id=J34Fw4u1288m'
         />
 
+        {/* Headway Widget Configuration */}
+        <script
+          id='headway-config'
+          dangerouslySetInnerHTML={{
+            __html: `
+              var HW_config = {
+                selector: ".headway-notifications", // CSS selector where to inject the badge
+                account: "xWqgrJ",
+                trigger: ".headway-trigger" // Optional: external trigger for opening the widget
+              }
+            `,
+          }}
+        />
+
         {theme && <Branding theme={theme} />}
       </head>
 
@@ -150,6 +165,12 @@ export default async function RootLayout({
           </NetworkStatusProvider>
           {/* </PosthogProvider> */}
         </NProgressProvider>
+
+        {/* Headway Widget Script - loaded after body */}
+        <Script
+          src='https://cdn.headwayapp.co/widget.js'
+          strategy='lazyOnload'
+        />
       </body>
     </html>
   )
