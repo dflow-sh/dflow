@@ -1,17 +1,25 @@
 'use client'
 
 import {
+  Bell,
+  ChevronRight,
   Cog,
   LucideProps,
   Maximize2,
   PictureInPicture,
   List as Queue,
   RefreshCw,
+  Sparkles,
   Terminal,
   X,
 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { ForwardRefExoticComponent, RefAttributes } from 'react'
+import {
+  ForwardRefExoticComponent,
+  RefAttributes,
+  useEffect,
+  useState,
+} from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +29,21 @@ import { useTerminal } from '@/providers/TerminalProvider'
 
 import type { Panel } from './bubble-types'
 
+declare global {
+  interface Window {
+    Headway?: {
+      init: (config: { selector: string; account: string }) => void
+      show: () => void
+    }
+    HW_config?: {
+      selector: string
+      account: string
+    }
+  }
+}
+
 const MenuPanel = () => {
+  const [isHeadwayReady, setIsHeadwayReady] = useState(false)
   const {
     navigateToPanel,
     startSync,
@@ -144,6 +166,69 @@ const MenuPanel = () => {
       default:
         return 'Open'
     }
+  }
+
+  useEffect(() => {
+    let attempts = 0
+    const maxAttempts = 10
+
+    const checkAndInitHeadway = () => {
+      attempts++
+
+      // Check if Headway is loaded
+      if (window.Headway && window.HW_config) {
+        try {
+          // Re-initialize Headway to ensure it scans the DOM
+          window.Headway.init(window.HW_config)
+          setIsHeadwayReady(true)
+          console.log('✅ Headway initialized successfully')
+        } catch (error) {
+          console.error('❌ Failed to initialize Headway:', error)
+          if (attempts < maxAttempts) {
+            setTimeout(checkAndInitHeadway, 200)
+          }
+        }
+      } else if (attempts < maxAttempts) {
+        // Retry if not loaded yet
+        setTimeout(checkAndInitHeadway, 200)
+      } else {
+        console.warn('⚠️ Headway failed to load after multiple attempts')
+      }
+    }
+
+    checkAndInitHeadway()
+  }, [])
+
+  const handleHeadwayClick = () => {
+    if (!isHeadwayReady) {
+      console.warn('⏳ Headway is not ready yet, please try again')
+      return
+    }
+
+    // Method 1: Click the badge (most reliable)
+    const headwayBadge = document.querySelector('.HW_badge')
+    if (headwayBadge instanceof HTMLElement) {
+      console.log('📌 Opening Headway via badge click')
+      headwayBadge.click()
+      return
+    }
+
+    // Method 2: Use Headway API directly
+    if (window.Headway?.show) {
+      console.log('📌 Opening Headway via API')
+      window.Headway.show()
+      return
+    }
+
+    // Method 3: Try to show the widget container
+    const headwayFrame = document.querySelector('#HW_frame_cont')
+    if (headwayFrame instanceof HTMLElement) {
+      console.log('📌 Opening Headway via frame')
+      headwayFrame.style.display = 'block'
+      return
+    }
+
+    console.error('❌ Unable to open Headway - no method succeeded')
   }
 
   return (
@@ -309,6 +394,68 @@ const MenuPanel = () => {
                 </motion.div>
               )
             })}
+          </div>
+
+          {/* Notifications Section */}
+          <div className='border-border/50 border-t p-4'>
+            <div className='mb-3 flex items-center justify-between'>
+              <div>
+                <h3 className='text-foreground text-sm font-medium'>
+                  What's New
+                </h3>
+                <p className='text-muted-foreground text-xs'>
+                  Latest updates and announcements
+                </p>
+              </div>
+              <Badge variant='secondary' className='text-xs'>
+                <Sparkles size={12} className='mr-1' />
+                New
+              </Badge>
+            </div>
+
+            {/* Custom Notifications UI */}
+            <div className='space-y-2'>
+              <button
+                onClick={handleHeadwayClick}
+                disabled={!isHeadwayReady}
+                className={cn(
+                  'bg-popover/60 hover:bg-popover border-input group w-full rounded-lg border p-3 text-left transition-all hover:cursor-pointer',
+                  !isHeadwayReady && 'cursor-wait opacity-50',
+                )}>
+                <div className='flex items-start gap-3'>
+                  <Badge
+                    variant={'secondary'}
+                    className={cn('group-hover:bg-secondary p-2')}>
+                    <Bell size={16} />
+                  </Badge>
+                  <div className='min-w-0 flex-1'>
+                    <div className='mb-1 flex items-center gap-2 text-sm font-medium'>
+                      {isHeadwayReady
+                        ? 'View All Updates'
+                        : 'Loading Updates...'}
+                      <ChevronRight size={14} />
+                    </div>
+                    <p className='text-muted-foreground text-xs leading-relaxed'>
+                      {isHeadwayReady
+                        ? `See what's new in the platform, features, and improvements`
+                        : 'Please wait while we load the latest updates'}
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              {/* Headway container - keep it visible for Headway to detect */}
+              <div
+                className='headway-notifications'
+                style={{
+                  position: 'absolute',
+                  width: '1px',
+                  height: '1px',
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
