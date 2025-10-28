@@ -19,6 +19,7 @@ import {
   Settings,
   Zap,
 } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useMemo } from 'react'
 
 import { DynamicFilterPanel } from '@/components/DynamicFilter/DynamicFilterPanel'
@@ -253,21 +254,48 @@ const ProjectFiltersSection = ({
       <div className='space-y-4'>
         {filteredProjects.length > 0 ? (
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-            {filteredProjects.map(project => {
-              const services = getProjectServices(project)
-              return (
-                <ProjectCard
-                  key={project.id}
-                  organisationSlug={organisationSlug}
-                  project={project}
-                  servers={servers}
-                  services={services}
-                />
-              )
-            })}
+            <AnimatePresence mode='popLayout'>
+              {filteredProjects.map((project, index) => {
+                const services = getProjectServices(project)
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    initial={{
+                      opacity: 0,
+                      y: 20,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    exit={{
+                      opacity: 0,
+                      y: -20,
+                      transition: { duration: 0.2 },
+                    }}
+                    transition={{
+                      duration: 0.4,
+                      delay: index * 0.05,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}>
+                    <ProjectCard
+                      organisationSlug={organisationSlug}
+                      project={project}
+                      servers={servers}
+                      services={services}
+                    />
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
           </div>
         ) : (
-          <div className='bg-muted/10 rounded-lg border border-dashed p-8 text-center'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className='bg-muted/10 rounded-lg border border-dashed p-8 text-center'>
             <div className='bg-muted mx-auto flex h-12 w-12 items-center justify-center rounded-full'>
               <Filter className='text-muted-foreground h-6 w-6' />
             </div>
@@ -283,7 +311,7 @@ const ProjectFiltersSection = ({
               className='mt-4'>
               Clear all filters
             </Button>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

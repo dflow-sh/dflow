@@ -18,6 +18,7 @@ import {
   Trash2,
   WifiOff,
 } from 'lucide-react'
+import { motion } from 'motion/react'
 import Link from 'next/link'
 import React, { useState } from 'react'
 
@@ -49,9 +50,11 @@ import DeleteServerDialog from './DeleteServerDialog'
 const ServerCard = ({
   server,
   organisationSlug,
+  index = 0,
 }: {
   server: Server
   organisationSlug: string
+  index?: number
 }) => {
   const [open, setOpen] = useState(false)
 
@@ -370,7 +373,26 @@ const ServerCard = ({
 
   return (
     <>
-      <div className='relative'>
+      <motion.div
+        className='relative'
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          y: -20,
+          transition: { duration: 0.2 },
+        }}
+        transition={{
+          duration: 0.4,
+          delay: index * 0.05,
+          ease: [0.22, 1, 0.36, 1],
+        }}>
         <Card
           className={`h-full min-h-48 border-t-0 border-r-0 border-b-0 border-l-4 transition-all duration-200 hover:shadow-md ${serverStatus.borderColor}`}>
           {/* Header Section */}
@@ -578,7 +600,7 @@ const ServerCard = ({
           href={`/${organisationSlug}/servers/${server.id}`}
           className='absolute top-0 left-0 z-0 h-full w-full'
         />
-      </div>
+      </motion.div>
 
       <DeleteServerDialog server={server} open={open} setOpen={setOpen} />
     </>
