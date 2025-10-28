@@ -7,6 +7,7 @@ import React, { Suspense } from 'react'
 import { getDflowUser } from '@/actions/cloud/dFlow'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
+import CountUp from '@/components/ContUp'
 import DocSidebar from '@/components/DocSidebar'
 import Logo from '@/components/Logo'
 import ToggleTheme from '@/components/ToggleTheme'
@@ -79,7 +80,14 @@ const DashboardLayoutInner = async ({
             className='hover:text-muted-foreground hidden items-center gap-x-1 transition-colors duration-300 md:inline-flex'
             href='https://github.com/akhil-naidu/dflow'>
             <Github width='1.25em' height='1.25em' />{' '}
-            {result?.data?.stars ? result?.data?.stars : ''}
+            <CountUp
+              from={0}
+              to={result?.data?.stars ?? 0}
+              separator=','
+              direction='up'
+              duration={1}
+              className='count-up-text'
+            />
           </Link>
 
           {!hasClaimedCredits && (

@@ -1,6 +1,7 @@
 'use client'
 
 import { Puzzle } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -38,6 +39,7 @@ const Templates = ({
       handleTabChange('official')
     }
   }, [])
+
   return (
     <Tabs
       value={activeTab}
@@ -54,58 +56,128 @@ const Templates = ({
       <TabsContent value='official'>
         {officialTemplates && officialTemplates?.length > 0 ? (
           <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-            {officialTemplates?.map((template, index) => (
-              <TemplateCard key={index} template={template} />
-            ))}
+            <AnimatePresence mode='popLayout'>
+              {officialTemplates?.map((template, index) => (
+                <motion.div
+                  key={index}
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    y: -20,
+                    transition: { duration: 0.2 },
+                  }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}>
+                  <TemplateCard template={template} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
-          <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
             <Puzzle
               strokeWidth={1}
               size={62}
               className='text-muted-foreground opacity-50'
             />
             <p className='text-muted-foreground'>No Templates found</p>
-          </div>
+          </motion.div>
         )}
       </TabsContent>
+
       {/* Community Templates */}
       <TabsContent value='community'>
         {communityTemplates && communityTemplates?.length > 0 ? (
           <div className='mt-4 grid w-full grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
-            {communityTemplates?.map(template => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
+            <AnimatePresence mode='popLayout'>
+              {communityTemplates?.map((template, index) => (
+                <motion.div
+                  key={template.id}
+                  initial={{
+                    opacity: 0,
+                    y: 20,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    y: -20,
+                    transition: { duration: 0.2 },
+                  }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}>
+                  <TemplateCard template={template} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
-          <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
             <Puzzle
               strokeWidth={1}
               size={62}
               className='text-muted-foreground opacity-50'
             />
             <p className='text-muted-foreground'>No Templates found</p>
-          </div>
+          </motion.div>
         )}
       </TabsContent>
+
       {/* Personal Templates */}
       <TabsContent value='personal'>
         {serverError ? (
-          <AccessDeniedAlert error={serverError} />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}>
+            <AccessDeniedAlert error={serverError} />
+          </motion.div>
         ) : personalTemplates && personalTemplates?.length > 0 ? (
-          <PersonalTemplates
-            templates={personalTemplates}
-            accounts={accounts || []}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}>
+            <PersonalTemplates
+              templates={personalTemplates}
+              accounts={accounts || []}
+            />
+          </motion.div>
         ) : (
-          <div className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className='flex-co flex h-[50vh] w-full flex-col items-center justify-center space-y-2'>
             <Puzzle
               strokeWidth={1}
               size={62}
               className='text-muted-foreground opacity-50'
             />
             <p className='text-muted-foreground'>No Templates found</p>
-          </div>
+          </motion.div>
         )}
       </TabsContent>
     </Tabs>
