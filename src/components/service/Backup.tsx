@@ -28,7 +28,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -36,6 +36,7 @@ import {
   internalDbDeleteAction,
   internalRestoreAction,
 } from '@/actions/dbBackup'
+import { databaseOptions } from '@/lib/constants'
 import { Backup as BackupType, Service } from '@/payload-types'
 
 export const IndividualBackup = ({
@@ -43,11 +44,13 @@ export const IndividualBackup = ({
   serviceId,
   showRestoreIcon = true,
   showDeleteIcon = true,
+  databaseIcon: DatabaseIcon,
 }: {
   backup: BackupType
   serviceId: string
   showRestoreIcon?: boolean
   showDeleteIcon?: boolean
+  databaseIcon?: React.ComponentType<React.SVGProps<SVGSVGElement>>
 }) => {
   const {
     execute: internalRestoreExecution,
@@ -113,7 +116,11 @@ export const IndividualBackup = ({
   return (
     <div className='flex items-center justify-between rounded-md border p-4'>
       <div className='flex items-center gap-2'>
-        <DatabaseBackup size={16} className='stroke-muted-foreground' />
+        {DatabaseIcon ? (
+          <DatabaseIcon className='stroke-muted-foreground h-4 w-4' />
+        ) : (
+          <DatabaseBackup size={16} className='stroke-muted-foreground' />
+        )}
         <div className='text-sm font-medium'>{formattedDate}</div>
         <Badge
           className=''
@@ -378,19 +385,28 @@ export const BackupDetails = ({ data }: { data: BackupType[] }) => {
                   {serviceName}
                 </h5>
                 <ul className='space-y-3'>
-                  {backups.map(backup => (
-                    <IndividualBackup
-                      key={backup.id}
-                      showRestoreIcon={false}
-                      showDeleteIcon={false}
-                      backup={backup}
-                      serviceId={
-                        typeof backup.service === 'string'
-                          ? backup.service
-                          : backup.service.id
-                      }
-                    />
-                  ))}
+                  {backups.map(backup => {
+                    const DatabaseIcon = databaseOptions?.find(
+                      database =>
+                        database.value ===
+                        (backup?.service as Service)?.databaseDetails?.type,
+                    )?.icon
+
+                    return (
+                      <IndividualBackup
+                        key={backup.id}
+                        showRestoreIcon={false}
+                        showDeleteIcon={false}
+                        backup={backup}
+                        databaseIcon={DatabaseIcon}
+                        serviceId={
+                          typeof backup.service === 'string'
+                            ? backup.service
+                            : backup.service.id
+                        }
+                      />
+                    )
+                  })}
                 </ul>
               </div>
             ))}
