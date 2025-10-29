@@ -73,8 +73,12 @@ export const DynamicFilterPanel = <T,>({
     // Find the filter config to determine filter type
     const filterConfig = enrichedSchema.find(config => config.key === key)
 
-    // For text-based filters, clear the entire filter instead of trying to remove a specific value
-    if (filterConfig?.type === 'search') {
+    // For single-value filters (search, select, date_range), clear the entire filter
+    if (
+      filterConfig?.type === 'search' ||
+      filterConfig?.type === 'select' ||
+      filterConfig?.type === 'date_range'
+    ) {
       const newFilters = { ...filters }
       delete newFilters[key]
       onFiltersChange(newFilters)
