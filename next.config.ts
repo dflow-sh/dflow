@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['bullmq', 'ssh2', 'node-ssh'],
   experimental: {
     authInterrupts: true,
+    globalNotFound: true,
   },
   webpack: (config, { isServer }) => {
     // Handle .node files
