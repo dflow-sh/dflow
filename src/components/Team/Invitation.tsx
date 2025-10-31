@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select'
-import { Check, Copy } from 'lucide-react'
+import { Check, Copy, LoaderCircle } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
@@ -25,6 +25,7 @@ const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<string | undefined>(roles?.at(0)?.id)
   const [copied, setCopied] = useState(false)
+  const [copying, setCopying] = useState(false)
 
   const {
     execute: sendInvitationLink,
@@ -42,6 +43,7 @@ const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
     generateInviteLinkAction,
     {
       onSuccess: ({ data }) => {
+        setCopying(false)
         setCopied(true)
         navigator.clipboard.writeText(data?.inviteLink!).then(
           () => {},
@@ -53,8 +55,15 @@ const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
           setCopied(false)
         }, 1000)
       },
+      onExecute: () => {
+        setCopying(true)
+      },
       onError: ({ error }) => {
-        toast.error(`Failed to generate invitation link ${error?.serverError}`)
+        setCopying(false)
+        console.log(error.validationErrors)
+        toast.error(
+          `Failed to generate invitation link: ${error?.validationErrors}`,
+        )
       },
     },
   )
@@ -129,8 +138,22 @@ const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
                 animate={{ opacity: 1, y: '0px' }}
                 exit={{ opacity: 0, y: '10px' }}
                 transition={{ duration: 0.2 }}>
-                <p className='inline-flex items-center gap-x-2 text-sm text-primary'>
+                <p className='text-primary inline-flex items-center gap-x-2 text-sm'>
                   <Check size={16} /> Copied!
+                </p>
+              </motion.div>
+            ) : copying ? (
+              <motion.div
+                key='check-copying'
+                initial={{ opacity: 0, y: '10px' }}
+                animate={{ opacity: 1, y: '0px' }}
+                exit={{ opacity: 0, y: '10px' }}
+                transition={{ duration: 0.2 }}>
+                <p
+                  className='text-primary inline-flex cursor-pointer items-center gap-x-2 text-sm'
+                  onClick={() => copyToClipboard()}>
+                  <LoaderCircle size={16} className='animate-spin' />
+                  Copying Invitation link
                 </p>
               </motion.div>
             ) : (
@@ -141,7 +164,7 @@ const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
                 exit={{ opacity: 0, y: '-10px' }}
                 transition={{ duration: 0.2 }}>
                 <p
-                  className='inline-flex cursor-pointer items-center gap-x-2 text-sm text-primary'
+                  className='text-primary inline-flex cursor-pointer items-center gap-x-2 text-sm'
                   onClick={() => copyToClipboard()}>
                   <Copy size={16} />
                   Copy Invitation link
