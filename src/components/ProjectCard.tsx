@@ -82,7 +82,7 @@ export function ProjectCard({
             <TooltipTrigger>
               <AlertCircle
                 size={14}
-                className='cursor-help text-muted-foreground'
+                className='text-muted-foreground cursor-help'
               />
             </TooltipTrigger>
             <TooltipContent>
@@ -100,7 +100,7 @@ export function ProjectCard({
             <TooltipTrigger>
               <AlertCircle
                 size={14}
-                className='cursor-help text-muted-foreground'
+                className='text-muted-foreground cursor-help'
               />
             </TooltipTrigger>
             <TooltipContent>
@@ -190,7 +190,7 @@ export function ProjectCard({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <time className='z-10 flex items-center gap-1.5 text-sm text-muted-foreground'>
+                  <time className='text-muted-foreground z-10 flex items-center gap-1.5 text-sm'>
                     <Clock size={14} />
                     {`Created ${formatDistanceToNow(new Date(project.createdAt), { addSuffix: true })}`}
                   </time>
@@ -209,7 +209,7 @@ export function ProjectCard({
         <Link
           title={project.name}
           href={`/${organisationSlug}/dashboard/project/${project.id}`}
-          className='absolute left-0 top-0 h-full w-full'
+          className='absolute top-0 left-0 h-full w-full'
         />
       </div>
 
@@ -228,6 +228,7 @@ export function ProjectCard({
         open={deleteDialogOpen}
         setOpen={setDeleteDialogOpen}
         services={services}
+        isServerConnected={isServerConnected}
       />
     </>
   )

@@ -7,6 +7,13 @@ import { toast } from 'sonner'
 
 import { deleteProjectAction } from '@/actions/project'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { Project, Server, Service } from '@/payload-types'
 
 import ServiceIcon, { StatusType } from './ServiceIcon'
@@ -26,13 +33,16 @@ const DeleteProjectContent = ({
   project,
   services = [],
   setOpen,
+  isServerConnected,
 }: {
   project: Partial<Project>
   services?: Service[]
   setOpen: Dispatch<SetStateAction<boolean>>
+  isServerConnected: boolean
 }) => {
   const [deleteBackups, setDeleteBackups] = useState<boolean>(false)
-  const [deleteFromServer, setDeleteFromServer] = useState<boolean>(true)
+  const [deleteFromServer, setDeleteFromServer] =
+    useState<boolean>(isServerConnected)
 
   const hasServices = services.length > 0
   const serverName = (project.server as Server)?.name
@@ -67,6 +77,39 @@ const DeleteProjectContent = ({
       deleteFromServer,
     })
   }
+
+  const DeleteFromServerCheckbox = () => {
+    const checkbox = (
+      <Checkbox
+        id='delete-from-server'
+        checked={deleteFromServer}
+        onCheckedChange={checked => setDeleteFromServer(Boolean(checked))}
+        className='mt-0.5'
+        disabled={!isServerConnected}
+      />
+    )
+
+    if (!isServerConnected) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>{checkbox}</div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                The server is not connected; unable to remove it from the
+                server.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )
+    }
+
+    return checkbox
+  }
+
   return (
     <>
       <div className='min-h-0 flex-1 overflow-hidden'>
@@ -111,18 +154,16 @@ const DeleteProjectContent = ({
 
               <div className='space-y-3 rounded-md border p-3'>
                 <div className='flex items-start space-x-3'>
-                  <Checkbox
-                    id='delete-from-server'
-                    checked={deleteFromServer}
-                    onCheckedChange={checked =>
-                      setDeleteFromServer(Boolean(checked))
-                    }
-                    className='mt-0.5'
-                  />
+                  <DeleteFromServerCheckbox />
                   <div className='space-y-1'>
                     <label
                       htmlFor='delete-from-server'
-                      className='cursor-pointer text-sm leading-none font-medium'>
+                      className={cn(
+                        'text-sm leading-none font-medium',
+                        isServerConnected
+                          ? 'cursor-pointer'
+                          : 'text-muted-foreground cursor-not-allowed',
+                      )}>
                       Delete project files from server
                     </label>
                     <p className='text-muted-foreground text-xs'>
@@ -160,7 +201,7 @@ const DeleteProjectContent = ({
               </div>
 
               {/* Warning Messages */}
-              {!deleteFromServer && (
+              {!deleteFromServer && isServerConnected && (
                 <Alert variant='warning'>
                   <AlertCircle className='h-4 w-4' />
                   <AlertTitle>Files will remain on server</AlertTitle>
@@ -176,7 +217,19 @@ const DeleteProjectContent = ({
                 </Alert>
               )}
 
-              {deleteFromServer && (
+              {!isServerConnected && (
+                <Alert variant='destructive'>
+                  <AlertCircle className='h-4 w-4' />
+                  <AlertTitle>Server not connected</AlertTitle>
+                  <AlertDescription>
+                    The server is currently not connected. Project files cannot
+                    be removed from the server. Only database records will be
+                    deleted.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {deleteFromServer && isServerConnected && (
                 <Alert variant='destructive'>
                   <AlertCircle className='h-4 w-4' />
                   <AlertTitle>Permanent Action</AlertTitle>
@@ -222,11 +275,13 @@ const DeleteProjectDialog = ({
   open,
   setOpen,
   services = [],
+  isServerConnected,
 }: {
   project: Partial<Project>
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
   services?: Service[]
+  isServerConnected: boolean
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -247,6 +302,7 @@ const DeleteProjectDialog = ({
           services={services}
           project={project}
           setOpen={setOpen}
+          isServerConnected={isServerConnected}
         />
       </DialogContent>
     </Dialog>
