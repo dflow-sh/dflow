@@ -16,10 +16,14 @@ async function TeamView({
   const roles = result?.data ?? []
 
   return (
-    <div className='mt-4 space-y-10'>
+    <div className='space-y-10'>
       <Invitation roles={roles} tenant={tenant} />
       <TeamMembers roles={roles} teamMembers={teamMembers} />
-      <Roles roles={roles} teamMembers={teamMembers} />
+      <Roles
+        roles={roles}
+        teamMembers={teamMembers}
+        error={result?.serverError}
+      />
     </div>
   )
 }

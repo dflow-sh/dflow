@@ -13,7 +13,7 @@ const BackupsPage = async () => {
   return (
     <LayoutClient>
       <section>
-        <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+        <div className='inline-flex items-center gap-2 pb-4 text-2xl font-semibold'>
           <History />
           <h3>Backups</h3>
         </div>

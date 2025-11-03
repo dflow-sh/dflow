@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { deleteRoleAction } from '@/actions/roles'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import {
   Accordion,
   AccordionContent,
@@ -88,7 +89,7 @@ const RoleActions = ({
             Edit
           </DropdownMenuItem>
           <DropdownMenuItem
-            className='text-foreground'
+            variant='destructive'
             onClick={e => {
               e.stopPropagation(), setDeleteRoleOpen(true)
             }}>
@@ -258,9 +259,11 @@ const RoleDetails = ({
 const RolesList = ({
   roles,
   teamMembers,
+  error,
 }: {
   roles: Role[]
   teamMembers: User[] | undefined
+  error: string | undefined
 }) => {
   const [openItem, setOpenItem] = useState<string | undefined>(undefined)
 
@@ -272,9 +275,13 @@ const RolesList = ({
       collapsible
       className='mt-8 w-full space-y-4'>
       <CreateNewRole setOpenItem={setOpenItem} />
-      {roles?.map(role => (
-        <RoleDetails key={role.id} role={role} teamMembers={teamMembers} />
-      ))}
+      {error ? (
+        <AccessDeniedAlert error={error} />
+      ) : (
+        roles?.map(role => (
+          <RoleDetails key={role.id} role={role} teamMembers={teamMembers} />
+        ))
+      )}
     </Accordion>
   )
 }

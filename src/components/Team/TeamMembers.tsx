@@ -1,6 +1,7 @@
 'use client'
 
 import { Avatar, AvatarFallback } from '../ui/avatar'
+import { Button } from '../ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,11 +54,11 @@ const TeamMembers = ({
   return (
     <div>
       <h3 className='mb-1 text-lg font-medium'>Workspace Members</h3>
-      <p className='mb-2 text-muted-foreground'>
+      <p className='text-muted-foreground mb-2'>
         Invite and manage team members with specific roles. Control access by
         assigning Admin or Member permissions.
       </p>
-      <div className='overflow-hidden rounded-lg border border-border'>
+      <div className='border-border overflow-hidden rounded-lg border'>
         <Table className='w-full'>
           <TableHeader>
             <TableRow>
@@ -140,18 +141,22 @@ const TeamMember = ({
       user: data.user,
     })
   }
+  const isTeamOwner = teamMember.username === organisation
   return (
     <TableRow>
       <TableCell className='font-medium'>
         <div className='flex items-center gap-x-2'>
           <Avatar className='size-10'>
-            <AvatarFallback className='rounded-lg uppercase group-hover:text-accent'>
+            <AvatarFallback className='group-hover:text-accent rounded-lg uppercase'>
               {teamMember.email.slice(0, 1)}
             </AvatarFallback>
           </Avatar>
           <div>
             <h6 className='text-md font-medium capitalize'>
-              {teamMember?.username}
+              {teamMember?.username}{' '}
+              {isTeamOwner && (
+                <span className='text-muted-foreground text-xs'>(you)</span>
+              )}
             </h6>
             <p className='text-muted-foreground'>{teamMember?.email}</p>
           </div>
@@ -201,30 +206,33 @@ const TeamMember = ({
       </TableCell>
 
       <TableCell>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            disabled={
-              isRemoveUserFromTeamPending ||
-              teamMember.username === organisation
-            }>
-            <EllipsisVertical className='text-muted-foreground' />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuGroup>
-              <DropdownMenuItem
-                onClick={() =>
-                  removeUserFromTeam({
-                    user: teamMember,
-                    role: (role as Role)?.id,
-                  })
-                }>
-                {isRemoveUserFromTeamPending
-                  ? ' Removing'
-                  : ' Remove from team'}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {!isTeamOwner && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              disabled={isRemoveUserFromTeamPending || isTeamOwner}>
+              <Button variant='ghost' size='icon'>
+                <EllipsisVertical className='text-muted-foreground size-6' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  variant='destructive'
+                  onSelect={e => e.preventDefault()}
+                  onClick={() =>
+                    removeUserFromTeam({
+                      user: teamMember,
+                      role: (role as Role)?.id,
+                    })
+                  }>
+                  {isRemoveUserFromTeamPending
+                    ? ' Removing from team'
+                    : ' Remove from team'}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </TableCell>
     </TableRow>
   )
