@@ -20,7 +20,7 @@ const TeamPage = async () => {
     <LayoutClient>
       <Suspense fallback={<TeamSkeleton />}>
         <section>
-          <div className='inline-flex items-center gap-2 text-2xl font-semibold'>
+          <div className='inline-flex items-center gap-2 pb-4 text-2xl font-semibold'>
             <Users />
             <h3>Team</h3>
           </div>

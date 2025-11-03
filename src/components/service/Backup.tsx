@@ -374,7 +374,7 @@ export const BackupDetails = ({ data }: { data: BackupType[] }) => {
   )
 
   return (
-    <div className='mt-4 space-y-4'>
+    <div className='space-y-4'>
       {Object.entries(grouped).map(([projectName, services]) => (
         <div key={projectName} className='rounded-xl border p-6 shadow-sm'>
           <h4 className='mb-4 text-2xl font-semibold'>{projectName}</h4>

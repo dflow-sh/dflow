@@ -1,5 +1,6 @@
 'use client'
 
+import AccessDeniedAlert from '../AccessDeniedAlert'
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -66,9 +67,13 @@ const GitHubDrawer = () => {
           </SheetDescription>
         </SheetHeader>
 
-        {isPending && <GithubIntegrationsLoading />}
-
-        {!isPending && result.data && (
+        {isPending ? (
+          <GithubIntegrationsLoading />
+        ) : result?.serverError ? (
+          <ScrollArea className='grow'>
+            <AccessDeniedAlert error={result?.serverError} />
+          </ScrollArea>
+        ) : result.data ? (
           <ScrollArea className='grow'>
             <GitProviderList
               gitProviders={result.data}
@@ -77,7 +82,7 @@ const GitHubDrawer = () => {
               }}
             />
           </ScrollArea>
-        )}
+        ) : null}
 
         <SheetFooter>
           <CreateGitAppForm>
