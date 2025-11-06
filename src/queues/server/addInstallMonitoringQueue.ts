@@ -104,7 +104,8 @@ export const addInstallMonitoringQueue = async (data: QueueArgs) => {
           collection: 'projects',
           data: {
             name: uniqueName,
-            description: 'Monitoring tools for server observability',
+            description:
+              'Tools for server monitoring & observability (beszel, netdata), added by team dFlow for internal management',
             server: serverDetails.id,
             tenant: tenant.id,
             hidden: true, // Hide from main project list

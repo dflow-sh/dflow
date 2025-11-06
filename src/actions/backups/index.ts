@@ -72,6 +72,8 @@ const serverBackupMethod = async ({
     if (useAdminProcedure) {
       const projectResponse = await createProjectAdminAction({
         name: 'backups',
+        description:
+          'Tools for server backups & restoration (restic), added by team dFlow for internal management',
         serverId,
         revalidate: false,
         hidden: true,
@@ -84,6 +86,8 @@ const serverBackupMethod = async ({
     } else {
       const projectResponse = await createProjectAction({
         name: 'backups',
+        description:
+          'Tools for server backups & restoration (restic), added by team dFlow for internal management',
         serverId,
         revalidate: false,
         hidden: true,
