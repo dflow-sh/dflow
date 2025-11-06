@@ -12,6 +12,7 @@ import { autoLogin } from '@/payload/endpoints/auto-login'
 import { logs } from '@/payload/endpoints/logs'
 import { serverEvents } from '@/payload/endpoints/server-events'
 
+import { Activity } from './payload/collections/Activity'
 import { Backups } from './payload/collections/Backups'
 import { Banners } from './payload/collections/Banners'
 import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
@@ -34,6 +35,7 @@ import { AuthConfig } from './payload/globals/AuthConfig'
 import { Branding } from './payload/globals/Branding'
 import { Theme } from './payload/globals/Theme'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
+import { createActivityCleanupTask } from './payload/jobs/cleanupActivity'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -74,6 +76,7 @@ export default buildConfig({
     Roles,
     Banners,
     Media,
+    Activity,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -143,7 +146,14 @@ export default buildConfig({
     },
   ],
   jobs: {
-    tasks: [checkServersConnectionsTask],
+    tasks: [
+      checkServersConnectionsTask,
+      createActivityCleanupTask({
+        olderThan: parseInt('7776000000'),
+        cronTime: '0 3 * * *',
+        queueName: 'activity-cleanup',
+      }),
+    ],
     access: {
       run: () => true,
     },

@@ -1,5 +1,6 @@
 import { CollectionConfig, Field } from 'payload'
 
+import { trackActivity } from '@/lib/activityTracker'
 import { User } from '@/payload-types'
 import { isAdmin } from '@/payload/access/isAdmin'
 
@@ -70,6 +71,61 @@ export const Servers: CollectionConfig = {
       populateServerDetails,
       nextBillingDateAfterRead,
       // populateDflowVpsDetails,
+    ],
+    afterChange: [
+      async ({ doc, previousDoc, operation, req }) => {
+        const { payload, user } = req
+
+        if (!user) return
+
+        if (operation === 'create') {
+          await trackActivity({
+            payload,
+            userId: user.id,
+            eventType: 'server_added',
+            operation: 'create',
+            label: 'Server Added',
+            status: 'success',
+            severity: 'info',
+            category: 'server',
+            collectionSlug: 'servers',
+            documentId: doc.id,
+            documentTitle: doc.name,
+            icon: 'server',
+            metadata: {
+              serverName: doc.name,
+              region: doc.region,
+            },
+            req,
+          })
+        }
+
+        if (
+          operation === 'update' &&
+          previousDoc?.onboarded === false &&
+          doc.onboarded === true
+        ) {
+          await trackActivity({
+            payload,
+            userId: user.id,
+            eventType: 'server_onboarded',
+            operation: 'update',
+            label: 'Server Onboarded',
+            status: 'success',
+            severity: 'warning',
+            category: 'server',
+            collectionSlug: 'servers',
+            documentId: doc.id,
+            documentTitle: doc.name,
+            icon: 'zap',
+            metadata: {
+              serverName: doc.name,
+              onboardedAt: new Date().toISOString(),
+            },
+            req,
+          })
+        }
+      },
     ],
   },
   fields: [
