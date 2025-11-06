@@ -84,6 +84,7 @@ export interface Config {
     roles: Role;
     banners: Banner;
     media: Media;
+    activity: Activity;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -116,6 +117,7 @@ export interface Config {
     roles: RolesSelect<false> | RolesSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    activity: ActivitySelect<false> | ActivitySelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -128,11 +130,13 @@ export interface Config {
     theme: Theme;
     branding: Branding;
     'auth-config': AuthConfig;
+    'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     theme: ThemeSelect<false> | ThemeSelect<true>;
     branding: BrandingSelect<false> | BrandingSelect<true>;
     'auth-config': AuthConfigSelect<false> | AuthConfigSelect<true>;
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
   user: User & {
@@ -141,6 +145,7 @@ export interface Config {
   jobs: {
     tasks: {
       checkServersSshConnections: CheckServersSshConnections;
+      'activity-cleanup': TaskActivityCleanup;
       inline: {
         input: unknown;
         output: unknown;
@@ -1258,6 +1263,167 @@ export interface Media {
   };
 }
 /**
+ * Track all user activities and system events
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity".
+ */
+export interface Activity {
+  id: string;
+  /**
+   * Type of event (e.g., account_created, server_onboarded)
+   */
+  eventType: string;
+  /**
+   * CRUD operation: create, read, update, delete, login, logout
+   */
+  operation: string;
+  /**
+   * Event status: success, failed, pending
+   */
+  status: string;
+  /**
+   * Event severity: info, warning, error, critical
+   */
+  severity?: string | null;
+  /**
+   * Human-readable event label
+   */
+  label: string;
+  /**
+   * Detailed description of what happened
+   */
+  description?: string | null;
+  /**
+   * Lucide icon name for UI display
+   */
+  icon?: string | null;
+  /**
+   * Event category for grouping (auth, server, deployment, etc.)
+   */
+  category?: string | null;
+  /**
+   * User who performed the action
+   */
+  user: string | User;
+  /**
+   * Cached user email for quick reference
+   */
+  userEmail?: string | null;
+  /**
+   * User role at time of action
+   */
+  userRole?: string | null;
+  /**
+   * Session identifier for tracking user sessions
+   */
+  sessionId?: string | null;
+  /**
+   * Target collection slug (if applicable)
+   */
+  collectionSlug?: string | null;
+  /**
+   * ID of affected document
+   */
+  documentId?: string | null;
+  /**
+   * Title/name of affected document for display
+   */
+  documentTitle?: string | null;
+  /**
+   * Before/after values of changed fields
+   */
+  changes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * List of field names that were modified
+   */
+  changedFields?:
+    | {
+        field?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * IP address of the request
+   */
+  ipAddress?: string | null;
+  /**
+   * User agent string
+   */
+  userAgent?: string | null;
+  /**
+   * HTTP method (GET, POST, PUT, DELETE)
+   */
+  requestMethod?: string | null;
+  /**
+   * Request URL path
+   */
+  requestUrl?: string | null;
+  /**
+   * Important request headers
+   */
+  requestHeaders?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Operation duration in milliseconds
+   */
+  duration?: number | null;
+  /**
+   * Geographic location data (if available)
+   */
+  location?: {
+    country?: string | null;
+    city?: string | null;
+    region?: string | null;
+    timezone?: string | null;
+  };
+  error?: {
+    message?: string | null;
+    /**
+     * Error stack trace
+     */
+    stack?: string | null;
+    code?: string | null;
+  };
+  /**
+   * Flexible storage for event-specific data
+   */
+  metadata?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Whether this was triggered by system vs user action
+   */
+  isSystemEvent?: boolean | null;
+  /**
+   * Mark sensitive events for special handling
+   */
+  isSensitive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
@@ -1309,7 +1475,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'checkServersSshConnections';
+        taskSlug: 'inline' | 'checkServersSshConnections' | 'activity-cleanup';
         taskID: string;
         input?:
           | {
@@ -1342,10 +1508,19 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'checkServersSshConnections') | null;
+  taskSlug?: ('inline' | 'checkServersSshConnections' | 'activity-cleanup') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1423,6 +1598,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'activity';
+        value: string | Activity;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -2282,6 +2461,60 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activity_select".
+ */
+export interface ActivitySelect<T extends boolean = true> {
+  eventType?: T;
+  operation?: T;
+  status?: T;
+  severity?: T;
+  label?: T;
+  description?: T;
+  icon?: T;
+  category?: T;
+  user?: T;
+  userEmail?: T;
+  userRole?: T;
+  sessionId?: T;
+  collectionSlug?: T;
+  documentId?: T;
+  documentTitle?: T;
+  changes?: T;
+  changedFields?:
+    | T
+    | {
+        field?: T;
+        id?: T;
+      };
+  ipAddress?: T;
+  userAgent?: T;
+  requestMethod?: T;
+  requestUrl?: T;
+  requestHeaders?: T;
+  duration?: T;
+  location?:
+    | T
+    | {
+        country?: T;
+        city?: T;
+        region?: T;
+        timezone?: T;
+      };
+  error?:
+    | T
+    | {
+        message?: T;
+        stack?: T;
+        code?: T;
+      };
+  metadata?: T;
+  isSystemEvent?: T;
+  isSensitive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
@@ -2308,6 +2541,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2483,6 +2717,24 @@ export interface AuthConfig {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: string;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "theme_select".
  */
 export interface ThemeSelect<T extends boolean = true> {
@@ -2620,6 +2872,16 @@ export interface AuthConfigSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CheckServersSshConnections".
  */
 export interface CheckServersSshConnections {
@@ -2636,6 +2898,14 @@ export interface CheckServersSshConnections {
     successCount: number;
     failedCount: number;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskActivity-cleanup".
+ */
+export interface TaskActivityCleanup {
+  input?: unknown;
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
