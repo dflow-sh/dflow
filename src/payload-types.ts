@@ -84,6 +84,7 @@ export interface Config {
     roles: Role;
     banners: Banner;
     media: Media;
+    webhooks: Webhook;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -116,6 +117,7 @@ export interface Config {
     roles: RolesSelect<false> | RolesSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    webhooks: WebhooksSelect<false> | WebhooksSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1259,6 +1261,58 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhooks".
+ */
+export interface Webhook {
+  id: string;
+  name: string;
+  url: string;
+  events: ('create' | 'update' | 'delete')[];
+  /**
+   * Select which collections should trigger this webhook
+   */
+  collections?:
+    | (
+        | 'users'
+        | 'projects'
+        | 'services'
+        | 'servers'
+        | 'sshKeys'
+        | 'gitProviders'
+        | 'deployments'
+        | 'cloudProviderAccounts'
+        | 'templates'
+        | 'securityGroups'
+        | 'dockerRegistries'
+        | 'tenants'
+        | 'backups'
+        | 'traefik'
+        | 'roles'
+        | 'banners'
+        | 'media'
+      )[]
+    | null;
+  /**
+   * Select which globals should trigger this webhook
+   */
+  globals?: ('theme' | 'branding' | 'auth-config')[] | null;
+  isActive?: boolean | null;
+  /**
+   * Optional signing secret. When provided, dFlow will sign each webhook request with HMAC-SHA256 and include the signature in the X-dFlow-Signature header for verification.
+   */
+  secret?: string | null;
+  headers?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
@@ -1423,6 +1477,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'webhooks';
+        value: string | Webhook;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -2279,6 +2337,28 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "webhooks_select".
+ */
+export interface WebhooksSelect<T extends boolean = true> {
+  name?: T;
+  url?: T;
+  events?: T;
+  collections?: T;
+  globals?: T;
+  isActive?: T;
+  secret?: T;
+  headers?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
