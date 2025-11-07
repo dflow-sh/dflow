@@ -34,6 +34,7 @@ import { AuthConfig } from './payload/globals/AuthConfig'
 import { Branding } from './payload/globals/Branding'
 import { Theme } from './payload/globals/Theme'
 import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
+import { webhooksPlugin } from './plugins/webhook'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -105,6 +106,7 @@ export default buildConfig({
         includeDefaultField: false,
       },
     }),
+    webhooksPlugin,
   ],
   ...(env?.RESEND_API_KEY &&
     env?.RESEND_SENDER_EMAIL &&
