@@ -32,24 +32,28 @@ export function middleware(request: NextRequest) {
   const organisation = segments[1]
   const hasSubPath = segments.length > 2 // ensure there's something after /[organisation]
 
+  const excludedPaths = [
+    '_next',
+    'favicon.ico',
+    '.well-known',
+    'api',
+    '_static',
+    '_vercel',
+    'images',
+    'payload-admin',
+    'sign-in',
+    'sign-up',
+  ]
+
+  // If there's no organisation or path is excluded, skip further logic
+  if (!organisation || excludedPaths.some(p => pathname.startsWith(`/${p}`))) {
+    return NextResponse.next()
+  }
+
+  // Runs for valid org routes
   const response = NextResponse.next()
 
-  if (
-    organisation &&
-    hasSubPath &&
-    ![
-      '_next',
-      'favicon.ico',
-      '.well-known',
-      'api',
-      '_static',
-      '_vercel',
-      'images',
-      'payload-admin',
-      'sign-in', // to avoid setting org cookie for auth pages
-      'sign-up',
-    ].includes(organisation)
-  ) {
+  if (hasSubPath) {
     response.cookies.set('organisation', organisation, {
       path: '/',
     })
@@ -60,6 +64,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api/|payload-admin/|_next/|_static/|_vercel/|\\.well-known/|[\\w-]+\\.\\w+).*)',
+    // simplified matcher to include all org paths (including ones with dots)
+    '/((?!_next/|_vercel/|api/|_static/|payload-admin/|\\.well-known).*)',
   ],
 }
