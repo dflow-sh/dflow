@@ -54,7 +54,7 @@ import CreateEC2InstanceForm from './CreateEC2InstanceForm'
 import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
 
 const parser = parseAsStringLiteral(['dFlow', 'cloud', 'manual']).withDefault(
-  'manual',
+  'dFlow',
 )
 
 type ServerSetupType = inferParserType<typeof parser>
@@ -996,14 +996,14 @@ const ServerSetupWizard: React.FC<ServerSetupWizardProps> = ({
           <div className='inline-flex items-center gap-x-4'>
             <p className='text-md inline-flex items-center gap-x-2 font-medium'>
               Wallet Balance:
-              {isCheckingAccountConnection ? (
-                <Skeleton className='h-9 w-9' />
-              ) : (
-                <span className='text-success rounded-md'>
-                  ${paymentData?.walletBalance}
-                </span>
-              )}
             </p>
+            {isCheckingAccountConnection ? (
+              <Skeleton className='h-9 w-9' />
+            ) : (
+              <span className='text-success rounded-md'>
+                ${paymentData?.walletBalance}
+              </span>
+            )}
 
             {dFlowAccounts && dFlowAccounts.length > 0 && (
               <Select
