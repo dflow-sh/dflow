@@ -18,6 +18,7 @@ export interface Config {
     defaultIDType: string
   }
   globals: {
+    terms: Term
     github: Github
   }
   globalsSelect: {}
@@ -41,6 +42,20 @@ export interface UserAuthOperations {
     email: string
     password: string
   }
+}
+
+export interface Term {
+  id: string
+  terms?:
+    | {
+        summary?: string | null
+        description?: string | null
+        id?: string | null
+      }[]
+    | null
+  issuedDate?: string | null
+  updatedAt?: string | null
+  createdAt?: string | null
 }
 
 export interface Template {

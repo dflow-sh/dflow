@@ -3,11 +3,12 @@
 import confetti from 'canvas-confetti'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createVPSOrderAction } from '@/actions/cloud/dFlow'
+import { getTermsUpdatedDateAction } from '@/actions/github'
 import AnimatedCheckIcon from '@/components/icons/AnimatedCheckIcon'
 import AnimatedCoinIcon from '@/components/icons/AnimatedCoinIcon'
 import AnimatedCrossIcon from '@/components/icons/AnimatedCrossIcon'
@@ -121,7 +122,18 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
     })
   }
 
+  const { result, execute } = useAction(getTermsUpdatedDateAction)
+
+  useEffect(() => {
+    execute()
+  }, [])
+
   const onboardingCompleted = !!dFlowUser?.acceptedTermsDate
+  const termsUpdated =
+    dFlowUser?.acceptedTermsDate &&
+    result?.data?.issuedDate &&
+    new Date(dFlowUser?.acceptedTermsDate).getTime() <
+      new Date(result?.data?.issuedDate).getTime()
 
   const paymentStatus = useMemo(() => {
     if (isCreatingVpsOrder) {
@@ -179,7 +191,7 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
           <BackupOptionsSection />
           <PriceSummarySection />
 
-          {!onboardingCompleted && (
+          {(!onboardingCompleted || termsUpdated) && (
             <Alert variant='warning'>
               <AlertTitle>Onboarding not completed!</AlertTitle>
               <AlertDescription>
@@ -207,7 +219,8 @@ export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
               disabled={
                 isCreatingVpsOrder ||
                 !pricing.paymentStatus.canProceed ||
-                !onboardingCompleted
+                !onboardingCompleted ||
+                termsUpdated
               }
               className='bg-primary text-primary-foreground hover:bg-primary/90'>
               Place Order

@@ -20,3 +20,16 @@ export const getGithubStarsAction = publicClient
       stars,
     }
   })
+
+export const getTermsUpdatedDateAction = publicClient
+  .metadata({
+    actionName: 'getTermsUpdatedDateAction',
+  })
+  .action(async () => {
+    const res = await dFlowRestSdk.findGlobal({
+      slug: 'terms',
+      depth: 2,
+      draft: false,
+    })
+    return res
+  })
