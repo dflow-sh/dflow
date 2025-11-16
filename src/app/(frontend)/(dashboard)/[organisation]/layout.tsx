@@ -7,12 +7,11 @@ import React, { Suspense } from 'react'
 import { getDflowUser } from '@/actions/cloud/dFlow'
 import { getGithubStarsAction } from '@/actions/github'
 import Banner from '@/components/Banner'
-import CountUp from '@/components/ContUp'
 import DocSidebar from '@/components/DocSidebar'
+import GithubStars from '@/components/GithubStars'
 import Logo from '@/components/Logo'
 import ToggleTheme from '@/components/ToggleTheme'
 import Bubble from '@/components/bubble'
-import { Github } from '@/components/icons'
 import { NavUser } from '@/components/nav-user'
 import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
 import { Button } from '@/components/ui/button'
@@ -74,7 +73,8 @@ const DashboardLayoutInner = async ({
         </div>
 
         <div className='flex items-center gap-x-4'>
-          <Link
+          <GithubStars githubStars={result?.data?.stars} />
+          {/* <Link
             target='_blank'
             rel='noopener noreferrer'
             className='hover:text-muted-foreground hidden items-center gap-x-1 transition-colors duration-300 md:inline-flex'
@@ -88,7 +88,7 @@ const DashboardLayoutInner = async ({
               duration={1}
               className='count-up-text'
             />
-          </Link>
+          </Link> */}
 
           {!hasClaimedCredits && (
             <Dialog>
