@@ -2,6 +2,7 @@ import { defineCollection, defineConfig } from '@content-collections/core'
 import { compileMDX } from '@content-collections/mdx'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
+import remarkGfm from 'remark-gfm'
 
 const introduction = defineCollection({
   name: 'introduction',
@@ -15,7 +16,11 @@ const introduction = defineCollection({
   }),
   transform: async (document, context) => {
     const mdx = await compileMDX(context, document, {
-      rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [
+        rehypeSlug,
+        [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+      ],
     })
     return {
       ...document,

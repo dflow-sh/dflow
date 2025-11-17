@@ -70,6 +70,8 @@ import { psReport, psScale, scale } from '@/lib/dokku/process/scale'
 import { start } from '@/lib/dokku/process/start'
 import { stop } from '@/lib/dokku/process/stop'
 import { stopAll } from '@/lib/dokku/process/stopAll'
+import { report as nginxConfigReport } from '@/lib/dokku/proxy/nginx/report'
+import { set as setNginxConfig } from '@/lib/dokku/proxy/nginx/set'
 import { info as dokkuVersionInfo } from '@/lib/dokku/version/info'
 import { install as dokkuInstall } from '@/lib/dokku/version/install'
 import { uninstall as dokkuUninstall } from '@/lib/dokku/version/uninstall'
@@ -184,5 +186,11 @@ export const dokku = {
   buildpacks: {
     set: setBuildpacks,
     report: reportBuildpacks,
+  },
+  proxy: {
+    nginx: {
+      report: nginxConfigReport,
+      set: setNginxConfig,
+    },
   },
 }

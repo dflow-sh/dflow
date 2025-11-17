@@ -192,3 +192,42 @@ export const checkServerResourcesSchema = z.object({
   serverId: z.string(),
   serviceType: z.enum(['app', 'docker', 'database']).optional(),
 })
+
+export const getServiceNginxConfigSchema = z.object({
+  id: z.string(),
+})
+
+export const setServiceNginxConfigSchema = z
+  .object({
+    serviceId: z.string().min(1, 'Service ID is required'),
+    key: z.enum([
+      'client-body-timeout',
+      'client-header-timeout',
+      'client-max-body-size',
+    ]),
+    value: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.key === 'client-max-body-size') {
+      const regex = /^[0-9]+m$/ // e.g. 50m, 200m
+      if (!regex.test(data.value)) {
+        ctx.addIssue({
+          path: ['value'],
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid format expected format is like 50m, 200m',
+        })
+      }
+    } else if (
+      data.key === 'client-body-timeout' ||
+      data.key === 'client-header-timeout'
+    ) {
+      const regex = /^[0-9]+s$/ // e.g. 60s, 360s
+      if (!regex.test(data.value)) {
+        ctx.addIssue({
+          path: ['value'],
+          code: z.ZodIssueCode.custom,
+          message: 'Invalid format expected format is like 60s, 200s',
+        })
+      }
+    }
+  })
