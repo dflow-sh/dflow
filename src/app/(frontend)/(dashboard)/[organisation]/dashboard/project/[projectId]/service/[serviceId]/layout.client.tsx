@@ -92,6 +92,7 @@ const LayoutClient = ({
       'volumes',
       'scaling',
       'settings',
+      'proxy',
     ]).withDefault('general'),
   )
 
@@ -121,6 +122,7 @@ const LayoutClient = ({
           { label: 'Domains', slug: 'domains', disabled: false },
           { label: 'Volumes', slug: 'volumes', disabled: false },
           { label: 'Settings', slug: 'settings', disabled: false },
+          { label: 'Proxy', slug: 'proxy', disabled: false },
         ] as const)
   }, [type])
 
@@ -224,7 +226,7 @@ const LayoutClient = ({
 
           {/* Scrollable Content */}
           <div className='scrollbar-custom w-full flex-1 overflow-x-auto overflow-y-auto'>
-            <div className='min-w-xl p-4'>{children}</div>
+            <div className='min-w-xl py-4'>{children}</div>
           </div>
         </div>
       </main>

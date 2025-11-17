@@ -20,6 +20,7 @@ export const servicePageTabs = {
     'backups',
     'volumes',
     'settings',
+    'proxy',
   ]).withDefault('general'),
 }
 

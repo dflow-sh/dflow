@@ -34,10 +34,12 @@ import {
   exposeDatabasePortSchema,
   fetchServiceResourceStatusSchema,
   fetchServiceScaleStatusSchema,
+  getServiceNginxConfigSchema,
   markDefaultServiceDomainSchema,
   regenerateSSLSchema,
   restartServiceSchema,
   scaleServiceSchema,
+  setServiceNginxConfigSchema,
   setServiceResourceLimitSchema,
   setServiceResourceReserveSchema,
   stopServiceSchema,
@@ -1149,4 +1151,68 @@ export const checkServerResourcesAction = protectedClient
     ssh.dispose()
 
     return result
+  })
+
+export const getServiceNginxConfigAction = protectedClient
+  .metadata({ actionName: 'getServiceNginxConfigAction' })
+  .inputSchema(getServiceNginxConfigSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+    const { payload } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id,
+      depth: 3,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+
+    let ssh: NodeSSH | null = null
+
+    try {
+      ssh = await dynamicSSH(sshDetails)
+
+      const result = await dokku.proxy.nginx.report({
+        ssh,
+        appName: name,
+      })
+
+      return result
+    } finally {
+      if (ssh) ssh.dispose()
+    }
+  })
+
+export const setServiceNginxConfigAction = protectedClient
+  .metadata({ actionName: 'setServiceNginxConfigSchema' })
+  .inputSchema(setServiceNginxConfigSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { key, value, serviceId } = clientInput
+    const { payload } = ctx
+
+    const { project, name } = await payload.findByID({
+      collection: 'services',
+      id: serviceId,
+      depth: 3,
+    })
+
+    const sshDetails = extractSSHDetails({ project })
+
+    let ssh: NodeSSH | null = null
+
+    try {
+      ssh = await dynamicSSH(sshDetails)
+
+      const result = await dokku.proxy.nginx.set({
+        ssh,
+        appName: name,
+        key,
+        value,
+      })
+
+      return result
+    } finally {
+      if (ssh) ssh.dispose()
+    }
   })

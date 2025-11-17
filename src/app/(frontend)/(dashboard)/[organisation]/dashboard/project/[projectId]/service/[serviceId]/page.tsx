@@ -8,6 +8,7 @@ import {
 import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
+  getServiceNginxConfigAction,
 } from '@/actions/service'
 import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import Backup from '@/components/service/Backup'
@@ -15,6 +16,7 @@ import DeploymentList from '@/components/service/DeploymentList'
 import DomainsTab from '@/components/service/DomainsTab'
 import GeneralTab from '@/components/service/GeneralTab'
 import LogsTabClient from '@/components/service/LogsTabClient'
+import ProxyTab from '@/components/service/ProxyTab'
 import ScalingTab from '@/components/service/ScalingTab'
 import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
 import VariablesForm from '@/components/service/VariablesForm'
@@ -47,7 +49,7 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
     return <TriggerNotFound />
   }
 
-  const { service, deployments } = serviceDetails.data as any
+  const { service, deployments } = serviceDetails.data
 
   const server =
     typeof service.project === 'object' ? service.project.server : ''
@@ -134,6 +136,16 @@ const SuspendedPage = async ({ params, searchParams }: PageProps) => {
           project={service.project as Project}
         />
       )
+    }
+
+    case 'proxy': {
+      const proxyResponse = await getServiceNginxConfigAction({
+        id: service.id,
+      })
+
+      const proxyData = proxyResponse.data ?? []
+
+      return <ProxyTab proxyData={proxyData} service={service} />
     }
 
     default:
