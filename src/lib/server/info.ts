@@ -23,24 +23,32 @@ const parseSSHOutput = (stdout: string) => {
   let linuxDistributionVersion: string | null = null
 
   const lsbLines = parsed['LSB_RELEASE']?.split('\n') ?? []
+  const osrLines = parsed['OS_RELEASE']?.split('\n') ?? []
+
   for (const line of lsbLines) {
-    if (line.startsWith('Distributor ID:')) {
+    if (line.startsWith('Distributor ID:'))
       linuxDistributionType = line.split(':')[1]?.trim() ?? null
-    }
-    if (line.startsWith('Release:')) {
+    if (line.startsWith('Release:'))
       linuxDistributionVersion = line.split(':')[1]?.trim() ?? null
+  }
+
+  if (!linuxDistributionType || !linuxDistributionVersion) {
+    for (const line of osrLines) {
+      if (line.startsWith('ID=')) {
+        linuxDistributionType = line.split('=')[1]?.replace(/"/g, '').trim()
+      }
+      if (line.startsWith('VERSION_ID=')) {
+        linuxDistributionVersion = line.split('=')[1]?.replace(/"/g, '').trim()
+      }
     }
   }
 
-  const extractedDokkuVersion = parsed['DOKKU_VERSION']?.split('\n')[0] ?? ''
-  const extractedRailpackVersion =
-    parsed['RAILPACK_VERSION']?.split('\n')[0] ?? ''
-  const extractedNetdataVersion =
-    parsed['NETDATA_VERSION']?.split('\n')[0] ?? ''
-
-  const dokkuVersion = extractedDokkuVersion.split(' ')?.at(-1)
-  const railpackVersion = extractedRailpackVersion.split(' ')?.at(-1)
-  const netdataVersion = extractedNetdataVersion.split(' ')?.at(-1)
+  const dokkuVersion =
+    parsed['DOKKU_VERSION']?.split('\n')[0]?.split(' ')?.at(-1) ?? null
+  const railpackVersion =
+    parsed['RAILPACK_VERSION']?.split('\n')[0]?.split(' ')?.at(-1) ?? null
+  const netdataVersion =
+    parsed['NETDATA_VERSION']?.split('\n')[0]?.split(' ')?.at(-1) ?? null
 
   return {
     netdataVersion,
@@ -59,6 +67,9 @@ const command = `
   echo "---LSB_RELEASE---"
   lsb_release -a 2>/dev/null || true
 
+  echo "---OS_RELEASE---"
+  cat /etc/os-release 2>/dev/null || true
+
   echo "---DOKKU_VERSION---"
   dokku version 2>/dev/null || true
 
@@ -73,10 +84,8 @@ export const serverInfo = async ({ ssh }: Args) => {
 }
 
 export const getServerById = async (id: string) => {
-  // Adjust this logic as needed for your context
-  const server = await payload.findByID({
+  return payload.findByID({
     collection: 'servers',
     id,
   })
-  return server
 }
