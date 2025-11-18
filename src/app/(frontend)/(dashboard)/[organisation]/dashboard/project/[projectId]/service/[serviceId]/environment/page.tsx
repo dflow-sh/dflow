@@ -1,4 +1,5 @@
 import { getServiceDetails } from '@/actions/pages/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import VariablesForm from '@/components/service/VariablesForm'
 
 interface PageProps {
@@ -12,6 +13,12 @@ interface PageProps {
 const EnvironmentPage = async ({ params }: PageProps) => {
   const { serviceId } = await params
   const { data: service } = await getServiceDetails({ id: serviceId })
+
+  if (service?.type === 'database') {
+    return (
+      <AccessDeniedAlert error={"The requested resource can't be Accessed!"} />
+    )
+  }
 
   return <VariablesForm service={service!} />
 }

@@ -3,6 +3,7 @@ import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
 } from '@/actions/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import ScalingTab from '@/components/service/ScalingTab'
 
 interface PageProps {
@@ -24,6 +25,12 @@ const ScalingPage = async ({ params }: PageProps) => {
 
   const scale = scaleRes?.data?.scale ?? {}
   const resource = resourceRes?.data?.resource ?? {}
+
+  if (service?.type === 'database') {
+    return (
+      <AccessDeniedAlert error={"The requested resource can't be Accessed!"} />
+    )
+  }
 
   return <ScalingTab service={service!} scale={scale} resource={resource} />
 }
