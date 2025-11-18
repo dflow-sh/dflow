@@ -1,9 +1,7 @@
 import type { SearchParams } from 'nuqs/server'
-import { Suspense } from 'react'
 
 import { getServiceDetails } from '@/actions/pages/service'
 import GeneralTab from '@/components/service/GeneralTab'
-import ServiceSkeleton from '@/components/skeletons/ServiceSkeleton'
 
 interface PageProps {
   params: Promise<{
@@ -28,11 +26,7 @@ const SuspendedPage = async ({ params }: PageProps) => {
 }
 
 const ServiceIdPage = async (props: PageProps) => {
-  return (
-    <Suspense fallback={<ServiceSkeleton />}>
-      <SuspendedPage {...props} />
-    </Suspense>
-  )
+  return <SuspendedPage {...props} />
 }
 
 export default ServiceIdPage
