@@ -112,10 +112,7 @@ const LayoutClient = ({
 
   const activeTab = useMemo(() => {
     const paths = pathname.split('/').filter(path => path)
-    console.log({ paths, pathname })
-
     const activePath = paths.length === 6 ? 'general' : paths.at(-1)
-    console.log({ activePath })
 
     return tabsList.findIndex(tab => tab.slug === activePath)
   }, [pathname])
@@ -215,7 +212,7 @@ const LayoutClient = ({
 
           {/* Scrollable Content */}
           <div className='scrollbar-custom w-full flex-1 overflow-x-auto overflow-y-auto'>
-            <div className='min-w-xl py-4'>{children}</div>
+            <div className='min-w-xl'>{children}</div>
           </div>
         </div>
       </main>

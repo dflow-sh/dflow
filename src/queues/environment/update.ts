@@ -4,7 +4,6 @@ import { addExposeDatabasePortQueue } from '../database/expose'
 import configPromise from '@payload-config'
 import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
-import nunjucks from 'nunjucks'
 import { Payload, getPayload } from 'payload'
 import { z } from 'zod'
 
@@ -600,6 +599,8 @@ export const addUpdateEnvironmentVariablesQueue = async (data: QueueArgs) => {
     connection: queueConnection,
     processor: async job => {
       const payload = await getPayload({ config: configPromise })
+      const nunjucks = await import('nunjucks')
+
       const {
         sshDetails,
         serviceDetails,

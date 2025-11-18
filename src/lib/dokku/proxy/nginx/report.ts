@@ -19,7 +19,6 @@ export const report = async ({
   }
 
   const nginxParams = resultReport.stdout.split('\n')
-  console.log({ nginxParams })
 
   const formattedParams = nginxParams
     .filter(param => param.includes('Nginx computed'))
