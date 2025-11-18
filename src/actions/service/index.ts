@@ -1191,7 +1191,7 @@ export const setServiceNginxConfigAction = protectedClient
     const { key, value, serviceId } = clientInput
     const { payload } = ctx
 
-    const { project, name } = await payload.findByID({
+    const { project, name, type } = await payload.findByID({
       collection: 'services',
       id: serviceId,
       depth: 3,
@@ -1210,6 +1210,23 @@ export const setServiceNginxConfigAction = protectedClient
         key,
         value,
       })
+
+      // Restarting app after configuration got updated
+      if (
+        typeof project === 'object' &&
+        (type === 'docker' || type === 'app')
+      ) {
+        await addRestartAppQueue({
+          sshDetails,
+          serviceDetails: {
+            id: serviceId,
+            name,
+          },
+          serverDetails: {
+            id: extractID(project.server),
+          },
+        })
+      }
 
       return result
     } finally {

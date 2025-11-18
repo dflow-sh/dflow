@@ -52,7 +52,10 @@ const KeyValuePair = ({
     },
     onSuccess: ({ data, input }) => {
       if (data?.success) {
-        toast.success(`Successfully updated ${input.key} parameter`)
+        toast.info(`Updated ${input.key} parameter`, {
+          description: 'Restarting service for applying changes',
+          duration: 5000,
+        })
       }
     },
   })
