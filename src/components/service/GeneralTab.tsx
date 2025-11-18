@@ -81,13 +81,6 @@ const GeneralTab = ({
   service: Service
   server: Server | string
 }) => {
-  const Icon =
-    service.type === 'database' && service.databaseDetails?.type
-      ? iconMapping[service.databaseDetails.type]
-      : service.type === 'database'
-        ? undefined // Handle "database" type explicitly if no icon is needed
-        : iconMapping[service.type as Exclude<StatusType, 'database'>]
-
   const domains = service.domains?.sort((a, b) =>
     a.default ? -1 : b.default ? 1 : 0,
   )

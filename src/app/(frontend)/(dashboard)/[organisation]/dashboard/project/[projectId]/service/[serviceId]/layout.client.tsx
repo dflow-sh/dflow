@@ -1,12 +1,11 @@
 'use client'
 
-import { useProgress } from '@bprogress/next'
+import { useRouter } from '@bprogress/next/app'
 import { useReactFlow } from '@xyflow/react'
 import { Database, X } from 'lucide-react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { type JSX, useEffect, useMemo, useState, useTransition } from 'react'
+import { useParams, usePathname } from 'next/navigation'
+import { type JSX, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 import SelectSearch from '@/components/SelectSearch'
@@ -73,28 +72,13 @@ const LayoutClient = ({
   services: Service[]
   service: Service
 }) => {
-  const params = useParams<{
+  const { organisation, projectId, serviceId } = useParams<{
     serviceId: string
     organisation: string
     projectId: string
   }>()
-  const [isPending, startTransition] = useTransition()
-  const { start, stop } = useProgress()
-  const [tab, setTab] = useQueryState(
-    'tab',
-    parseAsStringEnum([
-      'general',
-      'environment',
-      'logs',
-      'domains',
-      'deployments',
-      'backups',
-      'volumes',
-      'scaling',
-      'settings',
-      'proxy',
-    ]).withDefault('general'),
-  )
+  const pathname = usePathname()
+  const router = useRouter()
 
   const [mounted, setMounted] = useState(false)
   const [populatedVariables, setPopulatedVariables] = useState(
@@ -126,17 +110,19 @@ const LayoutClient = ({
         ] as const)
   }, [type])
 
+  const activeTab = useMemo(() => {
+    const paths = pathname.split('/').filter(path => path)
+    console.log({ paths, pathname })
+
+    const activePath = paths.length === 6 ? 'general' : paths.at(-1)
+    console.log({ activePath })
+
+    return tabsList.findIndex(tab => tab.slug === activePath)
+  }, [pathname])
+
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  useEffect(() => {
-    if (isPending) {
-      start()
-    } else {
-      stop()
-    }
-  }, [isPending])
 
   // When environment variables are changed we're disabling the deployments
   // Checking if old-variables and new-variables are changed and enabling deployment actions
@@ -147,10 +133,6 @@ const LayoutClient = ({
     }
   }, [service.populatedVariables])
 
-  const activeTab = tabsList.findIndex(({ slug }) => {
-    return slug === tab
-  })
-
   const onCloseService = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('nodeId')
@@ -158,6 +140,7 @@ const LayoutClient = ({
   }
 
   const { fitView } = useReactFlow()
+
   return (
     <>
       <main className='mx-auto'>
@@ -169,7 +152,7 @@ const LayoutClient = ({
               fitView({ duration: 800 })
             }}>
             <Link
-              href={`/${params.organisation}/dashboard/project/${params.projectId}`}
+              href={`/${organisation}/dashboard/project/${projectId}`}
               title='close'
               className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
               <X className='h-4 w-4' />
@@ -214,12 +197,18 @@ const LayoutClient = ({
                 disabled,
               }))}
               onTabChange={index => {
-                const tab = tabsList[index]
-                startTransition(() => {
-                  setTab(tab.slug, { shallow: false })
-                })
+                const activeTab = tabsList[index]
+
+                if (activeTab.slug === 'general') {
+                  router.push(
+                    `/${organisation}/dashboard/project/${projectId}/service/${serviceId}`,
+                  )
+                } else {
+                  router.push(
+                    `/${organisation}/dashboard/project/${projectId}/service/${serviceId}/${activeTab.slug}`,
+                  )
+                }
               }}
-              activeTab={activeTab >= 0 ? activeTab : 0}
               defaultActiveTab={activeTab >= 0 ? activeTab : 0}
             />
           </div>
@@ -244,11 +233,11 @@ const LayoutClient = ({
               </svg>{' '}
               {serviceName}
               <SelectSearch
-                organisationSlug={params.organisation}
+                organisationSlug={organisation}
                 placeholder='service'
                 services={services}
-                serviceId={params.serviceId}
-                projectId={params.projectId}
+                serviceId={serviceId}
+                projectId={projectId}
               />
             </div>,
             document.getElementById('serviceName') ?? document.body,

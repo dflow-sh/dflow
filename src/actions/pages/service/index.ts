@@ -15,6 +15,7 @@ export const getServiceDetails = protectedClient
       userTenant: { tenant },
       payload,
     } = ctx
+
     const { docs: services } = await payload.find({
       collection: 'services',
       where: {
@@ -36,6 +37,12 @@ export const getServiceDetails = protectedClient
           },
         ],
       },
+      joins: {
+        deployments: {
+          count: true,
+        },
+      },
+      depth: 3,
     })
 
     return services.at(0)
@@ -86,9 +93,34 @@ export const getServiceDeploymentsBackups = protectedClient
         },
       }),
     ])
+
     const service = services.at(0)
 
     return { service, deployments }
+  })
+
+export const getDeploymentsAction = protectedClient
+  .metadata({
+    actionName: 'getDeploymentsAction',
+  })
+  .inputSchema(getServiceDetailsSchema)
+  .action(async ({ clientInput, ctx }) => {
+    const { id } = clientInput
+
+    const { payload } = ctx
+
+    const { docs: deployments } = await payload.find({
+      collection: 'deployments',
+      pagination: false,
+      where: {
+        service: {
+          equals: id,
+        },
+      },
+      depth: 0,
+    })
+
+    return deployments
   })
 
 export const getServiceBackups = protectedClient

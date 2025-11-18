@@ -21,6 +21,7 @@ const DomainsTab = ({
         <Globe />
         <h4 className='text-lg font-semibold'>Domains</h4>
       </div>
+
       <DomainList domains={domains} ip={ip} server={server} service={service} />
 
       {/* <Tabs defaultValue='domains'>
