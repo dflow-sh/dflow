@@ -1,6 +1,5 @@
 'use client'
 
-import { MDXContent } from '@content-collections/mdx/react'
 import { X } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'
@@ -78,7 +77,7 @@ const DocSidebar = () => {
             {isDocsPending ? (
               <InternalDocsSkeleton />
             ) : doc ? (
-              <MDXContent code={doc.mdx || ''} />
+              <div dangerouslySetInnerHTML={{ __html: doc.html }} />
             ) : (
               <div className='text-center'>No documentation found</div>
             )}

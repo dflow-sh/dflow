@@ -82,7 +82,7 @@ const DocsSidebar = async ({ params }: Props) => {
   return (
     <>
       <aside
-        className={`sticky left-0 top-[105px] hidden w-64 border-r p-4 md:block`}>
+        className={`sticky top-[105px] left-0 hidden w-64 border-r p-4 md:block`}>
         <nav>
           <Links />
         </nav>
