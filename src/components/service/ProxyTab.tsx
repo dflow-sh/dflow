@@ -1,3 +1,4 @@
+import SidebarToggleButton from '../SidebarToggleButton'
 import { Nginx, Traefik } from '../icons'
 import { ArrowRightLeft } from 'lucide-react'
 
@@ -18,6 +19,7 @@ const ProxyTab = ({
       <div className='mb-4 flex w-full items-center gap-1.5'>
         <ArrowRightLeft />
         <h4 className='text-lg font-semibold'>Proxy</h4>
+        <SidebarToggleButton directory='services' fileName='proxy' />
       </div>
 
       <Tabs defaultValue='nginx'>

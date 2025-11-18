@@ -1,21 +1,24 @@
 ---
-title: 'Proxy'
+title: 'Service Overview'
 category: 'Services'
-order: 5
-categoryOrder: 5
+order: 1
+categoryOrder: 4
 ---
 
-# Proxy Overview
+# Service Overview
 
-dFlow by default comes with nginx proxy support. Parameters can be configured
-from `proxy` tab.
+Services are the core units of deployment and management within dFlow. Whether
+it's a backend API, a database, or a containerized app, each service is
+represented with detailed configuration, environment variables, logs, deployment
+history, and domain settings.
 
-### Nginx
+dFlow currently supports the following service types:
 
-Here're the list of parameters you can configure for nginx proxy
+- [**App Service**](./app) – Deploy directly from Git providers like GitHub,
+  GitLab, or Bitbucket.
+- [**Docker Service**](./docker) – Deploy prebuilt Docker containers.
+- [**Database Service**](./database) – Managed or self-hosted databases.
 
-| Property | Default | Description |
-| -------- | ------- | ----------- |
-| January  | $250    |
-| February | $80     |
-| March    | $420    |
+Each service type has a dedicated interface tailored for its unique
+configuration and operational needs. Use the links above to explore each service
+type in detail.
