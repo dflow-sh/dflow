@@ -185,6 +185,8 @@ const DeploymentForm = ({ service }: { service: Service }) => {
   const { deployments, databaseDetails, type } = service
   const { disable: deploymentDisabled } = useDisableDeploymentContext()
 
+  console.log({ service })
+
   const { execute: restartService, isPending: isRestartingService } = useAction(
     restartServiceAction,
     {

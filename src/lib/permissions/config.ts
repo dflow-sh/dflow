@@ -235,6 +235,7 @@ export const getActionAccess = {
 
   getServiceNginxConfigAction: ['services.read'],
   setServiceNginxConfigSchema: ['services.update'],
+  getDeploymentsAction: ['services.read'],
 } as const
 
 export type GetActionAccessMap = typeof getActionAccess

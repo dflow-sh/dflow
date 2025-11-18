@@ -1,30 +1,9 @@
 import type { SearchParams } from 'nuqs/server'
 import { Suspense } from 'react'
 
-import {
-  getServiceBackups,
-  getServiceDeploymentsBackups,
-} from '@/actions/pages/service'
-import {
-  fetchServiceResourceStatusAction,
-  fetchServiceScaleStatusAction,
-  getServiceNginxConfigAction,
-} from '@/actions/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import Backup from '@/components/service/Backup'
-import DeploymentList from '@/components/service/DeploymentList'
-import DomainsTab from '@/components/service/DomainsTab'
+import { getServiceDetails } from '@/actions/pages/service'
 import GeneralTab from '@/components/service/GeneralTab'
-import LogsTabClient from '@/components/service/LogsTabClient'
-import ProxyTab from '@/components/service/ProxyTab'
-import ScalingTab from '@/components/service/ScalingTab'
-import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
-import VariablesForm from '@/components/service/VariablesForm'
-import VolumesForm from '@/components/service/VolumesForm'
 import ServiceSkeleton from '@/components/skeletons/ServiceSkeleton'
-import TriggerNotFound from '@/components/states/TriggerNotFound'
-import { loadServicePageTabs } from '@/lib/searchParams'
-import { Project } from '@/payload-types'
 
 interface PageProps {
   params: Promise<{
@@ -35,122 +14,17 @@ interface PageProps {
   searchParams: Promise<SearchParams>
 }
 
-const SuspendedPage = async ({ params, searchParams }: PageProps) => {
+const SuspendedPage = async ({ params }: PageProps) => {
   const { serviceId } = await params
 
-  const serviceDetails = await getServiceDeploymentsBackups({ id: serviceId })
-  const { tab } = await loadServicePageTabs(searchParams)
-
-  if (serviceDetails?.serverError) {
-    return <AccessDeniedAlert error={serviceDetails.serverError} />
-  }
-
-  if (!serviceDetails?.data?.service) {
-    return <TriggerNotFound />
-  }
-
-  const { service, deployments } = serviceDetails.data
+  const { data: service } = await getServiceDetails({
+    id: serviceId,
+  })
 
   const server =
-    typeof service.project === 'object' ? service.project.server : ''
-  const serverObject = typeof server === 'object' ? server : null
+    typeof service?.project === 'object' ? service.project.server : ''
 
-  const domains = service.domains ?? []
-  const databaseDetails = service.databaseDetails ?? {}
-
-  switch (tab) {
-    case 'general':
-      return <GeneralTab service={service} server={server} />
-
-    case 'environment':
-      return <VariablesForm service={service} />
-    case 'volumes':
-      return <VolumesForm service={service} />
-    case 'deployments':
-      return (
-        <DeploymentList
-          deployments={deployments}
-          serviceId={service.id}
-          serverId={typeof server === 'object' ? server.id : server}
-        />
-      )
-
-    case 'domains':
-      return (
-        <DomainsTab
-          domains={domains}
-          // TODO: Domain list should be able to handle both ssh and tailscale
-          ip={
-            typeof server === 'object'
-              ? server.preferConnectionType === 'ssh'
-                ? (server.ip ?? '')
-                : (server.publicIp ?? '')
-              : ''
-          }
-          server={serverObject}
-          service={service}
-        />
-      )
-
-    case 'logs':
-      return (
-        <LogsTabClient
-          serviceId={service.id}
-          serverId={typeof server === 'object' ? server.id : server}
-        />
-      )
-
-    case 'backups':
-      const backupsResponse = await getServiceBackups({ id: serviceId })
-
-      if (backupsResponse?.serverError) {
-        return <AccessDeniedAlert error={serviceDetails?.serverError!} />
-      }
-
-      const backupsDocs = backupsResponse?.data ?? []
-
-      return (
-        <Backup
-          databaseDetails={databaseDetails}
-          serviceId={serviceId}
-          backups={backupsDocs}
-        />
-      )
-
-    case 'scaling': {
-      const [scaleRes, resourceRes] = await Promise.all([
-        fetchServiceScaleStatusAction({ id: service.id }),
-        fetchServiceResourceStatusAction({ id: service.id }),
-      ])
-
-      const scale = scaleRes?.data?.scale ?? {}
-      const resource = resourceRes?.data?.resource ?? {}
-
-      return <ScalingTab service={service} scale={scale} resource={resource} />
-    }
-
-    case 'settings': {
-      return (
-        <ServiceSettingsTab
-          service={service}
-          project={service.project as Project}
-        />
-      )
-    }
-
-    case 'proxy': {
-      const proxyResponse = await getServiceNginxConfigAction({
-        id: service.id,
-      })
-
-      const proxyData = proxyResponse.data ?? []
-
-      return <ProxyTab proxyData={proxyData} service={service} />
-    }
-
-    default:
-      return <GeneralTab service={service} server={server} />
-  }
+  return <GeneralTab service={service!} server={server} />
 }
 
 const ServiceIdPage = async (props: PageProps) => {
