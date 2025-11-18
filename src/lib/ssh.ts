@@ -46,8 +46,6 @@ export const dynamicSSH = async (params: SSHType) => {
       host: hostname,
       username,
     })
-
-    console.log('connected via tailscale')
   }
 
   return ssh
