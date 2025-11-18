@@ -1,4 +1,5 @@
 import { getServiceDetails } from '@/actions/pages/service'
+import AccessDeniedAlert from '@/components/AccessDeniedAlert'
 import DomainsTab from '@/components/service/DomainsTab'
 
 interface PageProps {
@@ -13,6 +14,12 @@ const DomainsPage = async ({ params }: PageProps) => {
   const { serviceId } = await params
 
   const { data: service } = await getServiceDetails({ id: serviceId })
+
+  if (service?.type === 'database') {
+    return (
+      <AccessDeniedAlert error={"The requested resource can't be Accessed!"} />
+    )
+  }
 
   const domains = service?.domains ?? []
   const server =

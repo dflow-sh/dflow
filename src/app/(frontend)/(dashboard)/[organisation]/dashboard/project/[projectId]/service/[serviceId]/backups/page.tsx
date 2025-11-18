@@ -21,6 +21,13 @@ const BackupsPage = async ({ params }: PageProps) => {
 
   const databaseDetails = service?.databaseDetails ?? {}
 
+  // restricting when database specific pages're accessed
+  if (service?.type === 'app' || service?.type === 'docker') {
+    return (
+      <AccessDeniedAlert error={"The requested resource can't be Accessed!"} />
+    )
+  }
+
   if (serverError) {
     return <AccessDeniedAlert error={serverError!} />
   }
