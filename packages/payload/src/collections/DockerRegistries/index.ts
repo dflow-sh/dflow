@@ -1,7 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
 
 import { checkDuplicateDockerRegistries } from './hooks/checkDuplicateDockerRegistries'
 

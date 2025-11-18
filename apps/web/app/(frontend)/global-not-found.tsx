@@ -1,10 +1,9 @@
+import { Button } from '@dflow/components/ui/button'
 import type { Metadata } from 'next'
 import { ThemeProvider } from 'next-themes'
 import Link from 'next/link'
 
-import { Button } from '@/components/ui/button'
-
-import './(frontend)/globals.css'
+import './globals.css'
 
 export const metadata: Metadata = {
   title: '404 - Page Not Found',

@@ -17,12 +17,12 @@ import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
-import { useBubble } from '@/providers/BubbleProvider'
-import { useServers } from '@/providers/ServersProvider'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
+import { cn } from '@dflow/lib/utils'
+import { Server } from '@dflow/types'
+import { useBubble } from '@dflow/providers/BubbleProvider'
+import { useServers } from '@dflow/providers/ServersProvider'
 
 const XTermLogViewer = dynamic(
   () => import('@/components/bubble/XTermLogViewer'),

@@ -1,10 +1,10 @@
-import { env } from 'env'
+import { env } from '@/env'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import SignInForm from '@/components/sign-in/SignInForm'
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { getAuthConfigAction } from '@dflow/actions/pages/auth'
+import SignInForm from '@dflow/components/sign-in/SignInForm'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
 import { AuthConfig } from '@/payload-types'
 
 const SignInPage = async () => {

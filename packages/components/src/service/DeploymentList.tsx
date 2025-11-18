@@ -6,14 +6,14 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { Rocket, ServerCog } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@dflow/components/ui/card'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { Deployment } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { Deployment } from '@dflow/types'
 
 const DeploymentTerminal = dynamic(() => import('./DeploymentTerminal'), {
   ssr: false,

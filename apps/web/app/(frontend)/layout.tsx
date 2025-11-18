@@ -1,16 +1,16 @@
 import Branding from '@dflow/components/Branding'
-import { env } from 'env'
+import { env } from '@/env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
 import React from 'react'
 
-import { getBranding, getTheme } from '@/actions/branding'
-import { Toaster } from '@/components/ui/sonner'
-import { BrandingProvider } from '@/providers/BrandingProvider'
-import NProgressProvider from '@/providers/NProgressProvider'
-import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
+import { getBranding, getTheme } from '@dflow/actions/branding'
+import { Toaster } from '@dflow/components/ui/sonner'
+import { BrandingProvider } from '@dflow/providers/BrandingProvider'
+import NProgressProvider from '@dflow/providers/NProgressProvider'
+import { NetworkStatusProvider } from '@dflow/providers/NetworkStatusProvider'
 
 import './globals.css'
 

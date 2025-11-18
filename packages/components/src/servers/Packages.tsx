@@ -8,8 +8,8 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { updateRailpackAction } from '@/actions/server'
-import updateRailpack from '@/lib/axios/updateRailpack'
+import { updateRailpackAction } from '@dflow/actions/server'
+import updateRailpack from '@dflow/lib/axios/updateRailpack'
 import { ServerType } from '@/payload-types-overrides'
 
 const Packages = ({

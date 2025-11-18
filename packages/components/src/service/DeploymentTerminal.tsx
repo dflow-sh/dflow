@@ -11,9 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import useXterm from '@/hooks/use-xterm'
-import { Deployment } from '@/payload-types'
+} from '@dflow/components/ui/dialog'
+import useXterm from '@dflow/hooks/use-xterm'
+import { Deployment } from '@dflow/types'
 
 const TerminalContent = ({
   logs,

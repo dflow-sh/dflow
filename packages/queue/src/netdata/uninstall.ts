@@ -1,11 +1,11 @@
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { netdata } from '@/lib/netdata'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { netdata } from '@dflow/lib/netdata'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/lib/ssh'
 
 interface QueueArgs {
   sshDetails: SSHType

@@ -1,8 +1,8 @@
 import { CollectionAfterReadHook } from 'payload'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { Server } from '@/payload-types'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
+import { dFlowRestSdk } from '@dflow/lib/restSDK/utils'
+import { Server } from '@dflow/types'
 
 export const populateDflowVpsDetails: CollectionAfterReadHook<Server> = async ({
   doc,

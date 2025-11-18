@@ -2,8 +2,8 @@
 
 import { Battery, Cpu, HardDrive, Wifi } from 'lucide-react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
+import { Progress } from '@dflow/components/ui/progress'
 
 const CurrentResourceUsage = ({
   dashboardMetrics,

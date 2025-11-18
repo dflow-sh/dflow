@@ -1,6 +1,6 @@
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 
-import tailscale from '@/lib/axios/tailscale'
+import tailscale from '@dflow/lib/axios/tailscale'
 
 export const generateOAuthToken = async () => {
   try {

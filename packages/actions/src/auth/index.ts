@@ -2,15 +2,15 @@
 
 import configPromise from '@payload-config'
 import cuid from 'cuid'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { renderMagicLinkEmail } from '@/emails/magic-link'
-import { createSession } from '@/lib/createSession'
-import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
+import { renderMagicLinkEmail } from '@dflow/emails/magic-link'
+import { createSession } from '@dflow/lib/createSession'
+import { protectedClient, publicClient, userClient } from '@dflow/lib/safe-action'
 
 import {
   autoLoginSchema,
@@ -357,7 +357,7 @@ export const autoLoginAction = publicClient
     // One-time code logic with Redis
     if (!decodedToken.code) throw new Error('Forbidden')
 
-    const { createRedisClient } = await import('@/lib/redis')
+    const { createRedisClient } = await import('@dflow/lib/redis')
     const redisClient = createRedisClient()
 
     // Prevent code reuse (one-time link)

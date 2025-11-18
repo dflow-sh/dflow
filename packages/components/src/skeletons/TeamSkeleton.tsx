@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@dflow/components/ui/table'
 
 const TeamSkeleton = () => {
   return (

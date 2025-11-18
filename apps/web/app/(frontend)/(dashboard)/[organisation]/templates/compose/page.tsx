@@ -1,6 +1,6 @@
 import LayoutClient from '../../layout.client'
 
-import CreateNewTemplate from '@/components/templates/compose'
+import CreateNewTemplate from '@dflow/components/templates/compose'
 
 const page = () => {
   return (

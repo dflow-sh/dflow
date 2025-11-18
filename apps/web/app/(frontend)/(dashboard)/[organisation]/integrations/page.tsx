@@ -5,8 +5,8 @@ import { Link } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 
-import IntegrationsList from '@/components/Integrations/IntegrationsList'
-import { IntegrationsSkeleton } from '@/components/skeletons/IntegrationsSkeleton'
+import IntegrationsList from '@dflow/components/Integrations/IntegrationsList'
+import { IntegrationsSkeleton } from '@dflow/components/skeletons/IntegrationsSkeleton'
 
 const GitHubDrawer = dynamic(
   () => import('@/components/Integrations/GithubDrawer'),

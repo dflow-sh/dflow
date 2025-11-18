@@ -10,8 +10,8 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { cn } from '@/lib/utils'
+} from '@dflow/components/ui/command'
+import { cn } from '@dflow/lib/utils'
 
 export interface Option {
   value: string

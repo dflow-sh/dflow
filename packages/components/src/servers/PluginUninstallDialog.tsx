@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +21,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+} from '@dflow/components/ui/alert-dialog'
+import { Badge } from '@dflow/components/ui/badge'
+import { cn } from '@dflow/lib/utils'
 
 interface PluginUsageDialogProps {
   isOpen: boolean

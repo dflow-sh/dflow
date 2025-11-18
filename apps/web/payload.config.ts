@@ -1,1 +1,3 @@
-export { config as default } from '@dflow/payload/config'
+// Re-export payload config from package
+import config from '@dflow/payload/config'
+export default config

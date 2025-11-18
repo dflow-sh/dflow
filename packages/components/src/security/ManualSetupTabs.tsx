@@ -7,16 +7,16 @@ import { Globe } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
 
-import AttachCustomServerForm from '@/components/servers/AttachCustomServerForm'
+import AttachCustomServerForm from '@dflow/components/servers/AttachCustomServerForm'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SshKey } from '@/payload-types'
+} from '@dflow/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
+import { SshKey } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 interface Props {

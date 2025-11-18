@@ -12,8 +12,8 @@ import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServiceAction } from '@/actions/service'
-import { updateServiceSchema } from '@/actions/service/validator'
+import { updateServiceAction } from '@dflow/actions/service'
+import { updateServiceSchema } from '@dflow/actions/service/validator'
 import {
   Form,
   FormControl,
@@ -21,16 +21,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from '@dflow/components/ui/form'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { DockerRegistry, Service } from '@/payload-types'
+} from '@dflow/components/ui/select'
+import { DockerRegistry, Service } from '@dflow/types'
 
 const schema = ['http', 'https']
 

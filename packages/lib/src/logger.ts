@@ -1,5 +1,5 @@
 import { Logger } from '@logtail/next'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import pino from 'pino'
 
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV

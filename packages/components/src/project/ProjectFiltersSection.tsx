@@ -22,11 +22,11 @@ import {
 import { AnimatePresence, motion } from 'motion/react'
 import { useMemo } from 'react'
 
-import { DynamicFilterPanel } from '@/components/DynamicFilter/DynamicFilterPanel'
-import { useDynamicFilter } from '@/components/DynamicFilter/useDynamicFilter'
-import { ProjectCard } from '@/components/ProjectCard'
-import { FilterConfig } from '@/lib/filter.utils'
-import { Project, Server, Service } from '@/payload-types'
+import { DynamicFilterPanel } from '@dflow/components/DynamicFilter/DynamicFilterPanel'
+import { useDynamicFilter } from '@dflow/components/DynamicFilter/useDynamicFilter'
+import { ProjectCard } from '@dflow/components/ProjectCard'
+import { FilterConfig } from '@dflow/lib/filter.utils'
+import { Project, Server, Service } from '@dflow/types'
 
 interface ProjectFiltersProps {
   projects: Project[]

@@ -2,7 +2,7 @@
 
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import {
   CircleCheckBig,
   CircleX,
@@ -20,8 +20,8 @@ import {
   checkDNSConfigAction,
   syncServerDomainAction,
   updateServerDomainAction,
-} from '@/actions/server'
-import { Card, CardContent } from '@/components/ui/card'
+} from '@dflow/actions/server'
+import { Card, CardContent } from '@dflow/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -37,9 +37,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { WILD_CARD_DOMAINS } from '@/lib/constants'
-import { Server } from '@/payload-types'
+} from '@dflow/components/ui/table'
+import { WILD_CARD_DOMAINS } from '@dflow/lib/constants'
+import { Server } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 const extractWildcard = (domain: string) => {

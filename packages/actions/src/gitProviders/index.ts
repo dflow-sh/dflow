@@ -1,11 +1,11 @@
 'use server'
 
 import { createAppAuth } from '@octokit/auth-app'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/lib/safe-action'
 
 import {
   createGitHubAppSchema,

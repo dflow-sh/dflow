@@ -1,5 +1,5 @@
-import { getRolesAction } from '@/actions/roles'
-import { User } from '@/payload-types'
+import { getRolesAction } from '@dflow/actions/roles'
+import { User } from '@dflow/types'
 
 import Invitation from './Invitation'
 import Roles from './Roles'

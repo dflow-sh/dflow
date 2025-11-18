@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { Skeleton } from '@dflow/components/ui/skeleton'
+import { cn } from '@dflow/lib/utils'
 
 export const Service = () => {
   return (

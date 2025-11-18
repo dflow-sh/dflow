@@ -6,8 +6,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { CloudProviderAccount } from '@/payload-types'
+} from '@dflow/components/ui/select'
+import { CloudProviderAccount } from '@dflow/types'
 
 export const AccountSelectionSection = ({
   dFlowAccounts,

@@ -15,9 +15,9 @@ import { z } from 'zod'
 import {
   checkServerConnection,
   updateTailscaleServerAction,
-} from '@/actions/server'
-import { updateTailscaleServerSchema } from '@/actions/server/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from '@dflow/actions/server'
+import { updateTailscaleServerSchema } from '@dflow/actions/server/validator'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   Form,
   FormControl,
@@ -25,8 +25,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Server } from '@/payload-types'
+} from '@dflow/components/ui/form'
+import { Server } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 type ConnectionStatus = {

@@ -11,16 +11,16 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { signUpAction } from '@/actions/auth'
-import { signUpSchema } from '@/actions/auth/validator'
-import { Button } from '@/components/ui/button'
+import { signUpAction } from '@dflow/actions/auth'
+import { signUpSchema } from '@dflow/actions/auth/validator'
+import { Button } from '@dflow/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@dflow/components/ui/card'
 import {
   Form,
   FormControl,
@@ -28,9 +28,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { slugify } from '@/lib/slugify'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { slugify } from '@dflow/lib/slugify'
 
 interface SignupProps {
   token: string | undefined

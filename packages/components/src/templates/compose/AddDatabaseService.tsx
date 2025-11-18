@@ -17,10 +17,10 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
-import { numberRegex } from '@/lib/constants'
+} from '@dflow/components/icons'
+import { ServiceNode } from '@dflow/components/reactflow/types'
+import { Button } from '@dflow/components/ui/button'
+import { numberRegex } from '@dflow/lib/constants'
 
 import { getPositionForNewNode } from './ChooseService'
 

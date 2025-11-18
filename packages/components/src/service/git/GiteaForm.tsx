@@ -10,10 +10,10 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServiceAction } from '@/actions/service'
-import { updateServiceSchema } from '@/actions/service/validator'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { updateServiceAction } from '@dflow/actions/service'
+import { updateServiceSchema } from '@dflow/actions/service/validator'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
 import {
   Form,
   FormControl,
@@ -21,12 +21,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { buildOptions } from '@/lib/buildOptions'
-import { Service } from '@/payload-types'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { Label } from '@dflow/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
+import { buildOptions } from '@dflow/lib/buildOptions'
+import { Service } from '@dflow/types'
 
 const GiteaForm = ({ service }: { service: Service }) => {
   const params = useParams<{ serviceId: string }>()

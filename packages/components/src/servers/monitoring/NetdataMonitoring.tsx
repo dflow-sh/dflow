@@ -6,15 +6,15 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { uninstallNetdataAction } from '@/actions/netdata'
-import { Button } from '@/components/ui/button'
+import { uninstallNetdataAction } from '@dflow/actions/netdata'
+import { Button } from '@dflow/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { netdata } from '@/lib/netdata'
+} from '@dflow/components/ui/dropdown-menu'
+import { netdata } from '@dflow/lib/netdata'
 import { ServerType } from '@/payload-types-overrides'
 
 import CurrentResourceUsage from './CurrentResourceUsage'

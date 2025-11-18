@@ -5,15 +5,15 @@ import { useAction } from 'next-safe-action/hooks'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { getSystemStatsAction } from '@/actions/beszel'
-import { Button } from '@/components/ui/button'
+import { getSystemStatsAction } from '@dflow/actions/beszel'
+import { Button } from '@dflow/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { System } from '@/lib/beszel/types'
+} from '@dflow/components/ui/dropdown-menu'
+import { System } from '@dflow/lib/beszel/types'
 import { ServerType } from '@/payload-types-overrides'
 
 import DefaultCurrentResourceUsage from './DefaultCurrentResourceUsage'

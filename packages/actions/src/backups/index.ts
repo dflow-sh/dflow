@@ -2,13 +2,13 @@
 
 import { generateUniqueServiceName } from '../beszel/utils'
 import { createProjectAction, createProjectAdminAction } from '../project'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { BasePayload } from 'payload'
 
-import { pub } from '@/lib/redis'
-import { adminClient, protectedClient } from '@/lib/safe-action'
-import { sendEvent } from '@/lib/sendEvent'
-import { fetchOfficialTemplateByName } from '@/lib/utils/templates'
+import { pub } from '@dflow/lib/redis'
+import { adminClient, protectedClient } from '@dflow/lib/safe-action'
+import { sendEvent } from '@dflow/lib/sendEvent'
+import { fetchOfficialTemplateByName } from '@dflow/lib/utils/templates'
 import { Service } from '@/payload-types'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 

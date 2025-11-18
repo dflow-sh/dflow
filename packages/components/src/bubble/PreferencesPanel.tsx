@@ -5,18 +5,18 @@ import { motion } from 'motion/react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { Button } from '@dflow/components/ui/button'
+import { Label } from '@dflow/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
-import { useTerminal } from '@/providers/TerminalProvider'
+} from '@dflow/components/ui/select'
+import { cn } from '@dflow/lib/utils'
+import { useBubble } from '@dflow/providers/BubbleProvider'
+import { useTerminal } from '@dflow/providers/TerminalProvider'
 
 type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 type Theme = 'light' | 'dark' | 'system'

@@ -1,10 +1,10 @@
 'use server'
 
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 
-import tailscale from '@/lib/axios/tailscale'
-import { protectedClient } from '@/lib/safe-action'
-import { generateOAuthToken } from '@/lib/tailscale/generateOAuthToken'
+import tailscale from '@dflow/lib/axios/tailscale'
+import { protectedClient } from '@dflow/lib/safe-action'
+import { generateOAuthToken } from '@dflow/lib/tailscale/generateOAuthToken'
 
 import { generateAuthKeySchema } from './validator'
 

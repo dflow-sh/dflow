@@ -7,8 +7,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-import { docsAction } from '@/actions/docs'
-import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
+import { docsAction } from '@dflow/actions/docs'
+import { useSidebarDocs } from '@dflow/providers/SidebarDocsProvider'
 
 import { InternalDocsSkeleton } from './skeletons/DocsSkeleton'
 import { Button } from './ui/button'

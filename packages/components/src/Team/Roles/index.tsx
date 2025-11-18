@@ -2,7 +2,7 @@
 
 import { ShieldHalf } from 'lucide-react'
 
-import { Role, User } from '@/payload-types'
+import { Role, User } from '@dflow/types'
 
 import RolesList from './RolesList'
 

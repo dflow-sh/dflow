@@ -19,8 +19,8 @@ import { toast } from 'sonner'
 import {
   deleteGitProviderAction,
   installGithubAppAction,
-} from '@/actions/gitProviders'
-import { GitProvider } from '@/payload-types'
+} from '@dflow/actions/gitProviders'
+import { GitProvider } from '@dflow/types'
 
 const GithubCard = ({
   provider,

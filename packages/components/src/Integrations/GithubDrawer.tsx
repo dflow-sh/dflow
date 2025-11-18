@@ -6,12 +6,12 @@ import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import { getAllAppsAction } from '@/actions/gitProviders'
-import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
-import CreateGitAppForm from '@/components/gitProviders/CreateGitAppForm'
-import GitProviderList from '@/components/gitProviders/GitProviderList'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { getAllAppsAction } from '@dflow/actions/gitProviders'
+import GithubIntegrationsLoading from '@dflow/components/Integrations/GithubIntegrationsLoading'
+import CreateGitAppForm from '@dflow/components/gitProviders/CreateGitAppForm'
+import GitProviderList from '@dflow/components/gitProviders/GitProviderList'
+import { Button } from '@dflow/components/ui/button'
+import { ScrollArea } from '@dflow/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
@@ -19,8 +19,8 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { integrationsList } from '@/lib/integrationList'
+} from '@dflow/components/ui/sheet'
+import { integrationsList } from '@dflow/lib/integrationList'
 
 const GitHubDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(

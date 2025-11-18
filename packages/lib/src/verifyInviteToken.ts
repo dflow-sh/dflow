@@ -1,6 +1,6 @@
 'use server'
 
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken'
 
 const secret = env.PAYLOAD_SECRET

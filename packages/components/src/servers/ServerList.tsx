@@ -8,15 +8,15 @@ import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
 
-import { deleteServerAction } from '@/actions/server'
+import { deleteServerAction } from '@dflow/actions/server'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { SshKey } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { supportedLinuxVersions } from '@dflow/lib/constants'
+import { SshKey } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 import ServerFormDialog from './ServerFormDialog'

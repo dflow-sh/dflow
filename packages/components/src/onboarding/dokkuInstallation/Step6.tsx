@@ -3,9 +3,9 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { serverBackupAction } from '@/actions/backups'
-import Loader from '@/components/Loader'
-import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
+import { serverBackupAction } from '@dflow/actions/backups'
+import Loader from '@dflow/components/Loader'
+import { useServerOnboarding } from '@dflow/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'

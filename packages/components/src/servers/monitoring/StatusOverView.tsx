@@ -2,14 +2,14 @@
 
 import { AlertCircle, CheckCircle, Clock, Server } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@dflow/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card'
-import { Separator } from '@/components/ui/separator'
+} from '@dflow/components/ui/hover-card'
+import { Separator } from '@dflow/components/ui/separator'
 
 // Status indicators
 const StatusIndicator = ({ status }: { status: string }) => {

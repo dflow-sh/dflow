@@ -15,11 +15,11 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { ServiceNode } from '@/components/reactflow/types'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import SecretContent from '@/components/ui/blur-reveal'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
+import { ServiceNode } from '@dflow/components/reactflow/types'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import SecretContent from '@dflow/components/ui/blur-reveal'
+import { Button } from '@dflow/components/ui/button'
+import { DialogFooter } from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -27,13 +27,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { buildOptions } from '@/lib/buildOptions'
-import { cn } from '@/lib/utils'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { Label } from '@dflow/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
+import { ScrollArea } from '@dflow/components/ui/scroll-area'
+import { buildOptions } from '@dflow/lib/buildOptions'
+import { cn } from '@dflow/lib/utils'
 
 const AddAzureDevopsService = ({
   setNodes,

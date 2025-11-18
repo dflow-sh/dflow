@@ -7,8 +7,8 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { logoutAction } from '@/actions/auth'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { logoutAction } from '@dflow/actions/auth'
+import { Avatar, AvatarFallback } from '@dflow/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +17,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { User } from '@/payload-types'
+} from '@dflow/components/ui/dropdown-menu'
+import { User } from '@dflow/types'
 
 export function NavUser({ user }: { user: User }) {
   const params = useParams<{ organisation: string }>()

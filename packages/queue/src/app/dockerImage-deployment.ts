@@ -1,15 +1,15 @@
 import { dokku } from '../../lib/dokku'
 import configPromise from '@payload-config'
-import { env } from 'env'
+import { env } from '@/env'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { server } from '@/lib/server'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { updatePorts } from '@/lib/updatePorts'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { server } from '@dflow/lib/server'
+import { SSHType, dynamicSSH } from '@dflow/lib/ssh'
+import { updatePorts } from '@dflow/lib/updatePorts'
 import { DockerRegistry, Service } from '@/payload-types'
 
 type PortsType = NonNullable<NonNullable<Service['dockerDetails']>['ports']>

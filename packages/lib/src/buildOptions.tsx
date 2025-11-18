@@ -1,8 +1,8 @@
 import { FileCode2 } from 'lucide-react'
 import Image from 'next/image'
 
-import { Docker, Heroku } from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
+import { Docker, Heroku } from '@dflow/components/icons'
+import { Badge } from '@dflow/components/ui/badge'
 
 export const buildOptions = [
   {

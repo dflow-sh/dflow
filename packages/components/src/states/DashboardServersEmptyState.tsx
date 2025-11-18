@@ -3,7 +3,7 @@
 import { Plus, Server } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 
 const DashboardServersEmptyState = () => {
   const router = useRouter()

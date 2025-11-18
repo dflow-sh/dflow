@@ -8,8 +8,8 @@ import { toast } from 'sonner'
 import {
   installAndConfigureLetsencryptPluginAction,
   syncPluginAction,
-} from '@/actions/plugin'
-import Loader from '@/components/Loader'
+} from '@dflow/actions/plugin'
+import Loader from '@dflow/components/Loader'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'

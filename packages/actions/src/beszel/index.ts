@@ -1,10 +1,10 @@
 'use server'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { Collections } from '@/lib/beszel/types'
-import { pub } from '@/lib/redis'
-import { protectedClient, userClient } from '@/lib/safe-action'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { BeszelClient } from '@dflow/lib/beszel/client/BeszelClient'
+import { Collections } from '@dflow/lib/beszel/types'
+import { pub } from '@dflow/lib/redis'
+import { protectedClient, userClient } from '@dflow/lib/safe-action'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
 import { ServerType } from '@/payload-types-overrides'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 

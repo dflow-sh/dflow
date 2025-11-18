@@ -3,9 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
 
-import { dokku } from '@/lib/dokku'
-import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { dokku } from '@dflow/lib/dokku'
+import { protectedClient } from '@dflow/lib/safe-action'
+import { dynamicSSH, extractSSHDetails } from '@dflow/lib/ssh'
 import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
 import { addInstallLetsencryptAndConfigureQueue } from '@/queues/letsencrypt/installAndConfigure'
 import { addDeletePluginQueue } from '@/queues/plugin/delete'

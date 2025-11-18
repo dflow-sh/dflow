@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 import '@/app/(frontend)/styles/coinStyle.css'
-import { cn } from '@/lib/utils'
+import { cn } from '@dflow/lib/utils'
 
 const AnimatedCoinIcon = ({ className }: { className?: string }) => {
   const coinRef = useRef<HTMLDivElement>(null)

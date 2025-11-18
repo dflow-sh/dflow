@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/lib/safe-action'
 
 import { triggerDeployment } from './deploy'
 import { createDeploymentSchema } from './validator'

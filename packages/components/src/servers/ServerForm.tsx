@@ -30,24 +30,24 @@ import React, { useEffect, useId, useState } from 'react'
 import {
   checkAccountConnection,
   checkPaymentMethodAction,
-} from '@/actions/cloud/dFlow'
-import ManualSetupTabs from '@/components/security/ManualSetupTabs'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from '@dflow/actions/cloud/dFlow'
+import ManualSetupTabs from '@dflow/components/security/ManualSetupTabs'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
+import { Label } from '@dflow/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { cloudProvidersList } from '@/lib/integrationList'
-import type { VpsPlan } from '@/lib/restSDK/types'
-import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
+} from '@dflow/components/ui/select'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
+import { cloudProvidersList } from '@dflow/lib/integrationList'
+import type { VpsPlan } from '@dflow/lib/restSDK/types'
+import { CloudProviderAccount, SecurityGroup, SshKey } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 import CreateEC2InstanceForm from './CreateEC2InstanceForm'

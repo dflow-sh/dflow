@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 
-import { Server } from '@/payload-types'
+import { Server } from '@dflow/types'
 
 // Dynamically import ServerTerminal with ssr: false
 const ServerTerminal = dynamic(() => import('@/components/ServerTerminal'), {

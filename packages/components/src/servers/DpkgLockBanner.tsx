@@ -1,7 +1,7 @@
 import { Lock } from 'lucide-react'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Badge } from '@dflow/components/ui/badge'
 
 const DpkgLockBanner = ({ serverName }: { serverName?: string }) => {
   return (

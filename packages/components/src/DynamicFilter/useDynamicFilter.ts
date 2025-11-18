@@ -7,7 +7,7 @@ import {
   FilterConfig,
   FilterState,
   generateSchemaFromData,
-} from '@/lib/filter.utils'
+} from '@dflow/lib/filter.utils'
 
 interface UseDynamicFilterProps<T> {
   data: T[]

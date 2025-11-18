@@ -2,7 +2,7 @@ import ActionPlaceholder from '../ActionPlaceholder'
 import { Kubernetes } from '../icons'
 import { Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 
 const KubernetesTab = () => {
   return (

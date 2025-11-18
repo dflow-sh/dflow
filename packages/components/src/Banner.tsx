@@ -1,4 +1,4 @@
-import { getPublicBanners } from '@/actions/banners'
+import { getPublicBanners } from '@dflow/actions/banners'
 
 import BannerComponent from './ui/banner'
 

@@ -5,8 +5,8 @@ import React, { createContext, use } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { templateDeployAction } from '@/actions/templates'
-import { deployTemplateFromArchitectureSchema } from '@/actions/templates/validator'
+import { templateDeployAction } from '@dflow/actions/templates'
+import { deployTemplateFromArchitectureSchema } from '@dflow/actions/templates/validator'
 
 type ArchitectureContextType = {
   deploy: (params: z.infer<typeof deployTemplateFromArchitectureSchema>) => void

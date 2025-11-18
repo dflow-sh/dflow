@@ -3,9 +3,9 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { installRailpackAction } from '@/actions/server'
-import Loader from '@/components/Loader'
-import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
+import { installRailpackAction } from '@dflow/actions/server'
+import Loader from '@dflow/components/Loader'
+import { useServerOnboarding } from '@dflow/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useDokkuInstallationStep } from './DokkuInstallationStepContext'

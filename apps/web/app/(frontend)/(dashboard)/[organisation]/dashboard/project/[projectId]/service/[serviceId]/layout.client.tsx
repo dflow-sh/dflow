@@ -9,9 +9,9 @@ import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { type JSX, useEffect, useMemo, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
-import SelectSearch from '@/components/SelectSearch'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import Tabs from '@/components/Tabs'
+import SelectSearch from '@dflow/components/SelectSearch'
+import SidebarToggleButton from '@dflow/components/SidebarToggleButton'
+import Tabs from '@dflow/components/Tabs'
 import {
   Bitbucket,
   ClickHouse,
@@ -26,10 +26,10 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
+} from '@dflow/components/icons'
+import { Badge } from '@dflow/components/ui/badge'
 import { Service } from '@/payload-types'
-import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
+import { useDisableDeploymentContext } from '@dflow/providers/DisableDeployment'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
   app: <Git className='size-6' />,

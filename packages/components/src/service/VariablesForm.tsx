@@ -35,25 +35,25 @@ import {
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getProjectDatabasesAction } from '@/actions/project'
-import { updateServiceAction } from '@/actions/service'
-import { updateServiceSchema } from '@/actions/service/validator'
+import { getProjectDatabasesAction } from '@dflow/actions/project'
+import { updateServiceAction } from '@dflow/actions/service'
+import { updateServiceSchema } from '@dflow/actions/service/validator'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@dflow/components/ui/dropdown-menu'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Service } from '@/payload-types'
-import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
+} from '@dflow/components/ui/form'
+import { Service } from '@dflow/types'
+import { useDisableDeploymentContext } from '@dflow/providers/DisableDeployment'
 
 const variants = {
   visible: { opacity: 1, scale: 1 },

@@ -23,8 +23,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { updateEC2InstanceAction } from '@/actions/cloud/aws'
-import { SecurityGroup, Server } from '@/payload-types'
+import { updateEC2InstanceAction } from '@dflow/actions/cloud/aws'
+import { SecurityGroup, Server } from '@dflow/types'
 
 type UpdateEC2InstanceFormValues = {
   name: string

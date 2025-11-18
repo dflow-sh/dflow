@@ -360,7 +360,14 @@ importers:
         specifier: 5.7.3
         version: 5.7.3
 
-  packages/config: {}
+  packages/config:
+    dependencies:
+      '@t3-oss/env-nextjs':
+        specifier: ^0.12.0
+        version: 0.12.0(typescript@5.7.3)(zod@3.25.76)
+      zod:
+        specifier: ^3.24.1
+        version: 3.25.76
 
   packages/docs:
     dependencies:
@@ -441,6 +448,9 @@ importers:
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.2
+      pocketbase:
+        specifier: ^0.26.2
+        version: 0.26.3
       ssh2:
         specifier: ^1.16.0
         version: 1.17.0
@@ -472,6 +482,9 @@ importers:
       '@dflow/emails':
         specifier: workspace:*
         version: link:../emails
+      '@dflow/plugins':
+        specifier: workspace:*
+        version: link:../plugins
       '@dflow/types':
         specifier: workspace:*
         version: link:../types
@@ -5654,6 +5667,9 @@ packages:
   pluralize@8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
+
+  pocketbase@0.26.3:
+    resolution: {integrity: sha512-5deUKRoEczpxxuHzwr6/DHVmgbggxylEVig8CKN+MjvtYxPUqX/C6puU0yaR2yhTi8zrh7J9s7Ty+qBGwVzWOQ==}
 
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
@@ -12720,6 +12736,8 @@ snapshots:
       thread-stream: 3.1.0
 
   pluralize@8.0.0: {}
+
+  pocketbase@0.26.3: {}
 
   possible-typed-array-names@1.1.0: {}
 

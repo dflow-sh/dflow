@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
-import { extractSSHDetails } from '@/lib/ssh'
+import { protectedClient } from '@dflow/lib/safe-action'
+import { extractSSHDetails } from '@dflow/lib/ssh'
 import { addInstallNetdataQueue } from '@/queues/netdata/install'
 import { addUninstallNetdataQueue } from '@/queues/netdata/uninstall'
 

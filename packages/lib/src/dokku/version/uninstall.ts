@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-import checkDpkgLock from '@/lib/utils/checkDpkgLock'
+import checkDpkgLock from '@dflow/lib/utils/checkDpkgLock'
 
 export const uninstall = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   // Check if dpkg is locked before proceeding

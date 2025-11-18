@@ -22,28 +22,28 @@ import { motion } from 'motion/react'
 import Link from 'next/link'
 import React, { useState } from 'react'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@dflow/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@dflow/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { cn } from '@dflow/lib/utils'
+import { Server } from '@dflow/types'
 
 import DeleteServerDialog from './DeleteServerDialog'
 

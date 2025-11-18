@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
-import { themeFields } from '@/payload/fields/theme'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
+import { themeFields } from '@dflow/payload/fields/theme'
 
 export const Theme: GlobalConfig = {
   slug: 'theme',

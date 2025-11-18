@@ -2,10 +2,10 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import Loader from '@/components/Loader'
-import SignUpForm from '@/components/sign-up/SignUpForm'
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { getAuthConfigAction } from '@dflow/actions/pages/auth'
+import Loader from '@dflow/components/Loader'
+import SignUpForm from '@dflow/components/sign-up/SignUpForm'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
 import { AuthConfig } from '@/payload-types'
 
 interface PageProps {

@@ -6,7 +6,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { useMemo } from 'react'
 
-import { serverBackupAdminAction } from '@/actions/backups'
+import { serverBackupAdminAction } from '@dflow/actions/backups'
 
 const InstallMonitoringTools = () => {
   const params = useParams<{ segments: string[] }>()

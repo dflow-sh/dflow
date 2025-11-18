@@ -1,188 +1,212 @@
-import { create } from '@/dokku/apps/create'
-import { destroy } from '@/lib/dokku/apps/destroy'
-import { list as appList } from '@/lib/dokku/apps/list'
-import { logs } from '@/lib/dokku/apps/logs'
-import { setBuildDir, setGlobalBuildDir } from '@/lib/dokku/builder'
-import { report as reportBuildpacks } from '@/lib/dokku/buildpacks/report'
-import { set as setBuildpacks } from '@/lib/dokku/buildpacks/set'
-import { clear } from '@/lib/dokku/config/clear'
-import { listVars } from '@/lib/dokku/config/listVars'
-import { set } from '@/lib/dokku/config/set'
-import { unset } from '@/lib/dokku/config/unset'
-import { info as distroInfo } from '@/lib/dokku/distro/info'
-import { options } from '@/lib/dokku/docker/options'
-import { login } from '@/lib/dokku/docker/registry/login'
-import { add } from '@/lib/dokku/domains/add'
-import { addGlobal } from '@/lib/dokku/domains/addGlobal'
-import { list as listDomains } from '@/lib/dokku/domains/list'
-import { listGlobal as listGlobalDomains } from '@/lib/dokku/domains/listGlobal'
-import { remove } from '@/lib/dokku/domains/remove'
-import { removeGlobal } from '@/lib/dokku/domains/removeGlobal'
-import { report } from '@/lib/dokku/domains/report'
-import { set as domainsSet } from '@/lib/dokku/domains/set'
-import { setGlobal } from '@/lib/dokku/domains/setGlobal'
-import { auth } from '@/lib/dokku/git/auth'
-import { deployImage } from '@/lib/dokku/git/deployImage'
-import { sync } from '@/lib/dokku/git/sync'
-import { unlock } from '@/lib/dokku/git/unlock'
-import { auth as DatabaseAuth } from '@/lib/dokku/plugin/database/backup/auth'
-import { deleteBackup } from '@/lib/dokku/plugin/database/backup/internal/delete'
-import { exportDB } from '@/lib/dokku/plugin/database/backup/internal/export'
-import { importDB } from '@/lib/dokku/plugin/database/backup/internal/import'
-import { create as createDatabase } from '@/lib/dokku/plugin/database/create'
-import { destroy as destroyDb } from '@/lib/dokku/plugin/database/destroy'
-import { expose as exposeDatabasePort } from '@/lib/dokku/plugin/database/expose'
-import { info } from '@/lib/dokku/plugin/database/info'
-import { infoVersion } from '@/lib/dokku/plugin/database/infoVersion'
-import { link } from '@/lib/dokku/plugin/database/link'
-import { links as databaseLinks } from '@/lib/dokku/plugin/database/links'
-import { list as databaseList } from '@/lib/dokku/plugin/database/list'
-import { logs as databaseLogs } from '@/lib/dokku/plugin/database/logs'
-import { restart as databaseRestart } from '@/lib/dokku/plugin/database/restart'
-import { stop as stopDatabase } from '@/lib/dokku/plugin/database/stop'
-import { unexpose as unexposeDatabasePort } from '@/lib/dokku/plugin/database/unexpose'
-import { unlink } from '@/lib/dokku/plugin/database/unlink'
-import { install as dokkuPluginInstall } from '@/lib/dokku/plugin/install'
-import { installed } from '@/lib/dokku/plugin/installed'
-import { addEmail } from '@/lib/dokku/plugin/letsEncrypt/addEmail'
-import { addGlobalEmail } from '@/lib/dokku/plugin/letsEncrypt/addGlobalEmail'
-import { addCron } from '@/lib/dokku/plugin/letsEncrypt/cron'
-import { enable } from '@/lib/dokku/plugin/letsEncrypt/enable'
-import { status as letsencryptStatus } from '@/lib/dokku/plugin/letsEncrypt/status'
-import { list } from '@/lib/dokku/plugin/list'
-import { toggle } from '@/lib/dokku/plugin/toggle'
-import { uninstall as PluginUninstall } from '@/lib/dokku/plugin/uninstall'
-import { portsAdd } from '@/lib/dokku/ports/add'
-import { portsList } from '@/lib/dokku/ports/list'
-import { portsRemove } from '@/lib/dokku/ports/remove'
-import { portsReport } from '@/lib/dokku/ports/report'
-import { portsSet } from '@/lib/dokku/ports/set'
-import { rebuild } from '@/lib/dokku/process/rebuild'
-import {
-  resourceLimit,
-  resourceLimitClear,
-  resourceReport,
-  resourceReserve,
-  resourceReserveClear,
-} from '@/lib/dokku/process/resource'
-import { restart } from '@/lib/dokku/process/restart'
-import { psReport, psScale, scale } from '@/lib/dokku/process/scale'
-import { start } from '@/lib/dokku/process/start'
-import { stop } from '@/lib/dokku/process/stop'
-import { stopAll } from '@/lib/dokku/process/stopAll'
-import { info as dokkuVersionInfo } from '@/lib/dokku/version/info'
-import { install as dokkuInstall } from '@/lib/dokku/version/install'
-import { uninstall as dokkuUninstall } from '@/lib/dokku/version/uninstall'
-import { list as volumesList } from '@/lib/dokku/volumes/list'
-import { mount } from '@/lib/dokku/volumes/mount'
-import { unmount } from '@/lib/dokku/volumes/unmount'
+import { create } from './apps/create'
+import { destroy } from './apps/destroy'
+import { list as appList } from './apps/list'
+import { logs } from './apps/logs'
+import { restart } from './apps/restart'
+// import { setBuilder } from './builder'  // TODO: Fix export
+import { report as buildpackReport } from './buildpacks/report'
+// import { setBuildpack } from './buildpacks/set'  // TODO: Fix export
+import { clear } from './config/clear'
+import { listVars } from './config/listVars'
+import { set as setConfig } from './config/set'
+import { unset } from './config/unset'
+import { info as distroInfo } from './distro/info'
+// import { dockerOptions } from './docker/options'  // TODO: Fix export
+// import { loginDockerRegistry } from './docker/registry/login'  // TODO: Fix export
+import { add } from './domains/add'
+import { addGlobal } from './domains/addGlobal'
+import { list as domainList } from './domains/list'
+import { listGlobal } from './domains/listGlobal'
+import { remove } from './domains/remove'
+import { removeGlobal } from './domains/removeGlobal'
+import { report as domainReport } from './domains/report'
+import { set as setDomain } from './domains/set'
+import { setGlobal } from './domains/setGlobal'
+import { auth } from './git/auth'
+import { deployImage } from './git/deployImage'
+import { sync } from './git/sync'
+import { unlock } from './git/unlock'
+// import { authBackup } from './plugin/database/backup/auth'  // TODO: Fix export
+import { deleteBackup } from './plugin/database/backup/internal/delete'
+// import { exportBackup } from './plugin/database/backup/internal/export'  // TODO: Fix export
+// import { importBackup } from './plugin/database/backup/internal/import'  // TODO: Fix export
+import { create as createDatabase } from './plugin/database/create'
+import { destroy as destroyDatabase } from './plugin/database/destroy'
+import { expose } from './plugin/database/expose'
+import { info as databaseInfo } from './plugin/database/info'
+import { infoVersion } from './plugin/database/infoVersion'
+import { link } from './plugin/database/link'
+import { links } from './plugin/database/links'
+import { list as databaseList } from './plugin/database/list'
+import { logs as databaseLogs } from './plugin/database/logs'
+import { restart as restartDatabase } from './plugin/database/restart'
+import { stop } from './plugin/database/stop'
+import { unexpose } from './plugin/database/unexpose'
+import { unlink } from './plugin/database/unlink'
+import { install } from './plugin/install'
+import { installed } from './plugin/installed'
+import { addEmail } from './plugin/letsEncrypt/addEmail'
+import { addGlobalEmail } from './plugin/letsEncrypt/addGlobalEmail'
+// import { cron } from './plugin/letsEncrypt/cron'  // TODO: Fix export
+import { enable } from './plugin/letsEncrypt/enable'
+import { status } from './plugin/letsEncrypt/status'
+import { list as pluginList } from './plugin/list'
+import { toggle } from './plugin/toggle'
+import { uninstall } from './plugin/uninstall'
+// import { add as addPort } from './ports/add'  // TODO: Fix export
+// import { list as portList } from './ports/list'  // TODO: Fix export
+// import { remove as removePort } from './ports/remove'  // TODO: Fix export
+// import { report as portReport } from './ports/report'  // TODO: Fix export
+// import { set as setPort } from './ports/set'  // TODO: Fix export
+import { rebuild } from './process/rebuild'
+// import { resource } from './process/resource'  // TODO: Fix export
+import { restart as processRestart } from './process/restart'
+import { scale } from './process/scale'
+import { start } from './process/start'
+import { stop as processStop } from './process/stop'
+import { stopAll } from './process/stopAll'
+import { info as versionInfo } from './version/info'
+import { install as installVersion } from './version/install'
+import { uninstall as uninstallVersion } from './version/uninstall'
+import { list as volumeList } from './volumes/list'
+import { mount } from './volumes/mount'
+import { unmount } from './volumes/unmount'
 
-export const dokku = {
-  apps: { create, logs, destroy, list: appList },
-  plugin: {
-    installed,
-    list,
-    toggle,
-    install: dokkuPluginInstall,
-    uninstall: PluginUninstall,
+export const dokkuApps = {
+  create,
+  destroy,
+  list: appList,
+  logs,
+  restart,
+}
+
+export const dokkuBuilder = {
+  // set: setBuilder,  // TODO: Fix export
+}
+
+export const dokkuBuildpacks = {
+  report: buildpackReport,
+  // set: setBuildpack,  // TODO: Fix export
+}
+
+export const dokkuConfig = {
+  clear,
+  list: listVars,
+  set: setConfig,
+  unset,
+}
+
+export const dokkuDistro = {
+  info: distroInfo,
+}
+
+export const dokkuDocker = {
+  // options: dockerOptions,  // TODO: Fix export
+  registry: {
+    // login: loginDockerRegistry,  // TODO: Fix export
   },
-  config: { listVars, set, unset, clear },
-  docker: {
-    options,
-    registry: {
-      login,
-    },
+}
+
+export const dokkuDomains = {
+  add,
+  addGlobal,
+  list: domainList,
+  listGlobal,
+  remove,
+  removeGlobal,
+  report: domainReport,
+  set: setDomain,
+  setGlobal,
+}
+
+export const dokkuGit = {
+  auth,
+  deployImage,
+  sync,
+  unlock,
+}
+
+export const dokkuDatabase = {
+  backup: {
+    // auth: authBackup,  // TODO: Fix export
+    delete: deleteBackup,
+    // export: exportBackup,  // TODO: Fix export
+    // import: importBackup,  // TODO: Fix export
   },
-  database: {
-    destroy: destroyDb,
-    info,
-    infoVersion,
-    logs: databaseLogs,
-    list: databaseList,
-    listLinks: databaseLinks,
-    create: createDatabase,
-    link,
-    unlink,
-    restart: databaseRestart,
-    stop: stopDatabase,
-    expose: exposeDatabasePort,
-    unexpose: unexposeDatabasePort,
-    backup: {
-      auth: DatabaseAuth,
-    },
-    internal: {
-      export: exportDB,
-      import: importDB,
-      delete: deleteBackup,
-    },
-  },
-  ports: {
-    list: portsList,
-    set: portsSet,
-    add: portsAdd,
-    remove: portsRemove,
-    report: portsReport,
-  },
-  process: {
-    start,
-    restart,
-    stop,
-    rebuild,
-    stopAll,
-    scale,
-    psReport,
-    psScale,
-  },
-  resource: {
-    limit: resourceLimit,
-    reserve: resourceReserve,
-    limitClear: resourceLimitClear,
-    reserveClear: resourceReserveClear,
-    report: resourceReport,
-  },
-  domains: {
-    report,
-    set: domainsSet,
-    remove,
-    add,
-    addGlobal,
-    removeGlobal,
-    setGlobal,
-    listGlobal: listGlobalDomains,
-    list: listDomains,
-  },
-  letsencrypt: {
-    addGlobalEmail: addGlobalEmail,
+  create: createDatabase,
+  destroy: destroyDatabase,
+  expose,
+  info: databaseInfo,
+  infoVersion,
+  link,
+  links,
+  list: databaseList,
+  logs: databaseLogs,
+  restart: restartDatabase,
+  stop,
+  unexpose,
+  unlink,
+}
+
+export const dokkuPlugin = {
+  install,
+  installed,
+  letsEncrypt: {
     addEmail,
-    cron: addCron,
+    addGlobalEmail,
+    // cron,  // TODO: Fix export
     enable,
-    status: letsencryptStatus,
+    status,
   },
-  git: {
-    sync,
-    unlock,
-    auth,
-    deployImage,
-  },
-  version: {
-    info: dokkuVersionInfo,
-    install: dokkuInstall,
-    uninstall: dokkuUninstall,
-  },
-  distro: {
-    info: distroInfo,
-  },
-  volumes: {
-    list: volumesList,
-    mount: mount,
-    unmount: unmount,
-  },
-  builder: {
-    setBuildDir,
-    setGlobalBuildDir,
-  },
-  buildpacks: {
-    set: setBuildpacks,
-    report: reportBuildpacks,
-  },
+  list: pluginList,
+  toggle,
+  uninstall,
+}
+
+export const dokkuPorts = {
+  // add: addPort,  // TODO: Fix export
+  // list: portList,  // TODO: Fix export
+  // remove: removePort,  // TODO: Fix export
+  // report: portReport,  // TODO: Fix export
+  // set: setPort,  // TODO: Fix export
+}
+
+export const dokkuProcess = {
+  rebuild,
+  // resource,  // TODO: Fix export
+  restart: processRestart,
+  scale,
+  start,
+  stop: processStop,
+  stopAll,
+}
+
+export const dokkuVersion = {
+  info: versionInfo,
+  install: installVersion,
+  uninstall: uninstallVersion,
+}
+
+export const dokkuVolumes = {
+  list: volumeList,
+  mount,
+  unmount,
+}
+
+// Export all as default dokku object
+export const dokku = {
+  apps: dokkuApps,
+  builder: dokkuBuilder,
+  buildpacks: dokkuBuildpacks,
+  config: dokkuConfig,
+  distro: dokkuDistro,
+  docker: dokkuDocker,
+  domains: dokkuDomains,
+  git: dokkuGit,
+  database: dokkuDatabase,
+  plugin: dokkuPlugin,
+  ports: dokkuPorts,
+  process: dokkuProcess,
+  version: dokkuVersion,
+  volumes: dokkuVolumes,
 }

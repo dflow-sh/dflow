@@ -3,11 +3,11 @@
 import { ArrowLeft, CheckCircle2, RefreshCw, Zap } from 'lucide-react'
 import { motion } from 'motion/react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
+import { Progress } from '@dflow/components/ui/progress'
+import { cn } from '@dflow/lib/utils'
+import { useBubble } from '@dflow/providers/BubbleProvider'
 
 const SyncPanel = () => {
   const {

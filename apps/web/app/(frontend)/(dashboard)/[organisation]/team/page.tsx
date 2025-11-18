@@ -4,11 +4,11 @@ import LayoutClient from '../layout.client'
 import { Users } from 'lucide-react'
 import { Suspense } from 'react'
 
-import { getTenantAction } from '@/actions/auth'
-import { getTeamMembersAction } from '@/actions/team'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import TeamView from '@/components/Team'
-import TeamSkeleton from '@/components/skeletons/TeamSkeleton'
+import { getTenantAction } from '@dflow/actions/auth'
+import { getTeamMembersAction } from '@dflow/actions/team'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import TeamView from '@dflow/components/Team'
+import TeamSkeleton from '@dflow/components/skeletons/TeamSkeleton'
 
 const TeamPage = async () => {
   const result = await getTeamMembersAction()

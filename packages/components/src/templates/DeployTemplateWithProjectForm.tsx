@@ -42,15 +42,15 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { getProjectsAndServers } from '@/actions/pages/dashboard'
-import { templateDeployAction } from '@/actions/templates'
+import { getProjectsAndServers } from '@dflow/actions/pages/dashboard'
+import { templateDeployAction } from '@dflow/actions/templates'
 import {
   DeployTemplateWithProjectCreateType,
   ServicesSchemaType,
   deployTemplateWithProjectCreateSchema,
-} from '@/actions/templates/validator'
-import { slugify } from '@/lib/slugify'
-import { cn } from '@/lib/utils'
+} from '@dflow/actions/templates/validator'
+import { slugify } from '@dflow/lib/slugify'
+import { cn } from '@dflow/lib/utils'
 
 const DeployTemplateWithProjectForm = ({
   services,

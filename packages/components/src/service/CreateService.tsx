@@ -30,9 +30,9 @@ import { z } from 'zod'
 import {
   checkServerResourcesAction,
   createServiceAction,
-} from '@/actions/service'
-import { createServiceSchema } from '@/actions/service/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from '@dflow/actions/service'
+import { createServiceSchema } from '@dflow/actions/service/validator'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   Dialog,
   DialogContent,
@@ -41,7 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -49,7 +49,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@dflow/components/ui/form'
 import {
   Select,
   SelectContent,
@@ -58,17 +58,17 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@dflow/components/ui/select'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { databaseOptions } from '@/lib/constants'
-import { ServiceType } from '@/lib/server/resourceCheck'
-import { slugify } from '@/lib/slugify'
-import { Project, Server as ServerType } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { databaseOptions } from '@dflow/lib/constants'
+import { ServiceType } from '@dflow/lib/server/resourceCheck'
+import { slugify } from '@dflow/lib/slugify'
+import { Project, Server as ServerType } from '@dflow/types'
 
 const formatBytes = (bytes: number, unit: 'MB' | 'GB' = 'MB') => {
   if (unit === 'GB') {

@@ -1,7 +1,7 @@
 'use server'
 
-import bullmq from '@/lib/bullmq/index'
-import { userClient } from '@/lib/safe-action'
+import bullmq from '@dflow/lib/bullmq/index'
+import { userClient } from '@dflow/lib/safe-action'
 
 import {
   flushServerQueuesSchema,

@@ -5,9 +5,9 @@ import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { installNetdataAction } from '@/actions/netdata'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { installNetdataAction } from '@dflow/actions/netdata'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
 const NetdataInstallPrompt = ({

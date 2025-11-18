@@ -12,10 +12,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import useXterm from '@/hooks/use-xterm'
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
+} from '@dflow/components/ui/sheet'
+import useXterm from '@dflow/hooks/use-xterm'
+import { cn } from '@dflow/lib/utils'
+import { Server } from '@dflow/types'
 
 type ProjectTerminalType = {
   server: Server

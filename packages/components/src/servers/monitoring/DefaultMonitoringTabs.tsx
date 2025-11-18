@@ -1,6 +1,6 @@
 'use client'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
 
 import DefaultDiskTab from './DefaultDiskTab'
 import DefaultNetworkTab from './DefaultNetworkTab'

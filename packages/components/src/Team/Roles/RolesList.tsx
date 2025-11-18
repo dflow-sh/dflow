@@ -12,17 +12,17 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteRoleAction } from '@/actions/roles'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
+import { deleteRoleAction } from '@dflow/actions/roles'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from '@dflow/components/ui/accordion'
+import { Avatar, AvatarFallback } from '@dflow/components/ui/avatar'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -30,16 +30,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Role, User } from '@/payload-types'
+} from '@dflow/components/ui/dropdown-menu'
+import { ScrollArea } from '@dflow/components/ui/scroll-area'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
+import { Role, User } from '@dflow/types'
 
 import CreateNewRole from './CreateNewRole'
 import RolePermissions from './RolePermissions'

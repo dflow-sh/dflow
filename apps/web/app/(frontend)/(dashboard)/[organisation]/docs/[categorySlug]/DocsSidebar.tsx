@@ -1,15 +1,15 @@
 import { Menu } from 'lucide-react'
 
-import HighLightedLink from '@/components/docs/HighLightedLink'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import HighLightedLink from '@dflow/components/docs/HighLightedLink'
+import { Button } from '@dflow/components/ui/button'
+import { ScrollArea } from '@dflow/components/ui/scroll-area'
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from '@dflow/components/ui/sheet'
 import { allDocs } from '@/docs'
 
 interface Props {

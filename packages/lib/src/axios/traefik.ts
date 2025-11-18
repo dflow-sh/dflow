@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 
 const traefik = axios.create({
   baseURL: `https://dflow-traefik.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`,

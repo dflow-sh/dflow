@@ -5,7 +5,7 @@ import { forbidden } from 'next/navigation'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { log } from '@/lib/logger'
+import { log } from '@dflow/lib/logger'
 import { Role, Tenant } from '@/payload-types'
 
 import { getTenant } from './get-tenant'

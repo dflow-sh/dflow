@@ -18,8 +18,8 @@ import {
   flushServerQueuesAction,
   flushSingleQueueAction,
   getServerQueuesAction,
-} from '@/actions/bullmq'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from '@dflow/actions/bullmq'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,16 +30,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from '@dflow/components/ui/alert-dialog'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@dflow/components/ui/dropdown-menu'
 import {
   Table,
   TableBody,
@@ -47,7 +47,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@dflow/components/ui/table'
 import { ServerType } from '@/payload-types-overrides'
 
 interface ServerQueuesTabProps {

@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -19,14 +19,14 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from '@/components/ui/command'
+} from '@dflow/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+} from '@dflow/components/ui/popover'
+import { Separator } from '@dflow/components/ui/separator'
+import { cn } from '@dflow/lib/utils'
 
 /**
  * Variants for the multi-select component to handle different styles.

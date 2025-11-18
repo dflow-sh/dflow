@@ -3,7 +3,7 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import { Loader } from 'lucide-react'
 import * as React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@dflow/lib/utils'
 
 const buttonVariants = cva(
   'inline-flex items-center relative justify-center gap-2 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 whitespace-nowrap rounded text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',

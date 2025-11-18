@@ -1,11 +1,11 @@
 'use server'
 
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 
-import { TeamInvitation } from '@/emails/team-invitation'
-import { protectedClient, userClient } from '@/lib/safe-action'
+import { TeamInvitation } from '@dflow/emails/team-invitation'
+import { protectedClient, userClient } from '@dflow/lib/safe-action'
 import { Tenant } from '@/payload-types'
 
 import {

@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
 
 export const Banners: CollectionConfig = {
   slug: 'banners',

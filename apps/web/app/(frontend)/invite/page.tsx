@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 
-import InvitationView from '@/components/invite'
-import { getCurrentUser } from '@/lib/getCurrentUser'
-import { verifyInviteToken } from '@/lib/verifyInviteToken'
+import InvitationView from '@dflow/components/invite'
+import { getCurrentUser } from '@dflow/lib/getCurrentUser'
+import { verifyInviteToken } from '@dflow/lib/verifyInviteToken'
 
 interface PageProps {
   searchParams: Promise<{ token?: string }>

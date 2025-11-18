@@ -3,8 +3,8 @@ import { ExternalLink, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { JSX, SVGProps } from 'react'
 
-import { getDockerRegistries } from '@/actions/dockerRegistry'
-import { getAllAppsAction } from '@/actions/gitProviders'
+import { getDockerRegistries } from '@dflow/actions/dockerRegistry'
+import { getAllAppsAction } from '@dflow/actions/gitProviders'
 import {
   ClickHouse,
   Docker,
@@ -14,14 +14,14 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
+} from '@dflow/components/icons'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { Server, Service } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { Server, Service } from '@dflow/types'
 
 import DatabaseForm from './DatabaseForm'
 import DeploymentForm from './DeploymentForm'

@@ -35,9 +35,9 @@ import {
   internalBackupAction,
   internalDbDeleteAction,
   internalRestoreAction,
-} from '@/actions/dbBackup'
-import { databaseOptions } from '@/lib/constants'
-import { Backup as BackupType, Service } from '@/payload-types'
+} from '@dflow/actions/dbBackup'
+import { databaseOptions } from '@dflow/lib/constants'
+import { Backup as BackupType, Service } from '@dflow/types'
 
 export const IndividualBackup = ({
   backup,

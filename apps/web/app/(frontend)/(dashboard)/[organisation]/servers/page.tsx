@@ -3,18 +3,18 @@ import { Plus, Server } from 'lucide-react'
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-import { getServersDetailsAction } from '@/actions/pages/server'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import RefreshButton from '@/components/RefreshButton'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import ServerCard from '@/components/servers/ServerCard'
-import SyncDFlow from '@/components/servers/SyncDFlow'
+import { getServersDetailsAction } from '@dflow/actions/pages/server'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import RefreshButton from '@dflow/components/RefreshButton'
+import SidebarToggleButton from '@dflow/components/SidebarToggleButton'
+import ServerCard from '@dflow/components/servers/ServerCard'
+import SyncDFlow from '@dflow/components/servers/SyncDFlow'
 import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
-} from '@/components/skeletons/ServersSkeleton'
-import ServersEmptyState from '@/components/states/ServersEmptyState'
-import { Button } from '@/components/ui/button'
+} from '@dflow/components/skeletons/ServersSkeleton'
+import ServersEmptyState from '@dflow/components/states/ServersEmptyState'
+import { Button } from '@dflow/components/ui/button'
 
 interface PageProps {
   params: Promise<{

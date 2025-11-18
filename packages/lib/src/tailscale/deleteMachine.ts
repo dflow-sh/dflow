@@ -1,7 +1,7 @@
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import type { BasePayload } from 'payload'
 
-import tailscale from '@/lib/axios/tailscale'
+import tailscale from '@dflow/lib/axios/tailscale'
 
 import { generateOAuthToken } from './generateOAuthToken'
 

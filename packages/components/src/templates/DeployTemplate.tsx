@@ -26,12 +26,12 @@ import {
   getAllOfficialTemplatesAction,
   getPersonalTemplatesAction,
   templateDeployAction,
-} from '@/actions/templates'
+} from '@dflow/actions/templates'
 import {
   ServicesSchemaType,
   deployTemplateSchema,
-} from '@/actions/templates/validator'
-import { Button } from '@/components/ui/button'
+} from '@dflow/actions/templates/validator'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogClose,
@@ -41,24 +41,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
+} from '@dflow/components/ui/form'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
-import { cn } from '@/lib/utils'
-import { Server, Service, Template } from '@/payload-types'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+} from '@dflow/components/ui/tooltip'
+import { Template as DFlowTemplateType } from '@dflow/lib/restSDK/types'
+import { cn } from '@dflow/lib/utils'
+import { Server, Service, Template } from '@dflow/types'
+import { useArchitectureContext } from '@dflow/providers/ArchitectureProvider'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
   app: <Github className='text-foreground size-5' />,

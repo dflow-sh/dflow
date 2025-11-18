@@ -14,7 +14,7 @@ import {
 import { Input } from '../ui/input'
 import { Switch } from '../ui/switch'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { Info, Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
@@ -23,8 +23,8 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServiceDomainAction } from '@/actions/service'
-import { updateServiceDomainSchema } from '@/actions/service/validator'
+import { updateServiceDomainAction } from '@dflow/actions/service'
+import { updateServiceDomainSchema } from '@dflow/actions/service/validator'
 import {
   Form,
   FormControl,
@@ -33,14 +33,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@dflow/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@dflow/components/ui/select'
 
 const DomainForm = ({ ip }: { ip: string }) => {
   const [open, setOpen] = useState(false)

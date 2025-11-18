@@ -3,17 +3,17 @@
 import { Search } from 'lucide-react'
 import React from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
+import { Input } from '@dflow/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { FilterConfig } from '@/lib/filter.utils'
+} from '@dflow/components/ui/select'
+import { FilterConfig } from '@dflow/lib/filter.utils'
 
 interface FilterRendererProps {
   config: FilterConfig

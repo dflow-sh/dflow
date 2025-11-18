@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import ResetPasswordForm from '@/components/reset-password/ResetPasswordForm'
+import { getAuthConfigAction } from '@dflow/actions/pages/auth'
+import ResetPasswordForm from '@dflow/components/reset-password/ResetPasswordForm'
 import { AuthConfig } from '@/payload-types'
 
 const ResetPasswordPage = async ({

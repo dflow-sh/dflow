@@ -9,8 +9,8 @@ import {
   useState,
 } from 'react'
 
-import { getServersWithFieldsAction } from '@/actions/server'
-import { Server } from '@/payload-types'
+import { getServersWithFieldsAction } from '@dflow/actions/server'
+import { Server } from '@dflow/types'
 
 type ServersContextType = {
   servers: Server[]

@@ -2,16 +2,16 @@ import { useDflowVpsForm } from '../DflowVpsFormProvider'
 import { formatValue } from '../utils'
 import { useFormContext } from 'react-hook-form'
 
-import { Ubuntu, Windows } from '@/components/icons'
+import { Ubuntu, Windows } from '@dflow/components/icons'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from '@dflow/components/ui/form'
+import { Label } from '@dflow/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
 
 export const ImageVersionField = () => {
   const { setValue, control, watch, getValues } = useFormContext()

@@ -1,12 +1,12 @@
 import { DomainFormWithoutDialog } from '../DomainForm'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { updateServerDomainAction } from '@/actions/server'
-import Loader from '@/components/Loader'
-import { WILD_CARD_DOMAINS } from '@/lib/constants'
+import { updateServerDomainAction } from '@dflow/actions/server'
+import Loader from '@dflow/components/Loader'
+import { WILD_CARD_DOMAINS } from '@dflow/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {

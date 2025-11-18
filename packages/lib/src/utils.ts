@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
+import { createServiceSchema } from '@dflow/actions/service/validator'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

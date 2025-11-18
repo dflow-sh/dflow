@@ -18,9 +18,9 @@ import {
 } from 'react'
 import { useLocalStorage, useReadLocalStorage } from 'usehooks-ts'
 
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+import { cn } from '@dflow/lib/utils'
+import { Server } from '@dflow/types'
+import { useArchitectureContext } from '@dflow/providers/ArchitectureProvider'
 
 type FlowStorage = {
   nodes: Node[]

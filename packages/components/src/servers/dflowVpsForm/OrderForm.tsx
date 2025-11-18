@@ -7,22 +7,22 @@ import { useEffect, useMemo, useState } from 'react'
 import { SubmitHandler, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { createVPSOrderAction } from '@/actions/cloud/dFlow'
-import { getTermsUpdatedDateAction } from '@/actions/github'
-import AnimatedCheckIcon from '@/components/icons/AnimatedCheckIcon'
-import AnimatedCoinIcon from '@/components/icons/AnimatedCoinIcon'
-import AnimatedCrossIcon from '@/components/icons/AnimatedCrossIcon'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { createVPSOrderAction } from '@dflow/actions/cloud/dFlow'
+import { getTermsUpdatedDateAction } from '@dflow/actions/github'
+import AnimatedCheckIcon from '@dflow/components/icons/AnimatedCheckIcon'
+import AnimatedCoinIcon from '@dflow/components/icons/AnimatedCoinIcon'
+import AnimatedCrossIcon from '@dflow/components/icons/AnimatedCrossIcon'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Form } from '@/components/ui/form'
-import { DFLOW_CONFIG } from '@/lib/constants'
+} from '@dflow/components/ui/dialog'
+import { Form } from '@dflow/components/ui/form'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
 
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 import { BackupOptionsSection } from './form-fields/BackupOptionsSection'

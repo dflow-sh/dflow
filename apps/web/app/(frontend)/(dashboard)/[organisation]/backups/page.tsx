@@ -1,9 +1,9 @@
 import LayoutClient from '../layout.client'
 import { History } from 'lucide-react'
 
-import { getAllBackupsAction } from '@/actions/dbBackup'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import { BackupDetails } from '@/components/service/Backup'
+import { getAllBackupsAction } from '@dflow/actions/dbBackup'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import { BackupDetails } from '@dflow/components/service/Backup'
 import { Backup } from '@/payload-types'
 
 const BackupsPage = async () => {

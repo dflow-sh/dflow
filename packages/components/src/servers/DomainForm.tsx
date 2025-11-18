@@ -3,7 +3,7 @@
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { usePathname, useRouter } from 'next/navigation'
@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServerDomainAction } from '@/actions/server'
+import { updateServerDomainAction } from '@dflow/actions/server'
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -29,7 +29,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@dflow/components/ui/form'
 import {
   Table,
   TableBody,
@@ -37,8 +37,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Server } from '@/payload-types'
+} from '@dflow/components/ui/table'
+import { Server } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 const subdomainSchema = z.object({

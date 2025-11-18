@@ -21,11 +21,11 @@ import {
   useState,
 } from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
-import { useTerminal } from '@/providers/TerminalProvider'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
+import { cn } from '@dflow/lib/utils'
+import { useBubble } from '@dflow/providers/BubbleProvider'
+import { useTerminal } from '@dflow/providers/TerminalProvider'
 
 import type { Panel } from './bubble-types'
 

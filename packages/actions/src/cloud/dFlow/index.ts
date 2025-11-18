@@ -4,9 +4,9 @@ import axios from 'axios'
 import { revalidatePath } from 'next/cache'
 import { RequiredDataFromCollection } from 'payload'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { protectedClient, publicClient } from '@/lib/safe-action'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
+import { dFlowRestSdk } from '@dflow/lib/restSDK/utils'
+import { protectedClient, publicClient } from '@dflow/lib/safe-action'
 import { CloudProviderAccount, Server } from '@/payload-types'
 
 import {

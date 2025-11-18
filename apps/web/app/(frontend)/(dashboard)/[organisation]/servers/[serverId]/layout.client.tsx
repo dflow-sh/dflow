@@ -8,9 +8,9 @@ import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { useEffect, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 
-import SelectSearch from '@/components/SelectSearch'
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
+import SelectSearch from '@dflow/components/SelectSearch'
+import Tabs from '@dflow/components/Tabs'
+import { cn } from '@dflow/lib/utils'
 import { Server } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 

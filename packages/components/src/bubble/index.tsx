@@ -14,10 +14,10 @@ import {
 import { AnimatePresence, motion } from 'motion/react'
 import { type CSSProperties, useEffect, useState } from 'react'
 
-import { Card } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
-import { TerminalMode, useTerminal } from '@/providers/TerminalProvider'
+import { Card } from '@dflow/components/ui/card'
+import { cn } from '@dflow/lib/utils'
+import { useBubble } from '@dflow/providers/BubbleProvider'
+import { TerminalMode, useTerminal } from '@dflow/providers/TerminalProvider'
 
 import MenuPanel from './MenuPanel'
 import PreferencesPanel from './PreferencesPanel'

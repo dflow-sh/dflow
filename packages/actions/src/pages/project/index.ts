@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/lib/safe-action'
 
 import { getProjectDetailsSchema } from './validator'
 

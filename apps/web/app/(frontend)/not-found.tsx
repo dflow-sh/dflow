@@ -1,10 +1,9 @@
 // Import global styles and fonts
+import { Button } from '@dflow/components/ui/button'
 import { ThemeProvider } from 'next-themes'
 import Link from 'next/link'
 
-import { Button } from '@/components/ui/button'
-
-import './(frontend)/globals.css'
+import './globals.css'
 
 export default function NotFound() {
   return (

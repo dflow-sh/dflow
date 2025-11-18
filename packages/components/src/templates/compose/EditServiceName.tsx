@@ -4,15 +4,15 @@ import { SquarePen } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
+import { ServiceNode } from '@dflow/components/reactflow/types'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -20,11 +20,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { slugify } from '@/lib/slugify'
-import { cn } from '@/lib/utils'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { Textarea } from '@dflow/components/ui/textarea'
+import { slugify } from '@dflow/lib/slugify'
+import { cn } from '@dflow/lib/utils'
 
 import { EditServiceNameType, editServiceNameSchema } from './types'
 

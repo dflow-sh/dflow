@@ -19,8 +19,8 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { regenerateSSLAction } from '@/actions/service'
-import { regenerateSSLSchema } from '@/actions/service/validator'
+import { regenerateSSLAction } from '@dflow/actions/service'
+import { regenerateSSLSchema } from '@dflow/actions/service/validator'
 import {
   Form,
   FormControl,
@@ -29,8 +29,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 
 const RegenerateSSLForm = () => {
   const [open, setOpen] = useState(false)

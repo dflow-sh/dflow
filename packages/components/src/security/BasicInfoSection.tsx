@@ -1,7 +1,7 @@
 import { handleGenerateName } from '../servers/dflowVpsForm/utils'
 import { Dices } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 import {
   FormControl,
   FormDescription,
@@ -9,17 +9,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { CloudProviderAccount } from '@/payload-types'
+} from '@dflow/components/ui/select'
+import { Textarea } from '@dflow/components/ui/textarea'
+import { CloudProviderAccount } from '@dflow/types'
 
 const BasicInfoSection = ({
   form,

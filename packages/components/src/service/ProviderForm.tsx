@@ -1,7 +1,7 @@
 import { Bitbucket, GitLab, Gitea, Github, MicrosoftAzure } from '../icons'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { GitProvider, Service } from '@/payload-types'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
+import { GitProvider, Service } from '@dflow/types'
 
 import AzureDevopsForm from './git/AzureDevopsForm'
 import BitbucketForm from './git/BitbucketForm'

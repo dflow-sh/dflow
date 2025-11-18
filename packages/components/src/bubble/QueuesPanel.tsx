@@ -21,8 +21,8 @@ import {
   flushServerQueuesAction,
   flushSingleQueueAction,
   getServerQueuesAction,
-} from '@/actions/bullmq'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from '@dflow/actions/bullmq'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,26 +33,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from '@dflow/components/ui/alert-dialog'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Progress } from '@/components/ui/progress'
+} from '@dflow/components/ui/dropdown-menu'
+import { Progress } from '@dflow/components/ui/progress'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
-import { useServers } from '@/providers/ServersProvider'
+} from '@dflow/components/ui/select'
+import { cn } from '@dflow/lib/utils'
+import { useBubble } from '@dflow/providers/BubbleProvider'
+import { useServers } from '@dflow/providers/ServersProvider'
 
 interface QueueStats {
   name: string

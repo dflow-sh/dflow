@@ -4,17 +4,17 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import React, { Suspense } from 'react'
 
-import { getDflowUser } from '@/actions/cloud/dFlow'
-import { getGithubStarsAction } from '@/actions/github'
-import Banner from '@/components/Banner'
-import DocSidebar from '@/components/DocSidebar'
-import GithubStars from '@/components/GithubStars'
-import Logo from '@/components/Logo'
-import ToggleTheme from '@/components/ToggleTheme'
-import Bubble from '@/components/bubble'
-import { NavUser } from '@/components/nav-user'
-import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
-import { Button } from '@/components/ui/button'
+import { getDflowUser } from '@dflow/actions/cloud/dFlow'
+import { getGithubStarsAction } from '@dflow/actions/github'
+import Banner from '@dflow/components/Banner'
+import DocSidebar from '@dflow/components/DocSidebar'
+import GithubStars from '@dflow/components/GithubStars'
+import Logo from '@dflow/components/Logo'
+import ToggleTheme from '@dflow/components/ToggleTheme'
+import Bubble from '@dflow/components/bubble'
+import { NavUser } from '@dflow/components/nav-user'
+import { NavUserSkeleton } from '@dflow/components/skeletons/DashboardLayoutSkeleton'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -22,12 +22,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { getCurrentUser } from '@/lib/getCurrentUser'
-import BubbleProvider from '@/providers/BubbleProvider'
-import Provider from '@/providers/Provider'
-import TerminalProvider from '@/providers/TerminalProvider'
+} from '@dflow/components/ui/dialog'
+import { DFLOW_CONFIG } from '@dflow/lib/constants'
+import { getCurrentUser } from '@dflow/lib/getCurrentUser'
+import BubbleProvider from '@dflow/providers/BubbleProvider'
+import Provider from '@dflow/providers/Provider'
+import TerminalProvider from '@dflow/providers/TerminalProvider'
 
 interface PageProps {
   params: Promise<{

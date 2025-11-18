@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
 
-import { getTenant } from '@/lib/get-tenant'
+import { getTenant } from '@dflow/lib/get-tenant'
 
 export async function GET(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })

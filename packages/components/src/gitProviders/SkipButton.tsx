@@ -6,7 +6,7 @@ import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { skipOnboardingAction } from '@/actions/gitProviders'
+import { skipOnboardingAction } from '@dflow/actions/gitProviders'
 
 const SkipButton = () => {
   const router = useRouter()

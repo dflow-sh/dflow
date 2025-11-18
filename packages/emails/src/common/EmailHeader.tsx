@@ -1,5 +1,5 @@
 import { Column, Img, Row, Section, Text } from '@react-email/components'
-import { env } from 'env'
+import { env } from '@/env'
 import React from 'react'
 
 import Divider from './Divider'

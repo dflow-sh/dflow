@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server'
 
-import { sub } from '@/lib/redis'
+import { sub } from '@dflow/lib/redis'
 
 export const config = {
   runtime: 'nodejs', // Ensures it runs in a proper Node environment

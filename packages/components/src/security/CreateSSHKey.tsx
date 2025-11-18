@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { SshKey } from '@/payload-types'
+} from '@dflow/components/ui/dialog'
+import { SshKey } from '@dflow/types'
 
 import CreateSSHKeyForm from './CreateSSHKeyForm'
 

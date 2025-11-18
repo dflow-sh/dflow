@@ -12,14 +12,14 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@dflow/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -27,14 +27,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { defaultMonitoring } from '@/lib/default-monitoring'
+} from '@dflow/components/ui/dialog'
+import { Input } from '@dflow/components/ui/input'
+import { Label } from '@dflow/components/ui/label'
+import { Separator } from '@dflow/components/ui/separator'
+import { Slider } from '@dflow/components/ui/slider'
+import { Switch } from '@dflow/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
+import { defaultMonitoring } from '@dflow/lib/default-monitoring'
 
 interface MonitoringSettingsProps {
   serverId: string

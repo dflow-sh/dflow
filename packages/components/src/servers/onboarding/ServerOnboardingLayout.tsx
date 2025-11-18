@@ -9,9 +9,9 @@ import { toast } from 'sonner'
 import {
   completeServerOnboardingAction,
   syncServerDomainAction,
-} from '@/actions/server'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+} from '@dflow/actions/server'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@dflow/components/ui/card'
 import { ServerType } from '@/payload-types-overrides'
 
 import { useServerOnboarding } from './ServerOnboardingContext'

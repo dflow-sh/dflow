@@ -4,8 +4,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 
 const ProtocolInput = ({
   form,

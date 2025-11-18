@@ -4,7 +4,7 @@ import { CheckIcon, ChevronsUpDown } from 'lucide-react'
 import Link from 'next/link'
 import { useId, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -12,13 +12,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
+} from '@dflow/components/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Server, Service } from '@/payload-types'
+} from '@dflow/components/ui/popover'
+import { Server, Service } from '@dflow/types'
 
 export default function SelectSearch({
   services,

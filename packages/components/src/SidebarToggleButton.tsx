@@ -2,7 +2,7 @@
 
 import { Info } from 'lucide-react'
 
-import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
+import { useSidebarDocs } from '@dflow/providers/SidebarDocsProvider'
 
 import { Button } from './ui/button'
 

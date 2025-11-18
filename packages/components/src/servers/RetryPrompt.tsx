@@ -3,8 +3,8 @@
 import { TriangleAlert } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
 
 const RetryPrompt: React.FC = () => {
   const router = useRouter()

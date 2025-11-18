@@ -25,8 +25,8 @@ import {
   installPluginAction,
   syncPluginAction,
   togglePluginStatusAction,
-} from '@/actions/plugin'
-import { supportedPluginsSchema } from '@/actions/plugin/validator'
+} from '@dflow/actions/plugin'
+import { supportedPluginsSchema } from '@dflow/actions/plugin/validator'
 import {
   ClickHouse,
   Letsencrypt,
@@ -36,8 +36,8 @@ import {
   PostgreSQL,
   RabbitMQ,
   Redis,
-} from '@/components/icons'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+} from '@dflow/components/icons'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
 
 import PluginConfigurationForm from './PluginConfigurationForm'

@@ -7,7 +7,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./*"],
+      "@payload-config": ["./payload.config.ts"],
       "@dflow/actions": ["../../packages/actions/src"],
       "@dflow/actions/*": ["../../packages/actions/src/*"],
       "@dflow/components": ["../../packages/components/src"],
@@ -33,7 +34,9 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "env.ts",
+    "payload.config.ts"
   ],
   "exclude": ["node_modules"]
 }

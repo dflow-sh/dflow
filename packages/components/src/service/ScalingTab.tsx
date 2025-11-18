@@ -29,16 +29,16 @@ import {
   scaleServiceAction,
   setServiceResourceLimitAction,
   setServiceResourceReserveAction,
-} from '@/actions/service'
+} from '@dflow/actions/service'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from '@dflow/components/ui/accordion'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
 import {
   Form,
   FormControl,
@@ -46,10 +46,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Service } from '@/payload-types'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { Separator } from '@dflow/components/ui/separator'
+import { Service } from '@dflow/types'
 
 type ScalingTabProps = {
   service: Service

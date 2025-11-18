@@ -12,7 +12,7 @@ import {
 import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { SecurityGroup, SshKey } from '@/payload-types'
+import { SecurityGroup, SshKey } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 import AttachCustomServerForm from './AttachCustomServerForm'

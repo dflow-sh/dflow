@@ -5,12 +5,12 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import PersonalTemplates from '@/components/templates/PersonalTemplates'
-import TemplateCard from '@/components/templates/TemplateCard'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Template as TemplateType } from '@/lib/restSDK/types'
-import { CloudProviderAccount, Template } from '@/payload-types'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import PersonalTemplates from '@dflow/components/templates/PersonalTemplates'
+import TemplateCard from '@dflow/components/templates/TemplateCard'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
+import { Template as TemplateType } from '@dflow/lib/restSDK/types'
+import { CloudProviderAccount, Template } from '@dflow/types'
 
 const Templates = ({
   personalTemplates,

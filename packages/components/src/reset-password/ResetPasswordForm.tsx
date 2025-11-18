@@ -9,9 +9,9 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { resetPasswordAction } from '@/actions/auth'
-import { resetPasswordSchema } from '@/actions/auth/validator'
-import { Button } from '@/components/ui/button'
+import { resetPasswordAction } from '@dflow/actions/auth'
+import { resetPasswordSchema } from '@dflow/actions/auth/validator'
+import { Button } from '@dflow/components/ui/button'
 import {
   Form,
   FormControl,
@@ -19,8 +19,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 
 const ResetPasswordForm = ({ token }: { token: string }) => {
   const router = useRouter()

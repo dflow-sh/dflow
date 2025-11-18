@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import SelectSearch from '@/components/SelectSearch'
+import SelectSearch from '@dflow/components/SelectSearch'
 import { Server } from '@/payload-types'
 
 const ClientLayout = ({

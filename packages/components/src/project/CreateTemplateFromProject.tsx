@@ -29,13 +29,13 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createTemplateAction } from '@/actions/templates'
+import { createTemplateAction } from '@dflow/actions/templates'
 import {
   CreateTemplateSchemaType,
   createTemplateSchema,
   servicesSchema,
-} from '@/actions/templates/validator'
-import { DockerRegistry, GitProvider, Service } from '@/payload-types'
+} from '@dflow/actions/templates/validator'
+import { DockerRegistry, GitProvider, Service } from '@dflow/types'
 
 export const servicesToTemplate = (
   services: Service[],

@@ -4,12 +4,12 @@ import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import { createServiceSchema } from '@dflow/actions/service/validator'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { dokku } from '@dflow/lib/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/lib/ssh'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

@@ -27,11 +27,11 @@ import { toast } from 'sonner'
 import {
   removeUserFromTeamAction,
   updateUserTenantRolesAction,
-} from '@/actions/team'
+} from '@dflow/actions/team'
 import {
   updateTenantRolesSchema,
   updateTenantRolesType,
-} from '@/actions/team/validator'
+} from '@dflow/actions/team/validator'
 import {
   Table,
   TableBody,
@@ -39,8 +39,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Role, Tenant, User } from '@/payload-types'
+} from '@dflow/components/ui/table'
+import { Role, Tenant, User } from '@dflow/types'
 
 const TeamMembers = ({
   teamMembers,

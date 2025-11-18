@@ -17,6 +17,7 @@
   "dependencies": {
     "@dflow/emails": "workspace:*",
     "@dflow/types": "workspace:*",
+    "@dflow/plugins": "workspace:*",
     "@oversightstudio/encrypted-fields": "^1.0.0",
     "@payloadcms/db-mongodb": "3.54.0",
     "@payloadcms/next": "3.54.0",

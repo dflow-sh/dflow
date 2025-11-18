@@ -37,9 +37,9 @@ import {
   publishTemplateAction,
   syncWithPublicTemplateAction,
   unPublishTemplateAction,
-} from '@/actions/templates'
-import { Card, CardContent } from '@/components/ui/card'
-import { CloudProviderAccount, Template, Tenant } from '@/payload-types'
+} from '@dflow/actions/templates'
+import { Card, CardContent } from '@dflow/components/ui/card'
+import { CloudProviderAccount, Template, Tenant } from '@dflow/types'
 
 const UnPublishedTemplates = ({
   templates,

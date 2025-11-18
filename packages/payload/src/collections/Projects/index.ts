@@ -1,7 +1,7 @@
 import { CollectionConfig } from 'payload'
 
-import { User } from '@/payload-types'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { User } from '@dflow/types'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',

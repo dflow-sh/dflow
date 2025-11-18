@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import * as ssh2 from 'ssh2'
 
-import { protectedClient, userClient } from '@/lib/safe-action'
+import { protectedClient, userClient } from '@dflow/lib/safe-action'
 
 import {
   createSSHKeySchema,

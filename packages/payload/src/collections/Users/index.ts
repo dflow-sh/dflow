@@ -1,9 +1,9 @@
 import { tenantsArrayField } from '@payloadcms/plugin-multi-tenant/fields'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import type { CollectionConfig } from 'payload'
 
-import { ResetPassword } from '@/emails/reset-password'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { ResetPassword } from '@dflow/emails/reset-password'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
 
 import { createBeszelUser } from './hooks/createBeszelUser'
 import { createTenantAndRole } from './hooks/createTenantAndRole'

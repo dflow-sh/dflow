@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { JSX, SVGProps, useEffect, useState, useTransition } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -19,14 +19,14 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { Label } from '@/components/ui/label'
+} from '@dflow/components/ui/command'
+import { Label } from '@dflow/components/ui/label'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { supportedLinuxVersions } from '@/lib/constants'
+} from '@dflow/components/ui/popover'
+import { supportedLinuxVersions } from '@dflow/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 import { Dokku, Linux, Ubuntu } from './icons'

@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { getServiceDetails } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import TriggerNotFound from '@/components/states/TriggerNotFound'
+import { getServiceDetails } from '@dflow/actions/pages/service'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import TriggerNotFound from '@dflow/components/states/TriggerNotFound'
 import { Service } from '@/payload-types'
-import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
+import { DisableDeploymentContextProvider } from '@dflow/providers/DisableDeployment'
 
 import LayoutClient from './layout.client'
 

@@ -4,24 +4,24 @@ import { Suspense } from 'react'
 import {
   getServiceBackups,
   getServiceDeploymentsBackups,
-} from '@/actions/pages/service'
+} from '@dflow/actions/pages/service'
 import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
-} from '@/actions/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import Backup from '@/components/service/Backup'
-import DeploymentList from '@/components/service/DeploymentList'
-import DomainsTab from '@/components/service/DomainsTab'
-import GeneralTab from '@/components/service/GeneralTab'
-import LogsTabClient from '@/components/service/LogsTabClient'
-import ScalingTab from '@/components/service/ScalingTab'
-import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
-import VariablesForm from '@/components/service/VariablesForm'
-import VolumesForm from '@/components/service/VolumesForm'
-import ServiceSkeleton from '@/components/skeletons/ServiceSkeleton'
-import TriggerNotFound from '@/components/states/TriggerNotFound'
-import { loadServicePageTabs } from '@/lib/searchParams'
+} from '@dflow/actions/service'
+import AccessDeniedAlert from '@dflow/components/AccessDeniedAlert'
+import Backup from '@dflow/components/service/Backup'
+import DeploymentList from '@dflow/components/service/DeploymentList'
+import DomainsTab from '@dflow/components/service/DomainsTab'
+import GeneralTab from '@dflow/components/service/GeneralTab'
+import LogsTabClient from '@dflow/components/service/LogsTabClient'
+import ScalingTab from '@dflow/components/service/ScalingTab'
+import ServiceSettingsTab from '@dflow/components/service/ServiceSettingsTab'
+import VariablesForm from '@dflow/components/service/VariablesForm'
+import VolumesForm from '@dflow/components/service/VolumesForm'
+import ServiceSkeleton from '@dflow/components/skeletons/ServiceSkeleton'
+import TriggerNotFound from '@dflow/components/states/TriggerNotFound'
+import { loadServicePageTabs } from '@dflow/lib/searchParams'
 import { Project } from '@/payload-types'
 
 interface PageProps {

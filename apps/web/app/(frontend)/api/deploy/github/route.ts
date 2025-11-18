@@ -2,7 +2,7 @@ import { Webhooks } from '@octokit/webhooks'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { triggerDeployment } from '@/actions/deployment/deploy'
+import { triggerDeployment } from '@dflow/actions/deployment/deploy'
 
 export async function POST(request: Request) {
   const headers = request.headers

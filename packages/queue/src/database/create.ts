@@ -5,11 +5,11 @@ import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { parseDatabaseInfo } from '@/lib/utils'
+import { createServiceSchema } from '@dflow/actions/service/validator'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { parseDatabaseInfo } from '@dflow/lib/utils'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

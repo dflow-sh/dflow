@@ -7,7 +7,7 @@ import '@xterm/xterm/css/xterm.css'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useRef } from 'react'
 
-import { useTerminalStore } from '@/stores/useTerminalStore'
+import { useTerminalStore } from '@dflow/stores/useTerminalStore'
 
 interface XTermLogViewerProps {
   serverId: string

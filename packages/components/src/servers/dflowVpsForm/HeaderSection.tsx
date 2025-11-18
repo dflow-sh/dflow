@@ -1,4 +1,4 @@
-import { VpsPlan } from '@/lib/restSDK/types'
+import { VpsPlan } from '@dflow/lib/restSDK/types'
 
 export const HeaderSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (

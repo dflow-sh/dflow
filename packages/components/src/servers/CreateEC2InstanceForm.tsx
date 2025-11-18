@@ -14,20 +14,20 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import { getCloudProvidersAccountsAction } from '@dflow/actions/cloud'
 import {
   createEC2InstanceAction,
   updateEC2InstanceAction,
-} from '@/actions/cloud/aws'
-import { createEC2InstanceSchema } from '@/actions/cloud/aws/validator'
+} from '@dflow/actions/cloud/aws'
+import { createEC2InstanceSchema } from '@dflow/actions/cloud/aws/validator'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from '@dflow/components/ui/accordion'
+import { Badge } from '@dflow/components/ui/badge'
+import { Button } from '@dflow/components/ui/button'
 import {
   Form,
   FormControl,
@@ -35,24 +35,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { MultiSelect } from '@/components/ui/multi-select'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { MultiSelect } from '@dflow/components/ui/multi-select'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
+} from '@dflow/components/ui/select'
+import { Textarea } from '@dflow/components/ui/textarea'
+import { amiList, awsRegions, instanceTypes } from '@dflow/lib/constants'
 import {
   CloudProviderAccount,
   SecurityGroup,
   Server,
   SshKey,
-} from '@/payload-types'
+} from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 const CreateEC2InstanceForm = ({

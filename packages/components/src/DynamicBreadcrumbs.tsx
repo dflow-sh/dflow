@@ -6,7 +6,7 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
+} from '@dflow/components/ui/breadcrumb'
 
 import { Separator } from './ui/separator'
 import { SidebarTrigger } from './ui/sidebar'

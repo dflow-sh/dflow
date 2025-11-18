@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '@dflow/payload/access/isAdmin'
 
 import { checkDuplicateGitProviders } from './hooks/checkDuplicateGitProviders'
 

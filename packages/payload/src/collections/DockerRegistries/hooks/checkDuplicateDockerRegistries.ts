@@ -1,6 +1,6 @@
 import { CollectionBeforeValidateHook } from 'payload'
 
-import { DockerRegistry } from '@/payload-types'
+import { DockerRegistry } from '@dflow/types'
 
 const getTenantId = (data: any, req: any): string => {
   if (data?.tenant) {

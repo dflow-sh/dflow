@@ -1,6 +1,6 @@
 'use client'
 
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { usePostHog } from 'posthog-js/react'
 import { Suspense, useEffect } from 'react'

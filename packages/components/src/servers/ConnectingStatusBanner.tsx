@@ -2,9 +2,9 @@
 
 import { Cloud } from 'lucide-react'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Badge } from '@dflow/components/ui/badge'
+import { Progress } from '@dflow/components/ui/progress'
 
 const BannerBase = ({
   icon,

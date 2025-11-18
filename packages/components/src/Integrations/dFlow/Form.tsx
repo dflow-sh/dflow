@@ -11,11 +11,11 @@ import {
   checkAccountConnection,
   connectDFlowAccountAction,
   updateDFlowAccountAction,
-} from '@/actions/cloud/dFlow'
-import { connectDFlowAccountSchema } from '@/actions/cloud/dFlow/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import SecretContent from '@/components/ui/blur-reveal'
-import { Button } from '@/components/ui/button'
+} from '@dflow/actions/cloud/dFlow'
+import { connectDFlowAccountSchema } from '@dflow/actions/cloud/dFlow/validator'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
+import SecretContent from '@dflow/components/ui/blur-reveal'
+import { Button } from '@dflow/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -32,9 +32,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { CloudProviderAccount } from '@/payload-types'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
+import { CloudProviderAccount } from '@dflow/types'
 
 type RefetchType = (input: {
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'

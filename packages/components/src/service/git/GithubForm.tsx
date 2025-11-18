@@ -16,10 +16,10 @@ import { z } from 'zod'
 import {
   getBranchesAction,
   getRepositoriesAction,
-} from '@/actions/gitProviders'
-import { updateServiceAction } from '@/actions/service'
-import { updateServiceSchema } from '@/actions/service/validator'
-import SecretContent from '@/components/ui/blur-reveal'
+} from '@dflow/actions/gitProviders'
+import { updateServiceAction } from '@dflow/actions/service'
+import { updateServiceSchema } from '@dflow/actions/service/validator'
+import SecretContent from '@dflow/components/ui/blur-reveal'
 import {
   Form,
   FormControl,
@@ -27,10 +27,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { buildOptions } from '@/lib/buildOptions'
-import { GitProvider, Service } from '@/payload-types'
+} from '@dflow/components/ui/form'
+import { Label } from '@dflow/components/ui/label'
+import { buildOptions } from '@dflow/lib/buildOptions'
+import { GitProvider, Service } from '@dflow/types'
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 

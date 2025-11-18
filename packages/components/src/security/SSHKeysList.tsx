@@ -25,8 +25,8 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteSSHKeyAction } from '@/actions/sshkeys'
-import { Server, SshKey } from '@/payload-types'
+import { deleteSSHKeyAction } from '@dflow/actions/sshkeys'
+import { Server, SshKey } from '@dflow/types'
 
 import ViewSSHKey from './CreateSSHKey'
 

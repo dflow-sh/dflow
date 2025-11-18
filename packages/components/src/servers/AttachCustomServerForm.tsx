@@ -18,10 +18,10 @@ import {
   checkServerConnection,
   createServerAction,
   updateServerAction,
-} from '@/actions/server'
+} from '@dflow/actions/server'
 // You'll need to import your server connection action
-import { createServerSchema } from '@/actions/server/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { createServerSchema } from '@dflow/actions/server/validator'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
 import {
   Form,
   FormControl,
@@ -29,15 +29,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@dflow/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Server, SshKey } from '@/payload-types'
+} from '@dflow/components/ui/select'
+import { Server, SshKey } from '@dflow/types'
 import { ServerType } from '@/payload-types-overrides'
 
 type ConnectionStatus = {

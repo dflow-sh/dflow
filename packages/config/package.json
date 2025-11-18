@@ -8,6 +8,11 @@
     "./eslint/next": "./eslint/next.js",
     "./typescript/base": "./typescript/base.json",
     "./typescript/react-library": "./typescript/react-library.json",
-    "./typescript/nextjs": "./typescript/nextjs.json"
+    "./typescript/nextjs": "./typescript/nextjs.json",
+    "./env": "./env/index.ts"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.12.0",
+    "zod": "^3.24.1"
   }
 }

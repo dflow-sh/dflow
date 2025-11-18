@@ -4,9 +4,9 @@ import { Suspense } from 'react'
 import {
   getSecurityDetailsAction,
   getSshKeysAction,
-} from '@/actions/pages/security'
-import SecurityTabs from '@/components/security/SecurityTabs'
-import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
+} from '@dflow/actions/pages/security'
+import SecurityTabs from '@dflow/components/security/SecurityTabs'
+import { SecuritySkeleton } from '@dflow/components/skeletons/SecuritySkeleton'
 
 const SuspendedPage = async () => {
   const securityGroupDetails = await getSecurityDetailsAction()

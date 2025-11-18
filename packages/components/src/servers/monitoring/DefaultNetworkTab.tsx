@@ -19,14 +19,14 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@dflow/components/ui/card'
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart'
+} from '@dflow/components/ui/chart'
 
 interface DefaultNetworkTabProps {
   historicalData: {

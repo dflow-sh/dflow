@@ -3,7 +3,7 @@
 import SidebarToggleButton from '../SidebarToggleButton'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import {
   CircleCheckBig,
   CircleX,
@@ -18,13 +18,13 @@ import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { checkDNSConfigAction } from '@/actions/server'
+import { checkDNSConfigAction } from '@dflow/actions/server'
 import {
   markDefaultServiceDomainAction,
   syncServiceDomainAction,
   updateServiceDomainAction,
-} from '@/actions/service'
-import { Card, CardContent } from '@/components/ui/card'
+} from '@dflow/actions/service'
+import { Card, CardContent } from '@dflow/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@dflow/components/ui/dialog'
 import {
   Table,
   TableBody,
@@ -40,9 +40,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { WILD_CARD_DOMAINS } from '@/lib/constants'
-import { Server, Service } from '@/payload-types'
+} from '@dflow/components/ui/table'
+import { WILD_CARD_DOMAINS } from '@dflow/lib/constants'
+import { Server, Service } from '@dflow/types'
 
 import DomainForm from './DomainForm'
 import RegenerateSSLForm from './RegenerateSSLForm'

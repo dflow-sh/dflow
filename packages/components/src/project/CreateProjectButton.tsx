@@ -3,8 +3,8 @@
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import CreateProject from '@/components/project/CreateProject'
-import { Button } from '@/components/ui/button'
+import CreateProject from '@dflow/components/project/CreateProject'
+import { Button } from '@dflow/components/ui/button'
 
 const CreateProjectButton = ({ servers }: { servers: any[] }) => {
   // Temporary fix: avoid nested <button> issue with DialogTrigger

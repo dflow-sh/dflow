@@ -3,8 +3,8 @@
 import { useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import XTermTerminal from '@/components/XTermTerminal'
-import useXterm from '@/hooks/use-xterm'
+import XTermTerminal from '@dflow/components/XTermTerminal'
+import useXterm from '@dflow/hooks/use-xterm'
 
 const TerminalContent = () => {
   const [server] = useQueryState('server')

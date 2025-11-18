@@ -19,21 +19,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@dflow/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from '@dflow/components/ui/dropdown-menu'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { Project, Server, Service } from '@/payload-types'
+} from '@dflow/components/ui/tooltip'
+import { cn } from '@dflow/lib/utils'
+import { Project, Server, Service } from '@dflow/types'
 
 import DeleteProjectDialog from './DeleteProjectDialog'
 import UpdateProject from './project/CreateProject'

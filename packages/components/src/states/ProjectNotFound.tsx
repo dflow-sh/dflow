@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/components/ui/button'
 
 interface ProjectNotFoundProps {
   message?: string

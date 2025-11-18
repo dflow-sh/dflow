@@ -1,9 +1,9 @@
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import { Fragment } from 'react'
 
-import { borderRadius } from '@/lib/constants'
-import { fontType, getCSSAndLinkGoogleFonts, mimeTypes } from '@/lib/googleFont'
-import type { Theme as ThemeType } from '@/payload-types'
+import { borderRadius } from '@dflow/lib/constants'
+import { fontType, getCSSAndLinkGoogleFonts, mimeTypes } from '@dflow/lib/googleFont'
+import type { Theme as ThemeType } from '@dflow/types'
 
 type ThemeStylesType = {
   colors: ThemeType['lightMode']

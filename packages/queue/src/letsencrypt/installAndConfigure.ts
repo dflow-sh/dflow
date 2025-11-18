@@ -3,12 +3,12 @@ import { Job } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { pluginList } from '@/components/plugins'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import { pluginList } from '@dflow/components/plugins'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { dokku } from '@dflow/lib/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/lib/ssh'
 
 interface QueueArgs {
   sshDetails: SSHType

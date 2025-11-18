@@ -1,4 +1,4 @@
-import { env } from 'env'
+import { env } from '@dflow/config/env'
 import Redis, { type Redis as IORedisType } from 'ioredis'
 
 let redisSingleton: IORedisType | null = null

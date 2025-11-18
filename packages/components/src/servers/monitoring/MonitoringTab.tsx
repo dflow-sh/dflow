@@ -2,8 +2,8 @@
 
 import { Monitor, TrendingUp, Zap } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@dflow/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
 import { ServerType } from '@/payload-types-overrides'
 
 import DefaultMonitoring from './DefaultMonitoring'

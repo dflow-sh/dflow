@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 import React from 'react'
 
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
+import Tabs from '@dflow/components/Tabs'
+import { cn } from '@dflow/lib/utils'
 
 const LayoutClient = ({
   children,

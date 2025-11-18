@@ -32,8 +32,8 @@ import { toast } from 'sonner'
 import {
   deleteSecurityGroupAction,
   syncSecurityGroupAction,
-} from '@/actions/securityGroups'
-import { CloudProviderAccount, SecurityGroup, Server } from '@/payload-types'
+} from '@dflow/actions/securityGroups'
+import { CloudProviderAccount, SecurityGroup, Server } from '@dflow/types'
 
 import UpdateSecurityGroup from './CreateSecurityGroup'
 

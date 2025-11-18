@@ -4,8 +4,8 @@ import { Star } from 'lucide-react'
 import { motion } from 'motion/react'
 import Link from 'next/link'
 
-import { Github } from '@/components/icons'
-import { Button } from '@/components/ui/button'
+import { Github } from '@dflow/components/icons'
+import { Button } from '@dflow/components/ui/button'
 
 import CountUp from './ContUp'
 

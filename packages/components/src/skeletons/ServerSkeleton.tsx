@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@dflow/components/ui/skeleton'
 
 export const TabNavigationSkeleton = () => {
   return (

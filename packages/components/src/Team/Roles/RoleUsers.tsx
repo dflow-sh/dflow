@@ -1,6 +1,6 @@
 import { User as LucideUser } from 'lucide-react'
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@dflow/components/ui/avatar'
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { User as UserType } from '@/payload-types'
+} from '@dflow/components/ui/table'
+import { User as UserType } from '@dflow/types'
 
 const RoleUsers = ({ assignedUsers }: { assignedUsers: UserType[] | [] }) => {
   return assignedUsers?.length <= 0 ? (

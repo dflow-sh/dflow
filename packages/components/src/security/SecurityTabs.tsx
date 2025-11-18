@@ -5,25 +5,25 @@ import { KeyRound, Shield } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
 
-import CreateSSHKey from '@/components/security/CreateSSHKey'
-import CreateSecurityGroup from '@/components/security/CreateSecurityGroup'
-import SSHKeysList from '@/components/security/SSHKeysList'
-import SecurityGroupsList from '@/components/security/SecurityGroupsList'
-import { Badge } from '@/components/ui/badge'
+import CreateSSHKey from '@dflow/components/security/CreateSSHKey'
+import CreateSecurityGroup from '@dflow/components/security/CreateSecurityGroup'
+import SSHKeysList from '@dflow/components/security/SSHKeysList'
+import SecurityGroupsList from '@dflow/components/security/SecurityGroupsList'
+import { Badge } from '@dflow/components/ui/badge'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from '@dflow/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@dflow/components/ui/tabs'
 import {
   CloudProviderAccount,
   SecurityGroup,
   Server,
   SshKey,
-} from '@/payload-types'
+} from '@dflow/types'
 
 interface Props {
   sshKeysCount: number

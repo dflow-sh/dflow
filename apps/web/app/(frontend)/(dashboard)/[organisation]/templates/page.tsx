@@ -2,13 +2,13 @@ import LayoutClient from '../layout.client'
 import { Plus, Puzzle } from 'lucide-react'
 import Link from 'next/link'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import { getCloudProvidersAccountsAction } from '@dflow/actions/cloud'
 import {
   getAllOfficialTemplatesAction,
   getPersonalTemplatesAction,
-} from '@/actions/templates'
-import Templates from '@/components/templates/Templates'
-import { Button } from '@/components/ui/button'
+} from '@dflow/actions/templates'
+import Templates from '@dflow/components/templates/Templates'
+import { Button } from '@dflow/components/ui/button'
 
 interface PageProps {
   params: Promise<{ organisation: string }>

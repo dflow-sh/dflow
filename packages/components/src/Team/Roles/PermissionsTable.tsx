@@ -1,21 +1,21 @@
 import { UseFormReturn } from 'react-hook-form'
 
-import { CreateRoleType } from '@/actions/roles/validator'
-import { Checkbox } from '@/components/ui/check-box'
+import { CreateRoleType } from '@dflow/actions/roles/validator'
+import { Checkbox } from '@dflow/components/ui/check-box'
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@dflow/components/ui/select'
 import {
   Table,
   TableBody,
@@ -23,7 +23,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@dflow/components/ui/table'
 
 type Collections =
   | 'projects'

@@ -3,10 +3,10 @@ import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { deleteMachine } from '@/lib/tailscale/deleteMachine'
+import { getQueue, getWorker } from '@dflow/lib/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/lib/redis'
+import { sendActionEvent, sendEvent } from '@dflow/lib/sendEvent'
+import { deleteMachine } from '@dflow/lib/tailscale/deleteMachine'
 
 import { addDeleteProjectQueue } from './deleteProject'
 

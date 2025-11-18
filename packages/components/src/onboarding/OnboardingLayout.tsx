@@ -3,8 +3,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@dflow/components/ui/card'
 
 export default async function Layout({
   currentStep,

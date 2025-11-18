@@ -3,9 +3,9 @@ import { AlertCircle, CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 
-import { checkAccountConnection } from '@/actions/cloud/dFlow'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { checkAccountConnection } from '@dflow/actions/cloud/dFlow'
+import { Alert, AlertDescription } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
 
 import { useDflowVpsForm } from './DflowVpsFormProvider'
 

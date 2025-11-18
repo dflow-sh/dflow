@@ -7,8 +7,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { FormEvent, useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { exposeDatabasePortAction } from '@/actions/service'
-import { Server, Service } from '@/payload-types'
+import { exposeDatabasePortAction } from '@dflow/actions/service'
+import { Server, Service } from '@dflow/types'
 
 const DatabaseForm = ({
   service,

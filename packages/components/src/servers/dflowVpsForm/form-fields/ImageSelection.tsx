@@ -3,16 +3,16 @@ import { VpsFormData } from '../schemas'
 import { HardDrive } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
-import { CPanel, Plesk, Ubuntu, Windows } from '@/components/icons'
+import { CPanel, Plesk, Ubuntu, Windows } from '@dflow/components/icons'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from '@dflow/components/ui/form'
+import { Label } from '@dflow/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@dflow/components/ui/radio-group'
 
 const icons = {
   ubuntu: Ubuntu,

@@ -27,18 +27,18 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
+} from '@dflow/components/icons'
+import { Badge } from '@dflow/components/ui/badge'
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { getSessionValue } from '@/lib/getSessionValue'
-import { Service } from '@/payload-types'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+} from '@dflow/components/ui/card'
+import { getSessionValue } from '@dflow/lib/getSessionValue'
+import { Service } from '@dflow/types'
+import { useArchitectureContext } from '@dflow/providers/ArchitectureProvider'
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Git className='size-6' />,

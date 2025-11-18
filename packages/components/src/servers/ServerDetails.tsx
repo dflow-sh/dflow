@@ -18,10 +18,10 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
-import { withComingSoonBadge } from '@/components/ComingSoonBadge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { withComingSoonBadge } from '@dflow/components/ComingSoonBadge'
+import { Alert, AlertDescription, AlertTitle } from '@dflow/components/ui/alert'
+import { Button } from '@dflow/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@dflow/components/ui/card'
 import {
   Drawer,
   DrawerClose,
@@ -29,9 +29,9 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer'
-import { Separator } from '@/components/ui/separator'
-import { supportedLinuxVersions } from '@/lib/constants'
+} from '@dflow/components/ui/drawer'
+import { Separator } from '@dflow/components/ui/separator'
+import { supportedLinuxVersions } from '@dflow/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
 // Type Definitions

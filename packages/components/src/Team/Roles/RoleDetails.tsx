@@ -2,23 +2,23 @@ import { Tag, TagInput } from 'emblor'
 import { useState } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
-import { CreateRoleType } from '@/actions/roles/validator'
+import { CreateRoleType } from '@dflow/actions/roles/validator'
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@dflow/components/ui/form'
+import { Input } from '@dflow/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+} from '@dflow/components/ui/select'
+import { Textarea } from '@dflow/components/ui/textarea'
 
 const RoleDetails = ({ form }: { form: UseFormReturn<CreateRoleType> }) => {
   const { control, setValue, getValues } = form

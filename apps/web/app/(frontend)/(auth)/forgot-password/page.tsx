@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import ForgotPasswordForm from '@/components/forgot-password/ForgotPasswordForm'
+import { getAuthConfigAction } from '@dflow/actions/pages/auth'
+import ForgotPasswordForm from '@dflow/components/forgot-password/ForgotPasswordForm'
 import { AuthConfig } from '@/payload-types'
 
 const ForgotPasswordPage = async () => {
