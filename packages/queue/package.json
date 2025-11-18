@@ -1,0 +1,26 @@
+{
+  "name": "@dflow/queue",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./app": "./src/app/index.ts",
+    "./database": "./src/database/index.ts",
+    "./server": "./src/server/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dflow/lib": "workspace:*",
+    "@dflow/types": "workspace:*",
+    "bullmq": "^5.40.0",
+    "ioredis": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "typescript": "5.7.3"
+  }
+}

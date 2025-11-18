@@ -1,0 +1,13 @@
+{
+  "name": "@dflow/docs",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./content/index.ts",
+  "exports": {
+    ".": "./content/index.ts"
+  },
+  "dependencies": {
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0"
+  }
+}

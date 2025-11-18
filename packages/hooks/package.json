@@ -1,0 +1,24 @@
+{
+  "name": "@dflow/hooks",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./use-mobile": "./src/use-mobile.tsx",
+    "./use-xterm": "./src/use-xterm.tsx",
+    "./useCrossDomainAuth": "./src/useCrossDomainAuth.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.12",
+    "typescript": "5.7.3"
+  }
+}

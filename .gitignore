@@ -1,48 +1,67 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# Dependencies
+node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 
-/.idea/*
-!/.idea/runConfigurations
+# Next.js
+.next/
+out/
+apps/*/.next/
+apps/*/out/
+packages/*/.next/
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
+# Production Builds
 /build
+dist/
+apps/*/dist/
+packages/*/dist/
 
-# misc
-.DS_Store
-*.pem
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+apps/*/next-env.d.ts
 
-# debug
+# Environment Variables
+.env
+.env*.local
+.env.prod
+!.env.example
+
+# Monorepo
+.turbo/
+.content-collections/
+
+# Media & Uploads
+/media
+/public/media
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# local env files
-.env*.local
-.env.prod
+# OS
+.DS_Store
+*.pem
+Thumbs.db
 
-# vercel
+# Vercel
 .vercel
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Lock Files
+package-lock.json
+yarn.lock
+packages/*/pnpm-lock.yaml
+apps/*/pnpm-lock.yaml
 
-.env
+# Testing
+/coverage
 
-/media
+# Payload CMS
+.payload/
 
-.content-collections
-
-/public/media
+# IDE
+/.idea/*
+!/.idea/runConfigurations

@@ -1,0 +1,27 @@
+{
+  "name": "@dflow/emails",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.tsx",
+  "types": "./src/index.tsx",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./magic-link": "./src/magic-link/index.tsx",
+    "./reset-password": "./src/reset-password/index.tsx",
+    "./team-invitation": "./src/team-invitation/index.tsx",
+    "./login-confirmation": "./src/login-confirmation/index.tsx"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@react-email/components": "^0.0.38"
+  },
+  "peerDependencies": {
+    "react": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.12",
+    "typescript": "5.7.3"
+  }
+}

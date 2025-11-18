@@ -1,0 +1,39 @@
+{
+  "extends": "../../packages/config/typescript/nextjs.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@dflow/actions": ["../../packages/actions/src"],
+      "@dflow/actions/*": ["../../packages/actions/src/*"],
+      "@dflow/components": ["../../packages/components/src"],
+      "@dflow/components/*": ["../../packages/components/src/*"],
+      "@dflow/hooks": ["../../packages/hooks/src"],
+      "@dflow/hooks/*": ["../../packages/hooks/src/*"],
+      "@dflow/providers": ["../../packages/providers/src"],
+      "@dflow/providers/*": ["../../packages/providers/src/*"],
+      "@dflow/stores": ["../../packages/stores/src"],
+      "@dflow/stores/*": ["../../packages/stores/src/*"],
+      "@dflow/lib": ["../../packages/lib/src"],
+      "@dflow/lib/*": ["../../packages/lib/src/*"],
+      "@dflow/types": ["../../packages/types/src"],
+      "@dflow/types/*": ["../../packages/types/src/*"],
+      "@dflow/payload": ["../../packages/payload/src"],
+      "@dflow/payload/*": ["../../packages/payload/src/*"],
+      "@dflow/emails": ["../../packages/emails/src"],
+      "@dflow/emails/*": ["../../packages/emails/src/*"],
+      "@dflow/docs": ["../../packages/docs/content"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

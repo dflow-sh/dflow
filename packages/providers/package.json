@@ -1,0 +1,33 @@
+{
+  "name": "@dflow/providers",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/Provider.tsx",
+    "./architecture": "./src/ArchitectureProvider.tsx",
+    "./branding": "./src/BrandingProvider.tsx",
+    "./bubble": "./src/BubbleProvider.tsx",
+    "./terminal": "./src/TerminalProvider.tsx",
+    "./servers": "./src/ServersProvider.tsx",
+    "./cross-domain-auth": "./src/CrossDomainAuthProvider.tsx"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dflow/stores": "workspace:*",
+    "@dflow/types": "workspace:*",
+    "next-themes": "^0.4.6"
+  },
+  "peerDependencies": {
+    "next": "^15.0.0",
+    "react": "19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.12",
+    "typescript": "5.7.3"
+  }
+}

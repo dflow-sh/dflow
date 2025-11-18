@@ -1,0 +1,37 @@
+{
+  "name": "@dflow/actions",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth/index.ts",
+    "./server": "./src/server/index.ts",
+    "./service": "./src/service/index.ts",
+    "./project": "./src/project/index.ts",
+    "./cloud": "./src/cloud/index.ts",
+    "./deployment": "./src/deployment/index.ts",
+    "./team": "./src/team/index.ts",
+    "./backups": "./src/backups/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@dflow/lib": "workspace:*",
+    "@dflow/queue": "workspace:*",
+    "@dflow/types": "workspace:*",
+    "next-safe-action": "7.10.7",
+    "server-only": "^0.0.1",
+    "zod": "^3.24.1"
+  },
+  "peerDependencies": {
+    "next": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "typescript": "5.7.3"
+  }
+}

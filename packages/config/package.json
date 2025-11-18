@@ -1,0 +1,13 @@
+{
+  "name": "@dflow/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/react": "./eslint/react.js",
+    "./eslint/next": "./eslint/next.js",
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/react-library": "./typescript/react-library.json",
+    "./typescript/nextjs": "./typescript/nextjs.json"
+  }
+}

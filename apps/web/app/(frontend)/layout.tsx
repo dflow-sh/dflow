@@ -1,3 +1,4 @@
+import Branding from '@dflow/components/Branding'
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
@@ -6,7 +7,6 @@ import Script from 'next/script'
 import React from 'react'
 
 import { getBranding, getTheme } from '@/actions/branding'
-import Branding from '@/components/Branding'
 import { Toaster } from '@/components/ui/sonner'
 import { BrandingProvider } from '@/providers/BrandingProvider'
 import NProgressProvider from '@/providers/NProgressProvider'
