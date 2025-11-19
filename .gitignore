@@ -46,3 +46,13 @@ next-env.d.ts
 .content-collections
 
 /public/media
+
+# Turborepo
+.turbo
+
+# Package outputs
+packages/*/dist
+packages/*/node_modules
+
+# Backup files
+*.backup
