@@ -26,7 +26,17 @@
       "@/*": ["./src/*"],
       "@payload-config": ["./src/payload.config.ts"],
       "content-collections": ["./.content-collections/generated"],
-      "@/dokku/*": ["./src/lib/dokku/*"]
+      "@/dokku/*": ["./src/lib/dokku/*"],
+      "@dflow/shared": ["./packages/shared/src/index.ts"],
+      "@dflow/dokku": ["./packages/dokku/src/index.ts"],
+      "@dflow/server-sdk": ["./packages/server-sdk/src/index.ts"],
+      "@dflow/monitoring": ["./packages/monitoring/src/index.ts"],
+      "@dflow/email": ["./packages/email/src/index.ts"],
+      "@dflow/plugins": ["./packages/plugins/src/index.ts"],
+      "@dflow/actions": ["./packages/actions/src/index.ts"],
+      "@dflow/queues": ["./packages/queues/src/index.ts"],
+      "@dflow/ui": ["./packages/ui/src/index.ts"],
+      "@dflow/payload-config": ["./packages/payload-config/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "docs/**/*.md"],

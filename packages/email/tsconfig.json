@@ -1,0 +1,11 @@
+{
+  "extends": "@dflow/typescript-config/base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "lib": ["ES2022", "DOM"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

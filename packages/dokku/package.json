@@ -1,0 +1,19 @@
+{
+  "name": "@dflow/dokku",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "ssh2": "^1.16.0",
+    "node-ssh": "^13.2.0"
+  },
+  "devDependencies": {
+    "@dflow/typescript-config": "workspace:*",
+    "@types/ssh2": "^1.15.4",
+    "typescript": "5.7.3"
+  }
+}
