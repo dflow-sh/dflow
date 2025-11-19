@@ -1,2 +1,6 @@
-export { webhooksPlugin } from './plugin'
-export type { Webhook, WebhookConfig, WebhookPayload } from './types'
+// Export webhook plugin
+export * from './webhook'
+
+// Future plugins will be added here:
+// export * from './stripe'
+// export * from './coupons'

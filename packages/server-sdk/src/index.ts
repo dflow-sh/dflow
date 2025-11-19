@@ -1,33 +1,26 @@
-import { createImage } from './docker/createImage'
-import { deleteImages } from './docker/deleteImages'
-import { echo } from './echo'
-import { createWorkspace } from './git/createWorkspace'
-import { deleteWorkspace } from './git/deleteWorkspace'
-import { serverInfo } from './info'
-import { available as portsAvailability } from './ports/available'
-import { status } from './ports/status'
-import { infoRailpack } from './railpack/info'
-import { installRailpack } from './railpack/install'
-import { uninstallRailpack } from './railpack/uninstall'
+// Core server utilities
+export * from './echo'
+export * from './info'
+export * from './ssh'
+export * from './resourceCheck'
 
-export const server = {
-  ports: {
-    available: portsAvailability,
-    status,
-  },
-  git: {
-    createWorkspace,
-    deleteWorkspace,
-  },
-  docker: {
-    createImage,
-    deleteImages,
-  },
-  railpack: {
-    install: installRailpack,
-    info: infoRailpack,
-    uninstall: uninstallRailpack,
-  },
-  info: serverInfo,
-  echo,
-}
+// Docker utilities
+export * from './docker'
+
+// Git utilities
+export * from './git'
+
+// Port utilities
+export * from './ports'
+
+// Railpack
+export * from './railpack'
+
+// Tailscale
+export * from './tailscale'
+
+// Wetty (terminal)
+export * from './wetty'
+
+// Axios utilities
+export * from './axios'
