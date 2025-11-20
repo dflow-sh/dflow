@@ -1,27 +1,36 @@
 {
-  "name": "web",
+  "name": "@dflow/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "cross-env NODE_OPTIONS='--no-deprecation --trace-warnings' NEXT_DEBUG=1 next build",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env PAYLOAD_CONFIG_PATH=../../packages/core/src/payload/config.ts NODE_OPTIONS=--no-deprecation payload generate:types",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "migrate:beszel": "cross-env tsx -r dotenv/config ./src/scripts/populateBeszelSystemIds.ts"
   },
   "dependencies": {
     "@dflow/core": "workspace:*",
     "next": "15.2.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "@t3-oss/env-nextjs": "^0.12.0",
+     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "eslint-config-next": "15.5.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "cross-env": "^7.0.3",
+    "tailwindcss": "^4.1.12"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }

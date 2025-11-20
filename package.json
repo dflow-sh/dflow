@@ -4,17 +4,24 @@
   "private": true,
   "packageManager": "pnpm@10.22.0",
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "clean": "turbo run clean"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "clean": "turbo clean",
+    "generate:types": "pnpm --filter @dflow/web run generate:types",
+    "generate:importmap": "pnpm --filter @dflow/web run generate:importmap",
+    "payload": "pnpm --filter @dflow/web run payload"
   },
   "devDependencies": {
-    "turbo": "^2.6.1",
-    "typescript": "^5.7.3",
+    "@content-collections/next": "^0.2.7",
+    "@turbo/gen": "^2.5.8",
     "eslint": "^9.0.0",
     "prettier": "^3.4.2",
-    "@turbo/gen": "^2.5.8"
+    "turbo": "^2.6.1",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "payload": "3.54.0"
   }
 }
