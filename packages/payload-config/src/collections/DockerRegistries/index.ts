@@ -1,7 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 import { checkDuplicateDockerRegistries } from './hooks/checkDuplicateDockerRegistries'
 
@@ -51,3 +51,6 @@ export const DockerRegistries: CollectionConfig = {
     }),
   ],
 }
+// Default export for DockerRegistries
+import DockerRegistries from './DockerRegistries'
+export default DockerRegistries

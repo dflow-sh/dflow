@@ -1,16 +1,34 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "pipeline": {
+  "tasks": {
     "dev": {
       "cache": false,
       "persistent": true
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "DATABASE_URI",
+        "PAYLOAD_SECRET",
+        "NEXT_PUBLIC_SERVER_URL",
+        "REDIS_URL"
+      ]
     },
-    "lint": {},
-    "type-check": {}
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "outputs": ["**/*.tsbuildinfo"]
+    },
+    "clean": {
+      "cache": false
+    }
   }
 }

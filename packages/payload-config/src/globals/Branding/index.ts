@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Branding: GlobalConfig = {
   slug: 'branding',
@@ -91,3 +91,6 @@ export const Branding: GlobalConfig = {
     },
   ],
 }
+// Default export for Branding
+import Branding from './Branding'
+export default Branding

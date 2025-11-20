@@ -1,7 +1,7 @@
 'use server'
 
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { publicClient } from '@/lib/safe-action'
+import { dFlowRestSdk } from '@dflow/shared/restSDK/utils'
+import { publicClient } from '@dflow/shared/safe-action'
 
 export const getGithubStarsAction = publicClient
   .metadata({

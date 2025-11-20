@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { adminClient, protectedClient } from '@/lib/safe-action'
-import { generateRandomString } from '@/lib/utils'
+import { adminClient, protectedClient } from '@dflow/shared/safe-action'
+import { generateRandomString } from '@dflow/shared/utils'
 import { ServerType } from '@/payload-types-overrides'
 import { addDeleteProjectQueue } from '@/queues/project/deleteProject'
 

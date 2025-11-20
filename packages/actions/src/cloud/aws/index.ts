@@ -13,8 +13,8 @@ import configPromise from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { awsRegions } from '@/lib/constants'
-import { protectedClient } from '@/lib/safe-action'
+import { awsRegions } from '@dflow/shared/constants'
+import { protectedClient } from '@dflow/shared/safe-action'
 import { CloudProviderAccount } from '@/payload-types'
 
 import {

@@ -2,8 +2,8 @@ import { type NodeSSH } from 'node-ssh'
 import { LoaderInput } from 'nuqs'
 import { APIError, PayloadHandler } from 'payload'
 
-import { dokku } from '@/lib/dokku'
-import { loadServiceLogs } from '@/lib/searchParams'
+import { dokku } from '@dflow/dokku'
+import { loadServiceLogs } from '@dflow/shared/searchParams'
 
 export const logs: PayloadHandler = async ({ headers, payload, query }) => {
   const auth = await payload.auth({ headers })

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 
 import {
   createRoleSchema,

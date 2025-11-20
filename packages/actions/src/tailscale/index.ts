@@ -2,9 +2,9 @@
 
 import { env } from 'env'
 
-import tailscale from '@/lib/axios/tailscale'
-import { protectedClient } from '@/lib/safe-action'
-import { generateOAuthToken } from '@/lib/tailscale/generateOAuthToken'
+import tailscale from '@dflow/shared/axios/tailscale'
+import { protectedClient } from '@dflow/shared/safe-action'
+import { generateOAuthToken } from '@dflow/shared/tailscale/generateOAuthToken'
 
 import { generateAuthKeySchema } from './validator'
 

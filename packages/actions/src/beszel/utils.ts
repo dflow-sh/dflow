@@ -1,13 +1,13 @@
 import { env } from 'env'
 import { Payload } from 'payload'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { Collections } from '@/lib/beszel/types'
-import { pub } from '@/lib/redis'
-import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { sendEvent } from '@/lib/sendEvent'
-import { generateRandomString } from '@/lib/utils'
+import { BeszelClient } from '@dflow/shared/beszel/client/BeszelClient'
+import { Collections } from '@dflow/shared/beszel/types'
+import { pub } from '@dflow/shared/redis'
+import { Template as DFlowTemplateType } from '@dflow/shared/restSDK/types'
+import { dFlowRestSdk } from '@dflow/shared/restSDK/utils'
+import { sendEvent } from '@dflow/shared/sendEvent'
+import { generateRandomString } from '@dflow/shared/utils'
 import { ServerType } from '@/payload-types-overrides'
 
 /**

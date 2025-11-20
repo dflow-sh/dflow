@@ -1,8 +1,8 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig, Field } from 'payload'
 
-import { databaseOptions } from '@/lib/constants'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { databaseOptions } from '@dflow/shared/constants'
+import { isAdmin } from '../../access/isAdmin'
 
 import { handleTraefikConfiguration } from './hooks/handleTraefikConfiguration'
 
@@ -648,3 +648,6 @@ export const Services: CollectionConfig = {
     },
   ],
 }
+// Default export for Services
+import Services from './Services'
+export default Services

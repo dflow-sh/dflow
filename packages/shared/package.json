@@ -6,17 +6,27 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./constants": "./src/constants.ts",
-    "./logger": "./src/logger.ts",
     "./utils": "./src/utils.ts",
-    "./redis": "./src/redis/index.ts",
-    "./bullmq": "./src/bullmq/index.ts"
+    "./safe-action": "./src/safe-action.ts",
+    "./constants": "./src/constants.ts",
+    "./googleFont": "./src/googleFont.ts",
+    "./utils/*": "./src/utils/*",
+    "./lib/*": "./src/lib/*",
+    "./beszel/*": "./src/beszel/*",
+    "./scripts/*": "./src/scripts/*",
+    "./redis/*": "./src/redis/*",
+    "./bullmq/*": "./src/bullmq/*",
+    "./permissions/*": "./src/permissions/*",
+    "./restSDK/*": "./src/restSDK/*",
+    "./*": "./src/*"
   },
   "dependencies": {
     "bullmq": "^5.40.0",
+    "clsx": "^2.1.1",
     "ioredis": "^5.4.2",
     "pino": "^9.7.0",
-    "pino-pretty": "^13.0.0"
+    "pino-pretty": "^13.0.0",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@dflow/typescript-config": "workspace:*",

@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 
 import { TeamInvitation } from '@/emails/team-invitation'
-import { protectedClient, userClient } from '@/lib/safe-action'
+import { protectedClient, userClient } from '@dflow/shared/safe-action'
 import { Tenant } from '@/payload-types'
 
 import {

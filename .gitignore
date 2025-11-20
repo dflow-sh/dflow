@@ -1,23 +1,29 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.js
 .yarn/install-state.gz
 
+# IDE
 /.idea/*
 !/.idea/runConfigurations
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/extensions.json
 
 # testing
-/coverage
+coverage
 
-# next.js
-/.next/
-/out/
+# next.js (all apps)
+.next
+out
+build
 
 # production
-/build
+dist
 
 # misc
 .DS_Store
@@ -27,8 +33,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # local env files
+.env
 .env*.local
 .env.prod
 
@@ -39,20 +48,32 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.env
-
-/media
-
+# content collections
 .content-collections
 
-/public/media
+# media files
+/media
+/apps/web/public/media
 
 # Turborepo
 .turbo
+*.log
 
 # Package outputs
 packages/*/dist
+packages/*/build
+packages/*/.next
 packages/*/node_modules
+
+# App outputs
+apps/*/dist
+apps/*/build
+apps/*/.next
+apps/*/node_modules
 
 # Backup files
 *.backup
+backup-*
+
+# Migration scripts
+migrate-*.sh

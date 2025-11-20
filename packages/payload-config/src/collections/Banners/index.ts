@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Banners: CollectionConfig = {
   slug: 'banners',
@@ -176,3 +176,6 @@ export const Banners: CollectionConfig = {
     },
   ],
 }
+// Default export for Banners
+import Banners from './Banners'
+export default Banners

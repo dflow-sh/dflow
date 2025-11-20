@@ -1,8 +1,8 @@
 import { LoaderInput } from 'nuqs'
 import { APIError, PayloadHandler } from 'payload'
 
-import { pub } from '@/lib/redis'
-import { loadServiceLogs } from '@/lib/searchParams'
+import { pub } from '@dflow/shared/redis'
+import { loadServiceLogs } from '@dflow/shared/searchParams'
 
 export const serverEvents: PayloadHandler = async ({
   headers,

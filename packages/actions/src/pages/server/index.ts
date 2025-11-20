@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 import { ServerType } from '@/payload-types-overrides'
 import { checkServersSSHConnectionQueue } from '@/queues/server/checkSSHConnection'
 

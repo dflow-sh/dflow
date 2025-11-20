@@ -1,9 +1,9 @@
 import isPortReachable from 'is-port-reachable'
 import { CollectionAfterReadHook } from 'payload'
 
-import { server } from '@/lib/server'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import checkDpkgLock from '@/lib/utils/checkDpkgLock'
+import { server } from '@dflow/server-sdk'
+import { dynamicSSH, extractSSHDetails } from '@dflow/server-sdk/ssh'
+import checkDpkgLock from '@dflow/shared/utils/checkDpkgLock'
 import { Server } from '@/payload-types'
 
 export const populateServerDetails: CollectionAfterReadHook<Server> = async ({

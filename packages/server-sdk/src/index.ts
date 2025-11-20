@@ -4,23 +4,27 @@ export * from './info'
 export * from './ssh'
 export * from './resourceCheck'
 
-// Docker utilities
-export * from './docker'
+// Export as 'server' namespace
+export * as server from './info'
+
+// Docker utilities  
+export * as docker from './docker/createImage'
 
 // Git utilities
-export * from './git'
+export * as git from './git/createWorkspace'
 
 // Port utilities
-export * from './ports'
+export * as ports from './ports/available'
 
 // Railpack
-export * from './railpack'
+export * as railpack from './railpack/info'
 
 // Tailscale
-export * from './tailscale'
+export * as tailscale from './tailscale/deleteMachine'
 
 // Wetty (terminal)
-export * from './wetty'
+export * as wetty from './wetty'
 
 // Axios utilities
-export * from './axios'
+export * as axios from './axios/tailscale'
+export type { ServiceType } from './resourceCheck'

@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 import { checkDuplicateGitProviders } from './hooks/checkDuplicateGitProviders'
 
@@ -110,3 +110,6 @@ export const GitProviders: CollectionConfig = {
     },
   ],
 }
+// Default export for GitProviders
+import GitProviders from './GitProviders'
+export default GitProviders

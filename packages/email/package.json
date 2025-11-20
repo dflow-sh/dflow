@@ -5,7 +5,11 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./reset-password": "./src/emails/reset-password.tsx",
+    "./login-confirmation": "./src/emails/login-confirmation.tsx",
+    "./emails/*": "./src/emails/*",
+    "./*": "./src/*"
   },
   "dependencies": {
     "@react-email/components": "^0.0.38",

@@ -13,7 +13,7 @@ import {
 } from '@aws-sdk/client-ec2'
 import { APIError, CollectionBeforeChangeHook } from 'payload'
 
-import { awsRegions } from '@/lib/constants'
+import { awsRegions } from '@dflow/shared/constants'
 import { SecurityGroup } from '@/payload-types'
 
 interface FormattedRule {

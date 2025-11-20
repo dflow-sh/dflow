@@ -2,11 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 // import { addInstallTerminalQueue } from '@/queues/terminal/install'
 // import { addUninstallTerminalQueue } from '@/queues/terminal/uninstall'
 
-import { extractSSHDetails } from '@/lib/ssh'
+import { extractSSHDetails } from '@dflow/shared/ssh'
 import { addRestartAppQueue } from '@/queues/app/restart'
 import { addStartAppQueue } from '@/queues/app/start'
 import { addStopAppQueue } from '@/queues/app/stop'

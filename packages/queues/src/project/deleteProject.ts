@@ -4,11 +4,11 @@ import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { extractSSHDetails } from '@/lib/ssh'
-import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { extractSSHDetails } from '@dflow/shared/ssh'
+import { waitForJobCompletion } from '@dflow/shared/utils/waitForJobCompletion'
 
 interface QueueArgs {
   serverDetails: {

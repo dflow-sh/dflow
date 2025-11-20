@@ -3,7 +3,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { extractSSHDetails } from '@/lib/ssh'
+import { extractSSHDetails } from '@dflow/shared/ssh'
 import { addDeployQueue } from '@/queues/app/deploy'
 import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
 import { addRebuildAppQueue } from '@/queues/app/rebuilt'

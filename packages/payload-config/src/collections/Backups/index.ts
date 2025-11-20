@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Backups: CollectionConfig = {
   slug: 'backups',
@@ -68,3 +68,6 @@ export const Backups: CollectionConfig = {
     },
   ],
 }
+// Default export for Backups
+import Backups from './Backups'
+export default Backups

@@ -6,12 +6,12 @@ import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
 import { pluginList } from '@/components/plugins'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { parseDatabaseInfo } from '@/lib/utils'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { dokku } from '@dflow/shared/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/shared/ssh'
+import { parseDatabaseInfo } from '@dflow/shared/utils'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

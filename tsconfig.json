@@ -1,44 +1,43 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@dflow/typescript-config/nextjs.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@payload-config": ["./src/payload.config.ts"],
-      "content-collections": ["./.content-collections/generated"],
-      "@/dokku/*": ["./src/lib/dokku/*"],
-      "@dflow/shared": ["./packages/shared/src/index.ts"],
-      "@dflow/dokku": ["./packages/dokku/src/index.ts"],
-      "@dflow/server-sdk": ["./packages/server-sdk/src/index.ts"],
-      "@dflow/monitoring": ["./packages/monitoring/src/index.ts"],
-      "@dflow/email": ["./packages/email/src/index.ts"],
-      "@dflow/plugins": ["./packages/plugins/src/index.ts"],
-      "@dflow/actions": ["./packages/actions/src/index.ts"],
-      "@dflow/queues": ["./packages/queues/src/index.ts"],
-      "@dflow/ui": ["./packages/ui/src/index.ts"],
-      "@dflow/payload-config": ["./packages/payload-config/src/index.ts"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "docs/**/*.md"],
-  "exclude": ["node_modules"]
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/web"
+    },
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/dokku"
+    },
+    {
+      "path": "./packages/server-sdk"
+    },
+    {
+      "path": "./packages/monitoring"
+    },
+    {
+      "path": "./packages/email"
+    },
+    {
+      "path": "./packages/plugins"
+    },
+    {
+      "path": "./packages/actions"
+    },
+    {
+      "path": "./packages/queues"
+    },
+    {
+      "path": "./packages/components"
+    },
+    {
+      "path": "./packages/payload-config"
+    }
+  ]
 }

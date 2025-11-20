@@ -5,9 +5,9 @@ import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
 
 interface QueueArgs {
   sshDetails: SSHType

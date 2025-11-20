@@ -6,8 +6,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./beszel": "./src/beszel/index.ts",
-    "./netdata": "./src/netdata/index.ts"
+    "./beszel/*": "./src/beszel/*",
+    "./*": "./src/*"
   },
   "dependencies": {
     "axios": "^1.8.3",

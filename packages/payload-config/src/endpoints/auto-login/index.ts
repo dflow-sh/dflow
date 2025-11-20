@@ -3,11 +3,11 @@ import { env } from 'env'
 import jwt from 'jsonwebtoken'
 import { APIError, PayloadHandler, PayloadRequest } from 'payload'
 
-import { renderLoginConfirmationEmail } from '@/emails/login-confirmation'
-import { createSession } from '@/lib/createSession'
+import { renderLoginConfirmationEmail } from '@dflow/email/login-confirmation'
+import { createSession } from '@dflow/shared/createSession'
 
 export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
-  const { createRedisClient } = await import('@/lib/redis')
+  const { createRedisClient } = await import('@dflow/shared/redis')
   const { payload, searchParams } = req
   const token = searchParams.get('token') ?? ''
 

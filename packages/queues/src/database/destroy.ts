@@ -7,9 +7,9 @@ import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
 import { Backup } from '@/payload-types'
 
 export type DatabaseType = Exclude<

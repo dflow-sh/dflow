@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { protectedClient } from '@/lib/safe-action'
+import { DFLOW_CONFIG } from '@dflow/shared/constants'
+import { dFlowRestSdk } from '@dflow/shared/restSDK/utils'
+import { protectedClient } from '@dflow/shared/safe-action'
 import { Server } from '@/payload-types'
 
 import {

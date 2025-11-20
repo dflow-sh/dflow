@@ -1,7 +1,7 @@
 import { env } from 'env'
 import { CollectionAfterChangeHook } from 'payload'
 
-import traefik from '@/lib/axios/traefik'
+import traefik from '@dflow/server-sdk/traefik'
 import { Service } from '@/payload-types'
 
 export const handleTraefikConfiguration: CollectionAfterChangeHook<

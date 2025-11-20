@@ -3,11 +3,11 @@ import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { dokku } from '@dflow/shared/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/shared/ssh'
 
 interface QueueArgs {
   databaseType: string

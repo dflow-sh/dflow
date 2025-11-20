@@ -3,7 +3,7 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 import { DockerRegistry } from '@/payload-types'
 
 import {

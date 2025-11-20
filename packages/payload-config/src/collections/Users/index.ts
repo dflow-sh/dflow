@@ -2,8 +2,8 @@ import { tenantsArrayField } from '@payloadcms/plugin-multi-tenant/fields'
 import { env } from 'env'
 import type { CollectionConfig } from 'payload'
 
-import { ResetPassword } from '@/emails/reset-password'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { ResetPassword } from '@dflow/email/reset-password'
+import { isAdmin } from '../../access/isAdmin'
 
 import { createBeszelUser } from './hooks/createBeszelUser'
 import { createTenantAndRole } from './hooks/createTenantAndRole'
@@ -131,3 +131,6 @@ export const Users: CollectionConfig = {
     },
   ],
 }
+// Default export for Users
+import Users from './Users'
+export default Users

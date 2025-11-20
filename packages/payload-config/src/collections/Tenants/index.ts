@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
@@ -40,3 +40,6 @@ export const Tenants: CollectionConfig = {
     },
   ],
 }
+// Default export for Tenants
+import Tenants from './Tenants'
+export default Tenants

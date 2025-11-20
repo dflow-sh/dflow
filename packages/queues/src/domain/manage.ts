@@ -5,12 +5,12 @@ import { env } from 'env'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import traefik from '@/lib/axios/traefik'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import traefik from '@dflow/shared/axios/traefik'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { dokku } from '@dflow/shared/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { SSHType, dynamicSSH } from '@dflow/shared/ssh'
 import { Service } from '@/payload-types'
 
 interface QueueArgs {

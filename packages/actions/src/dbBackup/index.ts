@@ -1,7 +1,7 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
-import { extractSSHDetails } from '@/lib/ssh'
+import { protectedClient } from '@dflow/shared/safe-action'
+import { extractSSHDetails } from '@dflow/shared/ssh'
 import { addInternalBackupQueue } from '@/queues/database/backup/internalBackup'
 import { deleteInternalBackupQueue } from '@/queues/database/backup/internalBackupDelete'
 

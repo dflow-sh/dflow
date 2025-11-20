@@ -1,9 +1,9 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { getTenant } from '@/lib/get-tenant'
-import { getCurrentUser } from '@/lib/getCurrentUser'
-import { publicClient } from '@/lib/safe-action'
+import { getTenant } from '@dflow/shared/get-tenant'
+import { getCurrentUser } from '@dflow/shared/getCurrentUser'
+import { publicClient } from '@dflow/shared/safe-action'
 
 export const getPublicBanners = publicClient
   .metadata({

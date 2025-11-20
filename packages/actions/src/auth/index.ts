@@ -9,8 +9,8 @@ import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { renderMagicLinkEmail } from '@/emails/magic-link'
-import { createSession } from '@/lib/createSession'
-import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
+import { createSession } from '@dflow/shared/createSession'
+import { protectedClient, publicClient, userClient } from '@dflow/shared/safe-action'
 
 import {
   autoLoginSchema,

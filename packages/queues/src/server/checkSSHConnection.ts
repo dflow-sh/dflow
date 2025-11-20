@@ -4,10 +4,10 @@ import isPortReachable from 'is-port-reachable'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendEvent } from '@dflow/shared/sendEvent'
+import { dynamicSSH, extractSSHDetails } from '@dflow/shared/ssh'
 import { Server } from '@/payload-types'
 
 interface QueueArgs {

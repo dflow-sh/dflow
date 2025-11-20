@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 
 export const getSecurityDetailsAction = protectedClient
   .metadata({

@@ -1,7 +1,7 @@
 import { CollectionAfterReadHook } from 'payload'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
+import { DFLOW_CONFIG } from '@dflow/shared/constants'
+import { dFlowRestSdk } from '@dflow/shared/restSDK/utils'
 import { Server } from '@/payload-types'
 
 export const nextBillingDateAfterRead: CollectionAfterReadHook<

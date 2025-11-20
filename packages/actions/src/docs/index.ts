@@ -1,7 +1,7 @@
 'use server'
 
 import { allDocs } from '@/docs'
-import { publicClient } from '@/lib/safe-action'
+import { publicClient } from '@dflow/shared/safe-action'
 
 import { docsSchema } from './validator'
 

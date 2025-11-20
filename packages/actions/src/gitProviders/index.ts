@@ -5,7 +5,7 @@ import { env } from 'env'
 import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from '@dflow/shared/safe-action'
 
 import {
   createGitHubAppSchema,

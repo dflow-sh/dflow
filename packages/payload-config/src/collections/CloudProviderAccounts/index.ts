@@ -1,7 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 import { checkDuplicateCloudAccounts } from './hooks/checkDuplicateCloudAccounts'
 
@@ -146,3 +146,6 @@ export const CloudProviderAccounts: CollectionConfig = {
     },
   ],
 }
+// Default export for CloudProviderAccounts
+import CloudProviderAccounts from './CloudProviderAccounts'
+export default CloudProviderAccounts

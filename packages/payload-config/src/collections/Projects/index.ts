@@ -1,7 +1,7 @@
 import { CollectionConfig } from 'payload'
 
 import { User } from '@/payload-types'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -93,3 +93,6 @@ export const Projects: CollectionConfig = {
     },
   ],
 }
+// Default export for Projects
+import Projects from './Projects'
+export default Projects

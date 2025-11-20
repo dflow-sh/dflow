@@ -1,9 +1,9 @@
 import { env } from 'env'
 import { CollectionAfterChangeHook } from 'payload'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { TypedBeszelHelpers } from '@/lib/beszel/client/typedHelpers'
-import { generateDeterministicPassword } from '@/lib/utils/generateDeterministicPassword'
+import { BeszelClient } from '@dflow/monitoring/beszel/client/BeszelClient'
+import { TypedBeszelHelpers } from '@dflow/monitoring/beszel/client/typedHelpers'
+import { generateDeterministicPassword } from '@dflow/shared/utils/generateDeterministicPassword'
 import { User } from '@/payload-types'
 
 export const createBeszelUser: CollectionAfterChangeHook<User> = async ({

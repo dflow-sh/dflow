@@ -13,11 +13,23 @@
   },
   "dependencies": {
     "@dflow/plugins": "workspace:*",
-    "payload": "3.54.0",
-    "@payloadcms/richtext-lexical": "3.54.0"
+    "@dflow/shared": "workspace:*",
+    "@dflow/server-sdk": "workspace:*",
+    "@dflow/monitoring": "workspace:*",
+    "@dflow/dokku": "workspace:*",
+    "@dflow/actions": "workspace:*",
+    "@dflow/queues": "workspace:*",
+    "@dflow/email": "workspace:*",
+    "@oversightstudio/encrypted-fields": "^1.0.0",
+    "@payloadcms/richtext-lexical": "3.54.0",
+    "cuid": "^3.0.0",
+    "is-port-reachable": "^4.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "payload": "3.54.0"
   },
   "devDependencies": {
     "@dflow/typescript-config": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.10",
     "typescript": "5.7.3"
   }
 }

@@ -6,12 +6,12 @@ import Redis from 'ioredis'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { getBuildDetails } from '@/lib/getBuildDetails'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { server } from '@/lib/server'
-import { updatePorts } from '@/lib/updatePorts'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { getBuildDetails } from '@dflow/shared/getBuildDetails'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { server } from '@dflow/shared/server'
+import { updatePorts } from '@dflow/shared/updatePorts'
 import { Service } from '@/payload-types'
 
 type BuildDetailsType = Awaited<ReturnType<typeof getBuildDetails>>

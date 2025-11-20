@@ -1,11 +1,11 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { sendActionEvent } from '@/lib/sendEvent'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { DFLOW_CONFIG } from '@dflow/shared/constants'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { dFlowRestSdk } from '@dflow/shared/restSDK/utils'
+import { sendActionEvent } from '@dflow/shared/sendEvent'
 import { Tenant } from '@/payload-types'
 
 import { addCheckDflowServerConnectionQueue } from './checkDflowServerConnectionQueue'

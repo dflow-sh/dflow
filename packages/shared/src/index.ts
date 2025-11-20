@@ -20,3 +20,4 @@ export * from './filter.utils'
 // Redis & BullMQ (via sub-exports)
 // Use: import { redis } from '@dflow/shared/redis'
 // Use: import { queues } from '@dflow/shared/bullmq'
+export * from './googleFont'

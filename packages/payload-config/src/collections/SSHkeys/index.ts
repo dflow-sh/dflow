@@ -1,7 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 import { ensureUniqueName } from './hooks/ensureUniqueName'
 
@@ -57,3 +57,4 @@ export const SSHKeys: CollectionConfig = {
     }),
   ],
 }
+// Default export for SSHkeys

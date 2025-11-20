@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Traefik: CollectionConfig = {
   slug: 'traefik',
@@ -30,3 +30,6 @@ export const Traefik: CollectionConfig = {
     },
   ],
 }
+// Default export for Traefik
+import Traefik from './Traefik'
+export default Traefik

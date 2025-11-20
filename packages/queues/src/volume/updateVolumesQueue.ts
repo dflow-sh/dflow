@@ -2,11 +2,11 @@ import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent } from '@/lib/sendEvent'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { dokku } from '@dflow/shared/dokku'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent } from '@dflow/shared/sendEvent'
+import { dynamicSSH, extractSSHDetails } from '@dflow/shared/ssh'
 import { Project, Service } from '@/payload-types'
 
 interface QueueArgs {

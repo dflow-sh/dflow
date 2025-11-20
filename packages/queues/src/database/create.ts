@@ -6,10 +6,10 @@ import { getPayload } from 'payload'
 import { z } from 'zod'
 
 import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { parseDatabaseInfo } from '@/lib/utils'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { parseDatabaseInfo } from '@dflow/shared/utils'
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

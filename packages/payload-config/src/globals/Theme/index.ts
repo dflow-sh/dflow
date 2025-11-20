@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
-import { themeFields } from '@/payload/fields/theme'
+import { isAdmin } from '../../access/isAdmin'
+import { themeFields } from '../../fields/theme'
 
 export const Theme: GlobalConfig = {
   slug: 'theme',
@@ -18,3 +18,6 @@ export const Theme: GlobalConfig = {
   },
   fields: themeFields,
 }
+// Default export for Theme
+import Theme from './Theme'
+export default Theme

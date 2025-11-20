@@ -1,8 +1,8 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { databaseOptions } from '@/lib/constants'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { databaseOptions } from '@dflow/shared/constants'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Template: CollectionConfig = {
   slug: 'templates',
@@ -544,3 +544,4 @@ export const Template: CollectionConfig = {
     // },
   ],
 }
+// Default export for Templates

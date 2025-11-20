@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { status } from '@/lib/server/ports/status'
+import { status } from '@dflow/shared/server/ports/status'
 
 /**
  * Checks Netdata port status

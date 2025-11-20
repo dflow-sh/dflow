@@ -3,17 +3,20 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "skipLibCheck": true,
     "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true,
-    "forceConsistentCasingInFileNames": true
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "build", ".next"]
 }

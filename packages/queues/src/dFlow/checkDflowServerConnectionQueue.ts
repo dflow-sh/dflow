@@ -1,10 +1,10 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { getQueue, getWorker } from '@dflow/shared/bullmq'
+import { jobOptions, pub, queueConnection } from '@dflow/shared/redis'
+import { sendActionEvent, sendEvent } from '@dflow/shared/sendEvent'
+import { dynamicSSH, extractSSHDetails } from '@dflow/shared/ssh'
 import { Server } from '@/payload-types'
 
 interface CheckDflowServerConnectionQueueArgs {

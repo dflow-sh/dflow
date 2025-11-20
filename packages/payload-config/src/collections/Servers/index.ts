@@ -1,7 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
 import { User } from '@/payload-types'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 import { ensureUniqueIP } from './hooks/ensureUniqueIP'
 import { nextBillingDateAfterRead } from './hooks/nextBillingDate'
@@ -726,3 +726,6 @@ export const Servers: CollectionConfig = {
     },
   ],
 }
+// Default export for Servers
+import Servers from './Servers'
+export default Servers

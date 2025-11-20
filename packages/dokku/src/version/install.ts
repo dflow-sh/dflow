@@ -1,7 +1,7 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-import { supportedDokkuVersion } from '@/lib/constants'
-import checkDpkgLock from '@/lib/utils/checkDpkgLock'
+import { supportedDokkuVersion } from '@dflow/shared/constants'
+import checkDpkgLock from '@dflow/shared/utils/checkDpkgLock'
 
 export const install = async (ssh: NodeSSH, options?: SSHExecOptions) => {
   // Check if dpkg is locked before proceeding

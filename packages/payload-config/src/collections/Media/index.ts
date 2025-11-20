@@ -2,7 +2,7 @@ import path from 'path'
 import type { CollectionConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -62,3 +62,6 @@ export const Media: CollectionConfig = {
     ],
   },
 }
+// Default export for Media
+import Media from './Media'
+export default Media

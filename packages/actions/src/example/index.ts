@@ -1,6 +1,6 @@
 'use server'
 
-import { publicClient } from '@/lib/safe-action'
+import { publicClient } from '@dflow/shared/safe-action'
 
 import { exampleSchema } from './validator'
 

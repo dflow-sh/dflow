@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from '../../access/isAdmin'
 
 export const Roles: CollectionConfig = {
   slug: 'roles',
@@ -649,3 +649,6 @@ export const Roles: CollectionConfig = {
     },
   ],
 }
+// Default export for Roles
+import Roles from './Roles'
+export default Roles
