@@ -1,48 +1,54 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# Node modules and package managers
+node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+pnpm-lock.yaml
 
+# Editor directories (JetBrains/IDEA)
 /.idea/*
 !/.idea/runConfigurations
 
-# testing
+# Coverage reports
 /coverage
 
-# next.js
+# Next.js build outputs
 /.next/
 /out/
 
-# production
+# Production build
 /build
 
-# misc
+# Turborepo build cache
+/node_modules/.cache
+/packages/*/dist
+/apps/*/.next
+/apps/*/out
+.turbo
+
+# Misc files
 .DS_Store
 *.pem
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# Environment files, local overrides
+.env
 .env*.local
 .env.prod
 
-# vercel
+# Vercel deployment dirs
 .vercel
 
-# typescript
+# TypeScript output and build info
 *.tsbuildinfo
 next-env.d.ts
 
-.env
-
-/media
-
+# Media folders to exclude from git (if generated)
 .content-collections
-
+/content-collections
 /public/media
+/media
