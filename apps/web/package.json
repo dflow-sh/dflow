@@ -1,0 +1,46 @@
+{
+  "name": "@dflow/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "build": "cross-env NODE_OPTIONS='--no-deprecation --trace-warnings' NEXT_DEBUG=1 next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@dflow/core": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.12.0",
+    "@monaco-editor/react": "4.7.0-rc.0",
+    "@radix-ui/react-accordion": "^1.2.3",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-tooltip": "^1.1.7",
+    "next": "15.5.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-hook-form": "^7.54.2",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.525.0",
+    "tailwindcss": "^4.1.12",
+    "date-fns": "^4.1.0",
+    "axios": "^1.8.3",
+    "sonner": "^1.7.4",
+    "zustand": "^5.0.8",
+    "motion": "^12.9.2",
+    "recharts": "^2.15.1",
+    "@xterm/xterm": "^5.5.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/addon-fit": "^0.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.5.2",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
+    "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^4.1.12",
+    "postcss": "^8.5.1"
+  }
+}

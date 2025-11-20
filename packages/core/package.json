@@ -1,0 +1,39 @@
+{
+  "name": "@dflow/core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload"
+  },
+  "dependencies": {
+    "payload": "3.54.0",
+    "@payloadcms/next": "3.54.0",
+    "@payloadcms/sdk": "^3.59.1",
+    "@payloadcms/plugin-multi-tenant": "3.54.0",
+    "@payloadcms/richtext-lexical": "3.54.0",
+    "@payloadcms/ui": "3.54.0",
+    "@aws-sdk/client-ec2": "^3.787.0",
+    "@octokit/webhooks": "^13.7.5",
+    "@octokit/auth-app": "^7.1.5",
+    "ioredis": "^5.4.2",
+    "bullmq": "^5.40.0",
+    "node-ssh": "^13.2.0",
+    "ssh2": "^1.16.0",
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
+    "zod": "^3.24.1",
+    "graphql": "^16.8.1",
+    "axios": "^1.8.3"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3",
+    "@types/node": "^22.5.4"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^dev"]
+    },
+
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        ".next/**",
+        "dist/**",
+        "!**/.next/cache/**"
+      ]
+    },
+
+    "lint": {
+      "dependsOn": ["^lint"],
+      "outputs": []
+    },
+
+    "generate:types": {
+      "outputs": [
+        "src/payload-types.ts",
+        "src/payload-types-overrides.ts"
+      ],
+      "cache": false
+    },
+
+    "payload": {
+      "cache": false
+    },
+
+    "start": {
+      "dependsOn": ["build"]
+    }
+  }
+}
