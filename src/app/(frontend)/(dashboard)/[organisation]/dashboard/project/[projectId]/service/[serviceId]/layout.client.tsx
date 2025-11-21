@@ -105,8 +105,8 @@ const LayoutClient = ({
           { label: 'Scaling', slug: 'scaling', disabled: false },
           { label: 'Domains', slug: 'domains', disabled: false },
           { label: 'Volumes', slug: 'volumes', disabled: false },
-          { label: 'Settings', slug: 'settings', disabled: false },
           { label: 'Proxy', slug: 'proxy', disabled: false },
+          { label: 'Settings', slug: 'settings', disabled: false },
         ] as const)
   }, [type])
 

@@ -124,6 +124,7 @@ const DomainItem = ({
     server.preferConnectionType === 'tailscale' &&
     server.hostname &&
     domain.domain === `${server.hostname}.${env.NEXT_PUBLIC_PROXY_DOMAIN_URL}`
+
   // Manual refresh function
   const handleRefresh = () => {
     const proxyDomain = isProxyDomainExists
@@ -132,7 +133,7 @@ const DomainItem = ({
 
     if (proxyDomain) {
       checkDNSConfig({
-        domain: domain.domain,
+        domain: `*.${domain.domain}`,
         proxyDomain,
       })
     } else {
