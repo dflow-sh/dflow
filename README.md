@@ -6,7 +6,7 @@
 </picture>
 </p>
 
-<h2 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h2>
+<h3 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h3>
 
 <p align="center" style="text-wrap: balance;">Host and Scale Apps, Databases &
 Storage in your own cloud. Automated deployment workflows, container
@@ -22,7 +22,7 @@ network.</p>
 <br/>
 <br/>
 
-### Features
+## Features
 
 - **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
   and Databases (Postgres, MongoDB, MySQL, MariaDB, Redis).
@@ -38,12 +38,12 @@ network.</p>
 
 **[See more on our website](https://dflow.sh)**.
 
-### Self-Hosting Guide
+## Self-Hosting Guide
 
 This guide will walk you through setting up and running your own self-hosted
 instance of dFlow.
 
-### Requirements
+## Requirements
 
 Make sure you have the following:
 
@@ -56,7 +56,7 @@ Make sure you have the following:
 | Tailscale Account | N/A.         | N/A.    |
 | Domain            | N/A.         | N/A.    |
 
-### Installation
+## Installation
 
 Run the following command to begin setup. It will guide you through configuring
 everything needed for your dFlow instance:
@@ -68,12 +68,12 @@ sudo curl -fsSL https://get.dflow.sh | bash
 
 Follow our [Installation Guide](./INSTALLATION_GUIDE.md) for more details
 
-### Contributing
+## Contributing
 
 Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull
 request to the project.
 
-### Community support
+## Community support
 
 For general help using dFlow, please refer to
 [the official dFlow documentation](https://dflow.sh/docs). For additional help,
@@ -86,16 +86,16 @@ you can use one of these channels to ask a question:
 - [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
   Tutorials)
 
-### Try live demo
+## Try live demo
 
 See for yourself what's under the hood by getting access to a
 [hosted dFlow instance](https://dflow.sh/try-demo).
 
-### License
+## License
 
 See the [LICENSE](./license.md) file for licensing information.
 
-### 🤝 Contributors
+## 🤝 Contributors
 
 Thanks to all who have contributed to dFlow!
 
