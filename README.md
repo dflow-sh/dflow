@@ -1,4 +1,17 @@
-# dFlow
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/images/dflow-logo-wordmark-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="public/images/dflow-logo-wordmark-light.svg">
+  <img alt="dFlow logo" src="public/images/dflow-logo-wordmark-dark.svg" width="318px">
+</picture>
+
+<h2 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h2>
+
+<p align="center" style="text-wrap: balance;">Host and Scale Apps, Databases &
+Storage in your own cloud. Automated deployment workflows, container
+orchestration, and infrastructure management tools, all within your private
+network.</p>
+
+<p align="center"><a href="https://dflow.sh/sign-up?source=github">Cloud</a> · <a href="https://dflow.sh/try-demo">Try live demo</a></p>
 
 <a href="https://dflow.sh">
     <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
@@ -7,116 +20,84 @@
 <br/>
 <br/>
 
-**dFlow** is a open source alternative to Railway, Heroku & Vercel. With full
-control over your infrastructure and data. Host and Scale `Apps`, `Databases` &
-`Storage` in your own cloud. Automated deployment workflows, container
-orchestration, and infrastructure management tools, all within your private
-network.
+<!-- <p align="center">
+  <a href="https://discord.strapi.io">
+    <img src="https://img.shields.io/discord/811989166782021633?label=Discord" alt="Strapi on Discord" />
+  </a>
+</p> -->
 
-## 🚀 Self-Hosting Guide
+### Features
+
+- **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
+  and Databases (Postgres, MongoDB, MySQL, MariaDB, Redis).
+- **Works on your Cloud**: dFlow can be run on any cloud. AWS, GCP, Azure,
+  DigitalOcean, Hetzner and even your Private Machine.
+- **Private Networking**: Zero trust support using Tailscale end-to-end
+  encryption. No SSH-Keys required.
+- **Role Based Access Control**: Create an unlimited number of custom roles and
+  permissions for admin and end users.
+- **White Labeling**: Full customization with your branding, domains, and more.
+
+**[See more on our website](https://dflow.sh)**.
+
+### Self-Hosting Guide
 
 This guide will walk you through setting up and running your own self-hosted
 instance of dFlow.
 
-Prefer not to self-host? Try [dFlow Cloud](https://dflow.sh) for a fully managed
-experience.
-
-### ✅ Prerequisites
+### Requirements
 
 Make sure you have the following:
 
-- Docker installed
-- A Tailscale account
-- A domain name
-- A server (recommended: 2 vCPUs, 8GB RAM)
+| OS/Tools          | Recommended  | Minimum |
+| ----------------- | ------------ | ------- |
+| Ubuntu            | 24.04, 22.04 | LTS     |
+| CPU               | 2vCPU        | N/A.    |
+| RAM               | 8GB          | N/A     |
+| Docker            | N/A.         | N/A.    |
+| Tailscale Account | N/A.         | N/A.    |
+| Domain            | N/A.         | N/A.    |
 
-### 📥 Installation
+### Installation
 
 Run the following command to begin setup. It will guide you through configuring
 everything needed for your dFlow instance:
 
 ```bash
 # run command as root user
-curl -fsSL https://get.dflow.sh | bash
+sudo curl -fsSL https://get.dflow.sh | bash
 ```
 
-<br/>
+Follow our [Installation Guide](./INSTALLATION_GUIDE.md) for more details
 
-### ⛓️ Tailscale Setup
+### Contributing
 
-dFlow uses Tailscale for Zero Trust networking — enabling secure SSH and
-internal communication via your private tailnet.
+Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull
+request to the project.
 
-You'll be prompted to enter:
+### Community support
 
-- **Tailnet name** Found in the header after logging into
-  [Tailscale](https://tailscale.com), e.g., `johndoe.github`
+For general help using dFlow, please refer to
+[the official dFlow documentation](https://dflow.sh/docs). For additional help,
+you can use one of these channels to ask a question:
 
-- **Access Control** Update it under **Access Control Tab > JSON editor**. use
-  this
-  [configuration](https://github.com/dflow-sh/dflow/blob/main/TAILSCALE.md).
+- [Discord](https://discord.gg/5w7JUQYaAD) (For live discussion with the
+  Community and dFlow team)
+- [GitHub](https://github.com/dflow-sh/dflow) (Bug reports, Contributions)
+- [Twitter](https://twitter.com/strapijs) (Get the news fast)
+- [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
+  Tutorials)
 
-- **Auth Key** Create one under **Settings > Personal > Keys**. Enable
-  `Reusable` and `Ephemeral`.
+### Try live demo
 
-- **OAuth Client Key** Go to **Settings > Tailnet > OAuth clients**. Enable all
-  `read` scopes and `write` for `Auth Keys`, then create the key.
+See for yourself what's under the hood by getting access to a
+[hosted dFlow instance](https://dflow.sh/try-demo).
 
-<br/>
+### License
 
-### ✉️ Email Configuration
+See the [LICENSE](./license.md) file for licensing information.
 
-dFlow uses **Traefik** as a reverse proxy. The email you provide will be used to
-generate SSL certificates for your domain.
-
-You’ll be asked to:
-
-```bash
-Enter your email for SSL certificate generation
->
-```
-
-<br/>
-
-### 🌐 Domain Configuration
-
-Enable custom domain support for your services:
-
-1. Add a DNS A record:
-
-   - **Type**: A
-   - **Name**: `*.up`
-   - **Value**: `<your-server-ip>`
-   - **Proxy**: OFF
-
-2. When prompted, enter your domain, e.g., `up.johndoe.com`
-
-<br/>
-
-### 🔑 JWT Configuration
-
-dFlow uses Payload CMS under the hood. A **JWT secret** is required for:
-
-- Authentication
-- Encrypting sensitive data like environment variables
-
-> ⚠️ Use a **strong, persistent** secret. Do not change this between
-> deployments.
-
-When prompted:
-
-```bash
-Enter your JWT secret (keep it safe and consistent)
->
-```
-
-<br/>
-
-Once all configuration steps are complete, the necessary files will be
-generated. Follow the remaining prompts in your terminal to launch your instance
-of dFlow.
-
-## 🤝 Contributors
+### 🤝 Contributors
 
 Thanks to all who have contributed to dFlow!
 

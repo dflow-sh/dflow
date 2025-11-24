@@ -27,7 +27,7 @@ const DashboardServersEmptyState = () => {
               router.push(`/${organisation}/servers/add-new-server`)
             }>
             <Plus />
-            Create Server
+            Connect Server
           </Button>
         </div>
       </div>
