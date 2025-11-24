@@ -1,4 +1,3 @@
-import { withContentCollections } from '@content-collections/next'
 import { withBetterStack } from '@logtail/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
@@ -63,10 +62,11 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 }
 
-export default withContentCollections(
+export default
+  // withContentCollections(
   withBetterStack(
     withPayload(nextConfig, {
       devBundleServerPackages: false,
     }),
-  ),
-)
+  )
+// )

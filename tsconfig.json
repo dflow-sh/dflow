@@ -13,25 +13,23 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "target": "ES2022",
     "paths": {
-      "@/*": ["./src/*"],
-      "@payload-config": ["./src/payload.config.ts"],
-      "content-collections": ["./.content-collections/generated"],
-      "@/dokku/*": ["./src/lib/dokku/*"]
-    },
-    "target": "ES2022"
+      "@web/*": ["apps/web/src/*"],
+      "@core/*": ["packages/core/src/*"],
+
+      // maps payload config for core package
+      "@payload-config": ["packages/core/src/payload/config.ts"],
+    }
   },
+
   "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "postcss.config.mjs"
+    "apps",
+    "packages",
+    "turbo",
+    "postcss.config.mjs",
+    "next-env.d.ts", 
   ],
+
   "exclude": ["node_modules", ".next"]
 }

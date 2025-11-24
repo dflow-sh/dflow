@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -9,11 +10,15 @@
 /.idea/*
 !/.idea/runConfigurations
 
+# Turborepo task cache
+.turbo
+
 # testing
 /coverage
 
 # next.js
 /.next/
+.next
 /out/
 
 # production

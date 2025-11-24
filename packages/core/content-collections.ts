@@ -3,12 +3,13 @@ import { compileMarkdown } from '@content-collections/markdown'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 import remarkGfm from 'remark-gfm'
+import { z } from "zod"
 
 const introduction = defineCollection({
   name: 'introduction',
   directory: 'src/docs/introduction',
   include: ['*.md', '*.mdx'],
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),
@@ -36,7 +37,7 @@ const servers = defineCollection({
   name: 'servers',
   directory: 'src/docs/servers',
   include: '**/*.md',
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),
@@ -64,7 +65,7 @@ const onboarding = defineCollection({
   name: 'onboarding',
   directory: 'src/docs/onboarding',
   include: '**/*.md',
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),
@@ -92,7 +93,7 @@ const services = defineCollection({
   name: 'services',
   directory: 'src/docs/services',
   include: '**/*.md',
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),
@@ -120,7 +121,7 @@ const security = defineCollection({
   name: 'security',
   directory: 'src/docs/security',
   include: '**/*.md',
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),
@@ -148,7 +149,7 @@ const templates = defineCollection({
   name: 'templates',
   directory: 'src/docs/templates',
   include: '**/*.md',
-  schema: z => ({
+  schema: z.object({
     title: z.string(),
     category: z.string(),
     order: z.number(),

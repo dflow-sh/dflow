@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "ES2022",
+    "rootDir": ".",
+    "outDir": "dist",
+    "noEmit": false,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "content-collections/*": ["./.content-collections/generated/*"],
+    }
+  },
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    ".content-collections",
+    "content-collections.ts"
+  ],
+  "exclude": ["node_modules"]
+}
