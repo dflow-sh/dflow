@@ -8,7 +8,7 @@
 
 <h3 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h3>
 
-<p align="center" style="text-wrap: balance;">Host and Scale Apps, Databases &
+<p align="center">Host and Scale Apps, Databases &
 Storage in your own cloud. Automated deployment workflows, container
 orchestration, and infrastructure management tools, all within your private
 network.</p>
@@ -38,12 +38,14 @@ network.</p>
 
 **[See more on our website](https://dflow.sh)**.
 
+<br/>
+
 ## Self-Hosting Guide
 
 This guide will walk you through setting up and running your own self-hosted
 instance of dFlow.
 
-## Requirements
+**Requirements**
 
 Make sure you have the following:
 
@@ -55,6 +57,8 @@ Make sure you have the following:
 | Docker            | N/A.         | N/A.    |
 | Tailscale Account | N/A.         | N/A.    |
 | Domain            | N/A.         | N/A.    |
+
+<br/>
 
 ## Installation
 
@@ -68,10 +72,14 @@ sudo curl -fsSL https://get.dflow.sh | bash
 
 Follow our [Installation Guide](./INSTALLATION_GUIDE.md) for more details
 
+<br/>
+
 ## Contributing
 
 Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull
 request to the project.
+
+<br/>
 
 ## Community support
 
@@ -86,14 +94,20 @@ you can use one of these channels to ask a question:
 - [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
   Tutorials)
 
+<br/>
+
 ## Try live demo
 
 See for yourself what's under the hood by getting access to a
 [hosted dFlow instance](https://dflow.sh/try-demo).
 
+<br/>
+
 ## License
 
 See the [LICENSE](./license.md) file for licensing information.
+
+<br/>
 
 ## 🤝 Contributors
 
