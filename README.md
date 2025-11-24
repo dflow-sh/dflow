@@ -1,8 +1,10 @@
+<p align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/images/dflow-logo-wordmark-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="public/images/dflow-logo-wordmark-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="public/images/dflow-logo-wordmark-light.svg">
+  <source media="(prefers-color-scheme: light)" srcset="public/images/dflow-logo-wordmark-dark.svg">
   <img alt="dFlow logo" src="public/images/dflow-logo-wordmark-dark.svg" width="318px">
 </picture>
+</p>
 
 <h2 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h2>
 
@@ -20,12 +22,6 @@ network.</p>
 <br/>
 <br/>
 
-<!-- <p align="center">
-  <a href="https://discord.strapi.io">
-    <img src="https://img.shields.io/discord/811989166782021633?label=Discord" alt="Strapi on Discord" />
-  </a>
-</p> -->
-
 ### Features
 
 - **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
@@ -36,6 +32,8 @@ network.</p>
   encryption. No SSH-Keys required.
 - **Role Based Access Control**: Create an unlimited number of custom roles and
   permissions for admin and end users.
+- **Templates**: Kick start your deployments with ready made popular Open Source
+  Templates
 - **White Labeling**: Full customization with your branding, domains, and more.
 
 **[See more on our website](https://dflow.sh)**.
