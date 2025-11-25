@@ -52,8 +52,8 @@ Make sure you have the following:
 | OS/Tools          | Recommended  | Minimum |
 | ----------------- | ------------ | ------- |
 | Ubuntu            | 24.04, 22.04 | LTS     |
-| CPU               | 2vCPU        | N/A.    |
-| RAM               | 8GB          | N/A     |
+| CPU               | 2vCPU        | 1vCPU   |
+| RAM               | 8GB          | 2GB     |
 | Docker            | N/A.         | N/A.    |
 | Tailscale Account | N/A.         | N/A.    |
 | Domain            | N/A.         | N/A.    |
