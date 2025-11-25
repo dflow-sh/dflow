@@ -12,6 +12,7 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "generate:types": "turbo run generate:types",
-    "payload": "turbo run payload"
+    "payload": "turbo run payload",
+    "ui": "sh -c 'cd packages/core && pnpm dlx shadcn@latest \"$@\"' --"
   }
 }

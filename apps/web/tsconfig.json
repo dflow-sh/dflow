@@ -9,9 +9,8 @@
       }
     ],
     "paths": {
-      "@dflow/*": [
-        "../../packages/*"
-      ]
+      "@dflow/core": ["../../packages/core/src"],
+      "@dflow/core/*": ["../../packages/core/src/*"],
     }
   },
   "include": [

@@ -8,7 +8,8 @@
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "content-collections/*": ["./.content-collections/generated/*"],
+      "@core/*": ["packages/core/src/*"],
+      "content-collections": ["./.content-collections/generated"]
     }
   },
   "include": [

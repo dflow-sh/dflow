@@ -1,6 +1,7 @@
 import { withBetterStack } from '@logtail/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
+import path from 'path'
 
 const nextConfig: NextConfig = {
   // These will redirect old admin paths to new auth paths
@@ -35,20 +36,28 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+
   serverExternalPackages: ['bullmq', 'ssh2', 'node-ssh'],
+
   experimental: {
     authInterrupts: true,
     globalNotFound: true,
   },
+
   webpack: (config, { isServer }) => {
-    // Handle .node files
+    // 1. Add core alias
+    config.resolve.alias['@core'] = path.resolve(
+      __dirname,
+      '../../packages/core/src'
+    )
+
+    // 2. Handle .node files
     config.module.rules.push({
       test: /\.node$/,
       use: 'file-loader',
     })
 
     if (!isServer) {
-      // Don't attempt to load these packages on the client
       config.resolve.fallback = {
         ...config.resolve.fallback,
         bullmq: false,
@@ -59,14 +68,15 @@ const nextConfig: NextConfig = {
 
     return config
   },
+
   output: 'standalone',
 }
 
 export default
   // withContentCollections(
   withBetterStack(
-    withPayload(nextConfig, {
-      devBundleServerPackages: false,
+  withPayload(nextConfig, {
+    devBundleServerPackages: false,
     }),
-  )
+)
 // )
