@@ -24,8 +24,8 @@
     "^@dflow/(.*)$",
     "^@/(.*)$",
     "^~/",
-    "^[../].*",
-    "^[./].*"
+    "^[../]",
+    "^[./]"
   ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true

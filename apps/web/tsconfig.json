@@ -12,7 +12,9 @@
       "@dflow/core": ["../../packages/core/src"],
       "@dflow/core/*": ["../../packages/core/src/*"],
       "@dflow/core/keys": ["../../packages/core/keys.ts"],
-      "@dflow/core/content-collections": ["../../packages/core/content-collections.ts"],
+      "@dflow/core/content-collections": [
+        "../../packages/core/content-collections.ts"
+      ]
     }
   },
   "include": [
@@ -22,7 +24,5 @@
     "src",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

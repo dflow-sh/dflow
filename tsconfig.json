@@ -17,19 +17,9 @@
     "paths": {
       "@web/*": ["apps/web/src/*"],
       "@core/*": ["packages/core/src/*"],
-
-      // maps payload config for core package
-      "@payload-config": ["packages/core/src/payload/config.ts"],
+      "@payload-config": ["packages/core/src/payload/config.ts"]
     }
   },
-
-  "include": [
-    "apps",
-    "packages",
-    "turbo",
-    "postcss.config.mjs",
-    "next-env.d.ts", 
-  ],
-
+  "include": ["apps", "packages", "turbo", "postcss.config.mjs", "types"],
   "exclude": ["node_modules", ".next"]
 }

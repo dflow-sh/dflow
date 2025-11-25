@@ -1,7 +1,7 @@
+import path from 'path'
 import { withBetterStack } from '@logtail/next'
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
-import path from 'path'
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@dflow/core'],
@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  
+
   // This will rewrite the events to posthog endpoint
   async rewrites() {
     return [
@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
     // 1. Add core alias
     config.resolve.alias['@core'] = path.resolve(
       __dirname,
-      '../../packages/core/src'
+      '../../packages/core/src',
     )
 
     // 2. Handle .node files
@@ -75,11 +75,10 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 }
 
-export default
-  // withContentCollections(
-  withBetterStack(
+export default // withContentCollections(
+withBetterStack(
   withPayload(nextConfig, {
     devBundleServerPackages: false,
-    }),
+  }),
 )
 // )

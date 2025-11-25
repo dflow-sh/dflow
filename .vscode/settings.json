@@ -164,17 +164,11 @@
   "prettier.trailingComma": "all",
   "prettier.useTabs": false,
 
-  "prettier.plugins": [
-    "@ianvs/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss"
-  ],
-
-  "prettier.importOrder": ["<THIRD_PARTY_MODULES>", "^@/(.*)$", "^./(.*)$"],
-  "prettier.importOrderSeparation": true,
-  "prettier.importOrderSortSpecifiers": true,
   "files.associations": {
     "*.mdx": "markdown"
   },
+
+  "path-autocomplete.extensionOnImport": true,
 
   "files.watcherExclude": {
     "**/node_modules/**": true,
