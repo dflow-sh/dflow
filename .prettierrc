@@ -15,10 +15,18 @@
   "trailingComma": "all",
   "useTabs": false,
   "plugins": [
-    "@trivago/prettier-plugin-sort-imports",
+    "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
-  "importOrder": ["<THIRD_PARTY_MODULES>", "^@/(.*)$", "^./(.*)$"],
+  "importOrder": [
+    "^react$",
+    "<THIRD_PARTY_MODULES>",
+    "^@dflow/(.*)$",
+    "^@/(.*)$",
+    "^~/",
+    "^[../].*",
+    "^[./].*"
+  ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }

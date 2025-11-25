@@ -4,9 +4,6 @@
   "version": "0.1.0",
   "description": "dFlow monorepo",
   "packageManager": "pnpm@10.2.0",
-  "devDependencies": {
-    "turbo": "^2.0.0"
-  },
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -14,5 +11,17 @@
     "generate:types": "turbo run generate:types",
     "payload": "turbo run payload",
     "ui": "sh -c 'cd packages/core && pnpm dlx shadcn@latest \"$@\"' --"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.5.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tsx": "4.19.2",
+    "turbo": "^2.0.0",
+    "typescript": "5.7.3"
   }
 }

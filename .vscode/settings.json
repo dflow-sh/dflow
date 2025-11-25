@@ -38,6 +38,7 @@
     "hookform",
     "hostlabel",
     "httponly",
+    "ianvs",
     "icmpv",
     "immer",
     "letsencrypt",
@@ -162,7 +163,12 @@
   "prettier.tabWidth": 2,
   "prettier.trailingComma": "all",
   "prettier.useTabs": false,
-  "prettier.plugins": ["@trivago/prettier-plugin-sort-imports"],
+
+  "prettier.plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+
   "prettier.importOrder": ["<THIRD_PARTY_MODULES>", "^@/(.*)$", "^./(.*)$"],
   "prettier.importOrderSeparation": true,
   "prettier.importOrderSortSpecifiers": true,
@@ -173,7 +179,7 @@
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.next/**": true
-  },
+  }
   // "files.exclude": {
   //   "**/node_modules": true,
   //   "**/.next": true
