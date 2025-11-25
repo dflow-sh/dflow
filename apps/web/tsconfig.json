@@ -11,6 +11,8 @@
     "paths": {
       "@dflow/core": ["../../packages/core/src"],
       "@dflow/core/*": ["../../packages/core/src/*"],
+      "@dflow/core/keys": ["../../packages/core/keys.ts"],
+      "@dflow/core/content-collections": ["../../packages/core/content-collections.ts"],
     }
   },
   "include": [

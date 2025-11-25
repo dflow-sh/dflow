@@ -2,9 +2,9 @@
 
 import { ThemeProvider } from 'next-themes'
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@dflow/core/components/ui/button'
 
-import './(frontend)/globals.css'
+import '@dflow/core/styles/globals.css'
 
 export default function GlobalError({
   error,

@@ -3,14 +3,16 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    "./src/*": "./src/*",
+    "./keys": "./keys.ts",
+    "./content-collections": "./content-collections.ts"
   },
   "scripts": {
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "generate:content-collections": "content-collections generate"
+    "generate:content-collections": "content-collections generate",
+    "generate:indexes": "node scripts/generate-indexes.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.787.0",

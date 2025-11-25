@@ -4,6 +4,8 @@ import type { NextConfig } from 'next'
 import path from 'path'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@dflow/core'],
+
   // These will redirect old admin paths to new auth paths
   async redirects() {
     return [
@@ -19,6 +21,7 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  
   // This will rewrite the events to posthog endpoint
   async rewrites() {
     return [
