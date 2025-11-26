@@ -1,7 +1,6 @@
 import type { SearchParams } from 'nuqs/server'
-
-import { getServiceDetails } from '@/actions/pages/service'
-import GeneralTab from '@/components/service/GeneralTab'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import GeneralTab from '@dflow/core/components/service/GeneralTab'
 
 interface PageProps {
   params: Promise<{

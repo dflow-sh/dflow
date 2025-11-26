@@ -1,6 +1,6 @@
-import { getServiceDetails } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import VariablesForm from '@/components/service/VariablesForm'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import VariablesForm from '@dflow/core/components/service/VariablesForm'
 
 interface PageProps {
   params: Promise<{

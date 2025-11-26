@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
-
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import ForgotPasswordForm from '@/components/forgot-password/ForgotPasswordForm'
-import { AuthConfig } from '@/payload-types'
+import { getAuthConfigAction } from '@dflow/core/actions/pages/auth'
+import ForgotPasswordForm from '@dflow/core/components/forgot-password/ForgotPasswordForm'
+import { AuthConfig } from '@dflow/core/payload-types'
 
 const ForgotPasswordPage = async () => {
   // Check auth config to determine if forgot-password is allowed

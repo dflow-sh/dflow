@@ -1,12 +1,11 @@
 'use client'
 
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-
-import SelectSearch from '@/components/SelectSearch'
-import { Server } from '@/payload-types'
+import SelectSearch from '@dflow/core/components/SelectSearch'
+import { Server } from '@dflow/core/payload-types'
 
 const ClientLayout = ({
   project,

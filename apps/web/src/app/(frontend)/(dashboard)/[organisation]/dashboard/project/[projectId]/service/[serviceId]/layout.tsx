@@ -1,11 +1,9 @@
 import React from 'react'
-
-import { getServiceDetails } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import TriggerNotFound from '@/components/states/TriggerNotFound'
-import { Service } from '@/payload-types'
-import { DisableDeploymentContextProvider } from '@/providers/DisableDeployment'
-
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import TriggerNotFound from '@dflow/core/components/states/TriggerNotFound'
+import { Service } from '@dflow/core/payload-types'
+import { DisableDeploymentContextProvider } from '@dflow/core/providers/DisableDeployment'
 import LayoutClient from './layout.client'
 
 const SuspendedServicePageLayout = async ({

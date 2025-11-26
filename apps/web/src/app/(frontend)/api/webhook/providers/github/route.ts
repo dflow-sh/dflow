@@ -1,10 +1,9 @@
-import configPromise from '@payload-config'
 import { redirect } from 'next/navigation'
 import { NextRequest, NextResponse } from 'next/server'
 import { Octokit } from 'octokit'
 import { getPayload } from 'payload'
-
-import { getTenant } from '@/lib/get-tenant'
+import { getTenant } from '@dflow/core/lib/get-tenant'
+import configPromise from '@dflow/core/payload.config'
 
 export async function GET(request: NextRequest) {
   const payload = await getPayload({ config: configPromise })

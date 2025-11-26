@@ -1,12 +1,11 @@
-import LayoutClient from '../layout.client'
 import { Suspense } from 'react'
-
 import {
   getSecurityDetailsAction,
   getSshKeysAction,
-} from '@/actions/pages/security'
-import SecurityTabs from '@/components/security/SecurityTabs'
-import { SecuritySkeleton } from '@/components/skeletons/SecuritySkeleton'
+} from '@dflow/core/actions/pages/security'
+import SecurityTabs from '@dflow/core/components/security/SecurityTabs'
+import { SecuritySkeleton } from '@dflow/core/components/skeletons/SecuritySkeleton'
+import LayoutClient from '../layout.client'
 
 const SuspendedPage = async () => {
   const securityGroupDetails = await getSecurityDetailsAction()

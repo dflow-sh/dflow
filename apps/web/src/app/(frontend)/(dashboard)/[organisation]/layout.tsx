@@ -1,20 +1,19 @@
+import React, { Suspense } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import React, { Suspense } from 'react'
-
-import { getDflowUser } from '@/actions/cloud/dFlow'
-import { getGithubStarsAction } from '@/actions/github'
-import Banner from '@/components/Banner'
-import DocSidebar from '@/components/DocSidebar'
-import GithubStars from '@/components/GithubStars'
-import Logo from '@/components/Logo'
-import ToggleTheme from '@/components/ToggleTheme'
-import Bubble from '@/components/bubble'
-import { NavUser } from '@/components/nav-user'
-import { NavUserSkeleton } from '@/components/skeletons/DashboardLayoutSkeleton'
-import { Button } from '@/components/ui/button'
+import { getDflowUser } from '@dflow/core/actions/cloud/dFlow'
+import { getGithubStarsAction } from '@dflow/core/actions/github'
+import Banner from '@dflow/core/components/Banner'
+import Bubble from '@dflow/core/components/bubble'
+import DocSidebar from '@dflow/core/components/DocSidebar'
+import GithubStars from '@dflow/core/components/GithubStars'
+import Logo from '@dflow/core/components/Logo'
+import { NavUser } from '@dflow/core/components/nav-user'
+import { NavUserSkeleton } from '@dflow/core/components/skeletons/DashboardLayoutSkeleton'
+import ToggleTheme from '@dflow/core/components/ToggleTheme'
+import { Button } from '@dflow/core/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -22,12 +21,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { getCurrentUser } from '@/lib/getCurrentUser'
-import BubbleProvider from '@/providers/BubbleProvider'
-import Provider from '@/providers/Provider'
-import TerminalProvider from '@/providers/TerminalProvider'
+} from '@dflow/core/components/ui/dialog'
+import { DFLOW_CONFIG } from '@dflow/core/lib/constants'
+import { getCurrentUser } from '@dflow/core/lib/getCurrentUser'
+import BubbleProvider from '@dflow/core/providers/BubbleProvider'
+import Provider from '@dflow/core/providers/Provider'
+import TerminalProvider from '@dflow/core/providers/TerminalProvider'
 
 interface PageProps {
   params: Promise<{

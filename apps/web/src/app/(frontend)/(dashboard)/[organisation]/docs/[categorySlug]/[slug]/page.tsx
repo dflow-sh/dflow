@@ -1,4 +1,4 @@
-import { allDocs } from '@dflow/core/src/docs'
+import { allDocs } from '@dflow/core/docs'
 
 type CategorySlugType = keyof typeof allDocs
 

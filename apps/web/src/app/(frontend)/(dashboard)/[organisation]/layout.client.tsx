@@ -1,11 +1,10 @@
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import React from 'react'
-
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
+import Tabs from '@dflow/core/components/Tabs'
+import { cn } from '@dflow/core/lib/utils'
 
 const LayoutClient = ({
   children,
@@ -54,7 +53,7 @@ const LayoutClient = ({
       </div>
 
       <main
-        className={cn('mx-auto w-full max-w-6xl px-4 pt-4 pb-32', className)}>
+        className={cn('mx-auto w-full max-w-6xl px-4 pb-32 pt-4', className)}>
         {children}
       </main>
     </>

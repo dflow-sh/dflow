@@ -9,6 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "paths": {
       "@core/*": ["packages/core/src/*"],
+      "@core/keys": ["packages/core/keys.ts"],
       "content-collections": ["./.content-collections/generated"]
     }
   },

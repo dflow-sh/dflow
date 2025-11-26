@@ -1,4 +1,4 @@
-import { DocsSkeleton } from '@/components/skeletons/DocsSkeleton'
+import { DocsSkeleton } from '@dflow/core/components/skeletons/DocsSkeleton'
 
 const loading = () => {
   return <DocsSkeleton />

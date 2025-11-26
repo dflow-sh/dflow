@@ -1,8 +1,8 @@
 import {
   getDeploymentsAction,
   getServiceDetails,
-} from '@/actions/pages/service'
-import DeploymentList from '@/components/service/DeploymentList'
+} from '@dflow/core/actions/pages/service'
+import DeploymentList from '@dflow/core/components/service/DeploymentList'
 
 interface PageProps {
   params: Promise<{

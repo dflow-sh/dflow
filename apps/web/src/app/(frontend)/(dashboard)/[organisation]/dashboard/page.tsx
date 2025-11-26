@@ -1,17 +1,20 @@
-import LayoutClient from '../layout.client'
+import { Suspense } from 'react'
 import { AlertCircle, Folder } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
-
-import { getProjectsAndServers } from '@/actions/pages/dashboard'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import CreateProjectButton from '@/components/project/CreateProjectButton'
-import ProjectFiltersSection from '@/components/project/ProjectFiltersSection'
-import { DashboardSkeleton } from '@/components/skeletons/DashboardSkeletons'
-import DashboardServersEmptyState from '@/components/states/DashboardServersEmptyState'
-import ProjectsEmptyState from '@/components/states/ProjectsEmptyState'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ServerType } from '@/payload-types-overrides'
+import { getProjectsAndServers } from '@dflow/core/actions/pages/dashboard'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import CreateProjectButton from '@dflow/core/components/project/CreateProjectButton'
+import ProjectFiltersSection from '@dflow/core/components/project/ProjectFiltersSection'
+import { DashboardSkeleton } from '@dflow/core/components/skeletons/DashboardSkeletons'
+import DashboardServersEmptyState from '@dflow/core/components/states/DashboardServersEmptyState'
+import ProjectsEmptyState from '@dflow/core/components/states/ProjectsEmptyState'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@dflow/core/components/ui/alert'
+import { ServerType } from '@dflow/core/payload-types-overrides'
+import LayoutClient from '../layout.client'
 
 interface PageProps {
   params: Promise<{

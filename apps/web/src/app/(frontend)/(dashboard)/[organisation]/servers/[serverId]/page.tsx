@@ -1,3 +1,4 @@
+import { Suspense, use } from 'react'
 import { env } from 'env'
 import {
   AlertCircle,
@@ -8,49 +9,50 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { notFound } from 'next/navigation'
-import { Suspense, use } from 'react'
-
 import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
-} from '@/actions/pages/server'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import RefreshButton from '@/components/RefreshButton'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
-import CloudInitStatusBanner from '@/components/servers/CloudInitStatusBanner'
-import ConnectingStatusBanner from '@/components/servers/ConnectingStatusBanner'
-import ConnectionErrorBanner from '@/components/servers/ConnectionErrorBanner'
-import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
-import Danger from '@/components/servers/Danger'
-import DefaultResourceLimitsForm from '@/components/servers/DefaultResourceLimitsForm'
-import DomainForm from '@/components/servers/DomainForm'
-import DomainList from '@/components/servers/DomainList'
-import DpkgLockBanner from '@/components/servers/DpkgLockBanner'
-import GlobalBuildDirForm from '@/components/servers/GlobalBuildDirForm'
-import KubernetesTab from '@/components/servers/KubernetesTab'
-import Packages from '@/components/servers/Packages'
-import PluginsList from '@/components/servers/PluginsList'
-import { ProjectsAndServicesSection } from '@/components/servers/ProjectsAndServices'
-import ProvisioningBanner from '@/components/servers/ProvisioningBanner'
-import ServerDetails from '@/components/servers/ServerDetails'
-import ServerQueuesTab from '@/components/servers/ServerQueuesTab'
-import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
-import MonitoringTab from '@/components/servers/monitoring/MonitoringTab'
-import ServerOnboarding from '@/components/servers/onboarding/ServerOnboarding'
+} from '@dflow/core/actions/pages/server'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import RefreshButton from '@dflow/core/components/RefreshButton'
+import UpdateManualServerFrom from '@dflow/core/components/servers/AttachCustomServerForm'
+import CloudInitStatusBanner from '@dflow/core/components/servers/CloudInitStatusBanner'
+import ConnectingStatusBanner from '@dflow/core/components/servers/ConnectingStatusBanner'
+import ConnectionErrorBanner from '@dflow/core/components/servers/ConnectionErrorBanner'
+import UpdateEC2InstanceForm from '@dflow/core/components/servers/CreateEC2InstanceForm'
+import Danger from '@dflow/core/components/servers/Danger'
+import DefaultResourceLimitsForm from '@dflow/core/components/servers/DefaultResourceLimitsForm'
+import DomainForm from '@dflow/core/components/servers/DomainForm'
+import DomainList from '@dflow/core/components/servers/DomainList'
+import DpkgLockBanner from '@dflow/core/components/servers/DpkgLockBanner'
+import GlobalBuildDirForm from '@dflow/core/components/servers/GlobalBuildDirForm'
+import KubernetesTab from '@dflow/core/components/servers/KubernetesTab'
+import MonitoringTab from '@dflow/core/components/servers/monitoring/MonitoringTab'
+import ServerOnboarding from '@dflow/core/components/servers/onboarding/ServerOnboarding'
+import Packages from '@dflow/core/components/servers/Packages'
+import PluginsList from '@dflow/core/components/servers/PluginsList'
+import { ProjectsAndServicesSection } from '@dflow/core/components/servers/ProjectsAndServices'
+import ProvisioningBanner from '@dflow/core/components/servers/ProvisioningBanner'
+import ServerDetails from '@dflow/core/components/servers/ServerDetails'
+import ServerQueuesTab from '@dflow/core/components/servers/ServerQueuesTab'
+import UpdateTailscaleServerForm from '@dflow/core/components/servers/UpdateTailscaleServerForm'
+import SidebarToggleButton from '@dflow/core/components/SidebarToggleButton'
 import {
   DomainsTabSkeleton,
   GeneralTabSkeleton,
   MonitoringTabSkeleton,
   PluginsTabSkeleton,
-} from '@/components/skeletons/ServerSkeleton'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { netdata } from '@/lib/netdata'
-import { loadServerPageTabs } from '@/lib/searchParams'
-import { SecurityGroup, SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
-
+} from '@dflow/core/components/skeletons/ServerSkeleton'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@dflow/core/components/ui/alert'
+import { supportedLinuxVersions } from '@dflow/core/lib/constants'
+import { netdata } from '@dflow/core/lib/netdata'
+import { loadServerPageTabs } from '@dflow/core/lib/searchParams'
+import { SecurityGroup, SshKey } from '@dflow/core/payload-types'
+import { ServerType } from '@dflow/core/payload-types-overrides'
 import LayoutClient from './layout.client'
 
 interface PageProps {

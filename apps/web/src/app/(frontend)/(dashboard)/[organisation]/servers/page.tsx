@@ -1,20 +1,19 @@
-import LayoutClient from '../layout.client'
+import { Suspense } from 'react'
 import { Plus, Server } from 'lucide-react'
 import Link from 'next/link'
-import { Suspense } from 'react'
-
-import { getServersDetailsAction } from '@/actions/pages/server'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import RefreshButton from '@/components/RefreshButton'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import ServerCard from '@/components/servers/ServerCard'
-import SyncDFlow from '@/components/servers/SyncDFlow'
+import { getServersDetailsAction } from '@dflow/core/actions/pages/server'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import RefreshButton from '@dflow/core/components/RefreshButton'
+import ServerCard from '@dflow/core/components/servers/ServerCard'
+import SyncDFlow from '@dflow/core/components/servers/SyncDFlow'
+import SidebarToggleButton from '@dflow/core/components/SidebarToggleButton'
 import {
   CreateServerButtonSkeleton,
   ServersSkeleton,
-} from '@/components/skeletons/ServersSkeleton'
-import ServersEmptyState from '@/components/states/ServersEmptyState'
-import { Button } from '@/components/ui/button'
+} from '@dflow/core/components/skeletons/ServersSkeleton'
+import ServersEmptyState from '@dflow/core/components/states/ServersEmptyState'
+import { Button } from '@dflow/core/components/ui/button'
+import LayoutClient from '../layout.client'
 
 interface PageProps {
   params: Promise<{

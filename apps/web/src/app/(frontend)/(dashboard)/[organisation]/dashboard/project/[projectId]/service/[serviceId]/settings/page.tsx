@@ -1,6 +1,6 @@
-import { getServiceDetails } from '@/actions/pages/service'
-import ServiceSettingsTab from '@/components/service/ServiceSettingsTab'
-import { Project } from '@/payload-types'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import ServiceSettingsTab from '@dflow/core/components/service/ServiceSettingsTab'
+import { Project } from '@dflow/core/payload-types'
 
 interface PageProps {
   params: Promise<{

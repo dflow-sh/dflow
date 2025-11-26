@@ -1,9 +1,11 @@
+import {
+  getDFlowPlansAction,
+  getDflowUser,
+} from '@dflow/core/actions/cloud/dFlow'
+import { getAddServerDetails } from '@dflow/core/actions/pages/server'
+import DflowCloudDrawer from '@dflow/core/components/Integrations/dFlow/Drawer'
+import ServerForm from '@dflow/core/components/servers/ServerForm'
 import LayoutClient from '../../layout.client'
-
-import { getDFlowPlansAction, getDflowUser } from '@/actions/cloud/dFlow'
-import { getAddServerDetails } from '@/actions/pages/server'
-import DflowCloudDrawer from '@/components/Integrations/dFlow/Drawer'
-import ServerForm from '@/components/servers/ServerForm'
 
 const SuspendedAddNewServerPage = async () => {
   const result = await getAddServerDetails()

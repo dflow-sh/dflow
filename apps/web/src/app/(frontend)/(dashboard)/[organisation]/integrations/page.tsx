@@ -1,30 +1,32 @@
 'use client'
 
-import LayoutClient from '../layout.client'
+import { Suspense } from 'react'
 import { Link } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
-
-import IntegrationsList from '@/components/Integrations/IntegrationsList'
-import { IntegrationsSkeleton } from '@/components/skeletons/IntegrationsSkeleton'
+import IntegrationsList from '@dflow/core/components/Integrations/IntegrationsList'
+import { IntegrationsSkeleton } from '@dflow/core/components/skeletons/IntegrationsSkeleton'
+import LayoutClient from '../layout.client'
 
 const GitHubDrawer = dynamic(
-  () => import('@/components/Integrations/GithubDrawer'),
+  () => import('@dflow/core/components/Integrations/GithubDrawer'),
   {
     ssr: false,
   },
 )
-const AWSDrawer = dynamic(() => import('@/components/Integrations/AWSDrawer'), {
-  ssr: false,
-})
+const AWSDrawer = dynamic(
+  () => import('@dflow/core/components/Integrations/AWSDrawer'),
+  {
+    ssr: false,
+  },
+)
 
 const DockerRegistryDrawer = dynamic(
-  () => import('@/components/Integrations/DockerRegistryDrawer'),
+  () => import('@dflow/core/components/Integrations/DockerRegistryDrawer'),
   { ssr: false },
 )
 
 const DflowCloudDrawer = dynamic(
-  () => import('@/components/Integrations/dFlow/Drawer'),
+  () => import('@dflow/core/components/Integrations/dFlow/Drawer'),
 )
 
 const SuspendedIntegrationsPage = () => {

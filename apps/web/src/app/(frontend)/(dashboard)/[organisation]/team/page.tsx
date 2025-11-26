@@ -1,14 +1,13 @@
 'use server'
 
-import LayoutClient from '../layout.client'
-import { Users } from 'lucide-react'
 import { Suspense } from 'react'
-
-import { getTenantAction } from '@/actions/auth'
-import { getTeamMembersAction } from '@/actions/team'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import TeamView from '@/components/Team'
-import TeamSkeleton from '@/components/skeletons/TeamSkeleton'
+import { Users } from 'lucide-react'
+import { getTenantAction } from '@dflow/core/actions/auth'
+import { getTeamMembersAction } from '@dflow/core/actions/team'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import TeamSkeleton from '@dflow/core/components/skeletons/TeamSkeleton'
+import TeamView from '@dflow/core/components/Team'
+import LayoutClient from '../layout.client'
 
 const TeamPage = async () => {
   const result = await getTeamMembersAction()

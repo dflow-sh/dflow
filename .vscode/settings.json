@@ -8,6 +8,7 @@
     "bento",
     "beszel",
     "bkmg",
+    "bprogress",
     "buildpacks",
     "bullmq",
     "catppuccin",
@@ -44,6 +45,7 @@
     "letsencrypt",
     "letsencypt",
     "libsql",
+    "logtail",
     "lpush",
     "lrange",
     "lucide",
@@ -94,6 +96,7 @@
     "Wetty",
     "wettyoss",
     "xlarge",
+    "xyflow",
     "zustand"
   ],
   "npm.packageManager": "pnpm",

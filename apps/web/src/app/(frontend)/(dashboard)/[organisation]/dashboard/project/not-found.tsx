@@ -1,4 +1,4 @@
-import ProjectNotFound from '@/components/states/ProjectNotFound'
+import ProjectNotFound from '@dflow/core/components/states/ProjectNotFound'
 
 const NotFound = () => {
   return (

@@ -1,6 +1,9 @@
-import { getServiceBackups, getServiceDetails } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import Backup from '@/components/service/Backup'
+import {
+  getServiceBackups,
+  getServiceDetails,
+} from '@dflow/core/actions/pages/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import Backup from '@dflow/core/components/service/Backup'
 
 interface PageProps {
   params: Promise<{

@@ -1,10 +1,10 @@
-import { getServiceDetails } from '@/actions/pages/service'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
 import {
   fetchServiceResourceStatusAction,
   fetchServiceScaleStatusAction,
-} from '@/actions/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import ScalingTab from '@/components/service/ScalingTab'
+} from '@dflow/core/actions/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import ScalingTab from '@dflow/core/components/service/ScalingTab'
 
 interface PageProps {
   params: Promise<{

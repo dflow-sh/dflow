@@ -1,5 +1,5 @@
-import { getServiceDetails } from '@/actions/pages/service'
-import LogsTabClient from '@/components/service/LogsTabClient'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import LogsTabClient from '@dflow/core/components/service/LogsTabClient'
 
 interface PageProps {
   params: Promise<{

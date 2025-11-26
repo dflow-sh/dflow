@@ -1,6 +1,6 @@
-import { getServiceDetails } from '@/actions/pages/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import DomainsTab from '@/components/service/DomainsTab'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import DomainsTab from '@dflow/core/components/service/DomainsTab'
 
 interface PageProps {
   params: Promise<{

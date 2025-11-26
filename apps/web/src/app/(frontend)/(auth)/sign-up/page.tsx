@@ -1,12 +1,11 @@
+import { Suspense } from 'react'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
-
-import { getAuthConfigAction } from '@/actions/pages/auth'
-import Loader from '@/components/Loader'
-import SignUpForm from '@/components/sign-up/SignUpForm'
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { AuthConfig } from '@/payload-types'
+import { getAuthConfigAction } from '@dflow/core/actions/pages/auth'
+import Loader from '@dflow/core/components/Loader'
+import SignUpForm from '@dflow/core/components/sign-up/SignUpForm'
+import { DFLOW_CONFIG } from '@dflow/core/lib/constants'
+import { AuthConfig } from '@dflow/core/payload-types'
 
 interface PageProps {
   searchParams: Promise<{ token?: string }>

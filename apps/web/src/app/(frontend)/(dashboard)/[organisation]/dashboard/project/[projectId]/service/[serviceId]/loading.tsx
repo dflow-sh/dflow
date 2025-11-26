@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@dflow/core/components/ui/skeleton'
 
 const Loading = () => {
   return (

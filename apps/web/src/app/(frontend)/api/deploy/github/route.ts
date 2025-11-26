@@ -1,8 +1,7 @@
 import { Webhooks } from '@octokit/webhooks'
-import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-
-import { triggerDeployment } from '@/actions/deployment/deploy'
+import { triggerDeployment } from '@dflow/core/actions/deployment/deploy'
+import configPromise from '@dflow/core/payload.config'
 
 export async function POST(request: Request) {
   const headers = request.headers

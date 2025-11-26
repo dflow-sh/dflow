@@ -1,21 +1,20 @@
 'use client'
 
+import { useEffect, useState, useTransition } from 'react'
 import { useProgress } from '@bprogress/next'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { parseAsStringEnum, useQueryState } from 'nuqs'
-import { useEffect, useState, useTransition } from 'react'
 import { createPortal } from 'react-dom'
-
-import SelectSearch from '@/components/SelectSearch'
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+import SelectSearch from '@dflow/core/components/SelectSearch'
+import Tabs from '@dflow/core/components/Tabs'
+import { cn } from '@dflow/core/lib/utils'
+import { Server } from '@dflow/core/payload-types'
+import { ServerType } from '@dflow/core/payload-types-overrides'
 
 const ProjectTerminal = dynamic(
-  () => import('@/components/project/ProjectTerminal'),
+  () => import('@dflow/core/components/project/ProjectTerminal'),
   {
     ssr: false,
   },
@@ -98,7 +97,7 @@ const LayoutClient = ({
         <div className='bg-border absolute bottom-0 z-[-10] h-px w-full' />
       </div>
 
-      <main className='mx-auto mt-4 mb-20 w-full max-w-6xl px-4 pb-10'>
+      <main className='mx-auto mb-20 mt-4 w-full max-w-6xl px-4 pb-10'>
         {children}
       </main>
 

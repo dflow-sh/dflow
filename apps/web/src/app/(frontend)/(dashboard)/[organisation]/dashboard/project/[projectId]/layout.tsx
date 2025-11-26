@@ -1,24 +1,26 @@
+import React from 'react'
 import { FolderOpen, ScreenShareOff } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import React from 'react'
-
 import {
   getProjectBreadcrumbs,
   getProjectDetails,
-} from '@/actions/pages/project'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import CreateTemplateFromProject from '@/components/project/CreateTemplateFromProject'
-import ProjectOptionsDropdown from '@/components/project/ProjectOptionsDropdown'
-import CreateService from '@/components/service/CreateService'
-import ServiceList from '@/components/service/ServiceList'
-import ServicesArchitecture from '@/components/service/ServicesArchitecture'
-import DeployTemplate from '@/components/templates/DeployTemplate'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Project, Server, Service } from '@/payload-types'
-import { ArchitectureContextProvider } from '@/providers/ArchitectureProvider'
-
+} from '@dflow/core/actions/pages/project'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import CreateTemplateFromProject from '@dflow/core/components/project/CreateTemplateFromProject'
+import ProjectOptionsDropdown from '@dflow/core/components/project/ProjectOptionsDropdown'
+import CreateService from '@dflow/core/components/service/CreateService'
+import ServiceList from '@dflow/core/components/service/ServiceList'
+import ServicesArchitecture from '@dflow/core/components/service/ServicesArchitecture'
+import SidebarToggleButton from '@dflow/core/components/SidebarToggleButton'
+import DeployTemplate from '@dflow/core/components/templates/DeployTemplate'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@dflow/core/components/ui/alert'
+import { Project, Server, Service } from '@dflow/core/payload-types'
+import { ArchitectureContextProvider } from '@dflow/core/providers/ArchitectureProvider'
 import ClientLayout from './layout.client'
 
 interface Props {
@@ -101,7 +103,7 @@ const GeneralTab: React.FC<{
       {typeof project.server === 'object' && !isServerConnected && (
         <Alert
           variant='destructive'
-          className='absolute top-15 left-0 z-50 w-full backdrop-blur-md'>
+          className='top-15 absolute left-0 z-50 w-full backdrop-blur-md'>
           <ScreenShareOff className='h-4 w-4' />
           <AlertTitle>SSH Connection Failed</AlertTitle>
           <AlertDescription>

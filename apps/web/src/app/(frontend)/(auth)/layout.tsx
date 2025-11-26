@@ -1,8 +1,7 @@
-import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
-
-import Loader from '@/components/Loader'
-import { getCurrentUser } from '@/lib/getCurrentUser'
+import { redirect } from 'next/navigation'
+import Loader from '@dflow/core/components/Loader'
+import { getCurrentUser } from '@dflow/core/lib/getCurrentUser'
 
 const SuspenseLayout = async ({ children }: { children: React.ReactNode }) => {
   const user = await getCurrentUser()

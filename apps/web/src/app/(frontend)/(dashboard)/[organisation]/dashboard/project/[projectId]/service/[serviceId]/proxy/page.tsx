@@ -1,7 +1,7 @@
-import { getServiceDetails } from '@/actions/pages/service'
-import { getServiceNginxConfigAction } from '@/actions/service'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import ProxyTab from '@/components/service/ProxyTab'
+import { getServiceDetails } from '@dflow/core/actions/pages/service'
+import { getServiceNginxConfigAction } from '@dflow/core/actions/service'
+import AccessDeniedAlert from '@dflow/core/components/AccessDeniedAlert'
+import ProxyTab from '@dflow/core/components/service/ProxyTab'
 
 interface PageProps {
   params: Promise<{

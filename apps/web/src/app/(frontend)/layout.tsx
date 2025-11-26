@@ -1,18 +1,16 @@
+import { getBranding, getTheme } from '@dflow/core/actions/branding'
+import Branding from '@dflow/core/components/Branding'
+import { Toaster } from '@dflow/core/components/ui/sonner'
+import { BrandingProvider } from '@dflow/core/providers/BrandingProvider'
+import { NetworkStatusProvider } from '@dflow/core/providers/NetworkStatusProvider'
+import NProgressProvider from '@dflow/core/providers/NProgressProvider'
+import '@dflow/core/styles/globals.css'
+import React from 'react'
 import { env } from 'env'
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from 'next-themes'
 import { Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
-import React from 'react'
-
-import { getBranding, getTheme } from '@/actions/branding'
-import Branding from '@/components/Branding'
-import { Toaster } from '@/components/ui/sonner'
-import { BrandingProvider } from '@/providers/BrandingProvider'
-import NProgressProvider from '@/providers/NProgressProvider'
-import { NetworkStatusProvider } from '@/providers/NetworkStatusProvider'
-
-import './globals.css'
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',

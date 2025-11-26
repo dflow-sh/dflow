@@ -1,4 +1,4 @@
-import ServerNotFound from '@/components/states/ServerNotFound'
+import ServerNotFound from '@dflow/core/components/states/ServerNotFound'
 
 const NotFound = () => {
   return (

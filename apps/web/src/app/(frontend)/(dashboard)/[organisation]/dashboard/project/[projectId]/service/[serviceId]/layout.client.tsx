@@ -1,34 +1,33 @@
 'use client'
 
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useRouter } from '@bprogress/next/app'
 import { useReactFlow } from '@xyflow/react'
 import { Database, X } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { type JSX, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-
-import SelectSearch from '@/components/SelectSearch'
-import SidebarToggleButton from '@/components/SidebarToggleButton'
-import Tabs from '@/components/Tabs'
 import {
   Bitbucket,
   ClickHouse,
   Docker,
   Git,
-  GitLab,
   Gitea,
   Github,
+  GitLab,
   MariaDB,
   MicrosoftAzure,
   MongoDB,
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
-import { Service } from '@/payload-types'
-import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
+} from '@dflow/core/components/icons'
+import SelectSearch from '@dflow/core/components/SelectSearch'
+import SidebarToggleButton from '@dflow/core/components/SidebarToggleButton'
+import Tabs from '@dflow/core/components/Tabs'
+import { Badge } from '@dflow/core/components/ui/badge'
+import { Service } from '@dflow/core/payload-types'
+import { useDisableDeploymentContext } from '@dflow/core/providers/DisableDeployment'
 
 const icon: { [key in Service['type']]: JSX.Element } = {
   app: <Git className='size-6' />,
@@ -141,7 +140,7 @@ const LayoutClient = ({
   return (
     <>
       <main className='mx-auto'>
-        <div className='border-border bg-background fixed top-[9.5rem] right-0 z-50 flex h-[calc(100vh-5rem)] w-full min-w-full flex-col rounded-t-md border-t border-l px-6 pb-40 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'>
+        <div className='border-border bg-background fixed right-0 top-[9.5rem] z-50 flex h-[calc(100vh-5rem)] w-full min-w-full flex-col rounded-t-md border-l border-t px-6 pb-40 shadow-lg transition-transform ease-in-out sm:max-w-sm md:right-0 md:min-w-[64%] md:rounded-tr-none lg:min-w-[55%]'>
           {/* Close Button */}
           <div
             onClick={() => {
@@ -151,14 +150,14 @@ const LayoutClient = ({
             <Link
               href={`/${organisation}/dashboard/project/${projectId}`}
               title='close'
-              className='focus:ring-none text-base-content absolute top-4 right-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
+              className='focus:ring-none text-base-content absolute right-4 top-4 cursor-pointer rounded-md opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none'>
               <X className='h-4 w-4' />
               <span className='sr-only'>Close</span>
             </Link>
           </div>
 
           {/* Header */}
-          <div className='w-full shrink-0 space-y-4 pt-6 pb-2'>
+          <div className='w-full shrink-0 space-y-4 pb-2 pt-6'>
             <div className='flex items-center gap-x-3'>
               {service?.type === 'database' && service.databaseDetails?.type
                 ? databaseIcons[service?.databaseDetails?.type]

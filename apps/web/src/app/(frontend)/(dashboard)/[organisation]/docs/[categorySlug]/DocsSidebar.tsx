@@ -1,16 +1,15 @@
 import { Menu } from 'lucide-react'
-
-import HighLightedLink from '@/components/docs/HighLightedLink'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import HighLightedLink from '@dflow/core/components/docs/HighLightedLink'
+import { Button } from '@dflow/core/components/ui/button'
+import { ScrollArea } from '@dflow/core/components/ui/scroll-area'
 import {
   Sheet,
   SheetClose,
   SheetContent,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import { allDocs } from '@/docs'
+} from '@dflow/core/components/ui/sheet'
+import { allDocs } from '@dflow/core/docs'
 
 interface Props {
   params: Promise<{
@@ -82,7 +81,7 @@ const DocsSidebar = async ({ params }: Props) => {
   return (
     <>
       <aside
-        className={`sticky top-[105px] left-0 hidden w-64 border-r p-4 md:block`}>
+        className={`sticky left-0 top-[105px] hidden w-64 border-r p-4 md:block`}>
         <nav>
           <Links />
         </nav>
