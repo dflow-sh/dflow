@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { Branding } from '@/payload-types'
 import { useBrandingContext } from '@/providers/BrandingProvider'
 
-import { Skeleton } from './ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 
 const extractLogoUrl = (logo: NonNullable<Branding['logo']>['lightMode']) => {
   if (typeof logo === 'object' && logo?.url) {

@@ -1,7 +1,7 @@
 'use client'
 
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
-import { formatValue } from '../utils'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { formatValue } from "@core/components/servers/dflowVpsForm/utils"
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'

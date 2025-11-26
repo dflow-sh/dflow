@@ -1,6 +1,6 @@
 import type { Role } from '@/payload-types'
 
-import { type ActionName, getActionAccess } from './config'
+import { type ActionName, getActionAccess } from "@core/lib/permissions/config"
 
 type DeepValue<T, K extends string> = K extends `${infer Key}.${infer Rest}`
   ? Key extends keyof T

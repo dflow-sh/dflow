@@ -2,10 +2,10 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import DefaultDiskTab from './DefaultDiskTab'
-import DefaultNetworkTab from './DefaultNetworkTab'
-import DefaultOverviewTab from './DefaultOverviewTab'
-import DefaultSystemTab from './DefaultSystemTab'
+import DefaultDiskTab from "@core/components/servers/monitoring/DefaultDiskTab"
+import DefaultNetworkTab from "@core/components/servers/monitoring/DefaultNetworkTab"
+import DefaultOverviewTab from "@core/components/servers/monitoring/DefaultOverviewTab"
+import DefaultSystemTab from "@core/components/servers/monitoring/DefaultSystemTab"
 
 interface DefaultMonitoringTabsProps {
   historicalData: {

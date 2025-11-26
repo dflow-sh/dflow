@@ -1,9 +1,9 @@
-import DomainList from '../DomainList'
+import DomainList from "@core/components/servers/DomainList"
 
 import { ServerType } from '@/payload-types-overrides'
 
-import ConfigureDefaultDomain from './ConfigureDefaultDomain'
-import ServerOnboardingLayout from './ServerOnboardingLayout'
+import ConfigureDefaultDomain from "@core/components/servers/onboarding/ConfigureDefaultDomain"
+import ServerOnboardingLayout from "@core/components/servers/onboarding/ServerOnboardingLayout"
 
 const ConfigureDomain = ({ server }: { server: ServerType }) => {
   const domains = server.domains ?? []

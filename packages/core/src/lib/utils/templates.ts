@@ -1,4 +1,4 @@
-import { dFlowRestSdk } from '../restSDK/utils'
+import { dFlowRestSdk } from "@core/lib/restSDK/utils"
 
 import { Service } from '@/payload-types'
 

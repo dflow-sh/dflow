@@ -1,8 +1,8 @@
 'use client'
 
-import { Dokku, Linux, Ubuntu } from '../icons'
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
+import { Dokku, Linux, Ubuntu } from "@core/components/icons"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
 import { HardDrive, Trash2, TriangleAlert } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
@@ -19,7 +19,7 @@ import { supportedLinuxVersions } from '@/lib/constants'
 import { SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import ServerFormDialog from './ServerFormDialog'
+import ServerFormDialog from "@core/components/servers/ServerFormDialog"
 
 const serverType: {
   [key: string]: (props: SVGProps<SVGSVGElement>) => JSX.Element

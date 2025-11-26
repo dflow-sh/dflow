@@ -12,7 +12,8 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:content-collections": "content-collections generate",
-    "generate:indexes": "node scripts/generate-indexes.mjs"
+    "generate:indexes": "node scripts/generate-indexes.mjs",
+    "fix:core-imports": "node scripts/update-core-imports.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.787.0",

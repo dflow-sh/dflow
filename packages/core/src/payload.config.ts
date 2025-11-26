@@ -10,29 +10,29 @@ import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
-import { Backups } from './payload/collections/Backups'
-import { Banners } from './payload/collections/Banners'
-import { CloudProviderAccounts } from './payload/collections/CloudProviderAccounts'
-import { Deployments } from './payload/collections/Deployments'
-import { DockerRegistries } from './payload/collections/DockerRegistries'
-import { GitProviders } from './payload/collections/GitProviders'
-import { Media } from './payload/collections/Media'
-import { Projects } from './payload/collections/Projects'
-import { Roles } from './payload/collections/Roles'
-import SecurityGroups from './payload/collections/SecurityGroups'
-import { Servers } from './payload/collections/Servers'
-import { Services } from './payload/collections/Services'
-import { SSHKeys } from './payload/collections/SSHkeys'
-import { Template } from './payload/collections/Templates'
-import { Tenants } from './payload/collections/Tenants'
-import { Traefik } from './payload/collections/Traefik'
-import { Users } from './payload/collections/Users'
-import { logoutHandler } from './payload/endpoints/logout'
-import { AuthConfig } from './payload/globals/AuthConfig'
-import { Branding } from './payload/globals/Branding'
-import { Theme } from './payload/globals/Theme'
-import { checkServersConnectionsTask } from './payload/jobs/checkServersConnections'
-import { webhooksPlugin } from './plugins/webhook'
+import { Backups } from "@core/payload/collections/Backups"
+import { Banners } from "@core/payload/collections/Banners"
+import { CloudProviderAccounts } from "@core/payload/collections/CloudProviderAccounts"
+import { Deployments } from "@core/payload/collections/Deployments"
+import { DockerRegistries } from "@core/payload/collections/DockerRegistries"
+import { GitProviders } from "@core/payload/collections/GitProviders"
+import { Media } from "@core/payload/collections/Media"
+import { Projects } from "@core/payload/collections/Projects"
+import { Roles } from "@core/payload/collections/Roles"
+import SecurityGroups from "@core/payload/collections/SecurityGroups"
+import { Servers } from "@core/payload/collections/Servers"
+import { Services } from "@core/payload/collections/Services"
+import { SSHKeys } from "@core/payload/collections/SSHkeys"
+import { Template } from "@core/payload/collections/Templates"
+import { Tenants } from "@core/payload/collections/Tenants"
+import { Traefik } from "@core/payload/collections/Traefik"
+import { Users } from "@core/payload/collections/Users"
+import { logoutHandler } from "@core/payload/endpoints/logout"
+import { AuthConfig } from "@core/payload/globals/AuthConfig"
+import { Branding } from "@core/payload/globals/Branding"
+import { Theme } from "@core/payload/globals/Theme"
+import { checkServersConnectionsTask } from "@core/payload/jobs/checkServersConnections"
+import { webhooksPlugin } from "@core/plugins/webhook"
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

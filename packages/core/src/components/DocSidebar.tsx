@@ -9,8 +9,8 @@ import { useEffect } from 'react'
 import { docsAction } from '@/actions/docs'
 import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
 
-import { InternalDocsSkeleton } from './skeletons/DocsSkeleton'
-import { Button } from './ui/button'
+import { InternalDocsSkeleton } from "@core/components/skeletons/DocsSkeleton"
+import { Button } from "@core/components/ui/button"
 
 const variants = {
   initial: {

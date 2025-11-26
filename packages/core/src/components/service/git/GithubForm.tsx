@@ -1,10 +1,10 @@
 'use client'
 
-import SidebarToggleButton from '../../SidebarToggleButton'
-import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
-import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
-import SelectSearch from '../../ui/select-search'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
+import SelectSearch from "@core/components/ui/select-search"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'

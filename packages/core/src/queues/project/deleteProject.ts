@@ -1,5 +1,5 @@
-import { addDestroyApplicationQueue } from '../app/destroy'
-import { addDestroyDatabaseQueue } from '../database/destroy'
+import { addDestroyApplicationQueue } from "@core/queues/app/destroy"
+import { addDestroyDatabaseQueue } from "@core/queues/database/destroy"
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'

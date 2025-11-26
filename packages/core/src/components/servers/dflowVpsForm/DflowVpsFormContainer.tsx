@@ -5,14 +5,14 @@ import { useState } from 'react'
 import { VpsPlan } from '@/lib/restSDK/types'
 import { CloudProviderAccount, SshKey } from '@/payload-types'
 
-import { AccountConnectionStatus } from './AccountConnectionStatus'
-import { AccountSelectionSection } from './AccountSelectionSection'
-import { DflowVpsFormProvider } from './DflowVpsFormProvider'
-import { HeaderSection } from './HeaderSection'
-import { OrderForm } from './OrderForm'
-import { PaymentStatusSection } from './PaymentStatusSection'
-import { SpecificationsSection } from './SpecificationsSection'
-import { TrafficSection } from './TrafficSection'
+import { AccountConnectionStatus } from "@core/components/servers/dflowVpsForm/AccountConnectionStatus"
+import { AccountSelectionSection } from "@core/components/servers/dflowVpsForm/AccountSelectionSection"
+import { DflowVpsFormProvider } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { HeaderSection } from "@core/components/servers/dflowVpsForm/HeaderSection"
+import { OrderForm } from "@core/components/servers/dflowVpsForm/OrderForm"
+import { PaymentStatusSection } from "@core/components/servers/dflowVpsForm/PaymentStatusSection"
+import { SpecificationsSection } from "@core/components/servers/dflowVpsForm/SpecificationsSection"
+import { TrafficSection } from "@core/components/servers/dflowVpsForm/TrafficSection"
 
 export const DflowVpsFormContainer = ({
   vpsPlan,

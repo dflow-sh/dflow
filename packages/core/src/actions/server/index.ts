@@ -36,7 +36,7 @@ import {
   updateServerResourceLimitsSchema,
   updateServerSchema,
   updateTailscaleServerSchema,
-} from './validator'
+} from "@core/actions/server/validator"
 
 type DeploymentService = Omit<Service, 'project'>
 

@@ -2,7 +2,7 @@
 
 import { protectedClient } from '@/lib/safe-action'
 
-import { getProjectDetailsSchema } from './validator'
+import { getProjectDetailsSchema } from "@core/actions/pages/project/validator"
 
 export const getProjectDetails = protectedClient
   .metadata({

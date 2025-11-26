@@ -1,4 +1,4 @@
-import { BaseRecord } from './base'
+import { BaseRecord } from "@core/lib/beszel/types/base"
 
 // System Stats collection return type
 export interface SystemStats extends BaseRecord {

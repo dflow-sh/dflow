@@ -1,16 +1,16 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Dialog } from '../ui/dialog'
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Dialog } from "@core/components/ui/dialog"
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import { ServerType } from '@/payload-types-overrides'
 
-import DeleteServerDialog from './DeleteServerDialog'
-import ResetOnboardingDialog from './ResetOnboardingDialog'
-import ResetServerDialog from './ResetServerDialog'
+import DeleteServerDialog from "@core/components/servers/DeleteServerDialog"
+import ResetOnboardingDialog from "@core/components/servers/ResetOnboardingDialog"
+import ResetServerDialog from "@core/components/servers/ResetServerDialog"
 
 const Danger = ({ server }: { server: ServerType }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)

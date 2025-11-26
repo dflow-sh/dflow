@@ -1,6 +1,6 @@
 import { JSX } from 'react'
 
-import { DynamicBreadcrumbs } from './DynamicBreadcrumbs'
+import { DynamicBreadcrumbs } from "@core/components/DynamicBreadcrumbs"
 
 const PageHeader = ({
   title,

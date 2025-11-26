@@ -1,11 +1,11 @@
-import SidebarToggleButton from '../SidebarToggleButton'
-import { Nginx, Traefik } from '../icons'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Nginx, Traefik } from "@core/components/icons"
 import { ArrowRightLeft } from 'lucide-react'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Service } from '@/payload-types'
 
-import NginxConfigurationTab from './NginxConfigurationTab'
+import NginxConfigurationTab from "@core/components/service/NginxConfigurationTab"
 
 const ProxyTab = ({
   proxyData,

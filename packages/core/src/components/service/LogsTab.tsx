@@ -1,6 +1,6 @@
 'use client'
 
-import XTermTerminal from '../XTermTerminal'
+import XTermTerminal from "@core/components/XTermTerminal"
 import { useEffect, useRef } from 'react'
 
 import useXterm from '@/hooks/use-xterm'

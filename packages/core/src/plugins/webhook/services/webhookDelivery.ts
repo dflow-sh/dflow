@@ -1,4 +1,4 @@
-import type { WebhookConfig, WebhookPayload } from '../types'
+import type { WebhookConfig, WebhookPayload } from "@core/plugins/webhook/types"
 import axios from 'axios'
 import crypto from 'crypto'
 import type { Payload } from 'payload'

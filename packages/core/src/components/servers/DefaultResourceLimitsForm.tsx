@@ -1,19 +1,19 @@
 'use client'
 
-import { Alert, AlertDescription } from '../ui/alert'
-import { Button } from '../ui/button'
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from "@core/components/ui/card"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '../ui/collapsible'
+} from "@core/components/ui/collapsible"
 import {
   Form,
   FormControl,
@@ -21,9 +21,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import { Separator } from '../ui/separator'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Separator } from "@core/components/ui/separator"
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   AlertTriangle,

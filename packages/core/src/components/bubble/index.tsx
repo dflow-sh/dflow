@@ -19,12 +19,12 @@ import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { TerminalMode, useTerminal } from '@/providers/TerminalProvider'
 
-import MenuPanel from './MenuPanel'
-import PreferencesPanel from './PreferencesPanel'
-import QueuesPanel from './QueuesPanel'
-import SyncPanel from './SyncPanel'
-import TerminalPanel from './TerminalPanel'
-import type { NotificationType, Position, Size } from './bubble-types'
+import MenuPanel from "@core/components/bubble/MenuPanel"
+import PreferencesPanel from "@core/components/bubble/PreferencesPanel"
+import QueuesPanel from "@core/components/bubble/QueuesPanel"
+import SyncPanel from "@core/components/bubble/SyncPanel"
+import TerminalPanel from "@core/components/bubble/TerminalPanel"
+import type { NotificationType, Position, Size } from "@core/components/bubble/bubble-types"
 
 // Responsive size map with viewport units
 const sizeMap: Record<

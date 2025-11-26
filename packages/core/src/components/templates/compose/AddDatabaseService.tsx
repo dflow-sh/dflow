@@ -22,7 +22,7 @@ import { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import { numberRegex } from '@/lib/constants'
 
-import { getPositionForNewNode } from './ChooseService'
+import { getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
 
 type DatabaseType =
   | 'postgres'

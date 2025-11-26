@@ -1,6 +1,6 @@
 import { getPublicBanners } from '@/actions/banners'
 
-import BannerComponent from './ui/banner'
+import BannerComponent from "@core/components/ui/banner"
 
 export default async function Home() {
   const banners = await getPublicBanners()

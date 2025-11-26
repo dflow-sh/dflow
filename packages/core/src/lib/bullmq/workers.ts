@@ -1,6 +1,6 @@
 import { type Processor, Worker } from 'bullmq'
 
-import { redis } from './redis'
+import { redis } from "@core/lib/bullmq/redis"
 
 const workers = new Map<string, Worker>()
 

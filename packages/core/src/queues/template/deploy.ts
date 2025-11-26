@@ -1,9 +1,9 @@
-import { addDeployQueue } from '../app/deploy'
-import { addDockerImageDeploymentQueue } from '../app/dockerImage-deployment'
-import { addCreateDatabaseWithPluginsQueue } from '../database/createWithPlugins'
-import { addExposeDatabasePortQueue } from '../database/expose'
-import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
-import { updateVolumesQueue } from '../volume/updateVolumesQueue'
+import { addDeployQueue } from "@core/queues/app/deploy"
+import { addDockerImageDeploymentQueue } from "@core/queues/app/dockerImage-deployment"
+import { addCreateDatabaseWithPluginsQueue } from "@core/queues/database/createWithPlugins"
+import { addExposeDatabasePortQueue } from "@core/queues/database/expose"
+import { addUpdateEnvironmentVariablesQueue } from "@core/queues/environment/update"
+import { updateVolumesQueue } from "@core/queues/volume/updateVolumesQueue"
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'

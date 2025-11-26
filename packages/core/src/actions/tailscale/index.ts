@@ -6,7 +6,7 @@ import tailscale from '@/lib/axios/tailscale'
 import { protectedClient } from '@/lib/safe-action'
 import { generateOAuthToken } from '@/lib/tailscale/generateOAuthToken'
 
-import { generateAuthKeySchema } from './validator'
+import { generateAuthKeySchema } from "@core/actions/tailscale/validator"
 
 export const generateOAuthTokenAction = protectedClient
   .metadata({

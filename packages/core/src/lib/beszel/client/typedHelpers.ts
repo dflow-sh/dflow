@@ -10,9 +10,9 @@ import {
   UpdateSystemStatsData,
   UpdateUserData,
   User,
-} from '../types'
+} from "@core/lib/beszel/types"
 
-import { BeszelClient } from './BeszelClient'
+import { BeszelClient } from "@core/lib/beszel/client/BeszelClient"
 
 /**
  * Typed helper functions for better developer experience

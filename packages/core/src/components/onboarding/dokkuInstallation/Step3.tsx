@@ -12,7 +12,7 @@ import {
 import Loader from '@/components/Loader'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 
 const Step3 = ({ server }: { server: ServerType }) => {
   const { dokkuInstallationStep, setDokkuInstallationStep } =

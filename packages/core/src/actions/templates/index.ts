@@ -19,7 +19,7 @@ import {
   getTemplateByIdSchema,
   publicTemplateSchema,
   updateTemplateSchema,
-} from './validator'
+} from "@core/actions/templates/validator"
 
 // This function specify the variable-type
 function classifyVariableType(value: string) {

@@ -9,7 +9,7 @@ import {
   createSecurityGroupSchema,
   getSecurityGroupsSchema,
   updateSecurityGroupSchema,
-} from './validator'
+} from "@core/actions/securityGroups/validator"
 
 export const createSecurityGroupAction = protectedClient
   .metadata({

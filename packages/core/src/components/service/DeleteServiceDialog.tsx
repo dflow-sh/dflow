@@ -1,8 +1,8 @@
 'use client'
 
-import ServiceIcon, { StatusType } from '../ServiceIcon'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/check-box'
+import ServiceIcon, { StatusType } from "@core/components/ServiceIcon"
+import { Button } from "@core/components/ui/button"
+import { Checkbox } from "@core/components/ui/check-box"
 import {
   Dialog,
   DialogContent,
@@ -10,8 +10,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
-import { ScrollArea } from '../ui/scroll-area'
+} from "@core/components/ui/dialog"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import { AlertCircle, Folder, HardDrive, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'

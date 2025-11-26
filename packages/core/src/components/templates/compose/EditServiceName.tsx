@@ -26,7 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { slugify } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
 
-import { EditServiceNameType, editServiceNameSchema } from './types'
+import { EditServiceNameType, editServiceNameSchema } from "@core/components/templates/compose/types"
 
 type type = 'contextMenu' | 'sideBar'
 

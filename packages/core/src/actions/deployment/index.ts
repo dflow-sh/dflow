@@ -2,8 +2,8 @@
 
 import { protectedClient } from '@/lib/safe-action'
 
-import { triggerDeployment } from './deploy'
-import { createDeploymentSchema } from './validator'
+import { triggerDeployment } from "@core/actions/deployment/deploy"
+import { createDeploymentSchema } from "@core/actions/deployment/validator"
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createDeploymentAction = protectedClient

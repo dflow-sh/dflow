@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 
-import { NetdataApiParams } from './types'
+import { NetdataApiParams } from "@core/lib/netdata/types"
 
 /**
  * Makes a direct API call to the Netdata API

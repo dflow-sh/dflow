@@ -10,7 +10,7 @@ import {
   permissionsSchema,
   permissionsWithLimitSchema,
   updateRoleSchema,
-} from './validator'
+} from "@core/actions/roles/validator"
 
 export const getRolesAction = protectedClient
   .metadata({

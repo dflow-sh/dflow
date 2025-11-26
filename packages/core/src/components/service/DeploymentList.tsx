@@ -1,7 +1,7 @@
 'use client'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import { format, formatDistanceToNow } from 'date-fns'
 import { Rocket, ServerCog } from 'lucide-react'
 import dynamic from 'next/dynamic'

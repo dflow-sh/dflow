@@ -30,8 +30,8 @@ import {
 } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 
-import PermissionsTable from './PermissionsTable'
-import RoleDetails from './RoleDetails'
+import PermissionsTable from "@core/components/Team/Roles/PermissionsTable"
+import RoleDetails from "@core/components/Team/Roles/RoleDetails"
 
 const CreateNewRole = ({
   setOpenItem,

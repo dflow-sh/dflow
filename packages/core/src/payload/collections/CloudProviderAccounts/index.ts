@@ -3,7 +3,7 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { checkDuplicateCloudAccounts } from './hooks/checkDuplicateCloudAccounts'
+import { checkDuplicateCloudAccounts } from "@core/payload/collections/CloudProviderAccounts/hooks/checkDuplicateCloudAccounts"
 
 export const CloudProviderAccounts: CollectionConfig = {
   slug: 'cloudProviderAccounts',

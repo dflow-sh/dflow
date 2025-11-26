@@ -1,7 +1,7 @@
 import { Body, Container, Head, Html, Preview } from '@react-email/components'
 import React, { ReactNode } from 'react'
 
-import EmailHeader from './EmailHeader'
+import EmailHeader from "@core/emails/common/EmailHeader"
 
 interface EmailLayoutProps {
   previewText: string

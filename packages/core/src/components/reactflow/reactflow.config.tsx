@@ -17,7 +17,7 @@ import FloatingEdge from '@/components/reactflow/FloatingEdges'
 import FloatingConnectionLine from '@/components/reactflow/FloatingEdges/FloatingConnectionLine'
 import { cn } from '@/lib/utils'
 
-import CustomNode from './CustomNodes'
+import CustomNode from "@core/components/reactflow/CustomNodes"
 
 //background types
 enum BackgroundVariant {

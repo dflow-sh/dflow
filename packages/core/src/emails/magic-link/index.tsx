@@ -1,4 +1,4 @@
-import EmailLayout from '../common/EmailLayout'
+import EmailLayout from "@core/emails/common/EmailLayout"
 import { Button, Hr, Section, Text, render } from '@react-email/components'
 
 interface MagicLinkTemplateProps {

@@ -16,7 +16,7 @@ import {
   createVPSOrderActionSchema,
   deleteDFlowAccountSchema,
   updateDFlowAccountSchema,
-} from './validator'
+} from "@core/actions/cloud/dFlow/validator"
 
 export const connectDFlowAccountAction = protectedClient
   .metadata({

@@ -1,7 +1,7 @@
 'use client'
 
-import Loader from '../Loader'
-import Logo from '../Logo'
+import Loader from "@core/components/Loader"
+import Logo from "@core/components/Logo"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Lock, Mail, User, UserPlus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

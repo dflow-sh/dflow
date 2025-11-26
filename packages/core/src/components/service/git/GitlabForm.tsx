@@ -1,7 +1,7 @@
 'use client'
 
-import SidebarToggleButton from '../../SidebarToggleButton'
-import SecretContent from '../../ui/blur-reveal'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import SecretContent from "@core/components/ui/blur-reveal"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Workflow } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

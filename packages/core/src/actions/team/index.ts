@@ -13,7 +13,7 @@ import {
   joinTeamSchema,
   sendInvitationLinkSchema,
   updateTenantRolesSchema,
-} from './validator'
+} from "@core/actions/team/validator"
 
 export const getTeamMembersAction = protectedClient
   .metadata({ actionName: 'getTeamMembersAction' })

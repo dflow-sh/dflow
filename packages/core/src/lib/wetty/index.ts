@@ -1,9 +1,9 @@
-import { createWettyConfig } from './createWettyConfig'
-import { deployWithNginx } from './deployWithNginx'
-import { listWettyContainers, stopWettyContainer } from './listWettyContainers'
-import { runWettyContainer } from './runWettyContainer'
-import { startWettyWithConfig } from './startWettyWithConfig'
-import { startWettyWithVolume } from './startWettyWithVolume'
+import { createWettyConfig } from "@core/lib/wetty/createWettyConfig"
+import { deployWithNginx } from "@core/lib/wetty/deployWithNginx"
+import { listWettyContainers, stopWettyContainer } from "@core/lib/wetty/listWettyContainers"
+import { runWettyContainer } from "@core/lib/wetty/runWettyContainer"
+import { startWettyWithConfig } from "@core/lib/wetty/startWettyWithConfig"
+import { startWettyWithVolume } from "@core/lib/wetty/startWettyWithVolume"
 
 export const wetty = {
   createWettyConfig,

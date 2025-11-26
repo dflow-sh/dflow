@@ -1,7 +1,7 @@
 'use client'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import { env } from 'env'
 import {
   CircleCheckBig,

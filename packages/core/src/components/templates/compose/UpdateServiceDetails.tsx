@@ -63,15 +63,15 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { Service } from '@/payload-types'
 
-import { PortForm } from './AddDatabaseService'
-import AddDockerService from './AddDockerService'
-import { VolumesForm } from './AddVolumeToService'
-import EditServiceName from './EditServiceName'
-import AddAzureDevopsService from './git/AddAzureDevopsService'
-import AddBitbucketService from './git/AddBitbucketService'
-import AddGiteaService from './git/AddGiteaService'
-import AddGithubService from './git/AddGithubService'
-import AddGitlabService from './git/AddGitlabService'
+import { PortForm } from "@core/components/templates/compose/AddDatabaseService"
+import AddDockerService from "@core/components/templates/compose/AddDockerService"
+import { VolumesForm } from "@core/components/templates/compose/AddVolumeToService"
+import EditServiceName from "@core/components/templates/compose/EditServiceName"
+import AddAzureDevopsService from "@core/components/templates/compose/git/AddAzureDevopsService"
+import AddBitbucketService from "@core/components/templates/compose/git/AddBitbucketService"
+import AddGiteaService from "@core/components/templates/compose/git/AddGiteaService"
+import AddGithubService from "@core/components/templates/compose/git/AddGithubService"
+import AddGitlabService from "@core/components/templates/compose/git/AddGitlabService"
 
 type StatusType = NonNullable<
   NonNullable<ServiceNode['databaseDetails']>['type']

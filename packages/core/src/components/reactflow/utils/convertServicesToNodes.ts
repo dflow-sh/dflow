@@ -1,4 +1,4 @@
-import { ServiceNode } from '../types'
+import { ServiceNode } from "@core/components/reactflow/types"
 import { Edge } from '@xyflow/react'
 
 import { GitProvider, Service, Template } from '@/payload-types'

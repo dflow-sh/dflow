@@ -1,6 +1,6 @@
 'use client'
 
-import { handleGenerateName } from '../servers/dflowVpsForm/utils'
+import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trash2, WandSparkles } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -21,10 +21,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
-import BasicInfoSection from './BasicInfoSection'
-import InboundRulesSection from './InboundRulesSection'
-import OutboundRulesSection from './OutboundRulesSection'
-import TagsSection from './TagsSection'
+import BasicInfoSection from "@core/components/security/BasicInfoSection"
+import InboundRulesSection from "@core/components/security/InboundRulesSection"
+import OutboundRulesSection from "@core/components/security/OutboundRulesSection"
+import TagsSection from "@core/components/security/TagsSection"
 
 // Define RuleType union
 type RuleType =

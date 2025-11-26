@@ -8,10 +8,10 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '../icons'
-import { Badge } from '../ui/badge'
-import { ScrollArea } from '../ui/scroll-area'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+} from "@core/components/icons"
+import { Badge } from "@core/components/ui/badge"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
 import { useRouter } from '@bprogress/next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Database, Github, Loader2, Rocket } from 'lucide-react'

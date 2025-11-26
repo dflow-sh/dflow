@@ -1,7 +1,7 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
-import { Button } from '../ui/button'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
-import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
+} from "@core/components/ui/dialog"
+import { Input } from "@core/components/ui/input"
+import { Switch } from "@core/components/ui/switch"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { env } from 'env'
 import { Info, Plus } from 'lucide-react'

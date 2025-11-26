@@ -3,7 +3,7 @@
 import { allDocs } from '@/docs'
 import { publicClient } from '@/lib/safe-action'
 
-import { docsSchema } from './validator'
+import { docsSchema } from "@core/actions/docs/validator"
 
 export const docsAction = publicClient
   .metadata({

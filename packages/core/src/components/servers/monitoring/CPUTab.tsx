@@ -17,7 +17,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 
-import { getTimeRange } from './getTimeRange'
+import { getTimeRange } from "@core/components/servers/monitoring/getTimeRange"
 
 // Helper function to convert uptime string to seconds for plotting
 const uptimeToSeconds = (uptimeStr: any) => {

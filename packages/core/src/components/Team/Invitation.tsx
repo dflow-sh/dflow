@@ -1,14 +1,14 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select'
+} from "@core/components/ui/select"
 import { Check, Copy, LoaderCircle } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useAction } from 'next-safe-action/hooks'

@@ -1,8 +1,8 @@
 'use client'
 
-import Loader from '../Loader'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import Loader from "@core/components/Loader"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'

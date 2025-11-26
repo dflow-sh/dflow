@@ -5,9 +5,9 @@ import type { CollectionConfig } from 'payload'
 import { ResetPassword } from '@/emails/reset-password'
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { createBeszelUser } from './hooks/createBeszelUser'
-import { createTenantAndRole } from './hooks/createTenantAndRole'
-import { handleUserRoles } from './hooks/handleUserRoles'
+import { createBeszelUser } from "@core/payload/collections/Users/hooks/createBeszelUser"
+import { createTenantAndRole } from "@core/payload/collections/Users/hooks/createTenantAndRole"
+import { handleUserRoles } from "@core/payload/collections/Users/hooks/handleUserRoles"
 
 const defaultTenantArrayField = tenantsArrayField({
   tenantsArrayFieldName: 'tenants',

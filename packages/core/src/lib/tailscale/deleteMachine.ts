@@ -3,7 +3,7 @@ import type { BasePayload } from 'payload'
 
 import tailscale from '@/lib/axios/tailscale'
 
-import { generateOAuthToken } from './generateOAuthToken'
+import { generateOAuthToken } from "@core/lib/tailscale/generateOAuthToken"
 
 export const deleteMachine = async ({
   payload,

@@ -2,9 +2,9 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { checkDuplicateGitProviders } from './hooks/checkDuplicateGitProviders'
+import { checkDuplicateGitProviders } from "@core/payload/collections/GitProviders/hooks/checkDuplicateGitProviders"
 
-// import { populateInstallationToken } from './hooks/populateInstallationToken'
+// import { populateInstallationToken } from "@core/payload/collections/GitProviders/hooks/populateInstallationToken"
 
 export const GitProviders: CollectionConfig = {
   slug: 'gitProviders',

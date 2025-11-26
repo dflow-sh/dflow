@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { Github } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 
-import CountUp from './ContUp'
+import CountUp from "@core/components/ContUp"
 
 const GithubStars = ({
   githubStars,

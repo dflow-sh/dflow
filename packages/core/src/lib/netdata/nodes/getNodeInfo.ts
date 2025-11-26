@@ -1,7 +1,7 @@
-import { netdataAPI } from '../netdataAPI'
-import { NetdataApiParams } from '../types'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { NetdataApiParams } from "@core/lib/netdata/types"
 
-import { NodeInfoResponse } from './types'
+import { NodeInfoResponse } from "@core/lib/netdata/nodes/types"
 
 /**
  * Get information about the current node (v1)

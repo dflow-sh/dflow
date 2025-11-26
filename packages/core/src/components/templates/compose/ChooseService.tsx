@@ -26,13 +26,13 @@ import { Input } from '@/components/ui/input'
 import { getSessionValue } from '@/lib/getSessionValue'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
-import AddDatabaseService from './AddDatabaseService'
-import AddDockerService from './AddDockerService'
-import { VolumeServicesList } from './AddVolumeToService'
-import ContextMenu from './ContextMenu'
-import ReorderList from './DeploymentOrder'
-import UpdateServiceDetails from './UpdateServiceDetails'
-import AppType from './git'
+import AddDatabaseService from "@core/components/templates/compose/AddDatabaseService"
+import AddDockerService from "@core/components/templates/compose/AddDockerService"
+import { VolumeServicesList } from "@core/components/templates/compose/AddVolumeToService"
+import ContextMenu from "@core/components/templates/compose/ContextMenu"
+import ReorderList from "@core/components/templates/compose/DeploymentOrder"
+import UpdateServiceDetails from "@core/components/templates/compose/UpdateServiceDetails"
+import AppType from "@core/components/templates/compose/git"
 
 interface Menu {
   service: ServiceNode

@@ -1,5 +1,5 @@
-import { netdataAPI } from '.././netdataAPI'
-import { CpuMetricsResponse, NetdataApiParams } from '.././types'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { CpuMetricsResponse, NetdataApiParams } from "@core/lib/netdata/types"
 
 /**
  * Gets CPU usage metrics from Netdata

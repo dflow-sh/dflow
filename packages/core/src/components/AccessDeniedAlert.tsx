@@ -1,7 +1,7 @@
 import { ShieldAlert } from 'lucide-react'
 
-import { Alert, AlertDescription } from './ui/alert'
-import { Button } from './ui/button'
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 
 const AccessDeniedAlert = ({
   error,

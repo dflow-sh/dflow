@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Role } from '@/payload-types'
 
-import RoleDetails from './RoleDetails'
+import RoleDetails from "@core/components/Team/Roles/RoleDetails"
 
 const UpdateRoleDetails = ({
   role,

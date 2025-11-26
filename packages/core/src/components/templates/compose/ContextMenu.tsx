@@ -7,8 +7,8 @@ import type { ServiceNode } from '@/components/reactflow/types'
 import { Button } from '@/components/ui/button'
 import { useArchitectureContext } from '@/providers/ArchitectureProvider'
 
-import AddVolumeToService from './AddVolumeToService'
-import EditServiceName from './EditServiceName'
+import AddVolumeToService from "@core/components/templates/compose/AddVolumeToService"
+import EditServiceName from "@core/components/templates/compose/EditServiceName"
 
 interface ContextMenuProps {
   top: number

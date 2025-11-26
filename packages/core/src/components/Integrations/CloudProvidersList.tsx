@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
 import { format } from 'date-fns'
 import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { deleteAWSAccountAction } from '@/actions/cloud/aws'
 import { CloudProviderAccount } from '@/payload-types'
 
-import AWSAccountForm from './aws/AWSAccountForm'
+import AWSAccountForm from "@core/components/Integrations/aws/AWSAccountForm"
 
 type RefetchType = (input: {
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'

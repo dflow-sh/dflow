@@ -1,4 +1,4 @@
-import { ServiceNode } from '../types'
+import { ServiceNode } from "@core/components/reactflow/types"
 import { Handle, Position } from '@xyflow/react'
 import { formatDistanceToNow } from 'date-fns'
 import {

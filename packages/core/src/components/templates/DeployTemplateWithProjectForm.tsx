@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/check-box'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Checkbox } from "@core/components/ui/check-box"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -18,8 +18,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -27,8 +27,8 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from '../ui/select'
-import { Textarea } from '../ui/textarea'
+} from "@core/components/ui/select"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'

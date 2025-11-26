@@ -1,9 +1,9 @@
 import { getRolesAction } from '@/actions/roles'
 import { User } from '@/payload-types'
 
-import Invitation from './Invitation'
-import Roles from './Roles'
-import TeamMembers from './TeamMembers'
+import Invitation from "@core/components/Team/Invitation"
+import Roles from "@core/components/Team/Roles"
+import TeamMembers from "@core/components/Team/TeamMembers"
 
 async function TeamView({
   teamMembers,

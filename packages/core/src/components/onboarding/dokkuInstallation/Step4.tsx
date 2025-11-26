@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 
 const Step4 = ({ server }: { server: ServerType }) => {
   const {

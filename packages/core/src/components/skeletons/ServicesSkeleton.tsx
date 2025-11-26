@@ -1,7 +1,7 @@
 'use client'
 
-import ReactFlowConfig from '../reactflow/reactflow.config'
-import { Skeleton } from '../ui/skeleton'
+import ReactFlowConfig from "@core/components/reactflow/reactflow.config"
+import { Skeleton } from "@core/components/ui/skeleton"
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
 
 const ServicesSkeleton = () => {

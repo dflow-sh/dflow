@@ -5,9 +5,9 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../ui/accordion'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+} from "@core/components/ui/accordion"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Form,
   FormControl,
@@ -15,10 +15,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import { MultiSelect } from '../ui/multi-select'
-import { Textarea } from '../ui/textarea'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { MultiSelect } from "@core/components/ui/multi-select"
+import { Textarea } from "@core/components/ui/textarea"
 import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'

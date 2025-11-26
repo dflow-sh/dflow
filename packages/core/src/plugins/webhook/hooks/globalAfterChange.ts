@@ -1,4 +1,4 @@
-import { triggerWebhooks } from '../services/webhookDelivery'
+import { triggerWebhooks } from "@core/plugins/webhook/services/webhookDelivery"
 import type { GlobalAfterChangeHook } from 'payload'
 
 export const webhookGlobalAfterChange: GlobalAfterChangeHook = async ({

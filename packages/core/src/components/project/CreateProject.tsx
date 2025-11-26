@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Textarea } from '../ui/textarea'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'

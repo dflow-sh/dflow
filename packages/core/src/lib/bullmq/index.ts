@@ -1,6 +1,6 @@
-import * as queues from './queues'
-import { redis } from './redis'
-import * as workers from './workers'
+import * as queues from "@core/lib/bullmq/queues"
+import { redis } from "@core/lib/bullmq/redis"
+import * as workers from "@core/lib/bullmq/workers"
 
 export const bullmq = {
   queues,

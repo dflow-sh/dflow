@@ -2,7 +2,7 @@
 
 import { publicClient } from '@/lib/safe-action'
 
-import { exampleSchema } from './validator'
+import { exampleSchema } from "@core/actions/example/validator"
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const exampleAction = publicClient

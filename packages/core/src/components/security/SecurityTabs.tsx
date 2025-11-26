@@ -1,6 +1,6 @@
 'use client'
 
-import AccessDeniedAlert from '../AccessDeniedAlert'
+import AccessDeniedAlert from "@core/components/AccessDeniedAlert"
 import { KeyRound, Shield } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'

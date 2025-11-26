@@ -1,9 +1,9 @@
 'use client'
 
-import SidebarToggleButton from '../SidebarToggleButton'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus, Trash2, X } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

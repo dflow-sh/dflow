@@ -9,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { supportedDokkuVersion, supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 
 const Step2 = ({ server }: { server: ServerType }) => {
   const [outdatedDokku, setOutdatedDokku] = useState(false)

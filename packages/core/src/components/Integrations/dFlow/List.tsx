@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { CloudProviderAccount } from '@/payload-types'
 
-import DFlowForm from './Form'
+import DFlowForm from "@core/components/Integrations/dFlow/Form"
 
 type RefetchType = (input: {
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'

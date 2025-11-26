@@ -1,7 +1,7 @@
 'use client'
 
-import { getPositionForNewNode } from '../ChooseService'
-import { GithubServiceSchema, GithubServiceType } from '../types'
+import { getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
+import { GithubServiceSchema, GithubServiceType } from "@core/components/templates/compose/types"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Node, useReactFlow } from '@xyflow/react'
 import { Workflow } from 'lucide-react'

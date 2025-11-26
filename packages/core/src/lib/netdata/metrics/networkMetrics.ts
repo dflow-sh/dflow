@@ -1,5 +1,5 @@
-import { MetricsResponse, NetdataApiParams, NetdataContexts } from '../types'
-import { formatTimestamp, getTimeSeriesData } from '../utils'
+import { MetricsResponse, NetdataApiParams, NetdataContexts } from "@core/lib/netdata/types"
+import { formatTimestamp, getTimeSeriesData } from "@core/lib/netdata/utils"
 
 /**
  * Retrieves bandwidth metrics for individual physical network interfaces.

@@ -1,4 +1,4 @@
-import { Skeleton } from '../ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 
 const GithubIntegrationsLoading = () => {
   return (

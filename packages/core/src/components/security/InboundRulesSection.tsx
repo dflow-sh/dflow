@@ -2,7 +2,7 @@ import { Plus, ShieldAlert } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
-import RuleForm from './RuleForm'
+import RuleForm from "@core/components/security/RuleForm"
 
 const InboundRulesSection = ({
   form,

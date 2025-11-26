@@ -3,7 +3,7 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { checkDuplicateDockerRegistries } from './hooks/checkDuplicateDockerRegistries'
+import { checkDuplicateDockerRegistries } from "@core/payload/collections/DockerRegistries/hooks/checkDuplicateDockerRegistries"
 
 export const DockerRegistries: CollectionConfig = {
   slug: 'dockerRegistries',

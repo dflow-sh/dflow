@@ -1,5 +1,5 @@
-import { netdataAPI } from '../netdataAPI'
-import { NetdataApiParams } from '../types'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { NetdataApiParams } from "@core/lib/netdata/types"
 
 /**
  * Access the health management API

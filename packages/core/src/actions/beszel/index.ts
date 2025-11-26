@@ -16,8 +16,8 @@ import {
   findMonitoringProject,
   processServices,
   setupBeszelSystem,
-} from './utils'
-import { getSystemStatsSchema, installMonitoringToolsSchema } from './validator'
+} from "@core/actions/beszel/utils"
+import { getSystemStatsSchema, installMonitoringToolsSchema } from "@core/actions/beszel/validator"
 
 export const installMonitoringToolsAction = protectedClient
   .metadata({ actionName: 'installMonitoringToolsAction' })

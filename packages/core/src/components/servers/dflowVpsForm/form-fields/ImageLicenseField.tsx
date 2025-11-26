@@ -1,6 +1,6 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
-import { VpsFormData } from '../schemas'
-import { formatValue } from '../utils'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { VpsFormData } from "@core/components/servers/dflowVpsForm/schemas"
+import { formatValue } from "@core/components/servers/dflowVpsForm/utils"
 import { Box } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 

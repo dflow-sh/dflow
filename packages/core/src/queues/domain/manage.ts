@@ -1,4 +1,4 @@
-import { addUpdateEnvironmentVariablesQueue } from '../environment/update'
+import { addUpdateEnvironmentVariablesQueue } from "@core/queues/environment/update"
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { env } from 'env'

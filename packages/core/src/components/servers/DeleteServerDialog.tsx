@@ -1,9 +1,9 @@
 'use client'
 
-import ServiceIcon, { StatusType } from '../ServiceIcon'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/check-box'
+import ServiceIcon, { StatusType } from "@core/components/ServiceIcon"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Checkbox } from "@core/components/ui/check-box"
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
-import { ScrollArea } from '../ui/scroll-area'
+} from "@core/components/ui/dialog"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import {
   AlertCircle,
   ChevronDown,

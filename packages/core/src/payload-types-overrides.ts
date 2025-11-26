@@ -1,4 +1,4 @@
-import { Server } from './payload-types'
+import { Server } from "@core/payload-types"
 
 export interface ServerType extends Server {
   version: string | 'not-installed' | null

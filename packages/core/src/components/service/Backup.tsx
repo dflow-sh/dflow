@@ -1,9 +1,9 @@
 'use client'
 
-import { ComingSoonBadge } from '../ComingSoonBadge'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Checkbox } from '../ui/check-box'
+import { ComingSoonBadge } from "@core/components/ComingSoonBadge"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Checkbox } from "@core/components/ui/check-box"
 import {
   Dialog,
   DialogContent,
@@ -12,13 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import {
   ChevronDown,
   Cloud,

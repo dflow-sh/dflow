@@ -1,1 +1,1 @@
-export { getCpuUsage } from './getCpuUsage'
+export { getCpuUsage } from "@core/lib/netdata/cpu/getCpuUsage"

@@ -4,7 +4,7 @@ import {
   CollectionUpdateData,
   Collections,
   PocketBaseListResult,
-} from '../types'
+} from "@core/lib/beszel/types"
 import PocketBase from 'pocketbase'
 
 import {
@@ -15,7 +15,7 @@ import {
   GetOneParams,
   ListParams,
   UpdateParams,
-} from './interfaces'
+} from "@core/lib/beszel/client/interfaces"
 
 // Custom error classes for better error handling
 export class BeszelAuthError extends Error {

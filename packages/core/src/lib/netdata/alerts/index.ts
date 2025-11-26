@@ -1,5 +1,5 @@
-export { getAlarmCount } from './getAlarmCount'
-export { getAlarmLog } from './getAlarmLog'
-export { getAlarms } from './getAlarms'
-export { getAlarmsValues } from './getAlarmsValues'
-export { getAlarmVariables } from './getAlarmVariables'
+export { getAlarmCount } from "@core/lib/netdata/alerts/getAlarmCount"
+export { getAlarmLog } from "@core/lib/netdata/alerts/getAlarmLog"
+export { getAlarms } from "@core/lib/netdata/alerts/getAlarms"
+export { getAlarmsValues } from "@core/lib/netdata/alerts/getAlarmsValues"
+export { getAlarmVariables } from "@core/lib/netdata/alerts/getAlarmVariables"

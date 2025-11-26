@@ -35,10 +35,10 @@ import {
 import { cn } from '@/lib/utils'
 import { Project, Server, Service } from '@/payload-types'
 
-import DeleteProjectDialog from './DeleteProjectDialog'
-import UpdateProject from './project/CreateProject'
-import { Badge } from './ui/badge'
-import { Button } from './ui/button'
+import DeleteProjectDialog from "@core/components/DeleteProjectDialog"
+import UpdateProject from "@core/components/project/CreateProject"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 
 export function ProjectCard({
   project,

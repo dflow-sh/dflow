@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import { useMemo } from 'react'

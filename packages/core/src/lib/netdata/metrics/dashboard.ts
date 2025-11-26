@@ -1,10 +1,10 @@
-import { MetricsResponse, NetdataApiParams } from '../types'
+import { MetricsResponse, NetdataApiParams } from "@core/lib/netdata/types"
 
-import * as cpuMetrics from './cpuMetrics'
-import * as diskMetrics from './diskMetrics'
-import * as memoryMetrics from './memoryMetrics'
-import * as networkMetrics from './networkMetrics'
-import * as systemMetrics from './systemMetrics'
+import * as cpuMetrics from "@core/lib/netdata/metrics/cpuMetrics"
+import * as diskMetrics from "@core/lib/netdata/metrics/diskMetrics"
+import * as memoryMetrics from "@core/lib/netdata/metrics/memoryMetrics"
+import * as networkMetrics from "@core/lib/netdata/metrics/networkMetrics"
+import * as systemMetrics from "@core/lib/netdata/metrics/systemMetrics"
 
 export const getDashboardMetrics = async (
   params: NetdataApiParams,

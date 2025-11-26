@@ -12,7 +12,7 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from './icons'
+} from "@core/components/icons"
 
 export type StatusType =
   | NonNullable<NonNullable<Service['databaseDetails']>['type']>

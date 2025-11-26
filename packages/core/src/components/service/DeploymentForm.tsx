@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import { Ban, Database, DatabaseBackup, RefreshCcw, Rocket } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams, useRouter } from 'next/navigation'

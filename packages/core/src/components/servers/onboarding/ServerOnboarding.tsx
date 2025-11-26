@@ -9,12 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import ConfigureDomain from './ConfigureDomain'
+import ConfigureDomain from "@core/components/servers/onboarding/ConfigureDomain"
 import {
   ServerOnboardingProvider,
   useServerOnboarding,
-} from './ServerOnboardingContext'
-import ServerSetup from './ServerSetup'
+} from "@core/components/servers/onboarding/ServerOnboardingContext"
+import ServerSetup from "@core/components/servers/onboarding/ServerSetup"
 
 const ServerOnboardingContent = ({
   server,

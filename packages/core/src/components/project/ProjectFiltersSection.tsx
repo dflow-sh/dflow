@@ -1,7 +1,7 @@
 'use client'
 
-import { Docker } from '../icons'
-import { Button } from '../ui/button'
+import { Docker } from "@core/components/icons"
+import { Button } from "@core/components/ui/button"
 import {
   AlertCircle,
   CheckCircle,

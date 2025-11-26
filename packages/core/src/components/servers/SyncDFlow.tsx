@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowUpDown } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

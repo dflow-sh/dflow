@@ -1,7 +1,7 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
-import { Button } from '../ui/button'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import { useRouter } from '@bprogress/next'
 import {
   AlertCircle,

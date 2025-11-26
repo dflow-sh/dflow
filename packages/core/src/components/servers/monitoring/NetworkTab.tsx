@@ -27,7 +27,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart'
 
-import { getTimeRange } from './getTimeRange'
+import { getTimeRange } from "@core/components/servers/monitoring/getTimeRange"
 
 const NetworkTab = ({
   networkBandwidth,

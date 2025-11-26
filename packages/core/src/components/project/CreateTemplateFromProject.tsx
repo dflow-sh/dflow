@@ -1,7 +1,7 @@
 'use client'
 
-import { Alert } from '../ui/alert'
-import { Button } from '../ui/button'
+import { Alert } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -17,9 +17,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import { Textarea } from '../ui/textarea'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Puzzle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

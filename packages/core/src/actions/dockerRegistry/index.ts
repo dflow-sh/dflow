@@ -11,7 +11,7 @@ import {
   deleteDockerRegistrySchema,
   testDockerRegistryConnectionSchema,
   updateDockerRegistrySchema,
-} from './validator'
+} from "@core/actions/dockerRegistry/validator"
 
 export const getDockerRegistries = protectedClient
   .metadata({

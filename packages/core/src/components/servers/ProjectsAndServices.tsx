@@ -8,7 +8,7 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '../icons'
+} from "@core/components/icons"
 import {
   ChevronRight,
   Database,

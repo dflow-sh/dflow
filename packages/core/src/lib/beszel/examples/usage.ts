@@ -2,9 +2,9 @@ import {
   BeszelClient,
   loginAsBeszelSuperuser,
   loginAsBeszelUser,
-} from '../client/BeszelClient'
-import { TypedBeszelHelpers } from '../client/typedHelpers'
-import { Alert, Collections, User } from '../types'
+} from "@core/lib/beszel/client/BeszelClient"
+import { TypedBeszelHelpers } from "@core/lib/beszel/client/typedHelpers"
+import { Alert, Collections, User } from "@core/lib/beszel/types"
 
 /**
  * Example usage of the Beszel SDK

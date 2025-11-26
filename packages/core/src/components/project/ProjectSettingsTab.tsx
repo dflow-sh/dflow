@@ -1,7 +1,7 @@
 'use client'
 
-import DeleteProjectDialog from '../DeleteProjectDialog'
-import { Button } from '../ui/button'
+import DeleteProjectDialog from "@core/components/DeleteProjectDialog"
+import { Button } from "@core/components/ui/button"
 import { AlertTriangle, Settings2, Trash2 } from 'lucide-react'
 import React, { useState } from 'react'
 

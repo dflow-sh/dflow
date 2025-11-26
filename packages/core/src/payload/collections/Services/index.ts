@@ -4,7 +4,7 @@ import { CollectionConfig, Field } from 'payload'
 import { databaseOptions } from '@/lib/constants'
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { handleTraefikConfiguration } from './hooks/handleTraefikConfiguration'
+import { handleTraefikConfiguration } from "@core/payload/collections/Services/hooks/handleTraefikConfiguration"
 
 const databaseField: Field = {
   label: 'Database Details',

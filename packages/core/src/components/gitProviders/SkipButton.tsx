@@ -1,7 +1,7 @@
 'use client'
 
-import Loader from '../Loader'
-import { Button } from '../ui/button'
+import Loader from "@core/components/Loader"
+import { Button } from "@core/components/ui/button"
 import { useAction } from 'next-safe-action/hooks'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'

@@ -7,7 +7,7 @@ import { extractSSHDetails } from '@/lib/ssh'
 import { addInstallNetdataQueue } from '@/queues/netdata/install'
 import { addUninstallNetdataQueue } from '@/queues/netdata/uninstall'
 
-import { installNetdataSchema, uninstallNetdataSchema } from './validator'
+import { installNetdataSchema, uninstallNetdataSchema } from "@core/actions/netdata/validator"
 
 export const installNetdataAction = protectedClient
   .metadata({

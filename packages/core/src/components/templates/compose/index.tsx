@@ -1,6 +1,6 @@
 'use client'
 
-import DeployTemplateWithProjectForm from '../DeployTemplateWithProjectForm'
+import DeployTemplateWithProjectForm from "@core/components/templates/DeployTemplateWithProjectForm"
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Edge,
@@ -55,7 +55,7 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 
-import ChooseService, { ChildRef, getPositionForNewNode } from './ChooseService'
+import ChooseService, { ChildRef, getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
 
 type FlowStorage = {
   nodes: Node[]

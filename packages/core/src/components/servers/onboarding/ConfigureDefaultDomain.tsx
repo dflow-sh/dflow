@@ -1,4 +1,4 @@
-import { DomainFormWithoutDialog } from '../DomainForm'
+import { DomainFormWithoutDialog } from "@core/components/servers/DomainForm"
 import { env } from 'env'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useRef } from 'react'

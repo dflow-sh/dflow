@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils'
 import { useBubble } from '@/providers/BubbleProvider'
 import { useTerminal } from '@/providers/TerminalProvider'
 
-import type { Panel } from './bubble-types'
+import type { Panel } from "@core/components/bubble/bubble-types"
 
 declare global {
   interface Window {

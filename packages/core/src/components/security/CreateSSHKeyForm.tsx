@@ -1,11 +1,11 @@
 'use client'
 
-import { handleGenerateName } from '../servers/dflowVpsForm/utils'
-import SecretContent from '../ui/blur-reveal'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { ScrollArea } from '../ui/scroll-area'
-import { Textarea } from '../ui/textarea'
+import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
+import SecretContent from "@core/components/ui/blur-reveal"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Copy, Download, Key } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

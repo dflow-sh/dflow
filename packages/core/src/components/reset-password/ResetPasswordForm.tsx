@@ -1,6 +1,6 @@
 'use client'
 
-import Loader from '../Loader'
+import Loader from "@core/components/Loader"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAction } from 'next-safe-action/hooks'
 import Image from 'next/image'

@@ -1,4 +1,4 @@
-import { triggerWebhooks } from '../services/webhookDelivery'
+import { triggerWebhooks } from "@core/plugins/webhook/services/webhookDelivery"
 import type { CollectionAfterDeleteHook } from 'payload'
 
 export const webhookAfterDelete: CollectionAfterDeleteHook = async ({

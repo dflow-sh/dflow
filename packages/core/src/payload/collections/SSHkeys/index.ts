@@ -3,7 +3,7 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { ensureUniqueName } from './hooks/ensureUniqueName'
+import { ensureUniqueName } from "@core/payload/collections/SSHkeys/hooks/ensureUniqueName"
 
 export const SSHKeys: CollectionConfig = {
   slug: 'sshKeys',

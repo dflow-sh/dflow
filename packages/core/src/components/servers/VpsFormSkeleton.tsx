@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '../ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 import { z } from 'zod'
 
 const loginSchema = z.object({

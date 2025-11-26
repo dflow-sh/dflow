@@ -1,18 +1,18 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { Separator } from '../ui/separator'
+} from "@core/components/ui/card"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
+import { Separator } from "@core/components/ui/separator"
 import { AlertTriangle, Check, FolderOpen, RotateCcw } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'

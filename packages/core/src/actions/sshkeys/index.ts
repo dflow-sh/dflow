@@ -10,7 +10,7 @@ import {
   deleteSSHKeySchema,
   generateSSHKeySchema,
   updateSSHKeySchema,
-} from './validator'
+} from "@core/actions/sshkeys/validator"
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const createSSHKeyAction = protectedClient

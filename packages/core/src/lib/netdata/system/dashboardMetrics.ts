@@ -1,7 +1,7 @@
 'use server'
 
-import { MetricsResponse, NetdataApiParams } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { MetricsResponse, NetdataApiParams } from "@core/lib/netdata/types"
+import { getTimeSeriesData } from "@core/lib/netdata/utils"
 
 /**
  * Gets CPU usage time series data

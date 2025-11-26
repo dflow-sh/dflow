@@ -1,7 +1,7 @@
 'use client'
 
-import RefreshButton from '../RefreshButton'
-import { Dokku, Ubuntu } from '../icons'
+import RefreshButton from "@core/components/RefreshButton"
+import { Dokku, Ubuntu } from "@core/components/icons"
 import {
   AlertCircle,
   Check,

@@ -3,7 +3,7 @@
 import { protectedClient } from '@core/lib/safe-action'
 import { ServerType } from '@core/payload-types-overrides'
 import { checkServersSSHConnectionQueue } from '@core/queues/server/checkSSHConnection'
-import { getServerDetailsSchema, getServersDetailsSchema } from './validator'
+import { getServerDetailsSchema, getServersDetailsSchema } from "@core/actions/pages/server/validator"
 
 export const getServersDetailsAction = protectedClient
   .metadata({

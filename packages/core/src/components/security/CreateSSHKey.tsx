@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import { Eye, Plus } from 'lucide-react'
 import { useState } from 'react'
 
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { SshKey } from '@/payload-types'
 
-import CreateSSHKeyForm from './CreateSSHKeyForm'
+import CreateSSHKeyForm from "@core/components/security/CreateSSHKeyForm"
 
 const CreateSSHKey = ({
   type = 'create',

@@ -1,8 +1,8 @@
 'use client'
 
-import { Kubernetes } from '../icons'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import { Kubernetes } from "@core/components/icons"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import { format } from 'date-fns'
 import {
   AlertCircle,
@@ -45,7 +45,7 @@ import {
 import { cn } from '@/lib/utils'
 import { Server } from '@/payload-types'
 
-import DeleteServerDialog from './DeleteServerDialog'
+import DeleteServerDialog from "@core/components/servers/DeleteServerDialog"
 
 const ServerCard = ({
   server,

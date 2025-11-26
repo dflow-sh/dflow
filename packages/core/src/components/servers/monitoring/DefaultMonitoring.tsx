@@ -16,10 +16,10 @@ import {
 import { System } from '@/lib/beszel/types'
 import { ServerType } from '@/payload-types-overrides'
 
-import DefaultCurrentResourceUsage from './DefaultCurrentResourceUsage'
-import DefaultMonitoringTabs from './DefaultMonitoringTabs'
-import DefaultSystemInfo from './DefaultSystemInfo'
-import DefaultTimeRangeSelector from './DefaultTimeRangeSelector'
+import DefaultCurrentResourceUsage from "@core/components/servers/monitoring/DefaultCurrentResourceUsage"
+import DefaultMonitoringTabs from "@core/components/servers/monitoring/DefaultMonitoringTabs"
+import DefaultSystemInfo from "@core/components/servers/monitoring/DefaultSystemInfo"
+import DefaultTimeRangeSelector from "@core/components/servers/monitoring/DefaultTimeRangeSelector"
 
 interface DefaultMonitoringProps {
   server: ServerType

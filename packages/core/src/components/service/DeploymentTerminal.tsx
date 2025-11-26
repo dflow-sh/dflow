@@ -1,6 +1,6 @@
 'use client'
 
-import XTermTerminal from '../XTermTerminal'
+import XTermTerminal from "@core/components/XTermTerminal"
 import { SquareTerminal } from 'lucide-react'
 import React, { useEffect, useRef } from 'react'
 

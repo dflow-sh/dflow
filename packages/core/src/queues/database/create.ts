@@ -1,5 +1,5 @@
-import { dokku } from '../../lib/dokku'
-import { SSHType, dynamicSSH } from '../../lib/ssh'
+import { dokku } from "@core/lib/dokku"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
 import configPromise from '@payload-config'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'

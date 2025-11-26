@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FileText } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

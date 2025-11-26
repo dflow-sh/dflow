@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge } from '../ui/badge'
+import { Badge } from "@core/components/ui/badge"
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   AlertTriangle,

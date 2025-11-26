@@ -1,5 +1,5 @@
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'

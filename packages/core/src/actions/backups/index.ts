@@ -1,7 +1,7 @@
 'use server'
 
-import { generateUniqueServiceName } from '../beszel/utils'
-import { createProjectAction, createProjectAdminAction } from '../project'
+import { generateUniqueServiceName } from "@core/actions/beszel/utils"
+import { createProjectAction, createProjectAdminAction } from "@core/actions/project"
 import { env } from 'env'
 import { BasePayload } from 'payload'
 
@@ -12,7 +12,7 @@ import { fetchOfficialTemplateByName } from '@/lib/utils/templates'
 import { Service } from '@/payload-types'
 import { addTemplateDeployQueue } from '@/queues/template/deploy'
 
-import { dokkuBackupSchema } from './validator'
+import { dokkuBackupSchema } from "@core/actions/backups/validator"
 
 const serverBackupMethod = async ({
   payload,

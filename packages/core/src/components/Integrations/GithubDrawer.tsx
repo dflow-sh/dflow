@@ -1,6 +1,6 @@
 'use client'
 
-import AccessDeniedAlert from '../AccessDeniedAlert'
+import AccessDeniedAlert from "@core/components/AccessDeniedAlert"
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'

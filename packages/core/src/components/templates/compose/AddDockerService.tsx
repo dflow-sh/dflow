@@ -39,8 +39,8 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
-import { getPositionForNewNode } from './ChooseService'
-import { DockerServiceSchema, DockerServiceType } from './types'
+import { getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
+import { DockerServiceSchema, DockerServiceType } from "@core/components/templates/compose/types"
 
 const schema = ['http', 'https']
 

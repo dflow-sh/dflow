@@ -14,8 +14,8 @@ import {
 import useXterm from '@/hooks/use-xterm'
 import { cn } from '@/lib/utils'
 
-import Tabs from './Tabs'
-import XTermTerminal from './XTermTerminal'
+import Tabs from "@core/components/Tabs"
+import XTermTerminal from "@core/components/XTermTerminal"
 
 const TerminalContent = ({ serverId }: { serverId: string }) => {
   const { terminalRef, writeLog, terminalInstance } = useXterm()

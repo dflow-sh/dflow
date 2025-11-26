@@ -1,1 +1,1 @@
-export { getConfig } from './getConfig'
+export { getConfig } from "@core/lib/netdata/config/getConfig"

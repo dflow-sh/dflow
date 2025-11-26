@@ -24,17 +24,17 @@ import {
 import { Form } from '@/components/ui/form'
 import { DFLOW_CONFIG } from '@/lib/constants'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
-import { BackupOptionsSection } from './form-fields/BackupOptionsSection'
-import { DisplayNameField } from './form-fields/DisplayNameField'
-import { ImageLicenseField } from './form-fields/ImageLicenseField'
-import { ImageSelection } from './form-fields/ImageSelection'
-import { ImageVersionField } from './form-fields/ImageVersionField'
-import { PriceSummarySection } from './form-fields/PriceSummarySection'
-import { RegionField } from './form-fields/RegionField'
-import { StorageTypeField } from './form-fields/StorageTypeField'
-import { TermLengthSection } from './form-fields/TermLengthSection'
-import type { VpsFormData } from './schemas'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { BackupOptionsSection } from "@core/components/servers/dflowVpsForm/form-fields/BackupOptionsSection"
+import { DisplayNameField } from "@core/components/servers/dflowVpsForm/form-fields/DisplayNameField"
+import { ImageLicenseField } from "@core/components/servers/dflowVpsForm/form-fields/ImageLicenseField"
+import { ImageSelection } from "@core/components/servers/dflowVpsForm/form-fields/ImageSelection"
+import { ImageVersionField } from "@core/components/servers/dflowVpsForm/form-fields/ImageVersionField"
+import { PriceSummarySection } from "@core/components/servers/dflowVpsForm/form-fields/PriceSummarySection"
+import { RegionField } from "@core/components/servers/dflowVpsForm/form-fields/RegionField"
+import { StorageTypeField } from "@core/components/servers/dflowVpsForm/form-fields/StorageTypeField"
+import { TermLengthSection } from "@core/components/servers/dflowVpsForm/form-fields/TermLengthSection"
+import type { VpsFormData } from "@core/components/servers/dflowVpsForm/schemas"
 
 export const OrderForm = ({ dFlowUser }: { dFlowUser: any }) => {
   const form = useFormContext<VpsFormData>()

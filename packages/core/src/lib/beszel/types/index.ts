@@ -1,28 +1,28 @@
 // Type mapping for collections
-import { Alert, CreateAlertData, UpdateAlertData } from './alerts'
-import { Collections } from './base'
+import { Alert, CreateAlertData, UpdateAlertData } from "@core/lib/beszel/types/alerts"
+import { Collections } from "@core/lib/beszel/types/base"
 import {
   CreateFingerprintData,
   Fingerprint,
   UpdateFingerprintData,
-} from './fingerprints'
+} from "@core/lib/beszel/types/fingerprints"
 import {
   CreateSystemStatsData,
   SystemStats,
   UpdateSystemStatsData,
-} from './systemStats'
-import { CreateSystemData, System, UpdateSystemData } from './systems'
-import { CreateUserData, UpdateUserData, User } from './users'
+} from "@core/lib/beszel/types/systemStats"
+import { CreateSystemData, System, UpdateSystemData } from "@core/lib/beszel/types/systems"
+import { CreateUserData, UpdateUserData, User } from "@core/lib/beszel/types/users"
 
 // Export all base types
-export * from './base'
+export * from "@core/lib/beszel/types/base"
 
 // Export collection-specific types
-export * from './alerts'
-export * from './fingerprints'
-export * from './systemStats'
-export * from './systems'
-export * from './users'
+export * from "@core/lib/beszel/types/alerts"
+export * from "@core/lib/beszel/types/fingerprints"
+export * from "@core/lib/beszel/types/systemStats"
+export * from "@core/lib/beszel/types/systems"
+export * from "@core/lib/beszel/types/users"
 
 export type CollectionRecord<T extends Collections> =
   T extends Collections.USERS

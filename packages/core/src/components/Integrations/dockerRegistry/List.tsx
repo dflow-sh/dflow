@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { DockerRegistry } from '@/payload-types'
 
-import DockerRegistryForm from './Form'
+import DockerRegistryForm from "@core/components/Integrations/dockerRegistry/Form"
 
 const EditForm = ({
   account,

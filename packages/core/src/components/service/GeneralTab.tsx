@@ -1,4 +1,4 @@
-import Loader from '../Loader'
+import Loader from "@core/components/Loader"
 import { ExternalLink, Globe } from 'lucide-react'
 import Link from 'next/link'
 import { JSX, SVGProps } from 'react'
@@ -23,10 +23,10 @@ import {
 } from '@/components/ui/tooltip'
 import { Server, Service } from '@/payload-types'
 
-import DatabaseForm from './DatabaseForm'
-import DeploymentForm from './DeploymentForm'
-import DockerForm from './DockerForm'
-import ProviderForm from './ProviderForm'
+import DatabaseForm from "@core/components/service/DatabaseForm"
+import DeploymentForm from "@core/components/service/DeploymentForm"
+import DockerForm from "@core/components/service/DockerForm"
+import ProviderForm from "@core/components/service/ProviderForm"
 
 type StatusType =
   | NonNullable<NonNullable<Service['databaseDetails']>['type']>

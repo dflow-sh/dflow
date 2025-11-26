@@ -13,7 +13,7 @@ import {
   deleteProjectSchema,
   getProjectDatabasesSchema,
   updateProjectSchema,
-} from './validator'
+} from "@core/actions/project/validator"
 
 export const createProjectAdminAction = adminClient
   .metadata({

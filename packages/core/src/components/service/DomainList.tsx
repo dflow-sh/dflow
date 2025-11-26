@@ -1,8 +1,8 @@
 'use client'
 
-import SidebarToggleButton from '../SidebarToggleButton'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import { env } from 'env'
 import {
   CircleCheckBig,
@@ -44,8 +44,8 @@ import {
 import { WILD_CARD_DOMAINS } from '@/lib/constants'
 import { Server, Service } from '@/payload-types'
 
-import DomainForm from './DomainForm'
-import RegenerateSSLForm from './RegenerateSSLForm'
+import DomainForm from "@core/components/service/DomainForm"
+import RegenerateSSLForm from "@core/components/service/RegenerateSSLForm"
 
 const getRecordName = (domain: string) => {
   const match = domain.match(

@@ -1,8 +1,8 @@
 'use client'
 
-import AccessDeniedAlert from '../AccessDeniedAlert'
-import { Button } from '../ui/button'
-import { ScrollArea } from '../ui/scroll-area'
+import AccessDeniedAlert from "@core/components/AccessDeniedAlert"
+import { Button } from "@core/components/ui/button"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/sheet'
 import { integrationsList } from '@/lib/integrationList'
 
-import CloudProvidersList from './CloudProvidersList'
-import AWSAccountForm from './aws/AWSAccountForm'
+import CloudProvidersList from "@core/components/Integrations/CloudProvidersList"
+import AWSAccountForm from "@core/components/Integrations/aws/AWSAccountForm"
 
 const AWSDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(

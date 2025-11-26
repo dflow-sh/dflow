@@ -1,4 +1,4 @@
-import { addDeleteMachineQueue } from '../tailscale/deleteMachine'
+import { addDeleteMachineQueue } from "@core/queues/tailscale/deleteMachine"
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
@@ -8,7 +8,7 @@ import { jobOptions, pub, queueConnection } from '@/lib/redis'
 import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
 import { deleteMachine } from '@/lib/tailscale/deleteMachine'
 
-import { addDeleteProjectQueue } from './deleteProject'
+import { addDeleteProjectQueue } from "@core/queues/project/deleteProject"
 
 interface QueueArgs {
   serverDetails: {

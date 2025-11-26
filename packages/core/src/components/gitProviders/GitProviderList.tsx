@@ -1,8 +1,8 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
 import { format } from 'date-fns'
 import {
   ArrowDownToLine,

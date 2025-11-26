@@ -1,6 +1,6 @@
-import { netdataAPI } from '../netdataAPI'
-import { MetricsResponse, NetdataApiParams } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { MetricsResponse, NetdataApiParams } from "@core/lib/netdata/types"
+import { getTimeSeriesData } from "@core/lib/netdata/utils"
 
 // Define specific data types for clarity
 interface WebRequestData {

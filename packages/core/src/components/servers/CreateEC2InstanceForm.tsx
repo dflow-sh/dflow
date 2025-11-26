@@ -1,9 +1,9 @@
 'use client'
 
-import AWSAccountForm from '../Integrations/aws/AWSAccountForm'
-import SidebarToggleButton from '../SidebarToggleButton'
-import CreateSSHKey from '../security/CreateSSHKey'
-import CreateSecurityGroup from '../security/CreateSecurityGroup'
+import AWSAccountForm from "@core/components/Integrations/aws/AWSAccountForm"
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import CreateSSHKey from "@core/components/security/CreateSSHKey"
+import CreateSecurityGroup from "@core/components/security/CreateSecurityGroup"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Plus } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

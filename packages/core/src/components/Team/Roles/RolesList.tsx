@@ -41,10 +41,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Role, User } from '@/payload-types'
 
-import CreateNewRole from './CreateNewRole'
-import RolePermissions from './RolePermissions'
-import RoleUsers from './RoleUsers'
-import UpdateRoleDetails from './UpdateRoleDetails'
+import CreateNewRole from "@core/components/Team/Roles/CreateNewRole"
+import RolePermissions from "@core/components/Team/Roles/RolePermissions"
+import RoleUsers from "@core/components/Team/Roles/RoleUsers"
+import UpdateRoleDetails from "@core/components/Team/Roles/UpdateRoleDetails"
 
 const RoleActions = ({
   role,

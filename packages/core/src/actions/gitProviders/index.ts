@@ -13,7 +13,7 @@ import {
   getBranchesSchema,
   getRepositorySchema,
   installGitHubAppSchema,
-} from './validator'
+} from "@core/actions/gitProviders/validator"
 
 export const createGithubAppAction = protectedClient
   .metadata({

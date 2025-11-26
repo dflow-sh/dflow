@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Role } from '@/payload-types'
 
-import PermissionsTable from './PermissionsTable'
+import PermissionsTable from "@core/components/Team/Roles/PermissionsTable"
 
 const RolePermissions = ({ role }: { role: Role }) => {
   const form = useForm<UpdateRoleType>({

@@ -2,11 +2,11 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import CPUTab from './CPUTab'
-import DiskTab from './DiskTab'
-import MemoryTab from './MemoryTab'
-import NetworkTab from './NetworkTab'
-import OverviewTab from './OverviewTab'
+import CPUTab from "@core/components/servers/monitoring/CPUTab"
+import DiskTab from "@core/components/servers/monitoring/DiskTab"
+import MemoryTab from "@core/components/servers/monitoring/MemoryTab"
+import NetworkTab from "@core/components/servers/monitoring/NetworkTab"
+import OverviewTab from "@core/components/servers/monitoring/OverviewTab"
 
 const MonitoringTabs = ({
   dashboardMetrics,

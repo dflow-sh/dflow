@@ -1,4 +1,4 @@
-import EmailLayout from '../common/EmailLayout'
+import EmailLayout from "@core/emails/common/EmailLayout"
 import { Hr, Section, Text, render } from '@react-email/components'
 
 interface LoginConfirmationTemplateProps {

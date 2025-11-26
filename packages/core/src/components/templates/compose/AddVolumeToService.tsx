@@ -36,7 +36,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { slugifyWithUnderscore } from '@/lib/slugify'
 import { cn } from '@/lib/utils'
 
-import { VolumesType, volumesSchema } from './types'
+import { VolumesType, volumesSchema } from "@core/components/templates/compose/types"
 
 type type = 'contextMenu' | 'sideBar'
 

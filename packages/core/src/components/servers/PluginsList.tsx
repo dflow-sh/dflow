@@ -1,10 +1,10 @@
 'use client'
 
-import RefreshButton from '../RefreshButton'
-import { PluginListType, pluginList } from '../plugins'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Switch } from '../ui/switch'
+import RefreshButton from "@core/components/RefreshButton"
+import { PluginListType, pluginList } from "@core/components/plugins"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Switch } from "@core/components/ui/switch"
 import {
   Download,
   LucideIcon,
@@ -40,8 +40,8 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ServerType } from '@/payload-types-overrides'
 
-import PluginConfigurationForm from './PluginConfigurationForm'
-import { PluginUninstallDialog } from './PluginUninstallDialog'
+import PluginConfigurationForm from "@core/components/servers/PluginConfigurationForm"
+import { PluginUninstallDialog } from "@core/components/servers/PluginUninstallDialog"
 
 // Job Queued
 // Queued job to install plugin

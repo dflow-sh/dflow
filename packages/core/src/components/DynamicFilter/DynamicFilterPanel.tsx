@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from '../ui/sheet'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@core/components/ui/sheet"
 import { Filter, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
@@ -13,7 +13,7 @@ import {
   FilterState,
 } from '@/lib/filter.utils'
 
-import { FilterRenderer } from './FilterRenderer'
+import { FilterRenderer } from "@core/components/DynamicFilter/FilterRenderer"
 
 interface DynamicFilterPanelProps<T> {
   data: T[]

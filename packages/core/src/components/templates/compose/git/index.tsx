@@ -10,11 +10,11 @@ import {
 import { ServiceNode } from '@/components/reactflow/types'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import AddAzureDevopsService from './AddAzureDevopsService'
-import AddBitbucketService from './AddBitbucketService'
-import AddGiteaService from './AddGiteaService'
-import AddGithubService from './AddGithubService'
-import AddGitlabService from './AddGitlabService'
+import AddAzureDevopsService from "@core/components/templates/compose/git/AddAzureDevopsService"
+import AddBitbucketService from "@core/components/templates/compose/git/AddBitbucketService"
+import AddGiteaService from "@core/components/templates/compose/git/AddGiteaService"
+import AddGithubService from "@core/components/templates/compose/git/AddGithubService"
+import AddGitlabService from "@core/components/templates/compose/git/AddGitlabService"
 
 const AppType = ({
   setNodes,

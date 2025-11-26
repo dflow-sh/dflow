@@ -1,20 +1,20 @@
 'use client'
 
-import CreateService from '../service/CreateService'
-import DeployTemplate from '../templates/DeployTemplate'
+import CreateService from "@core/components/service/CreateService"
+import DeployTemplate from "@core/components/templates/DeployTemplate"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import { EllipsisVertical } from 'lucide-react'
 import { useState } from 'react'
 
 import { Project, Server, Service } from '@/payload-types'
 
-import CreateTemplateFromProject from './CreateTemplateFromProject'
+import CreateTemplateFromProject from "@core/components/project/CreateTemplateFromProject"
 
 const ProjectOptionsDropdown = ({
   project,

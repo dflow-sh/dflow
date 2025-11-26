@@ -17,9 +17,9 @@ import {
 import { netdata } from '@/lib/netdata'
 import { ServerType } from '@/payload-types-overrides'
 
-import CurrentResourceUsage from './CurrentResourceUsage'
-import MonitoringTabs from './MonitoringTabs'
-import StatusOverView from './StatusOverView'
+import CurrentResourceUsage from "@core/components/servers/monitoring/CurrentResourceUsage"
+import MonitoringTabs from "@core/components/servers/monitoring/MonitoringTabs"
+import StatusOverView from "@core/components/servers/monitoring/StatusOverView"
 
 const NetdataMonitoring = ({ server }: { server: ServerType }) => {
   const router = useRouter()

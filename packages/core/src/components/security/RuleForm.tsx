@@ -10,10 +10,10 @@ import {
 } from '@/components/ui/form'
 import { Textarea } from '@/components/ui/textarea'
 
-import PortInputs from './PortInputs'
-import ProtocolInput from './ProtocolInput'
-import RuleTypeSelect from './RuleTypeSelect'
-import SourceDestination from './SourceDestination'
+import PortInputs from "@core/components/security/PortInputs"
+import ProtocolInput from "@core/components/security/ProtocolInput"
+import RuleTypeSelect from "@core/components/security/RuleTypeSelect"
+import SourceDestination from "@core/components/security/SourceDestination"
 
 const RuleForm = ({
   form,

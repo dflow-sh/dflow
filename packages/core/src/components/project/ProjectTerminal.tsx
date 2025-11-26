@@ -1,7 +1,7 @@
 'use client'
 
-import XTermTerminal from '../XTermTerminal'
-import { Badge } from '../ui/badge'
+import XTermTerminal from "@core/components/XTermTerminal"
+import { Badge } from "@core/components/ui/badge"
 import { ChevronsUp, HardDrive, SquareTerminal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 

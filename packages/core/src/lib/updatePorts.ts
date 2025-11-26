@@ -2,8 +2,8 @@
 import type Redis from 'ioredis'
 import { NodeSSH } from 'node-ssh'
 
-import { dokku } from './dokku'
-import { sendEvent } from './sendEvent'
+import { dokku } from "@core/lib/dokku"
+import { sendEvent } from "@core/lib/sendEvent"
 
 export const updatePorts = async ({
   ssh,

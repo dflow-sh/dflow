@@ -1,22 +1,22 @@
 'use client'
 
-import { Avatar, AvatarFallback } from '../ui/avatar'
-import { Button } from '../ui/button'
+import { Avatar, AvatarFallback } from "@core/components/ui/avatar"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
+} from "@core/components/ui/dropdown-menu"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@core/components/ui/form"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select'
+} from "@core/components/ui/select"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EllipsisVertical } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

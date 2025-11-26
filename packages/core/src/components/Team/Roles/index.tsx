@@ -4,7 +4,7 @@ import { ShieldHalf } from 'lucide-react'
 
 import { Role, User } from '@/payload-types'
 
-import RolesList from './RolesList'
+import RolesList from "@core/components/Team/Roles/RolesList"
 
 const Roles = ({
   roles,

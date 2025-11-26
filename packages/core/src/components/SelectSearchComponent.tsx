@@ -29,9 +29,9 @@ import {
 import { supportedLinuxVersions } from '@/lib/constants'
 import { ServerType } from '@/payload-types-overrides'
 
-import { Dokku, Linux, Ubuntu } from './icons'
-import { useDokkuInstallationStep } from './onboarding/dokkuInstallation/DokkuInstallationStepContext'
-import { Separator } from './ui/separator'
+import { Dokku, Linux, Ubuntu } from "@core/components/icons"
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
+import { Separator } from "@core/components/ui/separator"
 
 const serverType: {
   [key: string]: (props: SVGProps<SVGSVGElement>) => JSX.Element

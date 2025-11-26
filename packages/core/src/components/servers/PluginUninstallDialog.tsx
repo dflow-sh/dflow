@@ -1,4 +1,4 @@
-import { buttonVariants } from '../ui/button'
+import { buttonVariants } from "@core/components/ui/button"
 import {
   AlertTriangle,
   Database,

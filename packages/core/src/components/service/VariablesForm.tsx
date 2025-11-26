@@ -1,7 +1,7 @@
 'use client'
 
-import Loader from '../Loader'
-import SidebarToggleButton from '../SidebarToggleButton'
+import Loader from "@core/components/Loader"
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
 import {
   ClickHouse,
   MariaDB,
@@ -9,9 +9,9 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '../icons'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+} from "@core/components/icons"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Braces, FileText, Globe, KeyRound, Plus, Trash2 } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'

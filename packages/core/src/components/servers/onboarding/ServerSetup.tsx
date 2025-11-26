@@ -18,7 +18,7 @@ import Step5 from '@/components/onboarding/dokkuInstallation/Step5'
 import Step6 from '@/components/onboarding/dokkuInstallation/Step6'
 import { ServerType } from '@/payload-types-overrides'
 
-import ServerOnboardingLayout from './ServerOnboardingLayout'
+import ServerOnboardingLayout from "@core/components/servers/onboarding/ServerOnboardingLayout"
 
 const ServerSetup = ({
   server,

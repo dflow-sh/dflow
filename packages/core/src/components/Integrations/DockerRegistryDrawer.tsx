@@ -1,7 +1,7 @@
 'use client'
 
-import AccessDeniedAlert from '../AccessDeniedAlert'
-import { Button } from '../ui/button'
+import AccessDeniedAlert from "@core/components/AccessDeniedAlert"
+import { Button } from "@core/components/ui/button"
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/sheet'
 import { integrationsList } from '@/lib/integrationList'
 
-import DockerRegistryForm from './dockerRegistry/Form'
-import DockerRegistryList from './dockerRegistry/List'
+import DockerRegistryForm from "@core/components/Integrations/dockerRegistry/Form"
+import DockerRegistryList from "@core/components/Integrations/dockerRegistry/List"
 
 const DockerRegistryDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(

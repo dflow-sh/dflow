@@ -1,5 +1,5 @@
-import ActionPlaceholder from '../ActionPlaceholder'
-import { Kubernetes } from '../icons'
+import ActionPlaceholder from "@core/components/ActionPlaceholder"
+import { Kubernetes } from "@core/components/icons"
 import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'

@@ -1,9 +1,9 @@
 'use client'
 
-import { VolumesType, volumesSchema } from '../templates/compose/types'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { VolumesType, volumesSchema } from "@core/components/templates/compose/types"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { HardDrive, Plus, Trash2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

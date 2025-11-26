@@ -8,8 +8,8 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-import { Separator } from './ui/separator'
-import { SidebarTrigger } from './ui/sidebar'
+import { Separator } from "@core/components/ui/separator"
+import { SidebarTrigger } from "@core/components/ui/sidebar"
 
 type BreadcrumbItemType = {
   label: string

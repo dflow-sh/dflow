@@ -1,8 +1,8 @@
 'use client'
 
-import { convertNodesToServices } from '../reactflow/utils/convertNodesToServices'
-import ChooseService, { ChildRef } from '../templates/compose/ChooseService'
-import { Button } from '../ui/button'
+import { convertNodesToServices } from "@core/components/reactflow/utils/convertNodesToServices"
+import ChooseService, { ChildRef } from "@core/components/templates/compose/ChooseService"
+import { Button } from "@core/components/ui/button"
 import { Edge, Node, useEdgesState, useNodesState } from '@xyflow/react'
 import { Rocket } from 'lucide-react'
 import { motion } from 'motion/react'

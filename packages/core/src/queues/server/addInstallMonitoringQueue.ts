@@ -1,4 +1,4 @@
-import { addTemplateDeployQueue } from '../template/deploy'
+import { addTemplateDeployQueue } from "@core/queues/template/deploy"
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { env } from 'env'

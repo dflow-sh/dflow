@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useServerOnboarding } from './ServerOnboardingContext'
+import { useServerOnboarding } from "@core/components/servers/onboarding/ServerOnboardingContext"
 
 const ServerOnboardingLayout = ({
   server,

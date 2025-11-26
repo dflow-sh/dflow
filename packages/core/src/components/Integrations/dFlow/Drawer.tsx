@@ -1,6 +1,6 @@
 'use client'
 
-import GithubIntegrationsLoading from '../GithubIntegrationsLoading'
+import GithubIntegrationsLoading from "@core/components/Integrations/GithubIntegrationsLoading"
 import { Link } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/sheet'
 import { integrationsList } from '@/lib/integrationList'
 
-import DFlowForm from './Form'
-import CloudProvidersList from './List'
+import DFlowForm from "@core/components/Integrations/dFlow/Form"
+import CloudProvidersList from "@core/components/Integrations/dFlow/List"
 
 const DflowDrawer = () => {
   const [activeSlide, setActiveSlide] = useQueryState(

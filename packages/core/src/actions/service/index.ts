@@ -46,7 +46,7 @@ import {
   updateServiceDomainSchema,
   updateServiceSchema,
   updateVolumesSchema,
-} from './validator'
+} from "@core/actions/service/validator"
 
 function getServerIdFromProject(project: any): string {
   if (!project) return ''

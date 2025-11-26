@@ -1,6 +1,6 @@
-import { netdataAPI } from '../netdataAPI'
-import { MetricsResponse, NetdataApiParams, NetdataContexts } from '../types'
-import { formatTimestamp, getTimeSeriesData } from '../utils'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { MetricsResponse, NetdataApiParams, NetdataContexts } from "@core/lib/netdata/types"
+import { formatTimestamp, getTimeSeriesData } from "@core/lib/netdata/utils"
 
 export interface ServerLoadData {
   timestamp: string

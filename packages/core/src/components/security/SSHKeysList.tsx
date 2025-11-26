@@ -1,9 +1,9 @@
 'use client'
 
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert'
-import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Card, CardContent } from '../ui/card'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   AlertCircle,
   ExternalLink,
@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 import { deleteSSHKeyAction } from '@/actions/sshkeys'
 import { Server, SshKey } from '@/payload-types'
 
-import ViewSSHKey from './CreateSSHKey'
+import ViewSSHKey from "@core/components/security/CreateSSHKey"
 
 const SSHKeyItem = ({
   sshKey,

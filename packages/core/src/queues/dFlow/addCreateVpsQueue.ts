@@ -8,7 +8,7 @@ import { dFlowRestSdk } from '@/lib/restSDK/utils'
 import { sendActionEvent } from '@/lib/sendEvent'
 import { Tenant } from '@/payload-types'
 
-import { addCheckDflowServerConnectionQueue } from './checkDflowServerConnectionQueue'
+import { addCheckDflowServerConnectionQueue } from "@core/queues/dFlow/checkDflowServerConnectionQueue"
 
 class VpsCreationError extends Error {
   constructor(

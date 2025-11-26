@@ -1,5 +1,5 @@
-import { netdataAPI } from '../netdataAPI'
-import { NetdataApiParams } from '../types'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { NetdataApiParams } from "@core/lib/netdata/types"
 
 /**
  * Retrieve entries from the alarm log

@@ -2,8 +2,8 @@ import { CollectionConfig } from 'payload'
 
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { securityGroupBeforeChangeHook } from './hooks/securityGroupBeforeChangeHook'
-import { securityGroupBeforeDeleteHook } from './hooks/securityGroupBeforeDeleteHook'
+import { securityGroupBeforeChangeHook } from "@core/payload/collections/SecurityGroups/hooks/securityGroupBeforeChangeHook"
+import { securityGroupBeforeDeleteHook } from "@core/payload/collections/SecurityGroups/hooks/securityGroupBeforeDeleteHook"
 
 const SecurityGroups: CollectionConfig = {
   slug: 'securityGroups',

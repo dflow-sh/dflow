@@ -7,7 +7,7 @@ import {
   flushServerQueuesSchema,
   flushSingleQueueSchema,
   getServerQueuesStatsSchema,
-} from './validator'
+} from "@core/actions/bullmq/validator"
 
 /**
  * Get queues and their stats for a server.

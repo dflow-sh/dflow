@@ -1,7 +1,7 @@
 'use client'
 
-import Logo from '../Logo'
-import { Button } from '../ui/button'
+import Logo from "@core/components/Logo"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from "@core/components/ui/card"
 import { useAction } from 'next-safe-action/hooks'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

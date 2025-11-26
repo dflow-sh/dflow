@@ -1,9 +1,9 @@
 'use client'
 
-import SidebarToggleButton from '../SidebarToggleButton'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Textarea } from '../ui/textarea'
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'

@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
 import { useAction } from 'next-safe-action/hooks'
 import { FormEvent, useEffect } from 'react'
 import { toast } from 'sonner'

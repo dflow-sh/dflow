@@ -25,7 +25,7 @@ import {
   deleteAWSAccountSchema,
   updateAWSAccountSchema,
   updateEC2InstanceSchema,
-} from './validator'
+} from "@core/actions/cloud/aws/validator"
 
 export const createEC2InstanceAction = protectedClient
   .metadata({

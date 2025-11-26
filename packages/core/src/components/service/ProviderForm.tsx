@@ -1,13 +1,13 @@
-import { Bitbucket, GitLab, Gitea, Github, MicrosoftAzure } from '../icons'
+import { Bitbucket, GitLab, Gitea, Github, MicrosoftAzure } from "@core/components/icons"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GitProvider, Service } from '@/payload-types'
 
-import AzureDevopsForm from './git/AzureDevopsForm'
-import BitbucketForm from './git/BitbucketForm'
-import GiteaForm from './git/GiteaForm'
-import GithubForm from './git/GithubForm'
-import GitlabForm from './git/GitlabForm'
+import AzureDevopsForm from "@core/components/service/git/AzureDevopsForm"
+import BitbucketForm from "@core/components/service/git/BitbucketForm"
+import GiteaForm from "@core/components/service/git/GiteaForm"
+import GithubForm from "@core/components/service/git/GithubForm"
+import GitlabForm from "@core/components/service/git/GitlabForm"
 
 const ProviderForm = ({
   gitProviders,

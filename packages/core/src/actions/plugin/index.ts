@@ -19,7 +19,7 @@ import {
   installPluginSchema,
   syncPluginSchema,
   togglePluginStatusSchema,
-} from './validator'
+} from "@core/actions/plugin/validator"
 
 export const installPluginAction = protectedClient
   .metadata({

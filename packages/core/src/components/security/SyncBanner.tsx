@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge } from '../ui/badge'
+import { Badge } from "@core/components/ui/badge"
 import { AlertTriangle, Info, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 

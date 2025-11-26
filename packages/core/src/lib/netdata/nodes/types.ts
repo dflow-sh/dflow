@@ -1,4 +1,4 @@
-import { NetdataApiResponse } from '../types'
+import { NetdataApiResponse } from "@core/lib/netdata/types"
 
 export interface NodeInfoResponse extends NetdataApiResponse {
   data?: {

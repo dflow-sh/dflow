@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import { Maximize, Minimize, Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
 
-import SecurityGroupForm from './CreateSecurityGroupForm'
+import SecurityGroupForm from "@core/components/security/CreateSecurityGroupForm"
 
 const CreateSecurityGroup = ({
   type = 'create',

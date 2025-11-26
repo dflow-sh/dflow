@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ServerType } from '@/payload-types-overrides'
 
-import DefaultMonitoring from './DefaultMonitoring'
-import DefaultMonitoringInstall from './DefaultMonitoringInstall'
-import NetdataInstallPrompt from './NetdataInstallPrompt'
-import NetdataMonitoring from './NetdataMonitoring'
+import DefaultMonitoring from "@core/components/servers/monitoring/DefaultMonitoring"
+import DefaultMonitoringInstall from "@core/components/servers/monitoring/DefaultMonitoringInstall"
+import NetdataInstallPrompt from "@core/components/servers/monitoring/NetdataInstallPrompt"
+import NetdataMonitoring from "@core/components/servers/monitoring/NetdataMonitoring"
 
 const MonitoringTab = ({
   server,

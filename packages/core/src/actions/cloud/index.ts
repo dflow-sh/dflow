@@ -10,7 +10,7 @@ import { Server } from '@/payload-types'
 import {
   cloudProviderAccountsSchema,
   syncDflowServersSchema,
-} from './validator'
+} from "@core/actions/cloud/validator"
 
 export const getCloudProvidersAccountsAction = protectedClient
   .metadata({

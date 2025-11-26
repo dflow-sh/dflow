@@ -6,7 +6,7 @@ import {
 } from '@xyflow/react'
 import { JSX } from 'react'
 
-import { getEdgeParams } from './utils'
+import { getEdgeParams } from "@core/components/reactflow/FloatingEdges/utils"
 
 const FloatingEdge = ({
   id,

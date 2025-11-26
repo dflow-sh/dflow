@@ -17,7 +17,7 @@ import {
   startTerminalSchema,
   stopTerminalSchema,
   uninstallTerminalSchema,
-} from './validator'
+} from "@core/actions/terminal/validator"
 
 const TERMINAL_APP_NAME = 'wetty-terminal'
 

@@ -8,7 +8,7 @@ export {
   getRequestTimeSeriesData,
   getResponseTimeSeriesData,
   getServerLoadTimeSeriesData,
-} from './dashboardMetrics'
+} from "@core/lib/netdata/system/dashboardMetrics"
 
 export {
   getRecentAlerts,
@@ -16,4 +16,4 @@ export {
   getServerStatus,
   getServicesHealth,
   getSystemResources,
-} from './serverStatus'
+} from "@core/lib/netdata/system/serverStatus"

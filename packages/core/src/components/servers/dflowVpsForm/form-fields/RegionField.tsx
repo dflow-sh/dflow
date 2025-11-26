@@ -1,5 +1,5 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
-import { VpsFormData } from '../schemas'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { VpsFormData } from "@core/components/servers/dflowVpsForm/schemas"
 import { useFormContext } from 'react-hook-form'
 
 import {

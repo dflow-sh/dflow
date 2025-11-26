@@ -1,4 +1,4 @@
-import { triggerWebhooks } from '../services/webhookDelivery'
+import { triggerWebhooks } from "@core/plugins/webhook/services/webhookDelivery"
 import type { CollectionAfterChangeHook } from 'payload'
 
 export const webhookAfterChange: CollectionAfterChangeHook = async ({

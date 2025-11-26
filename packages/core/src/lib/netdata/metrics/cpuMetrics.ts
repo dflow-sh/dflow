@@ -1,5 +1,5 @@
-import { MetricsResponse, NetdataApiParams, NetdataContexts } from '../types'
-import { getTimeSeriesData } from '../utils'
+import { MetricsResponse, NetdataApiParams, NetdataContexts } from "@core/lib/netdata/types"
+import { getTimeSeriesData } from "@core/lib/netdata/utils"
 
 // Define structured interfaces for metrics
 export interface CPUMetricsData {

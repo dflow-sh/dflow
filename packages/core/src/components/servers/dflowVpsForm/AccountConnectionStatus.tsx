@@ -1,4 +1,4 @@
-import { Skeleton } from '../../ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 import { AlertCircle, CheckCircle, RefreshCw, XCircle } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
@@ -7,7 +7,7 @@ import { checkAccountConnection } from '@/actions/cloud/dFlow'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
 
 export const AccountConnectionStatus = () => {
   const { selectedAccount } = useDflowVpsForm()

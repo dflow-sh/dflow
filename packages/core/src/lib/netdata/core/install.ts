@@ -2,7 +2,7 @@ import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
 import checkDpkgLock from '@/lib/utils/checkDpkgLock'
 
-import { getVersion } from './getVersion'
+import { getVersion } from "@core/lib/netdata/core/getVersion"
 
 /**
  * Installs Netdata on the remote system using the official install script

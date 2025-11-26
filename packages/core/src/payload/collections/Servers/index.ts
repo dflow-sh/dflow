@@ -3,9 +3,9 @@ import { CollectionConfig, Field } from 'payload'
 import { User } from '@/payload-types'
 import { isAdmin } from '@/payload/access/isAdmin'
 
-import { ensureUniqueIP } from './hooks/ensureUniqueIP'
-import { nextBillingDateAfterRead } from './hooks/nextBillingDate'
-import { populateServerDetails } from './hooks/populateServerDetails'
+import { ensureUniqueIP } from "@core/payload/collections/Servers/hooks/ensureUniqueIP"
+import { nextBillingDateAfterRead } from "@core/payload/collections/Servers/hooks/nextBillingDate"
+import { populateServerDetails } from "@core/payload/collections/Servers/hooks/populateServerDetails"
 
 const pluginFields: Field[] = [
   {

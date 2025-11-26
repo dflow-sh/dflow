@@ -2,7 +2,7 @@ import { Globe } from 'lucide-react'
 
 import { Server, Service } from '@/payload-types'
 
-import DomainList from './DomainList'
+import DomainList from "@core/components/service/DomainList"
 
 const DomainsTab = ({
   domains,

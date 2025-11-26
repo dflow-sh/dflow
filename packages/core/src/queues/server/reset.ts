@@ -1,6 +1,6 @@
-import { addUninstallRailpackQueue } from '../builder/uninstallRailpack'
-import { addUninstallDokkuQueue } from '../dokku/uninstall'
-import { addUninstallNetdataQueue } from '../netdata/uninstall'
+import { addUninstallRailpackQueue } from "@core/queues/builder/uninstallRailpack"
+import { addUninstallDokkuQueue } from "@core/queues/dokku/uninstall"
+import { addUninstallNetdataQueue } from "@core/queues/netdata/uninstall"
 import configPromise from '@payload-config'
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'

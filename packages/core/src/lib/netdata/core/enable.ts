@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import { getVersion } from './getVersion'
+import { getVersion } from "@core/lib/netdata/core/getVersion"
 
 /**
  * Enables the Netdata service on boot

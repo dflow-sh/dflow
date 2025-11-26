@@ -1,8 +1,8 @@
 'use client'
 
-import { Tailscale } from '../icons'
-import TailscaleForm from '../servers/TailscaleForm'
-import UpdateTailscaleServerForm from '../servers/UpdateTailscaleServerForm'
+import { Tailscale } from "@core/components/icons"
+import TailscaleForm from "@core/components/servers/TailscaleForm"
+import UpdateTailscaleServerForm from "@core/components/servers/UpdateTailscaleServerForm"
 import { Globe } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'

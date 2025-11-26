@@ -1,1 +1,1 @@
-export { getBadge } from './getBadge'
+export { getBadge } from "@core/lib/netdata/badges/getBadge"

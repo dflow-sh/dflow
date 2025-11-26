@@ -1,5 +1,5 @@
-import { useDflowVpsForm } from '../DflowVpsFormProvider'
-import { formatValue } from '../utils'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
+import { formatValue } from "@core/components/servers/dflowVpsForm/utils"
 import { useFormContext } from 'react-hook-form'
 
 import { Ubuntu, Windows } from '@/components/icons'

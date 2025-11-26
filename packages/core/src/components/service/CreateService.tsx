@@ -1,15 +1,15 @@
 'use client'
 
-import { Docker, Git } from '../icons'
+import { Docker, Git } from "@core/components/icons"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../ui/accordion'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Textarea } from '../ui/textarea'
+} from "@core/components/ui/accordion"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
+import { Textarea } from "@core/components/ui/textarea"
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   AlertCircle,

@@ -1,4 +1,4 @@
-import { BaseRecord } from './base'
+import { BaseRecord } from "@core/lib/beszel/types/base"
 
 // Alerts collection return type
 export interface Alert extends BaseRecord {

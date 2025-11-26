@@ -1,10 +1,10 @@
-import { netdataAPI } from './netdataAPI'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
 import {
   MetricsResponse,
   NetdataApiParams,
   NetdataContexts,
   SystemMetrics,
-} from './types'
+} from "@core/lib/netdata/types"
 
 /**
  * Helper function to transform raw data based on labels

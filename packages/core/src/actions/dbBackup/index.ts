@@ -9,7 +9,7 @@ import {
   internalDBBackupSchema,
   internalDbDeleteScheme,
   internalRestoreSchema,
-} from './validator'
+} from "@core/actions/dbBackup/validator"
 
 export const getAllBackupsAction = protectedClient
   .metadata({

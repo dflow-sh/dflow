@@ -1,4 +1,4 @@
-import { Skeleton } from '../../ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 import {
   AlertCircle,
   CheckCircle,
@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { DFLOW_CONFIG } from '@/lib/constants'
 
-import { useDflowVpsForm } from './DflowVpsFormProvider'
+import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
 
 export const PaymentStatusSection = () => {
   const form = useFormContext()

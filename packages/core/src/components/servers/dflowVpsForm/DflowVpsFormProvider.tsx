@@ -18,8 +18,8 @@ import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
 import { VpsPlan } from '@/lib/restSDK/types'
 import { SshKey } from '@/payload-types'
 
-import { dflowVpsSchema } from './schemas'
-import { handleGenerateName } from './utils'
+import { dflowVpsSchema } from "@core/components/servers/dflowVpsForm/schemas"
+import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
 
 type PricingOption = {
   id?: string | null

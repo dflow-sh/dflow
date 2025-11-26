@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '../ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -8,15 +8,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog'
+} from "@core/components/ui/dialog"
 import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import { SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import AttachCustomServerForm from './AttachCustomServerForm'
-import CreateEC2InstanceForm from './CreateEC2InstanceForm'
+import AttachCustomServerForm from "@core/components/servers/AttachCustomServerForm"
+import CreateEC2InstanceForm from "@core/components/servers/CreateEC2InstanceForm"
 
 const ServerFormDialog = ({
   sshKeys,

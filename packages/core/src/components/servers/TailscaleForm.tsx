@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Copy, Dices, Key, RefreshCw, Shield, Terminal } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 
-import { handleGenerateName } from './dflowVpsForm/utils'
+import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
 
 type TailscaleFormData = z.infer<typeof createTailscaleServerSchema>
 

@@ -1,9 +1,9 @@
 import type { Config, Plugin } from 'payload'
 
-import { createWebhooksCollection } from './collections/Webhooks'
-import { webhookAfterChange } from './hooks/afterChange'
-import { webhookAfterDelete } from './hooks/afterDelete'
-import { webhookGlobalAfterChange } from './hooks/globalAfterChange'
+import { createWebhooksCollection } from "@core/plugins/webhook/collections/Webhooks"
+import { webhookAfterChange } from "@core/plugins/webhook/hooks/afterChange"
+import { webhookAfterDelete } from "@core/plugins/webhook/hooks/afterDelete"
+import { webhookGlobalAfterChange } from "@core/plugins/webhook/hooks/globalAfterChange"
 
 export const webhooksPlugin: Plugin = (config: Config): Config => {
   const webhooksCollection = createWebhooksCollection(config)

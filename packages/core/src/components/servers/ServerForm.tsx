@@ -1,8 +1,8 @@
 'use client'
 
-import { ComingSoonBadge } from '../ComingSoonBadge'
-import SidebarToggleButton from '../SidebarToggleButton'
-import { Skeleton } from '../ui/skeleton'
+import { ComingSoonBadge } from "@core/components/ComingSoonBadge"
+import SidebarToggleButton from "@core/components/SidebarToggleButton"
+import { Skeleton } from "@core/components/ui/skeleton"
 import {
   AlertCircle,
   CheckCircle,
@@ -50,8 +50,8 @@ import type { VpsPlan } from '@/lib/restSDK/types'
 import { CloudProviderAccount, SecurityGroup, SshKey } from '@/payload-types'
 import { ServerType } from '@/payload-types-overrides'
 
-import CreateEC2InstanceForm from './CreateEC2InstanceForm'
-import { DflowVpsFormContainer } from './dflowVpsForm/DflowVpsFormContainer'
+import CreateEC2InstanceForm from "@core/components/servers/CreateEC2InstanceForm"
+import { DflowVpsFormContainer } from "@core/components/servers/dflowVpsForm/DflowVpsFormContainer"
 
 const parser = parseAsStringLiteral(['dFlow', 'cloud', 'manual']).withDefault(
   'dFlow',

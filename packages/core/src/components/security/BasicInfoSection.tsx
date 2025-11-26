@@ -1,4 +1,4 @@
-import { handleGenerateName } from '../servers/dflowVpsForm/utils'
+import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
 import { Dices } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'

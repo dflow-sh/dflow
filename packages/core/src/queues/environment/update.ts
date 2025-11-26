@@ -1,6 +1,6 @@
 'use server'
 
-import { addExposeDatabasePortQueue } from '../database/expose'
+import { addExposeDatabasePortQueue } from "@core/queues/database/expose"
 import configPromise from '@payload-config'
 import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
@@ -19,7 +19,7 @@ import { parseDatabaseUrl } from '@/lib/utils'
 import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
 import { Service } from '@/payload-types'
 
-import { databaseVariablesList } from './validator'
+import { databaseVariablesList } from "@core/queues/environment/validator"
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

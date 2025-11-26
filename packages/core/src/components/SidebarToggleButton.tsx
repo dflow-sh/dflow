@@ -4,7 +4,7 @@ import { Info } from 'lucide-react'
 
 import { useSidebarDocs } from '@/providers/SidebarDocsProvider'
 
-import { Button } from './ui/button'
+import { Button } from "@core/components/ui/button"
 
 const SidebarToggleButton = ({
   directory,

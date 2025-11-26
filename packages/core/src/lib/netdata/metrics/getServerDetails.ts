@@ -1,7 +1,7 @@
 'use server'
 
-import { netdataAPI } from '../netdataAPI'
-import { NetdataApiParams } from '../types'
+import { netdataAPI } from "@core/lib/netdata/netdataAPI"
+import { NetdataApiParams } from "@core/lib/netdata/types"
 
 export const getServerDetails = async (
   params: NetdataApiParams,

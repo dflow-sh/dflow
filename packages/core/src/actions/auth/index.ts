@@ -20,7 +20,7 @@ import {
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
-} from './validator'
+} from "@core/actions/auth/validator"
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient

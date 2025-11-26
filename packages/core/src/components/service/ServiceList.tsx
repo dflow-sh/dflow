@@ -1,14 +1,14 @@
 'use client'
 
-import { ServiceNode } from '../reactflow/types'
-import { convertToGraph } from '../reactflow/utils/convertServicesToNodes'
-import { Button } from '../ui/button'
+import { ServiceNode } from "@core/components/reactflow/types"
+import { convertToGraph } from "@core/components/reactflow/utils/convertServicesToNodes"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import { useRouter } from '@bprogress/next'
 import {
   Edge,
@@ -23,8 +23,8 @@ import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import ReactFlowConfig from '@/components/reactflow/reactflow.config'
 import { Project, Service } from '@/payload-types'
 
-import DeleteServiceDialog from './DeleteServiceDialog'
-import SwitchServiceProjectDialog from './SwitchServiceProjectDialog'
+import DeleteServiceDialog from "@core/components/service/DeleteServiceDialog"
+import SwitchServiceProjectDialog from "@core/components/service/SwitchServiceProjectDialog"
 
 interface ServiceWithDisplayName extends Service {
   displayName: string

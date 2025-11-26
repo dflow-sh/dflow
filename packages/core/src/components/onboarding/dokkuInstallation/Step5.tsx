@@ -8,7 +8,7 @@ import Loader from '@/components/Loader'
 import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
 import { ServerType } from '@/payload-types-overrides'
 
-import { useDokkuInstallationStep } from './DokkuInstallationStepContext'
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 
 const Step5 = ({
   server,

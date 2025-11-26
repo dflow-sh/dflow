@@ -1,5 +1,5 @@
-import { Avatar } from '../ui/avatar'
-import { Skeleton } from '../ui/skeleton'
+import { Avatar } from "@core/components/ui/avatar"
+import { Skeleton } from "@core/components/ui/skeleton"
 
 import {
   Table,
