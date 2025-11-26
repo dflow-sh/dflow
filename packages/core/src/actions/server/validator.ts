@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Server } from '@/payload-types'
+import { Server } from "@core/payload-types"
 
 type ServerKeys = keyof Server
 

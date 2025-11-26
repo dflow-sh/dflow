@@ -1,7 +1,7 @@
 'use server'
 
 import { allDocs } from '@/docs'
-import { publicClient } from '@/lib/safe-action'
+import { publicClient } from "@core/lib/safe-action"
 
 import { docsSchema } from "@core/actions/docs/validator"
 

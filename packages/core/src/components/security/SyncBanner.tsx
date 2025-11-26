@@ -4,8 +4,8 @@ import { Badge } from "@core/components/ui/badge"
 import { AlertTriangle, Info, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -14,9 +14,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/dialog"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import { cn } from "@core/lib/utils"
 
 interface SyncItem {
   id: string

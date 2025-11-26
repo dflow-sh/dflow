@@ -1,23 +1,23 @@
 'use server'
 
 import { addExposeDatabasePortQueue } from "@core/queues/database/expose"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import crypto from 'crypto'
 import { NodeSSH } from 'node-ssh'
 import { Payload, getPayload } from 'payload'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { TEMPLATE_EXPR } from '@/lib/constants'
-import { dokku } from '@/lib/dokku'
-import { pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { server } from '@/lib/server'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { parseDatabaseUrl } from '@/lib/utils'
-import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
-import { Service } from '@/payload-types'
+import { createServiceSchema } from "@core/actions/service/validator"
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { TEMPLATE_EXPR } from "@core/lib/constants"
+import { dokku } from "@core/lib/dokku"
+import { pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { server } from "@core/lib/server"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
+import { parseDatabaseUrl } from "@core/lib/utils"
+import { waitForJobCompletion } from "@core/lib/utils/waitForJobCompletion"
+import { Service } from "@core/payload-types"
 
 import { databaseVariablesList } from "@core/queues/environment/validator"
 

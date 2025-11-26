@@ -6,12 +6,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@core/components
 import { Filter, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import {
   DynamicFilterEngine,
   FilterConfig,
   FilterState,
-} from '@/lib/filter.utils'
+} from "@core/lib/filter.utils"
 
 import { FilterRenderer } from "@core/components/DynamicFilter/FilterRenderer"
 

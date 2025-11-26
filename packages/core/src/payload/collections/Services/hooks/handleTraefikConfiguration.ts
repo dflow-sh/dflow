@@ -1,8 +1,8 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { CollectionAfterChangeHook } from 'payload'
 
-import traefik from '@/lib/axios/traefik'
-import { Service } from '@/payload-types'
+import traefik from "@core/lib/axios/traefik"
+import { Service } from "@core/payload-types"
 
 export const handleTraefikConfiguration: CollectionAfterChangeHook<
   Service

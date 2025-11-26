@@ -15,9 +15,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { joinTeamAction } from '@/actions/team'
-import { Tenant, User } from '@/payload-types'
-import { useBrandingContext } from '@/providers/BrandingProvider'
+import { joinTeamAction } from "@core/actions/team"
+import { Tenant, User } from "@core/payload-types"
+import { useBrandingContext } from "@core/providers/BrandingProvider"
 
 interface InvitationData {
   tenantId: string

@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { configureLetsencryptPluginAction } from '@/actions/plugin'
+import { configureLetsencryptPluginAction } from "@core/actions/plugin"
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -28,8 +28,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/form"
+import { ServerType } from "@core/payload-types-overrides"
 
 const letsencryptPluginSchema = z.object({
   email: z.string().email({

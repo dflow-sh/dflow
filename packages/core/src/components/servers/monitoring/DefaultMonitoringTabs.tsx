@@ -1,6 +1,6 @@
 'use client'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
 
 import DefaultDiskTab from "@core/components/servers/monitoring/DefaultDiskTab"
 import DefaultNetworkTab from "@core/components/servers/monitoring/DefaultNetworkTab"

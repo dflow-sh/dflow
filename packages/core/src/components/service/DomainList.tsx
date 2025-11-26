@@ -3,7 +3,7 @@
 import SidebarToggleButton from "@core/components/SidebarToggleButton"
 import { Badge } from "@core/components/ui/badge"
 import { Button } from "@core/components/ui/button"
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import {
   CircleCheckBig,
   CircleX,
@@ -18,13 +18,13 @@ import { useParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { checkDNSConfigAction } from '@/actions/server'
+import { checkDNSConfigAction } from "@core/actions/server"
 import {
   markDefaultServiceDomainAction,
   syncServiceDomainAction,
   updateServiceDomainAction,
-} from '@/actions/service'
-import { Card, CardContent } from '@/components/ui/card'
+} from "@core/actions/service"
+import { Card, CardContent } from "@core/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Table,
   TableBody,
@@ -40,9 +40,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { WILD_CARD_DOMAINS } from '@/lib/constants'
-import { Server, Service } from '@/payload-types'
+} from "@core/components/ui/table"
+import { WILD_CARD_DOMAINS } from "@core/lib/constants"
+import { Server, Service } from "@core/payload-types"
 
 import DomainForm from "@core/components/service/DomainForm"
 import RegenerateSSLForm from "@core/components/service/RegenerateSSLForm"

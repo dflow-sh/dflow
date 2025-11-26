@@ -5,16 +5,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteProjectAction } from '@/actions/project'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { deleteProjectAction } from "@core/actions/project"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { Project, Server, Service } from '@/payload-types'
+} from "@core/components/ui/tooltip"
+import { cn } from "@core/lib/utils"
+import { Project, Server, Service } from "@core/payload-types"
 
 import ServiceIcon, { StatusType } from "@core/components/ServiceIcon"
 import { Button } from "@core/components/ui/button"

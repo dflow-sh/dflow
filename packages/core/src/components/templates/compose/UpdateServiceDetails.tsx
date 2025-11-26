@@ -26,8 +26,8 @@ import { toast } from 'sonner'
 import {
   UpdateServiceSchema,
   UpdateServiceType,
-} from '@/actions/templates/validator'
-import Tabs from '@/components/Tabs'
+} from "@core/actions/templates/validator"
+import Tabs from "@core/components/Tabs"
 import {
   Bitbucket,
   ClickHouse,
@@ -42,26 +42,26 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
+} from "@core/components/icons"
+import { ServiceNode } from "@core/components/reactflow/types"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
-import { Service } from '@/payload-types'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { cn } from "@core/lib/utils"
+import { Service } from "@core/payload-types"
 
 import { PortForm } from "@core/components/templates/compose/AddDatabaseService"
 import AddDockerService from "@core/components/templates/compose/AddDockerService"

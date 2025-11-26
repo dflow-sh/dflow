@@ -8,9 +8,9 @@ import { toast } from 'sonner'
 import {
   installAndConfigureLetsencryptPluginAction,
   syncPluginAction,
-} from '@/actions/plugin'
-import Loader from '@/components/Loader'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/actions/plugin"
+import Loader from "@core/components/Loader"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 

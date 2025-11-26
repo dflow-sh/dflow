@@ -1,8 +1,8 @@
 import type { FieldHook, Where } from 'payload'
 import { ValidationError } from 'payload'
 
-import { extractID } from '@/lib/extractID'
-import { getUserTenantIDs } from '@/lib/getUserTenantIDs'
+import { extractID } from "@core/lib/extractID"
+import { getUserTenantIDs } from "@core/lib/getUserTenantIDs"
 
 export const ensureUniqueName: FieldHook = async ({
   data,

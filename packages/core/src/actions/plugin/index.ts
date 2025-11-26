@@ -3,14 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
 
-import { dokku } from '@/lib/dokku'
-import { protectedClient } from '@/lib/safe-action'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { addLetsencryptPluginConfigureQueue } from '@/queues/letsencrypt/configure'
-import { addInstallLetsencryptAndConfigureQueue } from '@/queues/letsencrypt/installAndConfigure'
-import { addDeletePluginQueue } from '@/queues/plugin/delete'
-import { addInstallPluginQueue } from '@/queues/plugin/install'
-import { addTogglePluginQueue } from '@/queues/plugin/toggle'
+import { dokku } from "@core/lib/dokku"
+import { protectedClient } from "@core/lib/safe-action"
+import { dynamicSSH, extractSSHDetails } from "@core/lib/ssh"
+import { addLetsencryptPluginConfigureQueue } from "@core/queues/letsencrypt/configure"
+import { addInstallLetsencryptAndConfigureQueue } from "@core/queues/letsencrypt/installAndConfigure"
+import { addDeletePluginQueue } from "@core/queues/plugin/delete"
+import { addInstallPluginQueue } from "@core/queues/plugin/install"
+import { addTogglePluginQueue } from "@core/queues/plugin/toggle"
 
 import {
   checkPluginUsageSchema,

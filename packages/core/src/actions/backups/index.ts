@@ -2,15 +2,15 @@
 
 import { generateUniqueServiceName } from "@core/actions/beszel/utils"
 import { createProjectAction, createProjectAdminAction } from "@core/actions/project"
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { BasePayload } from 'payload'
 
-import { pub } from '@/lib/redis'
-import { adminClient, protectedClient } from '@/lib/safe-action'
-import { sendEvent } from '@/lib/sendEvent'
-import { fetchOfficialTemplateByName } from '@/lib/utils/templates'
-import { Service } from '@/payload-types'
-import { addTemplateDeployQueue } from '@/queues/template/deploy'
+import { pub } from "@core/lib/redis"
+import { adminClient, protectedClient } from "@core/lib/safe-action"
+import { sendEvent } from "@core/lib/sendEvent"
+import { fetchOfficialTemplateByName } from "@core/lib/utils/templates"
+import { Service } from "@core/payload-types"
+import { addTemplateDeployQueue } from "@core/queues/template/deploy"
 
 import { dokkuBackupSchema } from "@core/actions/backups/validator"
 

@@ -1,7 +1,7 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 import { z } from 'zod'
 
-import { setServiceNginxConfigSchema } from '@/actions/service/validator'
+import { setServiceNginxConfigSchema } from "@core/actions/service/validator"
 
 type NginxKey = z.infer<typeof setServiceNginxConfigSchema>
 

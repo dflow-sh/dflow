@@ -3,7 +3,7 @@
 import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { toast } from 'sonner'
 
-import { useCrossDomainAuth } from '@/hooks/useCrossDomainAuth'
+import { useCrossDomainAuth } from "@core/hooks/useCrossDomainAuth"
 
 interface CrossDomainAuthContextType {
   crossDomainLogout: (redirectUrl?: string) => Promise<void>

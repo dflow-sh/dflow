@@ -8,8 +8,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
-import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
+import { getCloudProvidersAccountsAction } from "@core/actions/cloud"
+import GithubIntegrationsLoading from "@core/components/Integrations/GithubIntegrationsLoading"
 import {
   Sheet,
   SheetContent,
@@ -17,8 +17,8 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { integrationsList } from '@/lib/integrationList'
+} from "@core/components/ui/sheet"
+import { integrationsList } from "@core/lib/integrationList"
 
 import CloudProvidersList from "@core/components/Integrations/CloudProvidersList"
 import AWSAccountForm from "@core/components/Integrations/aws/AWSAccountForm"

@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { uninstallNetdataAction } from '@/actions/netdata'
-import { Button } from '@/components/ui/button'
+import { uninstallNetdataAction } from "@core/actions/netdata"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { netdata } from '@/lib/netdata'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/dropdown-menu"
+import { netdata } from "@core/lib/netdata"
+import { ServerType } from "@core/payload-types-overrides"
 
 import CurrentResourceUsage from "@core/components/servers/monitoring/CurrentResourceUsage"
 import MonitoringTabs from "@core/components/servers/monitoring/MonitoringTabs"

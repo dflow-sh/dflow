@@ -1,7 +1,7 @@
 import { SquareTerminal } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   Sheet,
   SheetContent,
@@ -9,7 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
+} from "@core/components/ui/sheet"
 
 const TerminalContent = dynamic(
   () =>

@@ -27,11 +27,11 @@ import { toast } from 'sonner'
 import {
   removeUserFromTeamAction,
   updateUserTenantRolesAction,
-} from '@/actions/team'
+} from "@core/actions/team"
 import {
   updateTenantRolesSchema,
   updateTenantRolesType,
-} from '@/actions/team/validator'
+} from "@core/actions/team/validator"
 import {
   Table,
   TableBody,
@@ -39,8 +39,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Role, Tenant, User } from '@/payload-types'
+} from "@core/components/ui/table"
+import { Role, Tenant, User } from "@core/payload-types"
 
 const TeamMembers = ({
   teamMembers,

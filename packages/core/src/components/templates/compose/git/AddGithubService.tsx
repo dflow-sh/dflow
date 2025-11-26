@@ -20,11 +20,11 @@ import {
   getAllAppsAction,
   getBranchesAction,
   getRepositoriesAction,
-} from '@/actions/gitProviders'
-import { ServiceNode } from '@/components/reactflow/types'
-import SecretContent from '@/components/ui/blur-reveal'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
+} from "@core/actions/gitProviders"
+import { ServiceNode } from "@core/components/reactflow/types"
+import SecretContent from "@core/components/ui/blur-reveal"
+import { Button } from "@core/components/ui/button"
+import { DialogFooter } from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -32,14 +32,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import SelectSearch from '@/components/ui/select-search'
-import { buildOptions } from '@/lib/buildOptions'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import SelectSearch from "@core/components/ui/select-search"
+import { buildOptions } from "@core/lib/buildOptions"
+import { cn } from "@core/lib/utils"
 
 const githubURLRegex = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)(?:\.git)?$/
 

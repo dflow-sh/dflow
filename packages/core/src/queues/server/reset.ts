@@ -1,17 +1,17 @@
 import { addUninstallRailpackQueue } from "@core/queues/builder/uninstallRailpack"
 import { addUninstallDokkuQueue } from "@core/queues/dokku/uninstall"
 import { addUninstallNetdataQueue } from "@core/queues/netdata/uninstall"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
-import { ServerType } from '@/payload-types-overrides'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
+import { waitForJobCompletion } from "@core/lib/utils/waitForJobCompletion"
+import { ServerType } from "@core/payload-types-overrides"
 
 interface QueueArgs {
   sshDetails: SSHType

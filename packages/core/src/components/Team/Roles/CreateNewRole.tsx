@@ -12,23 +12,23 @@ import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { createRoleAction } from '@/actions/roles'
-import { CreateRoleType, createRoleSchema } from '@/actions/roles/validator'
+import { createRoleAction } from "@core/actions/roles"
+import { CreateRoleType, createRoleSchema } from "@core/actions/roles/validator"
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from "@core/components/ui/accordion"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Form } from '@/components/ui/form'
+} from "@core/components/ui/card"
+import { Form } from "@core/components/ui/form"
 
 import PermissionsTable from "@core/components/Team/Roles/PermissionsTable"
 import RoleDetails from "@core/components/Team/Roles/RoleDetails"

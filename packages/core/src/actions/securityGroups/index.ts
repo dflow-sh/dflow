@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from "@core/lib/safe-action"
 
 import {
   createSecurityGroupSchema,

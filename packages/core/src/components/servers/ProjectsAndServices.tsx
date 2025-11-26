@@ -21,9 +21,9 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { JSX, useState } from 'react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { Project, Service } from '@/payload-types'
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { cn } from "@core/lib/utils"
+import { Project, Service } from "@core/payload-types"
 
 const icon: { [key in Service['type']]: JSX.Element } = {
   app: <Github className='size-4' />,

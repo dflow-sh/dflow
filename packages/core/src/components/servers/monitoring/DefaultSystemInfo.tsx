@@ -2,10 +2,10 @@
 
 import { Activity, Clock, Cpu, Monitor, Network, Server } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
-import { System } from '@/lib/beszel/types'
+import { Badge } from "@core/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Separator } from "@core/components/ui/separator"
+import { System } from "@core/lib/beszel/types"
 
 interface DefaultSystemInfoProps {
   monitoringData: {

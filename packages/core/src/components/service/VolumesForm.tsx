@@ -16,16 +16,16 @@ import {
 } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { updateVolumesAction } from '@/actions/service'
+import { updateVolumesAction } from "@core/actions/service"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { slugifyWithUnderscore } from '@/lib/slugify'
-import { Service } from '@/payload-types'
+} from "@core/components/ui/form"
+import { slugifyWithUnderscore } from "@core/lib/slugify"
+import { Service } from "@core/payload-types"
 
 const HostContainerPair = memo(
   ({

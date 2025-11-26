@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
+} from "@core/components/ui/dialog"
+import { CloudProviderAccount, SecurityGroup } from "@core/payload-types"
 
 import SecurityGroupForm from "@core/components/security/CreateSecurityGroupForm"
 

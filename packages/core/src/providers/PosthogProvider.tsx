@@ -1,11 +1,11 @@
 'use client'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import posthog from 'posthog-js'
 import { PostHogProvider as PHProvider } from 'posthog-js/react'
 import { useEffect } from 'react'
 
-import { posthogKey } from '@/lib/constants'
+import { posthogKey } from "@core/lib/constants"
 
 export default function PosthogProvider({
   children,

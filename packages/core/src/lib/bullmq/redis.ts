@@ -1,4 +1,4 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import Redis, { type Redis as IORedisType } from 'ioredis'
 
 let redisSingleton: IORedisType | null = null

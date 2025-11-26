@@ -18,10 +18,10 @@ import {
   checkServerConnection,
   createServerAction,
   updateServerAction,
-} from '@/actions/server'
+} from "@core/actions/server"
 // You'll need to import your server connection action
-import { createServerSchema } from '@/actions/server/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { createServerSchema } from "@core/actions/server/validator"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
 import {
   Form,
   FormControl,
@@ -29,16 +29,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@core/components/ui/form"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Server, SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/select"
+import { Server, SshKey } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 type ConnectionStatus = {
   isConnected: boolean

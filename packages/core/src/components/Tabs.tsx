@@ -3,7 +3,7 @@
 import { Slot } from '@radix-ui/react-slot'
 import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from "@core/components/ui/card"
 
 export type TabContentProps = {
   disableTabs: boolean

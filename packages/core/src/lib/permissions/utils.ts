@@ -1,4 +1,4 @@
-import type { Role } from '@/payload-types'
+import type { Role } from "@core/payload-types"
 
 import { type ActionName, getActionAccess } from "@core/lib/permissions/config"
 

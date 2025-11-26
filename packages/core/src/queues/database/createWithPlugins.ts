@@ -1,17 +1,17 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
-import { pluginList } from '@/components/plugins'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { parseDatabaseInfo } from '@/lib/utils'
+import { createServiceSchema } from "@core/actions/service/validator"
+import { pluginList } from "@core/components/plugins"
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { dokku } from "@core/lib/dokku"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
+import { parseDatabaseInfo } from "@core/lib/utils"
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

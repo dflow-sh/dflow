@@ -18,8 +18,8 @@ import {
   flushServerQueuesAction,
   flushSingleQueueAction,
   getServerQueuesAction,
-} from '@/actions/bullmq'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from "@core/actions/bullmq"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,16 +30,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from "@core/components/ui/alert-dialog"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -47,8 +47,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/table"
+import { ServerType } from "@core/payload-types-overrides"
 
 interface ServerQueuesTabProps {
   server: ServerType

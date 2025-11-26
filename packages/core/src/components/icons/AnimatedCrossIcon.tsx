@@ -3,7 +3,7 @@
 import type { Variants } from 'motion/react'
 import { motion } from 'motion/react'
 
-import { cn } from '@/lib/utils'
+import { cn } from "@core/lib/utils"
 
 const pathVariants: Variants = {
   initial: {

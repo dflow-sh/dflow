@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { adminClient, protectedClient } from '@/lib/safe-action'
-import { generateRandomString } from '@/lib/utils'
-import { ServerType } from '@/payload-types-overrides'
-import { addDeleteProjectQueue } from '@/queues/project/deleteProject'
+import { adminClient, protectedClient } from "@core/lib/safe-action"
+import { generateRandomString } from "@core/lib/utils"
+import { ServerType } from "@core/payload-types-overrides"
+import { addDeleteProjectQueue } from "@core/queues/project/deleteProject"
 
 import {
   createProjectAdminSchema,

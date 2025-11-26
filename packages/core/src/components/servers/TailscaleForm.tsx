@@ -14,12 +14,12 @@ import {
   checkServerConnection,
   createTailscaleServerAction,
   generateTailscaleHostname,
-} from '@/actions/server'
-import { createTailscaleServerSchema } from '@/actions/server/validator'
+} from "@core/actions/server"
+import { createTailscaleServerSchema } from "@core/actions/server/validator"
 import {
   generateAuthKeyAction,
   generateOAuthTokenAction,
-} from '@/actions/tailscale'
+} from "@core/actions/tailscale"
 import {
   Form,
   FormControl,
@@ -27,7 +27,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@core/components/ui/form"
 
 import { handleGenerateName } from "@core/components/servers/dflowVpsForm/utils"
 

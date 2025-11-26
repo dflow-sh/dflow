@@ -7,9 +7,9 @@ import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import { getDockerRegistries } from '@/actions/dockerRegistry'
-import GithubIntegrationsLoading from '@/components/Integrations/GithubIntegrationsLoading'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { getDockerRegistries } from "@core/actions/dockerRegistry"
+import GithubIntegrationsLoading from "@core/components/Integrations/GithubIntegrationsLoading"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import {
   Sheet,
   SheetContent,
@@ -17,8 +17,8 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { integrationsList } from '@/lib/integrationList'
+} from "@core/components/ui/sheet"
+import { integrationsList } from "@core/lib/integrationList"
 
 import DockerRegistryForm from "@core/components/Integrations/dockerRegistry/Form"
 import DockerRegistryList from "@core/components/Integrations/dockerRegistry/List"

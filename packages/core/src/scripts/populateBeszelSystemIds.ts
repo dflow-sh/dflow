@@ -1,9 +1,9 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { getPayload } from 'payload'
 
-import { checkBeszelConfig } from '@/actions/beszel/utils'
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { Collections } from '@/lib/beszel/types'
+import { checkBeszelConfig } from "@core/actions/beszel/utils"
+import { BeszelClient } from "@core/lib/beszel/client/BeszelClient"
+import { Collections } from "@core/lib/beszel/types"
 
 const populateBeszelSystemIds = async () => {
   try {

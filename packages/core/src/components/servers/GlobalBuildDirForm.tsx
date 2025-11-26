@@ -18,8 +18,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { configureGlobalBuildDirAction } from '@/actions/server'
-import { Server } from '@/payload-types'
+import { configureGlobalBuildDirAction } from "@core/actions/server"
+import { Server } from "@core/payload-types"
 
 const GlobalBuildDirForm = ({ server }: { server: Server }) => {
   const [buildDir, setBuildDir] = useState(server.globalBuildPath || '')

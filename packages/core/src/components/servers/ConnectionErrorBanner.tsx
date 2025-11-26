@@ -1,19 +1,19 @@
 'use client'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { Mail, MessageSquare, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 
 const ConnectionErrorBanner = ({
   serverName,

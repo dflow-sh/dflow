@@ -1,4 +1,4 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 

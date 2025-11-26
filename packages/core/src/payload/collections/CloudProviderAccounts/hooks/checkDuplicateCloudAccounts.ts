@@ -1,6 +1,6 @@
 import { CollectionBeforeValidateHook } from 'payload'
 
-import { CloudProviderAccount } from '@/payload-types'
+import { CloudProviderAccount } from "@core/payload-types"
 
 const getTenantId = (data: any, req: any): string => {
   if (data?.tenant) {

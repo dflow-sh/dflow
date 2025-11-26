@@ -10,8 +10,8 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createProjectAction, updateProjectAction } from '@/actions/project'
-import { createProjectSchema } from '@/actions/project/validator'
+import { createProjectAction, updateProjectAction } from "@core/actions/project"
+import { createProjectSchema } from "@core/actions/project/validator"
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -28,17 +28,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { slugify } from '@/lib/slugify'
-import { Project } from '@/payload-types'
+} from "@core/components/ui/select"
+import { slugify } from "@core/lib/slugify"
+import { Project } from "@core/payload-types"
 
 const CreateProject = ({
   servers,

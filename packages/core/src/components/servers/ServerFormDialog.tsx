@@ -12,8 +12,8 @@ import {
 import { Pencil, Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { SecurityGroup, SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+import { SecurityGroup, SshKey } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 import AttachCustomServerForm from "@core/components/servers/AttachCustomServerForm"
 import CreateEC2InstanceForm from "@core/components/servers/CreateEC2InstanceForm"

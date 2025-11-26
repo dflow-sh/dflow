@@ -1,14 +1,14 @@
 import { Plus, Tag, Trash2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 
 const TagsSection = ({
   form,

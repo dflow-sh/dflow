@@ -27,18 +27,18 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { Badge } from '@/components/ui/badge'
+} from "@core/components/icons"
+import { Badge } from "@core/components/ui/badge"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { getSessionValue } from '@/lib/getSessionValue'
-import { Service } from '@/payload-types'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+} from "@core/components/ui/card"
+import { getSessionValue } from "@core/lib/getSessionValue"
+import { Service } from "@core/payload-types"
+import { useArchitectureContext } from "@core/providers/ArchitectureProvider"
 
 const icon: { [key in ServiceNode['type']]: JSX.Element } = {
   app: <Git className='size-6' />,

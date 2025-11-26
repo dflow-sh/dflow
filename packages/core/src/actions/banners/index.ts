@@ -1,9 +1,9 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { getPayload } from 'payload'
 
-import { getTenant } from '@/lib/get-tenant'
-import { getCurrentUser } from '@/lib/getCurrentUser'
-import { publicClient } from '@/lib/safe-action'
+import { getTenant } from "@core/lib/get-tenant"
+import { getCurrentUser } from "@core/lib/getCurrentUser"
+import { publicClient } from "@core/lib/safe-action"
 
 export const getPublicBanners = publicClient
   .metadata({

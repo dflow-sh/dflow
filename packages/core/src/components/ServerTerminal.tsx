@@ -10,9 +10,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import useXterm from '@/hooks/use-xterm'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/sheet"
+import useXterm from "@core/hooks/use-xterm"
+import { cn } from "@core/lib/utils"
 
 import Tabs from "@core/components/Tabs"
 import XTermTerminal from "@core/components/XTermTerminal"

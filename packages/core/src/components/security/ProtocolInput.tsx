@@ -4,8 +4,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 
 const ProtocolInput = ({
   form,

@@ -37,9 +37,9 @@ import {
   publishTemplateAction,
   syncWithPublicTemplateAction,
   unPublishTemplateAction,
-} from '@/actions/templates'
-import { Card, CardContent } from '@/components/ui/card'
-import { CloudProviderAccount, Template, Tenant } from '@/payload-types'
+} from "@core/actions/templates"
+import { Card, CardContent } from "@core/components/ui/card"
+import { CloudProviderAccount, Template, Tenant } from "@core/payload-types"
 
 const UnPublishedTemplates = ({
   templates,

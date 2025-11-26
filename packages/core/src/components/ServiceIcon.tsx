@@ -1,8 +1,8 @@
 import { Github } from 'lucide-react'
 import { JSX, SVGProps } from 'react'
 
-import { cn } from '@/lib/utils'
-import { Service } from '@/payload-types'
+import { cn } from "@core/lib/utils"
+import { Service } from "@core/payload-types"
 
 import {
   ClickHouse,

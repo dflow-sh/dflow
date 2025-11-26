@@ -3,9 +3,9 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import type { Banner } from '@/payload-types'
+import { Button } from "@core/components/ui/button"
+import { cn } from "@core/lib/utils"
+import type { Banner } from "@core/payload-types"
 
 interface BannerProps {
   banners: Banner[]

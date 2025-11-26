@@ -9,8 +9,8 @@ import { useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { setServiceNginxConfigAction } from '@/actions/service'
-import { setServiceNginxConfigSchema } from '@/actions/service/validator'
+import { setServiceNginxConfigAction } from "@core/actions/service"
+import { setServiceNginxConfigSchema } from "@core/actions/service/validator"
 import {
   Form,
   FormControl,
@@ -18,8 +18,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Service } from '@/payload-types'
+} from "@core/components/ui/form"
+import { Service } from "@core/payload-types"
 
 type NginxConfigType = z.infer<typeof setServiceNginxConfigSchema>
 

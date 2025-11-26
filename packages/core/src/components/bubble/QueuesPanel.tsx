@@ -21,8 +21,8 @@ import {
   flushServerQueuesAction,
   flushSingleQueueAction,
   getServerQueuesAction,
-} from '@/actions/bullmq'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from "@core/actions/bullmq"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,26 +33,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from "@core/components/ui/alert-dialog"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Progress } from '@/components/ui/progress'
+} from "@core/components/ui/dropdown-menu"
+import { Progress } from "@core/components/ui/progress"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-import { useBubble } from '@/providers/BubbleProvider'
-import { useServers } from '@/providers/ServersProvider'
+} from "@core/components/ui/select"
+import { cn } from "@core/lib/utils"
+import { useBubble } from "@core/providers/BubbleProvider"
+import { useServers } from "@core/providers/ServersProvider"
 
 interface QueueStats {
   name: string

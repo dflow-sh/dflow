@@ -1,4 +1,4 @@
-import { VpsPlan } from '@/lib/restSDK/types'
+import { VpsPlan } from "@core/lib/restSDK/types"
 
 export const HeaderSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (

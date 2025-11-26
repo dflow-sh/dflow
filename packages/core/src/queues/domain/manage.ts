@@ -1,17 +1,17 @@
 import { addUpdateEnvironmentVariablesQueue } from "@core/queues/environment/update"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import traefik from '@/lib/axios/traefik'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
-import { Service } from '@/payload-types'
+import traefik from "@core/lib/axios/traefik"
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { dokku } from "@core/lib/dokku"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
+import { Service } from "@core/payload-types"
 
 interface QueueArgs {
   sshDetails: SSHType

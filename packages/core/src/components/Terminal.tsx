@@ -4,7 +4,7 @@ import { Loader } from 'lucide-react'
 
 // import { useEffect, useRef, useState } from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from "@core/lib/utils"
 
 type TerminalType = {
   messages?: string[]

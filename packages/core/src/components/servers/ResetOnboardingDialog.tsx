@@ -3,8 +3,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 import { type ReactNode, useState } from 'react'
 
-import { resetServerOnboardingAction } from '@/actions/server'
-import { Button } from '@/components/ui/button'
+import { resetServerOnboardingAction } from "@core/actions/server"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 
 const ResetOnboardingDialog = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)

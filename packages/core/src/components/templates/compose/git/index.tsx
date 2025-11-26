@@ -6,9 +6,9 @@ import {
   Gitea,
   Github,
   MicrosoftAzure,
-} from '@/components/icons'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+} from "@core/components/icons"
+import { ServiceNode } from "@core/components/reactflow/types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
 
 import AddAzureDevopsService from "@core/components/templates/compose/git/AddAzureDevopsService"
 import AddBitbucketService from "@core/components/templates/compose/git/AddBitbucketService"

@@ -35,9 +35,9 @@ import {
   internalBackupAction,
   internalDbDeleteAction,
   internalRestoreAction,
-} from '@/actions/dbBackup'
-import { databaseOptions } from '@/lib/constants'
-import { Backup as BackupType, Service } from '@/payload-types'
+} from "@core/actions/dbBackup"
+import { databaseOptions } from "@core/lib/constants"
+import { Backup as BackupType, Service } from "@core/payload-types"
 
 export const IndividualBackup = ({
   backup,

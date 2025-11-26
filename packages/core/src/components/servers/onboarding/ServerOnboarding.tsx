@@ -1,13 +1,13 @@
 'use client'
 
-import { DokkuInstallationStepContextProvider } from '@/components/onboarding/dokkuInstallation/DokkuInstallationStepContext'
-import UpdateManualServerFrom from '@/components/servers/AttachCustomServerForm'
-import UpdateEC2InstanceForm from '@/components/servers/CreateEC2InstanceForm'
-import UpdateTailscaleServerForm from '@/components/servers/UpdateTailscaleServerForm'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SecurityGroup, SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+import { DokkuInstallationStepContextProvider } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
+import UpdateManualServerFrom from "@core/components/servers/AttachCustomServerForm"
+import UpdateEC2InstanceForm from "@core/components/servers/CreateEC2InstanceForm"
+import UpdateTailscaleServerForm from "@core/components/servers/UpdateTailscaleServerForm"
+import { Card, CardContent } from "@core/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
+import { SecurityGroup, SshKey } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 import ConfigureDomain from "@core/components/servers/onboarding/ConfigureDomain"
 import {

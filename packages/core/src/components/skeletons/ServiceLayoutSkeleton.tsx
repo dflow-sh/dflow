@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 
 export const ServiceLayoutSkeleton = () => {
   return (

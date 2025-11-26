@@ -18,8 +18,8 @@ import { toast } from 'sonner'
 import {
   generateInviteLinkAction,
   sendInvitationLinkAction,
-} from '@/actions/team'
-import { Role, Tenant } from '@/payload-types'
+} from "@core/actions/team"
+import { Role, Tenant } from "@core/payload-types"
 
 const Invitation = ({ roles, tenant }: { roles: Role[]; tenant: any }) => {
   const [email, setEmail] = useState('')

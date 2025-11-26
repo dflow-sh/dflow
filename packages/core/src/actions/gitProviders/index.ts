@@ -1,11 +1,11 @@
 'use server'
 
 import { createAppAuth } from '@octokit/auth-app'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { revalidatePath } from 'next/cache'
 import { Octokit } from 'octokit'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from "@core/lib/safe-action"
 
 import {
   createGitHubAppSchema,

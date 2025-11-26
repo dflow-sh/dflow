@@ -13,8 +13,8 @@ import {
 } from '@aws-sdk/client-ec2'
 import { APIError, CollectionBeforeChangeHook } from 'payload'
 
-import { awsRegions } from '@/lib/constants'
-import { SecurityGroup } from '@/payload-types'
+import { awsRegions } from "@core/lib/constants"
+import { SecurityGroup } from "@core/payload-types"
 
 interface FormattedRule {
   securityGroupRuleId?: string

@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react'
 
-import { Badge } from '@/components/ui/badge'
+import { Badge } from "@core/components/ui/badge"
 
 type Position =
   | 'top-left'

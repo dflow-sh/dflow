@@ -3,10 +3,10 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { serverBackupAction } from '@/actions/backups'
-import Loader from '@/components/Loader'
-import { useServerOnboarding } from '@/components/servers/onboarding/ServerOnboardingContext'
-import { ServerType } from '@/payload-types-overrides'
+import { serverBackupAction } from "@core/actions/backups"
+import Loader from "@core/components/Loader"
+import { useServerOnboarding } from "@core/components/servers/onboarding/ServerOnboardingContext"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 

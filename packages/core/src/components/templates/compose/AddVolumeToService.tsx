@@ -13,9 +13,9 @@ import {
 } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { Docker } from '@/components/icons'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
+import { Docker } from "@core/components/icons"
+import { ServiceNode } from "@core/components/reactflow/types"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -23,18 +23,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { slugifyWithUnderscore } from '@/lib/slugify'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import { slugifyWithUnderscore } from "@core/lib/slugify"
+import { cn } from "@core/lib/utils"
 
 import { VolumesType, volumesSchema } from "@core/components/templates/compose/types"
 

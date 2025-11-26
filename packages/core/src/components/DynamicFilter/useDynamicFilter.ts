@@ -7,7 +7,7 @@ import {
   FilterConfig,
   FilterState,
   generateSchemaFromData,
-} from '@/lib/filter.utils'
+} from "@core/lib/filter.utils"
 
 interface UseDynamicFilterProps<T> {
   data: T[]

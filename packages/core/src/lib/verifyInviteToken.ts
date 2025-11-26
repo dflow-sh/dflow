@@ -1,6 +1,6 @@
 'use server'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken'
 
 const secret = env.PAYLOAD_SECRET

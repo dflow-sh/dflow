@@ -13,10 +13,10 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { getDockerRegistries } from '@/actions/dockerRegistry'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
+import { getDockerRegistries } from "@core/actions/dockerRegistry"
+import { ServiceNode } from "@core/components/reactflow/types"
+import { Button } from "@core/components/ui/button"
+import { DialogFooter } from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -25,19 +25,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { ScrollArea } from '@/components/ui/scroll-area'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/select"
+import { cn } from "@core/lib/utils"
 
 import { getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
 import { DockerServiceSchema, DockerServiceType } from "@core/components/templates/compose/types"

@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { cn } from '@/lib/utils'
+import { cn } from "@core/lib/utils"
 
 const XTermTerminal = ({
   ref,

@@ -1,6 +1,6 @@
 import DomainList from "@core/components/servers/DomainList"
 
-import { ServerType } from '@/payload-types-overrides'
+import { ServerType } from "@core/payload-types-overrides"
 
 import ConfigureDefaultDomain from "@core/components/servers/onboarding/ConfigureDefaultDomain"
 import ServerOnboardingLayout from "@core/components/servers/onboarding/ServerOnboardingLayout"

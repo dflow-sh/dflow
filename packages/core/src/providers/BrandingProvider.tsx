@@ -2,7 +2,7 @@
 
 import React, { createContext, use } from 'react'
 
-import { Branding } from '@/payload-types'
+import { Branding } from "@core/payload-types"
 
 const BrandingContext = createContext<
   { branding: Branding | undefined } | undefined

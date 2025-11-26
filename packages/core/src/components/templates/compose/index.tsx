@@ -27,22 +27,22 @@ import {
   getOfficialTemplateByIdAction,
   getTemplateByIdAction,
   updateTemplateAction,
-} from '@/actions/templates'
+} from "@core/actions/templates"
 import {
   CreateTemplateSchemaType,
   createTemplateSchema,
-} from '@/actions/templates/validator'
-import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { convertNodesToServices } from '@/components/reactflow/utils/convertNodesToServices'
-import { convertToGraph } from '@/components/reactflow/utils/convertServicesToNodes'
-import { Button } from '@/components/ui/button'
+} from "@core/actions/templates/validator"
+import ReactFlowConfig from "@core/components/reactflow/reactflow.config"
+import { convertNodesToServices } from "@core/components/reactflow/utils/convertNodesToServices"
+import { convertToGraph } from "@core/components/reactflow/utils/convertServicesToNodes"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -50,10 +50,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Textarea } from '@/components/ui/textarea'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Skeleton } from "@core/components/ui/skeleton"
+import { Textarea } from "@core/components/ui/textarea"
 
 import ChooseService, { ChildRef, getPositionForNewNode } from "@core/components/templates/compose/ChooseService"
 

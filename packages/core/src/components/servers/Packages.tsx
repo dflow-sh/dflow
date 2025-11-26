@@ -8,9 +8,9 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { updateRailpackAction } from '@/actions/server'
-import updateRailpack from '@/lib/axios/updateRailpack'
-import { ServerType } from '@/payload-types-overrides'
+import { updateRailpackAction } from "@core/actions/server"
+import updateRailpack from "@core/lib/axios/updateRailpack"
+import { ServerType } from "@core/payload-types-overrides"
 
 const Packages = ({
   railpack,

@@ -3,9 +3,9 @@ import { useReactFlow } from '@xyflow/react'
 import { Trash2 } from 'lucide-react'
 import { type FC, useRef } from 'react'
 
-import type { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+import type { ServiceNode } from "@core/components/reactflow/types"
+import { Button } from "@core/components/ui/button"
+import { useArchitectureContext } from "@core/providers/ArchitectureProvider"
 
 import AddVolumeToService from "@core/components/templates/compose/AddVolumeToService"
 import EditServiceName from "@core/components/templates/compose/EditServiceName"

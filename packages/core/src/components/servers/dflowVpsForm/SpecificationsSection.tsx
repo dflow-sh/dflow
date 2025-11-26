@@ -1,7 +1,7 @@
 import { Camera, CircuitBoard, Cpu, HardDrive } from 'lucide-react'
 
-import { Card, CardContent } from '@/components/ui/card'
-import { VpsPlan } from '@/lib/restSDK/types'
+import { Card, CardContent } from "@core/components/ui/card"
+import { VpsPlan } from "@core/lib/restSDK/types"
 
 export const SpecificationsSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (

@@ -1,6 +1,6 @@
 import { CollectionBeforeValidateHook } from 'payload'
 
-import { GitProvider } from '@/payload-types'
+import { GitProvider } from "@core/payload-types"
 
 const getTenantId = (data: any, req: any): string => {
   if (data?.tenant) {

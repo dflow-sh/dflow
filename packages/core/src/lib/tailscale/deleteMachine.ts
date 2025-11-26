@@ -1,7 +1,7 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import type { BasePayload } from 'payload'
 
-import tailscale from '@/lib/axios/tailscale'
+import tailscale from "@core/lib/axios/tailscale"
 
 import { generateOAuthToken } from "@core/lib/tailscale/generateOAuthToken"
 

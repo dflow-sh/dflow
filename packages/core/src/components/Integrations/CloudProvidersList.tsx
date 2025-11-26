@@ -7,8 +7,8 @@ import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { deleteAWSAccountAction } from '@/actions/cloud/aws'
-import { CloudProviderAccount } from '@/payload-types'
+import { deleteAWSAccountAction } from "@core/actions/cloud/aws"
+import { CloudProviderAccount } from "@core/payload-types"
 
 import AWSAccountForm from "@core/components/Integrations/aws/AWSAccountForm"
 

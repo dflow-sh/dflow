@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { supportedPluginsSchema } from '@/actions/plugin/validator'
+import { supportedPluginsSchema } from "@core/actions/plugin/validator"
 
 export type PluginListType = {
   value: z.infer<typeof supportedPluginsSchema>

@@ -19,21 +19,21 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@core/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { Project, Server, Service } from '@/payload-types'
+} from "@core/components/ui/tooltip"
+import { cn } from "@core/lib/utils"
+import { Project, Server, Service } from "@core/payload-types"
 
 import DeleteProjectDialog from "@core/components/DeleteProjectDialog"
 import UpdateProject from "@core/components/project/CreateProject"

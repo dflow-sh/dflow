@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { PlusIcon } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createGithubAppAction } from '@/actions/gitProviders'
-import { createGitHubAppSchema } from '@/actions/gitProviders/validator'
-import { Button } from '@/components/ui/button'
+import { createGithubAppAction } from "@core/actions/gitProviders"
+import { createGitHubAppSchema } from "@core/actions/gitProviders/validator"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -26,8 +26,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 
 const date = new Date()
 const formattedDate = date.toISOString().split('T')[0]

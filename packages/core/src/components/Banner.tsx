@@ -1,4 +1,4 @@
-import { getPublicBanners } from '@/actions/banners'
+import { getPublicBanners } from "@core/actions/banners"
 
 import BannerComponent from "@core/components/ui/banner"
 

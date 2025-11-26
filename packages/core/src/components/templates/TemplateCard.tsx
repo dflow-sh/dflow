@@ -4,8 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 
-import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
-import { Template } from '@/payload-types'
+import { Template as DFlowTemplateType } from "@core/lib/restSDK/types"
+import { Template } from "@core/payload-types"
 
 const TemplateCard = ({
   template,

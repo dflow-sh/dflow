@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from "@core/lib/safe-action"
 
 import { triggerDeployment } from "@core/actions/deployment/deploy"
 import { createDeploymentSchema } from "@core/actions/deployment/validator"

@@ -1,7 +1,7 @@
 import { ServiceNode } from "@core/components/reactflow/types"
 import { Edge } from '@xyflow/react'
 
-import { GitProvider, Service, Template } from '@/payload-types'
+import { GitProvider, Service, Template } from "@core/payload-types"
 
 interface ServiceWithDisplayName extends Service {
   displayName: string

@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { DFLOW_CONFIG } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { protectedClient } from '@/lib/safe-action'
-import { Server } from '@/payload-types'
+import { DFLOW_CONFIG } from "@core/lib/constants"
+import { dFlowRestSdk } from "@core/lib/restSDK/utils"
+import { protectedClient } from "@core/lib/safe-action"
+import { Server } from "@core/payload-types"
 
 import {
   cloudProviderAccountsSchema,

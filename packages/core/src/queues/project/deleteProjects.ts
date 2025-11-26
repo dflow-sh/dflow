@@ -1,12 +1,12 @@
 import { addDeleteMachineQueue } from "@core/queues/tailscale/deleteMachine"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { deleteMachine } from '@/lib/tailscale/deleteMachine'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { deleteMachine } from "@core/lib/tailscale/deleteMachine"
 
 import { addDeleteProjectQueue } from "@core/queues/project/deleteProject"
 

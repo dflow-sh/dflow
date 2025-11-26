@@ -1,7 +1,7 @@
 import { DeleteSecurityGroupCommand, EC2Client } from '@aws-sdk/client-ec2'
 import { CollectionBeforeDeleteHook } from 'payload'
 
-import { awsRegions } from '@/lib/constants'
+import { awsRegions } from "@core/lib/constants"
 
 export const securityGroupBeforeDeleteHook: CollectionBeforeDeleteHook =
   async ({ req, id }) => {

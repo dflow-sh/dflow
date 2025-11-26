@@ -3,11 +3,11 @@ import { useAction } from 'next-safe-action/hooks'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { updateRolePermissionsAction } from '@/actions/roles'
-import { UpdateRoleType, updateRoleSchema } from '@/actions/roles/validator'
-import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
-import { Role } from '@/payload-types'
+import { updateRolePermissionsAction } from "@core/actions/roles"
+import { UpdateRoleType, updateRoleSchema } from "@core/actions/roles/validator"
+import { Button } from "@core/components/ui/button"
+import { Form } from "@core/components/ui/form"
+import { Role } from "@core/payload-types"
 
 import PermissionsTable from "@core/components/Team/Roles/PermissionsTable"
 

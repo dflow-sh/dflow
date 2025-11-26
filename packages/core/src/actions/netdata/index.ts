@@ -2,10 +2,10 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { protectedClient } from '@/lib/safe-action'
-import { extractSSHDetails } from '@/lib/ssh'
-import { addInstallNetdataQueue } from '@/queues/netdata/install'
-import { addUninstallNetdataQueue } from '@/queues/netdata/uninstall'
+import { protectedClient } from "@core/lib/safe-action"
+import { extractSSHDetails } from "@core/lib/ssh"
+import { addInstallNetdataQueue } from "@core/queues/netdata/install"
+import { addUninstallNetdataQueue } from "@core/queues/netdata/uninstall"
 
 import { installNetdataSchema, uninstallNetdataSchema } from "@core/actions/netdata/validator"
 

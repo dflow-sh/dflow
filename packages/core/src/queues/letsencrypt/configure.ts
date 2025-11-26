@@ -1,13 +1,13 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { NodeSSH, SSHExecCommandResponse } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { SSHType, dynamicSSH } from '@/lib/ssh'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { dokku } from "@core/lib/dokku"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { SSHType, dynamicSSH } from "@core/lib/ssh"
 
 interface QueueArgs {
   sshDetails: SSHType

@@ -1,7 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app'
 import { Octokit } from 'octokit'
 
-import { Service } from '@/payload-types'
+import { Service } from "@core/payload-types"
 
 export const getBuildDetails = async ({
   providerType,

@@ -1,4 +1,4 @@
-import { Deployment, DockerRegistry, GitProvider } from '@/payload-types'
+import { Deployment, DockerRegistry, GitProvider } from "@core/payload-types"
 
 export interface DatabaseDetails {
   type?:

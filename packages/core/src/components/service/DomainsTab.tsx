@@ -1,6 +1,6 @@
 import { Globe } from 'lucide-react'
 
-import { Server, Service } from '@/payload-types'
+import { Server, Service } from "@core/payload-types"
 
 import DomainList from "@core/components/service/DomainList"
 

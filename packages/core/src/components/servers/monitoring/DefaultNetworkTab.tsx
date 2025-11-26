@@ -19,14 +19,14 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@core/components/ui/card"
 import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart'
+} from "@core/components/ui/chart"
 
 interface DefaultNetworkTabProps {
   historicalData: {

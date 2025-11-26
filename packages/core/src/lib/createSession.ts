@@ -6,7 +6,7 @@ import {
   jwtSign,
 } from 'payload'
 
-import { User } from '@/payload-types'
+import { User } from "@core/payload-types"
 
 export type UserWithCollection = User & { collection: 'users' }
 

@@ -1,13 +1,12 @@
+import { dokku } from '@core/lib/dokku'
+import { loadServiceLogs } from '@core/lib/searchParams'
 import { type NodeSSH } from 'node-ssh'
 import { LoaderInput } from 'nuqs'
 import { APIError, PayloadHandler } from 'payload'
 
-import { dokku } from '@/lib/dokku'
-import { loadServiceLogs } from '@/lib/searchParams'
-
 export const logs: PayloadHandler = async ({ headers, payload, query }) => {
   const auth = await payload.auth({ headers })
-  const { dynamicSSH, extractSSHDetails } = await import('@/lib/ssh')
+  const { dynamicSSH, extractSSHDetails } = await import('@core/lib/ssh')
 
   // Throwing 401 if no user is present
   if (!auth.user) {

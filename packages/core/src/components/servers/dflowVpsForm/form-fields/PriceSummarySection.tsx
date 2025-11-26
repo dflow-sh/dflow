@@ -6,8 +6,8 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { getDflowUser } from '@/actions/cloud/dFlow'
-import { Separator } from '@/components/ui/separator'
+import { getDflowUser } from "@core/actions/cloud/dFlow"
+import { Separator } from "@core/components/ui/separator"
 
 export const PriceSummarySection = () => {
   const { vpsPlan, pricing } = useDflowVpsForm()

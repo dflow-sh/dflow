@@ -1,7 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app'
 import { CollectionAfterChangeHook } from 'payload'
 
-import { GitProvider } from '@/payload-types'
+import { GitProvider } from "@core/payload-types"
 
 // This hook is for population on installation token & expiry-time after app-installation
 export const populateInstallationToken: CollectionAfterChangeHook<

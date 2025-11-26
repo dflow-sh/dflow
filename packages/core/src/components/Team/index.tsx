@@ -1,5 +1,5 @@
-import { getRolesAction } from '@/actions/roles'
-import { User } from '@/payload-types'
+import { getRolesAction } from "@core/actions/roles"
+import { User } from "@core/payload-types"
 
 import Invitation from "@core/components/Team/Invitation"
 import Roles from "@core/components/Team/Roles"

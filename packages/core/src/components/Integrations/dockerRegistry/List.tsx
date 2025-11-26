@@ -3,10 +3,10 @@ import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { deleteDockerRegistryAction } from '@/actions/dockerRegistry'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { DockerRegistry } from '@/payload-types'
+import { deleteDockerRegistryAction } from "@core/actions/dockerRegistry"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
+import { DockerRegistry } from "@core/payload-types"
 
 import DockerRegistryForm from "@core/components/Integrations/dockerRegistry/Form"
 

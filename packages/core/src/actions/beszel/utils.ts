@@ -1,14 +1,14 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { Payload } from 'payload'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { Collections } from '@/lib/beszel/types'
-import { pub } from '@/lib/redis'
-import { Template as DFlowTemplateType } from '@/lib/restSDK/types'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { sendEvent } from '@/lib/sendEvent'
-import { generateRandomString } from '@/lib/utils'
-import { ServerType } from '@/payload-types-overrides'
+import { BeszelClient } from "@core/lib/beszel/client/BeszelClient"
+import { Collections } from "@core/lib/beszel/types"
+import { pub } from "@core/lib/redis"
+import { Template as DFlowTemplateType } from "@core/lib/restSDK/types"
+import { dFlowRestSdk } from "@core/lib/restSDK/utils"
+import { sendEvent } from "@core/lib/sendEvent"
+import { generateRandomString } from "@core/lib/utils"
+import { ServerType } from "@core/payload-types-overrides"
 
 /**
  * Check if all required Beszel environment variables are configured

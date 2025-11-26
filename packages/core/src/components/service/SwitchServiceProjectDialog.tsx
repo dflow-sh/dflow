@@ -28,9 +28,9 @@ import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { getServerProjects } from '@/actions/pages/server'
-import { updateServiceAction } from '@/actions/service'
-import { Project, Service } from '@/payload-types'
+import { getServerProjects } from "@core/actions/pages/server"
+import { updateServiceAction } from "@core/actions/service"
+import { Project, Service } from "@core/payload-types"
 
 interface SwitchProjectForm {
   projectId: string

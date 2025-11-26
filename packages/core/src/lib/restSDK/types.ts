@@ -1,4 +1,4 @@
-import { Media } from '@/payload-types'
+import { Media } from "@core/payload-types"
 
 export interface Config {
   auth: {

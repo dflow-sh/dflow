@@ -1,7 +1,7 @@
 import { Processor, Queue, Worker } from 'bullmq'
 import Redis from 'ioredis'
 
-import { log } from '@/lib/logger'
+import { log } from "@core/lib/logger"
 
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
 

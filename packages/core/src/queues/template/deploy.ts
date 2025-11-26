@@ -4,17 +4,17 @@ import { addCreateDatabaseWithPluginsQueue } from "@core/queues/database/createW
 import { addExposeDatabasePortQueue } from "@core/queues/database/expose"
 import { addUpdateEnvironmentVariablesQueue } from "@core/queues/environment/update"
 import { updateVolumesQueue } from "@core/queues/volume/updateVolumesQueue"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { dokku } from '@/lib/dokku'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent } from '@/lib/sendEvent'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { waitForJobCompletion } from '@/lib/utils/waitForJobCompletion'
-import { Project, Service } from '@/payload-types'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { dokku } from "@core/lib/dokku"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent } from "@core/lib/sendEvent"
+import { dynamicSSH, extractSSHDetails } from "@core/lib/ssh"
+import { waitForJobCompletion } from "@core/lib/utils/waitForJobCompletion"
+import { Project, Service } from "@core/payload-types"
 
 interface QueueArgs {
   services: Omit<Service, 'project'>[]

@@ -2,7 +2,7 @@
 
 import { KeyRound, Shield } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 
 const SecuritySidebar = () => {
   const scrollToSection = (id: string) => {

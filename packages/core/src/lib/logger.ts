@@ -1,5 +1,5 @@
 import { Logger } from '@logtail/next'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import pino from 'pino'
 
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV

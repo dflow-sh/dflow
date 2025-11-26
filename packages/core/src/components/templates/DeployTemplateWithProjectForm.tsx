@@ -42,15 +42,15 @@ import {
   uniqueNamesGenerator,
 } from 'unique-names-generator'
 
-import { getProjectsAndServers } from '@/actions/pages/dashboard'
-import { templateDeployAction } from '@/actions/templates'
+import { getProjectsAndServers } from "@core/actions/pages/dashboard"
+import { templateDeployAction } from "@core/actions/templates"
 import {
   DeployTemplateWithProjectCreateType,
   ServicesSchemaType,
   deployTemplateWithProjectCreateSchema,
-} from '@/actions/templates/validator'
-import { slugify } from '@/lib/slugify'
-import { cn } from '@/lib/utils'
+} from "@core/actions/templates/validator"
+import { slugify } from "@core/lib/slugify"
+import { cn } from "@core/lib/utils"
 
 const DeployTemplateWithProjectForm = ({
   services,

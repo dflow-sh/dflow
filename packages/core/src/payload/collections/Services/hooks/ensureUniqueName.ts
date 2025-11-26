@@ -1,7 +1,7 @@
 import { FieldHook, Where } from 'payload'
 
-import { extractID } from '@/lib/extractID'
-import { generateRandomString } from '@/lib/utils'
+import { extractID } from "@core/lib/extractID"
+import { generateRandomString } from "@core/lib/utils"
 
 export const ensureUniqueName: FieldHook = async ({
   data,

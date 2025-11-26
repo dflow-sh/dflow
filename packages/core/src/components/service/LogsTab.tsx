@@ -3,7 +3,7 @@
 import XTermTerminal from "@core/components/XTermTerminal"
 import { useEffect, useRef } from 'react'
 
-import useXterm from '@/hooks/use-xterm'
+import useXterm from "@core/hooks/use-xterm"
 
 const LogsTab = ({
   serverId,

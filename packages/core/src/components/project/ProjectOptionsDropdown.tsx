@@ -12,7 +12,7 @@ import {
 import { EllipsisVertical } from 'lucide-react'
 import { useState } from 'react'
 
-import { Project, Server, Service } from '@/payload-types'
+import { Project, Server, Service } from "@core/payload-types"
 
 import CreateTemplateFromProject from "@core/components/project/CreateTemplateFromProject"
 

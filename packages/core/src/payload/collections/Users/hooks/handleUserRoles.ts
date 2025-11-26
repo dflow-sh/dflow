@@ -1,6 +1,6 @@
 import { CollectionBeforeChangeHook } from 'payload'
 
-import { User } from '@/payload-types'
+import { User } from "@core/payload-types"
 
 export const handleUserRoles: CollectionBeforeChangeHook<User> = async ({
   data,

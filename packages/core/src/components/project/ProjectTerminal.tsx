@@ -12,10 +12,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet'
-import useXterm from '@/hooks/use-xterm'
-import { cn } from '@/lib/utils'
-import { Server } from '@/payload-types'
+} from "@core/components/ui/sheet"
+import useXterm from "@core/hooks/use-xterm"
+import { cn } from "@core/lib/utils"
+import { Server } from "@core/payload-types"
 
 type ProjectTerminalType = {
   server: Server

@@ -14,20 +14,20 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
+import { getCloudProvidersAccountsAction } from "@core/actions/cloud"
 import {
   createEC2InstanceAction,
   updateEC2InstanceAction,
-} from '@/actions/cloud/aws'
-import { createEC2InstanceSchema } from '@/actions/cloud/aws/validator'
+} from "@core/actions/cloud/aws"
+import { createEC2InstanceSchema } from "@core/actions/cloud/aws/validator"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+} from "@core/components/ui/accordion"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Form,
   FormControl,
@@ -35,25 +35,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { MultiSelect } from '@/components/ui/multi-select'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { MultiSelect } from "@core/components/ui/multi-select"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
-import { amiList, awsRegions, instanceTypes } from '@/lib/constants'
+} from "@core/components/ui/select"
+import { Textarea } from "@core/components/ui/textarea"
+import { amiList, awsRegions, instanceTypes } from "@core/lib/constants"
 import {
   CloudProviderAccount,
   SecurityGroup,
   Server,
   SshKey,
-} from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 const CreateEC2InstanceForm = ({
   sshKeys = [],

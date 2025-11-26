@@ -10,11 +10,11 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { checkPaymentMethodAction } from '@/actions/cloud/dFlow'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { DFLOW_CONFIG } from '@/lib/constants'
+import { checkPaymentMethodAction } from "@core/actions/cloud/dFlow"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
+import { DFLOW_CONFIG } from "@core/lib/constants"
 
 import { useDflowVpsForm } from "@core/components/servers/dflowVpsForm/DflowVpsFormProvider"
 

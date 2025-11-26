@@ -38,8 +38,8 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServerResourceLimitsAction } from '@/actions/server'
-import { Server } from '@/payload-types'
+import { updateServerResourceLimitsAction } from "@core/actions/server"
+import { Server } from "@core/payload-types"
 
 // Resource constants
 const DEFAULT_CPU = '0.5'

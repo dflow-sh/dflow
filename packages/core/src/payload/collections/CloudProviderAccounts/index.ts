@@ -1,7 +1,7 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from "@core/payload/access/isAdmin"
 
 import { checkDuplicateCloudAccounts } from "@core/payload/collections/CloudProviderAccounts/hooks/checkDuplicateCloudAccounts"
 

@@ -2,13 +2,13 @@
 
 import { Clock } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@core/components/ui/dropdown-menu"
 
 interface DefaultTimeRangeSelectorProps {
   currentType: '1m' | '10m' | '20m' | '120m' | '480m'

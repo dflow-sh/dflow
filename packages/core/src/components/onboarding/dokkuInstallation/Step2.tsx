@@ -3,11 +3,11 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { installDokkuAction } from '@/actions/server'
-import Loader from '@/components/Loader'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { supportedDokkuVersion, supportedLinuxVersions } from '@/lib/constants'
-import { ServerType } from '@/payload-types-overrides'
+import { installDokkuAction } from "@core/actions/server"
+import Loader from "@core/components/Loader"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { supportedDokkuVersion, supportedLinuxVersions } from "@core/lib/constants"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 

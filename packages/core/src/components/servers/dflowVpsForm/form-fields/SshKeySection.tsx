@@ -3,15 +3,15 @@ import { VpsFormData } from "@core/components/servers/dflowVpsForm/schemas"
 import { Key, Plus } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 
-import CreateSSHKey from '@/components/security/CreateSSHKey'
-import { Button } from '@/components/ui/button'
+import CreateSSHKey from "@core/components/security/CreateSSHKey"
+import { Button } from "@core/components/ui/button"
 import {
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { MultiSelect } from '@/components/ui/multi-select'
+} from "@core/components/ui/form"
+import { MultiSelect } from "@core/components/ui/multi-select"
 
 export const SshKeySection = () => {
   const form = useFormContext<VpsFormData>()

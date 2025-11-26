@@ -1,6 +1,6 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
+import { protectedClient } from "@core/lib/safe-action"
 
 import { getProjectDetailsSchema } from "@core/actions/pages/project/validator"
 

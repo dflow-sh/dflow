@@ -4,7 +4,7 @@ import { RefreshCw } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useTransition } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 
 interface RefreshButtonProps {
   showText?: boolean

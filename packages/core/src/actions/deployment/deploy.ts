@@ -1,13 +1,13 @@
 'use server'
 
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { getPayload } from 'payload'
 
-import { extractSSHDetails } from '@/lib/ssh'
-import { addDeployQueue } from '@/queues/app/deploy'
-import { addDockerImageDeploymentQueue } from '@/queues/app/dockerImage-deployment'
-import { addRebuildAppQueue } from '@/queues/app/rebuilt'
-import { addCreateDatabaseWithPluginsQueue } from '@/queues/database/createWithPlugins'
+import { extractSSHDetails } from "@core/lib/ssh"
+import { addDeployQueue } from "@core/queues/app/deploy"
+import { addDockerImageDeploymentQueue } from "@core/queues/app/dockerImage-deployment"
+import { addRebuildAppQueue } from "@core/queues/app/rebuilt"
+import { addCreateDatabaseWithPluginsQueue } from "@core/queues/database/createWithPlugins"
 
 export const triggerDeployment = async ({
   serviceId,

@@ -2,8 +2,8 @@ import SidebarToggleButton from "@core/components/SidebarToggleButton"
 import { Nginx, Traefik } from "@core/components/icons"
 import { ArrowRightLeft } from 'lucide-react'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Service } from '@/payload-types'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
+import { Service } from "@core/payload-types"
 
 import NginxConfigurationTab from "@core/components/service/NginxConfigurationTab"
 

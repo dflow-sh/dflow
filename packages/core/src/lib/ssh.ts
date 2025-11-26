@@ -1,6 +1,6 @@
 import { NodeSSH } from 'node-ssh'
 
-import { Project, Server } from '@/payload-types'
+import { Project, Server } from "@core/payload-types"
 
 // SSH connection type
 export type SSHConnectionType = {

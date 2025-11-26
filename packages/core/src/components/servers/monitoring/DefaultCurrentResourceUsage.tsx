@@ -1,7 +1,7 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Progress } from "@core/components/ui/progress"
 
 interface DefaultCurrentResourceUsageProps {
   monitoringData: {

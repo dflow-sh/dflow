@@ -1,6 +1,6 @@
 // lib/redis.js - Enhanced Redis Connection Setup
 import type { DefaultJobOptions } from 'bullmq'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import Redis, { RedisOptions } from 'ioredis'
 
 // Redis connection options with better defaults

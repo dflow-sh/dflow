@@ -1,14 +1,14 @@
 import { Trash2 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Textarea } from '@/components/ui/textarea'
+} from "@core/components/ui/form"
+import { Textarea } from "@core/components/ui/textarea"
 
 import PortInputs from "@core/components/security/PortInputs"
 import ProtocolInput from "@core/components/security/ProtocolInput"

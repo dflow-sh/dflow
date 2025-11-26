@@ -1,10 +1,10 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { CollectionAfterChangeHook } from 'payload'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { TypedBeszelHelpers } from '@/lib/beszel/client/typedHelpers'
-import { generateDeterministicPassword } from '@/lib/utils/generateDeterministicPassword'
-import { User } from '@/payload-types'
+import { BeszelClient } from "@core/lib/beszel/client/BeszelClient"
+import { TypedBeszelHelpers } from "@core/lib/beszel/client/typedHelpers"
+import { generateDeterministicPassword } from "@core/lib/utils/generateDeterministicPassword"
+import { User } from "@core/payload-types"
 
 export const createBeszelUser: CollectionAfterChangeHook<User> = async ({
   doc,

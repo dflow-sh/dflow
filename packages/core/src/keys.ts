@@ -10,7 +10,7 @@ const changeBasedOnENV = (env: any) => {
   return `http://${env}`
 }
 
-export const keys = () => createEnv({
+export const keys = createEnv({
   server: {
     DATABASE_URI: z.string().min(1),
     PAYLOAD_SECRET: z.string().min(1),

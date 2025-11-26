@@ -2,9 +2,9 @@
 
 import { Monitor, TrendingUp, Zap } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ServerType } from '@/payload-types-overrides'
+import { Badge } from "@core/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
+import { ServerType } from "@core/payload-types-overrides"
 
 import DefaultMonitoring from "@core/components/servers/monitoring/DefaultMonitoring"
 import DefaultMonitoringInstall from "@core/components/servers/monitoring/DefaultMonitoringInstall"

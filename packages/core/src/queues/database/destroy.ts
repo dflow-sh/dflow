@@ -1,16 +1,16 @@
 import { dokku } from "@core/lib/dokku"
 import { SSHType, dynamicSSH } from "@core/lib/ssh"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { createServiceSchema } from '@/actions/service/validator'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { Backup } from '@/payload-types'
+import { createServiceSchema } from "@core/actions/service/validator"
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { Backup } from "@core/payload-types"
 
 export type DatabaseType = Exclude<
   z.infer<typeof createServiceSchema>['databaseType'],

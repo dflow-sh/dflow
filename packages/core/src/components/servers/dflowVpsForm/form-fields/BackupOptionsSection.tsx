@@ -8,9 +8,9 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "@core/components/ui/form"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
 
 export const BackupOptionsSection = () => {
   const { control, setValue, watch } = useFormContext()

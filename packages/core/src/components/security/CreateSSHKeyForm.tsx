@@ -15,9 +15,9 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { createSSHKeyAction, generateSSHKeyAction } from '@/actions/sshkeys'
-import { createSSHKeySchema } from '@/actions/sshkeys/validator'
-import { DialogFooter } from '@/components/ui/dialog'
+import { createSSHKeyAction, generateSSHKeyAction } from "@core/actions/sshkeys"
+import { createSSHKeySchema } from "@core/actions/sshkeys/validator"
+import { DialogFooter } from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -25,9 +25,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { slugify } from '@/lib/slugify'
-import { SshKey } from '@/payload-types'
+} from "@core/components/ui/form"
+import { slugify } from "@core/lib/slugify"
+import { SshKey } from "@core/payload-types"
 
 // Helper function to determine key type from content
 const determineKeyType = (

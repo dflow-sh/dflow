@@ -1,8 +1,7 @@
-import { Column, Img, Row, Section, Text } from '@react-email/components'
-import { env } from 'env'
 import React from 'react'
-
-import Divider from "@core/emails/common/Divider"
+import Divider from '@core/emails/common/Divider'
+import { keys as env } from '@core/keys'
+import { Column, Img, Row, Section, Text } from '@react-email/components'
 
 const EmailHeader: React.FC = () => {
   return (

@@ -11,11 +11,11 @@ import {
   connectDockerRegistryAction,
   testDockerRegistryConnectionAction,
   updateDockerRegistryAction,
-} from '@/actions/dockerRegistry'
-import { connectDockerRegistrySchema } from '@/actions/dockerRegistry/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import SecretContent from '@/components/ui/blur-reveal'
-import { Button } from '@/components/ui/button'
+} from "@core/actions/dockerRegistry"
+import { connectDockerRegistrySchema } from "@core/actions/dockerRegistry/validator"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import SecretContent from "@core/components/ui/blur-reveal"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -33,16 +33,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { DockerRegistry } from '@/payload-types'
+} from "@core/components/ui/select"
+import { DockerRegistry } from "@core/payload-types"
 
 const registriesList = [
   {

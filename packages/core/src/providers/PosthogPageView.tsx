@@ -1,6 +1,6 @@
 'use client'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { usePathname, useSearchParams } from 'next/navigation'
 import { usePostHog } from 'posthog-js/react'
 import { Suspense, useEffect } from 'react'

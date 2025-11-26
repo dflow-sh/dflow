@@ -32,8 +32,8 @@ import { toast } from 'sonner'
 import {
   deleteSecurityGroupAction,
   syncSecurityGroupAction,
-} from '@/actions/securityGroups'
-import { CloudProviderAccount, SecurityGroup, Server } from '@/payload-types'
+} from "@core/actions/securityGroups"
+import { CloudProviderAccount, SecurityGroup, Server } from "@core/payload-types"
 
 import UpdateSecurityGroup from "@core/components/security/CreateSecurityGroup"
 

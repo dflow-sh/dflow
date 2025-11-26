@@ -1,9 +1,9 @@
 'use server'
 
-import { protectedClient } from '@/lib/safe-action'
-import { extractSSHDetails } from '@/lib/ssh'
-import { addInternalBackupQueue } from '@/queues/database/backup/internalBackup'
-import { deleteInternalBackupQueue } from '@/queues/database/backup/internalBackupDelete'
+import { protectedClient } from "@core/lib/safe-action"
+import { extractSSHDetails } from "@core/lib/ssh"
+import { addInternalBackupQueue } from "@core/queues/database/backup/internalBackup"
+import { deleteInternalBackupQueue } from "@core/queues/database/backup/internalBackupDelete"
 
 import {
   internalDBBackupSchema,

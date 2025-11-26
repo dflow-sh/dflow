@@ -11,7 +11,7 @@ import React, {
   useTransition,
 } from 'react'
 
-import type { Notification, Panel } from '@/components/bubble/bubble-types'
+import type { Notification, Panel } from "@core/components/bubble/bubble-types"
 
 // Bubble-specific preferences
 interface BubblePreferences {

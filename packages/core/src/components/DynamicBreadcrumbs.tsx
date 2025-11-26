@@ -6,7 +6,7 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
+} from "@core/components/ui/breadcrumb"
 
 import { Separator } from "@core/components/ui/separator"
 import { SidebarTrigger } from "@core/components/ui/sidebar"

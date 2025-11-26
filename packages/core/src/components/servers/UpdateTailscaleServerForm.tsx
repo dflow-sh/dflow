@@ -15,9 +15,9 @@ import { z } from 'zod'
 import {
   checkServerConnection,
   updateTailscaleServerAction,
-} from '@/actions/server'
-import { updateTailscaleServerSchema } from '@/actions/server/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+} from "@core/actions/server"
+import { updateTailscaleServerSchema } from "@core/actions/server/validator"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
 import {
   Form,
   FormControl,
@@ -25,9 +25,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Server } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/form"
+import { Server } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 type ConnectionStatus = {
   isConnected: boolean

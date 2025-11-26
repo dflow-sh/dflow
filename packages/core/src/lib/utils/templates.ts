@@ -1,6 +1,6 @@
 import { dFlowRestSdk } from "@core/lib/restSDK/utils"
 
-import { Service } from '@/payload-types'
+import { Service } from "@core/payload-types"
 
 type TemplateType = {
   name: string

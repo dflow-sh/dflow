@@ -1,7 +1,7 @@
 import { Network } from 'lucide-react'
 
-import { Card, CardContent } from '@/components/ui/card'
-import { VpsPlan } from '@/lib/restSDK/types'
+import { Card, CardContent } from "@core/components/ui/card"
+import { VpsPlan } from "@core/lib/restSDK/types"
 
 export const TrafficSection = ({ vpsPlan }: { vpsPlan: VpsPlan }) => {
   return (

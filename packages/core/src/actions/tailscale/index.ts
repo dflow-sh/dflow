@@ -1,10 +1,10 @@
 'use server'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 
-import tailscale from '@/lib/axios/tailscale'
-import { protectedClient } from '@/lib/safe-action'
-import { generateOAuthToken } from '@/lib/tailscale/generateOAuthToken'
+import tailscale from "@core/lib/axios/tailscale"
+import { protectedClient } from "@core/lib/safe-action"
+import { generateOAuthToken } from "@core/lib/tailscale/generateOAuthToken"
 
 import { generateAuthKeySchema } from "@core/actions/tailscale/validator"
 

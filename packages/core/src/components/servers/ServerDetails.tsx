@@ -18,10 +18,10 @@ import Link from 'next/link'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
 
-import { withComingSoonBadge } from '@/components/ComingSoonBadge'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { withComingSoonBadge } from "@core/components/ComingSoonBadge"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
 import {
   Drawer,
   DrawerClose,
@@ -29,10 +29,10 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from '@/components/ui/drawer'
-import { Separator } from '@/components/ui/separator'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/drawer"
+import { Separator } from "@core/components/ui/separator"
+import { supportedLinuxVersions } from "@core/lib/constants"
+import { ServerType } from "@core/payload-types-overrides"
 
 // Type Definitions
 interface ServerDetails {

@@ -1,13 +1,13 @@
 import { DomainFormWithoutDialog } from "@core/components/servers/DomainForm"
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 
-import { updateServerDomainAction } from '@/actions/server'
-import Loader from '@/components/Loader'
-import { WILD_CARD_DOMAINS } from '@/lib/constants'
-import { ServerType } from '@/payload-types-overrides'
+import { updateServerDomainAction } from "@core/actions/server"
+import Loader from "@core/components/Loader"
+import { WILD_CARD_DOMAINS } from "@core/lib/constants"
+import { ServerType } from "@core/payload-types-overrides"
 
 const ConfigureDefaultDomain = ({ server }: { server: ServerType }) => {
   const domains = server.domains ?? []

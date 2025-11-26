@@ -1,18 +1,18 @@
 import { dokku } from "@core/lib/dokku"
 import { SSHType, dynamicSSH } from "@core/lib/ssh"
-import configPromise from '@payload-config'
-import { env } from 'env'
+import configPromise from "@core/payload.config"
+import { keys as env } from '@core/keys';
 import Redis from 'ioredis'
 import { NodeSSH } from 'node-ssh'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { getBuildDetails } from '@/lib/getBuildDetails'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { server } from '@/lib/server'
-import { updatePorts } from '@/lib/updatePorts'
-import { Service } from '@/payload-types'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { getBuildDetails } from "@core/lib/getBuildDetails"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { server } from "@core/lib/server"
+import { updatePorts } from "@core/lib/updatePorts"
+import { Service } from "@core/payload-types"
 
 type BuildDetailsType = Awaited<ReturnType<typeof getBuildDetails>>
 

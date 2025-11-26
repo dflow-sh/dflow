@@ -7,17 +7,17 @@ import { Globe } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
 
-import AttachCustomServerForm from '@/components/servers/AttachCustomServerForm'
+import AttachCustomServerForm from "@core/components/servers/AttachCustomServerForm"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
+import { SshKey } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 interface Props {
   sshKeys: SshKey[]

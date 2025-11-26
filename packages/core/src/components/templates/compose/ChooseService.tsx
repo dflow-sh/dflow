@@ -12,19 +12,19 @@ import {
   useState,
 } from 'react'
 
-import { Docker, Git } from '@/components/icons'
-import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { ServiceNode } from '@/components/reactflow/types'
-import { Button } from '@/components/ui/button'
+import { Docker, Git } from "@core/components/icons"
+import ReactFlowConfig from "@core/components/reactflow/reactflow.config"
+import { ServiceNode } from "@core/components/reactflow/types"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { getSessionValue } from '@/lib/getSessionValue'
-import { useArchitectureContext } from '@/providers/ArchitectureProvider'
+} from "@core/components/ui/dialog"
+import { Input } from "@core/components/ui/input"
+import { getSessionValue } from "@core/lib/getSessionValue"
+import { useArchitectureContext } from "@core/providers/ArchitectureProvider"
 
 import AddDatabaseService from "@core/components/templates/compose/AddDatabaseService"
 import AddDockerService from "@core/components/templates/compose/AddDockerService"

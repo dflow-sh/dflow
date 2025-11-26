@@ -5,8 +5,8 @@ import { Button } from "@core/components/ui/button"
 import { AlertTriangle, Settings2, Trash2 } from 'lucide-react'
 import React, { useState } from 'react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Project, Server, Service } from '@/payload-types'
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Project, Server, Service } from "@core/payload-types"
 
 const ProjectSettingsTab: React.FC<{
   services: Service[]

@@ -4,7 +4,7 @@ import { MoonIcon, SunIcon } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 
-import { Toggle } from '@/components/ui/toggle'
+import { Toggle } from "@core/components/ui/toggle"
 
 export default function ToggleTheme() {
   const [mounted, setMounted] = useState(false)

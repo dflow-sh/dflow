@@ -18,9 +18,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteServiceAction } from '@/actions/service'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Project, Server, Service } from '@/payload-types'
+import { deleteServiceAction } from "@core/actions/service"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Project, Server, Service } from "@core/payload-types"
 
 const DeleteServiceContent = ({
   service,

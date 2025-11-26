@@ -19,15 +19,15 @@ import {
   MySQL,
   PostgreSQL,
   Redis,
-} from '@/components/icons'
-import { ServiceNode } from '@/components/reactflow/types'
+} from "@core/components/icons"
+import { ServiceNode } from "@core/components/reactflow/types"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { cn } from '@/lib/utils'
+} from "@core/components/ui/accordion"
+import { cn } from "@core/lib/utils"
 
 interface ReorderListProps {
   nodes: Node[]

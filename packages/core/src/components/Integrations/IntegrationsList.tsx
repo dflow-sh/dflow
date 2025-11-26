@@ -4,16 +4,16 @@ import { Settings } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import { parseAsString, useQueryState } from 'nuqs'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { integrationsList } from '@/lib/integrationList'
+} from "@core/components/ui/card"
+import { integrationsList } from "@core/lib/integrationList"
 
 const IntegrationsList = () => {
   const [_, setActiveSlide] = useQueryState(

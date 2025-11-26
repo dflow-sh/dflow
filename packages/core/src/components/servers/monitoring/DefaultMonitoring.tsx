@@ -5,16 +5,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
-import { getSystemStatsAction } from '@/actions/beszel'
-import { Button } from '@/components/ui/button'
+import { getSystemStatsAction } from "@core/actions/beszel"
+import { Button } from "@core/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { System } from '@/lib/beszel/types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/dropdown-menu"
+import { System } from "@core/lib/beszel/types"
+import { ServerType } from "@core/payload-types-overrides"
 
 import DefaultCurrentResourceUsage from "@core/components/servers/monitoring/DefaultCurrentResourceUsage"
 import DefaultMonitoringTabs from "@core/components/servers/monitoring/DefaultMonitoringTabs"

@@ -12,8 +12,8 @@ import { z } from 'zod'
 import {
   getCloudProvidersAccountsAction,
   syncDflowServersAction,
-} from '@/actions/cloud'
-import { syncDflowServersSchema } from '@/actions/cloud/validator'
+} from "@core/actions/cloud"
+import { syncDflowServersSchema } from "@core/actions/cloud/validator"
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -30,14 +30,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@core/components/ui/form"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@core/components/ui/select"
 
 const SyncDFlow = () => {
   const [open, setOpen] = useState(false)

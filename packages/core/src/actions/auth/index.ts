@@ -1,17 +1,5 @@
 'use server'
 
-import configPromise from '@payload-config'
-import cuid from 'cuid'
-import { env } from 'env'
-import jwt from 'jsonwebtoken'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-
-import { renderMagicLinkEmail } from '@/emails/magic-link'
-import { createSession } from '@/lib/createSession'
-import { protectedClient, publicClient, userClient } from '@/lib/safe-action'
-
 import {
   autoLoginSchema,
   forgotPasswordSchema,
@@ -20,7 +8,21 @@ import {
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
-} from "@core/actions/auth/validator"
+} from '@core/actions/auth/validator'
+import { renderMagicLinkEmail } from '@core/emails/magic-link'
+import { keys as env } from '@core/keys'
+import { createSession } from '@core/lib/createSession'
+import {
+  protectedClient,
+  publicClient,
+  userClient,
+} from '@core/lib/safe-action'
+import configPromise from '@core/payload.config'
+import cuid from 'cuid'
+import jwt from 'jsonwebtoken'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { getPayload } from 'payload'
 
 // No need to handle try/catch that abstraction is taken care by next-safe-actions
 export const signInAction = publicClient
@@ -357,7 +359,7 @@ export const autoLoginAction = publicClient
     // One-time code logic with Redis
     if (!decodedToken.code) throw new Error('Forbidden')
 
-    const { createRedisClient } = await import('@/lib/redis')
+    const { createRedisClient } = await import('@core/lib/redis')
     const redisClient = createRedisClient()
 
     // Prevent code reuse (one-time link)

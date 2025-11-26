@@ -8,16 +8,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { JSX, SVGProps } from 'react'
 import { toast } from 'sonner'
 
-import { deleteServerAction } from '@/actions/server'
+import { deleteServerAction } from "@core/actions/server"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { SshKey } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/tooltip"
+import { supportedLinuxVersions } from "@core/lib/constants"
+import { SshKey } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 import ServerFormDialog from "@core/components/servers/ServerFormDialog"
 

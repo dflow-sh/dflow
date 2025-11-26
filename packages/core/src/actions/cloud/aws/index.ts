@@ -9,13 +9,13 @@ import {
   RunInstancesCommand,
   _InstanceType,
 } from '@aws-sdk/client-ec2'
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 
-import { awsRegions } from '@/lib/constants'
-import { protectedClient } from '@/lib/safe-action'
-import { CloudProviderAccount } from '@/payload-types'
+import { awsRegions } from "@core/lib/constants"
+import { protectedClient } from "@core/lib/safe-action"
+import { CloudProviderAccount } from "@core/payload-types"
 
 import {
   checkAWSConnectionSchema,

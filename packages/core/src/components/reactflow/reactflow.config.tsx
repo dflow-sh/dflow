@@ -13,9 +13,9 @@ import {
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect } from 'react'
 
-import FloatingEdge from '@/components/reactflow/FloatingEdges'
-import FloatingConnectionLine from '@/components/reactflow/FloatingEdges/FloatingConnectionLine'
-import { cn } from '@/lib/utils'
+import FloatingEdge from "@core/components/reactflow/FloatingEdges"
+import FloatingConnectionLine from "@core/components/reactflow/FloatingEdges/FloatingConnectionLine"
+import { cn } from "@core/lib/utils"
 
 import CustomNode from "@core/components/reactflow/CustomNodes"
 

@@ -4,19 +4,19 @@ import { Activity, CloudUpload, Hammer, HardDrive, Plug2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useMemo } from 'react'
 
-import { getUserAction } from '@/actions/auth'
+import { getUserAction } from "@core/actions/auth"
 import TimeLineComponent, {
   TimeLineComponentType,
-} from '@/components/TimeLineComponent'
-import { Dokku } from '@/components/icons'
-import { useDokkuInstallationStep } from '@/components/onboarding/dokkuInstallation/DokkuInstallationStepContext'
-import Step1 from '@/components/onboarding/dokkuInstallation/Step1'
-import Step2 from '@/components/onboarding/dokkuInstallation/Step2'
-import Step3 from '@/components/onboarding/dokkuInstallation/Step3'
-import Step4 from '@/components/onboarding/dokkuInstallation/Step4'
-import Step5 from '@/components/onboarding/dokkuInstallation/Step5'
-import Step6 from '@/components/onboarding/dokkuInstallation/Step6'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/TimeLineComponent"
+import { Dokku } from "@core/components/icons"
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
+import Step1 from "@core/components/onboarding/dokkuInstallation/Step1"
+import Step2 from "@core/components/onboarding/dokkuInstallation/Step2"
+import Step3 from "@core/components/onboarding/dokkuInstallation/Step3"
+import Step4 from "@core/components/onboarding/dokkuInstallation/Step4"
+import Step5 from "@core/components/onboarding/dokkuInstallation/Step5"
+import Step6 from "@core/components/onboarding/dokkuInstallation/Step6"
+import { ServerType } from "@core/payload-types-overrides"
 
 import ServerOnboardingLayout from "@core/components/servers/onboarding/ServerOnboardingLayout"
 

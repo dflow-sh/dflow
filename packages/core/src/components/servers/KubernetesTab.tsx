@@ -2,7 +2,7 @@ import ActionPlaceholder from "@core/components/ActionPlaceholder"
 import { Kubernetes } from "@core/components/icons"
 import { Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 
 const KubernetesTab = () => {
   return (

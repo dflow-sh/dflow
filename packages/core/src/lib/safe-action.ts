@@ -1,12 +1,12 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { createSafeActionClient } from 'next-safe-action'
 import { headers } from 'next/headers'
 import { forbidden } from 'next/navigation'
 import { getPayload } from 'payload'
 import { z } from 'zod'
 
-import { log } from '@/lib/logger'
-import { Role, Tenant } from '@/payload-types'
+import { log } from "@core/lib/logger"
+import { Role, Tenant } from "@core/payload-types"
 
 import { getTenant } from "@core/lib/get-tenant"
 import { assertRolePermission } from "@core/lib/permissions/utils"

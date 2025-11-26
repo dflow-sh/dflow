@@ -1,6 +1,6 @@
 'use server'
 
-import { publicClient } from '@/lib/safe-action'
+import { publicClient } from "@core/lib/safe-action"
 
 import { exampleSchema } from "@core/actions/example/validator"
 

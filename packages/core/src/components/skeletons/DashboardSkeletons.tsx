@@ -1,6 +1,6 @@
 import { Folder } from 'lucide-react'
 
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from "@core/components/ui/skeleton"
 
 export const DashboardSkeleton = () => {
   return (

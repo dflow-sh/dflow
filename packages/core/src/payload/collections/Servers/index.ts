@@ -1,7 +1,7 @@
 import { CollectionConfig, Field } from 'payload'
 
-import { User } from '@/payload-types'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { User } from "@core/payload-types"
+import { isAdmin } from "@core/payload/access/isAdmin"
 
 import { ensureUniqueIP } from "@core/payload/collections/Servers/hooks/ensureUniqueIP"
 import { nextBillingDateAfterRead } from "@core/payload/collections/Servers/hooks/nextBillingDate"

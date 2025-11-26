@@ -3,16 +3,16 @@ import { useAction } from 'next-safe-action/hooks'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { updateRolePermissionsAction } from '@/actions/roles'
-import { UpdateRoleType } from '@/actions/roles/validator'
-import { Button } from '@/components/ui/button'
+import { updateRolePermissionsAction } from "@core/actions/roles"
+import { UpdateRoleType } from "@core/actions/roles/validator"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
-} from '@/components/ui/dialog'
-import { Role } from '@/payload-types'
+} from "@core/components/ui/dialog"
+import { Role } from "@core/payload-types"
 
 import RoleDetails from "@core/components/Team/Roles/RoleDetails"
 

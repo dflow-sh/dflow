@@ -3,11 +3,11 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { installMonitoringToolsAction } from '@/actions/beszel'
-import Loader from '@/components/Loader'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { ServerType } from '@/payload-types-overrides'
+import { installMonitoringToolsAction } from "@core/actions/beszel"
+import Loader from "@core/components/Loader"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
 

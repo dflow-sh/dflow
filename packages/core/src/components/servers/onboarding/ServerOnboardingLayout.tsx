@@ -9,10 +9,10 @@ import { toast } from 'sonner'
 import {
   completeServerOnboardingAction,
   syncServerDomainAction,
-} from '@/actions/server'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/actions/server"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader } from "@core/components/ui/card"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { useServerOnboarding } from "@core/components/servers/onboarding/ServerOnboardingContext"
 

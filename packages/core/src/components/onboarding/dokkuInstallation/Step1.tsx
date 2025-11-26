@@ -1,18 +1,18 @@
 import { CheckCircle, HardDrive, Play, TriangleAlert, Wifi } from 'lucide-react'
 
-import { Dokku, Linux, Ubuntu } from '@/components/icons'
-import { useDokkuInstallationStep } from '@/components/onboarding/dokkuInstallation/DokkuInstallationStepContext'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { Dokku, Linux, Ubuntu } from "@core/components/icons"
+import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/card"
+import { supportedLinuxVersions } from "@core/lib/constants"
+import { ServerType } from "@core/payload-types-overrides"
 
 const serverTypeIcons: { [key: string]: React.ComponentType<any> } = {
   Ubuntu: Ubuntu,

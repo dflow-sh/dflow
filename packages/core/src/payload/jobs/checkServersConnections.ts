@@ -4,7 +4,7 @@
  */
 import { TaskConfig } from 'payload'
 
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
+import { dynamicSSH, extractSSHDetails } from "@core/lib/ssh"
 
 export const checkServersConnectionsTask: TaskConfig<any> = {
   slug: 'checkServersSshConnections',

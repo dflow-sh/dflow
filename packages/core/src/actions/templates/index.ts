@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 
-import { DFLOW_CONFIG, TEMPLATE_EXPR } from '@/lib/constants'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { protectedClient, publicClient } from '@/lib/safe-action'
-import { generateRandomString } from '@/lib/utils'
-import { Project, Server, Service, Template } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
-import { addTemplateDeployQueue } from '@/queues/template/deploy'
+import { DFLOW_CONFIG, TEMPLATE_EXPR } from "@core/lib/constants"
+import { dFlowRestSdk } from "@core/lib/restSDK/utils"
+import { protectedClient, publicClient } from "@core/lib/safe-action"
+import { generateRandomString } from "@core/lib/utils"
+import { Project, Server, Service, Template } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
+import { addTemplateDeployQueue } from "@core/queues/template/deploy"
 
 import {
   DeleteTemplateSchema,

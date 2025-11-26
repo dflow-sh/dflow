@@ -1,12 +1,12 @@
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
 import { getPayload } from 'payload'
 
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { sendEvent } from '@/lib/sendEvent'
-import { deleteMachine } from '@/lib/tailscale/deleteMachine'
-import { waitForJobIdCompletion } from '@/lib/utils/waitForJobCompletion'
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { sendEvent } from "@core/lib/sendEvent"
+import { deleteMachine } from "@core/lib/tailscale/deleteMachine"
+import { waitForJobIdCompletion } from "@core/lib/utils/waitForJobCompletion"
 
 interface QueueArgs {
   serverDetails: {

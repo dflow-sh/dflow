@@ -6,7 +6,7 @@ import { Dialog } from "@core/components/ui/dialog"
 import { AlertTriangle, RotateCcw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-import { ServerType } from '@/payload-types-overrides'
+import { ServerType } from "@core/payload-types-overrides"
 
 import DeleteServerDialog from "@core/components/servers/DeleteServerDialog"
 import ResetOnboardingDialog from "@core/components/servers/ResetOnboardingDialog"

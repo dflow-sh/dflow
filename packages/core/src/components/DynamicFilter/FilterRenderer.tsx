@@ -3,17 +3,17 @@
 import { Search } from 'lucide-react'
 import React from 'react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
+import { Input } from "@core/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { FilterConfig } from '@/lib/filter.utils'
+} from "@core/components/ui/select"
+import { FilterConfig } from "@core/lib/filter.utils"
 
 interface FilterRendererProps {
   config: FilterConfig

@@ -1,6 +1,6 @@
 import { Loader as LoaderIcon } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
+import { cn } from "@core/lib/utils"
 
 const Loader = ({ className = '' }: { className?: string }) => {
   return (

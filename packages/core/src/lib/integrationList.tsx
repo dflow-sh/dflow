@@ -7,7 +7,7 @@ import {
   Docker,
   GoogleCloudPlatform,
   dFlow,
-} from '@/components/icons'
+} from "@core/components/icons"
 
 export const integrationsList = [
   {

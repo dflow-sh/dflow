@@ -1,18 +1,18 @@
 import { addTemplateDeployQueue } from "@core/queues/template/deploy"
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { Job } from 'bullmq'
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { getPayload } from 'payload'
 
-import { BeszelClient } from '@/lib/beszel/client/BeszelClient'
-import { Collections, CreateSystemData } from '@/lib/beszel/types'
-import { getQueue, getWorker } from '@/lib/bullmq'
-import { jobOptions, pub, queueConnection } from '@/lib/redis'
-import { dFlowRestSdk } from '@/lib/restSDK/utils'
-import { sendActionEvent, sendEvent } from '@/lib/sendEvent'
-import { generateRandomString } from '@/lib/utils'
-import { Project, Server, Service, User } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
+import { BeszelClient } from "@core/lib/beszel/client/BeszelClient"
+import { Collections, CreateSystemData } from "@core/lib/beszel/types"
+import { getQueue, getWorker } from "@core/lib/bullmq"
+import { jobOptions, pub, queueConnection } from "@core/lib/redis"
+import { dFlowRestSdk } from "@core/lib/restSDK/utils"
+import { sendActionEvent, sendEvent } from "@core/lib/sendEvent"
+import { generateRandomString } from "@core/lib/utils"
+import { Project, Server, Service, User } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
 
 interface QueueArgs {
   serverDetails: ServerType

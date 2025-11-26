@@ -25,8 +25,8 @@ import {
   installPluginAction,
   syncPluginAction,
   togglePluginStatusAction,
-} from '@/actions/plugin'
-import { supportedPluginsSchema } from '@/actions/plugin/validator'
+} from "@core/actions/plugin"
+import { supportedPluginsSchema } from "@core/actions/plugin/validator"
 import {
   ClickHouse,
   Letsencrypt,
@@ -36,9 +36,9 @@ import {
   PostgreSQL,
   RabbitMQ,
   Redis,
-} from '@/components/icons'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/icons"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { ServerType } from "@core/payload-types-overrides"
 
 import PluginConfigurationForm from "@core/components/servers/PluginConfigurationForm"
 import { PluginUninstallDialog } from "@core/components/servers/PluginUninstallDialog"

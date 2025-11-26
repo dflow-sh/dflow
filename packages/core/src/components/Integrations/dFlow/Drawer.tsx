@@ -6,10 +6,10 @@ import { useAction } from 'next-safe-action/hooks'
 import { parseAsString, useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 
-import { getCloudProvidersAccountsAction } from '@/actions/cloud'
-import AccessDeniedAlert from '@/components/AccessDeniedAlert'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { getCloudProvidersAccountsAction } from "@core/actions/cloud"
+import AccessDeniedAlert from "@core/components/AccessDeniedAlert"
+import { Button } from "@core/components/ui/button"
+import { ScrollArea } from "@core/components/ui/scroll-area"
 import {
   Sheet,
   SheetContent,
@@ -17,8 +17,8 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet'
-import { integrationsList } from '@/lib/integrationList'
+} from "@core/components/ui/sheet"
+import { integrationsList } from "@core/lib/integrationList"
 
 import DFlowForm from "@core/components/Integrations/dFlow/Form"
 import CloudProvidersList from "@core/components/Integrations/dFlow/List"

@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecCommandOptions } from 'node-ssh'
 
-import checkDpkgLock from '@/lib/utils/checkDpkgLock'
+import checkDpkgLock from "@core/lib/utils/checkDpkgLock"
 
 import { getVersion } from "@core/lib/netdata/core/getVersion"
 

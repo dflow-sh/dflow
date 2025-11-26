@@ -1,6 +1,6 @@
 import { User as LucideUser } from 'lucide-react'
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from "@core/components/ui/avatar"
 import {
   Table,
   TableBody,
@@ -8,8 +8,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { User as UserType } from '@/payload-types'
+} from "@core/components/ui/table"
+import { User as UserType } from "@core/payload-types"
 
 const RoleUsers = ({ assignedUsers }: { assignedUsers: UserType[] | [] }) => {
   return assignedUsers?.length <= 0 ? (

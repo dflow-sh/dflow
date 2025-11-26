@@ -3,8 +3,8 @@
 import { parseAsStringEnum, useQueryState } from 'nuqs'
 import { startTransition, useMemo } from 'react'
 
-import Tabs from '@/components/Tabs'
-import { cn } from '@/lib/utils'
+import Tabs from "@core/components/Tabs"
+import { cn } from "@core/lib/utils"
 
 const ProjectTabsList: React.FC<{
   children?: React.ReactNode

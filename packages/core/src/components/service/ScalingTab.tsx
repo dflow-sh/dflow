@@ -29,16 +29,16 @@ import {
   scaleServiceAction,
   setServiceResourceLimitAction,
   setServiceResourceReserveAction,
-} from '@/actions/service'
+} from "@core/actions/service"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+} from "@core/components/ui/accordion"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
 import {
   Form,
   FormControl,
@@ -46,10 +46,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Service } from '@/payload-types'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Separator } from "@core/components/ui/separator"
+import { Service } from "@core/payload-types"
 
 type ScalingTabProps = {
   service: Service

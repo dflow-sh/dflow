@@ -1,12 +1,12 @@
 'use server'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import jwt from 'jsonwebtoken'
 import { revalidatePath } from 'next/cache'
 
-import { TeamInvitation } from '@/emails/team-invitation'
-import { protectedClient, userClient } from '@/lib/safe-action'
-import { Tenant } from '@/payload-types'
+import { TeamInvitation } from "@core/emails/team-invitation"
+import { protectedClient, userClient } from "@core/lib/safe-action"
+import { Tenant } from "@core/payload-types"
 
 import {
   generateInviteLinkSchema,

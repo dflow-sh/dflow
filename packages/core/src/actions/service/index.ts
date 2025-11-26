@@ -1,29 +1,29 @@
 'use server'
 
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 import { revalidatePath } from 'next/cache'
 import { NodeSSH } from 'node-ssh'
 import { extractID } from 'payload/shared'
 
-import { dokku } from '@/lib/dokku'
-import { protectedClient } from '@/lib/safe-action'
-import { checkServerResources } from '@/lib/server/resourceCheck'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { generateRandomString } from '@/lib/utils'
-import { addDestroyApplicationQueue } from '@/queues/app/destroy'
-import { addResourceAppQueue } from '@/queues/app/resource'
-import { addRestartAppQueue } from '@/queues/app/restart'
-import { addScaleAppQueue } from '@/queues/app/scale'
-import { addStopAppQueue } from '@/queues/app/stop'
-import { addDestroyDatabaseQueue } from '@/queues/database/destroy'
-import { addExposeDatabasePortQueue } from '@/queues/database/expose'
-import { addRestartDatabaseQueue } from '@/queues/database/restart'
-import { addStopDatabaseQueue } from '@/queues/database/stop'
-import { addManageServiceDomainQueue } from '@/queues/domain/manage'
-import { addUpdateEnvironmentVariablesQueue } from '@/queues/environment/update'
-import { addLetsencryptRegenerateQueueQueue } from '@/queues/letsencrypt/regenerate'
-import { addCreateServiceWithPluginsQueue } from '@/queues/service/createWithPlugins'
-import { updateVolumesQueue } from '@/queues/volume/updateVolumesQueue'
+import { dokku } from "@core/lib/dokku"
+import { protectedClient } from "@core/lib/safe-action"
+import { checkServerResources } from "@core/lib/server/resourceCheck"
+import { dynamicSSH, extractSSHDetails } from "@core/lib/ssh"
+import { generateRandomString } from "@core/lib/utils"
+import { addDestroyApplicationQueue } from "@core/queues/app/destroy"
+import { addResourceAppQueue } from "@core/queues/app/resource"
+import { addRestartAppQueue } from "@core/queues/app/restart"
+import { addScaleAppQueue } from "@core/queues/app/scale"
+import { addStopAppQueue } from "@core/queues/app/stop"
+import { addDestroyDatabaseQueue } from "@core/queues/database/destroy"
+import { addExposeDatabasePortQueue } from "@core/queues/database/expose"
+import { addRestartDatabaseQueue } from "@core/queues/database/restart"
+import { addStopDatabaseQueue } from "@core/queues/database/stop"
+import { addManageServiceDomainQueue } from "@core/queues/domain/manage"
+import { addUpdateEnvironmentVariablesQueue } from "@core/queues/environment/update"
+import { addLetsencryptRegenerateQueueQueue } from "@core/queues/letsencrypt/regenerate"
+import { addCreateServiceWithPluginsQueue } from "@core/queues/service/createWithPlugins"
+import { updateVolumesQueue } from "@core/queues/volume/updateVolumesQueue"
 
 import {
   checkServerResourcesSchema,

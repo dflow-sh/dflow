@@ -10,10 +10,10 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { updateServiceAction } from '@/actions/service'
-import { updateServiceSchema } from '@/actions/service/validator'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { updateServiceAction } from "@core/actions/service"
+import { updateServiceSchema } from "@core/actions/service/validator"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Button } from "@core/components/ui/button"
 import {
   Form,
   FormControl,
@@ -21,12 +21,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { buildOptions } from '@/lib/buildOptions'
-import { Service } from '@/payload-types'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
+import { buildOptions } from "@core/lib/buildOptions"
+import { Service } from "@core/payload-types"
 
 const AzureDevopsForm = ({ service }: { service: Service }) => {
   const params = useParams<{ serviceId: string }>()

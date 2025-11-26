@@ -1,8 +1,8 @@
 import { encryptedField } from '@oversightstudio/encrypted-fields'
 import { CollectionConfig, Field } from 'payload'
 
-import { databaseOptions } from '@/lib/constants'
-import { isAdmin } from '@/payload/access/isAdmin'
+import { databaseOptions } from "@core/lib/constants"
+import { isAdmin } from "@core/payload/access/isAdmin"
 
 import { handleTraefikConfiguration } from "@core/payload/collections/Services/hooks/handleTraefikConfiguration"
 

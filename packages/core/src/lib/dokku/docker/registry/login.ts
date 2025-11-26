@@ -1,6 +1,6 @@
 import { NodeSSH, SSHExecOptions } from 'node-ssh'
 
-import { DockerRegistry } from '@/payload-types'
+import { DockerRegistry } from "@core/payload-types"
 
 type RegistryType = DockerRegistry['type']
 

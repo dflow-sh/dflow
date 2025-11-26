@@ -1,13 +1,12 @@
+import { renderLoginConfirmationEmail } from '@core/emails/login-confirmation'
+import { keys as env } from '@core/keys'
+import { createSession } from '@core/lib/createSession'
 import cuid from 'cuid'
-import { env } from 'env'
 import jwt from 'jsonwebtoken'
 import { APIError, PayloadHandler, PayloadRequest } from 'payload'
 
-import { renderLoginConfirmationEmail } from '@/emails/login-confirmation'
-import { createSession } from '@/lib/createSession'
-
 export const autoLogin: PayloadHandler = async (req: PayloadRequest) => {
-  const { createRedisClient } = await import('@/lib/redis')
+  const { createRedisClient } = await import('@core/lib/redis')
   const { payload, searchParams } = req
   const token = searchParams.get('token') ?? ''
 

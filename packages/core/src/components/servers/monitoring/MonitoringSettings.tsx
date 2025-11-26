@@ -12,14 +12,14 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@core/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -27,14 +27,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Slider } from '@/components/ui/slider'
-import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { defaultMonitoring } from '@/lib/default-monitoring'
+} from "@core/components/ui/dialog"
+import { Input } from "@core/components/ui/input"
+import { Label } from "@core/components/ui/label"
+import { Separator } from "@core/components/ui/separator"
+import { Slider } from "@core/components/ui/slider"
+import { Switch } from "@core/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@core/components/ui/tabs"
+import { defaultMonitoring } from "@core/lib/default-monitoring"
 
 interface MonitoringSettingsProps {
   serverId: string

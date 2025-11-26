@@ -12,11 +12,11 @@ import {
   checkAWSAccountConnection,
   connectAWSAccountAction,
   updateAWSAccountAction,
-} from '@/actions/cloud/aws'
-import { connectAWSAccountSchema } from '@/actions/cloud/aws/validator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import SecretContent from '@/components/ui/blur-reveal'
-import { Button } from '@/components/ui/button'
+} from "@core/actions/cloud/aws"
+import { connectAWSAccountSchema } from "@core/actions/cloud/aws/validator"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import SecretContent from "@core/components/ui/blur-reveal"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 import {
   Form,
   FormControl,
@@ -33,9 +33,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { CloudProviderAccount } from '@/payload-types'
+} from "@core/components/ui/form"
+import { Input } from "@core/components/ui/input"
+import { CloudProviderAccount } from "@core/payload-types"
 
 type RefetchType = (input: {
   type: 'aws' | 'azure' | 'gcp' | 'digitalocean' | 'dFlow'

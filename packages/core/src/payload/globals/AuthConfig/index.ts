@@ -1,6 +1,6 @@
 import { GlobalConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from "@core/payload/access/isAdmin"
 
 export const AuthConfig: GlobalConfig = {
   slug: 'auth-config',

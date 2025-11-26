@@ -1,10 +1,10 @@
 'use server'
 
-import configPromise from '@payload-config'
+import configPromise from "@core/payload.config"
 import { getPayload } from 'payload'
 
-import { protectedClient } from '@/lib/safe-action'
-import { DockerRegistry } from '@/payload-types'
+import { protectedClient } from "@core/lib/safe-action"
+import { DockerRegistry } from "@core/payload-types"
 
 import {
   connectDockerRegistrySchema,

@@ -4,9 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    "./src/*": "./src/*",
-    "./keys": "./keys.ts",
-    "./content-collections": "./content-collections.ts"
+    "./src/*": "./src/*"
   },
   "scripts": {
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
@@ -20,6 +18,7 @@
     "@logtail/next": "^0.2.1",
     "@octokit/auth-app": "^7.1.5",
     "@octokit/webhooks": "^13.7.5",
+    "@oversightstudio/encrypted-fields": "^1.0.0",
     "@payloadcms/db-mongodb": "3.64.0",
     "@payloadcms/email-resend": "3.64.0",
     "@payloadcms/next": "3.64.0",
@@ -28,13 +27,17 @@
     "@payloadcms/sdk": "^3.59.1",
     "@payloadcms/ui": "3.64.0",
     "@radix-ui/react-slot": "^1.2.4",
+    "@react-email/components": "^1.0.1",
     "@t3-oss/env-nextjs": "^0.12.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.8.3",
     "bullmq": "^5.40.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cuid": "^3.0.0",
     "graphql": "^16.8.1",
     "ioredis": "^5.4.2",
+    "is-port-reachable": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.525.0",
     "next-safe-action": "^8.0.11",
@@ -44,6 +47,7 @@
     "payload": "3.64.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
+    "pocketbase": "^0.26.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-hook-form": "^7.54.2",
@@ -51,6 +55,7 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "sharp": "0.32.6",
+    "sonner": "^1.7.4",
     "ssh2": "^1.16.0",
     "tailwind-merge": "^3.4.0",
     "zod": "^3.24.4"

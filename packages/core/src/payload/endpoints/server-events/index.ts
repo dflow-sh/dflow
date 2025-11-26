@@ -1,8 +1,7 @@
+import { pub } from '@core/lib/redis'
+import { loadServiceLogs } from '@core/lib/searchParams'
 import { LoaderInput } from 'nuqs'
 import { APIError, PayloadHandler } from 'payload'
-
-import { pub } from '@/lib/redis'
-import { loadServiceLogs } from '@/lib/searchParams'
 
 export const serverEvents: PayloadHandler = async ({
   headers,
@@ -10,7 +9,7 @@ export const serverEvents: PayloadHandler = async ({
   query,
   signal,
 }) => {
-  const { sub } = await import('@/lib/redis')
+  const { sub } = await import('@core/lib/redis')
   const auth = await payload.auth({ headers })
 
   // Throwing 401 if no user is present

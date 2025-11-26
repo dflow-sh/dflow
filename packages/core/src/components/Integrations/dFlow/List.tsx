@@ -5,10 +5,10 @@ import { Pencil, Trash2, Unlink } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 
-import { deleteDFlowAccountAction } from '@/actions/cloud/dFlow'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { CloudProviderAccount } from '@/payload-types'
+import { deleteDFlowAccountAction } from "@core/actions/cloud/dFlow"
+import { Button } from "@core/components/ui/button"
+import { Card, CardContent } from "@core/components/ui/card"
+import { CloudProviderAccount } from "@core/payload-types"
 
 import DFlowForm from "@core/components/Integrations/dFlow/Form"
 

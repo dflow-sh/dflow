@@ -1,6 +1,6 @@
-import { env } from 'env'
+import { keys as env } from '@core/keys';
 
-import tailscale from '@/lib/axios/tailscale'
+import tailscale from "@core/lib/axios/tailscale"
 
 export const generateOAuthToken = async () => {
   try {

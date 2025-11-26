@@ -12,14 +12,14 @@ import { z } from 'zod'
 import {
   createSecurityGroupAction,
   updateSecurityGroupAction,
-} from '@/actions/securityGroups'
-import { createSecurityGroupSchema } from '@/actions/securityGroups/validator'
-import { Button } from '@/components/ui/button'
-import { DialogFooter } from '@/components/ui/dialog'
-import { Form } from '@/components/ui/form'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { CloudProviderAccount, SecurityGroup } from '@/payload-types'
+} from "@core/actions/securityGroups"
+import { createSecurityGroupSchema } from "@core/actions/securityGroups/validator"
+import { Button } from "@core/components/ui/button"
+import { DialogFooter } from "@core/components/ui/dialog"
+import { Form } from "@core/components/ui/form"
+import { ScrollArea } from "@core/components/ui/scroll-area"
+import { Separator } from "@core/components/ui/separator"
+import { CloudProviderAccount, SecurityGroup } from "@core/payload-types"
 
 import BasicInfoSection from "@core/components/security/BasicInfoSection"
 import InboundRulesSection from "@core/components/security/InboundRulesSection"

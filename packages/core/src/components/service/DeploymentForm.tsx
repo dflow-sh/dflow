@@ -7,8 +7,8 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { createDeploymentAction } from '@/actions/deployment'
-import { restartServiceAction, stopServiceAction } from '@/actions/service'
+import { createDeploymentAction } from "@core/actions/deployment"
+import { restartServiceAction, stopServiceAction } from "@core/actions/service"
 import {
   Dialog,
   DialogContent,
@@ -16,11 +16,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Service } from '@/payload-types'
-import { useDisableDeploymentContext } from '@/providers/DisableDeployment'
+} from "@core/components/ui/dialog"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
+import { Service } from "@core/payload-types"
+import { useDisableDeploymentContext } from "@core/providers/DisableDeployment"
 
 const Deploy = ({ service }: { service: Service }) => {
   const { deployments } = service

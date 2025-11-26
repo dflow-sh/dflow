@@ -4,7 +4,7 @@ import { Button, toast } from '@payloadcms/ui'
 import { useAction } from 'next-safe-action/hooks'
 import { useParams } from 'next/navigation'
 
-import { impersonateUserAction } from '@/actions/auth'
+import { impersonateUserAction } from "@core/actions/auth"
 
 const ImpersonateUser = () => {
   const params = useParams<{ segments: string[] }>()

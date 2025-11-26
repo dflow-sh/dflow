@@ -4,8 +4,8 @@ import { Button } from "@core/components/ui/button"
 import { AlertTriangle, Repeat, Settings2, Trash2 } from 'lucide-react'
 import React, { useState } from 'react'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Project, Service } from '@/payload-types'
+import { Card, CardContent, CardHeader, CardTitle } from "@core/components/ui/card"
+import { Project, Service } from "@core/payload-types"
 
 import DeleteServiceDialog from "@core/components/service/DeleteServiceDialog"
 import SwitchServiceProjectDialog from "@core/components/service/SwitchServiceProjectDialog"

@@ -5,15 +5,15 @@ import { useAction } from 'next-safe-action/hooks'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 
-import { getDflowUser } from '@/actions/cloud/dFlow'
+import { getDflowUser } from "@core/actions/cloud/dFlow"
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+} from "@core/components/ui/form"
+import { Label } from "@core/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@core/components/ui/radio-group"
 
 export const TermLengthSection = () => {
   const { control, setValue, watch } = useFormContext()

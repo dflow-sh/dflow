@@ -1,9 +1,12 @@
-import { env } from 'env'
 import { Fragment } from 'react'
-
-import { borderRadius } from '@/lib/constants'
-import { fontType, getCSSAndLinkGoogleFonts, mimeTypes } from '@/lib/googleFont'
-import type { Theme as ThemeType } from '@/payload-types'
+import { keys as env } from '@core/keys'
+import { borderRadius } from '@core/lib/constants'
+import {
+  fontType,
+  getCSSAndLinkGoogleFonts,
+  mimeTypes,
+} from '@core/lib/googleFont'
+import type { Theme as ThemeType } from '@core/payload-types'
 
 type ThemeStylesType = {
   colors: ThemeType['lightMode']

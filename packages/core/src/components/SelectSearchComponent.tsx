@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import { JSX, SVGProps, useEffect, useState, useTransition } from 'react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 import {
   Command,
   CommandEmpty,
@@ -19,15 +19,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command'
-import { Label } from '@/components/ui/label'
+} from "@core/components/ui/command"
+import { Label } from "@core/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { supportedLinuxVersions } from '@/lib/constants'
-import { ServerType } from '@/payload-types-overrides'
+} from "@core/components/ui/popover"
+import { supportedLinuxVersions } from "@core/lib/constants"
+import { ServerType } from "@core/payload-types-overrides"
 
 import { Dokku, Linux, Ubuntu } from "@core/components/icons"
 import { useDokkuInstallationStep } from "@core/components/onboarding/dokkuInstallation/DokkuInstallationStepContext"

@@ -8,9 +8,7 @@
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "@core/*": ["packages/core/src/*"],
-      "@core/keys": ["packages/core/keys.ts"],
-      "content-collections": ["./.content-collections/generated"]
+      "@core/*": ["packages/core/src/*"]
     }
   },
   "include": [

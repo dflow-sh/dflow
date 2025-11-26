@@ -14,17 +14,17 @@ import { useAction } from 'next-safe-action/hooks'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { installMonitoringToolsAction } from '@/actions/beszel'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { installMonitoringToolsAction } from "@core/actions/beszel"
+import { Alert, AlertDescription } from "@core/components/ui/alert"
+import { Badge } from "@core/components/ui/badge"
+import { Button } from "@core/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from "@core/components/ui/card"
 
 interface DefaultMonitoringInstallProps {
   serverId: string

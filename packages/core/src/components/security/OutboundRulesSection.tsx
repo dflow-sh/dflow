@@ -1,6 +1,6 @@
 import { Plus, ShieldCheck } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@core/components/ui/button"
 
 import RuleForm from "@core/components/security/RuleForm"
 

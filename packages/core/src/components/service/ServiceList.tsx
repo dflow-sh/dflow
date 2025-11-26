@@ -20,8 +20,8 @@ import {
 import { MoreVertical, Repeat, Trash2 } from 'lucide-react'
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 
-import ReactFlowConfig from '@/components/reactflow/reactflow.config'
-import { Project, Service } from '@/payload-types'
+import ReactFlowConfig from "@core/components/reactflow/reactflow.config"
+import { Project, Service } from "@core/payload-types"
 
 import DeleteServiceDialog from "@core/components/service/DeleteServiceDialog"
 import SwitchServiceProjectDialog from "@core/components/service/SwitchServiceProjectDialog"

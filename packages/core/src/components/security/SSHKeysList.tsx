@@ -25,8 +25,8 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { deleteSSHKeyAction } from '@/actions/sshkeys'
-import { Server, SshKey } from '@/payload-types'
+import { deleteSSHKeyAction } from "@core/actions/sshkeys"
+import { Server, SshKey } from "@core/payload-types"
 
 import ViewSSHKey from "@core/components/security/CreateSSHKey"
 

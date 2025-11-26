@@ -25,10 +25,10 @@ import { useAction } from 'next-safe-action/hooks'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { toast } from 'sonner'
 
-import { getServerProjects } from '@/actions/pages/server'
-import { deleteServerAction } from '@/actions/server'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Project, Server } from '@/payload-types'
+import { getServerProjects } from "@core/actions/pages/server"
+import { deleteServerAction } from "@core/actions/server"
+import { Alert, AlertDescription, AlertTitle } from "@core/components/ui/alert"
+import { Project, Server } from "@core/payload-types"
 
 const DeleteServerDialog = ({
   server,

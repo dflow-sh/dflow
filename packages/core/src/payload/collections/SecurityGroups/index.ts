@@ -1,6 +1,6 @@
 import { CollectionConfig } from 'payload'
 
-import { isAdmin } from '@/payload/access/isAdmin'
+import { isAdmin } from "@core/payload/access/isAdmin"
 
 import { securityGroupBeforeChangeHook } from "@core/payload/collections/SecurityGroups/hooks/securityGroupBeforeChangeHook"
 import { securityGroupBeforeDeleteHook } from "@core/payload/collections/SecurityGroups/hooks/securityGroupBeforeDeleteHook"

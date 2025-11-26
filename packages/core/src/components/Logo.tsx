@@ -4,9 +4,9 @@ import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
-import { cn } from '@/lib/utils'
-import { Branding } from '@/payload-types'
-import { useBrandingContext } from '@/providers/BrandingProvider'
+import { cn } from "@core/lib/utils"
+import { Branding } from "@core/payload-types"
+import { useBrandingContext } from "@core/providers/BrandingProvider"
 
 import { Skeleton } from "@core/components/ui/skeleton"
 

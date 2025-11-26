@@ -7,9 +7,9 @@ import { useAction } from 'next-safe-action/hooks'
 import { BeforeDocumentControlsClientProps } from 'payload'
 import { reduceFieldsToValues } from 'payload/shared'
 
-import { installMonitoringToolsAction } from '@/actions/beszel'
-import Loader from '@/components/Loader'
-import { Server } from '@/payload-types'
+import { installMonitoringToolsAction } from "@core/actions/beszel"
+import Loader from "@core/components/Loader"
+import { Server } from "@core/payload-types"
 
 const InstallMonitoringTools = (props: BeforeDocumentControlsClientProps) => {
   const [fields, dispatchFields] = useAllFormFields()

@@ -6,19 +6,19 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { extractID } from 'payload/shared'
 
-import updateRailpack from '@/lib/axios/updateRailpack'
-import { dokku } from '@/lib/dokku'
-import { protectedClient, userClient } from '@/lib/safe-action'
-import { server } from '@/lib/server'
-import { dynamicSSH, extractSSHDetails } from '@/lib/ssh'
-import { generateRandomString } from '@/lib/utils'
-import { ServersSelect, Service } from '@/payload-types'
-import { ServerType } from '@/payload-types-overrides'
-import { addInstallRailpackQueue } from '@/queues/builder/installRailpack'
-import { addInstallDokkuQueue } from '@/queues/dokku/install'
-import { addManageServerDomainQueue } from '@/queues/domain/manageGlobal'
-import { addDeleteProjectsQueue } from '@/queues/project/deleteProjects'
-import { addResetServerQueue } from '@/queues/server/reset'
+import updateRailpack from "@core/lib/axios/updateRailpack"
+import { dokku } from "@core/lib/dokku"
+import { protectedClient, userClient } from "@core/lib/safe-action"
+import { server } from "@core/lib/server"
+import { dynamicSSH, extractSSHDetails } from "@core/lib/ssh"
+import { generateRandomString } from "@core/lib/utils"
+import { ServersSelect, Service } from "@core/payload-types"
+import { ServerType } from "@core/payload-types-overrides"
+import { addInstallRailpackQueue } from "@core/queues/builder/installRailpack"
+import { addInstallDokkuQueue } from "@core/queues/dokku/install"
+import { addManageServerDomainQueue } from "@core/queues/domain/manageGlobal"
+import { addDeleteProjectsQueue } from "@core/queues/project/deleteProjects"
+import { addResetServerQueue } from "@core/queues/server/reset"
 
 import {
   checkDNSConfigSchema,

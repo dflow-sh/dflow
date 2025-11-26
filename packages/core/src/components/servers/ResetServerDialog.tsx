@@ -4,8 +4,8 @@ import { useParams } from 'next/navigation'
 import { type ReactNode, useState } from 'react'
 import { toast } from 'sonner'
 
-import { resetServerAction } from '@/actions/server'
-import { Button } from '@/components/ui/button'
+import { resetServerAction } from "@core/actions/server"
+import { Button } from "@core/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@core/components/ui/dialog"
 
 const ResetServerDialog = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false)
