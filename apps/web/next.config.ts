@@ -4,7 +4,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@dflow/core'],
+  // transpilePackages: ['@dflow/core'],
 
   // These will redirect old admin paths to new auth paths
   async redirects() {
@@ -40,11 +40,19 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  serverExternalPackages: ['bullmq', 'ssh2', 'node-ssh'],
+  serverExternalPackages: [
+    '@dflow/core',
+    'ssh2',
+    'node-ssh',
+    'bullmq',
+    'ioredis',
+  ],
+  optimizePackageImports: false,
 
   experimental: {
     authInterrupts: true,
     globalNotFound: true,
+    serverComponentsExternalPackages: ['@dflow/core'],
   },
 
   webpack: (config, { isServer }) => {

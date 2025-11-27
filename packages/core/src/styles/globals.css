@@ -3,6 +3,9 @@
 
 @plugin "@tailwindcss/typography";
 
+@source "../**/*.{ts,tsx}";
+@source "../../packages/**/*.{ts,tsx}";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

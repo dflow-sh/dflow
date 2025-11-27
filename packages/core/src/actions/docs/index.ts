@@ -1,9 +1,8 @@
 'use server'
 
-import { allDocs } from '@/docs'
-import { publicClient } from "@core/lib/safe-action"
-
-import { docsSchema } from "@core/actions/docs/validator"
+import { docsSchema } from '@core/actions/docs/validator'
+import { allDocs } from '@core/docs'
+import { publicClient } from '@core/lib/safe-action'
 
 export const docsAction = publicClient
   .metadata({

@@ -1,7 +1,6 @@
-import configPromise from "@core/payload.config"
+import { publicClient } from '@core/lib/safe-action'
+import configPromise from '@core/payload.config'
 import { getPayload } from 'payload'
-
-import { publicClient } from "@core/lib/safe-action"
 
 export const getBranding = publicClient
   .metadata({

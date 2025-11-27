@@ -14,19 +14,32 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@types/react": "19.1.12",
+    "@types/react-dom": "19.1.9",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "eslint": "^9.16.0",
     "eslint-config-next": "15.5.2",
+    "next": "15.4.7",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "tsx": "4.19.2",
-    "turbo": "^2.0.0",
-    "typescript": "5.7.3",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "@types/react": "19.1.12",
-    "@types/react-dom": "19.1.9",
-    "next": "15.4.7"
+    "sharp": "0.34.5",
+    "tsx": "4.19.2",
+    "turbo": "^2.0.0",
+    "typescript": "5.7.3"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ],
+    "overrides": {
+      "@types/react": "19.1.12",
+      "@types/react-dom": "19.1.9"
+    }
   }
 }

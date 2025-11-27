@@ -1,14 +1,5 @@
 'use server'
 
-import axios from 'axios'
-import { revalidatePath } from 'next/cache'
-import { RequiredDataFromCollection } from 'payload'
-
-import { DFLOW_CONFIG } from "@core/lib/constants"
-import { dFlowRestSdk } from "@core/lib/restSDK/utils"
-import { protectedClient, publicClient } from "@core/lib/safe-action"
-import { CloudProviderAccount, Server } from "@core/payload-types"
-
 import {
   checkConnectionSchema,
   checkPaymentMethodSchema,
@@ -16,7 +7,14 @@ import {
   createVPSOrderActionSchema,
   deleteDFlowAccountSchema,
   updateDFlowAccountSchema,
-} from "@core/actions/cloud/dFlow/validator"
+} from '@core/actions/cloud/dFlow/validator'
+import { DFLOW_CONFIG } from '@core/lib/constants'
+import { dFlowRestSdk } from '@core/lib/restSDK/utils'
+import { protectedClient, publicClient } from '@core/lib/safe-action'
+import { CloudProviderAccount, Server } from '@core/payload-types'
+import axios from 'axios'
+import { revalidatePath } from 'next/cache'
+import { RequiredDataFromCollection } from 'payload'
 
 export const connectDFlowAccountAction = protectedClient
   .metadata({
@@ -96,7 +94,7 @@ export const createVPSOrderAction = protectedClient
     const { accountId, sshKeyIds = [], vps } = clientInput
     const { userTenant, payload, user } = ctx
     const { addCreateVpsQueue } = await import(
-      '@/queues/dFlow/addCreateVpsQueue'
+      '@core/queues/dFlow/addCreateVpsQueue'
     )
 
     // Check user server creation limit

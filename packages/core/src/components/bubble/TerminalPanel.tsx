@@ -1,5 +1,12 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+import { Badge } from '@core/components/ui/badge'
+import { Button } from '@core/components/ui/button'
+import { cn } from '@core/lib/utils'
+import { Server } from '@core/payload-types'
+import { useBubble } from '@core/providers/BubbleProvider'
+import { useServers } from '@core/providers/ServersProvider'
 import {
   ArrowLeft,
   ChevronDown,
@@ -14,18 +21,10 @@ import {
 } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import { Badge } from "@core/components/ui/badge"
-import { Button } from "@core/components/ui/button"
-import { cn } from "@core/lib/utils"
-import { Server } from "@core/payload-types"
-import { useBubble } from "@core/providers/BubbleProvider"
-import { useServers } from "@core/providers/ServersProvider"
-
 const XTermLogViewer = dynamic(
-  () => import('@/components/bubble/XTermLogViewer'),
+  () => import('@core/components/bubble/XTermLogViewer'),
   {
     ssr: false,
   },
@@ -103,7 +102,7 @@ const ServerTabs = ({
             key={server.id}
             onClick={() => onServerChange(server.id)}
             className={cn(
-              'flex items-center gap-1.5 rounded border whitespace-nowrap transition-colors',
+              'flex items-center gap-1.5 whitespace-nowrap rounded border transition-colors',
               compact ? 'px-2.5 py-1 text-sm' : 'px-3 py-1.5 text-base',
               isActive
                 ? 'bg-primary/10 border-primary/20'
@@ -412,7 +411,7 @@ const TerminalPanel = ({
         {!isCollapsed && (
           <div
             className={cn(
-              'hover:bg-primary/50 group absolute top-0 right-0 left-0 z-10 flex h-[1px] cursor-ns-resize items-center justify-center transition-all',
+              'hover:bg-primary/50 group absolute left-0 right-0 top-0 z-10 flex h-[1px] cursor-ns-resize items-center justify-center transition-all',
               isResizing ? 'bg-primary' : 'bg-border',
             )}
             onMouseDown={handleResizeStart}>
