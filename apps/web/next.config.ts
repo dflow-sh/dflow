@@ -53,6 +53,7 @@ const nextConfig: NextConfig = {
     authInterrupts: true,
     globalNotFound: true,
     serverComponentsExternalPackages: ['@dflow/core'],
+    typedRoutes: true,
   },
 
   webpack: (config, { isServer }) => {

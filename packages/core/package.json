@@ -4,7 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    "./src/*": "./src/*"
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./src/*.ts",
+      "default": "./src/*.ts"
+    }
   },
   "scripts": {
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",

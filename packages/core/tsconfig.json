@@ -7,6 +7,9 @@
     "outDir": "dist",
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
     "paths": {
       "@core/*": ["packages/core/src/*"],
       "content-collections": ["packages/core/.content-collections/generated"]
