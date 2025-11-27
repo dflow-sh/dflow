@@ -7,7 +7,6 @@ import { getDflowUser } from '@dflow/core/actions/cloud/dFlow'
 import { getGithubStarsAction } from '@dflow/core/actions/github'
 import Banner from '@dflow/core/components/Banner'
 import Bubble from '@dflow/core/components/bubble'
-import DocSidebar from '@dflow/core/components/DocSidebar'
 import GithubStars from '@dflow/core/components/GithubStars'
 import Logo from '@dflow/core/components/Logo'
 import { NavUser } from '@dflow/core/components/nav-user'
@@ -27,6 +26,7 @@ import { getCurrentUser } from '@dflow/core/lib/getCurrentUser'
 import BubbleProvider from '@dflow/core/providers/BubbleProvider'
 import Provider from '@dflow/core/providers/Provider'
 import TerminalProvider from '@dflow/core/providers/TerminalProvider'
+import DocSidebar from './DocSidebar'
 
 interface PageProps {
   params: Promise<{

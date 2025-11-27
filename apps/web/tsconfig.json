@@ -9,12 +9,11 @@
       }
     ],
     "paths": {
+      "@web": ["../../apps/web/src"],
+      "@web/*": ["../../apps/web/src/*"],
       "@dflow/core": ["../../packages/core/src"],
-      "@dflow/core/*": ["../../packages/core/src/*"]
-      // "@dflow/core/keys": ["../../packages/core/keys.ts"],
-      // "@dflow/core/content-collections": [
-      //   "../../packages/core/content-collections.ts"
-      // ]
+      "@dflow/core/*": ["../../packages/core/src/*"],
+      "content-collections": ["../web/.content-collections/generated"]
     }
   },
   "include": [
@@ -22,7 +21,9 @@
     "**/*.tsx",
     "next-env.d.ts",
     "src",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".content-collections",
+    "content-collections.ts"
   ],
   "exclude": ["node_modules"],
   "references": [

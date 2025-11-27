@@ -1,6 +1,5 @@
-import LayoutClient from '../../layout.client'
 import React from 'react'
-
+import LayoutClient from '../../layout.client'
 import DocsSidebar from './DocsSidebar'
 
 interface PageProps {

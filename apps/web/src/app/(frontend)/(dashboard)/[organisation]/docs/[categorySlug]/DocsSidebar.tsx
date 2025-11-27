@@ -1,3 +1,4 @@
+import { allDocs } from '@web/docs'
 import { Menu } from 'lucide-react'
 import HighLightedLink from '@dflow/core/components/docs/HighLightedLink'
 import { Button } from '@dflow/core/components/ui/button'
@@ -9,7 +10,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@dflow/core/components/ui/sheet'
-import { allDocs } from '@dflow/core/docs'
 
 interface Props {
   params: Promise<{

@@ -1,4 +1,4 @@
-import { allDocs } from '@dflow/core/docs'
+import { allDocs } from '@web/docs'
 
 type CategorySlugType = keyof typeof allDocs
 
@@ -22,9 +22,24 @@ interface PageProps {
 //   return slugs
 // }
 
-const DocPage = async ({ params }: PageProps) => {
-  const { categorySlug, slug } = await params
-  const categoryDocs = Object.entries(allDocs) ?? [] // Get the specific category collection
+export function getDocByFile(directory: string, fileName: string) {
+  const docs = allDocs[directory as keyof typeof allDocs]
+
+  if (!docs) {
+    throw new Error('Documentation not found')
+  }
+
+  const docFile = docs.find(d => d._meta.fileName === `${fileName}.md`)
+
+  if (!docFile) {
+    throw new Error('Document file not found')
+  }
+
+  return docFile
+}
+
+export function getDocBySlug(categorySlug: string, slug: string) {
+  const categoryDocs = Object.entries(allDocs)
 
   const filteredDocs = categoryDocs
     .map(([_key, docs]) => {
@@ -34,7 +49,13 @@ const DocPage = async ({ params }: PageProps) => {
     })
     .flat()
 
-  const doc = filteredDocs?.[0]
+  return filteredDocs[0]
+}
+
+const DocPage = async ({ params }: PageProps) => {
+  const { categorySlug, slug } = await params
+
+  const doc = getDocBySlug(categorySlug, slug)
 
   if (!doc) {
     return <p className='text-gray-500'>Document not found.</p>

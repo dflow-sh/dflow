@@ -66,9 +66,6 @@ importers:
       '@bprogress/next':
         specifier: ^3.2.12
         version: 3.2.12(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@content-collections/next':
-        specifier: ^0.2.9
-        version: 0.2.9(@content-collections/core@0.12.0(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))
       '@dflow/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -128,7 +125,7 @@ importers:
         version: 4.1.0
       file-loader:
         specifier: ^6.2.0
-        version: 6.2.0(webpack@5.103.0)
+        version: 6.2.0(webpack@5.103.0(esbuild@0.25.12))
       lucide-react:
         specifier: ^0.525.0
         version: 0.525.0(react@19.1.1)
@@ -162,6 +159,15 @@ importers:
       recharts:
         specifier: ^2.15.1
         version: 2.15.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      rehype-autolink-headings:
+        specifier: ^7.1.0
+        version: 7.1.0
+      rehype-slug:
+        specifier: ^6.0.0
+        version: 6.0.0
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       sharp:
         specifier: 0.34.5
         version: 0.34.5
@@ -175,6 +181,18 @@ importers:
         specifier: ^5.0.8
         version: 5.0.8(@types/react@19.1.12)(react@19.1.1)(use-sync-external-store@1.6.0(react@19.1.1))
     devDependencies:
+      '@content-collections/core':
+        specifier: ^0.12.0
+        version: 0.12.0(typescript@5.7.3)
+      '@content-collections/markdown':
+        specifier: ^0.1.4
+        version: 0.1.4(@content-collections/core@0.12.0(typescript@5.7.3))
+      '@content-collections/mdx':
+        specifier: ^0.2.2
+        version: 0.2.2(@content-collections/core@0.12.0(typescript@5.7.3))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@content-collections/next':
+        specifier: ^0.2.9
+        version: 0.2.9(@content-collections/core@0.12.0(typescript@5.7.3))(next@15.5.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.77.4))
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
@@ -11745,11 +11763,11 @@ snapshots:
     dependencies:
       flat-cache: 4.0.1
 
-  file-loader@6.2.0(webpack@5.103.0):
+  file-loader@6.2.0(webpack@5.103.0(esbuild@0.25.12)):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.103.0
+      webpack: 5.103.0(esbuild@0.25.12)
 
   file-type@19.3.0:
     dependencies:
@@ -14200,14 +14218,16 @@ snapshots:
 
   tapable@2.3.0: {}
 
-  terser-webpack-plugin@5.3.14(webpack@5.103.0):
+  terser-webpack-plugin@5.3.14(esbuild@0.25.12)(webpack@5.103.0(esbuild@0.25.12)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.44.1
-      webpack: 5.103.0
+      webpack: 5.103.0(esbuild@0.25.12)
+    optionalDependencies:
+      esbuild: 0.25.12
 
   terser@5.44.1:
     dependencies:
@@ -14563,7 +14583,7 @@ snapshots:
 
   webpack-sources@3.3.3: {}
 
-  webpack@5.103.0:
+  webpack@5.103.0(esbuild@0.25.12):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -14587,7 +14607,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.14(webpack@5.103.0)
+      terser-webpack-plugin: 5.3.14(esbuild@0.25.12)(webpack@5.103.0(esbuild@0.25.12))
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:

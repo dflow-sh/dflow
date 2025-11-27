@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
-    "@content-collections/next": "^0.2.9",
     "@dflow/core": "workspace:*",
     "@logtail/next": "^0.2.1",
     "@monaco-editor/react": "4.7.0-rc.0",
@@ -43,12 +42,19 @@
     "react-dom": "19.1.1",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "sharp": "0.34.5",
     "sonner": "^1.7.4",
     "zod": "^3.24.1",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@content-collections/core": "^0.12.0",
+    "@content-collections/markdown": "^0.1.4",
+    "@content-collections/mdx": "^0.2.2",
+    "@content-collections/next": "^0.2.9",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",

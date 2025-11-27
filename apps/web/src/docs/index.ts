@@ -5,7 +5,7 @@ import {
   allServers,
   allServices,
   allTemplates,
-} from '../../.content-collections/generated'
+} from '.content-collections/generated'
 
 export const allDocs = {
   introduction: allIntroductions,

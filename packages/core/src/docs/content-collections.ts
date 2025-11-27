@@ -3,7 +3,7 @@ import { compileMarkdown } from '@content-collections/markdown'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeSlug from 'rehype-slug'
 import remarkGfm from 'remark-gfm'
-import { z } from "zod"
+import { z } from 'zod'
 
 const introduction = defineCollection({
   name: 'introduction',
