@@ -1,7 +1,4 @@
-import { SquareTerminal } from 'lucide-react'
-import dynamic from 'next/dynamic'
-
-import { Button } from "@core/components/ui/button"
+import { Button } from '@core/components/ui/button'
 import {
   Sheet,
   SheetContent,
@@ -9,12 +6,14 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@core/components/ui/sheet"
+} from '@core/components/ui/sheet'
+import { SquareTerminal } from 'lucide-react'
+import dynamic from 'next/dynamic'
 
 const TerminalContent = dynamic(
   () =>
     import(
-      '@/components/onboarding/dokkuInstallation/DokkuInstallationTerminalContent'
+      '@core/components/onboarding/dokkuInstallation/DokkuInstallationTerminalContent'
     ),
   {
     ssr: false,

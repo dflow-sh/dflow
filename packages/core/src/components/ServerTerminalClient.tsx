@@ -1,13 +1,15 @@
 'use client'
 
+import { Server } from '@core/payload-types'
 import dynamic from 'next/dynamic'
 
-import { Server } from "@core/payload-types"
-
 // Dynamically import ServerTerminal with ssr: false
-const ServerTerminal = dynamic(() => import('@/components/ServerTerminal'), {
-  ssr: false,
-})
+const ServerTerminal = dynamic(
+  () => import('@core/components/ServerTerminal'),
+  {
+    ssr: false,
+  },
+)
 
 interface ServerTerminalClientProps {
   servers: Server[] | { id: string; name: string }[]

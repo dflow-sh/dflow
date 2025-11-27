@@ -31,6 +31,7 @@
     "cpu-features": "^0.0.10",
     "cross-env": "^10.1.0",
     "date-fns": "^4.1.0",
+    "file-loader": "^6.2.0",
     "lucide-react": "^0.525.0",
     "motion": "^12.9.2",
     "next": "15.5.2",

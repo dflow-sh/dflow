@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-
-import '@/app/(frontend)/styles/coinStyle.css'
-import { cn } from "@core/lib/utils"
+import { cn } from '@core/lib/utils'
+import '@core/styles/coinStyle.css'
 
 const AnimatedCoinIcon = ({ className }: { className?: string }) => {
   const coinRef = useRef<HTMLDivElement>(null)

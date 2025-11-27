@@ -1,8 +1,10 @@
+import React from 'react'
+
 interface PageProps {
   children: React.ReactNode
 }
 
-const ProjectIdPage = async ({ children }: PageProps) => {
+const ProjectIdPage = ({ children }: PageProps) => {
   return <>{children}</>
 }
 
