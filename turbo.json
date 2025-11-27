@@ -1,40 +1,38 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "https://turborepo.com/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "ui": "stream",
+  "envMode": "strict",
+  "cacheDir": ".turbo/cache",
   "tasks": {
-    "dev": {
-      "cache": false,
-      "persistent": true,
-      "dependsOn": ["^dev"]
-    },
-
     "build": {
       "dependsOn": ["^build"],
       "outputs": [
         ".next/**",
-        "dist/**",
-        "!**/.next/cache/**"
+        "!.next/cache/**",
+        "**/generated/**",
+        ".react-email/**"
       ]
     },
-
-    "lint": {
-      "dependsOn": ["^lint"],
-      "outputs": []
+    "test": {
+      "dependsOn": ["^test"]
     },
-
-    "generate:types": {
-      "outputs": [
-        "src/payload-types.ts",
-        "src/payload-types-overrides.ts"
-      ],
+    "analyze": {
+      "dependsOn": ["^analyze"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "translate": {
+      "dependsOn": ["^translate"],
       "cache": false
     },
-
-    "payload": {
+    "clean": {
       "cache": false
     },
-
-    "start": {
-      "dependsOn": ["build"]
+    "//#clean": {
+      "cache": false
     }
   }
 }

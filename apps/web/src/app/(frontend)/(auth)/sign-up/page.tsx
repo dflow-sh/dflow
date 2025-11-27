@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { Route } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getAuthConfigAction } from '@dflow/core/actions/pages/auth'
@@ -16,7 +17,7 @@ const SuspensePage = async ({ token }: { token: string | undefined }) => {
   const host = headersList.get('host') || ''
   const redirectionURL = DFLOW_CONFIG.URL
   if (host === 'app.dflow.sh') {
-    redirect(`${redirectionURL}/sign-up`)
+    redirect(`${redirectionURL}/sign-up` as Route)
   }
 
   // Check auth config to determine if sign-up is allowed

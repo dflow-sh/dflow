@@ -1,4 +1,5 @@
 import { env } from 'env'
+import { Route } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getAuthConfigAction } from '@dflow/core/actions/pages/auth'
@@ -11,7 +12,7 @@ const SignInPage = async () => {
   const host = headersList.get('host') || ''
   const redirectionURL = DFLOW_CONFIG.URL
   if (host === 'app.dflow.sh') {
-    redirect(`${redirectionURL}/sign-in`)
+    redirect(`${redirectionURL}/sign-in` as Route)
   }
 
   const result = await getAuthConfigAction()

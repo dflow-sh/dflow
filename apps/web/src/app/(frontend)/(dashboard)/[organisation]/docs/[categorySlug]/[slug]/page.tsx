@@ -22,23 +22,7 @@ interface PageProps {
 //   return slugs
 // }
 
-export function getDocByFile(directory: string, fileName: string) {
-  const docs = allDocs[directory as keyof typeof allDocs]
-
-  if (!docs) {
-    throw new Error('Documentation not found')
-  }
-
-  const docFile = docs.find(d => d._meta.fileName === `${fileName}.md`)
-
-  if (!docFile) {
-    throw new Error('Document file not found')
-  }
-
-  return docFile
-}
-
-export function getDocBySlug(categorySlug: string, slug: string) {
+const getDocBySlug = (categorySlug: string, slug: string) => {
   const categoryDocs = Object.entries(allDocs)
 
   const filteredDocs = categoryDocs

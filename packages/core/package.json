@@ -88,8 +88,8 @@
     "nuqs": "^2.8.1",
     "octokit": "^5.0.5",
     "payload": "3.64.0",
-    "pino": "^9.7.0",
-    "pino-pretty": "^13.0.0",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.2",
     "pocketbase": "^0.26.3",
     "posthog-js": "^1.298.1",
     "react": "19.1.1",
@@ -124,6 +124,7 @@
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
     "@types/ssh2": "^1.15.5",
+    "aws4": "^1.13.2",
     "tailwindcss": "^4.1.12",
     "tw-animate-css": "^1.4.0",
     "typescript": "5.7.3"

@@ -1,11 +1,14 @@
 import React from 'react'
 
 interface PageProps {
-  children: React.ReactNode
+  params: Promise<{
+    organisation: string
+    projectId: string
+  }>
 }
 
-const ProjectIdPage = ({ children }: PageProps) => {
-  return <>{children}</>
+const ProjectIdPage: React.FC<PageProps> = () => {
+  return <></>
 }
 
 export default ProjectIdPage

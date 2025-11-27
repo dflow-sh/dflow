@@ -47,14 +47,15 @@ const nextConfig: NextConfig = {
     'node-ssh',
     'bullmq',
     'ioredis',
+    'cpu-features',
   ],
   optimizePackageImports: false,
+  typedRoutes: true,
 
   experimental: {
     authInterrupts: true,
     globalNotFound: true,
     serverComponentsExternalPackages: ['@dflow/core'],
-    typedRoutes: true,
   },
 
   webpack: (config, { isServer }) => {
@@ -70,12 +71,17 @@ const nextConfig: NextConfig = {
       use: 'file-loader',
     })
 
+    if (isServer) {
+      config.externals.push('ssh2', 'node-ssh', 'cpu-features', 'bullmq')
+    }
+
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         bullmq: false,
         ssh2: false,
         'node-ssh': false,
+        'cpu-features': false,
       }
     }
 

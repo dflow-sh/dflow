@@ -15,6 +15,7 @@ const createDocCollection = (name: string, directory: string) =>
       category: z.string(),
       order: z.number(),
       categoryOrder: z.number(),
+      content: z.string(),
     }),
     transform: async (document, context) => {
       const html = await compileMarkdown(context, document, {

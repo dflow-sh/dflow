@@ -1,6 +1,7 @@
+import { keys as env } from '@core/keys'
 import { Logger } from '@logtail/next'
-import { keys as env } from '@core/keys';
 import pino from 'pino'
+import pretty from 'pino-pretty'
 
 const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV
 const hasBetterStackToken = Boolean(env.NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN)
@@ -11,19 +12,18 @@ const betterStackLogger = hasBetterStackToken
     })
   : null
 
+const stream =
+  isDev || !hasBetterStackToken
+    ? pretty({
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname',
+      })
+    : undefined
+
 const targets =
   isDev || !hasBetterStackToken
-    ? [
-        {
-          target: 'pino-pretty',
-          options: {
-            colorize: isDev, // Only colorize in dev
-            translateTime: 'HH:MM:ss',
-            ignore: 'pid,hostname',
-          },
-          level: isDev ? 'debug' : 'info',
-        },
-      ]
+    ? undefined
     : [
         {
           target: 'pino/file',
@@ -32,16 +32,21 @@ const targets =
         },
       ]
 
-const logger = pino({
-  level: isDev ? 'debug' : 'info',
-  transport: {
-    targets,
+const logger = pino(
+  {
+    level: isDev ? 'debug' : 'info',
+    transport: targets
+      ? {
+          targets,
+        }
+      : undefined,
+    redact: {
+      paths: ['userId'],
+      remove: true,
+    },
   },
-  redact: {
-    paths: ['userId'],
-    remove: true,
-  },
-})
+  stream,
+)
 
 const createLogMethod = (level: 'debug' | 'info' | 'warn' | 'error') => {
   return (
