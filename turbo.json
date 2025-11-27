@@ -20,6 +20,22 @@
     "analyze": {
       "dependsOn": ["^analyze"]
     },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "generate:types": {
+      "cache": true
+    },
+    "generate:importmap": {
+      "cache": true
+    },
+    "payload": {
+      "cache": true
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
     "dev": {
       "cache": false,
       "persistent": true
