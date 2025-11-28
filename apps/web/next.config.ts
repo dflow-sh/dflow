@@ -5,7 +5,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // transpilePackages: ['@dflow/core'],
+  transpilePackages: ['@dflow/core'],
 
   // These will redirect old admin paths to new auth paths
   async redirects() {
@@ -42,20 +42,18 @@ const nextConfig: NextConfig = {
   },
 
   serverExternalPackages: [
-    '@dflow/core',
     'ssh2',
     'node-ssh',
     'bullmq',
     'ioredis',
     'cpu-features',
+    'nunjucks',
   ],
-  optimizePackageImports: false,
   typedRoutes: true,
 
   experimental: {
     authInterrupts: true,
     globalNotFound: true,
-    serverComponentsExternalPackages: ['@dflow/core'],
   },
 
   webpack: (config, { isServer }) => {
@@ -72,7 +70,13 @@ const nextConfig: NextConfig = {
     })
 
     if (isServer) {
-      config.externals.push('ssh2', 'node-ssh', 'cpu-features', 'bullmq')
+      config.externals.push(
+        'ssh2',
+        'node-ssh',
+        'cpu-features',
+        'bullmq',
+        'nunjucks',
+      )
     }
 
     if (!isServer) {

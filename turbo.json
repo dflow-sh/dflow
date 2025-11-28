@@ -11,7 +11,8 @@
         ".next/**",
         "!.next/cache/**",
         "**/generated/**",
-        ".react-email/**"
+        ".react-email/**",
+        "dist/**"
       ]
     },
     "test": {

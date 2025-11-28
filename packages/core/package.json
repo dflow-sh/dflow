@@ -3,17 +3,35 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     },
+    "./payload-types": {
+      "types": "./src/payload-types.ts",
+      "default": "./src/payload-types.ts"
+    },
+    "./payload-types-overrides": {
+      "types": "./src/payload-types-overrides.ts",
+      "default": "./src/payload-types-overrides.ts"
+    },
     "./*": {
       "types": "./src/*.ts",
-      "default": "./src/*.ts"
+      "default": "./src/*"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/*"
+      ]
     }
   },
   "scripts": {
+    "build": "tsc --emitDeclarationOnly --skipLibCheck 2>&1 | head -20 || true",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",

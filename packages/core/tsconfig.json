@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "ES2022",
-    "rootDir": ".",
+    "rootDir": "src",
     "outDir": "dist",
     "noEmit": false,
     "allowSyntheticDefaultImports": true,
@@ -15,12 +15,6 @@
       "content-collections": ["packages/core/.content-collections/generated"]
     }
   },
-  "include": [
-    "src",
-    "**/*.ts",
-    "**/*.tsx",
-    ".content-collections",
-    "content-collections.ts"
-  ],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*", ".content-collections", "content-collections.ts"],
+  "exclude": ["node_modules", "dist"]
 }
