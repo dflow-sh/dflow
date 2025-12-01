@@ -102,4 +102,12 @@ find apps/web/.next -type f -exec sed -i "s~https://s1.eu.betterstackdata.com~${
 find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_CNAME__~${NEXT_PUBLIC_PROXY_CNAME}~g" {} +
 
 # Run your Next.js app
-exec node server.js
+if [ -f "apps/web/server.js" ]; then
+  exec node apps/web/server.js
+elif [ -f "server.js" ]; then
+  exec node server.js
+else
+  echo "Could not find server.js. Listing current directory:"
+  ls -R
+  exit 1
+fi
