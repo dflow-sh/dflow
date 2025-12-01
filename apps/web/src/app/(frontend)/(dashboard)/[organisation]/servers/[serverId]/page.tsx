@@ -1,15 +1,3 @@
-import { env } from '@dflow/core/env'
-import {
-  AlertCircle,
-  Lock,
-  ScreenShareOff,
-  Server,
-  Settings2,
-  TriangleAlert,
-} from 'lucide-react'
-import { notFound } from 'next/navigation'
-import { Suspense, use } from 'react'
-
 import {
   getServerBreadcrumbs,
   getServerGeneralTabDetails,
@@ -44,12 +32,27 @@ import {
   MonitoringTabSkeleton,
   PluginsTabSkeleton,
 } from '@dflow/core/components/skeletons/ServerSkeleton'
-import { Alert, AlertDescription, AlertTitle } from '@dflow/core/components/ui/alert'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@dflow/core/components/ui/alert'
 import { supportedLinuxVersions } from '@dflow/core/lib/constants'
 import { netdata } from '@dflow/core/lib/netdata'
 import { loadServerPageTabs } from '@dflow/core/lib/searchParams'
 import { SecurityGroup, SshKey } from '@dflow/core/payload-types'
 import { ServerType } from '@dflow/core/payload-types-overrides'
+import { env } from 'env'
+import {
+  AlertCircle,
+  Lock,
+  ScreenShareOff,
+  Server,
+  Settings2,
+  TriangleAlert,
+} from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { Suspense, use } from 'react'
 
 import LayoutClient from './layout.client'
 
