@@ -107,7 +107,15 @@ if [ -f "apps/web/server.js" ]; then
 elif [ -f "server.js" ]; then
   exec node server.js
 else
-  echo "Could not find server.js. Listing current directory:"
-  ls -R
-  exit 1
+  echo "server.js not found in standard locations. Searching..."
+  SERVER_JS_FILE=$(find . -name "server.js" ! -path "*/node_modules/*" | head -n 1)
+
+  if [ -n "$SERVER_JS_FILE" ]; then
+    echo "Found server.js at $SERVER_JS_FILE"
+    exec node "$SERVER_JS_FILE"
+  else
+    echo "Could not find server.js. Listing current directory:"
+    ls -R
+    exit 1
+  fi
 fi
