@@ -1,10 +1,12 @@
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 pnpm-lock.yaml
 payload-types.ts
+**/payload-types.ts
 # .github/workflows/docker-publish.yml
 
 # testing
@@ -12,11 +14,14 @@ payload-types.ts
 
 # next.js
 /.next/
+**/.next/
 /out/
 
 # production
 /build
+**/build
 /dist
+**/dist
 
 # misc
 .DS_Store
@@ -37,3 +42,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Turborepo
+.turbo
+**/.turbo
+
+# Build logs
+build.log

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -14,10 +15,13 @@
 
 # next.js
 /.next/
+**/.next/
 /out/
 
 # production
 /build
+**/build
+**/dist
 
 # misc
 .DS_Store
@@ -44,5 +48,13 @@ next-env.d.ts
 /media
 
 .content-collections
+**/.content-collections
 
 /public/media
+
+# Turborepo
+.turbo
+**/.turbo
+
+# Build logs
+build.log
