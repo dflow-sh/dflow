@@ -94,12 +94,12 @@ NEXT_PUBLIC_BETTER_STACK_INGESTING_URL="${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL
 NEXT_PUBLIC_PROXY_CNAME="${NEXT_PUBLIC_PROXY_CNAME}"
 
 # 🪄 Replace values in built static files
-find .next -type f -exec sed -i "s~__NEXT_PUBLIC_DISCORD_INVITE_URL__~${NEXT_PUBLIC_DISCORD_INVITE_URL}~g" {} +
-find .next -type f -exec sed -i "s~__NEXT_PUBLIC_WEBSITE_URL__~${NEXT_PUBLIC_WEBSITE_URL}~g" {} +
-find .next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_DOMAIN_URL__~${NEXT_PUBLIC_PROXY_DOMAIN_URL}~g" {} +
-find .next -type f -exec sed -i "s~__NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN__~${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}~g" {} +
-find .next -type f -exec sed -i "s~https://s1.eu.betterstackdata.com~${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}~g" {} +
-find .next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_CNAME__~${NEXT_PUBLIC_PROXY_CNAME}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_DISCORD_INVITE_URL__~${NEXT_PUBLIC_DISCORD_INVITE_URL}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_WEBSITE_URL__~${NEXT_PUBLIC_WEBSITE_URL}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_DOMAIN_URL__~${NEXT_PUBLIC_PROXY_DOMAIN_URL}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN__~${NEXT_PUBLIC_BETTER_STACK_SOURCE_TOKEN}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~https://s1.eu.betterstackdata.com~${NEXT_PUBLIC_BETTER_STACK_INGESTING_URL}~g" {} +
+find apps/web/.next -type f -exec sed -i "s~__NEXT_PUBLIC_PROXY_CNAME__~${NEXT_PUBLIC_PROXY_CNAME}~g" {} +
 
 # Run your Next.js app
 exec node server.js

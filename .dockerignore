@@ -1,0 +1,96 @@
+# Dependencies
+node_modules
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+**/.coverage
+
+# Next.js
+.next
+**/.next
+out
+**/out
+
+# Production
+build
+**/build
+dist
+**/dist
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env
+.env*.local
+.env.prod
+apps/web/.env
+apps/web/.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+
+# Turborepo
+.turbo
+**/.turbo
+
+# Content collections
+.content-collections
+**/.content-collections
+
+# Media
+media
+**/media
+public/media
+**/public/media
+
+# Logs
+*.log
+build.log
+
+# Documentation
+README.md
+MONOREPO.md
+*.md
+!apps/web/README.md
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+__tests__
+**/__tests__
+
+# Gemini artifacts (if present)
+.gemini

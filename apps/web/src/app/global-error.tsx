@@ -1,10 +1,8 @@
 'use client'
 
-import { ThemeProvider } from 'next-themes'
-
 import { Button } from '@dflow/core/components/ui/button'
-
-import './(frontend)/globals.css'
+import '@dflow/core/styles/globals.css'
+import { ThemeProvider } from 'next-themes'
 
 export default function GlobalError({
   error,

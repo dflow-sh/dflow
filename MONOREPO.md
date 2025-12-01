@@ -396,7 +396,92 @@ git push origin feature/your-feature
 | `pnpm --filter web build` | Build only web app |
 | `pnpm --filter @dflow/core type-check` | Type check core package |
 
+## Docker Deployment
+
+The repository includes Docker configuration optimized for the Turborepo monorepo structure.
+
+### Building the Docker Image
+
+```bash
+docker build -t dflow:latest .
+```
+
+The Dockerfile:
+- Uses multi-stage builds for optimization
+- Installs pnpm and sets up workspace dependencies
+- Builds only the `@dflow/web` package using Turborepo
+- Creates a production-ready standalone Next.js build
+
+### Running with Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+The `docker-compose.yml` includes:
+- **payload-app**: The dFlow Next.js application
+- **mongodb**: MongoDB database
+- **redis**: Redis for caching and queues
+- **traefik**: Reverse proxy
+- **beszel**: Monitoring dashboard
+- **config-generator**: Dynamic configuration
+
+### Environment Variables for Docker
+
+Set these in your `.env` file or docker-compose environment:
+
+```env
+# Required
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=your_password
+MONGO_DB_NAME=dflow
+PAYLOAD_SECRET=your_secret_key
+NEXT_PUBLIC_WEBSITE_URL=https://your-domain.com
+
+# Optional
+TAILSCALE_AUTH_KEY=
+TAILSCALE_OAUTH_CLIENT_SECRET=
+TAILSCALE_TAILNET=
+```
+
+### Docker Files
+
+- **[Dockerfile](file:///Users/manikanta/dev/github/dflow-sh/dflow/Dockerfile)**: Multi-stage build for production
+- **[.dockerignore](file:///Users/manikanta/dev/github/dflow-sh/dflow/.dockerignore)**: Excludes unnecessary files from build
+- **[docker-compose.yml](file:///Users/manikanta/dev/github/dflow-sh/dflow/docker-compose.yml)**: Complete stack configuration
+- **[scripts/entrypoint.sh](file:///Users/manikanta/dev/github/dflow-sh/dflow/scripts/entrypoint.sh)**: Container startup script
+
+## Styles Configuration
+
+The project uses Tailwind CSS v4 with the following setup:
+
+### Global Styles Location
+
+Global styles are located in `packages/core/src/styles/globals.css` and imported in the app layout:
+
+```typescript
+import '@dflow/core/styles/globals.css'
+```
+
+### Tailwind CSS v4 Source Directive
+
+The `globals.css` file includes `@source` directives to tell Tailwind where to scan for class names:
+
+```css
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@source '../../apps/web/src';
+@source '../';
+
+@plugin "@tailwindcss/typography";
+```
+
+> [!NOTE]
+> CSS linter warnings for `@source`, `@plugin`, `@theme`, `@utility`, and `@apply` are expected. These are valid Tailwind CSS v4 directives that standard CSS linters don't recognize.
+
 ## Additional Resources
+
 
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 - [pnpm Workspaces](https://pnpm.io/workspaces)

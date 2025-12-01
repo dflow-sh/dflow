@@ -1,5 +1,6 @@
 # To use this Dockerfile, you have to set `output: 'standalone'` in your next.config.mjs file.
 # From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
+# Updated for Turborepo monorepo structure
 
 FROM node:22.12.0-alpine AS base
 
@@ -9,20 +10,35 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.2.0 --activate && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Install pnpm
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.2.0 --activate
+
+# Copy workspace configuration
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+
+# Copy package.json files for all workspaces
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/core/package.json ./packages/core/package.json
+
+# Install dependencies
+RUN pnpm i --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Install pnpm
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.2.0 --activate
+
+# Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages/core/node_modules ./packages/core/node_modules
+
+# Copy workspace files
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json ./
+COPY apps/web ./apps/web
+COPY packages/core ./packages/core
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -79,12 +95,8 @@ ENV S3_REGION=$S3_REGION
 ENV S3_ACCESS_KEY_ID=$S3_ACCESS_KEY_ID
 ENV S3_SECRET_ACCESS_KEY=$S3_SECRET_ACCESS_KEY
 
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable && COREPACK_INTEGRITY_KEYS=0 corepack prepare pnpm@10.2.0 --activate && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Build with Turborepo
+RUN pnpm build --filter=@dflow/web
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -103,12 +115,12 @@ RUN apk add --no-cache openssh-client
 
 RUN apk add --no-cache tailscale
 
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/apps/web/public ./public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
@@ -120,4 +132,3 @@ EXPOSE 3000
 # https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME="0.0.0.0"
 ENTRYPOINT ["/app/entrypoint.sh"]
- 

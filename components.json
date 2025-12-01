@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "src/app/(frontend)/globals.css",
+    "css": "@dflow/core/styles/globals.css",
     "baseColor": "gray",
     "cssVariables": true,
     "prefix": ""
