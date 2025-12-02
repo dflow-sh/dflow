@@ -88,39 +88,87 @@ The **core** package contains all shared code used across the application.
 pnpm install
 ```
 
-### Environment Setup
+## Package Management
 
-1. **Copy the environment file** to `apps/web/`:
-   ```bash
-   cp .env.example apps/web/.env
-   ```
+### Adding Dependencies
 
-2. **Configure required variables** in `apps/web/.env`:
-   ```env
-   # Required
-   DATABASE_URI=mongodb://localhost:27017/dflow
-   PAYLOAD_SECRET=your-secret-key
-   REDIS_URI=redis://localhost:6379
-   NEXT_PUBLIC_WEBSITE_URL=localhost:3000
-   
-   # Optional (for email)
-   RESEND_API_KEY=
-   RESEND_SENDER_EMAIL=
-   RESEND_SENDER_NAME=
-   
-   # Optional (for Tailscale integration)
-   TAILSCALE_OAUTH_CLIENT_SECRET=
-   TAILSCALE_TAILNET=
-   TAILSCALE_AUTH_KEY=
-   
-   # Optional (for monitoring)
-   BESZEL_MONITORING_URL=
-   BESZEL_SUPERUSER_EMAIL=
-   BESZEL_SUPERUSER_PASSWORD=
-   ```
+**To a specific workspace (e.g., web app):**
+```bash
+pnpm add [package-name] --filter @dflow/web
+# or using short flag
+pnpm add [package-name] -F @dflow/web
+```
+
+**To the core package:**
+```bash
+pnpm add [package-name] -F @dflow/core
+```
+
+**To the root workspace (dev tools, etc.):**
+```bash
+pnpm add [package-name] -w
+# or
+pnpm add [package-name] --workspace-root
+```
+
+**Adding Dev Dependencies:**
+```bash
+pnpm add -D [package-name] -F @dflow/web
+```
+
+### Removing Dependencies
+
+```bash
+pnpm remove [package-name] -F @dflow/web
+```
+
+### Updating Dependencies
+
+```bash
+# Update all dependencies
+pnpm update -r
+
+# Update specific package
+pnpm update [package-name] -F @dflow/web
+```
+
+## Environment Setup
+
+1.  **Copy the environment file** to `apps/web/`:
+    ```bash
+    # Create a symlink (Recommended for local dev)
+    ln -s ../../.env apps/web/.env
+    
+    # OR copy the file
+    cp .env apps/web/.env
+    ```
+
+2.  **Configure required variables** in `.env` (root):
+    ```env
+    # Required
+    DATABASE_URI=mongodb://localhost:27017/dflow
+    PAYLOAD_SECRET=your-secret-key
+    REDIS_URI=redis://localhost:6379
+    NEXT_PUBLIC_WEBSITE_URL=localhost:3000
+    
+    # Optional (for email)
+    RESEND_API_KEY=
+    RESEND_SENDER_EMAIL=
+    RESEND_SENDER_NAME=
+    
+    # Optional (for Tailscale integration)
+    TAILSCALE_OAUTH_CLIENT_SECRET=
+    TAILSCALE_TAILNET=
+    TAILSCALE_AUTH_KEY=
+    
+    # Optional (for monitoring)
+    BESZEL_MONITORING_URL=
+    BESZEL_SUPERUSER_EMAIL=
+    BESZEL_SUPERUSER_PASSWORD=
+    ```
 
 > [!IMPORTANT]
-> Environment variables must be placed in `apps/web/.env`, not in the root directory. Next.js loads environment variables from the application directory.
+> For local development (`pnpm dev`), Next.js looks for `.env` in `apps/web/`. Since we moved `.env` to the root, a symlink is the best way to keep them in sync.
 
 ## Development
 
@@ -402,15 +450,16 @@ The repository includes Docker configuration optimized for the Turborepo monorep
 
 ### Building the Docker Image
 
+The Docker build process is optimized for the monorepo and handles environment variables automatically.
+
 ```bash
 docker build -t dflow:latest .
 ```
 
-The Dockerfile:
-- Uses multi-stage builds for optimization
-- Installs pnpm and sets up workspace dependencies
-- Builds only the `@dflow/web` package using Turborepo
-- Creates a production-ready standalone Next.js build
+**Key Features:**
+- **Automatic Env Validation Skipping**: The Dockerfile sets `SKIP_VALIDATION=1` by default, so you don't need to pass secrets during the build.
+- **Public Folder Handling**: Correctly copies `apps/web/public` to the runtime image.
+- **Dynamic Entrypoint**: The `entrypoint.sh` script automatically detects the location of `server.js` (whether at root or in `apps/web/`), making it robust to build output changes.
 
 ### Running with Docker Compose
 
