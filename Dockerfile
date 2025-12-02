@@ -115,7 +115,7 @@ RUN apk add --no-cache openssh-client
 
 RUN apk add --no-cache tailscale
 
-COPY --from=builder /app/apps/web/public ./public
+COPY --from=builder /app/apps/web/public ./apps/web/public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
