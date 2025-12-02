@@ -79,7 +79,7 @@ The **core** package contains all shared code used across the application.
 ### Prerequisites
 
 - **Node.js**: v18.20.2 or >=20.9.0
-- **pnpm**: 10.2.0 (specified in `packageManager` field)
+- **pnpm**: 10.24.0 (specified in `packageManager` field)
 
 ### Installation
 

@@ -11,7 +11,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.2.0 --activate
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.24.0 --activate
 
 # Copy workspace configuration
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
@@ -28,7 +28,7 @@ FROM base AS builder
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.2.0 --activate
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@10.24.0 --activate
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
