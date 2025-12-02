@@ -461,6 +461,16 @@ docker build -t dflow:latest .
 - **Public Folder Handling**: Correctly copies `apps/web/public` to the runtime image.
 - **Dynamic Entrypoint**: The `entrypoint.sh` script automatically detects the location of `server.js` (whether at root or in `apps/web/`), making it robust to build output changes.
 
+### Optimized Build (Recommended)
+
+You can use the optimized Dockerfile which uses `turbo prune` for better caching:
+
+```bash
+docker build -f Dockerfile.turbo -t dflow:latest .
+```
+
+This method is faster for repeated builds as it caches dependencies separately from source code.
+
 ### Running with Docker Compose
 
 ```bash
