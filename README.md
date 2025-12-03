@@ -1,118 +1,285 @@
 <p align="center">
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/images/dflow-logo-wordmark-light.svg">
-  <source media="(prefers-color-scheme: light)" srcset="public/images/dflow-logo-wordmark-dark.svg">
-  <img alt="dFlow logo" src="public/images/dflow-logo-wordmark-dark.svg" width="318px">
+  <source media="(prefers-color-scheme: dark)" srcset="apps/web/public/images/dflow-logo-wordmark-light.svg">
+  <source media="(prefers-color-scheme: light)" srcset="apps/web/public/images/dflow-logo-wordmark-dark.svg">
+  <img alt="dFlow logo" src="apps/web/public/images/dflow-logo-wordmark-dark.svg" width="318px">
 </picture>
 </p>
 
-<h3 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h3>
+<h3 align="center">Open-source alternative to Railway, Vercel and Heroku</h3>
 
-<p align="center">Host and Scale Apps, Databases &
-Storage in your own cloud. Automated deployment workflows, container
-orchestration, and infrastructure management tools, all within your private
-network.</p>
+<p align="center">
+Host and Scale Apps, Databases & Storage in your own cloud.<br/>
+Automated deployment workflows, container orchestration, and infrastructure management tools,<br/>
+all within your private network.
+</p>
 
-<p align="center"><a href="https://dflow.sh/sign-up?source=github">Cloud</a> · <a href="https://dflow.sh/try-demo">Try live demo</a></p>
+<p align="center">
+  <a href="https://dflow.sh/sign-up?source=github"><strong>Cloud</strong></a> ·
+  <a href="https://dflow.sh/try-demo"><strong>Try Demo</strong></a> ·
+  <a href="https://dflow.sh/docs"><strong>Documentation</strong></a> ·
+  <a href="https://discord.gg/5w7JUQYaAD"><strong>Discord</strong></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/dflow-sh/dflow/stargazers"><img src="https://img.shields.io/github/stars/dflow-sh/dflow?style=social" alt="GitHub Stars"></a>
+  <a href="https://github.com/dflow-sh/dflow/blob/main/license.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://discord.gg/5w7JUQYaAD"><img src="https://img.shields.io/discord/1346775217594302484?color=7389D8&label=discord&logo=discord&logoColor=ffffff" alt="Discord"></a>
+  <a href="https://github.com/dflow-sh/dflow"><img src="https://img.shields.io/github/last-commit/dflow-sh/dflow" alt="Last Commit"></a>
+</p>
+
+<br/>
 
 <a href="https://dflow.sh">
-    <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
+  <img src="apps/web/public/dFlow-architecture.png" alt="dFlow Architecture" width="100%" />
 </a>
 
 <br/>
 <br/>
 
-## Features
+## ✨ Features
 
-- **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
-  and Databases (Postgres, MongoDB, MySQL, MariaDB, Redis).
-- **Works on your Cloud**: dFlow can be run on any cloud. AWS, GCP, Azure,
-  DigitalOcean, Hetzner and even your Private Machine.
-- **Private Networking**: Zero trust support using Tailscale end-to-end
-  encryption. No SSH-Keys required.
-- **Role Based Access Control**: Create an unlimited number of custom roles and
-  permissions for admin and end users.
-- **Templates**: Kick start your deployments with ready made popular Open Source
-  Templates
-- **White Labeling**: Full customization with your branding, domains, and more.
+- 🚀 **Deploy Anything** - Git repos, Docker images, and databases (Postgres, MongoDB, MySQL, MariaDB, Redis)
+- ☁️ **Multi-Cloud Support** - Works on AWS, GCP, Azure, DigitalOcean, Hetzner, or your own hardware
+- 🔒 **Private Networking** - Zero-trust security with Tailscale end-to-end encryption (no SSH keys needed)
+- 👥 **RBAC** - Unlimited custom roles and permissions for admins and users
+- 📦 **Templates** - Pre-configured templates for popular open-source projects
+- 🎨 **White Labeling** - Full customization with your branding and domains
 
-**[See more on our website](https://dflow.sh)**.
+**[See more on our website →](https://dflow.sh)**
 
 <br/>
 
-## Self-Hosting Guide
+## 🎥 Introducing dFlow
 
-This guide will walk you through setting up and running your own self-hosted
-instance of dFlow.
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=tvMEokVR-DE">
+    <img src="https://img.youtube.com/vi/tvMEokVR-DE/maxresdefault.jpg" alt="Introducing dFlow - Modern Opensource PAAS" width="80%">
+  </a>
+</p>
 
-**Requirements**
+<p align="center">
+  <strong>Modern Opensource PAAS, alternative to Vercel, Railway, Heroku</strong><br/>
+  <em>Learn about dFlow's features and how it simplifies deployment</em>
+</p>
 
-Make sure you have the following:
-
-| OS/Tools          | Recommended  | Minimum |
-| ----------------- | ------------ | ------- |
-| Ubuntu            | 24.04, 22.04 | LTS     |
-| CPU               | 2vCPU        | 1vCPU   |
-| RAM               | 8GB          | 2GB     |
-| Docker            | N/A.         | N/A.    |
-| Tailscale Account | N/A.         | N/A.    |
-| Domain            | N/A.         | N/A.    |
+> 💡 **Tip:** Visit our [YouTube channel](https://www.youtube.com/@paas-dflow-sh) for tutorials and updates!
 
 <br/>
 
-## Installation
+## 🚀 Quick Start
 
-Run the following command to begin setup. It will guide you through configuring
-everything needed for your dFlow instance:
+### Self-Hosted Installation
+
+Get your own dFlow instance running in minutes with our automated setup script:
 
 ```bash
-# run command as root user
+# Run as root user
 sudo curl -fsSL https://get.dflow.sh | bash
 ```
 
-Follow our [Installation Guide](./INSTALLATION_GUIDE.md) for more details
+The script will guide you through:
+- ✅ Tailscale configuration
+- ✅ Email setup for SSL certificates
+- ✅ Domain configuration
+- ✅ JWT secret generation
+- ✅ Docker Compose setup
+
+**Requirements:**
+
+| Component         | Recommended  | Minimum |
+| ----------------- | ------------ | ------- |
+| Ubuntu            | 24.04, 22.04 | LTS     |
+| CPU               | 2 vCPU       | 1 vCPU  |
+| RAM               | 8 GB         | 2 GB    |
+| Docker            | Latest       | 20.10+  |
+| Tailscale Account | Free tier    | Free    |
+| Domain (optional) | Custom       | nip.io  |
 
 <br/>
 
-## Contributing
+## 🏗️ Development
 
-Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull
-request to the project.
+This project is organized as a **Turborepo monorepo** for better code organization and build performance.
+
+### Prerequisites
+
+- **Node.js**: v18.20.2 or >=20.9.0
+- **pnpm**: 10.24.0
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/dflow-sh/dflow.git
+cd dflow
+
+# Install dependencies
+pnpm install
+
+# Set up environment variables
+ln -s ../../.env apps/web/.env
+# Edit .env with your configuration
+
+# Start development server
+pnpm dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+### Building
+
+```bash
+# Build all packages
+pnpm build
+
+# Build for production with Docker
+docker build -t dflow:latest .
+
+# Or use the optimized build
+docker build -f Dockerfile.turbo -t dflow:latest .
+```
+
+**📚 For detailed development instructions, see [MONOREPO.md](./MONOREPO.md)**
 
 <br/>
 
-## Community support
+## 📖 Documentation
 
-For general help using dFlow, please refer to
-[the official dFlow documentation](https://dflow.sh/docs). For additional help,
-you can use one of these channels to ask a question:
-
-- [Discord](https://discord.gg/5w7JUQYaAD) (For live discussion with the
-  Community and dFlow team)
-- [GitHub](https://github.com/dflow-sh/dflow) (Bug reports, Contributions)
-- [Twitter](https://twitter.com/strapijs) (Get the news fast)
-- [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
-  Tutorials)
+- **[Monorepo Guide](./MONOREPO.md)** - Development setup, package management, and workflows
+- **[Docker Guide](./DOCKER.md)** - Docker build and deployment instructions
+- **[Official Docs](https://dflow.sh/docs)** - Complete product documentation
 
 <br/>
 
-## Try live demo
+## 🤝 Contributing
 
-See for yourself what's under the hood by getting access to a
-[hosted dFlow instance](https://dflow.sh/try-demo).
+We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
+
+### Development Workflow
+
+```bash
+# Create a feature branch
+git checkout -b feature/your-feature
+
+# Make changes and test
+pnpm dev
+pnpm build
+
+# Commit and push
+git add .
+git commit -m "feat: your feature description"
+git push origin feature/your-feature
+```
 
 <br/>
 
-## License
+## 💬 Community & Support
 
-See the [LICENSE](./license.md) file for licensing information.
+Join our growing community and get help from the team:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://discord.gg/5w7JUQYaAD">
+        <img src="https://img.shields.io/badge/Discord-Join%20Us-7289DA?style=for-the-badge&logo=discord&logoColor=white" alt="Discord">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://twitter.com/dflow_sh">
+        <img src="https://img.shields.io/badge/Twitter-Follow-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white" alt="Twitter">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://www.youtube.com/@paas-dflow-sh">
+        <img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="YouTube">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://www.linkedin.com/company/dflow-sh">
+        <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://peerlist.io/dflow">
+        <img src="https://img.shields.io/badge/Peerlist-Follow-00AA45?style=for-the-badge&logo=peerlist&logoColor=white" alt="Peerlist">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/dflow-sh/dflow/issues">
+        <img src="https://img.shields.io/badge/GitHub-Issues-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Issues">
+      </a>
+    </td>
+  </tr>
+</table>
+
+### Discord Community
+
+<a href="https://discord.gg/5w7JUQYaAD">
+  <img src="https://discord.com/api/guilds/1346775217594302484/widget.png?style=banner2" alt="Discord Banner">
+</a>
+
+### Resources
+
+- 📚 **[Documentation](https://dflow.sh/docs)** - Official guides and API reference
+- 🐛 **[GitHub Issues](https://github.com/dflow-sh/dflow/issues)** - Bug reports and feature requests
+- 💡 **[Discussions](https://github.com/dflow-sh/dflow/discussions)** - Community Q&A and ideas
 
 <br/>
 
-## 🤝 Contributors
+## 🎯 Try Live Demo
+
+Experience dFlow without installation: **[Try Demo →](https://dflow.sh/try-demo)**
+
+<br/>
+
+## 🗺️ Roadmap
+
+Check out our [public roadmap](https://dflow.sh/roadmap) to see what we're working on next!
+
+<br/>
+
+## 📄 License
+
+dFlow is licensed under the [MIT License](./license.md).
+
+<br/>
+
+## 🌟 Contributors
 
 Thanks to all who have contributed to dFlow!
 
-<a href="https://github.com/akhil-naidu/dflow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=akhil-naidu/dflow" />
+<a href="https://github.com/dflow-sh/dflow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dflow-sh/dflow" />
 </a>
+
+<br/>
+<br/>
+
+## ⭐ Star History
+
+<a href="https://star-history.com/#dflow-sh/dflow&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=dflow-sh/dflow&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=dflow-sh/dflow&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=dflow-sh/dflow&type=Date" />
+  </picture>
+</a>
+
+<br/>
+<br/>
+
+---
+
+<p align="center">
+  Made with ❤️ by the dFlow team
+</p>
+
+<p align="center">
+  <a href="https://dflow.sh">Website</a> •
+  <a href="https://dflow.sh/docs">Docs</a> •
+  <a href="https://discord.gg/5w7JUQYaAD">Discord</a> •
+  <a href="https://twitter.com/dflow_sh">Twitter</a>
+</p>
