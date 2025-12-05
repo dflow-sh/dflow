@@ -631,6 +631,17 @@ export const checkDNSConfigAction = protectedClient
       // Fallback: check A record
       const addresses = await dns.resolve4(domain)
 
+      // for root-domain CNAME validation check is failing in proxyDomain case
+      // doing A record validation as fallback
+      if (proxyDomain) {
+        const IPList = await dns.resolve4(proxyDomain)
+        const proxyIP = IPList.at(0) ?? ''
+
+        if (proxyIP && !!addresses.length) {
+          return addresses.includes(proxyIP)
+        }
+      }
+
       return addresses.includes(ip ?? '')
     } catch (e) {
       return false
