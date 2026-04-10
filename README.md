@@ -13,7 +13,10 @@ Storage in your own cloud. Automated deployment workflows, container
 orchestration, and infrastructure management tools, all within your private
 network.</p>
 
-<p align="center"><a href="https://dflow.sh/sign-up?source=github">Cloud</a>
+<p align="center"><a href="https://dflow.sh/sign-up?source=github">Try Cloud</a>
+
+<br/>
+<br/>
 
 <a href="https://dflow.sh">
     <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
