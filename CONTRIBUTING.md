@@ -1,46 +1,43 @@
-# Contributing to dFlow
+# Contributing to this repository
 
-Thank you for considering contributing to dFlow! We welcome contributions that
-improve the platform, fix bugs, enhance documentation, or add new features.
+Thank you for considering a contribution. This public repository publishes
+**self-host install artifacts** (Docker Compose, Dockerfiles, and installer
+docs). It is not the dFlow Cloud source, and Cloud does not ship from this repo.
+Platform source is not open source.
 
-This document will guide you through the contribution process.
+We welcome fixes and improvements to the install path, not contributions to the
+private cloud platform.
 
-## 🚀 Project Overview
+## Project overview
 
-dFlow is a self-hosted platform for deploying and managing applications, similar
-to Vercel, Railway, or Heroku. It provides automated deployment workflows,
-container orchestration, and infrastructure management — all while giving you
-full control over your data and infrastructure.
+dFlow is a platform for deploying, managing, and scaling git apps, Docker
+images, and databases on your own infrastructure.
 
-## 📋 Contribution Process
+## Contribution process
 
 1. Fork the repository
-2. clone your forked repository locally
-3. Copy `.env.example` to `.env` and fill in the required values.
-4. create a new branch for your feature/fix
+2. Clone your forked repository locally
+3. Copy `.env.example` to `.env` and fill in the required values if you are
+   exercising a local install.
+4. Create a new branch for your fix
    `git checkout -b {feature/fix}/your-feature-name`
-5. Make your changes.
-6. Ensure your code is working as expected.
+5. Make your changes (Dockerfiles, Compose, installer scripts, or docs in this
+   repo).
+6. Ensure your change works as expected.
 7. Push your branch to your forked repo:
    `git push origin {feature/fix}/your-feature-name`
 8. Open a Pull Request (PR) against the main branch.
 
-## 📂 Project Structure
+## Need help?
 
-If you're new, here’s a quick overview:
-
-- `/src/app` - Next.js Frontend
-- `/src/payload` - Payload CMS backend
-
-## 💬 Need Help?
-
-- Open an issue if you find a bug or have a feature request.
-- Join [discord community](https://discord.gg/XTZcmmUG) if you have general
+- Open an issue if you find a bug in the self-host install path.
+- Join the [Discord community](https://discord.gg/XTZcmmUG) for general
   questions.
 
-## 📜 License
+## License
 
 By contributing, you agree that your contributions will be licensed under the
-same license as the project.
+same license as this repository. That license applies only to this public
+install repo. It does not license dFlow Cloud or the private platform source.
 
-## Thank you for helping make dFlow better! 🚀
+Thank you for helping keep the self-host install path accurate.

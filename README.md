@@ -6,14 +6,10 @@
 </picture>
 </p>
 
-<h3 align="center" style="text-wrap: balance;">Open-source alternative to Railway, Vercel and Heroku</h3>
+<h3 align="center" style="text-wrap: balance;">dFlow is a platform for deploying, managing, and scaling git apps, Docker images, and databases on your own infrastructure.</h3>
 
-<p align="center">Host and Scale Apps, Databases &
-Storage in your own cloud. Automated deployment workflows, container
-orchestration, and infrastructure management tools, all within your private
-network.</p>
 
-<p align="center"><a href="https://dflow.sh/sign-up?source=github">Try Cloud</a>
+> ⚠️ **Self-host artifacts only.** This repository publishes Docker Compose, Dockerfiles, and the `get.dflow.sh` installer. It is not the dFlow Cloud source, and Cloud does not ship from this repo. Platform source is not open source. For the hosted product, see [dflow.sh](https://dflow.sh).
 
 <br/>
 <br/>
@@ -29,14 +25,13 @@ network.</p>
 
 - **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
   and Databases (Postgres, MongoDB, MySQL, MariaDB, Redis).
-- **Works on your Cloud**: dFlow can be run on any cloud. AWS, GCP, Azure,
-  DigitalOcean, Hetzner and even your Private Machine.
+- **Works on your infrastructure**: Run dFlow on AWS, Azure, Hetzner, or your
+  own machine.
 - **Private Networking**: Zero trust support using Tailscale end-to-end
   encryption. No SSH-Keys required.
 - **Role Based Access Control**: Create an unlimited number of custom roles and
   permissions for admin and end users.
-- **Templates**: Kick start your deployments with ready made popular Open Source
-  Templates
+- **Templates**: Kick start your deployments with ready made popular templates
 - **White Labeling**: Full customization with your branding, domains, and more.
 
 **[See more on our website](https://dflow.sh)**.
@@ -45,8 +40,7 @@ network.</p>
 
 ## Self-Hosting Guide
 
-This guide will walk you through setting up and running your own self-hosted
-instance of dFlow.
+This repository is the public install path for a self-hosted dFlow instance.
 
 **Requirements**
 
@@ -79,8 +73,10 @@ Follow our [Installation Guide](./INSTALLATION_GUIDE.md) for more details
 
 ## Contributing
 
-Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull
-request to the project.
+This repository accepts contributions to self-host install artifacts
+(Dockerfiles, Compose, installer docs). It is not the dFlow Cloud or platform
+source. Please read our [Contributing Guide](./CONTRIBUTING.md) before opening a
+pull request.
 
 <br/>
 
@@ -92,30 +88,26 @@ you can use one of these channels to ask a question:
 
 - [Discord](https://discord.gg/5w7JUQYaAD) (For live discussion with the
   Community and dFlow team)
-- [GitHub](https://github.com/dflow-sh/dflow) (Bug reports, Contributions)
-- [Twitter](https://twitter.com/strapijs) (Get the news fast)
+- [GitHub](https://github.com/dflow-sh/dflow) (Bug reports for this install repo)
+- [X](https://x.com/dflow_sh) (Get the news fast)
 - [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
   Tutorials)
 
 <br/>
 
-## Try live demo
-
-See for yourself what's under the hood by getting access to a
-[hosted dFlow instance](https://dflow.sh/try-demo).
-
-<br/>
 
 ## License
 
-See the [LICENSE](./license.md) file for licensing information.
+The MIT license in [license.md](./license.md) applies only to this public
+self-host / install repository. It does not license dFlow Cloud or the private
+platform source.
 
 <br/>
 
 ## 🤝 Contributors
 
-Thanks to all who have contributed to dFlow!
+Thanks to all who have contributed to this repository.
 
-<a href="https://github.com/akhil-naidu/dflow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=akhil-naidu/dflow" />
+<a href="https://github.com/dflow-sh/dflow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dflow-sh/dflow" />
 </a>

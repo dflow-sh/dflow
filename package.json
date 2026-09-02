@@ -1,7 +1,7 @@
 {
   "name": "dflow",
   "version": "0.1",
-  "description": "dFlow is a open source alternative to Railway, Heroku & Vercel",
+  "description": "dFlow is a platform for deploying, managing, and scaling git apps, Docker images, and databases on your own infrastructure.",
   "license": "MIT",
   "type": "module",
   "scripts": {

@@ -1,3 +1,10 @@
+This MIT license applies only to the contents of this public repository
+(self-host install artifacts such as Docker Compose, Dockerfiles, and related
+installer documentation).
+
+It does not license the dFlow Cloud product, the private dFlow platform source,
+or any other D4 Research software that is not published in this repository.
+
 The MIT License (MIT)
 
 Copyright (c) 2025 Akhil Naidu.
