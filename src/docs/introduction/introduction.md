@@ -10,14 +10,13 @@ categoryOrder: 1
 dFlow is a platform for deploying, managing, and scaling git apps, Docker
 images, and databases on your own infrastructure.
 
-This public repository publishes self-host install artifacts (Docker Compose,
-Dockerfiles, and the `get.dflow.sh` installer). It is not the dFlow Cloud
-source. Platform source is not open source.
+This repository is a public snapshot of older dFlow code. It is not dFlow Cloud,
+and it is not a supported self-host product. You may fork and modify it for your
+own use under the repository license. That license does not apply to Cloud or
+private platform source.
 
 ## Key Features
 
-- **Self-hosted**: dFlow can be installed on your own servers, giving you full
-  control over your infrastructure.
 - **Easy to use**: dFlow provides a simple and intuitive interface for managing
   your applications and infrastructure.
 - **Fast**: dFlow is designed to be fast and efficient, allowing you to deploy
