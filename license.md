@@ -3,6 +3,9 @@ This MIT license applies only to the contents of this public repository.
 It does not license the dFlow Cloud product, the private dFlow platform source,
 or any other D4 Research software that is not published in this repository.
 
+Why this repository is a historical snapshot:
+https://dflow.sh/blog/dflow-today-from-open-source-to-an-always-free-tier
+
 The MIT License (MIT)
 
 Copyright (c) 2025 Akhil Naidu.

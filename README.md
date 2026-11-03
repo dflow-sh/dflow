@@ -6,50 +6,30 @@
 </picture>
 </p>
 
-<h3 align="center" style="text-wrap: balance;">dFlow is a platform for deploying, managing, and scaling git apps, Docker images, and databases on your own infrastructure.</h3>
+<h3 align="center">You can self-host from this repository. We no longer maintain it.</h3>
 
-> This repository is a public snapshot of older dFlow code. It is not dFlow
-> Cloud, and it is not a supported self-host product. You may fork and modify it
-> for your own use under [license.md](./license.md). That license does not apply
-> to Cloud or private platform source. For the hosted product, see
-> [dflow.sh](https://dflow.sh).
+This is the last public MIT tree of dFlow. You can still clone it and run it
+on your own machines. We do not update it, fix it, or support it.
 
-<br/>
-<br/>
+The product we maintain is [dFlow](https://dflow.sh). The licensing change is
+explained in
+[dFlow today: from open source to an always-free tier](https://dflow.sh/blog/dflow-today-from-open-source-to-an-always-free-tier).
 
-<a href="https://dflow.sh">
-    <img src="public/dFlow-architecture.png" alt="dFlow Architecture diagram" align="center" width="100%"  />
-</a>
+The MIT license in [license.md](./license.md) covers this repository only. It
+does not cover dFlow Cloud or private platform source.
 
-<br/>
-<br/>
+## Where to go
 
-## Features
+- [dflow.sh](https://dflow.sh) for the hosted product, including the always-free tier
+- [Documentation](https://dflow.sh/docs)
+- [Discord](https://discord.gg/5w7JUQYaAD)
+- [X](https://x.com/dflow_sh)
 
-- **Deploy Anything**: Deploy any Public/Private Git repository, Docker image
-  and Databases (Postgres, MongoDB, MySQL, MariaDB, Redis).
-- **Works on your infrastructure**: Run dFlow on AWS, Azure, Hetzner, or your
-  own machine.
-- **Private Networking**: Zero trust support using Tailscale end-to-end
-  encryption. No SSH-Keys required.
-- **Role Based Access Control**: Create an unlimited number of custom roles and
-  permissions for admin and end users.
-- **Templates**: Kick start your deployments with ready made popular templates
-- **White Labeling**: Full customization with your branding, domains, and more.
+Issues filed here are not a support channel. Use the docs or Discord for the
+product we maintain.
 
-**[See more on our website](https://dflow.sh)**.
+## Self-hosting this snapshot
 
-<br/>
-
-## Community support
-
-For general help using dFlow, please refer to
-[the official dFlow documentation](https://dflow.sh/docs). For additional help,
-you can use one of these channels to ask a question:
-
-- [Discord](https://discord.gg/5w7JUQYaAD) (For live discussion with the
-  Community and dFlow team)
-- [GitHub](https://github.com/dflow-sh/dflow)
-- [X](https://x.com/dflow_sh) (Get the news fast)
-- [YouTube Channel](https://www.youtube.com/@paas-dflow-sh) (Learn from Video
-  Tutorials)
+Clone the repository and run `scripts/self-host-setup.sh` as root. The stack
+is `docker-compose.yml`. You are on your own after that. We will not ship
+fixes for this tree.
