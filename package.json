@@ -1,7 +1,7 @@
 {
   "name": "dflow",
   "version": "0.1",
-  "description": "dFlow is a platform for deploying, managing, and scaling git apps, Docker images, and databases on your own infrastructure.",
+  "description": "Historical MIT snapshot of dFlow. Not dFlow Cloud. See https://dflow.sh",
   "license": "MIT",
   "type": "module",
   "scripts": {
