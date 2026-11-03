@@ -1,7 +1,7 @@
 {
   "name": "dflow",
   "version": "0.1",
-  "description": "Historical MIT snapshot of dFlow. Not dFlow Cloud. See https://dflow.sh",
+  "description": "Unmaintained MIT snapshot. You can still self-host from this repo. See https://dflow.sh",
   "license": "MIT",
   "type": "module",
   "scripts": {

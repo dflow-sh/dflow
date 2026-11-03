@@ -7,15 +7,15 @@ categoryOrder: 1
 
 # Introduction
 
-This application is a historical snapshot of older dFlow code. It is not dFlow
-Cloud, and it is not a supported self-host product.
+You can self-host this application from this repository. We no longer maintain
+it. There are no further updates, fixes, or support for this code.
 
-The current product is [dflow.sh](https://dflow.sh). The licensing change is
+The product we maintain is [dflow.sh](https://dflow.sh). The licensing change is
 explained in
 [dFlow today: from open source to an always-free tier](https://dflow.sh/blog/dflow-today-from-open-source-to-an-always-free-tier).
 
-You may fork and modify this snapshot under the repository license. That
-license does not apply to Cloud or private platform source.
+The repository license covers this snapshot only. It does not cover dFlow Cloud
+or private platform source.
 
 ## Key Features
 

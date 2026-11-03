@@ -6,21 +6,17 @@
 </picture>
 </p>
 
-<h3 align="center">This repository is a historical snapshot.</h3>
+<h3 align="center">You can self-host from this repository. We no longer maintain it.</h3>
 
-dFlow began here as an MIT-licensed open source project. That phase is over.
-The current product is [dFlow](https://dflow.sh).
+This is the last public MIT tree of dFlow. You can still clone it and run it
+on your own machines. We do not update it, fix it, or support it.
 
-The change is explained in
+The product we maintain is [dFlow](https://dflow.sh). The licensing change is
+explained in
 [dFlow today: from open source to an always-free tier](https://dflow.sh/blog/dflow-today-from-open-source-to-an-always-free-tier).
 
-This tree is older dFlow code. It is not dFlow Cloud, and it is not the
-supported self-host product. Self-hosting uses the official dFlow distribution.
-It does not mean cloning and building this repository.
-
-You may fork and modify this code under [license.md](./license.md). That MIT
-license applies only to the files in this repository. It does not apply to
-dFlow Cloud or to private platform source.
+The MIT license in [license.md](./license.md) covers this repository only. It
+does not cover dFlow Cloud or private platform source.
 
 ## Where to go
 
@@ -29,11 +25,11 @@ dFlow Cloud or to private platform source.
 - [Discord](https://discord.gg/5w7JUQYaAD)
 - [X](https://x.com/dflow_sh)
 
-Issues filed here are not the support channel for current dFlow. Use the docs
-or Discord.
+Issues filed here are not a support channel. Use the docs or Discord for the
+product we maintain.
 
-## What this snapshot contains
+## Self-hosting this snapshot
 
-The code is the last public MIT tree: git apps, Docker images, and databases
-on your own machines, with Tailscale, roles, templates, and white labeling.
-It is frozen. Do not treat it as the current platform.
+Clone the repository and run `scripts/self-host-setup.sh` as root. The stack
+is `docker-compose.yml`. You are on your own after that. We will not ship
+fixes for this tree.
