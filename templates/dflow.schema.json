@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dflow.sh/schemas/dflow.json",
+  "title": "dFlow recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "summary", "applications", "services"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "applications": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/application" }
+    },
+    "services": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/service" }
+    }
+  },
+  "$defs": {
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "port", "route"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$" },
+        "image": { "type": "string", "minLength": 1 },
+        "build": { "$ref": "#/$defs/build" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "replicas": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "cpu_millicores": { "type": "integer", "minimum": 1 },
+        "memory_mi": { "type": "integer", "minimum": 1 },
+        "route": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["public"],
+          "properties": { "public": { "type": "boolean" } }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "secrets": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/secret" }
+        },
+        "volume": { "$ref": "#/$defs/volume" }
+      },
+      "oneOf": [
+        { "required": ["image"], "not": { "required": ["build"] } },
+        { "required": ["build"], "not": { "required": ["image"] } }
+      ]
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "branch"],
+      "properties": {
+        "repo": { "type": "string", "minLength": 1 },
+        "branch": { "type": "string", "minLength": 1 },
+        "root": { "type": "string", "minLength": 1 }
+      }
+    },
+    "volume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mount", "size", "storage_class"],
+      "properties": {
+        "mount": { "type": "string", "pattern": "^/(.+)$" },
+        "size": { "type": "string", "pattern": "^([1-9]|10)Gi$" },
+        "storage_class": { "type": "string", "minLength": 1 }
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "provider", "database", "storage"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9]([a-z0-9-]{0,38}[a-z0-9])?$" },
+        "provider": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,31}$" },
+        "database": { "type": "string", "minLength": 1 },
+        "storage": { "type": "string", "minLength": 1 }
+      }
+    },
+    "secret": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["generate"],
+          "properties": { "generate": { "const": true } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["stored"],
+          "properties": { "stored": { "const": true } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["service", "field"],
+          "properties": {
+            "service": { "type": "string", "minLength": 1 },
+            "field": {
+              "enum": ["url", "host", "port", "username", "password", "database"]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

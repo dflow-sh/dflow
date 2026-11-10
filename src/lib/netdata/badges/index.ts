@@ -1,1 +1,0 @@
-export { getBadge } from './getBadge'

@@ -1,0 +1,24 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "hasura",
+  "summary": "Hasura GraphQL with one PostgreSQL database",
+  "applications": [
+    {
+      "name": "hasura",
+      "image": "hasura/graphql-engine:v2.42.0",
+      "port": 8080,
+      "replicas": 1,
+      "cpu_millicores": 200,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "env": { "HASURA_GRAPHQL_ENABLE_CONSOLE": "true" },
+      "secrets": {
+        "HASURA_GRAPHQL_DATABASE_URL": { "service": "hasura-db", "field": "url" },
+        "HASURA_GRAPHQL_ADMIN_SECRET": { "service": "hasura-db", "field": "password" }
+      }
+    }
+  ],
+  "services": [
+    { "name": "hasura-db", "provider": "postgresql", "database": "hasura", "storage": "1Gi" }
+  ]
+}

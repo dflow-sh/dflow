@@ -1,0 +1,21 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "umami",
+  "summary": "Umami analytics with one PostgreSQL database",
+  "applications": [
+    {
+      "name": "umami",
+      "image": "ghcr.io/umami-software/umami:latest",
+      "port": 3000,
+      "replicas": 1,
+      "route": { "public": true },
+      "secrets": {
+        "DATABASE_URL": { "service": "umami-db", "field": "url" },
+        "APP_SECRET": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "umami-db", "provider": "postgresql", "database": "umami", "storage": "1Gi" }
+  ]
+}
