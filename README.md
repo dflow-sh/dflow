@@ -30,7 +30,7 @@ dflow whoami
 dflow workspaces:list
 ```
 
-`dflow login` asks for the email, then `Password:`. `dflow login --email you@example.com` skips the email question. The password is not shown. Ctrl+C leaves the prompt. Signup creates a personal workspace. `dflow workspaces:create NAME` creates another workspace you can invite people into.
+`dflow login` asks for the email, then `Password:`. `dflow login --email you@example.com` skips the email question. The password is not shown. Ctrl+C leaves the prompt. `dflow auth:register` prints that a password is 12 to 128 characters before it asks. Signup creates a personal workspace. `dflow workspaces:create NAME` creates another workspace you can invite people into.
 
 `dflow version` prints the release. A binary built from source prints `dev`, and `dflow upgrade` refuses it.
 
