@@ -8,7 +8,7 @@
 curl -fsSL https://github.com/dflow-sh/dflow/releases/latest/download/install.sh | sh
 ```
 
-That command downloads `install.sh` from the latest GitHub release. The script checks SHA-256 and writes `~/.local/bin/dflow`. It adds that directory to `PATH` only when the shell config does not already contain it.
+The script checks SHA-256 and writes `~/.local/bin/dflow`. It adds that directory to `PATH` only when the shell config does not already contain it.
 
 ## Update
 
@@ -19,9 +19,20 @@ dflow upgrade
 
 `dflow upgrade --check` prints the current version and the latest version. It does not download a binary. A checksum that does not match leaves the installed CLI in place.
 
-## Next
+## Sign in
 
-`dflow version` prints the release. `dflow login` saves an API address and a token. From there you create an application and deploy it.
+The public server is `https://k8s.dflow.sh`. Leave `--api` off.
+
+```bash
+dflow auth:register --email you@example.com
+dflow login
+dflow whoami
+dflow workspaces:list
+```
+
+`dflow login` asks for the email, then `Password:`. `dflow login --email you@example.com` skips the email question. The password is not shown. Ctrl+C leaves the prompt. `dflow auth:register` prints that a password is 12 to 128 characters before it asks. Signup creates a personal workspace. `dflow workspaces:create NAME` creates another workspace you can invite people into.
+
+`dflow version` prints the release. A binary built from source prints `dev`, and `dflow upgrade` refuses it.
 
 The recipe files in `templates/` are Umami and Hasura.
 
