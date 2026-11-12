@@ -1,6 +1,8 @@
 # dflow
 
-`dflow` is the command line for the dFlow platform. One command installs it. `dflow upgrade` replaces that binary later. You do not install Go.
+This repository is the **public install and release home** for the `dflow` CLI used with the new dFlow control plane (the private `dflow-sh/new` source tree). It is not the old `dflow.sh` / `app.dflow.sh` product.
+
+One command installs the CLI. `dflow upgrade` replaces that binary later. You do not install Go.
 
 ## Install
 
@@ -21,7 +23,7 @@ dflow upgrade
 
 ## Sign in
 
-The public server is `https://k8s.dflow.sh`. Leave `--api` off.
+Point the CLI at the new platform API. The lab default is `https://k8s.dflow.sh`. Leave `--api` off when that is already your default.
 
 ```bash
 dflow auth:register --email you@example.com
@@ -34,10 +36,10 @@ dflow workspaces:list
 
 `dflow version` prints the release. A binary built from source prints `dev`, and `dflow upgrade` refuses it.
 
-The recipe files in `templates/` are Umami and Hasura.
+The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
 
 ## License
 
 This repository's install script, README, and public templates are under the MIT License. See [LICENSE](./LICENSE).
 
-The previous public application tree stays on the branch [`legacy`](https://github.com/dflow-sh/dflow/tree/legacy). Platform source is not published here.
+The previous public application tree (unrelated to this install page) stays on the branch [`legacy`](https://github.com/dflow-sh/dflow/tree/legacy). Platform source is not published here.
