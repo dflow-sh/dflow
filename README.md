@@ -39,15 +39,22 @@ dflow workspaces:list
 The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
 
 
-## Agent skill
+## Agent skills
 
-An agent installs the account-to-URL skill from this repository:
+An agent installs the set from this repository:
 
 ```bash
-npx skills add dflow-sh/dflow --skill dflow-onboarding
+npx skills add dflow-sh/dflow
 ```
 
-The file is `skills/dflow-onboarding/SKILL.md`. It follows signup, a project, an environment, context, deploy, and a route on `https://k8s.dflow.sh`. The skills in `dflow-sh/skills` belong to the other product and are not used here.
+| Skill | What the agent learns |
+| --- | --- |
+| `dflow` | What this CLI can do, and which skill to open |
+| `dflow-onboarding` | Signup, project, environment, context, deploy, and a route |
+| `dflow-cli` | How to run `dflow`, read JSON, and confirm a delete |
+| `dflow-mcp` | The MCP server at `https://k8s.dflow.sh/mcp` |
+
+One skill is `npx skills add dflow-sh/dflow --skill dflow-onboarding`. The skills in `dflow-sh/skills` belong to the other product and are not used here.
 
 ## License
 

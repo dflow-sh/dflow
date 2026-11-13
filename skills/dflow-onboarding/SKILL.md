@@ -11,7 +11,7 @@ The default API is `https://k8s.dflow.sh`. Pass `--output json` and read `status
 
 The path, in order: create an account, create a project, create an environment, use that context, deploy, and create a route so the app has a URL.
 
-Agents install this skill with `npx skills add dflow-sh/dflow --skill dflow-onboarding`.
+Agents install this skill with `npx skills add dflow-sh/dflow --skill dflow-onboarding`. The full set is `npx skills add dflow-sh/dflow`: `dflow`, `dflow-cli`, and `dflow-mcp` sit beside this skill.
 
 ## Steps
 
