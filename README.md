@@ -38,6 +38,17 @@ dflow workspaces:list
 
 The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
 
+
+## Agent skill
+
+An agent installs the account-to-URL skill from this repository:
+
+```bash
+npx skills add dflow-sh/dflow --skill dflow-onboarding
+```
+
+The file is `skills/dflow-onboarding/SKILL.md`. It follows signup, a project, an environment, context, deploy, and a route on `https://k8s.dflow.sh`. The skills in `dflow-sh/skills` belong to the other product and are not used here.
+
 ## License
 
 This repository's install script, README, and public templates are under the MIT License. See [LICENSE](./LICENSE).
