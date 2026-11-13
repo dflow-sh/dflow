@@ -41,20 +41,27 @@ The recipe files in `templates/` are Umami and Hasura reference copies for this 
 
 ## Agent skills
 
-An agent installs the set from this repository:
-
 ```bash
 npx skills add dflow-sh/dflow
 ```
 
-| Skill | What the agent learns |
-| --- | --- |
-| `dflow` | What this CLI can do, and which skill to open |
-| `dflow-onboarding` | Signup, project, environment, context, deploy, and a route |
-| `dflow-cli` | How to run `dflow`, read JSON, and confirm a delete |
-| `dflow-mcp` | The MCP server at `https://k8s.dflow.sh/mcp` |
+Install one skill:
 
-One skill is `npx skills add dflow-sh/dflow --skill dflow-onboarding`. The skills in `dflow-sh/skills` belong to the other product and are not used here.
+```bash
+npx skills add dflow-sh/dflow --skill dflow
+npx skills add dflow-sh/dflow --skill dflow-onboarding
+npx skills add dflow-sh/dflow --skill dflow-cli
+npx skills add dflow-sh/dflow --skill dflow-mcp
+```
+
+| Skill | Use when |
+| --- | --- |
+| `dflow` | Learn what this CLI can do, and which skill to open |
+| `dflow-onboarding` | Create an account, a project, an environment, deploy, and a route |
+| `dflow-cli` | Run `dflow`, read JSON, and confirm a delete |
+| `dflow-mcp` | Call dFlow through MCP |
+
+The MCP server is `https://k8s.dflow.sh/mcp`. These skills tell the agent how to use the CLI and that server. They do not connect the server by themselves. Signup stays on the CLI. The host sends a bearer token on each request.
 
 ## License
 
