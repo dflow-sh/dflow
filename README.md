@@ -38,6 +38,31 @@ dflow workspaces:list
 
 The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
 
+
+## Agent skills
+
+```bash
+npx skills add dflow-sh/dflow
+```
+
+Install one skill:
+
+```bash
+npx skills add dflow-sh/dflow --skill dflow
+npx skills add dflow-sh/dflow --skill dflow-onboarding
+npx skills add dflow-sh/dflow --skill dflow-cli
+npx skills add dflow-sh/dflow --skill dflow-mcp
+```
+
+| Skill | Use when |
+| --- | --- |
+| `dflow` | Learn what this CLI can do, and which skill to open |
+| `dflow-onboarding` | Create an account, a project, an environment, deploy, and a route |
+| `dflow-cli` | Run `dflow`, read JSON, and confirm a delete |
+| `dflow-mcp` | Call dFlow through MCP |
+
+The MCP server is `https://k8s.dflow.sh/mcp`. These skills tell the agent how to use the CLI and that server. They do not connect the server by themselves. Signup stays on the CLI. The host sends a bearer token on each request.
+
 ## License
 
 This repository's install script, README, and public templates are under the MIT License. See [LICENSE](./LICENSE).
