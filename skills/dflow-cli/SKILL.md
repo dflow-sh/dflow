@@ -21,7 +21,7 @@ dflow --context NAME --output json resource:verb
 
 `--output json` is the form an agent parses. It prints the API body. Do not parse the text table or the aligned labels.
 
-Pass `--context` on every command that uses a saved login. When the caller is an API token, that token is required for projects, environments, applications, databases, routes, and logs. A signed-in user uses the saved login from `dflow-onboarding` instead. A platform owner token can run `workspaces:list` and `tokens:create`. On the other commands it exits 2 with `forbidden`.
+Pass `--context` on every command that uses a saved login. The saved project and environment come from the last `projects:create`, `environments:create`, `projects:use`, `environments:use`, or `context:use`. `--project` and `--environment` override that pair for one command and are not saved. On `projects:create`, `--environment NAME` creates that environment and selects it, and `--project` is not accepted. When the caller is an API token, that token is required for projects, environments, applications, databases, routes, and logs. A signed-in user uses the saved login from `dflow-onboarding` instead. A platform owner token can run `workspaces:list` and `tokens:create`. On the other commands it exits 2 with `forbidden`.
 
 ## Output
 

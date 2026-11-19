@@ -23,7 +23,7 @@ These are not tools: a password, signup, logout, an invite, `environments_delete
 
 ## How a call behaves
 
-A read times out at 30 seconds. A deploy or other change returns when the API accepts it. It does not wait until the operation succeeds. Call `operations_inspect` for the status. Stop when that status is `failed`.
+A read times out at 30 seconds. A deploy or other change returns when the API accepts it. It does not wait until the operation succeeds. Call `operations_wait` with the operation id. It returns the phases, the last log lines, and the final URL or failure class. `operations_inspect` still reads one operation. Stop when that status is `failed`.
 
 `apps_env_set` replaces the whole variable map. `db_credentials` reveals a connection once. `github_token_set` stores a GitHub token for a private repository. An API token cannot store that GitHub token. The value is not printed back.
 
