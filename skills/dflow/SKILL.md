@@ -31,11 +31,11 @@ npx skills add dflow-sh/dflow
 
 ## What a developer can do
 
-- Account. Register, sign in, and recover a password. The password is typed at the prompt.
-- Workspace. The personal workspace is private. Create another workspace before inviting someone.
+- Account. Register and sign in with a password typed at the prompt. `dflow login --google` and `dflow login --github` sign in when the server has that provider. Those two are not MCP tools.
+- Workspace. The personal workspace is private. Create another workspace before inviting someone. `dflow members:list`, `dflow members:role`, and `dflow members:remove` manage people on a workspace that is not personal. Remove requires `--confirm-email`.
 - Project and environment. `dflow projects:create` and `dflow environments:create` select what they create. `dflow projects:create NAME --environment ENVIRONMENT` creates both and selects both. No environment is invented. `dflow context:use` still saves a workspace, project, and environment when you set them yourself. `--region` on `dflow environments:create`, or on `dflow projects:create --environment`, picks the cluster. The application and its database stay on that cluster.
-- Application. Create it, deploy an image, build from GitHub, read logs and events, set env and secrets, roll back a release, and set a route.
-- Data. PostgreSQL, disks, tasks, and templates.
+- Application. Create it, deploy an image, set CPU and memory on that deploy, build from GitHub or a local directory with `dflow apps:build --path`, restart the running pods with `dflow apps:restart` without a new release, read logs and events, set env and secrets, roll back a release, and set a route.
+- Data. PostgreSQL, a Valkey cache with `dflow db:redis:create`, disks, tasks, and templates.
 - Access. Workspace tokens and operations.
 
 ## Docs

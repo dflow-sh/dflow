@@ -63,4 +63,6 @@ Without the flag, the command waits for a person to type.
 
 A password is typed at the `Password:` prompt. It is not a flag and it is not an MCP argument. Do not write it into a chat log.
 
+`dflow login --google` and `dflow login --github` print a URL and poll. They do not print the token. They are not the signup path. `dflow apps:deploy` accepts `--cpu-millicores` and `--memory-mi`. `dflow apps:build APP --path DIR` uploads that directory, at most 100MB after skipping `.git`, `node_modules`, and `.env`. Do not pass `--repo` and `--path` together. `dflow apps:restart APP` replaces pods and does not create a release. `dflow db:redis:create NAME` creates a Valkey cache. `dflow members:list`, `dflow members:role`, and `dflow members:remove --confirm-email` manage people. A personal workspace refuses a role change and a remove.
+
 `projects:create` and `environments:create` accept `--idempotency-key`. Repeat the same key and the same body to get the original result.

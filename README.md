@@ -32,8 +32,10 @@ dflow whoami
 dflow workspaces:list
 ```
 
-`dflow login` asks for the email, then `Password:`. `dflow login --email you@example.com` skips the email question. The password is not shown. Ctrl+C leaves the prompt. `dflow auth:register` prints that a password is 12 to 128 characters before it asks. Signup creates a personal workspace. `dflow workspaces:create NAME` creates another workspace you can invite people into.
+`dflow login` asks for the email, then `Password:`. `dflow login --email you@example.com` skips the email question. The password is not shown. Ctrl+C leaves the prompt. `dflow login --google` and `dflow login --github` sign in when the server has that provider. They print a URL and poll. They are not the signup path and they are not MCP tools. `dflow auth:register` prints that a password is 12 to 128 characters before it asks. Signup creates a personal workspace. `dflow workspaces:create NAME` creates another workspace you can invite people into.
 
+
+`dflow apps:deploy` can set `--cpu-millicores` and `--memory-mi`. `dflow apps:build APP --path DIR` uploads a local directory. `dflow apps:restart APP` replaces pods without a new release. `dflow db:redis:create NAME` creates a Valkey cache. `dflow members:list`, `dflow members:role`, and `dflow members:remove` manage people on a workspace that is not personal.
 `dflow version` prints the release. A binary built from source prints `dev`, and `dflow upgrade` refuses it.
 
 The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
