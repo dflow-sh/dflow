@@ -7,7 +7,7 @@ description: Use when an agent calls dFlow through MCP. The hosted server is htt
 
 Prefer MCP when the host already speaks MCP. Otherwise follow `dflow-cli` and pass `--output json`. A password is not an MCP argument.
 
-The hosted server is `https://k8s.dflow.sh/mcp`. Each request sends `Authorization: Bearer` with a token from `dflow tokens:create` or from the saved login. There is no OAuth. There is no long-lived server session. A missing bearer token returns `unauthenticated` and does not call the API.
+The hosted server is `https://k8s.dflow.sh/mcp`. Each request sends `Authorization: Bearer` with a token from `dflow tokens:create` or from the saved login. MCP does not start Google or GitHub sign-in. Those logins stay on the CLI. There is no long-lived server session. A missing bearer token returns `unauthenticated` and does not call the API.
 
 Signup is not an MCP tool. A new person follows `dflow-onboarding` on the CLI. The token secret is shown once. Do not write it into a chat log or a repository.
 
@@ -17,9 +17,9 @@ A local `dflow-mcp` process can speak stdio with `DFLOW_API=https://k8s.dflow.sh
 
 Call `tools/list` for the names. Do not invent a tool.
 
-The tools cover workspaces, projects, environments, applications, image deploys, GitHub builds, logs, events, env, secrets, routes, PostgreSQL, disks, tasks, templates, recipe checks, tokens, and operations.
+The tools cover workspaces, projects, environments, applications, image deploys with optional CPU and memory, GitHub builds, a local directory build, restart without a new release, logs, events, env, secrets, routes, PostgreSQL, a Valkey cache, disks, tasks, templates, recipe checks, tokens, members, and operations.
 
-These are not tools: a password, signup, logout, an invite, `environments_delete`, `dflow clusters:register`, and every `dflow-server` command. There is no Kubernetes, shell, or exec tool.
+These are not tools: a password, signup, logout, Google or GitHub sign-in, an invite, `environments_delete`, `dflow clusters:register`, and every `dflow-server` command. There is no Kubernetes, shell, or exec tool.
 
 ## How a call behaves
 
@@ -40,3 +40,4 @@ A delete or revoke returns `validation` and does not call the API when the confi
 | `volumes_delete` | `confirm_name` | volume name |
 | `tokens_revoke` | `confirmation` | display prefix |
 | `apps_route_delete` | `confirm_host` | that host |
+| `members_remove` | `confirm_email` | that member's email |
