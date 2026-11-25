@@ -1,0 +1,25 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "docuseal",
+  "summary": "DocuSeal with PostgreSQL",
+  "applications": [
+    {
+      "name": "docuseal",
+      "image": "docuseal/docuseal:3.4.0",
+      "port": 3000,
+      "replicas": 1,
+      "memory_mi": 1024,
+      "route": { "public": true },
+      "volume": { "mount": "/data/docuseal", "size": "10Gi", "storage_class": "local-path" },
+      "env": {
+        "FORCE_SSL": "true"
+      },
+      "secrets": {
+        "DATABASE_URL": { "service": "docuseal-db", "field": "url" }
+      }
+    }
+  ],
+  "services": [
+    { "name": "docuseal-db", "provider": "postgresql", "database": "docuseal", "storage": "1Gi" }
+  ]
+}

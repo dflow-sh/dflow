@@ -1,0 +1,25 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "9router",
+  "summary": "9router AI gateway",
+  "applications": [
+    {
+      "name": "9router",
+      "image": "decolua/9router:0.5.119",
+      "port": 20128,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "volume": { "mount": "/app/data", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "HOSTNAME": "0.0.0.0",
+        "DATA_DIR": "/app/data"
+      },
+      "secrets": {
+        "JWT_SECRET": { "generate": true },
+        "INITIAL_PASSWORD": { "generate": true }
+      }
+    }
+  ],
+  "services": []
+}

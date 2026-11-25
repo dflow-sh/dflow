@@ -1,0 +1,20 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "memos",
+  "summary": "Memos notes with SQLite",
+  "applications": [
+    {
+      "name": "memos",
+      "image": "neosmemo/memos:26.11.2",
+      "port": 5230,
+      "replicas": 1,
+      "memory_mi": 256,
+      "route": { "public": true },
+      "volume": { "mount": "/var/opt/memos", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "MEMOS_PORT": "5230"
+      }
+    }
+  ],
+  "services": []
+}

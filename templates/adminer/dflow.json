@@ -1,0 +1,16 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "adminer",
+  "summary": "Adminer database UI",
+  "applications": [
+    {
+      "name": "adminer",
+      "image": "adminer:6.3.0",
+      "port": 8080,
+      "replicas": 1,
+      "memory_mi": 256,
+      "route": { "public": true }
+    }
+  ],
+  "services": []
+}

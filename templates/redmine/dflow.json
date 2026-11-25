@@ -1,0 +1,26 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "redmine",
+  "summary": "Redmine project tracker with PostgreSQL",
+  "applications": [
+    {
+      "name": "redmine",
+      "image": "redmine:7.0.3",
+      "port": 3000,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "secrets": {
+        "REDMINE_DB_POSTGRES": { "service": "redmine-db", "field": "host" },
+        "REDMINE_DB_PORT": { "service": "redmine-db", "field": "port" },
+        "REDMINE_DB_USERNAME": { "service": "redmine-db", "field": "username" },
+        "REDMINE_DB_PASSWORD": { "service": "redmine-db", "field": "password" },
+        "REDMINE_DB_DATABASE": { "service": "redmine-db", "field": "database" },
+        "SECRET_KEY_BASE": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "redmine-db", "provider": "postgresql", "database": "redmine", "storage": "1Gi" }
+  ]
+}

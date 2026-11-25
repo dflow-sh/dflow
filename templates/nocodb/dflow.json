@@ -1,0 +1,28 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "nocodb",
+  "summary": "NocoDB with PostgreSQL",
+  "applications": [
+    {
+      "name": "nocodb",
+      "image": "nocodb/nocodb:2026.10.2",
+      "port": 8080,
+      "replicas": 1,
+      "memory_mi": 1024,
+      "route": { "public": true },
+      "volume": { "mount": "/usr/app/data", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "NOCODB_PORT": "8080",
+        "NC_APP_DATA_DIR": "/usr/app/data/",
+        "NC_TRUST_PROXY": "1"
+      },
+      "secrets": {
+        "DATABASE_URL": { "service": "nocodb-db", "field": "url" },
+        "NC_AUTH_JWT_SECRET": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "nocodb-db", "provider": "postgresql", "database": "nocodb", "storage": "1Gi" }
+  ]
+}

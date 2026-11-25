@@ -38,7 +38,7 @@ dflow workspaces:list
 `dflow apps:deploy` can set `--cpu-millicores` and `--memory-mi`. `dflow apps:build APP --path DIR` uploads a local directory. `dflow apps:restart APP` replaces pods without a new release. `dflow db:redis:create NAME` creates a Valkey cache. `dflow members:list`, `dflow members:role`, and `dflow members:remove` manage people on a workspace that is not personal.
 `dflow version` prints the release. A binary built from source prints `dev`, and `dflow upgrade` refuses it.
 
-The recipe files in `templates/` are Umami and Hasura reference copies for this CLI.
+The recipe files in [`templates/`](./templates) are the official catalog copies for this CLI: 9router, Adminer, AnythingLLM, code-server, Directus, DocuSeal, Gitea, Grafana, Hasura, Langflow, Memos, Metabase, n8n, NocoDB, Redmine, Stirling PDF, Trilium, Umami, Unleash, and Uptime Kuma.
 
 
 ## Agent skills

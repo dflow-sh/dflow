@@ -1,0 +1,32 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "n8n",
+  "summary": "n8n workflow automation with PostgreSQL",
+  "applications": [
+    {
+      "name": "n8n",
+      "image": "n8nio/n8n:2.48.7",
+      "port": 5678,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "volume": { "mount": "/home/node/.n8n", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "DB_TYPE": "postgresdb",
+        "DB_POSTGRESDB_SCHEMA": "public",
+        "N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS": "true"
+      },
+      "secrets": {
+        "DB_POSTGRESDB_HOST": { "service": "n8n-db", "field": "host" },
+        "DB_POSTGRESDB_PORT": { "service": "n8n-db", "field": "port" },
+        "DB_POSTGRESDB_USER": { "service": "n8n-db", "field": "username" },
+        "DB_POSTGRESDB_PASSWORD": { "service": "n8n-db", "field": "password" },
+        "DB_POSTGRESDB_DATABASE": { "service": "n8n-db", "field": "database" },
+        "N8N_ENCRYPTION_KEY": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "n8n-db", "provider": "postgresql", "database": "n8n", "storage": "1Gi" }
+  ]
+}

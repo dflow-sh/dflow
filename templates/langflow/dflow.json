@@ -1,0 +1,29 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "langflow",
+  "summary": "Langflow with PostgreSQL",
+  "applications": [
+    {
+      "name": "langflow",
+      "image": "langflowai/langflow:1.13.4",
+      "port": 7860,
+      "replicas": 1,
+      "memory_mi": 1536,
+      "route": { "public": true },
+      "volume": { "mount": "/app/langflow", "size": "10Gi", "storage_class": "local-path" },
+      "env": {
+        "LANGFLOW_PORT": "7860",
+        "LANGFLOW_CONFIG_DIR": "/app/langflow",
+        "LANGFLOW_AUTO_LOGIN": "false",
+        "LANGFLOW_SUPERUSER": "langflow"
+      },
+      "secrets": {
+        "LANGFLOW_DATABASE_URL": { "service": "langflow-db", "field": "url" },
+        "LANGFLOW_SUPERUSER_PASSWORD": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "langflow-db", "provider": "postgresql", "database": "langflow", "storage": "1Gi" }
+  ]
+}

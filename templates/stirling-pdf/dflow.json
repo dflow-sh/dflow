@@ -1,0 +1,24 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "stirling-pdf",
+  "summary": "Stirling PDF",
+  "applications": [
+    {
+      "name": "stirling-pdf",
+      "image": "stirlingtools/stirling-pdf:3.5.0",
+      "port": 8080,
+      "replicas": 1,
+      "memory_mi": 2048,
+      "route": { "public": true },
+      "volume": { "mount": "/configs", "size": "10Gi", "storage_class": "local-path" },
+      "env": {
+        "SECURITY_INITIALLOGIN_USERNAME": "admin",
+        "STORAGE_LOCAL_BASEPATH": "/configs/storage"
+      },
+      "secrets": {
+        "SECURITY_INITIALLOGIN_PASSWORD": { "generate": true }
+      }
+    }
+  ],
+  "services": []
+}
