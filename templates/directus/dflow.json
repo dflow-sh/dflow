@@ -1,0 +1,28 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "directus",
+  "summary": "Directus headless CMS with PostgreSQL",
+  "applications": [
+    {
+      "name": "directus",
+      "image": "directus/directus:12.7.0",
+      "port": 8055,
+      "replicas": 1,
+      "memory_mi": 2048,
+      "route": { "public": true },
+      "volume": { "mount": "/directus/uploads", "size": "1Gi", "storage_class": "local-path" },
+      "env": { "DB_CLIENT": "pg" },
+      "secrets": {
+        "DB_HOST": { "service": "directus-db", "field": "host" },
+        "DB_PORT": { "service": "directus-db", "field": "port" },
+        "DB_USER": { "service": "directus-db", "field": "username" },
+        "DB_PASSWORD": { "service": "directus-db", "field": "password" },
+        "DB_DATABASE": { "service": "directus-db", "field": "database" },
+        "SECRET": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "directus-db", "provider": "postgresql", "database": "directus", "storage": "1Gi" }
+  ]
+}

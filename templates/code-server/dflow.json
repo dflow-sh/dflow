@@ -1,0 +1,19 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "code-server",
+  "summary": "code-server, VS Code in the browser",
+  "applications": [
+    {
+      "name": "code-server",
+      "image": "codercom/code-server:4.146.0",
+      "port": 8080,
+      "replicas": 1,
+      "cpu_millicores": 1000,
+      "memory_mi": 1024,
+      "route": { "public": true },
+      "volume": { "mount": "/home/coder", "size": "10Gi", "storage_class": "local-path" },
+      "secrets": { "PASSWORD": { "generate": true } }
+    }
+  ],
+  "services": []
+}

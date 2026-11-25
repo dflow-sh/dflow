@@ -1,0 +1,30 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "anythingllm",
+  "summary": "AnythingLLM private document chat",
+  "applications": [
+    {
+      "name": "anythingllm",
+      "image": "mintplexlabs/anythingllm:1.20.0",
+      "port": 3001,
+      "replicas": 1,
+      "memory_mi": 1024,
+      "route": { "public": true },
+      "volume": { "mount": "/app/server/storage", "size": "10Gi", "storage_class": "local-path" },
+      "env": {
+        "SERVER_PORT": "3001",
+        "STORAGE_DIR": "/app/server/storage",
+        "VECTOR_DB": "lancedb",
+        "EMBEDDING_ENGINE": "native",
+        "DISABLE_TELEMETRY": "true"
+      },
+      "secrets": {
+        "AUTH_TOKEN": { "generate": true },
+        "JWT_SECRET": { "generate": true },
+        "SIG_KEY": { "generate": true },
+        "SIG_SALT": { "generate": true }
+      }
+    }
+  ],
+  "services": []
+}

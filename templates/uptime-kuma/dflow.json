@@ -1,0 +1,17 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "uptime-kuma",
+  "summary": "Uptime Kuma monitoring",
+  "applications": [
+    {
+      "name": "uptime-kuma",
+      "image": "louislam/uptime-kuma:2.5.12",
+      "port": 3001,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "volume": { "mount": "/app/data", "size": "1Gi", "storage_class": "local-path" }
+    }
+  ],
+  "services": []
+}

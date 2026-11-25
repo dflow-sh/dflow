@@ -1,0 +1,43 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "gitea",
+  "summary": "Gitea with PostgreSQL",
+  "applications": [
+    {
+      "name": "gitea",
+      "image": "docker.gitea.com/gitea:28.4.0",
+      "port": 3000,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "volume": { "mount": "/data", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "USER_UID": "1000",
+        "USER_GID": "1000",
+        "DB_TYPE": "postgres",
+        "HTTP_PORT": "3000",
+        "DISABLE_SSH": "true",
+        "SSH_PORT": "0",
+        "GITEA__database__DB_TYPE": "postgres",
+        "GITEA__database__SSL_MODE": "disable",
+        "GITEA__server__HTTP_PORT": "3000",
+        "GITEA__server__DISABLE_SSH": "true",
+        "GITEA__server__SSH_PORT": "0",
+        "GITEA__server__PUBLIC_URL_DETECTION": "auto"
+      },
+      "secrets": {
+        "DB_HOST": { "service": "gitea-db", "field": "host" },
+        "DB_NAME": { "service": "gitea-db", "field": "database" },
+        "DB_USER": { "service": "gitea-db", "field": "username" },
+        "DB_PASSWD": { "service": "gitea-db", "field": "password" },
+        "GITEA__database__HOST": { "service": "gitea-db", "field": "host" },
+        "GITEA__database__NAME": { "service": "gitea-db", "field": "database" },
+        "GITEA__database__USER": { "service": "gitea-db", "field": "username" },
+        "GITEA__database__PASSWD": { "service": "gitea-db", "field": "password" }
+      }
+    }
+  ],
+  "services": [
+    { "name": "gitea-db", "provider": "postgresql", "database": "gitea", "storage": "1Gi" }
+  ]
+}

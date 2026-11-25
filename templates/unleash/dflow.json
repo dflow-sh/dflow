@@ -1,0 +1,32 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "unleash",
+  "summary": "Unleash feature flags with PostgreSQL",
+  "applications": [
+    {
+      "name": "unleash",
+      "image": "unleashorg/unleash-server:8.3.1",
+      "port": 4242,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "env": {
+        "HTTP_PORT": "4242",
+        "DATABASE_SSL": "false",
+        "UNLEASH_DEFAULT_ADMIN_USERNAME": "admin"
+      },
+      "secrets": {
+        "DATABASE_HOST": { "service": "unleash-db", "field": "host" },
+        "DATABASE_PORT": { "service": "unleash-db", "field": "port" },
+        "DATABASE_NAME": { "service": "unleash-db", "field": "database" },
+        "DATABASE_USERNAME": { "service": "unleash-db", "field": "username" },
+        "DATABASE_PASSWORD": { "service": "unleash-db", "field": "password" },
+        "UNLEASH_DEFAULT_ADMIN_PASSWORD": { "generate": true },
+        "UNLEASH_SECRET": { "generate": true }
+      }
+    }
+  ],
+  "services": [
+    { "name": "unleash-db", "provider": "postgresql", "database": "unleash", "storage": "1Gi" }
+  ]
+}

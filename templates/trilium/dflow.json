@@ -1,0 +1,22 @@
+{
+  "$schema": "../dflow.schema.json",
+  "name": "trilium",
+  "summary": "Trilium notes with SQLite",
+  "applications": [
+    {
+      "name": "trilium",
+      "image": "triliumnext/trilium:v0.107.0",
+      "port": 8080,
+      "replicas": 1,
+      "memory_mi": 512,
+      "route": { "public": true },
+      "volume": { "mount": "/home/node/trilium-data", "size": "1Gi", "storage_class": "local-path" },
+      "env": {
+        "TRILIUM_PORT": "8080",
+        "TRILIUM_NETWORK_PORT": "8080",
+        "TRILIUM_NETWORK_TRUSTEDREVERSEPROXY": "uniquelocal"
+      }
+    }
+  ],
+  "services": []
+}
