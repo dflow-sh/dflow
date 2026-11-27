@@ -69,8 +69,10 @@ A password is typed at the `Password:` prompt. It is not a flag and it is not an
 
 ## Reported issues
 
-`dflow issues:create --message TEXT` stores a report. Optional `--title`, `--kind`, `--tag` (repeatable, fixed set only), and `--screenshot` (paths). Status starts as `open`. When the API has ClickUp configured, create also opens a task; a ClickUp failure still returns the stored id.
+`dflow issues:create --message TEXT` stores a report. Optional `--kind` is on the public `v1.3.3` install. `--title`, `--tag` (repeatable, fixed set only), `--screenshot` (paths), and `issues:refresh-status` are on main after that tag. Until the next public CLI release, use a source build (`./bin/dflow` from this repository) or the hosted MCP tool. Do not invent those flags on an older install.
+
+Status starts as `open`. When the API has ClickUp configured, create also opens a task; a ClickUp failure still returns the stored id.
 
 `dflow issues:list` and `dflow issues:inspect ID` read Postgres only. They do not call ClickUp. Status is whatever was last stored.
 
-`dflow issues:refresh-status ID` asks the API to pull ClickUp for that report and store the mapped status. At most once per minute per report. A report with no ClickUp task exits with precondition. Prefer `--output json`. The MCP match is `issues_refresh_status`. The dashboard match is Check status on Settings → Issues.
+`dflow issues:refresh-status ID` asks the API to pull ClickUp for that report and store the mapped status. At most once per minute per report. A report with no ClickUp task exits with precondition. Prefer `--output json`. The MCP match is `issues_refresh_status` (on the hosted server at `https://k8s.dflow.sh/mcp` after the lab refresh deploy). The dashboard match is Check status on Settings → Issues.

@@ -35,7 +35,7 @@ The personal workspace is private. An API token cannot create a workspace.
 
 `issues_list` and `issues_inspect` return `status` from the database only: `open`, `triaged`, `in_progress`, `waiting`, `resolved`, or `closed`. They do not call ClickUp. The customer does not set that status. Status is not live until someone refreshes it.
 
-`issues_refresh_status` takes `issue_id` (`iss_…`), pulls the ClickUp task status, maps it, and stores it. At most once per minute per issue. A report with no ClickUp task returns `precondition` and does not call ClickUp. A missing or empty `issue_id` returns `validation` and does not call the API. Do not invent a webhook tool. The CLI match is `dflow issues:refresh-status ID`. The dashboard match is Check status on Settings → Issues.
+`issues_refresh_status` takes `issue_id` (`iss_…`), pulls the ClickUp task status, maps it, and stores it. At most once per minute per issue. A report with no ClickUp task returns `precondition` and does not call ClickUp. A missing or empty `issue_id` returns `validation` and does not call the API. Do not invent a webhook tool. Prefer this tool when the host speaks MCP: the hosted server at `https://k8s.dflow.sh/mcp` serves it after the lab refresh deploy. The matching CLI command is `dflow issues:refresh-status ID`, which is not in the public `v1.3.3` install yet (use a source build until the next CLI release). The dashboard match is Check status on Settings → Issues.
 
 ## Confirmation
 
