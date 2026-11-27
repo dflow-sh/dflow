@@ -17,9 +17,9 @@ A local `dflow-mcp` process can speak stdio with `DFLOW_API=https://k8s.dflow.sh
 
 Call `tools/list` for the names. Do not invent a tool.
 
-The tools cover workspaces, projects, environments, applications, image deploys with optional CPU and memory, GitHub builds, a local directory build, restart without a new release, logs, events, env, secrets, routes, PostgreSQL, a Valkey cache, disks, tasks, templates, recipe checks, tokens, members, and operations.
+The tools cover workspaces, projects, environments, applications, image deploys with optional CPU and memory, GitHub builds, a local directory build, restart without a new release, logs, events, env, secrets, routes, PostgreSQL, a Valkey cache, disks, tasks, templates, recipe checks, tokens, members, operations, and reported issues (`issues_create`, `issues_list`, `issues_inspect`, `issues_refresh_status`).
 
-These are not tools: a password, signup, logout, Google or GitHub sign-in, an invite, `environments_delete`, `dflow clusters:register`, and every `dflow-server` command. There is no Kubernetes, shell, or exec tool.
+These are not tools: a password, signup, logout, Google or GitHub sign-in, an invite, `environments_delete`, `dflow clusters:register`, and every `dflow-server` command. There is no Kubernetes, shell, or exec tool. There is no ClickUp webhook tool.
 
 ## How a call behaves
 
@@ -28,6 +28,14 @@ A read times out at 30 seconds. A deploy or other change returns when the API ac
 `apps_env_set` replaces the whole variable map. `db_credentials` reveals a connection once. `github_token_set` stores a GitHub token for a private repository. An API token cannot store that GitHub token. The value is not printed back.
 
 The personal workspace is private. An API token cannot create a workspace.
+
+## Reporting an issue
+
+`issues_create` sends a report for the signed-in person. `message` is required. Optional fields are `title`, `kind` (`unexpected`, `bug`, `docs`, or `other`), `tags` (only `deploy`, `route`, `database`, `billing`, `docs`, and `agent`), `tool`, `request_id`, `application_id`, and `operation_id`. An empty message or any other tag returns `validation` and does not call the API. Do not pass screenshot bytes. The dashboard and `dflow issues:create --screenshot` attach images. The API stores the report, tags the ClickUp task `dFlow Cloud` and `customer report` when ClickUp is configured, and posts a short note in that list's channel.
+
+`issues_list` and `issues_inspect` return `status` from the database only: `open`, `triaged`, `in_progress`, `waiting`, `resolved`, or `closed`. They do not call ClickUp. The customer does not set that status. Status is not live until someone refreshes it.
+
+`issues_refresh_status` takes `issue_id` (`iss_…`), pulls the ClickUp task status, maps it, and stores it. At most once per minute per issue. A report with no ClickUp task returns `precondition` and does not call ClickUp. A missing or empty `issue_id` returns `validation` and does not call the API. Do not invent a webhook tool. The CLI match is `dflow issues:refresh-status ID`. The dashboard match is Check status on Settings → Issues.
 
 ## Confirmation
 

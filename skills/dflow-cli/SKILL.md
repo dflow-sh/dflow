@@ -66,3 +66,11 @@ A password is typed at the `Password:` prompt. It is not a flag and it is not an
 `dflow login --google` and `dflow login --github` print a URL and poll. They do not print the token. They are not the signup path. `dflow apps:deploy` accepts `--cpu-millicores` and `--memory-mi`. `dflow apps:build APP --path DIR` uploads that directory, at most 100MB after skipping `.git`, `node_modules`, and `.env`. Do not pass `--repo` and `--path` together. `dflow apps:restart APP` replaces pods and does not create a release. `dflow db:redis:create NAME` creates a Valkey cache. `dflow members:list`, `dflow members:role`, and `dflow members:remove --confirm-email` manage people. A personal workspace refuses a role change and a remove.
 
 `projects:create` and `environments:create` accept `--idempotency-key`. Repeat the same key and the same body to get the original result.
+
+## Reported issues
+
+`dflow issues:create --message TEXT` stores a report. Optional `--title`, `--kind`, `--tag` (repeatable, fixed set only), and `--screenshot` (paths). Status starts as `open`. When the API has ClickUp configured, create also opens a task; a ClickUp failure still returns the stored id.
+
+`dflow issues:list` and `dflow issues:inspect ID` read Postgres only. They do not call ClickUp. Status is whatever was last stored.
+
+`dflow issues:refresh-status ID` asks the API to pull ClickUp for that report and store the mapped status. At most once per minute per report. A report with no ClickUp task exits with precondition. Prefer `--output json`. The MCP match is `issues_refresh_status`. The dashboard match is Check status on Settings → Issues.
